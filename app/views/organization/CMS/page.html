@@ -60,8 +60,6 @@
                                 <dd>&{'org.cms.page.help.fields.title.info'}</dd>
                                 <dt>&{'org.cms.page.key'}</dt>
                                 <dd>&{'org.cms.page.help.fields.key.info'}</dd>
-                                <dt>&{'ui.label.theme'}</dt>
-                                <dd>&{'org.cms.page.help.fields.theme.info'}</dd>
                                 <dt>&{'ui.label.language'}</dt>
                                 <dd>&{'org.cms.page.help.fields.language.info'}</dd>
                                 <dt>&{'org.cms.page.menu.add'}</dt>
@@ -102,7 +100,6 @@
                 #{textField name:"key", form:pageForm, label:messages.get('org.cms.page.key'), dataBind:"value: key", required: true, disabled: !isNew, extHtml: '<span id="createKey" class="btn btn-mini">'+messages.get("org.cms.page.keyauto.button")+'</span><p class="error"></p>' /}
                 </div>
                 <div class="span4">
-                #{populatedSelectField options:themes, name:"theme", form: pageForm, label:messages.get('ui.label.theme'), dataBind:"value: theme", required: true /}
                 #{populatedSelectField options:languages, name:"lang", form: pageForm, label:messages.get('ui.label.language'), dataBind:"value: lang", required: true /}
                 </div>
                 <div class="span4">

@@ -14,6 +14,7 @@ import models._
 import play.api.mvc._
 import play.api.libs.Files.TemporaryFile
 import play.api.libs.Files
+import util.DomainConfigurationHandler
 import xml.XML
 
 class SipCreatorEndPointSpec extends Specification with TestContext {
@@ -39,12 +40,12 @@ class SipCreatorEndPointSpec extends Specification with TestContext {
     "unlock a DataSet" in {
 
       import com.mongodb.casbah.Imports._
-      DataSet.update(MongoDBObject("spec" -> "PrincessehofSample"), $set("lockedBy" -> "bob"))
+      DataSet.dao("delving").update(MongoDBObject("spec" -> "PrincessehofSample"), $set("lockedBy" -> "bob"))
 
       withTestConfig {
         val result = controllers.SipCreatorEndPoint.unlock("delving", "PrincessehofSample", Some("TEST"))(FakeRequest())
         status(result) must equalTo(OK)
-        DataSet.findBySpecAndOrgId("PrincessehofSample", "delving").get.lockedBy must be(None)
+        DataSet.dao("delving").findBySpecAndOrgId("PrincessehofSample", "delving").get.lockedBy must be(None)
       }
 
     }
@@ -86,7 +87,7 @@ F1D3FF8443297732862DF21DC4E57262__validation_icn.int"""
         status(result) must equalTo(OK)
         val stream = new FileInputStream(new File(hintsSource))
         val data = Stream.continually(stream.read).takeWhile(-1 !=).map(_.toByte).toArray
-        DataSet.findBySpecAndOrgId("PrincessehofSample", "delving").get.hints must equalTo(data)
+        DataSet.dao("delving").findBySpecAndOrgId("PrincessehofSample", "delving").get.hints must equalTo(data)
       }
     }
 
@@ -105,7 +106,7 @@ F1D3FF8443297732862DF21DC4E57262__validation_icn.int"""
         ))
         status(result) must equalTo(OK)
         val originalStream = new FileInputStream(new File(mappingSource))
-        val uploaded = new ByteArrayInputStream(DataSet.findBySpecAndOrgId("PrincessehofSample", "delving").get.mappings("icn").recordMapping.get.getBytes("utf-8"))
+        val uploaded = new ByteArrayInputStream(DataSet.dao("delving").findBySpecAndOrgId("PrincessehofSample", "delving").get.mappings("icn").recordMapping.get.getBytes("utf-8"))
 
         val originalRecordMapping = RecMapping.read(originalStream, MappingService.recDefModel)
         val uploadedRecordMapping = RecMapping.read(uploaded, MappingService.recDefModel)
@@ -134,7 +135,7 @@ F1D3FF8443297732862DF21DC4E57262__validation_icn.int"""
 
         val original = readIntFile(intTarget)
 
-        val uploaded = DataSet.findBySpecAndOrgId("PrincessehofSample", "delving").get.invalidRecords
+        val uploaded = DataSet.dao("delving").findBySpecAndOrgId("PrincessehofSample", "delving").get.invalidRecords
 
         val invalidRecords = readInvalidIndexes(uploaded)
 
@@ -157,12 +158,12 @@ F1D3FF8443297732862DF21DC4E57262__validation_icn.int"""
         ))
         status(result) must equalTo(OK)
 
-        val dataSet = DataSet.findBySpecAndOrgId("PrincessehofSample", "delving").get
+        val dataSet = DataSet.dao("delving").findBySpecAndOrgId("PrincessehofSample", "delving").get
 
         // now we wait since the parsing is asynchronous. We wait a long time since our CI server is rather slow.
         Thread.sleep(10000)
 
-        DataSet.getSourceRecordCount(dataSet) must equalTo(8)
+        DataSet.dao("delving").getSourceRecordCount(dataSet) must equalTo(8)
       }
     }
 
@@ -202,7 +203,7 @@ F1D3FF8443297732862DF21DC4E57262__validation_icn.int"""
 
          val original = readIntFile(intTarget)
 
-         val uploaded = DataSet.findBySpecAndOrgId("PrincessehofSample", "delving").get.invalidRecords
+         val uploaded = DataSet.dao("delving").findBySpecAndOrgId("PrincessehofSample", "delving").get.invalidRecords
 
          val invalidRecords = readInvalidIndexes(uploaded)
 
@@ -217,7 +218,9 @@ F1D3FF8443297732862DF21DC4E57262__validation_icn.int"""
 
       withTestConfig {
 
-        val dataSet = DataSet.findBySpecAndOrgId("PrincessehofSample", "delving").get
+        implicit val configuration = DomainConfigurationHandler.getByOrgId("delving")
+
+        val dataSet = DataSet.dao("delving").findBySpecAndOrgId("PrincessehofSample", "delving").get
 
         // first, ingest all sorts of things
         val sourceFile = new File("conf/bootstrap/EA525DF3C26F760A1D744B7A63C67247__source.xml.gz")
@@ -231,7 +234,7 @@ F1D3FF8443297732862DF21DC4E57262__validation_icn.int"""
         status(result) must equalTo(OK)
 
         // check locking
-        val lockedDataSet = DataSet.findBySpecAndOrgId("PrincessehofSample", "delving").get
+        val lockedDataSet = DataSet.dao("delving").findBySpecAndOrgId("PrincessehofSample", "delving").get
         lockedDataSet.lockedBy must equalTo(Some("bob")) // TEST user
 
         // check the resulting set, indirectly

@@ -22,7 +22,7 @@ abstract class Collection {
 
 }
 
-object OwnerType extends Enumeration("USER", "ORGANIZTAION") {
+object OwnerType extends Enumeration("USER", "ORGANIZATION") {
   type OwnerType = Value
   val USER, ORGANIZATION = Value
 }

@@ -3,16 +3,23 @@ package core
 import models.DomainConfiguration
 import play.api.mvc._
 import util.DomainConfigurationHandler
-import eu.delving.templates.scala.GroovyTemplates
 import play.api.Logger
 import java.util.concurrent.ConcurrentHashMap
 
 trait DomainConfigurationAware {
-  self: Controller with GroovyTemplates =>
+  self: Controller =>
 
   private val domainConfigurations = new ConcurrentHashMap[RequestHeader, DomainConfiguration]()
 
-  implicit def configuration(implicit request: RequestHeader) = domainConfigurations.get(request)
+  implicit def configuration(implicit request: RequestHeader): DomainConfiguration = {
+    val c = domainConfigurations.get(request)
+    if(c == null) {
+      Logger("CultureHub").error("Trying to get non-existing configuration for domain " + request.domain)
+      null
+    } else {
+      c
+    }
+  }
 
   def DomainConfigured[A](action: Action[A]): Action[A] = {
     Action(action.parser) {
@@ -20,7 +27,6 @@ trait DomainConfigurationAware {
         try {
           val configuration = DomainConfigurationHandler.getByDomain(request.domain)
           domainConfigurations.put(request, configuration)
-          renderArgs += ("themeInfo" -> new ThemeInfo(configuration))
           action(request)
         } catch {
           case t =>

@@ -1,9 +1,12 @@
 package plugins
 
 import play.api.Application
-import core.{MenuElement, MainMenuEntry, CultureHubPlugin}
-import models.{DataSetHarvestCollectionLookup, DomainConfiguration, GrantType}
+import core.{HubServices, MenuElement, MainMenuEntry, CultureHubPlugin}
+import models._
 import core.collection.HarvestCollectionLookup
+import core.MainMenuEntry
+import scala.Some
+import core.MenuElement
 
 
 /**
@@ -19,8 +22,7 @@ class CorePlugin(app: Application) extends CultureHubPlugin(app) {
 
   override def enabled: Boolean = true
 
-
-  override def mainMenuEntries(configuration: DomainConfiguration, lang: String): Seq[MainMenuEntry] = Seq(
+  override def mainMenuEntries(implicit configuration: DomainConfiguration, lang: String): Seq[MainMenuEntry] = Seq(
     MainMenuEntry(
       key = "home",
       titleKey = "site.nav.home",

@@ -11,7 +11,7 @@ import core.collection.{Harvestable, HarvestCollectionLookup}
 class CustomHarvestCollectionHarvestCollectionLookup extends HarvestCollectionLookup {
 
   def findAllNonEmpty(orgId: String, format: Option[String], accessKey: Option[String]): List[Harvestable] = {
-    val vcs = VirtualCollection.findAllNonEmpty(orgId)
+    val vcs = VirtualCollection.dao(orgId).findAllNonEmpty(orgId)
     if (format.isDefined) {
       vcs.filter(vc => vc.getVisibleMetadataFormats(accessKey).exists(_.prefix == format.get))
     } else {
@@ -19,7 +19,7 @@ class CustomHarvestCollectionHarvestCollectionLookup extends HarvestCollectionLo
     }
   }
 
-  def findBySpecAndOrgId(spec: String, orgId: String): Option[Harvestable] = VirtualCollection.findBySpecAndOrgId(spec, orgId)
+  def findBySpecAndOrgId(spec: String, orgId: String): Option[Harvestable] = VirtualCollection.dao(orgId).findBySpecAndOrgId(spec, orgId)
 
   def getAllMetadataFormats(orgId: String, accessKey: Option[String]): List[RecordDefinition] = List.empty
 }

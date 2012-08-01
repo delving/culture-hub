@@ -4,7 +4,7 @@
  */
 
 import actors._
-import akka.actor.SupervisorStrategy.Restart
+import akka.actor.SupervisorStrategy.{Stop, Restart}
 import akka.routing.RoundRobinRouter
 import controllers.ReceiveSource
 import core.indexing.IndexingService
@@ -21,13 +21,14 @@ import mvc.{Handler, RequestHeader}
 import play.api.Play.current
 import util.DomainConfigurationHandler
 import eu.delving.culturehub.BuildInfo
+import play.api.mvc.Results._
 
 object Global extends GlobalSettings {
 
   lazy val hubPlugins: List[CultureHubPlugin] = Play.application.plugins.filter(_.isInstanceOf[CultureHubPlugin]).map(_.asInstanceOf[CultureHubPlugin]).toList
 
   override def onStart(app: Application) {
-    if(!Play.isTest) {
+    if (!Play.isTest) {
       println("""
                 ____       __      _
                / __ \___  / /   __(_)___  ____ _
@@ -50,48 +51,57 @@ object Global extends GlobalSettings {
     }
 
     // temporary deployment trick
-    if(Play.isProd) {
+    if (Play.isProd) {
       val port = if(System.getProperty("http.port") == null) "9000" else System.getProperty("http.port")
       val runningPid = new File(current.path, "RUNNING_PID")
       Files.moveFile(runningPid, new File(current.path, "../" + port + "/RUNNING_PID"))
     }
 
+    // ~~~ load configurations
+    try {
+      DomainConfigurationHandler.startup()
+    } catch {
+      case t: Throwable =>
+        t.printStackTrace()
+        System.exit(-1)
+    }
 
-    // ~~~ load themes
-    DomainConfigurationHandler.startup()
+    if (!Play.isTest) {
+      println("Using the following configurations: " + DomainConfigurationHandler.domainConfigurations.map(_.name).mkString(", "))
+    }
 
     // ~~~ bootstrap services
     HubServices.init()
     MappingService.init()
 
     // ~~~ sanity check
-    Play.configuration.getString("cultureHub.orgId") match {
-      case Some(orgId) => 
-        if(!HubServices.organizationService.exists(orgId)) {
-          Logger("CultureHub").error("Organization %s does not exist on the configured Organizations service!".format(orgId))
-          System.exit(-1)
-        }
-      case None =>
-        Logger("CultureHub").error("No cultureHub.organization configured!")
+    DomainConfigurationHandler.domainConfigurations.foreach { configuration =>
+      if(!HubServices.organizationService(configuration).exists(configuration.orgId)) {
+        println("Organization %s does not exist on the configured Organizations service!".format(configuration.orgId))
         System.exit(-1)
+      }
     }
 
     // ~~~ bootstrap jobs
 
     // DataSet source parsing
     Akka.system.actorOf(Props[ReceiveSource].withRouter(
-      RoundRobinRouter(5, supervisorStrategy = OneForOneStrategy() {
+      RoundRobinRouter(Runtime.getRuntime.availableProcessors(), supervisorStrategy = OneForOneStrategy() {
         case _ => Restart
       })
     ), name = "dataSetParser")
 
-    // DataSet indexing
-    val indexer = Akka.system.actorOf(Props[Processor])
+    // DataSet processing
+    val processor = Akka.system.actorOf(Props[Processor].withRouter(
+      RoundRobinRouter(Runtime.getRuntime.availableProcessors(), supervisorStrategy = OneForOneStrategy() {
+        case _ => Stop
+      })
+    ), name = "dataSetProcessor")
     Akka.system.scheduler.schedule(
       0 seconds,
       10 seconds,
-      indexer,
-      ProcessDataSets
+      processor,
+      PollDataSets
     )
 
     // DataSet housekeeping
@@ -113,7 +123,7 @@ object Global extends GlobalSettings {
       0 seconds,
       10 seconds,
       dos,
-      Look
+      Poll
     )
 
     // SOLR
@@ -134,16 +144,6 @@ object Global extends GlobalSettings {
       PersistRouteAccess
     )
 
-    // LATER: statistics computation
-//    val statsLogger = Akka.system.actorOf(Props[StatisticsComputer])
-//    Akka.system.scheduler.schedule(
-//      0 seconds,
-//      1 minutes, // TODO increase later on!!!
-//      statsLogger,
-//      ComputeStatistics
-//    )
-
-
     // ~~~ plugins
     hubPlugins.foreach(_.onApplicationStart())
 
@@ -151,15 +151,18 @@ object Global extends GlobalSettings {
     // ~~~ cleanup set states
     // TODO move to appropriate component initialization
 
-    DataSet.findByState(DataSetState.PROCESSING, DataSetState.CANCELLED).foreach {
-      set =>
-        DataSet.updateState(set, DataSetState.CANCELLED)
-        try {
-          IndexingService.deleteBySpec(set.orgId, set.spec)
-        } catch {
-          case t => Logger("CultureHub").error("Couldn't delete SOLR index for cancelled set %s:%s at startup".format(set.orgId, set.spec), t)
-        } finally {
-          DataSet.updateState(set, DataSetState.UPLOADED)
+    DataSet.all.foreach {
+      dataSetDAO =>
+        dataSetDAO.findByState(DataSetState.PROCESSING, DataSetState.CANCELLED).foreach {
+          set =>
+            dataSetDAO.updateState(set, DataSetState.CANCELLED)
+            try {
+              IndexingService.deleteBySpec(set.orgId, set.spec)(DomainConfigurationHandler.getByOrgId(set.orgId))
+            } catch {
+              case t => Logger("CultureHub").error("Couldn't delete SOLR index for cancelled set %s:%s at startup".format(set.orgId, set.spec), t)
+            } finally {
+              dataSetDAO.updateState(set, DataSetState.UPLOADED)
+            }
         }
     }
 
@@ -172,7 +175,7 @@ object Global extends GlobalSettings {
   }
 
   override def onStop(app: Application) {
-    if(!Play.isTest) {
+    if (!Play.isTest) {
     // close all Mongo connections
     import models.mongoContext._
     close()
@@ -180,16 +183,20 @@ object Global extends GlobalSettings {
 
     // TODO move to component initialization
     // cleanly cancel all active processing
-    DataSet.findByState(DataSetState.PROCESSING).foreach {
-      set =>
-        DataSet.updateState(set, DataSetState.CANCELLED)
+    DataSet.all.foreach {
+      dataSetDAO =>
+        dataSetDAO.findByState(DataSetState.PROCESSING).foreach {
+          set =>
+            dataSetDAO.updateState(set, DataSetState.CANCELLED)
+        }
+
     }
     Thread.sleep(2000)
 
   }
 
   override def onError(request: RequestHeader, ex: Throwable) = {
-    if(Play.isProd) {
+    if (Play.isProd) {
       import play.api.mvc.Results._
       InternalServerError(views.html.errors.error(Some(ex)))
     } else {
@@ -200,7 +207,6 @@ object Global extends GlobalSettings {
   override def onHandlerNotFound(request: RequestHeader) = {
 
     if(Play.isProd) {
-      import play.api.mvc.Results._
       InternalServerError(views.html.errors.notFound(request, "", None))
     } else {
       super.onHandlerNotFound(request)
@@ -211,38 +217,45 @@ object Global extends GlobalSettings {
   lazy val routes = hubPlugins.flatMap(_.routes)
 
   override def onRouteRequest(request: RequestHeader): Option[Handler] = {
-    val routeLogger = Akka.system.actorFor("akka://application/user/routeLogger")
-    val apiRouteMatcher = """^/organizations/([A-Za-z0-9-]+)/api/(.)*""".r
-    val matcher = apiRouteMatcher.pattern.matcher(request.uri)
 
-    if(matcher.matches()) {
-      // log route access, for API calls
-      routeLogger ! RouteRequest(request)
-
-      if(request.queryString.contains("explain") && request.queryString("explain").head == "true") {
-        // redirect to the standard explain response
-        return Some(controllers.api.Api.explainPath(matcher.group(1), request.path))
-      }
-    }
-
-    // poor man's modular routing, based on CultureHub plugins
-
-    val matches = routes.flatMap(r => {
-      val matcher = r._1._2.pattern.matcher(request.path)
-      if(request.method == r._1._1 && matcher.matches()) {
-        val pathElems = for(i <- 1 until matcher.groupCount() + 1) yield matcher.group(i)
-        Some((pathElems.toList, r._2))
-      } else {
-        None
-      }
-    })
-
-    if(matches.headOption.isDefined) {
-      val handlerCall = matches.head
-      val handler = handlerCall._2(handlerCall._1)
-      Some(handler)
+    // check if we access a configured domain
+    if (!DomainConfigurationHandler.hasConfiguration(request.domain)) {
+      Logger("CultureHub").debug("Accessed invalid domain %s, redirecting...".format(request.domain))
+      Some(controllers.Default.redirect(Play.configuration.getString("defaultDomainRedirect").getOrElse("http://www.delving.eu")))
     } else {
-      super.onRouteRequest(request)
+      val routeLogger = Akka.system.actorFor("akka://application/user/routeLogger")
+      val apiRouteMatcher = """^/organizations/([A-Za-z0-9-]+)/api/(.)*""".r
+      val matcher = apiRouteMatcher.pattern.matcher(request.uri)
+
+      if (matcher.matches()) {
+        // log route access, for API calls
+        routeLogger ! RouteRequest(request)
+
+        if(request.queryString.contains("explain") && request.queryString("explain").head == "true") {
+          // redirect to the standard explain response
+          return Some(controllers.api.Api.explainPath(matcher.group(1), request.path))
+        }
+      }
+
+      // poor man's modular routing, based on CultureHub plugins
+
+      val matches = routes.flatMap(r => {
+        val matcher = r._1._2.pattern.matcher(request.path)
+        if (request.method == r._1._1 && matcher.matches()) {
+          val pathElems = for(i <- 1 until matcher.groupCount() + 1) yield matcher.group(i)
+          Some((pathElems.toList, r._2))
+        } else {
+          None
+        }
+      })
+
+      if (matches.headOption.isDefined) {
+        val handlerCall = matches.head
+        val handler = handlerCall._2(handlerCall._1)
+        Some(handler)
+      } else {
+        super.onRouteRequest(request)
+      }
     }
   }
 }

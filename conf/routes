@@ -79,11 +79,6 @@ GET     /@dos/task/status/:id                   controllers.dos.ui.Tasks.status(
 GET     /@dos/log/list/:taskId                 controllers.dos.ui.Logs.list(taskId: org.bson.types.ObjectId, lastCount: Option[Int])
 GET     /@dos/log/view/:taskId                 controllers.dos.ui.Logs.view(taskId: org.bson.types.ObjectId)
 
-# Custom Controllers and Functionality for customers
-GET         /services/api/itin                                               controllers.custom.ItinEndPoint.search
-POST        /services/api/itin                                               controllers.custom.ItinEndPoint.store
-
-
 # User registration
 GET        /registration                                                           controllers.Registration.index
 POST       /registration/register                                                  controllers.Registration.register

@@ -7,7 +7,7 @@ import play.api.libs.Crypto
 import play.libs.Time
 import play.api.i18n.Messages
 import extensions.MissingLibs
-import models.HubUser
+import models.{DomainConfiguration, HubUser}
 import core.{Constants, HubServices}
 
 /**
@@ -22,13 +22,13 @@ object Authentication extends ApplicationController {
 
   case class Auth(userName: String, password: String)
 
-  val loginForm = Form(
+  def loginForm(implicit configuration: DomainConfiguration) = Form(
     tuple(
       "userName" -> nonEmptyText,
       "password" -> nonEmptyText,
       "remember" -> boolean
     ) verifying(Messages("authentication.error"), result => result match {
-      case (u, p, r) => HubServices.authenticationService.connect(u, p)
+      case (u, p, r) => HubServices.authenticationService(configuration).connect(u, p)
     }))
 
   def login = ApplicationAction {
@@ -57,9 +57,9 @@ object Authentication extends ApplicationController {
         formWithErrors => BadRequest(Template("/Authentication/login.html", 'loginForm -> formWithErrors)),
         user => {
           // first check if the user exists in this hub
-          val u: Option[HubUser] = HubUser.findByUsername(user._1).orElse {
+          val u: Option[HubUser] = HubUser.dao.findByUsername(user._1).orElse {
             // create a local user
-            HubServices.userProfileService.getUserProfile(user._1).map {
+            HubServices.userProfileService(configuration).getUserProfile(user._1).map {
               p => {
                 val newHubUser = HubUser(userName = user._1,
                                          firstName = p.firstName,
@@ -74,8 +74,8 @@ object Authentication extends ApplicationController {
                                            linkedIn = p.linkedIn
                                          )
                                         )
-                HubUser.insert(newHubUser)
-                HubUser.findByUsername(user._1)
+                HubUser.dao.insert(newHubUser)
+                HubUser.dao.findByUsername(user._1)
               }
             }.getOrElse {
               ErrorReporter.reportError(request, "Could not create local HubUser for user %s".format(user._1), configuration)

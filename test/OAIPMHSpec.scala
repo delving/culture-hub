@@ -70,8 +70,6 @@ class OAIPMHSpec extends Specification with TestContext {
 
         status(response) must equalTo(OK)
 
-        println(contentAsXML(response))
-
         (contentAsXML(response) \\ "metadataFormat").size must equalTo (1)
         ((contentAsXML(response) \\ "metadataFormat").head \ "metadataPrefix").text must equalTo("icn")
 
@@ -91,7 +89,6 @@ class OAIPMHSpec extends Specification with TestContext {
         status(response) must equalTo(OK)
 
         val xml = contentAsXML(response)
-        println(xml)
         val error = xml \ "error"
         error.length must equalTo(0)
 

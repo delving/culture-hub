@@ -10,6 +10,7 @@ import play.api.Logger
 import collection.mutable.ListBuffer
 import core.search._
 import core.collection.Harvestable
+import util.DomainConfigurationHandler
 
 /**
  * A VirtualCollection is a collection resulting from a search, with references to the search results being cached.
@@ -36,18 +37,20 @@ case class VirtualCollection(_id: ObjectId = new ObjectId,
 
   def getOwner: String = orgId
 
-  def getTotalRecords = VirtualCollection.children.countByParentId(_id)
+  def getTotalRecords = VirtualCollection.dao(orgId).children.countByParentId(_id)
+
 
   // ~~~ VC specific
 
-  def dataSets: Seq[DataSet] = dataSetReferences.flatMap(r => DataSet.findBySpecAndOrgId(r.spec, r.orgId))
+  def dataSets: Seq[DataSet] = dataSetReferences.flatMap(r => DataSet.dao(orgId).findBySpecAndOrgId(r.spec, r.orgId))
 
   def getPublicMetadataPrefixes = getVisibleMetadataFormats(None).map(_.prefix).asJava
 
   // ~~~ harvesting
   def getRecords(metadataFormat: String, position: Int, limit: Int): (List[MetadataItem], Long) = {
-    val references = VirtualCollection.children.find(MongoDBObject("parentId" -> _id) ++ ("invalidTargetSchemas" $ne metadataFormat) ++ ("index" $gt position)).sort(MongoDBObject("index" -> 1)).limit(limit)
-    val totalSize = VirtualCollection.children.count(MongoDBObject("parentId" -> _id) ++ ("invalidTargetSchemas" $ne metadataFormat) ++ ("index" $gt position))
+    val children = VirtualCollection.dao(orgId).children
+    val references = children.find(MongoDBObject("parentId" -> _id) ++ ("invalidTargetSchemas" $ne metadataFormat) ++ ("index" $gt position)).sort(MongoDBObject("index" -> 1)).limit(limit)
+    val totalSize = children.count(MongoDBObject("parentId" -> _id) ++ ("invalidTargetSchemas" $ne metadataFormat) ++ ("index" $gt position))
     val records = references.toList.groupBy(_.collection).map {
       grouped =>
         val cache = MetadataCache.get(orgId, grouped._1, ITEM_TYPE_MDR)
@@ -92,28 +95,38 @@ case class MDRReference(_id: ObjectId = new ObjectId,
                         collection: String, // collection in which this one is kept
                         itemId: String, // id of the MDR
                         index: Int, // index, generated at collection creation time, to use as count
-                        invalidTargetSchemas: Seq[String])
+                        invalidTargetSchemas: Seq[String] // cache of invalid output formats
+                       )
 
-// cache of invalid output formats
 
+object VirtualCollection extends MultiModel[VirtualCollection, VirtualCollectionDAO] {
 
-object VirtualCollection extends SalatDAO[VirtualCollection, ObjectId](collection = virtualCollectionsCollection) {
+  protected def connectionName: String = "VirtualCollections"
+
+  protected def initIndexes(collection: MongoCollection) {}
+
+  protected def initDAO(collection: MongoCollection, connection: MongoDB): VirtualCollectionDAO = new VirtualCollectionDAO(collection, connection)
+}
+
+class VirtualCollectionDAO(collection: MongoCollection, connection: MongoDB) extends SalatDAO[VirtualCollection, ObjectId](collection) {
+
+  val virtualCollectionsRecordsCollection = connection("VirtualCollectionsRecords")
 
   val children = new ChildCollection[MDRReference, ObjectId](collection = virtualCollectionsRecordsCollection, parentIdField = "parentId") {}
 
-  def findAll(orgId: String): List[VirtualCollection] = VirtualCollection.find(MongoDBObject("orgId" -> orgId)).toList
+  def findAll(orgId: String): List[VirtualCollection] = find(MongoDBObject("orgId" -> orgId)).toList
 
   def findAllNonEmpty(orgId: String): List[VirtualCollection] = findAll(orgId).filterNot(vc => children.countByParentId(vc._id, MongoDBObject()) == 0)
 
   def findBySpecAndOrgId(spec: String, orgId: String) = findOne(MongoDBObject("spec" -> spec, "orgId" -> orgId))
 
   def createVirtualCollectionFromQuery(id: ObjectId, query: String, configuration: DomainConfiguration, connectedUser: String): Either[Throwable, VirtualCollection] = {
-    val vc = VirtualCollection.findOneById(id).getOrElse(return Left(new RuntimeException("Could not find collection with ID " + id)))
+    val vc = findOneById(id).getOrElse(return Left(new RuntimeException("Could not find collection with ID " + id)))
 
     try {
-      VirtualCollection.children.removeByParentId(vc._id)
+      children.removeByParentId(vc._id)
 
-      val hubIds = getIdsFromQuery(query = query, configuration = vc.query.domainConfiguration, connectedUser = connectedUser)
+      val hubIds = getIdsFromQuery(query = query, configuration = DomainConfigurationHandler.getByName(vc.query.domainConfiguration), connectedUser = connectedUser)
       val groupedHubIds = hubIds.groupBy(id => (id.split("_")(0), id.split("_")(1)))
 
       val dataSetReferences: List[DataSetReference] = groupedHubIds.flatMap {
@@ -122,14 +135,14 @@ object VirtualCollection extends SalatDAO[VirtualCollection, ObjectId](collectio
           val spec = specIds._1._2
           val ids = specIds._2
 
-          DataSet.findBySpecAndOrgId(spec, orgId) match {
+          DataSet.dao(configuration).findBySpecAndOrgId(spec, orgId) match {
 
             case Some(ds) =>
               val cache = MetadataCache.get(orgId, spec, ITEM_TYPE_MDR)
               cache.iterate().filter(i => ids.contains(i.itemId)).foreach {
                 item =>
                   val ref = MDRReference(parentId = id, collection = spec, itemId = item.itemId, invalidTargetSchemas = item.invalidTargetSchemas, index = item.index)
-                  VirtualCollection.children.insert(ref)
+                  children.insert(ref)
               }
               Some(DataSetReference(spec, orgId))
 
@@ -139,10 +152,10 @@ object VirtualCollection extends SalatDAO[VirtualCollection, ObjectId](collectio
           }
       }.toList
 
-      val count = VirtualCollection.children.countByParentId(id)
+      val count = children.countByParentId(id)
 
       val updatedVc = vc.copy(dataSetReferences = dataSetReferences, currentQueryCount = count)
-      VirtualCollection.save(updatedVc)
+      save(updatedVc)
       Right(updatedVc)
 
     } catch {
@@ -151,13 +164,12 @@ object VirtualCollection extends SalatDAO[VirtualCollection, ObjectId](collectio
     }
   }
 
-  private def getIdsFromQuery(query: String, start: Int = 0, ids: ListBuffer[String] = ListBuffer.empty, configuration: String, connectedUser: String): List[String] = {
+  private def getIdsFromQuery(query: String, start: Int = 0, ids: ListBuffer[String] = ListBuffer.empty, configuration: DomainConfiguration, connectedUser: String): List[String] = {
 
     // for the start, only pass a dead-simple query
-    val domainConfiguration = DomainConfiguration.getAll.find(_.name == configuration).get
     val params = Params(Map("query" -> Seq(query), "start" -> Seq(start.toString)))
-    val chQuery: CHQuery = SolrQueryService.createCHQuery(params, domainConfiguration, true, Option(connectedUser), List.empty[String])
-    val response = CHResponse(params, domainConfiguration, SolrQueryService.getSolrResponseFromServer(chQuery.solrQuery, true), chQuery)
+    val chQuery: CHQuery = SolrQueryService.createCHQuery(params, configuration, true, Option(connectedUser), List.empty[String])
+    val response = CHResponse(params, configuration, SolrQueryService.getSolrResponseFromServer(chQuery.solrQuery, configuration, true), chQuery)
     val briefItemView = BriefItemView(response)
     val hubIds = briefItemView.getBriefDocs.map(_.getHubId).filterNot(_.isEmpty)
     Logger("CultureHub").debug("Found ids " + hubIds)

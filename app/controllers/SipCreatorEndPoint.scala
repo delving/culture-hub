@@ -44,7 +44,7 @@ object SipCreatorEndPoint extends ApplicationController {
 
   val log: Logger = Logger(SipCreatorEndPoint.getClass)
 
-  private lazy val basexStorage = HubServices.basexStorage
+  private def basexStorage(implicit configuration: DomainConfiguration) = HubServices.basexStorage(configuration)
 
   // HASH__type[_prefix].extension
   private val FileName = """([^_]*)__([^._]*)_?([^.]*).(.*)""".r
@@ -72,7 +72,7 @@ object SipCreatorEndPoint extends ApplicationController {
         if (orgId == null || orgId.isEmpty) {
           BadRequest("No orgId provided")
         } else {
-          if (!HubServices.organizationService.exists(orgId)) {
+          if (!HubServices.organizationService(configuration).exists(orgId)) {
             NotFound("Unknown organization " + orgId)
           } else {
             action(request)
@@ -92,12 +92,12 @@ object SipCreatorEndPoint extends ApplicationController {
   def listAll(accessToken: Option[String]) = AuthenticatedAction(accessToken) {
     Action {
       implicit request =>
-        val dataSets = DataSet.findAllForUser(connectedUserObject.get.userName, connectedUserObject.get.organizations, GrantType.MODIFY)
+        val dataSets = DataSet.dao.findAllForUser(connectedUserObject.get.userName, connectedUserObject.get.organizations, GrantType.MODIFY)
 
         val dataSetsXml = <data-set-list>
           {dataSets.map {
           ds =>
-            val creator = HubUser.findByUsername(ds.getCreator)
+            val creator = HubUser.dao.findByUsername(ds.getCreator)
             val lockedBy = ds.getLockedBy
             <data-set>
               <spec>{ds.spec}</spec>
@@ -132,7 +132,7 @@ object SipCreatorEndPoint extends ApplicationController {
   def unlock(orgId: String, spec: String, accessToken: Option[String]): Action[AnyContent] = OrganizationAction(orgId, accessToken) {
     Action {
       implicit request =>
-        val dataSet = DataSet.findBySpecAndOrgId(spec, orgId)
+        val dataSet = DataSet.dao.findBySpecAndOrgId(spec, orgId)
         if (dataSet.isEmpty) {
           val msg = "Unknown spec %s".format(spec)
           NotFound(msg)
@@ -141,7 +141,7 @@ object SipCreatorEndPoint extends ApplicationController {
             Ok
           } else if (dataSet.get.lockedBy.get == connectedUser) {
             val updated = dataSet.get.copy(lockedBy = None)
-            DataSet.save(updated)
+            DataSet.dao.save(updated)
             Ok
           } else {
             Error("You cannot unlock a DataSet locked by someone else")
@@ -162,7 +162,7 @@ object SipCreatorEndPoint extends ApplicationController {
     Action {
       implicit request =>
 
-        val dataSet = DataSet.findBySpecAndOrgId(spec, orgId)
+        val dataSet = DataSet.dao.findBySpecAndOrgId(spec, orgId)
         if (dataSet.isEmpty) {
           val msg = "DataSet with spec %s not found".format(spec)
           NotFound(msg)
@@ -191,7 +191,7 @@ object SipCreatorEndPoint extends ApplicationController {
   def acceptFile(orgId: String, spec: String, fileName: String, accessToken: Option[String]) = OrganizationAction(orgId, accessToken) {
     Action(parse.temporaryFile) {
       implicit request =>
-        val dataSet = DataSet.findBySpecAndOrgId(spec, orgId)
+        val dataSet = DataSet.dao.findBySpecAndOrgId(spec, orgId)
         if (dataSet.isEmpty) {
           val msg = "DataSet with spec %s not found".format(spec)
           NotFound(msg)
@@ -202,7 +202,7 @@ object SipCreatorEndPoint extends ApplicationController {
             Error(msg)
           } else if(request.contentType == None) {
             BadRequest("Request has no content type")
-          } else if(!DataSet.canEdit(dataSet.get, connectedUser)) {
+          } else if(!DataSet.dao.canEdit(dataSet.get, connectedUser)) {
             log.warn("User %s tried to edit dataSet %s without the necessary rights".format(connectedUser, dataSet.get.spec))
             Forbidden("You are not allowed to modify this DataSet")
           } else {
@@ -217,7 +217,7 @@ object SipCreatorEndPoint extends ApplicationController {
                 } else {
                   val receiveActor = Akka.system.actorFor("akka://application/user/dataSetParser")
                   receiveActor ! SourceStream(dataSet.get, connectedUser, configuration, inputStream, request.body)
-                  DataSet.updateState(dataSet.get, DataSetState.PARSING)
+                  DataSet.dao.updateState(dataSet.get, DataSetState.PARSING)
                   Right("Received it")
                 }
               }
@@ -231,7 +231,7 @@ object SipCreatorEndPoint extends ApplicationController {
 
             actionResult match {
               case Right(ok) => {
-                DataSet.addHash(dataSet.get, fileName.split("__")(1).replaceAll("\\.", DOT_PLACEHOLDER), hash)
+                DataSet.dao.addHash(dataSet.get, fileName.split("__")(1).replaceAll("\\.", DOT_PLACEHOLDER), hash)
                 info("Successfully accepted file %s for DataSet %s".format(fileName, spec))
                 Ok
               }
@@ -250,19 +250,19 @@ object SipCreatorEndPoint extends ApplicationController {
     val howMany = dis.readInt()
     val invalidIndexes: List[Int] = (for (i <- 1 to howMany) yield dis.readInt()).toList
 
-    DataSet.updateInvalidRecords(dataSet, prefix, invalidIndexes)
+    DataSet.dao(dataSet.orgId).updateInvalidRecords(dataSet, prefix, invalidIndexes)
 
     Right("All clear")
   }
 
   private def receiveMapping(dataSet: DataSet, recordMapping: RecMapping, spec: String, hash: String): Either[String, String] = {
-    DataSet.updateMapping(dataSet, recordMapping)
+    DataSet.dao(dataSet.orgId).updateMapping(dataSet, recordMapping)
     Right("Good news everybody")
   }
 
-  private def receiveSourceStats(dataSet: DataSet, inputStream: InputStream, file: File): Either[String, String] = {
+  private def receiveSourceStats(dataSet: DataSet, inputStream: InputStream, file: File)(implicit configuration: DomainConfiguration): Either[String, String] = {
     try {
-      val f = hubFileStore.createFile(file)
+      val f = hubFileStore(configuration).createFile(file)
 
       val stats = Stats.read(inputStream)
 
@@ -287,7 +287,7 @@ object SipCreatorEndPoint extends ApplicationController {
         fieldCount = Histogram(stats.recordStats.fieldCount)
       )
 
-      DataSetStatistics.insert(dss).map {
+      DataSetStatistics.dao.insert(dss).map {
         dssId => {
 
           stats.fieldValueMap.asScala.foreach {
@@ -298,7 +298,7 @@ object SipCreatorEndPoint extends ApplicationController {
                     path = fv._1.toString,
                     valueStats = ValueStats(fv._2)
                   )
-              DataSetStatistics.values.insert(fieldValues)
+              DataSetStatistics.dao.values.insert(fieldValues)
           }
 
           stats.recordStats.frequencies.asScala.foreach {
@@ -309,7 +309,7 @@ object SipCreatorEndPoint extends ApplicationController {
                     path = ff._1.toString,
                     histogram = Histogram(ff._2)
                   )
-              DataSetStatistics.frequencies.insert(frequencies)
+              DataSetStatistics.dao.frequencies.insert(frequencies)
           }
 
           Right("Good")
@@ -327,7 +327,7 @@ object SipCreatorEndPoint extends ApplicationController {
 
   private def receiveHints(dataSet: DataSet, inputStream: InputStream) = {
     val updatedDataSet = dataSet.copy(hints = Stream.continually(inputStream.read).takeWhile(-1 !=).map(_.toByte).toArray)
-    DataSet.save(updatedDataSet)
+    DataSet.dao(dataSet.orgId).save(updatedDataSet)
     Right("Allright")
   }
 
@@ -336,7 +336,7 @@ object SipCreatorEndPoint extends ApplicationController {
       implicit request =>
         Async {
           Promise.pure {
-            val maybeDataSet = DataSet.findBySpecAndOrgId(spec, orgId)
+            val maybeDataSet = DataSet.dao.findBySpecAndOrgId(spec, orgId)
             if (maybeDataSet.isEmpty) {
               Left(NotFound("Unknown spec %s".format(spec)))
             } else if(maybeDataSet.isDefined && maybeDataSet.get.state == DataSetState.PARSING) {
@@ -346,7 +346,7 @@ object SipCreatorEndPoint extends ApplicationController {
 
               // lock it right away
               val updatedDataSet = dataSet.copy(lockedBy = Some(connectedUser))
-              DataSet.save(updatedDataSet)
+              DataSet.dao.save(updatedDataSet)
 
               val dataContent: Enumerator[Array[Byte]] = Enumerator.fromFile(getSipStream(dataSet))
               Right(dataContent)
@@ -364,7 +364,7 @@ object SipCreatorEndPoint extends ApplicationController {
   }
 
 
-  def getSipStream(dataSet: DataSet) = {
+  def getSipStream(dataSet: DataSet)(implicit configuration: DomainConfiguration) = {
     val temp = TemporaryFile(dataSet.spec)
     val fos = new FileOutputStream(temp.file)
     val zipOut = new ZipOutputStream(fos)
@@ -514,7 +514,7 @@ object SipCreatorEndPoint extends ApplicationController {
     pw.flush()
   }
 
-  def loadSourceData(dataSet: DataSet, source: InputStream): Long = {
+  def loadSourceData(dataSet: DataSet, source: InputStream)(implicit configuration: DomainConfiguration): Long = {
 
     // until we have a better concept on how to deal with per-collection versions, do not make use of them here, but drop the data instead
     val mayCollection = basexStorage.openCollection(dataSet)
@@ -527,11 +527,11 @@ object SipCreatorEndPoint extends ApplicationController {
 
     val parser = new SimpleDataSetParser(source, dataSet)
 
-    val totalRecords = DataSetStatistics.getMostRecent(dataSet.orgId, dataSet.spec).map(_.recordCount)
+    val totalRecords = DataSetStatistics.dao.getMostRecent(dataSet.orgId, dataSet.spec).map(_.recordCount)
     val modulo = if(totalRecords.isDefined) math.round(totalRecords.get / 100) else 100
 
     def onRecordInserted(count: Long) {
-      if(count % (if(modulo == 0) 100 else modulo) == 0) DataSet.updateRecordCount(dataSet, count)
+      if(count % (if(modulo == 0) 100 else modulo) == 0) DataSet.dao.updateRecordCount(dataSet, count)
     }
 
     basexStorage.store(collection, parser, parser.namespaces, onRecordInserted)
@@ -551,9 +551,9 @@ class ReceiveSource extends Actor {
       tempFileRef = tempFile
 
       try {
-        receiveSource(dataSet, userName, configuration, inputStream) match {
+        receiveSource(dataSet, userName, inputStream)(configuration) match {
           case Left(t) =>
-            DataSet.invalidateHashes(dataSet)
+            DataSet.dao(configuration).invalidateHashes(dataSet)
             val message = if(t.isInstanceOf[StorageInsertionException]) {
               Some("""Error while inserting record:
                       |
@@ -566,7 +566,7 @@ class ReceiveSource extends Actor {
             } else {
               Some(t.getMessage)
             }
-            DataSet.updateState(dataSet, DataSetState.ERROR, Some(userName), message)
+            DataSet.dao(configuration).updateState(dataSet, DataSetState.ERROR, Some(userName), message)
             Logger("CultureHub").error("Error while parsing records for spec %s of org %s".format(dataSet.spec, dataSet.orgId), t)
             ErrorReporter.reportError("DataSet Source Parser", t, "Error occured while parsing records for spec %s of org %s".format(dataSet.spec, dataSet.orgId), configuration)
           case Right(inserted) =>
@@ -577,20 +577,20 @@ class ReceiveSource extends Actor {
       } catch {
         case t =>
           Logger("CultureHub").error("Exception while processing uploaded source %s for DataSet %s".format(tempFile.file.getAbsolutePath, dataSet.spec), t)
-          DataSet.invalidateHashes(dataSet)
-          DataSet.updateState(dataSet, DataSetState.ERROR, Some(userName), Some("Error while parsing uploaded source: " + t.getMessage))
+          DataSet.dao(configuration).invalidateHashes(dataSet)
+          DataSet.dao(configuration).updateState(dataSet, DataSetState.ERROR, Some(userName), Some("Error while parsing uploaded source: " + t.getMessage))
 
       } finally {
         tempFileRef = null
       }
   }
 
-  private def receiveSource(dataSet: DataSet, userName: String, configuration: DomainConfiguration, inputStream: InputStream): Either[Throwable, Long] = {
+  private def receiveSource(dataSet: DataSet, userName: String, inputStream: InputStream)(implicit configuration: DomainConfiguration): Either[Throwable, Long] = {
 
     try {
       val uploadedRecords = SipCreatorEndPoint.loadSourceData(dataSet, inputStream)
-      DataSet.updateRecordCount(dataSet, uploadedRecords)
-      DataSet.updateState(dataSet, DataSetState.UPLOADED, Some(userName))
+      DataSet.dao.updateRecordCount(dataSet, uploadedRecords)
+      DataSet.dao.updateState(dataSet, DataSetState.UPLOADED, Some(userName))
       Right(uploadedRecords)
     } catch {
       case t => return Left(t)

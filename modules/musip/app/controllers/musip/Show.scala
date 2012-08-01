@@ -4,7 +4,7 @@ import controllers.DelvingController
 import core.rendering.ViewRenderer
 import play.api.i18n.Lang
 import play.api.mvc.{RequestHeader, Action}
-import models.MetadataCache
+import models.{DomainConfiguration, MetadataCache}
 import core.Constants._
 
 /**
@@ -14,29 +14,33 @@ import core.Constants._
 
 object Show extends DelvingController {
 
-  def museumViewDefinition = ViewRenderer.fromDefinition("musip", "museum")
+  def museumViewDefinition(configuration: DomainConfiguration) = ViewRenderer.fromDefinition("musip", "museum", configuration)
 
-  def collectionViewDefinition = ViewRenderer.fromDefinition("musip", "collection")
+  def collectionViewDefinition(configuration: DomainConfiguration) = ViewRenderer.fromDefinition("musip", "collection", configuration)
 
 
-  def collection(orgId: String, itemId: String) = Root {
-    Action {
+  def collection(orgId: String, itemId: String) = DomainConfigured {
+    Root {
       Action {
-        implicit request => show(orgId, itemId, "collection", collectionViewDefinition) match {
-          case Some((viewTree, systemFields, returnToResults, searchTerm)) =>
-            Ok(Template("show.html", 'view -> viewTree, 'systemFields -> systemFields, 'returnToResults -> returnToResults, 'searchTerm -> searchTerm))
-          case None => NotFound("Collection not found")
+        Action {
+          implicit request => show(orgId, itemId, "collection", collectionViewDefinition(configuration)) match {
+            case Some((viewTree, systemFields, returnToResults, searchTerm)) =>
+              Ok(Template("show.html", 'view -> viewTree, 'systemFields -> systemFields, 'returnToResults -> returnToResults, 'searchTerm -> searchTerm))
+            case None => NotFound("Collection not found")
+          }
         }
       }
     }
   }
 
-  def museum(orgId: String, itemId: String) = Root {
-    Action {
-      implicit request => show(orgId, itemId, "museum", museumViewDefinition) match {
-        case Some((viewTree, systemFields, returnToResults, searchTerm)) =>
-          Ok(Template("show.html", 'view -> viewTree, 'systemFields -> systemFields, 'returnToResults -> returnToResults, 'searchTerm -> searchTerm))
-        case None => NotFound("Museum not found")
+  def museum(orgId: String, itemId: String) = DomainConfigured {
+    Root {
+      Action {
+        implicit request => show(orgId, itemId, "museum", museumViewDefinition(configuration)) match {
+          case Some((viewTree, systemFields, returnToResults, searchTerm)) =>
+            Ok(Template("show.html", 'view -> viewTree, 'systemFields -> systemFields, 'returnToResults -> returnToResults, 'searchTerm -> searchTerm))
+          case None => NotFound("Museum not found")
+        }
       }
     }
   }

@@ -23,12 +23,6 @@ class PlatformSpec extends Specification with TestContext {
       }
     }
 
-    "deliver a default configuration" in {
-      withTestConfig {
-        domainConfigurationHandler.getDefaultConfiguration should not equalTo (null)
-      }
-    }
-
   }
 
 }

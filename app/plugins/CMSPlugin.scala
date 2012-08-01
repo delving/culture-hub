@@ -2,8 +2,9 @@ package plugins
 
 import play.api.Application
 import controllers.organization.CMS
-import core.{MenuElement, MainMenuEntry, CultureHubPlugin}
+import core.{HubServices, MenuElement, MainMenuEntry, CultureHubPlugin}
 import models.{DomainConfiguration, GrantType}
+import models.cms.{MenuEntry, CMSPage}
 
 /**
  *
@@ -14,8 +15,8 @@ class CMSPlugin(app: Application) extends CultureHubPlugin(app) {
 
   val pluginKey: String = "cms"
 
-  override def mainMenuEntries(configuration: DomainConfiguration, lang: String): Seq[MainMenuEntry] = {
-    models.cms.MenuEntry.findEntries(configuration.name, CMS.MAIN_MENU).filterNot(e => !e.title.contains(lang) || !e.published).map(e => MainMenuEntry(
+  override def mainMenuEntries(implicit configuration: DomainConfiguration, lang: String): Seq[MainMenuEntry] = {
+    _root_.models.cms.MenuEntry.dao.findEntries(configuration.orgId, CMS.MAIN_MENU).filterNot(e => !e.title.contains(lang) || !e.published).map(e => MainMenuEntry(
       key = e.menuKey,
       titleKey = e.title(lang),
       mainEntry = Some(MenuElement(url = "/page/" + e.targetPageKey.getOrElse(""), titleKey = e.title(lang)))

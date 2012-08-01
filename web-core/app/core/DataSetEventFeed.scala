@@ -12,11 +12,6 @@ import play.api.Play.current
 import models.{DomainConfiguration, DataSetEventLog, DataSetState, DataSet}
 import play.api.Logger
 import models.DataSetState._
-import play.api.libs.json.JsArray
-import play.api.libs.json.JsString
-import play.api.libs.json.JsObject
-import play.api.libs.json.JsNumber
-import scala.Some
 import util.DomainConfigurationHandler
 
 
@@ -265,12 +260,12 @@ class DataSetEventFeed extends Actor {
           val s = subscriber._2
           val orgId = subscriber._2.orgId
           val userName = subscriber._2.userName
-          val configuration = DomainConfigurationHandler.getByName(subscriber._2.configuration)
+          implicit val configuration = DomainConfigurationHandler.getByName(subscriber._2.configuration)
 
           def withEditableSet(block: DataSet => Unit) {
-            DataSet.findBySpecAndOrgId(spec, orgId).map {
+            DataSet.dao.findBySpecAndOrgId(spec, orgId).map {
               set => {
-                if(DataSet.canEdit(set, userName)) {
+                if(DataSet.dao.canEdit(set, userName)) {
                   block(set)
                 } else {
                   send(s, error("You don't have the right to do this!"))
@@ -285,7 +280,7 @@ class DataSetEventFeed extends Actor {
 
             case "sendList" =>
               log.debug("About to send complete list of sets to client " + clientId)
-              val sets: Seq[ListDataSetViewModel] = DataSet.findAllByOrgId(orgId).toSeq
+              val sets: Seq[ListDataSetViewModel] = DataSet.dao.findAllByOrgId(orgId).toSeq
               val jsonList = sets.map(_.toJson).toSeq
               val msg = JsObject(
                 Seq(
@@ -297,10 +292,10 @@ class DataSetEventFeed extends Actor {
 
             case "sendSet" =>
               log.debug("About to send set %s to client %s".format(spec, clientId))
-              val msg = DataSet.findBySpecAndOrgId(spec, orgId).map {
+              val msg = DataSet.dao.findBySpecAndOrgId(spec, orgId).map {
                 ds => {
                   val set: DataSetViewModel = ds
-                  val payload = set.toJson ++ JsObject(Seq("cannotEdit" -> JsBoolean(!DataSet.canEdit(ds, userName))))
+                  val payload = set.toJson ++ JsObject(Seq("cannotEdit" -> JsBoolean(!DataSet.dao.canEdit(ds, userName))))
                   JsObject(
                     Seq(
                       "eventType" -> JsString("loadSet"),
@@ -323,7 +318,7 @@ class DataSetEventFeed extends Actor {
                 set => {
                   set.state match {
                     case DISABLED =>
-                      DataSet.updateState(set, DataSetState.ENABLED, Some(userName))
+                      DataSet.dao.updateState(set, DataSetState.ENABLED, Some(userName))
                       send(s, ok)
                     case _ => send(s, error("Cannot enable set that is not disabled"))
                   }
@@ -335,7 +330,7 @@ class DataSetEventFeed extends Actor {
                 set => {
                   set.state match {
                     case ENABLED =>
-                      DataSet.updateState(set, DataSetState.DISABLED, Some(userName))
+                      DataSet.dao.updateState(set, DataSetState.DISABLED, Some(userName))
                       send(s, ok)
                     case _ => send(s, error("Cannot disable set that is not enabled"))
                   }
@@ -347,8 +342,13 @@ class DataSetEventFeed extends Actor {
                 set => {
                   set.state match {
                     case ENABLED | DISABLED | UPLOADED | ERROR =>
-                      DataSet.updateIndexingControlState(set, set.getIndexingMappingPrefix.getOrElse(""), configuration.getFacets.map(_.facetName), configuration.getSortFields.map(_.sortKey))
-                      DataSet.updateState(set, DataSetState.QUEUED, Some(userName))
+                      DataSet.dao.updateIndexingControlState(
+                        dataSet = set,
+                        mapping = set.getIndexingMappingPrefix.getOrElse(""),
+                        facets = configuration.getFacets.map(_.facetName),
+                        sortFields = configuration.getSortFields.map(_.sortKey)
+                      )
+                      DataSet.dao.updateState(set, DataSetState.QUEUED, Some(userName))
                       send(s, ok)
                     case _ => send(s, error("Cannot process set that is not enabled, disabled, uploaded or in error"))
                   }
@@ -360,13 +360,13 @@ class DataSetEventFeed extends Actor {
                 set => {
                   set.state match {
                     case QUEUED | PROCESSING =>
-                      DataSet.updateState(set, DataSetState.CANCELLED, Some(userName))
+                      DataSet.dao.updateState(set, DataSetState.CANCELLED, Some(userName))
                       try {
                         IndexingService.deleteBySpec(set.orgId, set.spec)
                       } catch {
                         case t =>
                           log.warn("Error while trying to remove cancelled set from index", t)
-                          DataSet.updateState(set, DataSetState.ERROR, Some(userName), Some(t.getMessage))
+                          DataSet.dao.updateState(set, DataSetState.ERROR, Some(userName), Some(t.getMessage))
                       }
                     case _ => send(s, error("Cannot cancel processing of a set that is not queued or processing"))
                   }
@@ -378,8 +378,8 @@ class DataSetEventFeed extends Actor {
                 set => {
                   set.state match {
                     case DISABLED | ENABLED | UPLOADED | ERROR | PARSING =>
-                      DataSet.invalidateHashes(set)
-                      DataSet.updateState(set, DataSetState.INCOMPLETE, Some(userName))
+                      DataSet.dao.invalidateHashes(set)
+                      DataSet.dao.updateState(set, DataSetState.INCOMPLETE, Some(userName))
                     case _ => send(s, error("Cannot reset hashes of a set that is not enabled, disabled, uploaded, in error, or parsing"))
                   }
                 }
@@ -388,7 +388,7 @@ class DataSetEventFeed extends Actor {
             case "unlockSet" =>
               withEditableSet {
                 set =>
-                  DataSet.unlock(DataSet.findBySpecAndOrgId(spec, orgId).get, userName)
+                  DataSet.dao.unlock(DataSet.dao.findBySpecAndOrgId(spec, orgId).get, userName)
               }
 
             case "deleteSet" =>
@@ -396,7 +396,7 @@ class DataSetEventFeed extends Actor {
                 set => {
                   set.state match {
                     case INCOMPLETE | DISABLED | ERROR | UPLOADED =>
-                      DataSet.delete(set)
+                      DataSet.dao.delete(set)
                       DataSetEvent ! DataSetEvent.Removed(orgId, spec, userName)
                     case _ => send(s, error("Cannot delete set that is in use (i.e. processing, enabled, or parsing)"))
                   }
@@ -422,74 +422,78 @@ class DataSetEventFeed extends Actor {
       log.debug("Stopped periodical polling of database for new DataSetEvents")
 
     case Update =>
-      val recentEvents = DataSetEventLog.findRecent.filter(r => r._id.getTime > lastSeen)
-      if (!recentEvents.isEmpty) lastSeen = recentEvents.reverse.head._id.getTime
+      DataSetEventLog.all.foreach {
+        dsel => {
+          val recentEvents = dsel.findRecent.filter(r => r._id.getTime > lastSeen)
+          if (!recentEvents.isEmpty) lastSeen = recentEvents.reverse.head._id.getTime
 
-      // handle subscribers differently depending on whether they follow the list or a single set
+          // handle subscribers differently depending on whether they follow the list or a single set
 
-      val listSubscribers = subscribers.filterNot(_._2.spec.isDefined)
-      recentEvents.filter(e => LIST_FEED_EVENTS.contains(EventType(e.eventType))).foreach {
-        event => {
-          log.debug("Broadcasting DataSet event to all list subscribers: " + event.toString)
-          val msg = EventType(event.eventType) match {
-            case EventType.CREATED | EventType.UPDATED =>
-              DataSet.findBySpecAndOrgId(event.spec, event.orgId).map {
-                set => {
-                  val viewModel: ListDataSetViewModel = set
-                  viewModel.toJson
-                }
+          val listSubscribers = subscribers.filterNot(_._2.spec.isDefined)
+          recentEvents.filter(e => LIST_FEED_EVENTS.contains(EventType(e.eventType))).foreach {
+            event => {
+              log.debug("Broadcasting DataSet event to all list subscribers: " + event.toString)
+              val msg = EventType(event.eventType) match {
+                case EventType.CREATED | EventType.UPDATED =>
+                  DataSet.dao(event.orgId).findBySpecAndOrgId(event.spec, event.orgId).map {
+                    set => {
+                      val viewModel: ListDataSetViewModel = set
+                      viewModel.toJson
+                    }
+                  }
+                case _ =>
+                  // for the rest, just use a default mechanism
+                  event.payload.map {
+                    payload => JsObject(
+                      Seq(
+                        "payload" -> JsString(payload)
+                      )
+                    )
+                  }
               }
-            case _ =>
-              // for the rest, just use a default mechanism
-              event.payload.map {
-                payload => JsObject(
-                  Seq(
-                    "payload" -> JsString(payload)
-                  )
-                )
-              }
+              notifySubscribers(listSubscribers, event.orgId, event.spec, event.eventType, msg)
+            }
           }
-          notifySubscribers(listSubscribers, event.orgId, event.spec, event.eventType, msg)
-        }
-      }
 
-    val setSubscribers = subscribers.filter(_._2.spec.isDefined)
-    val watchedSets = setSubscribers.map(_._2.spec.get).toSeq
-    recentEvents.groupBy(_.spec).foreach {
-       e => {
-         val set = e._1
-         // only consider watched sets
-         e._2.filter(s => watchedSets.contains(s.spec)).foreach {
-           event =>
-             log.debug("Broadcasting DataSet event to all subscribers of set %s: ".format(set) + event.toString)
-             val msg = EventType(event.eventType) match {
-               case EventType.UPDATED =>
-                 DataSet.findBySpecAndOrgId(event.spec, event.orgId).map {
-                   set => {
-                     val viewModel: DataSetViewModel = set
-                     JsObject(
-                       Seq(
-                         "eventType" -> JsString("updated"),
-                         "payload" -> viewModel.toJson
+        val setSubscribers = subscribers.filter(_._2.spec.isDefined)
+        val watchedSets = setSubscribers.map(_._2.spec.get).toSeq
+        recentEvents.groupBy(_.spec).foreach {
+           e => {
+             val set = e._1
+             // only consider watched sets
+             e._2.filter(s => watchedSets.contains(s.spec)).foreach {
+               event =>
+                 log.debug("Broadcasting DataSet event to all subscribers of set %s: ".format(set) + event.toString)
+                 val msg = EventType(event.eventType) match {
+                   case EventType.UPDATED =>
+                     DataSet.dao(event.orgId).findBySpecAndOrgId(event.spec, event.orgId).map {
+                       set => {
+                         val viewModel: DataSetViewModel = set
+                         JsObject(
+                           Seq(
+                             "eventType" -> JsString("updated"),
+                             "payload" -> viewModel.toJson
+                           )
+                         )
+                       }
+                     }
+                   case _ =>
+                     // for the rest, just use a default mechanism
+                     event.payload.map {
+                       payload => JsObject(
+                         Seq(
+                           "payload" -> JsString(payload)
+                         )
                        )
-                     )
-                   }
+                     }
                  }
-               case _ =>
-                 // for the rest, just use a default mechanism
-                 event.payload.map {
-                   payload => JsObject(
-                     Seq(
-                       "payload" -> JsString(payload)
-                     )
-                   )
-                 }
-             }
-             notifySubscribers(setSubscribers.filter(_._2.spec == Some(set)), event.orgId, event.spec, event.eventType, msg)
+                 notifySubscribers(setSubscribers.filter(_._2.spec == Some(set)), event.orgId, event.spec, event.eventType, msg)
 
+             }
+           }
          }
-       }
-     }
+      }
+    }
   }
 
   def error(message: String) = JsObject(
@@ -539,13 +543,30 @@ class DataSetEventLogger extends Actor {
   def receive = {
 
     case DataSetEvent(orgId, spec, eventType, payload, userName, systemEvent, transientEvent) =>
-      DataSetEventLog.insert(DataSetEventLog(orgId = orgId, spec = spec, eventType = eventType.name, payload = payload, userName = userName, systemEvent = systemEvent, transientEvent = transientEvent))
+      implicit val configuration: DomainConfiguration = DomainConfigurationHandler.getByOrgId(orgId)
+      DataSetEventLog.dao.insert(
+        DataSetEventLog(
+          orgId = orgId,
+          spec = spec,
+          eventType = eventType.name,
+          payload = payload,
+          userName = userName,
+          systemEvent = systemEvent,
+          transientEvent = transientEvent)
+      )
     case _ => // do nothing
 
   }
 }
 
-case class DataSetEvent(orgId: String, spec: String, eventType: EventType, payload: Option[String] = None, userName: Option[String] = None, systemEvent: Boolean = false, transientEvent: Boolean = false)
+case class DataSetEvent(orgId: String,
+                        spec: String,
+                        eventType: EventType,
+                        payload: Option[String] = None,
+                        userName: Option[String] = None,
+                        systemEvent: Boolean = false,
+                        transientEvent: Boolean = false
+                       )
 
 case class EventType(name: String)
 

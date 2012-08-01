@@ -1,4 +1,4 @@
-package controllers.custom
+package controllers.itin
 
 /*
  * Copyright 2011 Delving B.V.
@@ -17,14 +17,12 @@ package controllers.custom
  */
 
 import core.search.SearchService
-import play.api.Play
-import play.api.Play.current
 import collection.JavaConverters._
 import core.DomainConfigurationAware
 import play.api.Logger
 import controllers.DelvingController
 import models.{DrupalEntity, StoreResponse}
-import play.api.mvc.{Action}
+import play.api.mvc.Action
 import core.Constants._
 import play.api.libs.concurrent.Promise
 
@@ -39,26 +37,17 @@ object ItinEndPoint extends DelvingController with DomainConfigurationAware {
   def search = DomainConfigured {
     Action {
       implicit request =>
-        if (!enabled) {
-          Status(NOT_FOUND)
-        } else {
-          SearchService.getApiResult(None, request, configuration, List())
-        }
+        SearchService.getApiResult(None, request, configuration, List())
     }
   }
 
-  def store: Action[scala.xml.NodeSeq] = Action(parse.tolerantXml) {
-    implicit request => {
+  def store: Action[scala.xml.NodeSeq] = DomainConfigured {
+    Action(parse.tolerantXml) {
+      implicit request => {
       Async {
-
-        if (!enabled) {
-          Promise.pure().map {
-            response => Status(NOT_FOUND)
-          }
-        } else {
           Promise.pure {
             val xmlResponse = try {
-              val response: StoreResponse = DrupalEntity.processStoreRequest(request.body)((item, list) => DrupalEntity.insertInMongoAndIndex(item, list))
+              val response: StoreResponse = DrupalEntity.dao.processStoreRequest(request.body, configuration)((item, list) => DrupalEntity.dao.insertInMongoAndIndex(item, list))
               StoreResponse(response.itemsParsed, response.coRefsParsed)
             } catch {
               case ex: Exception =>
@@ -80,10 +69,6 @@ object ItinEndPoint extends DelvingController with DomainConfigurationAware {
         }
       }
     }
-
   }
-
-
-  private def enabled: Boolean = Play.configuration.getString("cultureHub.additionalModules").getOrElse(return false).split(",").map(_.trim).contains("itin")
 
 }

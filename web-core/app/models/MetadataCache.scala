@@ -1,15 +1,13 @@
 package models
 
+import _root_.util.DomainConfigurationHandler
 import com.mongodb.casbah.Imports._
 import org.bson.types.ObjectId
 import mongoContext._
 import com.novus.salat.dao.SalatDAO
 import java.util.Date
-import core.Constants
 
 /**
- *
- * for invalidTargetSchemas query: > db.Foo.find({items: {$ne: "ab"}})
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
@@ -32,7 +30,10 @@ object MetadataCache {
   def getMongoCollectionName(orgId: String) = "%s_MetadataCache".format(orgId)
 
   def get(orgId: String, col: String, itemType: String): core.MetadataCache = {
-    val mongoCollection: MongoCollection = connection(getMongoCollectionName(orgId))
+    // FIXME TODO cache the connection set-up!!!!
+    val configuration = DomainConfigurationHandler.getByOrgId(orgId)
+    val mongoConnection = createConnection(configuration.mongoDatabase)
+    val mongoCollection: MongoCollection = mongoConnection(getMongoCollectionName(configuration.orgId))
     mongoCollection.ensureIndex(MongoDBObject("collection" -> 1, "itemType" -> 1, "itemId" -> 1))
     mongoCollection.ensureIndex(MongoDBObject("collection" -> 1, "itemType" -> 1))
     mongoCollection.ensureIndex(MongoDBObject("collection" -> 1, "itemType" -> 1, "index" -> 1))

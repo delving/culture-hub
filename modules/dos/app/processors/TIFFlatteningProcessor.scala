@@ -40,7 +40,7 @@ object TIFFlatteningProcessor extends Processor {
     oldDir.mkdir()
 
     val images = task.pathAsFile.listFiles().filter(f => isImage(f.getName))
-    Task.setTotalItems(task, images.size)
+    Task.dao(task.orgId).setTotalItems(task, images.size)
 
     for (i <- images; if (!task.isCancelled)) {
       val identifiyCmd = new ImageCommand(gmCommand, "identify")
@@ -89,7 +89,7 @@ object TIFFlatteningProcessor extends Processor {
           error(task, "Failed to convert the multi-layer image '%s' to a single-layer image".format(i.getAbsolutePath), Some(i.getAbsolutePath))
         }
       }
-      Task.incrementProcessedItems(task, 1)
+      Task.dao(task.orgId).incrementProcessedItems(task, 1)
     }
 
   }

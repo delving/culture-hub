@@ -26,7 +26,7 @@ class OAuth2TokenEndPointSpec extends Specification with TestContext {
 
       withTestData {
 
-        val endPoint = "http://localhost:9000/token"
+        val endPoint = "http://delving.localhost:9000/token"
 
         val request: OAuthClientRequest = OAuthClientRequest.
           tokenLocation(endPoint).
@@ -62,7 +62,7 @@ class OAuth2TokenEndPointSpec extends Specification with TestContext {
 
          withTestData {
 
-           val endPoint = "http://localhost:9000/token"
+           val endPoint = "http://delving.localhost:9000/token"
 
            val request: OAuthClientRequest = OAuthClientRequest.
              tokenLocation(endPoint).

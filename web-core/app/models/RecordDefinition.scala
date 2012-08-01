@@ -16,6 +16,7 @@
 
 package models
 
+import _root_.util.DomainConfigurationHandler
 import xml.{Node, XML}
 import play.api.Play
 import play.api.Play.current
@@ -23,6 +24,7 @@ import java.net.URL
 import core.SystemField
 
 /**
+ * Represents a RecordDefinition (aka schema)
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
@@ -58,28 +60,34 @@ case class SummaryField(name: String, xpath: String) {
   def tag = "delving_" + SystemField.valueOf(name).tag
 }
 
-case class SearchField(name: String, xpath: String, fieldType: String)
-
+/**
+ * Deals with loading RecordDefinions, validation schemas and crosswalks
+ */
 object RecordDefinition {
 
   val RECORD_DEFINITION_SUFFIX = "-record-definition.xml"
   val VALIDATION_SCHEMA_SUFFIX = "-validation.xsd"
   val CROSSWALK_SUFFIX = "-crosswalk.xml"
 
-  val enabledDefinitions = Play.configuration.getString("cultureHub.recordDefinitions").getOrElse("").split(",").map(_.trim())
+  lazy val enabledDefinitions: Map[DomainConfiguration, Seq[String]] = DomainConfigurationHandler.domainConfigurations.
+    map(configuration => (configuration -> configuration.schemas)).toMap
 
-  val enabledCrosswalks = Play.configuration.getString("cultureHub.crossWalks").getOrElse("").split(",").map(_.trim())
+  lazy val enabledCrosswalks: Map[DomainConfiguration, Seq[String]] = DomainConfigurationHandler.domainConfigurations.
+      map(configuration => (configuration -> configuration.crossWalks)).toMap
 
   def recordDefinitions = parseRecordDefinitions
 
   def getRecordDefinition(prefix: String): Option[RecordDefinition] = recordDefinitions.find(_.prefix == prefix)
 
-  def getRecordDefinitionResources = {
-    enabledDefinitions.flatMap(prefix => Play.resource("definitions/%s/%s-record-definition.xml".format(prefix, prefix)))
+  def getRecordDefinitionResources: Seq[URL] = {
+    enabledDefinitions.values.flatMap(seq => seq.flatMap(prefix => Play.resource("definitions/%s/%s-record-definition.xml".format(prefix, prefix)))).toSeq
   }
 
-  def getCrosswalkResources(sourcePrefix: String): Seq[URL] = {
-    enabledCrosswalks.filter(_.startsWith(sourcePrefix)).flatMap(prefix => Play.resource("definitions/%s/%s-crosswalk.xml".format(sourcePrefix, prefix))).toSeq
+  def getCrosswalkResources(configuration: DomainConfiguration, sourcePrefix: String): Seq[URL] = {
+    enabledCrosswalks(configuration).
+      filter(_.startsWith(sourcePrefix)).
+      flatMap(prefix => Play.resource("definitions/%s/%s-crosswalk.xml".format(sourcePrefix, prefix))).
+      toSeq
   }
 
   private def parseRecordDefinitions: List[RecordDefinition] = {

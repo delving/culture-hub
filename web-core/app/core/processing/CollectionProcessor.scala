@@ -45,10 +45,18 @@ class CollectionProcessor(collection: Collection,
 
   implicit def nodeSeqIsChildSelectable(xml: NodeSeq) = new ChildSelectable(xml)
 
-  def process(interrupted: => Boolean, updateCount: Long => Unit, onError: Throwable => Unit, indexOne: (MetadataItem, MultiMap, String) => Either[Throwable, String], onIndexingComplete: DateTime => Unit) {
+  def process(interrupted: => Boolean,
+              updateCount: Long => Unit,
+              onError: Throwable => Unit,
+              indexOne: (MetadataItem, MultiMap, String, DomainConfiguration) => Either[Throwable, String],
+              onIndexingComplete: DateTime => Unit
+             )(implicit configuration: DomainConfiguration) {
+
     val startProcessing: DateTime = new DateTime(DateTimeZone.UTC)
     val targetSchemasString = targetSchemas.map(_.prefix).mkString(", ")
-    log.info("Starting processing of collection '%s': going to process schemas '%s', schema for indexing is '%s', format for rendering is '%s'".format(collection.spec, targetSchemasString, indexingSchema.map(_.prefix).getOrElse("NONE!"), renderingSchema.map(_.prefix).getOrElse("NONE!")))
+    log.info("Starting processing of collection '%s': going to process schemas '%s', schema for indexing is '%s', format for rendering is '%s'".format(
+      collection.spec, targetSchemasString, indexingSchema.map(_.prefix).getOrElse("NONE!"), renderingSchema.map(_.prefix).getOrElse("NONE!"))
+    )
 
     try {
       basexStorage.withSession(collection) {
@@ -145,28 +153,34 @@ class CollectionProcessor(collection: Collection,
                     val r = mappingResults(indexingSchema.get.prefix)
                     val fields: Map[String, List[String]] = r.fields()
                     val searchFields: Map[String, List[String]] = r.searchFields()
-                    indexOne(cachedRecord, fields ++ searchFields ++ getSystemFields(r), indexingSchema.get.prefix)
+                    indexOne(cachedRecord, fields ++ searchFields ++ getSystemFields(r), indexingSchema.get.prefix, configuration)
                   }
 
                 }
               }
             }
-            log.info("%s: processed %s of %s records, for schemas '%s'".format(collection.spec, index, recordCount, targetSchemasString))
+            log.info("%s: processed %s of %s records, for schemas '%s'".format(
+              collection.spec, index, recordCount, targetSchemasString)
+            )
+
             if (!interrupted && indexingSchema.isDefined) {
               onIndexingComplete(startProcessing)
             }
 
             if(!interrupted) {
               updateCount(index)
-              log.info("Processing of collection %s of organization %s finished, took %s seconds".format(collection.spec, collection.getOwner, Duration(System.currentTimeMillis() - startProcessing.toDate.getTime, TimeUnit.MILLISECONDS).toSeconds))
+              log.info("Processing of collection %s of organization %s finished, took %s seconds".format(
+                collection.spec, collection.getOwner, Duration(System.currentTimeMillis() - startProcessing.toDate.getTime, TimeUnit.MILLISECONDS).toSeconds)
+              )
             } else {
               updateCount(0)
               if (indexingSchema.isDefined) {
                 log.info("Deleting DataSet %s from SOLR".format(collection.spec))
                 IndexingService.deleteBySpec(collection.getOwner, collection.spec)
               }
-              log.info("Processing of collection %s of organization %s interrupted after %s seconds".format(collection.spec, collection.getOwner, Duration(System.currentTimeMillis() - startProcessing.toDate.getTime, TimeUnit.MILLISECONDS).toSeconds))
-
+              log.info("Processing of collection %s of organization %s interrupted after %s seconds".format(
+                collection.spec, collection.getOwner, Duration(System.currentTimeMillis() - startProcessing.toDate.getTime, TimeUnit.MILLISECONDS).toSeconds)
+              )
             }
 
           } catch {

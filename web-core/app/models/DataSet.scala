@@ -16,6 +16,7 @@
 
 package models
 
+import _root_.util.DomainConfigurationHandler
 import extensions.ConfigurationException
 import org.bson.types.ObjectId
 import models.mongoContext._
@@ -78,6 +79,8 @@ case class DataSet(
                    idxSortFields: List[String] = List.empty[String] // the sort fields selected for indexing, at the moment derived from configuration
                    ) extends OrganizationCollection with OrganizationCollectionInformation with Harvestable {
 
+  val configuration = DomainConfigurationHandler.getByOrgId(orgId)
+
   // ~~~ accessors
 
   def getName: String = details.name
@@ -88,7 +91,7 @@ case class DataSet(
 
   def getCreator: String = userName
 
-  def getLockedBy: Option[HubUser] = if(lockedBy == None) None else HubUser.findByUsername(lockedBy.get)
+  def getLockedBy: Option[HubUser] = if(lockedBy == None) None else HubUser.dao(orgId).findByUsername(lockedBy.get)
 
   def getFacts: Map[String, String] = {
     val initialFacts = (DataSet.factDefinitionList.map(factDef => (factDef.name, ""))).toMap[String, String]
@@ -117,7 +120,7 @@ case class DataSet(
   def hasDetails: Boolean = details != null
 
   def hasRecords: Boolean = {
-    DataSet.storage.openCollection(this).isDefined && DataSet.getSourceRecordCount(this) != 0
+    HubServices.basexStorage(configuration).openCollection(this).isDefined && DataSet.dao(orgId).getSourceRecordCount(this) != 0
   }
 
   // ~~~ harvesting
@@ -129,7 +132,7 @@ case class DataSet(
     (records, totalSize)
   }
 
-  def getVisibleMetadataFormats(accessKey: Option[String]): Seq[RecordDefinition] = DataSet.getMetadataFormats(spec, orgId, accessKey)
+  def getVisibleMetadataFormats(accessKey: Option[String]): Seq[RecordDefinition] = DataSet.dao(orgId).getMetadataFormats(spec, orgId, accessKey)
 
   def getNamespaces: Map[String, String] = namespaces
 
@@ -147,9 +150,13 @@ case class DataSet(
   def getType: String = details.facts.getAsOrElse[String]("type", "")
 }
 
-object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollection) with Pager[DataSet] {
+object DataSet extends MultiModel[DataSet, DataSetDAO] {
 
-  lazy val storage = HubServices.basexStorage
+  protected def connectionName: String = "Datasets"
+
+  protected def initIndexes(collection: MongoCollection) {}
+
+  protected def initDAO(collection: MongoCollection, connection: MongoDB): DataSetDAO = new DataSetDAO(collection)
 
   lazy val factDefinitionList = parseFactDefinitionList
 
@@ -174,9 +181,13 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
     )
   }
 
+}
+
+class DataSetDAO(collection: MongoCollection) extends SalatDAO[DataSet, ObjectId](collection) with Pager[DataSet] {
+
   def getState(orgId: String, spec: String): DataSetState = {
 
-    val stateData = dataSetsCollection.findOne(
+    val stateData = collection.findOne(
       MongoDBObject("orgId" -> orgId, "spec" -> spec),
       MongoDBObject("state" -> 1)
     ).getOrElse(return DataSetState.NOTFOUND)
@@ -184,24 +195,6 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
     val name = stateData.getAs[DBObject]("state").get("name").toString
 
     DataSetState(name)
-  }
-
-  def getProcessingState(orgId: String, spec: String): (Long, Long) = {
-
-    val stateData = dataSetsCollection.findOne(
-      MongoDBObject("orgId" -> orgId, "spec" -> spec),
-      MongoDBObject("state" -> 1, "details" -> 1)
-    ).getOrElse(return (0, 0))
-
-    val details: MongoDBObject = stateData.get("details").asInstanceOf[DBObject]
-
-    val totalRecords = details.getAsOrElse[Long]("total_records", 0)
-    // this one is unboxed as Int because when we write it via $set it doesn't get written as a NumberLong...
-    val processingCount = details.getAsOrElse[Long]("indexing_count", 0)
-
-    if(stateData.getAs[DBObject]("state").get("name") == DataSetState.ENABLED.name) return (100, 100)
-
-    (processingCount, totalRecords)
   }
 
   def findCollectionForIndexing() : Option[DataSet] = {
@@ -219,40 +212,41 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
   def findBySpecAndOrgId(spec: String, orgId: String): Option[DataSet] = findOne(MongoDBObject("spec" -> spec, "orgId" -> orgId, "deleted" -> false))
 
   def findByState(states: DataSetState*) = {
-    DataSet.find("state.name" $in (states.map(_.name)) ++ MongoDBObject("deleted" -> false))
+    find("state.name" $in (states.map(_.name)) ++ MongoDBObject("deleted" -> false))
   }
 
   def findAll(orgId: String): List[DataSet] = find(MongoDBObject("deleted" -> false)).sort(MongoDBObject("name" -> 1)).toList
 
-  def findAllForUser(userName: String, orgIds: List[String], grantType: GrantType): List[DataSet] = {
+  def findAllForUser(userName: String, orgIds: List[String], grantType: GrantType)(implicit configuration: DomainConfiguration): List[DataSet] = {
     val groupDataSets = Group.
+                              dao.
                               find(MongoDBObject("users" -> userName)).
                               filter(g => g.grantType == grantType.key).
-                              map(g => DataSet.find("_id" $in g.dataSets).toList).
+                              map(g => find("_id" $in g.dataSets).toList).
                               toList.flatten
-    val adminDataSets = orgIds.filter(orgId => HubServices.organizationService.isAdmin(orgId, userName)).map(orgId => DataSet.findAllByOrgId(orgId)).toList.flatten
+    val adminDataSets = orgIds.filter(orgId => HubServices.organizationService(configuration).isAdmin(orgId, userName)).map(orgId => findAllByOrgId(orgId)).toList.flatten
 
     (groupDataSets ++ adminDataSets).distinct
   }
 
-  def findAllCanSee(orgId: String, userName: String): List[DataSet] = {
-    if(HubServices.organizationService.isAdmin(orgId, userName)) return DataSet.findAllByOrgId(orgId).toList
-    val ids = Group.find(MongoDBObject("orgId" -> orgId, "users" -> userName)).map(_.dataSets).toList.flatten.distinct
-    (DataSet.find(("_id" $in ids)) ++ DataSet.find(MongoDBObject("orgId" -> orgId))).filterNot(_.deleted).toList
+  def findAllCanSee(orgId: String, userName: String)(implicit configuration: DomainConfiguration): List[DataSet] = {
+    if(HubServices.organizationService(configuration).isAdmin(orgId, userName)) return findAllByOrgId(orgId).toList
+    val ids = Group.dao.find(MongoDBObject("orgId" -> orgId, "users" -> userName)).map(_.dataSets).toList.flatten.distinct
+    (find(("_id" $in ids)) ++ find(MongoDBObject("orgId" -> orgId))).filterNot(_.deleted).toList
   }
 
-  def findAllByOrgId(orgId: String) = DataSet.find(MongoDBObject("orgId" -> orgId, "deleted" -> false))
+  def findAllByOrgId(orgId: String) = find(MongoDBObject("orgId" -> orgId, "deleted" -> false))
 
   // ~~~ access control
 
-  def canView(ds: DataSet, userName: String) = {
-    HubServices.organizationService.isAdmin(ds.orgId, userName) ||
-    Group.count(MongoDBObject("dataSets" -> ds._id, "users" -> userName)) > 0 ||
+  def canView(ds: DataSet, userName: String)(implicit configuration: DomainConfiguration) = {
+    HubServices.organizationService(configuration).isAdmin(ds.orgId, userName) ||
+    Group.dao.count(MongoDBObject("dataSets" -> ds._id, "users" -> userName)) > 0 ||
     ds.visibility == Visibility.PUBLIC
   }
 
-  def canEdit(ds: DataSet, userName: String) = {
-    HubServices.organizationService.isAdmin(ds.orgId, userName) || Group.count(MongoDBObject(
+  def canEdit(ds: DataSet, userName: String)(implicit configuration: DomainConfiguration) = {
+    HubServices.organizationService(configuration).isAdmin(ds.orgId, userName) || Group.dao.count(MongoDBObject(
       "dataSets" -> ds._id,
       "users" -> userName,
       "grantType" -> GrantType.MODIFY.key)
@@ -262,7 +256,7 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
   // workaround for salat not working as it should
   def getInvalidRecords(dataSet: DataSet): Map[String, Set[Int]] = {
     import scala.collection.JavaConverters._
-    dataSetsCollection.findOne(MongoDBObject("_id" -> dataSet._id), MongoDBObject("invalidRecords" -> 1)).map {
+    collection.findOne(MongoDBObject("_id" -> dataSet._id), MongoDBObject("invalidRecords" -> 1)).map {
       ds => {
         val map = ds.getAs[DBObject]("invalidRecords").get
         map.map(valid => {
@@ -283,13 +277,13 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
   // ~~~ update. make sure you always work with the latest version from mongo after an update - operations are not atomic
 
   def updateById(id: ObjectId, dataSet: DataSet) {
-    DataSet.update(MongoDBObject("_id" -> dataSet._id), DataSet._grater.asDBObject(dataSet))
+    update(MongoDBObject("_id" -> dataSet._id), _grater.asDBObject(dataSet))
   }
 
   def updateInvalidRecords(dataSet: DataSet, prefix: String, invalidIndexes: List[Int]) {
     val updatedDetails = dataSet.details.copy(invalidRecordCount = (dataSet.details.invalidRecordCount + (prefix -> invalidIndexes.size)))
     val updatedDataSet = dataSet.copy(invalidRecords = dataSet.invalidRecords.updated(prefix, invalidIndexes), details = updatedDetails)
-    DataSet.save(updatedDataSet)
+    save(updatedDataSet)
     // TODO fire off appropriate state change event
   }
 
@@ -318,7 +312,7 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
         )
     }
     val updatedDataSet = dataSet.copy(mappings = dataSet.mappings.updated(mapping.getPrefix, updatedMapping))
-    DataSet.updateById(dataSet._id, updatedDataSet)
+    updateById(dataSet._id, updatedDataSet)
     updatedDataSet
     // TODO fire off appropriate state change event
   }
@@ -338,13 +332,13 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
 
   def delete(dataSet: DataSet) {
     MetadataCache.get(dataSet.orgId, dataSet.spec, ITEM_TYPE_MDR).removeAll()
-    storage.deleteCollection(dataSet)
+    HubServices.basexStorage(dataSet.configuration).deleteCollection(dataSet)
     remove(dataSet)
   }
 
   // ~~~ record handling
 
-  def getSourceRecordCount(dataSet: DataSet): Long = storage.count(dataSet)
+  def getSourceRecordCount(dataSet: DataSet): Long = HubServices.basexStorage(dataSet.configuration).count(dataSet)
 
   // ~~~ dataSet control
 
@@ -360,21 +354,21 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
   }
 
   def updateIndexingControlState(dataSet: DataSet, mapping: String, facets: List[String], sortFields: List[String]) {
-    DataSet.update(MongoDBObject("_id" -> dataSet._id), $addToSet("idxMappings" -> mapping) ++ $set("idxFacets" -> facets, "idxSortFields" -> sortFields))
+    update(MongoDBObject("_id" -> dataSet._id), $addToSet("idxMappings" -> mapping) ++ $set("idxFacets" -> facets, "idxSortFields" -> sortFields))
   }
 
   def updateIndexingCount(dataSet: DataSet, count: Long) {
-    DataSet.update(MongoDBObject("_id" -> dataSet._id), MongoDBObject("$set" -> MongoDBObject("details.indexing_count" -> count)))
+    update(MongoDBObject("_id" -> dataSet._id), MongoDBObject("$set" -> MongoDBObject("details.indexing_count" -> count)))
     DataSetEvent ! DataSetEvent.ProcessedRecordCountChanged(dataSet.orgId, dataSet.spec, count)
   }
 
   def updateRecordCount(dataSet: DataSet, count: Long) {
-    DataSet.update(MongoDBObject("_id" -> dataSet._id), MongoDBObject("$set" -> MongoDBObject("details.total_records" -> count)))
+    update(MongoDBObject("_id" -> dataSet._id), MongoDBObject("$set" -> MongoDBObject("details.total_records" -> count)))
     DataSetEvent ! DataSetEvent.SourceRecordCountChanged(dataSet.orgId, dataSet.spec, count)
   }
 
   def invalidateHashes(dataSet: DataSet) {
-    DataSet.update(MongoDBObject("_id" -> dataSet._id), $unset ("hashes"))
+    update(MongoDBObject("_id" -> dataSet._id), $unset ("hashes"))
     // TODO fire appropriate event or state change event
   }
 
@@ -396,8 +390,8 @@ object DataSet extends SalatDAO[DataSet, ObjectId](collection = dataSetsCollecti
 
   // statistics
 
-  def getMostRecentDataSetStatistics = {
-    DataSetStatistics.find(MongoDBObject()).$orderby(MongoDBObject("_id" -> -1)).limit(1).toList.headOption
+  def getMostRecentDataSetStatistics(implicit configuration: DomainConfiguration) = {
+    DataSetStatistics.dao.find(MongoDBObject()).$orderby(MongoDBObject("_id" -> -1)).limit(1).toList.headOption
   }
 
 }

@@ -15,7 +15,7 @@ object Breadcrumbs {
   
   def crumble(p: java.util.Map[String, java.util.Map[String, String]], request: RequestHeader, configuration: DomainConfiguration): List[((String, String), Int)] = {
 
-    implicit val lang: Lang = Lang(request.cookies.get("CH_LANG").map(_.value).getOrElse(configuration.defaultLanguage))
+    implicit val lang: Lang = Lang(request.cookies.get("CH_LANG").map(_.value).getOrElse(configuration.ui.defaultLanguage))
 
     // we can't make the difference between orgId/object and user/object
     val crumbList = if(p != null && p.containsKey(core.Constants.IN_ORGANIZATION)) {
@@ -63,7 +63,7 @@ object Breadcrumbs {
       case "organizations" :: orgName :: "groups" ::  "create" :: Nil => List(("NOLINK", Messages("thing.organizations")), ("/organizations/" + orgName, orgName), ("/organizations/" + orgName + "/groups", Messages("thing.groups")), ("NOLINK", Messages("ui.label.create")))
       case "organizations" :: orgName :: "groups" ::  "update" :: id :: Nil => List(("NOLINK", Messages("thing.organizations")), ("/organizations/" + orgName, orgName), ("/organizations/" + orgName + "/groups", Messages("thing.groups")), ("/organizations/" + orgName + "/groups/update/" + id, Messages("ui.label.edit")))
       case "organizations" :: orgName :: "sip-creator" :: Nil => List(("NOLINK", Messages("thing.organizations")), ("/organizations/" + orgName, orgName), ("/organizations/" + orgName + "/sip-creator", Messages("ui.label.sipcreator")))
-      case "organizations" :: orgName :: "site" :: Nil =>  List(("NOLINK", Messages("thing.organizations")), ("/organizations/" + orgName, orgName), ("/organizations/" + orgName + "/site", Messages("org.cms")), ("NOLINK", Messages("locale." + request.session.get("lang").getOrElse(configuration.defaultLanguage))))
+      case "organizations" :: orgName :: "site" :: Nil =>  List(("NOLINK", Messages("thing.organizations")), ("/organizations/" + orgName, orgName), ("/organizations/" + orgName + "/site", Messages("org.cms")), ("NOLINK", Messages("locale." + request.session.get("lang").getOrElse(configuration.ui.defaultLanguage))))
       case "organizations" :: orgName :: "site" :: "upload" :: Nil =>  List(("NOLINK", Messages("thing.organizations")), ("/organizations/" + orgName, orgName), ("/organizations/" + orgName + "/site", Messages("org.cms")), ("NOLINK", Messages("org.cms.upload")))
       case "organizations" :: orgName :: "site" :: lang :: Nil =>  List(("NOLINK", Messages("thing.organizations")), ("/organizations/" + orgName, orgName), ("/organizations/" + orgName + "/site", Messages("org.cms")), ("NOLINK", Messages("locale." + lang)))
       case "organizations" :: orgName :: "site" :: lang :: "page" :: "add" :: Nil => List(("NOLINK", Messages("thing.organizations")), ("/organizations/" + orgName, orgName), ("/organizations/" + orgName + "/site", Messages("org.cms")), ("/organizations/" + orgName + "/site/" + lang, Messages("locale." + lang)), ("NOLINK", Messages("org.cms.page.create")))

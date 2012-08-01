@@ -7,6 +7,7 @@ import org.basex.server.ClientSession
 import java.io.ByteArrayInputStream
 import play.api.Logger
 import core.collection.Collection
+import models.BaseXConfiguration
 
 /**
  * BaseX-based Storage engine.
@@ -17,11 +18,18 @@ import core.collection.Collection
  */
 
 
-class BaseXStorage(host: String, port: Int, ePort: Int, user: String, password: String) {
+class BaseXStorage(configuration: BaseXConfiguration) {
 
   val DEFAUL_BASEX_PATH_EXTENSION = "DOT"
 
-  lazy val storage = new BaseX(host, port, ePort, user, password, false)
+  lazy val storage = new BaseX(
+    configuration.host,
+    configuration.port,
+    configuration.eport,
+    configuration.user,
+    configuration.password,
+    false
+  )
 
   def createCollection(collection: Collection): Collection = {
     storage.createDatabase(storageName(collection))

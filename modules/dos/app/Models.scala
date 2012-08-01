@@ -28,32 +28,35 @@ import play.api.Play.current
 
 package object dos extends MongoContext {
 
-  val connectionName = if(Play.isTest) "dosTest" else "dos"
-
-  val connection: MongoDB = createConnection(connectionName)
-  val taskCollection = connection("Tasks")
-  val logCollection = connection("Logs")
-  val originCollection = connection("Files")
-
   def getNode = Play.configuration.getString("cultureHub.nodeName").getOrElse("defaultDosNode")
 
 }
 
 package dos {
 
-import java.net.URL
+case class Log(
+  _id: ObjectId = new ObjectId,
+  orgId: String,
+  task_id: ObjectId,
+  date: Date = new Date,
+  node: String,
+  message: String,
+  taskType: TaskType, // saved here for redundancy
+  sourceItem: Option[String] = None,
+  resultItem: Option[String] = None, // file path or URL or ID to a single item that was processed, if applicable
+  level: LogLevel = LogLevel.INFO
+)
 
-case class Log(_id: ObjectId = new ObjectId,
-               task_id: ObjectId,
-               date: Date = new Date,
-               node: String,
-               message: String,
-               taskType: TaskType, // saved here for redundancy
-               sourceItem: Option[String] = None,
-               resultItem: Option[String] = None, // file path or URL or ID to a single item that was processed, if applicable
-               level: LogLevel = LogLevel.INFO)
+object Log extends MultiModel[Log, LogDAO] {
 
-object Log extends SalatDAO[Log, ObjectId](collection = logCollection)
+  protected def connectionName: String = "Logs"
+
+  protected def initIndexes(collection: MongoCollection) {}
+
+  protected def initDAO(collection: MongoCollection, connection: MongoDB): LogDAO = new LogDAO(collection)
+}
+
+class LogDAO(collection: MongoCollection) extends SalatDAO[Log, ObjectId](collection)
 
 case class LogLevel(name: String)
 
@@ -65,53 +68,66 @@ object LogLevel {
   def valueOf(what: String) = values find { _.name == what }
 }
 
-case class Task(_id: ObjectId = new ObjectId,
-                node: String,
-                path: String,
-                taskType: TaskType,
-                params: Map[String, String] = Map.empty[String, String],
-                queuedAt: Date = new Date,
-                startedAt: Option[Date] = None,
-                finishedAt: Option[Date] = None,
-                state: TaskState = TaskState.QUEUED,
-                totalItems: Int = 0,
-                processedItems: Int = 0) {
+case class Task(
+  _id: ObjectId = new ObjectId,
+  node: String,
+  orgId: String,
+  path: String,
+  taskType: TaskType,
+  params: Map[String, String] = Map.empty[String, String],
+  queuedAt: Date = new Date,
+  startedAt: Option[Date] = None,
+  finishedAt: Option[Date] = None,
+  state: TaskState = TaskState.QUEUED,
+  totalItems: Int = 0,
+  processedItems: Int = 0
+) {
 
   def pathAsFile = new File(path)
 
   def pathExists = new File(path).exists()
 
-  def isCancelled = taskCollection.findOne(MongoDBObject("_id" -> _id, "state.name" -> TaskState.CANCELLED.name)).isDefined
+  def isCancelled = Task.dao(orgId).findOne(MongoDBObject("_id" -> _id, "state.name" -> TaskState.CANCELLED.name)).isDefined
 
   override def toString = "Task[%s] type: %s, path: %s, params: %s".format(_id, taskType.name, path, params.toString)
 
 }
 
-object Task extends SalatDAO[Task, ObjectId](collection = taskCollection) {
-  def list(taskType: TaskType) = Task.find(MongoDBObject("taskType.name" -> taskType.name)).toList
+object Task extends MultiModel[Task, TaskDAO] {
 
-  def list(state: TaskState) = Task.find(MongoDBObject("state.name" -> state.name, "node" -> getNode)).sort(MongoDBObject("queuedAt" -> 1)).toList
+  protected def connectionName: String = "Tasks"
 
-  def listAll() = Task.find(MongoDBObject()).sort(MongoDBObject("queuedAt" -> 1)).toList
+  protected def initIndexes(collection: MongoCollection) {}
+
+  protected def initDAO(collection: MongoCollection, connection: MongoDB): TaskDAO = new TaskDAO(collection)
+}
+
+class TaskDAO(collection: MongoCollection) extends SalatDAO[Task, ObjectId](collection) {
+
+  def list(taskType: TaskType) = find(MongoDBObject("taskType.name" -> taskType.name)).toList
+
+  def list(state: TaskState) = find(MongoDBObject("state.name" -> state.name, "node" -> getNode)).sort(MongoDBObject("queuedAt" -> 1)).toList
+
+  def listAll() = find(MongoDBObject()).sort(MongoDBObject("queuedAt" -> 1)).toList
 
   def start(task: Task) {
-    Task.update(MongoDBObject("_id" -> task._id), $set("state.name" -> TaskState.RUNNING.name, "startedAt" -> new Date))
+    update(MongoDBObject("_id" -> task._id), $set("state.name" -> TaskState.RUNNING.name, "startedAt" -> new Date))
   }
 
   def finish(task: Task) {
-    Task.update(MongoDBObject("_id" -> task._id), $set("state.name" -> TaskState.FINISHED.name, "finishedAt" -> new Date))
+    update(MongoDBObject("_id" -> task._id), $set("state.name" -> TaskState.FINISHED.name, "finishedAt" -> new Date))
   }
 
   def cancel(task: Task) {
-    Task.update(MongoDBObject("_id" -> task._id), $set("state.name" -> TaskState.CANCELLED.name, "finishedAt" -> new Date))
+    update(MongoDBObject("_id" -> task._id), $set("state.name" -> TaskState.CANCELLED.name, "finishedAt" -> new Date))
   }
 
   def setTotalItems(task: Task, total: Int) {
-    Task.update(MongoDBObject("_id" -> task._id), $set("totalItems" -> total))
+    update(MongoDBObject("_id" -> task._id), $set("totalItems" -> total))
   }
 
   def incrementProcessedItems(task: Task, amount: Int) {
-    Task.update(MongoDBObject("_id" -> task._id), $inc("processedItems" -> amount))
+    update(MongoDBObject("_id" -> task._id), $inc("processedItems" -> amount))
   }
 
 }
@@ -141,95 +157,6 @@ object TaskState {
 
 }
 
-case class SourceType(name: String)
-object SourceType {
-  val FILE = SourceType("file")
-  val URL = SourceType("url")
-  val values = List(FILE, URL)
-  def valueOf(what: String) = values find { _.name == what }
 }
-
-case class FileOrigin(_id: ObjectId = new ObjectId,
-                      origin: String, // file-system path or URL
-                      sourceType: SourceType,
-                      lastModified: Date,
-                      size: Long) {
-  /**
-   * Retrieves the source
-   */
-  def sourceFile: Option[File] = {
-    if(sourceType != SourceType.FILE) {
-      None
-    } else {
-      val f = new File(origin)
-      if(!f.exists()) {
-        None
-      } else {
-        Some(f)
-      }
-    }
-  }
-
-  /**
-   * Whether the file origin is up-to-date
-   */
-  def upToDate: Boolean = sourceType match {
-    case SourceType.FILE => sourceFile.isDefined && sourceFile.get.lastModified() == lastModified.getTime
-    case _ => false
-  }
-
-  /**
-   * Updates the file origin meta-data
-   */
-  def update {
-    sourceType match {
-      case SourceType.FILE if(sourceFile.isDefined) =>
-        val f = sourceFile.get
-        val updated = this.copy(lastModified = new Date(f.lastModified()), size = f.length())
-        FileOrigin.save(updated)
-
-        // TODO update GM identify, EXIM etc.
-
-      case _ =>
-    }
-  }
-
-  /**
-   * Adds a link to a file that this origin is related to
-   */
-  def addLink(key: String, origin: Map[String, String]) {}
-
-}
-
-object FileOrigin extends SalatDAO[FileOrigin, ObjectId](collection = originCollection) {
-
-  /**
-   * Creates the file origin given a File, returns <code>false</code> if it wasn't created
-   */
-  def create(file: File): Boolean = {
-    if (FileOrigin.findOne(MongoDBObject("origin" -> file.getAbsolutePath)) != None) {
-      return false
-    }
-
-    val origin = FileOrigin(origin = file.getAbsolutePath,
-      sourceType = SourceType.FILE,
-      lastModified = new Date(file.lastModified()),
-      size = file.length())
-
-    FileOrigin.insert(origin) match {
-      case Some(id) =>
-        val fileOrigin = origin.copy(_id = id)
-        // TODO if this is an image, do GM analysis and EXIM and whatsonot
-        true
-      case None => false
-    }
-  }
-
-  def create(url: URL): Boolean = { false } // TODO implement
-
-}
-
-}
-
 
 }

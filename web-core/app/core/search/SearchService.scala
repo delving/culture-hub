@@ -42,7 +42,7 @@ import java.net.{URLEncoder, URLDecoder}
 object SearchService {
 
   def getApiResult(orgId: Option[String], request: RequestHeader, configuration: DomainConfiguration, hiddenQueryFilters: List[String] = List.empty): PlainResult =
-    new SearchService(orgId, request, configuration, hiddenQueryFilters).getApiResult
+    new SearchService(orgId, request, hiddenQueryFilters)(configuration).getApiResult
 
 
   def localiseKey(metadataField: String, language: String = "en", defaultLabel: String = "unknown"): String = {
@@ -51,7 +51,7 @@ object SearchService {
   }
 }
 
-class SearchService(orgId: Option[String], request: RequestHeader, configuration: DomainConfiguration, hiddenQueryFilters: List[String] = List.empty) {
+class SearchService(orgId: Option[String], request: RequestHeader, hiddenQueryFilters: List[String] = List.empty)(implicit configuration: DomainConfiguration) {
 
   val log = Logger("CultureHub")
 
@@ -99,9 +99,9 @@ class SearchService(orgId: Option[String], request: RequestHeader, configuration
     require(params._contains("query") || params._contains("id") || params._contains("explain"))
 
     val response: String = params match {
-      case x if x._contains("explain") && x.getValueOrElse("explain", "nothing").equalsIgnoreCase("fieldValue") => FacetAutoComplete(params).renderAsJson
+      case x if x._contains("explain") && x.getValueOrElse("explain", "nothing").equalsIgnoreCase("fieldValue") => FacetAutoComplete(params, configuration).renderAsJson
       case x if x._contains("explain") => ExplainResponse(configuration, params).renderAsJson
-      case x if x.valueIsNonEmpty("id") => getRenderedFullView("api", x.getFirst("schema")) match {
+      case x if x.valueIsNonEmpty("id") => getRenderedFullView("api", x.getFirst("schema"), configuration) match {
         case Right(rendered) => rendered.toJson
         case Left(error) => return errorResponse("Unable to render full record", error, "json")
       }
@@ -117,9 +117,9 @@ class SearchService(orgId: Option[String], request: RequestHeader, configuration
     require(params._contains("query") || params._contains("id") || params._contains("explain"))
 
     val response: Elem = params match {
-      case x if x._contains("explain") && x.getValueOrElse ("explain", "nothing").equalsIgnoreCase("fieldValue") => FacetAutoComplete(params).renderAsXml
+      case x if x._contains("explain") && x.getValueOrElse ("explain", "nothing").equalsIgnoreCase("fieldValue") => FacetAutoComplete(params, configuration).renderAsXml
       case x if x._contains("explain") => ExplainResponse(configuration, params).renderAsXml
-      case x if x.valueIsNonEmpty("id") => getRenderedFullView("api", x.getFirst("schema")) match {
+      case x if x.valueIsNonEmpty("id") => getRenderedFullView("api", x.getFirst("schema"), configuration) match {
           case Right(rendered) => return Ok(rendered.toXmlString).as(XML)
           case Left(error) => return errorResponse("Unable to render full record", error, "xml")
       }
@@ -134,14 +134,14 @@ class SearchService(orgId: Option[String], request: RequestHeader, configuration
   private def getBriefResultsFromSolr: BriefItemView = {
     require(params.valueIsNonEmpty("query"))
     val chQuery = SolrQueryService.createCHQuery(request, configuration, true, additionalSystemHQFs = hiddenQueryFilters)
-    BriefItemView(CHResponse(params, configuration, SolrQueryService.getSolrResponseFromServer(chQuery.solrQuery, true), chQuery))
+    BriefItemView(CHResponse(params, configuration, SolrQueryService.getSolrResponseFromServer(chQuery.solrQuery, configuration, true), chQuery))
   }
 
-  def getRenderedFullView(viewName: String, schema: Option[String] = None): Either[String, RenderedView] = {
+  def getRenderedFullView(viewName: String, schema: Option[String] = None, configuration: DomainConfiguration): Either[String, RenderedView] = {
     require(params._contains("id"))
     val id = params.getValue("id")
     val idType = params.getValueOrElse("idType", HUB_ID)
-    SolrQueryService.resolveHubIdAndFormat(orgId, URLEncoder.encode(id, "utf-8"), idType) match {
+    SolrQueryService.resolveHubIdAndFormat(orgId, URLEncoder.encode(id, "utf-8"), idType, configuration) match {
       case Some((hubId, defaultSchema, publicSchemas)) =>
         val prefix = if(schema.isDefined && publicSchemas.contains(schema.get)) {
           schema.get
@@ -196,7 +196,7 @@ class SearchService(orgId: Option[String], request: RequestHeader, configuration
       // let's do some rendering
       RecordDefinition.getRecordDefinition(prefix) match {
         case Some(definition) =>
-          val viewRenderer = ViewRenderer.fromDefinition(viewDefinitionFormatName, viewName)
+          val viewRenderer = ViewRenderer.fromDefinition(viewDefinitionFormatName, viewName, configuration)
           if (viewRenderer.isEmpty) {
             log.warn("Tried rendering full record with id '%s' for non-existing view type '%s'".format(hubId, viewName))
             Left("Could not render full record with hubId '%s' for view type '%s': view type does not exist".format(hubId, viewName))
@@ -451,7 +451,7 @@ case class SearchSummary(result: BriefItemView, language: String = "en", chRespo
   }
 }
 
-case class FacetAutoComplete(params: Params) {
+case class FacetAutoComplete(params: Params, configuration: DomainConfiguration) {
   require(params._contains("field"))
   val facet = params.getValueOrElse("field", "nothing")
   val query = params.getValueOrElse("value", "")
@@ -463,9 +463,9 @@ case class FacetAutoComplete(params: Params) {
   }
 
   val autocomplete: Seq[Count] =  if (facet != "listAll")
-    SolrServer.getFacetFieldAutocomplete(facet, query, rows)
+    SolrServer.getFacetFieldAutocomplete(facet, query, rows)(configuration)
   else
-    SolrServer.getSolrFields.sortBy(_.name).filter(_.fieldCanBeUsedAsFacet).map(field => new FacetField.Count(new FacetField("facets"), field.name, field.distinct))
+    SolrServer.getSolrFields(configuration).sortBy(_.name).filter(_.fieldCanBeUsedAsFacet).map(field => new FacetField.Count(new FacetField("facets"), field.name, field.distinct))
 
   def renderAsXml : Elem = {
     <results>
@@ -523,7 +523,7 @@ case class ExplainResponse(configuration: DomainConfiguration, params: Params) {
     ExplainItem("pt", List("Standard latitude longitude separeded by a comma"), "The point around which the geo-search is executed with the type of query specified by geoType")
   )
 
-  val solrFields = SolrServer.getSolrFields.sortBy(_.name)
+  val solrFields = SolrServer.getSolrFields(configuration).sortBy(_.name)
   val solrFieldsWithFacets = solrFields.filter(_.fieldCanBeUsedAsFacet)
   val sortableFields = solrFields.filter(_.fieldIsSortable)
 

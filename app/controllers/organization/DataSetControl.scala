@@ -113,7 +113,7 @@ object DataSetControl extends OrganizationController {
   def dataSet(orgId: String, spec: Option[String]): Action[AnyContent] = OrgMemberAction(orgId) {
     Action {
       implicit request =>
-        val dataSet = if (spec == None) None else DataSet.findBySpecAndOrgId(spec.get, orgId)
+        val dataSet = if (spec == None) None else DataSet.dao.findBySpecAndOrgId(spec.get, orgId)
         val allRecordDefinitions: List[String] = RecordDefinition.recordDefinitions.map(r => r.prefix).toList
 
         val data = if (dataSet == None) {
@@ -123,7 +123,7 @@ object DataSetControl extends OrganizationController {
           ))
         } else {
           val dS = dataSet.get
-          if (DataSet.canEdit(dS, connectedUser)) {
+          if (DataSet.dao.canEdit(dS, connectedUser)) {
             JJson.generate(
               DataSetCreationViewModel(
                 id = Some(dS._id),
@@ -162,7 +162,7 @@ object DataSetControl extends OrganizationController {
             factsObject.putAll(dataSetForm.facts.asMap)
 
             // try to enrich with provider and dataProvider uris
-            def enrich(input: String, output: String) = HubServices.directoryService.findOrganizationByName(factsObject.get(input).toString) match {
+            def enrich(input: String, output: String) = HubServices.directoryService(configuration).findOrganizationByName(factsObject.get(input).toString) match {
               case Some(p) => factsObject.put(output, p.uri)
               case None => factsObject.remove(output)
             }
@@ -195,8 +195,8 @@ object DataSetControl extends OrganizationController {
 
             dataSetForm.id match {
               case Some(id) => {
-                val existing = DataSet.findOneById(id).get
-                if (!DataSet.canEdit(existing, connectedUser)) {
+                val existing = DataSet.dao.findOneById(id).get
+                if (!DataSet.dao.canEdit(existing, connectedUser)) {
                   return Action {
                     implicit request => Forbidden("You have no rights to edit this DataSet")
                   }
@@ -210,7 +210,7 @@ object DataSetControl extends OrganizationController {
                     formatAccessControl = formatAccessControl,
                     idxMappings = dataSetForm.indexingMappingPrefix.map(List(_)).getOrElse(List.empty)
                   )
-                DataSet.save(updated)
+                DataSet.dao.save(updated)
                 DataSetEvent ! DataSetEvent.Updated(orgId, dataSetForm.spec, connectedUser)
               }
               case None =>
@@ -219,7 +219,7 @@ object DataSetControl extends OrganizationController {
                   implicit request => Forbidden("You are not allowed to create a DataSet.")
                 }
 
-                DataSet.insert(
+                DataSet.dao.insert(
                   DataSet(
                     spec = dataSetForm.spec,
                     orgId = orgId,
@@ -247,7 +247,7 @@ object DataSetControl extends OrganizationController {
   def organizationLookup(orgId: String, term: String) = OrgMemberAction(orgId) {
     Action {
       implicit request =>
-        Json(HubServices.directoryService.findOrganization(term).map(_.name))
+        Json(HubServices.directoryService(configuration).findOrganization(term).map(_.name))
     }
   }
 

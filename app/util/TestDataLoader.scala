@@ -23,21 +23,22 @@ import core.processing.DataSetCollectionProcessor
 object TestDataLoader {
 
   def load() {
-    if (HubUser.count() == 0) bootstrapUser()
-    if (Group.count() == 0) bootstrapAccessControl()
-    if (DataSet.count() == 0) bootstrapDatasets()
+    if (HubUser.dao("delving").count() == 0) bootstrapUser()
+    if (Group.dao("delving").count() == 0) bootstrapAccessControl()
+    if (DataSet.dao("delving").count() == 0) bootstrapDatasets()
   }
 
   def loadDataSet() {
-    val dataSet = DataSet.findBySpecAndOrgId("PrincessehofSample", "delving").get
+    implicit val configuration = DomainConfigurationHandler.getByOrgId(("delving"))
+    val dataSet = DataSet.dao.findBySpecAndOrgId("PrincessehofSample", "delving").get
     SipCreatorEndPoint.loadSourceData(dataSet, new GZIPInputStream(new FileInputStream(new File("conf/bootstrap/EA525DF3C26F760A1D744B7A63C67247__source.xml.gz"))))
-    DataSet.updateState(dataSet, DataSetState.QUEUED)
+    DataSet.dao.updateState(dataSet, DataSetState.QUEUED)
     DataSetCollectionProcessor.process(dataSet)
   }
 
   private def bootstrapUser() {
     val profile = UserProfile()
-    HubUser.insert(new HubUser(
+    HubUser.dao("delving").insert(new HubUser(
       _id = new ObjectId("4e5679a80364ae80333ab939"),
       userName = "bob",
       firstName = "bob",
@@ -45,7 +46,7 @@ object TestDataLoader {
       email = "bob@gmail.com",
       userProfile = profile
     ))
-    HubUser.insert(new HubUser(
+    HubUser.dao("delving").insert(new HubUser(
       _id = new ObjectId("4e5679a80364ae80333ab93a"),
       userName = "jimmy",
       firstName = "Jimmy",
@@ -53,7 +54,7 @@ object TestDataLoader {
       email = "jimmy@gmail.com",
       userProfile = profile
     ))
-    HubUser.insert(new HubUser(
+    HubUser.dao("delving").insert(new HubUser(
       _id = new ObjectId("4e5679a80364ae80333ab93b"),
       userName = "dan",
       firstName = "Dan",
@@ -66,7 +67,7 @@ object TestDataLoader {
   private def bootstrapAccessControl() {
 
     // all users are in delving
-    HubUser.find(MongoDBObject()).foreach(u => HubUser.addToOrganization(u.userName, "delving"))
+    HubUser.dao("delving").find(MongoDBObject()).foreach(u => HubUser.dao("delving").addToOrganization(u.userName, "delving"))
 
   }
 
@@ -83,7 +84,7 @@ object TestDataLoader {
     factMap.put("rights", "http://creativecommons.org/publicdomain/mark/1.0/")
     factMap.put("type", "IMAGE")
 
-    DataSet.insert(DataSet(
+    DataSet.dao("delving").insert(DataSet(
       spec = "PrincessehofSample",
       userName = "bob",
       orgId = "delving",
