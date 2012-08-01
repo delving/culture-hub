@@ -62,8 +62,11 @@ object HubServices {
         }
 
         // add example organization
-        val delving = MemoryOrganization(orgId = "delving", name = Map("en" -> "Delving"), admins = List("bob"))
-        memoryServices.organizations += ("delving" -> delving)
+
+        DomainConfigurationHandler.domainConfigurations.foreach { configuration =>
+          val org = MemoryOrganization(orgId = configuration.orgId, name = Map("en" -> configuration.orgId.capitalize), admins = List("bob"))
+          memoryServices.organizations += (configuration.orgId -> org)
+        }
         memoryServices
 
         case _ => throw new RuntimeException("The remote services are not configured. You need to specify 'cultureCommons.host' and 'cultureCommons.apiToken")
