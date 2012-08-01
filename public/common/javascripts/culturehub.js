@@ -239,21 +239,21 @@ function bootboxConfirm( options ) {
                         document.location = options["success_url"];
                     }
                     if(typeof options["success_callback"] == 'function') {
-                        options["success_callback"].apply()
+                        options["success_callback"].apply();
                     }
                 },
                 error: function() {
                     if(typeof options["error_callback"] == 'function') {
-                        options["error_callback"].apply()
+                        options["error_callback"].apply();
                     }
                 }
             });
         } else {
             if(typeof options["cancel_callback"] == 'function') {
-                options["cancel_callback"].apply()
+                options["cancel_callback"].apply();
             }
         }
-    })
+    });
 }
 
 function confirmationDialog(elementId, onConfirm, message, title) {
@@ -324,6 +324,15 @@ function elementIdMatch(id, element) {
 
 
 // ~~~ KnockoutJS binders
+
+// binding handler for triggering the jQuery triggerUpdate event
+ko.bindingHandlers.triggerUpdate = {
+update: function (element, valueAccessor) {
+    ko.utils.unwrapObservable(valueAccessor());
+    $(element).trigger("update");
+}
+};
+
 
 /**
  * KnockoutJS binder for the jQuery tokenInput plugin
@@ -618,18 +627,19 @@ Delving.wysiwyg = function (params) {
         force_br_newlines: true,
         forced_root_block: 'p', // Needed for 3.x
         remove_linebreaks: false,
-        content_css : "/assets/common/stylesheets/bootstrap/bootstrap.css",
+        content_css : "/assets/common/stylesheets/bootstrap-delving.css",
         fix_content_duplication: false,
         fix_list_elements: true,
         cleanup_on_startup : true,
 //        cleanup_callback : "cmsCleanUp",
         valid_child_elements: "ul[li],ol[li]",
-        theme_advanced_buttons1 : "cleanup,|,bold,italic,underline,strikethrough,|,justifyleft,justifycenter,justifyright,justifyfull,|,formatselect,|,bullist,numlist,|,undo,redo,|,link,unlink,anchor,|,image,|,forecolor,backcolor,|,removeformat,source,|,code,template",
+        theme_advanced_buttons1 : "cleanup,|,bold,italic,underline,strikethrough,|,justifyleft,justifycenter,justifyright,justifyfull,|,formatselect,|,bullist,numlist,|,undo,redo,|,link,unlink,anchor,|,image,|,forecolor,backcolor,|,removeformat,|,search,replace,|,template,|,fullscreen,|,code",
         theme_advanced_buttons2: "",
         theme_advanced_buttons3: "",
         theme_advanced_toolbar_align: "left",
+        dialog_type : "modal",
         height : "320",
-        plugins: "advimage,autoresize,template",
+        plugins: "searchreplace,inlinepopups,advimage,autoresize,template,fullscreen",
         external_image_list_url: '/organizations/' + params.orgId + '/site/listImages',
         extended_valid_elements: "img[!src|border:0|alt|title|width|height|style]a[name|href|target|title|onclick|class]",
         template_external_list_url : "/assets/common/javascripts/tiny-templates.js",
@@ -679,39 +689,6 @@ function checkSimpleSearchSubmit(oId){
 
     return true;
 }
-
-$(document).ready(function() {
-
-//    // Toggle the dropdown menu's
-//    $(".dropdown .button, .dropdown button").click(function () {
-//        if (!$(this).find('span.toggle').hasClass('active')) {
-//            $('.dropdown-slider').slideUp();
-//            $('span.toggle').removeClass('active');
-//        }
-//
-//    // open selected dropown
-//        $(this).parent().find('.dropdown-slider').slideToggle('fast');
-//        $(this).find('span.toggle').toggleClass('active');
-//
-//        return false;
-//    });
-//
-//    // Launch TipTip tooltip
-//    $('.tiptip a.button, .tiptip button').tipTip();
-//
-//    $('select.link').change(function(){
-//       window.location.href=$(this).attr('value');
-//    });
-
-});
-
-// Close open dropdown slider by clicking elsewhwere on page
-//$(document).bind('click', function (e) {
-//    if (e.target.id != $('.dropdown').attr('class')) {
-//        $('.dropdown-slider').slideUp();
-//        $('span.toggle').removeClass('active');
-//    }
-//});
 
 
 /**

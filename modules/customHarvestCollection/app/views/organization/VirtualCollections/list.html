@@ -1,0 +1,81 @@
+#{extends themeInfo.get('themeLayout') /}
+#{set title: messages.get('thing.virtualCollections') /}
+#{set bodyId: 'organization' /}
+
+#{breadcrumbs configuration: themeInfo.getConfiguration() /}
+
+#{organizationNavBar orgId: orgId, active:"virtual-collections", navigation: navigation /}
+
+<div class="row">
+
+    <div class="span12">
+
+            <table class="table table-striped">
+                <caption>&{'thing.virtualCollections'}</caption>
+                <thead>
+                <tr>
+                    <th>&{'thing.title'}</th>
+                    <th>&{'org.vc.publicMetadataPrefixes'}</th>
+                    <th>&{'org.vc.recordCount'}</th>
+                    <th>&{'org.vc.currentCount'}</th>
+                    <th width="35%">&{'thing.actions'}</th>
+                </tr>
+                </thead>
+                <tbody>
+                #{list virtualCollections, as: 'vc'}
+                <tr>
+                    <td>
+                        <span><a href="/organizations/${orgId}/virtualCollection/${vc.spec}">${vc.name}</a></span>
+                    </td>
+                    <td>
+                        <span>#{list vc.getPublicMetadataPrefixes(), as:'prefix'}<a href="http://${request.host()}/organizations/${orgId}/api/oai-pmh?verb=ListRecords&set=${vc.spec}&metadataPrefix=${prefix}">${prefix}</a>#{/list}</span>
+                    </td>
+                    <td>
+                        <span>${vc.getTotalRecords()}</span>
+                    </td>
+                    <td>
+                        <span>${vc.currentQueryCount}</span>
+                    </td>
+                    <td>
+                        #{if isAdmin}
+                        <a class="btn btn-primary btn-mini" href="/organizations/${orgId}/virtualCollection/${vc.spec}/update">
+                            <i class="icon-edit icon-white"></i> &{'ui.label.edit'}
+                        </a>
+                        <a id="${vc.spec}" data-remove="${vc.spec}" class="btn btn-danger btn-mini delete pull-right" href="#">
+                            <i class="icon-trash icon-white"></i> &{'ui.label.delete'}
+                        </a>
+                        #{/if}
+                    </td>
+                </tr>
+                #{/list}
+                #{else}
+                <tr>
+                    <td colspan="4">
+                        No virtual collections are defined
+                    </td>
+                    <td>
+                        #{if isAdmin}
+                            <a class="btn btn-primary btn-mini" href="/organizations/${orgId}/virtualCollection/add"><i class="icon-plus-sign icon-white"></i>&#160;&{'org.vc.new'}</a>
+                        #{/if}
+                    </td>
+                </tr>
+                #{/else}
+                </tbody>
+            </table>
+    </div>
+</div>
+
+<script type="text/javascript">
+
+$(document).ready(function () {
+    $('.delete').click(function(el) {
+        bootboxConfirm({
+            'type': 'DELETE',
+            'message' :  '<h3 class="shout">'+  el.target.id +'</h3>&{'org.vc.deleteCollectionConfirm'}',
+            'action_url' : '/organizations/${orgId}/virtualCollection/' + el.target.id,
+            'success_url': '/organizations/${orgId}/virtualCollection'
+        });
+    });
+});
+
+</script>

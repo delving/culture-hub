@@ -20,35 +20,27 @@ import extensions.JJson
 import com.mongodb.casbah.Imports._
 import org.bson.types.ObjectId
 import models._
-import models.DataSetState._
-import java.util.Date
-import play.api.i18n.Messages
-import play.api.mvc.{RequestHeader, Result, AnyContent, Action}
+import play.api.mvc.{AnyContent, Action}
 import play.api.data.Forms._
-import collection.JavaConverters._
 import extensions.Formatters._
-import play.api.data.{Form}
+import play.api.data.Form
 import play.api.data.validation.Constraints
 import controllers.{ViewModel, OrganizationController}
 import collection.immutable.List
-import play.api.libs.concurrent.Promise
-import core.indexing.{IndexingService, Indexing}
-import core.HubServices
+import core.{DataSetEvent, HubServices}
 
 /**
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-case class DataSetViewModel(id: Option[ObjectId] = None,
+case class DataSetCreationViewModel(id: Option[ObjectId] = None,
                             spec: String = "",
                             facts: HardcodedFacts = HardcodedFacts(),
-                            //                            facts:                  Map[String, String] = Map.empty,
                             recordDefinitions: Seq[String] = Seq.empty,
                             allRecordDefinitions: List[String],
                             oaiPmhAccess: List[OaiPmhAccessViewModel],
-                            indexingMappingPrefix: String = "",
-                            visibility: Int = 0,
+                            indexingMappingPrefix: Option[String] = None,
                             errors: Map[String, String] = Map.empty) extends ViewModel
 
 case class OaiPmhAccessViewModel(format: String, accessType: String = "none", accessKey: Option[String] = None)
@@ -84,13 +76,12 @@ object HardcodedFacts {
   )
 }
 
-object DataSetViewModel {
+object DataSetCreationViewModel {
 
   val dataSetForm = Form(
     mapping(
       "id" -> optional(of[ObjectId]),
       "spec" -> nonEmptyText.verifying(Constraints.pattern("^[A-Za-z0-9-]{3,40}$".r, "constraint.validSpec", "Invalid spec format")),
-      //      "facts" -> of[Map[String, String]],
       "facts" -> mapping(
         "name" -> nonEmptyText,
         "language" -> nonEmptyText,
@@ -109,10 +100,9 @@ object DataSetViewModel {
           "accessKey" -> optional(text)
         )(OaiPmhAccessViewModel.apply)(OaiPmhAccessViewModel.unapply)
       ),
-      "indexingMappingPrefix" -> text,
-      "visibility" -> number,
+      "indexingMappingPrefix" -> optional(text),
       "errors" -> of[Map[String, String]]
-    )(DataSetViewModel.apply)(DataSetViewModel.unapply)
+    )(DataSetCreationViewModel.apply)(DataSetCreationViewModel.unapply)
   )
 
 
@@ -127,7 +117,7 @@ object DataSetControl extends OrganizationController {
         val allRecordDefinitions: List[String] = RecordDefinition.recordDefinitions.map(r => r.prefix).toList
 
         val data = if (dataSet == None) {
-          JJson.generate(DataSetViewModel(
+          JJson.generate(DataSetCreationViewModel(
             allRecordDefinitions = allRecordDefinitions,
             oaiPmhAccess = RecordDefinition.recordDefinitions.map(rDef => OaiPmhAccessViewModel(rDef.prefix))
           ))
@@ -135,15 +125,15 @@ object DataSetControl extends OrganizationController {
           val dS = dataSet.get
           if (DataSet.canEdit(dS, connectedUser)) {
             JJson.generate(
-              DataSetViewModel(
+              DataSetCreationViewModel(
                 id = Some(dS._id),
                 spec = dS.spec,
                 facts = HardcodedFacts.fromMap(dS.getFacts),
                 recordDefinitions = dS.recordDefinitions,
                 allRecordDefinitions = allRecordDefinitions,
                 oaiPmhAccess = dS.formatAccessControl.map(e => OaiPmhAccessViewModel(e._1, e._2.accessType, e._2.accessKey)).toList,
-                indexingMappingPrefix = dS.getIndexingMappingPrefix.getOrElse(""),
-                visibility = dS.visibility.value)
+                indexingMappingPrefix = dS.getIndexingMappingPrefix
+              )
             )
           } else {
             return Action {
@@ -155,7 +145,7 @@ object DataSetControl extends OrganizationController {
         Ok(Template(
           'spec -> spec,
           'data -> data,
-          'dataSetForm -> DataSetViewModel.dataSetForm,
+          'dataSetForm -> DataSetCreationViewModel.dataSetForm,
           'factDefinitions -> DataSet.factDefinitionList.filterNot(factDef => factDef.automatic || factDef.name == "spec").toList,
           'recordDefinitions -> RecordDefinition.recordDefinitions.map(rDef => rDef.prefix)
         ))
@@ -165,7 +155,7 @@ object DataSetControl extends OrganizationController {
   def dataSetSubmit(orgId: String): Action[AnyContent] = OrgMemberAction(orgId) {
     Action {
       implicit request =>
-        DataSetViewModel.dataSetForm.bind(request.body.asJson.get).fold(
+        DataSetCreationViewModel.dataSetForm.bind(request.body.asJson.get).fold(
           formWithErrors => handleValidationError(formWithErrors),
           dataSetForm => {
             val factsObject = new BasicDBObject()
@@ -204,7 +194,6 @@ object DataSetControl extends OrganizationController {
 
 
             dataSetForm.id match {
-              // TODO for update, add the operator that appends key-value pairs rather than setting all
               case Some(id) => {
                 val existing = DataSet.findOneById(id).get
                 if (!DataSet.canEdit(existing, connectedUser)) {
@@ -213,18 +202,19 @@ object DataSetControl extends OrganizationController {
                   }
                 }
 
-                val updatedDetails = existing.details.copy(facts = factsObject)
+                val updatedDetails = existing.details.copy(name = dataSetForm.facts.name, facts = factsObject)
                 val updated = existing.copy(
-                  spec = dataSetForm.spec,
-                  details = updatedDetails,
-                  mappings = updateMappings(dataSetForm.recordDefinitions, existing.mappings),
-                  formatAccessControl = formatAccessControl,
-                  idxMappings = if (dataSetForm.indexingMappingPrefix.isEmpty) List.empty else List(dataSetForm.indexingMappingPrefix),
-                  visibility = Visibility.get(dataSetForm.visibility))
+                    spec = dataSetForm.spec,
+                    details = updatedDetails,
+                    mappings = updateMappings(dataSetForm.recordDefinitions, existing.mappings),
+                    formatAccessControl = formatAccessControl,
+                    idxMappings = dataSetForm.indexingMappingPrefix.map(List(_)).getOrElse(List.empty)
+                  )
                 DataSet.save(updated)
+                DataSetEvent ! DataSetEvent.Updated(orgId, dataSetForm.spec, connectedUser)
               }
               case None =>
-                // TODO for now only owners can do
+                // TODO for now only admins can do
                 if (!isAdmin(orgId)) return Action {
                   implicit request => Forbidden("You are not allowed to create a DataSet.")
                 }
@@ -235,160 +225,22 @@ object DataSetControl extends OrganizationController {
                     orgId = orgId,
                     userName = connectedUser,
                     state = DataSetState.INCOMPLETE,
-                    visibility = Visibility.get(dataSetForm.visibility),
-                    lastUploaded = new Date(),
                     details = Details(
                       name = dataSetForm.facts.name,
-                      facts = factsObject,
-                      metadataFormat = RecordDefinition(
-                        "raw",
-                        "http://delving.eu/namespaces/raw",
-                        "http://delving.eu/namespaces/raw/schema.xsd",
-                        List(Namespace("raw", "http://delving.eu/namespaces/raw", "http://delving.eu/namespaces/raw/schema.xsd")),
-                        true
-                      )
+                      facts = factsObject
                     ),
                     mappings = buildMappings(dataSetForm.recordDefinitions),
                     formatAccessControl = formatAccessControl,
-                    idxMappings = if (dataSetForm.indexingMappingPrefix.isEmpty) List.empty else List(dataSetForm.indexingMappingPrefix)
+                    idxMappings = dataSetForm.indexingMappingPrefix.map(List(_)).getOrElse(List.empty)
                   )
                 )
+
+                DataSetEvent ! DataSetEvent.Created(orgId, dataSetForm.spec, connectedUser)
+
             }
             Json(dataSetForm)
           }
         )
-    }
-  }
-
-
-  def index(orgId: String, spec: String): Action[AnyContent] = {
-    withDataSet(orgId, spec) {
-      dataSet => implicit request =>
-        dataSet.state match {
-          case ENABLED | UPLOADED | DISABLED | ERROR =>
-            try {
-              DataSet.updateIndexingControlState(dataSet, dataSet.getIndexingMappingPrefix.getOrElse(""), theme.getFacets.map(_.facetName), theme.getSortFields.map(_.sortKey))
-              DataSet.updateStateAndProcessingCount(dataSet, DataSetState.QUEUED)
-              Redirect("/organizations/%s/dataset".format(orgId))
-            } catch {
-              case t =>
-                DataSet.updateStateAndProcessingCount(dataSet, DataSetState.ERROR, Some(t.getMessage))
-                Error(("Unable to index with mapping %s for dataset %s in theme %s. Problably dataset does not have required mapping").format(dataSet.getIndexingMappingPrefix.getOrElse("NONE DEFINED!"), dataSet.name, theme.name))
-            }
-          case _ => Error(Messages("organization.datasets.cannotBeProcessed"))
-        }
-    }
-  }
-
-  def reIndex(orgId: String, spec: String): Action[AnyContent] = {
-    withDataSet(orgId, spec) {
-      dataSet => implicit request =>
-        dataSet.state match {
-          case ENABLED | UPLOADED | DISABLED | ERROR =>
-            DataSet.updateIndexingControlState(dataSet, dataSet.getIndexingMappingPrefix.getOrElse(""), theme.getFacets.map(_.facetName), theme.getSortFields.map(_.sortKey))
-            DataSet.updateStateAndProcessingCount(dataSet, DataSetState.QUEUED)
-            Redirect("/organizations/%s/dataset".format(orgId))
-          case _ => Error(Messages("organization.datasets.cannotBeReProcessed"))
-        }
-    }
-  }
-
-  def cancel(orgId: String, spec: String): Action[AnyContent] = {
-    withDataSet(orgId: String, spec) {
-      dataSet => implicit request =>
-        dataSet.state match {
-          case QUEUED | PROCESSING =>
-            DataSet.updateStateAndProcessingCount(dataSet, DataSetState.UPLOADED)
-            try {
-              IndexingService.deleteBySpec(dataSet.orgId, dataSet.spec)
-            } catch {
-              case t => DataSet.updateStateAndProcessingCount(dataSet, DataSetState.ERROR, Some(t.getMessage))
-            }
-            Redirect("/organizations/%s/dataset".format(orgId))
-          case _ => Error(Messages("organization.datasets.cannotBeCancelled"))
-        }
-    }
-  }
-
-  def state(orgId: String, spec: String) = OrgMemberAction(orgId) {
-    Action {
-      implicit request =>
-        Async {
-          Promise.pure(DataSet.getState(orgId, spec).name).map {
-            response => Json(Map("state" -> response))
-          }
-        }
-    }
-  }
-
-  def indexingStatus(orgId: String, spec: String) = OrgMemberAction(orgId) {
-    Action {
-      implicit request =>
-        val state = DataSet.getProcessingState(orgId, spec) match {
-          case (a, b) if a == b && a == 100 => "DONE"
-          case (a, b) if a == b && a == 0 => "STARTING"
-          case (a, b) => ((a.toDouble / b) * 100).round
-        }
-        Json(Map("status" -> state))
-    }
-  }
-
-  def disable(orgId: String, spec: String): Action[AnyContent] = {
-    withDataSet(orgId, spec) {
-      dataSet => implicit request =>
-        dataSet.state match {
-          case QUEUED | PROCESSING | ERROR | ENABLED =>
-            val updatedDataSet = DataSet.updateStateAndProcessingCount(dataSet, DataSetState.DISABLED)
-            IndexingService.deleteBySpec(updatedDataSet.orgId, updatedDataSet.spec)
-            Redirect("/organizations/%s/dataset".format(orgId))
-          case _ => Error(Messages("organization.datasets.cannotBeDisabled"))
-        }
-    }
-  }
-
-  def enable(orgId: String, spec: String): Action[AnyContent] = {
-    withDataSet(orgId, spec) {
-      dataSet => implicit request =>
-        dataSet.state match {
-          case DISABLED =>
-            DataSet.updateStateAndProcessingCount(dataSet, DataSetState.ENABLED)
-            Redirect("/organizations/%s/dataset".format(orgId))
-          case _ => Error(Messages("organization.datasets.cannotBeEnabled"))
-        }
-    }
-  }
-
-  def delete(orgId: String, spec: String): Action[AnyContent] = {
-    withDataSet(orgId, spec) {
-      dataSet => implicit request =>
-        dataSet.state match {
-          case INCOMPLETE | DISABLED | ERROR | UPLOADED =>
-            DataSet.delete(dataSet)
-            Redirect("/organizations/%s/dataset".format(orgId))
-          case _ => Error(Messages("organization.datasets.cannotBeDeleted"))
-        }
-    }
-  }
-
-  def invalidate(orgId: String, spec: String): Action[AnyContent] = {
-    withDataSet(orgId, spec) {
-      dataSet => implicit request =>
-        dataSet.state match {
-          case DISABLED | ENABLED | UPLOADED | ERROR | PARSING =>
-            DataSet.invalidateHashes(dataSet)
-            DataSet.updateStateAndProcessingCount(dataSet, DataSetState.INCOMPLETE)
-            Redirect("/organizations/%s/dataset".format(orgId))
-          case _ => Error(Messages("organization.datasets.cannotBeInvalidated"))
-        }
-    }
-  }
-
-
-  def forceUnlock(orgId: String, spec: String): Action[AnyContent] = {
-    withDataSet(orgId, spec) {
-      dataSet => implicit request =>
-        DataSet.unlock(DataSet.findBySpecAndOrgId(spec, orgId).get)
-        Ok
     }
   }
 
@@ -399,18 +251,5 @@ object DataSetControl extends OrganizationController {
     }
   }
 
-  def withDataSet(orgId: String, spec: String)(operation: => DataSet => RequestHeader => Result): Action[AnyContent] = OrgMemberAction(orgId) {
-    Action {
-      implicit request =>
-        val dataSet = DataSet.findBySpecAndOrgId(spec, orgId).getOrElse(return Action {
-          implicit request => NotFound(Messages("organization.datasets.dataSetNotFound", spec))
-        })
-        // TODO for now only owners can do
-        if (!isAdmin(orgId)) return Action {
-          implicit request => Forbidden
-        }
-        operation(dataSet)(request)
-    }
-  }
 }
 

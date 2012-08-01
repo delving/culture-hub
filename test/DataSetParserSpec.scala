@@ -1,3 +1,4 @@
+import collection.mutable
 import collection.mutable.ListBuffer
 import core.storage.Record
 import java.io.ByteArrayInputStream
@@ -22,7 +23,7 @@ class DataSetParserSpec extends Specification with TestContext {
     "parse an input stream" in {
 
       withTestData {
-        val buffer = parseStream
+        val buffer = parseStream()
         buffer.length must be equalTo (2)
       }
 
@@ -39,14 +40,14 @@ class DataSetParserSpec extends Specification with TestContext {
 
     "preserve cdata" in {
       withTestData {
-        val buffer = parseStream
+        val buffer = parseStream()
         buffer(0).document must contain("<![CDATA[")
       }
     }
 
     "preserve &amp; in elements" in {
       withTestData {
-        val buffer = parseStream
+        val buffer = parseStream()
 
         val parsed = buffer(0).document
         parsed must contain("<urlWithAmp>http://www.inghist.nl/retroboeken/nnbw?source=10&amp;page_number=1</urlWithAmp>")
@@ -55,18 +56,31 @@ class DataSetParserSpec extends Specification with TestContext {
 
     "preserve &amp; in attributes" in {
       withTestData {
-        val buffer = parseStream
+        val buffer = parseStream()
 
         val parsed = buffer(0).document
         parsed must contain("<attrWithAmp some=\"http://www.inghist.nl/retroboeken/nnbw?source=10&amp;page_number=1\">Value</attrWithAmp>")
       }
     }
 
+    "propertly escape identifiers with non-valid XML characters in them" in {
+      withTestData {
+        val buffer = parseStream(sampleSourceWithWeirdId)
+
+        val parsed = buffer(0)
+        buffer.size must equalTo(1)
+        parsed.id must equalTo ("http://digitaltmuseum.no/artifactView.do?idOwner=KFS&amp;idIdentifier")
+      }
+    }
+
+
   }
 
-  def parseStream = {
+  def parseStream(): mutable.Buffer[Record] = parseStream(sampleSource)
+
+  def parseStream(sampleSource: String): mutable.Buffer[Record] = {
     val ds = DataSet.findBySpecAndOrgId("PrincessehofSample", "delving").get
-    val bis = new ByteArrayInputStream(sampleDataSet.getBytes)
+    val bis = new ByteArrayInputStream(sampleSource.getBytes)
     val parser = new SimpleDataSetParser(bis, ds)
 
     val buffer = ListBuffer[Record]()
@@ -87,8 +101,7 @@ class DataSetParserSpec extends Specification with TestContext {
     buffer
   }
 
-  // TODO parse from a real gzipped source
-  val sampleDataSet =
+  val sampleSource =
     """<?xml version='1.0' encoding='UTF-8'?>
 <delving-sip-source xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" >
 <input id="1">
@@ -264,5 +277,11 @@ class DataSetParserSpec extends Specification with TestContext {
 </input>
 </delving-sip-source>"""
 
+  val sampleSourceWithWeirdId = """<?xml version='1.0' encoding='UTF-8'?>
+<delving-sip-source xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" >
+<input id="http://digitaltmuseum.no/artifactView.do?idOwner=KFS&amp;idIdentifier">
+<priref>1</priref>
+</input>
+</delving-sip-source>"""
 
 }

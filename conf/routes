@@ -123,9 +123,6 @@ POST         /:user/admin/profile                                             co
 GET         /organizations/:orgId/api                                         controllers.api.Api.api(orgId)
 
 GET         /organizations/:orgId/api/search                                  controllers.api.Search.searchApi(orgId, provider: Option[String] = None, dataProvider: Option[String] = None, collection: Option[String] = None)
-GET         /organizations/:orgId/api/search/provider/:provider               controllers.api.Search.searchApi(orgId, provider: Option[String], dataProvider: Option[String] = None, collection: Option[String] = None)
-GET         /organizations/:orgId/api/search/dataProvider/:dataProvider       controllers.api.Search.searchApi(orgId, provider: Option[String] = None, dataProvider: Option[String], collection: Option[String] = None)
-GET         /organizations/:orgId/api/search/collection/:collection           controllers.api.Search.searchApi(orgId, provider: Option[String] = None, dataProvider: Option[String] = None, collection: Option[String])
 
 GET         /organizations/:orgId/api/oai-pmh                                 controllers.api.OaiPmh.oaipmh(orgId: String, format: Option[String] = None, accessKey: Option[String] = None)
 GET         /organizations/:orgId/api/oai-pmh/:accessKey                      controllers.api.OaiPmh.oaipmh(orgId: String, format: Option[String] = None, accessKey: Option[String])
@@ -161,7 +158,6 @@ GET         /organizations/:orgId/admin                                       co
 POST        /organizations/:orgId/admin/users/add                             controllers.organization.Admin.addUser(orgId)
 DELETE      /organizations/:orgId/admin/users/remove                          controllers.organization.Admin.removeUser(orgId)
 GET         /organizations/:orgId/admin/indexDataSets                         controllers.organization.Admin.indexDataSets(orgId)
-GET         /organizations/:orgId/admin/redeploy                              controllers.organization.Admin.redeploy(orgId)
 
 GET         /organizations/:orgId/admin/solrSearchProxy                       controllers.organization.Admin.solrSearchProxy(orgId)
 
@@ -193,30 +189,13 @@ DELETE      /organizations/:orgId/site/:language/page/:key                    co
 GET         /organizations/:orgId/site/:language/page/preview/:key            controllers.organization.CMS.pagePreview(orgId, language, key)
 
 GET         /organizations/:orgId/dataset                                     controllers.organization.DataSets.list(orgId)
+GET         /organizations/:orgId/dataset/feed                                controllers.organization.DataSets.feed(orgId, clientId: String, spec: Option[String])
 GET         /organizations/:orgId/dataset/add                                 controllers.organization.DataSetControl.dataSet(orgId, spec: Option[String] = None)
 GET         /organizations/:orgId/dataset/:spec/update                        controllers.organization.DataSetControl.dataSet(orgId, spec: Option[String])
 POST        /organizations/:orgId/dataset/submit                              controllers.organization.DataSetControl.dataSetSubmit(orgId)
 GET         /organizations/:orgId/dataset/:spec                               controllers.organization.DataSets.dataSet(orgId, spec)
-POST        /organizations/:orgId/dataset/:spec/index                         controllers.organization.DataSetControl.index(orgId, spec)
-POST        /organizations/:orgId/dataset/:spec/reindex                       controllers.organization.DataSetControl.reIndex(orgId, spec)
-POST        /organizations/:orgId/dataset/:spec/cancel                        controllers.organization.DataSetControl.cancel(orgId, spec)
-GET         /organizations/:orgId/dataset/:spec/indexingStatus                controllers.organization.DataSetControl.indexingStatus(orgId, spec)
-GET         /organizations/:orgId/dataset/:spec/state                         controllers.organization.DataSetControl.state(orgId, spec)
-POST        /organizations/:orgId/dataset/:spec/disable                       controllers.organization.DataSetControl.disable(orgId, spec)
-POST        /organizations/:orgId/dataset/:spec/enable                        controllers.organization.DataSetControl.enable(orgId, spec)
-DELETE      /organizations/:orgId/dataset/:spec/remove                        controllers.organization.DataSetControl.delete(orgId, spec)
-POST        /organizations/:orgId/dataset/:spec/invalidate                    controllers.organization.DataSetControl.invalidate(orgId, spec)
-POST        /organizations/:orgId/dataset/:spec/forceUnlock                   controllers.organization.DataSetControl.forceUnlock(orgId, spec)
 
 GET         /organizations/:orgId/directory/organizationLookup                controllers.organization.DataSetControl.organizationLookup(orgId, term)
-
-GET         /organizations/:orgId/virtualCollection                           controllers.organization.VirtualCollections.list(orgId)
-GET         /organizations/:orgId/virtualCollection/add                       controllers.organization.VirtualCollections.virtualCollection(orgId: String, spec: Option[String] = None)
-GET         /organizations/:orgId/virtualCollection/:spec/update              controllers.organization.VirtualCollections.virtualCollection(orgId: String, spec: Option[String])
-POST        /organizations/:orgId/virtualCollection/submit                    controllers.organization.VirtualCollections.submit(orgId: String)
-GET         /organizations/:orgId/virtualCollection/:spec                     controllers.organization.VirtualCollections.view(orgId, spec)
-DELETE      /organizations/:orgId/virtualCollection/:spec                     controllers.organization.VirtualCollections.delete(orgId, spec)
-
 
 GET         /organizations/:orgId/sip-creator                                 controllers.organization.SipCreator.index(orgId)
 

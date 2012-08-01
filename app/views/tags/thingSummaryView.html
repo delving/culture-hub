@@ -7,6 +7,12 @@ switch (recordType) {
     case "mdr":
         recordType = messages.get('thing.object.heritage')
         break
+    case "museum":
+    recordType = messages.get('thing.museum')
+    break
+    case "collection":
+    recordType = messages.get('thing.collection')
+    break
     default:
     recordType = _data.getItemType()
 }
@@ -15,39 +21,66 @@ switch (recordType) {
 #{ifnot _viewType == 'media'}
     *{*** summary view for things that have a digital object ***}*
     *{#{if _data.hasDigitalObject()}}*
-    <div class="thing-container">
-        <div class="ic_container">
-            <a href="${_data.getUri()}" title="${_data.getTitle()}" class="clip clip-${_iSize}">
-                #{if _data.getMimeType().contains('image/') }
-                    <img src='${_data.getThumbnailUri(_iSize)}' class="img" alt="${_data.getTitle()}" onerror="showDefaultImg(this)" style="max-width: 100%;"/>
-                #{/if}
-                #{elseif _data.getMimeType().contains('video/') }
-                     <img src="@{routes.Assets.at('common/images/icon_video.png')}" width="80" alt="${_data.getTitle()}"/>
-                #{/elseif}
-                #{elseif _data.getMimeType().contains('audio/') }
-                    <img src="@{routes.Assets.at('common/images/icon_audio.png')}" width="80" alt="${_data.getTitle()}"/>
-                #{/elseif}
-                #{elseif _data.getMimeType().contains('unknown/') }
-                    <img src='${_data.getThumbnailUri(_iSize)}' width="${_iSize}" class="img" alt="${_data.getTitle()}" onerror="showDefaultImg(this)"/>
-                #{/elseif}
+<div class="thing-container ${_data.getItemType()} media">
+    *{<div class="category">${recordType}</div>}*
+    <a class="img" href="${_data.getUri()}" title="${_data.getTitle()}" style="width:100px">
+            #{if _data.getMimeType().contains('image/') }
+                <img src='${_data.getThumbnailUri(_iSize)}' class="img" alt="${_data.getTitle()}" onerror="showDefaultImg(this)" style="max-width: 100%;"/>
+            #{/if}
+            #{elseif _data.getMimeType().contains('video/') }
+                <img src="@{routes.Assets.at('common/images/icon_video.png')}" width="80" alt="${_data.getTitle()}"/>
+            #{/elseif}
+            #{elseif _data.getMimeType().contains('audio/') }
+                <img src="@{routes.Assets.at('common/images/icon_audio.png')}" width="80" alt="${_data.getTitle()}"/>
+            #{/elseif}
+            #{elseif _data.getMimeType().contains('unknown/') }
+                <img src='${_data.getThumbnailUri(_iSize)}' width="${_iSize}" class="img" alt="${_data.getTitle()}" onerror="showDefaultImg(this)"/>
+            #{/elseif}
+        </a>
 
-                <div class="overlay" style="display:none"></div>
-            </a>
-                #{if _isPrivate}
-                <p class="is_private">
-                    <span> ${messages.get('ui.message.statusPrivate', _data.getUri()+'/update').raw()}</span>
-                </p>
-                #{/if}
-            <div class="ic_caption">
-                <p class="ic_category">${recordType}</p>
-                <strong class="title"><a href="${_data.getUri()}" title="${_data.getTitle()}">${views.Helpers.shorten(_data.getTitle(), 50)}</a></strong>
-                <div class="ic_text">
-                    #{if _data.getDescription()}<p><strong>${messages.get('thing.description')}: </strong><span class="text">${views.Helpers.shorten(_data.getDescription(), 80)}</span></p>#{/if}
-
-                </div>
-            </div>
+        <div class="bd">
+            <div class="title" ><a href="${_data.getUri()}" title="${_data.getTitle()}">${views.Helpers.shorten(_data.getTitle(), 50)}</a></div>
+                #{if _data.getOwner()}<div class="owner">${views.Helpers.shorten(_data.getOwner(), 80)}</div>#{/if}
+                #{if _data.getDescription()}<div class="description">${views.Helpers.shorten(_data.getDescription(), 80)}</div>#{/if}
         </div>
+
+
+
     </div>
+    *{<div class="thing-container">}*
+        *{<div class="ic_container">}*
+            *{<a href="${_data.getUri()}" title="${_data.getTitle()}" class="clip clip-${_iSize}">}*
+                *{#{if _data.getMimeType().contains('image/') }}*
+                    *{<img src='${_data.getThumbnailUri(_iSize)}' class="img" alt="${_data.getTitle()}" onerror="showDefaultImg(this)" style="max-width: 100%;"/>}*
+                *{#{/if}}*
+                *{#{elseif _data.getMimeType().contains('video/') }}*
+                     *{<img src="@{routes.Assets.at('common/images/icon_video.png')}" width="80" alt="${_data.getTitle()}"/>}*
+                *{#{/elseif}}*
+                *{#{elseif _data.getMimeType().contains('audio/') }}*
+                    *{<img src="@{routes.Assets.at('common/images/icon_audio.png')}" width="80" alt="${_data.getTitle()}"/>}*
+                *{#{/elseif}}*
+                *{#{elseif _data.getMimeType().contains('unknown/') }}*
+                    *{<img src='${_data.getThumbnailUri(_iSize)}' width="${_iSize}" class="img" alt="${_data.getTitle()}" onerror="showDefaultImg(this)"/>}*
+                *{#{/elseif}}*
+
+                *{<div class="overlay" style="display:none"></div>}*
+            *{</a>}*
+                *{#{if _isPrivate}}*
+                *{<p class="is_private">}*
+                    *{<span> ${messages.get('ui.message.statusPrivate', _data.getUri()+'/update').raw()}</span>}*
+                *{</p>}*
+                *{#{/if}}*
+            *{<div class="ic_caption">}*
+                *{<p class="ic_category">${recordType}</p>}*
+                *{<strong class="title"><a href="${_data.getUri()}" title="${_data.getTitle()}">${views.Helpers.shorten(_data.getTitle(), 50)}</a></strong>}*
+                *{<div class="ic_text">}*
+                    *{#{if _data.getDescription()}<p><strong>${messages.get('thing.description')}: </strong><span class="text">${views.Helpers.shorten(_data.getDescription(), 80)}</span></p>#{/if}}*
+
+                *{</div>}*
+            *{</div>}*
+        *{</div>}*
+    *{</div>}*
+
     *{#{/if}}*
     *{*** summary view for things that have a no digital object ***}*
     *{#{else}}*

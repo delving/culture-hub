@@ -7,8 +7,10 @@ import actors._
 import akka.actor.SupervisorStrategy.Restart
 import akka.routing.RoundRobinRouter
 import controllers.ReceiveSource
+import core.indexing.IndexingService
 import core.{CultureHubPlugin, HubServices}
 import java.io.File
+import models.{DataSetState, DataSet}
 import play.api.libs.concurrent._
 import akka.util.duration._
 import akka.actor._
@@ -17,10 +19,12 @@ import play.api._
 import libs.Files
 import mvc.{Handler, RequestHeader}
 import play.api.Play.current
-import util.ThemeHandler
+import util.DomainConfigurationHandler
 import eu.delving.culturehub.BuildInfo
 
 object Global extends GlobalSettings {
+
+  lazy val hubPlugins: List[CultureHubPlugin] = Play.application.plugins.filter(_.isInstanceOf[CultureHubPlugin]).map(_.asInstanceOf[CultureHubPlugin]).toList
 
   override def onStart(app: Application) {
     if(!Play.isTest) {
@@ -49,12 +53,12 @@ object Global extends GlobalSettings {
     if(Play.isProd) {
       val port = if(System.getProperty("http.port") == null) "9000" else System.getProperty("http.port")
       val runningPid = new File(current.path, "RUNNING_PID")
-      Files.moveFile(runningPid, new File(current.path, port + "/RUNNING_PID"))
+      Files.moveFile(runningPid, new File(current.path, "../" + port + "/RUNNING_PID"))
     }
 
 
     // ~~~ load themes
-    ThemeHandler.startup()
+    DomainConfigurationHandler.startup()
 
     // ~~~ bootstrap services
     HubServices.init()
@@ -70,15 +74,16 @@ object Global extends GlobalSettings {
       case None =>
         Logger("CultureHub").error("No cultureHub.organization configured!")
         System.exit(-1)
-  }
+    }
 
-    val dataSetParser = Akka.system.actorOf(Props[ReceiveSource].withRouter(
+    // ~~~ bootstrap jobs
+
+    // DataSet source parsing
+    Akka.system.actorOf(Props[ReceiveSource].withRouter(
       RoundRobinRouter(5, supervisorStrategy = OneForOneStrategy() {
         case _ => Restart
       })
     ), name = "dataSetParser")
-
-    // ~~~ bootstrap jobs
 
     // DataSet indexing
     val indexer = Akka.system.actorOf(Props[Processor])
@@ -88,6 +93,10 @@ object Global extends GlobalSettings {
       indexer,
       ProcessDataSets
     )
+
+    // DataSet housekeeping
+    val dataSetHousekeeper = Akka.system.actorOf(Props[DataSetEventHousekeeper])
+    Akka.system.scheduler.schedule(20 seconds, 30 minutes, dataSetHousekeeper, CleanupTransientEvents)
 
     // token expiration
     val tokenExpiration = Akka.system.actorOf(Props[TokenExpiration])
@@ -110,25 +119,10 @@ object Global extends GlobalSettings {
     // SOLR
     val solrCache = Akka.system.actorOf(Props[SolrCache])
     Akka.system.scheduler.schedule(
-      10 seconds,
-      120 seconds,
+      30 seconds,
+      120 minutes,
       solrCache,
       CacheSolrFields
-    )
-
-    // virtual collection update
-    val virtualCollectionCount = Akka.system.actorOf(Props[VirtualCollectionCount])
-    Akka.system.scheduler.schedule(
-      1 minute,
-      1 hour,
-      virtualCollectionCount,
-      UpdateVirtualCollectionCount
-    )
-    Akka.system.scheduler.schedule(
-      1 minute,
-      2 hours,
-      virtualCollectionCount,
-      UpdateVirtualCollection
     )
 
     // routes access logger
@@ -150,7 +144,24 @@ object Global extends GlobalSettings {
 //    )
 
 
+    // ~~~ plugins
+    hubPlugins.foreach(_.onApplicationStart())
 
+
+    // ~~~ cleanup set states
+    // TODO move to appropriate component initialization
+
+    DataSet.findByState(DataSetState.PROCESSING, DataSetState.CANCELLED).foreach {
+      set =>
+        DataSet.updateState(set, DataSetState.CANCELLED)
+        try {
+          IndexingService.deleteBySpec(set.orgId, set.spec)
+        } catch {
+          case t => Logger("CultureHub").error("Couldn't delete SOLR index for cancelled set %s:%s at startup".format(set.orgId, set.spec), t)
+        } finally {
+          DataSet.updateState(set, DataSetState.UPLOADED)
+        }
+    }
 
     // ~~~ load test data
 
@@ -166,6 +177,15 @@ object Global extends GlobalSettings {
     import models.mongoContext._
     close()
     }
+
+    // TODO move to component initialization
+    // cleanly cancel all active processing
+    DataSet.findByState(DataSetState.PROCESSING).foreach {
+      set =>
+        DataSet.updateState(set, DataSetState.CANCELLED)
+    }
+    Thread.sleep(2000)
+
   }
 
   override def onError(request: RequestHeader, ex: Throwable) = {
@@ -188,7 +208,6 @@ object Global extends GlobalSettings {
 
   }
 
-  lazy val hubPlugins: List[CultureHubPlugin] = Play.application.plugins.filter(_.isInstanceOf[CultureHubPlugin]).map(_.asInstanceOf[CultureHubPlugin]).toList
   lazy val routes = hubPlugins.flatMap(_.routes)
 
   override def onRouteRequest(request: RequestHeader): Option[Handler] = {
@@ -209,8 +228,8 @@ object Global extends GlobalSettings {
     // poor man's modular routing, based on CultureHub plugins
 
     val matches = routes.flatMap(r => {
-      val matcher = r._1.pattern.matcher(request.path)
-      if(matcher.matches()) {
+      val matcher = r._1._2.pattern.matcher(request.path)
+      if(request.method == r._1._1 && matcher.matches()) {
         val pathElems = for(i <- 1 until matcher.groupCount() + 1) yield matcher.group(i)
         Some((pathElems.toList, r._2))
       } else {

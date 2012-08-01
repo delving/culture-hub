@@ -1,10 +1,4 @@
-import controllers.SipCreatorEndPoint
-import core.processing.{DataSetCollectionProcessor}
-import java.io.{File, FileInputStream}
-import java.util.zip.GZIPInputStream
-import models.{DataSetState, DataSet}
 import org.specs2.mutable._
-import play.api.mvc.{Result, AsyncResult}
 import play.api.test._
 import play.api.test.Helpers._
 

@@ -159,10 +159,10 @@ F1D3FF8443297732862DF21DC4E57262__validation_icn.int"""
 
         val dataSet = DataSet.findBySpecAndOrgId("PrincessehofSample", "delving").get
 
-        // now we wait since the parsing is asynchronous
-        Thread.sleep(3000)
+        // now we wait since the parsing is asynchronous. We wait a long time since our CI server is rather slow.
+        Thread.sleep(10000)
 
-        DataSet.getRecordCount(dataSet) must equalTo(8)
+        DataSet.getSourceRecordCount(dataSet) must equalTo(8)
       }
     }
 
@@ -227,7 +227,7 @@ F1D3FF8443297732862DF21DC4E57262__validation_icn.int"""
         gis.close()
         fis.close()
 
-        val result = controllers.SipCreatorEndPoint.fetchSIP("delving", "PrincessehofSample", Some("TEST"))(FakeRequest())
+        val result = asyncToResult(controllers.SipCreatorEndPoint.fetchSIP("delving", "PrincessehofSample", Some("TEST"))(FakeRequest()))
         status(result) must equalTo(OK)
 
         // check locking
@@ -239,7 +239,7 @@ F1D3FF8443297732862DF21DC4E57262__validation_icn.int"""
         Thread.sleep(1000)
 
         var downloadedSource = ""
-        val zis = new ZipInputStream(is)
+        val zis = new ZipInputStream(new FileInputStream(is))
         var entry = zis.getNextEntry
         val downloadedEntries = Buffer[ZipEntry]()
         while(entry != null) {

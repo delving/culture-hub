@@ -25,7 +25,7 @@ class Processor extends Actor {
             Logger("CultureHub").error("Error while processing DataSet %s".format(dataSet.get.spec), t)
             // TODO organization --> theme
             // ErrorReporter.reportError(getClass.getName, t, "Error during indexing of DataSet")
-            DataSet.updateState(dataSet.get, DataSetState.ERROR, Some(t.getMessage))
+            DataSet.updateState(dataSet.get, DataSetState.ERROR, None, Some(t.getMessage))
           }
         }
       }

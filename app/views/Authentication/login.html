@@ -2,7 +2,8 @@
 #{set title: messages.get('ui.label.login') /}
 #{set bodyId: 'authenticate' /}
 <div class="row">
-        <form method="POST" class="span4 offset4 well" action="@{controllers.routes.Authentication.authenticate()}">
+    <div class="span4 offset4">
+        <form method="POST" class="well" action="@{controllers.routes.Authentication.authenticate()}">
             <h2>Login</h2>
             #{if flash.error}
             <p class="alert alert-error">
@@ -38,12 +39,13 @@
             </div>
 
             <div class="btn-group">
-                #{btnButton label: messages.get("ui.label.login"), extraClass:"btn-primary btn-large span4", type:"submit", id:"signin" /}
+                #{btnButton label: messages.get("ui.label.login"), extraClass:"btn-primary btn-large span3", type:"submit", id:"signin" /}
             </div>
             <p>
                 #{href label: messages.get('authentication.label.forgotpassword'), href:"/registration/lostPassword", rel:"nofollow" /}
             </p>
         </form>
+    </div>
 </div>
 <script type="text/javascript">
   $(document).ready(function() {

@@ -15,7 +15,7 @@
         <li class="dropdown" id="orgs">
             <a class="dropdown-toggle" data-toggle="dropdown" href="#orgs">
             ${messages.get('thing.organizations')}
-                <b class="caret"></b>
+            <b class="caret"></b>
             </a>
             <ul class="dropdown-menu">
                 #{list _organizations, as: 'org'}
@@ -27,6 +27,6 @@
     <li class="divider-vertical"></li>
     <li><a href="/logout">${messages.get('ui.label.logout')}</a></li>
 #{/else}
-    <li class="divider-vertical"></li>
+    *{<li class="divider-vertical"></li>}*
 </ul>
 
