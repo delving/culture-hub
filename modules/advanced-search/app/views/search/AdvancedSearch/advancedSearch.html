@@ -1,5 +1,113 @@
-Hello, world!
+#{extends themeInfo.get('themeLayout') /}
 
-#{list providers, as: 'p'}
-Provider: ${p}<br/>
-#{/list}
+<div class="row">
+    <div class="span12">
+        <div class="page-header"><h2>&{'plugin.advancedsearch'}</h2></div>
+        <form class="well" action="" method="">
+            <div class="control-group">
+                <label class="control-label">&{'plugin.advancedsearch.searchIn'}</label>
+
+                <div class="controls">
+                    <select name="facet0" id="m-facet1" class="span1" style="margin-left: 66px">
+                        <option selected="selected" value="text">&{'plugin.advancedsearch.searchInAll'}</option>
+                        <option value="dc_title">&{'metadata.dc.title'}</option>
+                        <option value="dc_creator">&{'metadata.dc.creator'}</option>
+                        <option value="europeana_year">&{'metadata.tib.year'}</option>
+                        <option value="dc_subject">&{'metadata.dc.subject'}</option>
+                        <option value="dc_description">&{'metadata.dc.description'}</option>
+                    </select>
+                    <input type="text" name="value0" maxlength="75" class="span3"/>
+                </div>
+                <div class="controls">
+                    <select name="operator1" id="m-operator2" class="span1">
+                        <option value="AND">&{'plugin.advancedsearch.booleanAnd'}</option>
+                        <option value="OR">&{'plugin.advancedsearch.booleanOr'}</option>
+                        <option value="NOT">&{'plugin.advancedsearch.booleanNot'}</option>
+                    </select>
+                    <select name="facet1" id="m-facet2" class="span1">
+                        <option selected="selected" value="text">&{'plugin.advancedsearch.searchInAll'}</option>
+                        <option value="dc_title">&{'metadata.dc.title'}</option>
+                        <option value="dc_creator">&{'metadata.dc.creator'}</option>
+                        <option value="europeana_year">&{'metadata.tib.year'}</option>
+                        <option value="dc_subject">&{'metadata.dc.subject'}</option>
+                        <option value="dc_description">&{'metadata.dc.description'}</option>
+                    </select>
+                    <input type="text" name="value1" maxlength="75" class="span3"/>
+                </div>
+                <div class="controls">
+                    <select name="operator2" id="m-operator3" class="span1">
+                        <option value="AND">&{'plugin.advancedsearch.booleanAnd'}</option>
+                        <option value="OR">&{'plugin.advancedsearch.booleanOr'}</option>
+                        <option value="NOT">&{'plugin.advancedsearch.booleanNot'}</option>
+                    </select>
+                    <select name="facet2" id="m-facet3" class="span1">
+                        <option selected="selected" value="text">&{'plugin.advancedsearch.searchInAll'}</option>
+                        <option value="dc_title">&{'metadata.dc.title'}</option>
+                        <option value="dc_creator">&{'metadata.dc.creator'}</option>
+                        <option value="europeana_year">&{'metadata.tib.year'}</option>
+                        <option value="dc_subject">&{'metadata.dc.subject'}</option>
+                        <option value="dc_description">&{'metadata.dc.description'}</option>
+                    </select>
+                    <input type="text" name="value1" maxlength="75" class="span3"/>
+                </div>
+            </div>
+            <div class="control-group">
+                <label class="control-label">&{'metadata.abm.contentProvider'}</label>
+
+                <div class="controls">
+                    <select name="allCollections" id="select-collections">
+                        <option selected="selected" value="all">&{'plugin.advancedsearch.allProviders'}</option>
+                        <option value="select">&{'plugin.advancedsearch.selectProviders'}</option>
+                    </select>
+                    <div id="collection-list" style="display: none;">
+                        #{list providers, as: 'p'}
+                            <input type="checkbox" class="collection" name="collectionList" value="${p}"/><span class="label">${p}</span>
+                        #{/list}
+
+                    </div>
+                </div>
+            </div>
+            <div class="control-group">
+                <label class="control-label">Sorteren op</label>
+
+                <div class="controls">
+                    <select name="sortBy">
+                        <option selected="selected" value="">-</option>
+                        <option value="title">&{'metadata.dc.title'}</option>
+                        <option value="creator">&{'metadata.dc.creator'}</option>
+                        <option value="YEAR">&{'metadata.tib.year'}</option>
+                        <option value="COLLECTION">&{'metadata.abm.contentProvider'}</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="btn-navbar">
+                <input type="reset" value="&{'ui.label.reset'}" class="btn" id="reset"/>
+                <input type="submit" value="&{'ui.label.search'}" class="btn btn-primary"/>
+            </div>
+
+        </form>
+    </div>
+</div>
+
+<script>
+    jQuery(document).ready(function() {
+        $("#collection-list .collection").on("click", function(){
+             $(this).next("span.label").toggleClass("label-success");
+        });
+        $("#select-collections").change(function() {
+            console.log($("#select-collections :selected").val());
+            if ($("#select-collections :selected").val() == "select") {
+                $("#collection-list").show("slow");
+            }
+            if ($("#select-collections :selected").val() == "all") {
+                $("#collection-list").hide("slow");
+            }
+        });
+        $("#reset").on("click", function(){
+            $("#collection-list").hide("slow");
+            //todo: revert selected provider labels back to unselected state
+        })
+    });
+
+</script>

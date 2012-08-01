@@ -601,3 +601,13 @@ plugin.statistics.withObjects=Met objecten
 plugin.statistics.withoutObjects=Zonder objecten
 plugin.statistics.nrRecords=Aantal records
 plugin.statistics.landingPages=Met landing-pages
+
+plugin.advancedsearch=Uitgebreid zoeken
+plugin.advancedsearch.searchIn=Zoek in
+plugin.advancedsearch.searchInAll=Alles
+plugin.advancedsearch.booleanAnd=EN
+plugin.advancedsearch.booleanOr=OF
+plugin.advancedsearch.booleanNot=NIET
+plugin.advancedsearch.allProviders=Alle aanbieders
+plugin.advancedsearch.selectProviders=Selecteer aanbieder(s)
+
