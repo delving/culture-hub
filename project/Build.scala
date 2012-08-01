@@ -10,7 +10,7 @@ object Build extends sbt.Build {
   val sipCreator = SettingKey[String]("sip-creator", "Version of the Sip-Creator")
 
   val appName = "culture-hub"
-  val cultureHubVersion = "12.07-SNAPSHOT"
+  val cultureHubVersion = "12.08-SNAPSHOT"
   val sipCreatorVersion = "1.0.7-SNAPSHOT"
   val playExtensionsVersion = "1.3"
 
