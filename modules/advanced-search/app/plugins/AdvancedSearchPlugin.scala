@@ -14,9 +14,10 @@ import play.api.mvc.Handler
 class AdvancedSearchPlugin(app: Application) extends CultureHubPlugin(app) {
 
   val pluginKey: String = "advanced-search"
+
   override val routes: ListMap[(String, Regex), (List[String]) => Handler] = ListMap(
     ("GET", """^/search/advanced$""".r) -> {
-      pathArgs: List[String] => controllers.search.AdvancedSearch.advancedSearch()
+      pathArgs: List[String] => controllers.search.AdvancedSearch.advancedSearch
     }
   )
 }
