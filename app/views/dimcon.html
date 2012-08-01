@@ -42,6 +42,7 @@
                 <form method="get" action="/search" class="form-horizontal form-search" id="simple-search" onsubmit="return checkSimpleSearchSubmit('query');">
                     <input class="search-query" placeholder="&{'ui.label.search'} ..." type="text" id="query" name="query" value='${params.get("query")? params.get("query").apply(0) : ""}'/>
                     <button type="submit" class="btn btn-primary submit" title="&{'ui.label.search'}"><i class="icon icon-search icon-white"></i></button>
+                    &#160;<a href="/search/advanced">&{'plugin.advancedsearch'}</a>
                 </form>
             </div>
         </div>
