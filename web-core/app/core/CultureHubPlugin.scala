@@ -22,7 +22,7 @@ abstract class CultureHubPlugin(app: Application) extends play.api.Plugin {
   /** whether this plugin is enabled for the whole hub **/
   override def enabled: Boolean = {
     val config = app.configuration.getConfig("configurations").get
-    val allDomainConfigurations = config.keys.filterNot(_.indexOf(".") < 0).map(_.split("\\.").head).toList.distinct
+    val allDomainConfigurations: Seq[String] = config.keys.filterNot(_.indexOf(".") < 0).map(_.split("\\.").head).toList.distinct
     val plugins: Seq[String] = allDomainConfigurations.flatMap {
       key => {
         val configuration = config.getConfig(key).get
@@ -62,6 +62,7 @@ object CultureHubPlugin {
       .map(_.asInstanceOf[CultureHubPlugin])
       .filter(_.isEnabled(configuration))
       .toList
+      .distinct
 
 }
 

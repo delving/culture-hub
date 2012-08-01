@@ -27,19 +27,15 @@ object Search extends DelvingController {
     }
   }
 
-  def index(query: String, page: Int) = search(query, page)
+  def index(query: String, page: Int) = search(query)
 
-  def search(query: String = "*:*", page: Int) = Root {
+  def search(query: String = "*:*") = Root {
     Action {
       implicit request =>
-        val additionalSystemHQFs = List("%s:%s".format(RECORD_TYPE, MDR))
-        val chQuery = SolrQueryService.createCHQuery(request, configuration, true, Option(connectedUser), additionalSystemHQFs)
         try {
-          val response = CHResponse(Params(request.queryString), configuration, SolrQueryService.getSolrResponseFromServer(chQuery.solrQuery, configuration, true), chQuery)
-          val briefItemView = BriefItemView(response)
-
+          val (items, briefItemView) = CommonSearch.search(Option(connectedUser), List(query))
           Ok(Template("/Search/index.html",
-            'briefDocs -> toListItems(briefItemView.getBriefDocs),
+            'briefDocs -> items,
             'pagination -> briefItemView.getPagination,
             'facets -> briefItemView.getFacetQueryLinks,
             'themeFacets -> configuration.getFacets,
@@ -47,13 +43,15 @@ object Search extends DelvingController {
             'returnToResults -> request.rawQueryString)).withSession(
             session +
               (RETURN_TO_RESULTS -> request.rawQueryString) +
-              (SEARCH_TERM -> query))
+              (SEARCH_TERM -> query.mkString(" ")))
         } catch {
           case MalformedQueryException(s, t) => BadRequest(Template("/Search/invalidQuery.html", 'query -> query))
           case c: SolrConnectionException => Error(Messages("search.backendConnectionError"))
         }
+      }
+
     }
-  }
+
 
   def record(orgId: String, spec: String, recordId: String, overlay: Boolean = false) = Root {
     Action {
@@ -121,43 +119,6 @@ object Search extends DelvingController {
 
     Ok(Template("Search/object.html", 'systemFields -> mdr.systemFields, 'fullView -> renderResult.toViewTree, 'returnToResults -> returnToResults, 'searchTerm -> searchTerm)).withSession(updatedSession)
 
-  }
-
-
-  // ~~~ Utility methods (not controller actions)
-
-  def search(user: Option[String], page: Int, configuration: DomainConfiguration, query: List[String])(implicit request: RequestHeader) = {
-    val start = (page - 1) * PAGE_SIZE + 1
-    val queryList = (user match {
-      case Some(u) => List("%s:%s".format(OWNER, u))
-      case None => List()
-    }) ::: query
-    val chQuery = SolrQueryService.createCHQuery(request, configuration, false, Option(connectedUser), queryList)
-    val queryResponse = SolrQueryService.getSolrResponseFromServer(chQuery.solrQuery, configuration, true)
-    val chResponse = CHResponse(Params(request.queryString + ("start" -> Seq(start.toString))), configuration, queryResponse, chQuery)
-    val briefItemView = BriefItemView(chResponse)
-
-    val items: Seq[ListItem] = toListItems(briefItemView.getBriefDocs)(configuration)
-
-    (items, briefItemView.pagination.getNumFound)
-  }
-
-  private def toListItems(briefDocs: Seq[BriefDocItem])(implicit configuration: DomainConfiguration) = briefDocs.map { bd =>
-    try {
-      ListItem(id = bd.getHubId,
-        itemType = bd.getItemType,
-        title = bd.getTitle,
-        description = bd.getDescription,
-        thumbnailUrl = bd.getThumbnailUri(220, configuration),
-        userName = bd.getOrgId,
-        isPrivate = bd.getVisibility.toInt == Visibility.PRIVATE.value,
-        url = bd.getUri(configuration),
-        mimeType = bd.getMimeType)
-    } catch {
-      case t =>
-        println(bd)
-        null
-    }
   }
 
 

@@ -79,7 +79,9 @@ object Admin extends OrganizationController {
         sf => sf._2.foreach(v => doc.addField(sf._1, v))
       }
 
-      doc.addField(ID, "%s_%s_%s".format(orgId, itemType, localId))
+      val hubId = "%s_%s_%s".format(orgId, itemType, localId)
+      doc.addField(ID, hubId)
+      doc.addField(HUB_ID, hubId)
       doc.addField(ORG_ID, orgId)
       doc.addField(RECORD_TYPE, itemType)
       doc.addField(SYSTEM_TYPE, HUB_ITEM)

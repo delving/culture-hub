@@ -15,7 +15,13 @@ object Application extends DelvingController {
       implicit request =>
         val themeInfo = renderArgs("themeInfo").get.asInstanceOf[ThemeInfo]
         val recentMdrs: Seq[ListItem] = try {
-          Search.search(None, 1, configuration, List("%s:%s AND %s:%s".format(RECORD_TYPE, MDR, HAS_DIGITAL_OBJECT, true)))._1.slice(0, themeInfo.themeProperty("recentMdrsCount", classOf[Int]))
+          CommonSearch.search(
+            None,
+            List("%s:%s AND %s:%s".format(RECORD_TYPE, MDR, HAS_DIGITAL_OBJECT, true))
+          ).
+            _1.
+            slice(0, themeInfo.themeProperty("recentMdrsCount", classOf[Int]))
+
         } catch {
           case t: Throwable =>
             List.empty

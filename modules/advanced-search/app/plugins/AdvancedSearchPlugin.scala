@@ -18,6 +18,9 @@ class AdvancedSearchPlugin(app: Application) extends CultureHubPlugin(app) {
   override val routes: ListMap[(String, Regex), (List[String]) => Handler] = ListMap(
     ("GET", """^/search/advanced$""".r) -> {
       pathArgs: List[String] => controllers.search.AdvancedSearch.advancedSearch
+    },
+    ("POST", """^/search/advanced$""".r) -> {
+      pathArgs: List[String] => controllers.search.AdvancedSearch.submitAdvancedSearch
     }
   )
 }
