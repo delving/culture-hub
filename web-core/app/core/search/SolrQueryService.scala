@@ -238,13 +238,6 @@ object SolrQueryService extends SolrServer {
   }
 
 
-  def getFullSolrResponseFromServer(id: String, idType: String = "", relatedItems: Boolean = false, configuration: DomainConfiguration): QueryResponse = {
-    val r = DelvingIdType(id, idType)
-    val query = new SolrQuery("%s:\"%s\"".format(r.idSearchField, r.normalisedId))
-    if (relatedItems) query.setQueryType(MORE_LIKE_THIS)
-    SolrQueryService.getSolrResponseFromServer(query, configuration)
-  }
-
   def getSolrItemReference(orgId: Option[String], id: String, idType: String, findRelatedItems: Boolean, configuration: DomainConfiguration): Option[DocItemReference] = {
     val t = DelvingIdType(id, idType)
     val solrQuery = if(orgId.isDefined) {
