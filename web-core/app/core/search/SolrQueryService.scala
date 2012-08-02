@@ -16,7 +16,6 @@ package core.search
  * limitations under the License.
  */
 
-import core.Constants
 import org.apache.solr.client.solrj.response.{QueryResponse, FacetField}
 import scala.collection.JavaConverters._
 import exceptions.SolrConnectionException
@@ -268,7 +267,9 @@ object SolrQueryService extends SolrServer {
       query.set("mlt.maxwl", mlt.maxWordLength)
       query.set("mlt.maxqt", mlt.maxQueryTerms)
       query.set("mlt.maxntp", mlt.maxNumToken)
-      query.set("mlt.qf", mlt.queryFields : _ *)
+      query.set("mlt.qf", mlt.queryFields.map(_.replaceAll(" ", "%20")) : _ *)
+      query.set("mlt.match.include", java.lang.Boolean.TRUE)
+      query.set("mlt.interestingTerms", "details")
     }
     val response = SolrQueryService.getSolrResponseFromServer(query, configuration)
     if(response.getResults.size() == 0) {

@@ -130,7 +130,7 @@ case class SearchServiceConfiguration(
 
 /** See http://wiki.apache.org/solr/MoreLikeThis **/
 case class MoreLikeThis(
-  fieldList: Seq[String] = Seq(Constants.TITLE, Constants.OWNER),
+  fieldList: Seq[String] = Seq(Constants.DESCRIPTION),
   minTermFrequency: Int = 2,
   minDocumentFrequency: Int = 5,
   minWordLength: Int = 0,
@@ -138,12 +138,8 @@ case class MoreLikeThis(
   maxQueryTerms: Int = 25,
   maxNumToken: Int = 5000,
   boost: Boolean = false,
-  queryFields: Seq[String] = Seq(Constants.TITLE + " ^1.1")
-) {
-  val solrQueryString = """&mlt=true&mlt.fl=%s&mlt.mintf=%s&mlt.mindf=%s&mlt.minwl=%s&mlt.maxwl=%s&mlt.maxqt=%s&mlt.maxntp=%s&mlt.boost=%s&qf=%s""".format(
-    fieldList.mkString(","), minTermFrequency, minDocumentFrequency, minWordLength, maxWordLength, maxQueryTerms, maxNumToken, boost, queryFields.mkString(",").replaceAll(" ", "%20")
-  )
-}
+  queryFields: Seq[String] = Seq(Constants.DESCRIPTION + " ^1.1")
+)
 
 case class BaseXConfiguration(
   host: String,
