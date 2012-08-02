@@ -212,7 +212,7 @@ dt, dd, li {
     margin: 10px 0;
 }
 
-.media ic_container a {
+.media .ic_container a {
     display: block;
 }
 
@@ -277,6 +277,10 @@ dt, dd, li {
     margin-bottom: 10px;
 }
 
+.thing-container .bd {
+
+}
+
 .thing-container .category {
     background: #0088cc;
     color: #fff;
@@ -293,8 +297,8 @@ dt, dd, li {
 .thing-container .title {
     /*background: #444;*/
     font-weight: bold;
-    font-size: 120%;
-    padding: 2px 6px;
+    font-size: 110%;
+    /*padding: 2px 6px;*/
     line-height: 1.5;
     clear: both;
 }
@@ -826,23 +830,13 @@ form label.radio {
 
 /* Advanced search plugin */
 #collection-list {
-    clear: both;
+    display: none;
+    margin-top: 13px;
 }
 
 #collection-list span.label {
     margin: 0 4px;
 }
 
-ul.collection-list {
-    /*display: inline-block;*/
-}
 
 
-
-/*.nav-facets {*/
-    /*padding: 0;*/
-/*}*/
-
-/*.nav-facets > li > a {*/
-    /*padding: 3px 0px;*/
-/*}*/
