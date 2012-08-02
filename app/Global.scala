@@ -235,7 +235,8 @@ object Global extends GlobalSettings {
         // log route access, for API calls
         routeLogger ! RouteRequest(request)
 
-        if(request.queryString.contains("explain") && request.queryString("explain").head == "true") {
+        // TODO proper routing for search
+        if(request.queryString.contains("explain") && request.queryString("explain").head == "true" && !request.path.contains("search")) {
           // redirect to the standard explain response
           return Some(controllers.api.Api.explainPath(matcher.group(1), request.path))
         }
