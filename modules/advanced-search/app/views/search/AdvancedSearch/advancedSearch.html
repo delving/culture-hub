@@ -75,15 +75,17 @@
                         <option value="select">&{'plugin.advancedsearch.selectProviders'}</option>
                     </select>
                     <div id="collection-list" class="clearfix">
+                        #{if providers.size() > 0}
                         <ul class="unstyled collection-list span1of4">
                         #{list providers, as: 'p'}
-                            ${_index}
                             <li><label><input type="checkbox" class="collection" name="collectionList" value="${p}"/><span class="label">${p}</span></label></li>
                         #{/list}
-                        #{else}
-                               afdafasdf
-                        #{/else}
                         </ul>
+                        #{/if}
+                        #{else}
+                            <p>sorry, nothing to show</p>
+                        #{/else}
+
                     </div>
                 </div>
             </div>
