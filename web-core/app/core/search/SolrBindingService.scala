@@ -41,36 +41,6 @@ object SolrBindingService {
     for (value <- values; if value != null ) yield (FieldValueNode(key, value.toString))
 
 
-  def getSolrDocumentList(docList : SolrDocumentList) : List[SolrResultDocument] = {
-
-    import java.lang.{Integer => JInteger}
-    val docs = new ListBuffer[SolrResultDocument]
-    val ArrayListObject = classOf[ArrayList[Any]]
-    val StringObject = classOf[String]
-    val DateObject = classOf[Date]
-    val FloatObject = classOf[JFloat]
-    val BooleanObject = classOf[JBoolean]
-    val IntegerObject = classOf[JInteger]
-    // check for required fields else check exception
-    docList.foreach{
-      doc =>
-        val solrDoc = SolrResultDocument()
-        doc.entrySet.filterNot(key => !key.getKey.endsWith("_facet") || key.getKey.endsWith("_snippet")).foreach{
-          field =>
-            val normalisedField = stripDynamicFieldLabels(field.getKey)
-            val FieldValueClass: Class[_] = field.getValue.getClass
-            FieldValueClass match {
-              case ArrayListObject => solrDoc.add(normalisedField, addFieldNodes(normalisedField, field.getValue.asInstanceOf[ArrayList[Any]].toList))
-              case StringObject | DateObject | BooleanObject | FloatObject | IntegerObject =>
-                solrDoc.add(normalisedField, List(FieldValueNode(normalisedField, field.getValue.toString)))
-              case _ => println("unknown class in SolrBindingService " + normalisedField + FieldValueClass.getCanonicalName)
-            }
-        }
-        docs add solrDoc
-    }
-    docs.toList
-  }
-
   def getSolrDocumentList(queryResponse : QueryResponse) : List[SolrResultDocument] = {
     
     import java.lang.{Integer => JInteger}
@@ -106,16 +76,6 @@ object SolrBindingService {
     }
     docs.toList
   }
-
-  def getDocIds(queryResponse: QueryResponse): List[SolrDocId] = {
-    val docIds = new ListBuffer[SolrDocId]
-    getSolrDocumentList(queryResponse).foreach{
-      doc =>
-        docIds add (SolrDocId(doc))
-    }
-   docIds.toList
-  }
-
 
   def getBriefDocsWithIndex(queryResponse: QueryResponse, start: Int = 1): List[BriefDocItem] = addIndexToBriefDocs(getBriefDocs(queryResponse), start)
 
@@ -192,6 +152,7 @@ case class SolrResultDocument(fieldMap : Map[String, List[FieldValueNode]] = Map
 
   private[search] def getFieldNames = fieldMap.keys
 
+  /** only retrieve fields of the kind prefix_value **/
   def getFieldValueList : List[FieldValue] = for (key <- fieldMap.keys.toList.filter(_.matches(".*_.*"))) yield FieldValue(key, this)
 
   def getHighLightsAsFieldValueList : List[FieldValue] = for (key <- highLightMap.keys.toList) yield FieldValue(key, this)

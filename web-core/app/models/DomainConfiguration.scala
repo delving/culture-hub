@@ -1,5 +1,6 @@
 package models {
 
+import core.Constants
 import org.apache.solr.client.solrj.SolrQuery
 import core.search.{SolrSortElement, SolrFacetElement}
 import play.api.{Configuration, Play, Logger}
@@ -32,6 +33,7 @@ case class DomainConfiguration(
   commonsService:              CommonsServiceConfiguration,
   objectService:               ObjectServiceConfiguration,
   oaiPmhService:               OaiPmhServiceConfiguration,
+  searchService:               SearchServiceConfiguration,
 
   plugins:                     Seq[String],
 
@@ -46,15 +48,12 @@ case class DomainConfiguration(
   roles:                       Seq[Role],
 
   // ~~~ search
-  hiddenQueryFilter:           Option[String] = Some(""),
-  facets:                      Option[String] = None, // dc_creator:crea:Creator,dc_type
-  sortFields:                  Option[String] = None, // dc_creator,dc_provider:desc
   apiWsKey:                    Boolean = false
 
 ) {
 
   def getFacets: List[SolrFacetElement] = {
-    facets.getOrElse("").split(",").filter(k => k.split(":").size > 0 && k.split(":").size < 4).map {
+    searchService.facets.getOrElse("").split(",").filter(k => k.split(":").size > 0 && k.split(":").size < 4).map {
       entry => {
         val k = entry.split(":")
         k.length match {
@@ -74,7 +73,7 @@ case class DomainConfiguration(
   }
 
   def getSortFields: List[SolrSortElement] = {
-    sortFields.getOrElse("").split(",").filter(sf => sf.split(":").size > 0 && sf.split(":").size < 3).map {
+    searchService.sortFields.getOrElse("").split(",").filter(sf => sf.split(":").size > 0 && sf.split(":").size < 3).map {
       entry => {
         val k = entry.split(":")
         k.length match {
@@ -113,13 +112,38 @@ case class ObjectServiceConfiguration(
 )
 
 case class OaiPmhServiceConfiguration(
-  repositoryName: String,
-  adminEmail: String,
-  earliestDateStamp: String,
-  repositoryIdentifier: String,
-  sampleIdentifier: String,
-  responseListSize: Int
+  repositoryName:              String,
+  adminEmail:                  String,
+  earliestDateStamp:           String,
+  repositoryIdentifier:        String,
+  sampleIdentifier:            String,
+  responseListSize:            Int
 )
+
+case class SearchServiceConfiguration(
+  hiddenQueryFilter:           Option[String] = Some(""),
+  facets:                      Option[String] = None, // dc_creator:crea:Creator,dc_type
+  sortFields:                  Option[String] = None, // dc_creator,dc_provider:desc
+  moreLikeThis:                MoreLikeThis,
+  apiWsKey:                    Boolean = false
+)
+
+/** See http://wiki.apache.org/solr/MoreLikeThis **/
+case class MoreLikeThis(
+  fieldList: Seq[String] = Seq(Constants.TITLE, Constants.OWNER),
+  minTermFrequency: Int = 2,
+  minDocumentFrequency: Int = 5,
+  minWordLength: Int = 0,
+  maxWordLength: Int = 0,
+  maxQueryTerms: Int = 25,
+  maxNumToken: Int = 5000,
+  boost: Boolean = false,
+  queryFields: Seq[String] = Seq(Constants.TITLE + " ^1.1")
+) {
+  val solrQueryString = """&mlt=true&mlt.fl=%s&mlt.mintf=%s&mlt.mindf=%s&mlt.minwl=%s&mlt.maxwl=%s&mlt.maxqt=%s&mlt.maxntp=%s&mlt.boost=%s&qf=%s""".format(
+    fieldList.mkString(","), minTermFrequency, minDocumentFrequency, minWordLength, maxWordLength, maxQueryTerms, maxNumToken, boost, queryFields.mkString(",").replaceAll(" ", "%20")
+  )
+}
 
 case class BaseXConfiguration(
   host: String,
@@ -252,6 +276,30 @@ object DomainConfiguration {
                   tilesWorkingBaseDir = getString(configuration, TILES_WORKING_DIR),
                   tilesOutputBaseDir = getString(configuration, TILES_OUTPUT_DIR)
                 ),
+                searchService = SearchServiceConfiguration(
+                  hiddenQueryFilter = configuration.getString("hiddenQueryFilter"),
+                  facets = configuration.getString("facets"),
+                  sortFields = configuration.getString("sortFields"),
+                  apiWsKey = configuration.getBoolean("apiWsKey").getOrElse(false),
+                  moreLikeThis = {
+                    val mlt = configuration.getConfig("moreLikeThis")
+                    if(mlt.isEmpty) {
+                      MoreLikeThis()
+                    } else {
+                      MoreLikeThis(
+                        fieldList = mlt.get.underlying.getStringList("fieldList").asScala,
+                        minTermFrequency = mlt.get.getInt("minimumTermFrequency").getOrElse(2),
+                        minDocumentFrequency = mlt.get.getInt("minimumDocumentFrequency").getOrElse(5),
+                        minWordLength = mlt.get.getInt("minWordLength").getOrElse(0),
+                        maxWordLength = mlt.get.getInt("maxWordLength").getOrElse(0),
+                        maxQueryTerms = mlt.get.getInt("maxQueryTerms").getOrElse(25),
+                        maxNumToken = mlt.get.getInt("maxNumToken").getOrElse(5000),
+                        boost = mlt.get.getBoolean("boost").getOrElse(false),
+                        queryFields = mlt.get.underlying.getStringList("queryFields").asScala
+                      )
+                    }
+                  }
+                ),
                 plugins = configuration.underlying.getStringList(PLUGINS).asScala.toSeq,
                 schemas = configuration.underlying.getStringList(SCHEMAS).asScala.toList,
                 crossWalks = configuration.underlying.getStringList(CROSSWALKS).asScala.toList,
@@ -283,11 +331,7 @@ object DomainConfiguration {
                       Role(roleKey, roleDescriptions)
                     }
                   }.toSeq
-                }.getOrElse(Seq.empty),
-                hiddenQueryFilter = configuration.getString("hiddenQueryFilter"),
-                facets = configuration.getString("facets"),
-                sortFields = configuration.getString("sortFields"),
-                apiWsKey = configuration.getBoolean("apiWsKey").getOrElse(false)
+                }.getOrElse(Seq.empty)
               )
             )
           }
@@ -331,6 +375,7 @@ object DomainConfiguration {
       configurations.map { c =>
         c.copy(
           mongoDatabase = c.mongoDatabase + "-TEST",
+          solrBaseUrl = "http://localhost:8983/solr/test",
           objectService = c.objectService.copy(
             fileStoreDatabaseName = c.objectService.fileStoreDatabaseName + "-TEST",
             imageCacheDatabaseName = c.objectService.imageCacheDatabaseName + "-TEST"
