@@ -666,8 +666,8 @@ plugin.advancedsearch.searchInAll=All
 plugin.advancedsearch.booleanAnd=AND
 plugin.advancedsearch.booleanOr=OR
 plugin.advancedsearch.booleanNot=NOT
-plugin.advancedsearch.allProviders=All providers
-plugin.advancedsearch.selectProviders=Select provider(s)
+plugin.advancedsearch.allProviders=All data providers
+plugin.advancedsearch.selectProviders=Select data provider(s)
 
 
 
