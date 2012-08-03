@@ -1,8 +1,5 @@
 #{extends themeInfo.get('themeLayout') /}
 
-#{set 'moreScripts'}
-<script type="text/javascript" src="@{routes.Assets.at("common/javascripts/jquery.easyListSplitter.js")}"></script>
-#{/set}
 <style>
     .controls {
         margin-bottom: 8px;
@@ -76,7 +73,7 @@
                     </select>
                     <div id="collection-list" class="clearfix">
                         #{if providers.size() > 0}
-                        <ul class="unstyled collection-list span1of4">
+                        <ul class="unstyled collection-list">
                         #{list providers, as: 'p'}
                             <li><label><input type="checkbox" class="collection" name="collectionList" value="${p}"/><span class="label">${p}</span></label></li>
                         #{/list}
@@ -130,16 +127,14 @@
                 $("#collection-list").show("slow");
             }
             if ($("#select-collections :selected").val() == "all") {
+                $("span.label").removeClass("label-success");
+                $("#collection-list .collection").attr('checked', false);
                 $("#collection-list").hide("slow");
             }
         });
         $("#reset").on("click", function(){
             $("#collection-list").hide("slow");
             $("span.label").removeClass("label-success");
-        });
-        $('.collection-list').easyListSplitter({
-            colNumber: 4,
-            direction: 'vertical'
         });
     });
 
