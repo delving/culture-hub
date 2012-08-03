@@ -171,17 +171,17 @@ object DomainConfiguration {
   val SOLR_BASE_URL = "solr.baseUrl"
   val MONGO_DATABASE = "mongoDatabase"
 
-  val COMMONS_HOST = "commons.host"
-  val COMMONS_NODE_NAME = "commons.nodeName"
-  val COMMONS_API_TOKEN = "commons.apiToken"
+  val COMMONS_HOST = "services.commons.host"
+  val COMMONS_NODE_NAME = "services.commons.nodeName"
+  val COMMONS_API_TOKEN = "services.commons.apiToken"
 
-  val PROVIDER_DIRECTORY_URL = "providerDirectoryUrl"
+  val PROVIDER_DIRECTORY_URL = "services.directory.providerDirectoryUrl"
 
-  val FILESTORE_DATABASE = "fileStoreDatabase"
-  val IMAGE_CACHE_DATABASE = "imageCacheDatabase"
-  val IMAGE_CACHE_ENABLED = "imageCacheEnabled"
-  val TILES_WORKING_DIR = "tilesWorkingBaseDir"
-  val TILES_OUTPUT_DIR = "tilesOutputBaseDir"
+  val FILESTORE_DATABASE = "services.dos.fileStoreDatabase"
+  val IMAGE_CACHE_DATABASE = "services.dos.imageCacheDatabase"
+  val IMAGE_CACHE_ENABLED = "services.dos.imageCacheEnabled"
+  val TILES_WORKING_DIR = "services.dos.tilesWorkingBaseDir"
+  val TILES_OUTPUT_DIR = "services.dos.tilesOutputBaseDir"
 
   val PLUGINS = "plugins"
 
@@ -312,10 +312,10 @@ object DomainConfiguration {
                 schemas = configuration.underlying.getStringList(SCHEMAS).asScala.toList,
                 crossWalks = configuration.underlying.getStringList(CROSSWALKS).asScala.toList,
                 ui = UserInterfaceConfiguration(
-                  themeDir = configuration.getString("themeDir").getOrElse("default"),
-                  defaultLanguage = configuration.getString("defaultLanguage").getOrElse("en"),
-                  siteName = configuration.getString("siteName"),
-                  siteSlogan = configuration.getString("siteSlogan").orElse(Some("Delving CultureHub"))
+                  themeDir = configuration.getString("ui.themeDir").getOrElse("default"),
+                  defaultLanguage = configuration.getString("ui.defaultLanguage").getOrElse("en"),
+                  siteName = configuration.getString("ui.siteName"),
+                  siteSlogan = configuration.getString("ui.siteSlogan").orElse(Some("Delving CultureHub"))
                 ),
                 emailTarget = {
                   val emailTarget = configuration.getConfig("emailTarget").get

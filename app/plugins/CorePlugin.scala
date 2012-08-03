@@ -58,8 +58,8 @@ class CorePlugin(app: Application) extends CultureHubPlugin(app) {
       key = "datasets",
       titleKey = "thing.datasets",
       items = Seq(
-        MenuElement("/organizations/%s/dataset".format("orgId"), "organization.dataset.list"),
-        MenuElement("/organizations/%s/dataset/add".format("orgId"), "organization.dataset.create", Seq(GrantType.OWN))
+        MenuElement("/organizations/%s/dataset".format(orgId), "organization.dataset.list"),
+        MenuElement("/organizations/%s/dataset/add".format(orgId), "organization.dataset.create", Seq(GrantType.OWN))
       )
     ),
     MainMenuEntry(
