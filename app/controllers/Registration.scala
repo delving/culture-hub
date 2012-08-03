@@ -111,8 +111,11 @@ object Registration extends ApplicationController {
                 registrationForm.bindFromRequest.fold(
                     formWithErrors => {
                         registrationForm.value.map(r => Cache.set(r.randomId, null))
-                        BadRequest(Template("/Registration/index.html", 'randomId -> MissingLibs
-                                                                                     .UUID, 'registrationForm -> formWithErrors))
+                        BadRequest(Template(
+                            "/Registration/index.html",
+                            'randomId -> MissingLibs.UUID,
+                            'registrationForm -> formWithErrors
+                        ))
                     },
                     registration => {
                         val r = registration
