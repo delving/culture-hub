@@ -18,25 +18,12 @@
 
 <div class="row">
 
-    *{<div class="span4">}*
-        *{<form class="form-inline pull-left">}*
-            *{<h4>&{'dataset.filter.state'}:</h4>}*
-            *{<input type="checkbox" name="filter-state" value="">}*
-            *{<label for="dataset-state-x">state-x</label>}*
-            *{<input type="checkbox" name="filter-state" value="">}*
-            *{<label for="dataset-state-x">state-y</label>}*
-            *{<input type="checkbox" name="filter-state" value="">}*
-            *{<label for="dataset-state-x">state-z</label>}*
-        *{</form>}*
-    *{</div>}*
     <div class="span8">
-        <form id="filter-form" class="form-inline pull-left">
-            <!-- todo: update message to "Filter by name" -->
-            *{<h4>&{'dataset.filter.name'}: </h4>}*
-            <input type='text' name='filter' id='filter' maxlength="30" size="30" class="textinput" placeholder=""/>
-            <input onclick="saveFilter()" class="btn" type="button" value="Pin"/>
+        <form id="filter-form" class="form-inline pull-left form-search">
+            <input type='text' name='filter' id='filter' maxlength="30" size="30" class="search-query" placeholder=""/>
+            <input onclick="saveFilter()" class="btn" type="button" value="Save"/>
             <input onclick="resetFilter()" class="btn" type="reset" value="&{'ui.label.reset'}"/>
-            <br/><span class="help-inline">Type in any dataset value(s) to filter the table. Press "Pin" to save the filter.</span>
+            <a class="icon icon-question-sign extHelp" href="#" rel="tooltip" title="Type in any dataset value(s) to filter the table. Press 'Save' to save the filter."></a>
 
         </form>
     </div>
