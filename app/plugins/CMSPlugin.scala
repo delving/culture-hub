@@ -23,15 +23,15 @@ class CMSPlugin(app: Application) extends CultureHubPlugin(app) {
     )).toSeq
   }
 
-  override def organizationMenuEntries(context: Map[String, String], roles: Seq[String]): Seq[MainMenuEntry] = Seq(
+  override def organizationMenuEntries(orgId: String, lang: String, roles: Seq[String]): Seq[MainMenuEntry] = Seq(
     MainMenuEntry(
       key = "site",
       titleKey = "org.cms",
       roles = Seq(GrantType.OWN, GrantType.CMS),
       items = Seq(
-        MenuElement("/organizations/%s/site".format(context("orgId")), "org.cms.page.list"),
-        MenuElement("/organizations/%s/site/%s/page/add".format(context("orgId"), context("currentLanguage")), "org.cms.page.new"),
-        MenuElement("/organizations/%s/site/upload".format(context("orgId")), "org.cms.upload.image")
+        MenuElement("/organizations/%s/site".format(orgId), "org.cms.page.list"),
+        MenuElement("/organizations/%s/site/%s/page/add".format(orgId, lang), "org.cms.page.new"),
+        MenuElement("/organizations/%s/site/upload".format(orgId), "org.cms.upload.image")
       )
     )
   )

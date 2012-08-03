@@ -21,13 +21,13 @@ class StatisticsPlugin(app: Application) extends CultureHubPlugin(app) {
       pathArgs: List[String] => controllers.statistics.Statistics.statistics(pathArgs(0))
     })
 
-  override def organizationMenuEntries(context: Map[String, String], roles: Seq[String]): Seq[MainMenuEntry] = Seq(
+  override def organizationMenuEntries(orgId: String, lang: String, roles: Seq[String]): Seq[MainMenuEntry] = Seq(
     MainMenuEntry(
       key = "statistics",
       titleKey = "plugin.statistics.statistics",
       roles = Seq(GrantType.OWN),
       items = Seq(
-        MenuElement(url = "/organizations/%s/statistics/dataset".format(context("orgId")), titleKey = "plugin.statistics.dataset")
+        MenuElement(url = "/organizations/%s/statistics/dataset".format(orgId), titleKey = "plugin.statistics.dataset")
       )
     )
   )
