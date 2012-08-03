@@ -312,10 +312,10 @@ object DomainConfiguration {
                 schemas = configuration.underlying.getStringList(SCHEMAS).asScala.toList,
                 crossWalks = configuration.underlying.getStringList(CROSSWALKS).asScala.toList,
                 ui = UserInterfaceConfiguration(
-                  themeDir = configuration.getString("ui,themeDir").getOrElse("default"),
-                  defaultLanguage = configuration.getString("ui,defaultLanguage").getOrElse("en"),
-                  siteName = configuration.getString("ui,siteName"),
-                  siteSlogan = configuration.getString("ui,siteSlogan").orElse(Some("Delving CultureHub"))
+                  themeDir = configuration.getString("ui.themeDir").getOrElse("default"),
+                  defaultLanguage = configuration.getString("ui.defaultLanguage").getOrElse("en"),
+                  siteName = configuration.getString("ui.siteName"),
+                  siteSlogan = configuration.getString("ui.siteSlogan").orElse(Some("Delving CultureHub"))
                 ),
                 emailTarget = {
                   val emailTarget = configuration.getConfig("emailTarget").get
