@@ -34,6 +34,7 @@ case class DomainConfiguration(
   objectService:               ObjectServiceConfiguration,
   oaiPmhService:               OaiPmhServiceConfiguration,
   searchService:               SearchServiceConfiguration,
+  directoryService:            DirectoryServiceConfiguration,
 
   plugins:                     Seq[String],
 
@@ -120,6 +121,10 @@ case class OaiPmhServiceConfiguration(
   responseListSize:            Int
 )
 
+case class DirectoryServiceConfiguration(
+  providerDirectoryUrl:        String
+)
+
 case class SearchServiceConfiguration(
   hiddenQueryFilter:           Option[String] = Some(""),
   facets:                      Option[String] = None, // dc_creator:crea:Creator,dc_type
@@ -170,6 +175,8 @@ object DomainConfiguration {
   val COMMONS_NODE_NAME = "commons.nodeName"
   val COMMONS_API_TOKEN = "commons.apiToken"
 
+  val PROVIDER_DIRECTORY_URL = "providerDirectoryUrl"
+
   val FILESTORE_DATABASE = "fileStoreDatabase"
   val IMAGE_CACHE_DATABASE = "imageCacheDatabase"
   val IMAGE_CACHE_ENABLED = "imageCacheEnabled"
@@ -199,8 +206,10 @@ object DomainConfiguration {
     COMMONS_HOST, COMMONS_NODE_NAME,
     IMAGE_CACHE_DATABASE, FILESTORE_DATABASE, TILES_WORKING_DIR, TILES_OUTPUT_DIR,
     OAI_REPO_NAME, OAI_ADMIN_EMAIL, OAI_EARLIEST_TIMESTAMP, OAI_REPO_IDENTIFIER, OAI_SAMPLE_IDENTIFIER, OAI_RESPONSE_LIST_SIZE,
-    BASEX_HOST, BASEX_PORT, BASEX_EPORT, BASEX_USER, BASEX_PASSWORD
+    BASEX_HOST, BASEX_PORT, BASEX_EPORT, BASEX_USER, BASEX_PASSWORD,
+    PROVIDER_DIRECTORY_URL
   )
+
   val MANDATORY_DOMAIN_KEYS = Seq(ORG_ID, MONGO_DATABASE, COMMONS_API_TOKEN, IMAGE_CACHE_ENABLED, SCHEMAS, CROSSWALKS, PLUGINS)
 
 
@@ -271,6 +280,9 @@ object DomainConfiguration {
                   imageCacheEnabled = configuration.getBoolean(IMAGE_CACHE_ENABLED).getOrElse(false),
                   tilesWorkingBaseDir = getString(configuration, TILES_WORKING_DIR),
                   tilesOutputBaseDir = getString(configuration, TILES_OUTPUT_DIR)
+                ),
+                directoryService = DirectoryServiceConfiguration(
+                  providerDirectoryUrl = configuration.getString(PROVIDER_DIRECTORY_URL).getOrElse("")
                 ),
                 searchService = SearchServiceConfiguration(
                   hiddenQueryFilter = configuration.getString("hiddenQueryFilter"),
