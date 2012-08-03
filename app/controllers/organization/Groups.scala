@@ -4,6 +4,7 @@ import org.bson.types.ObjectId
 import extensions.JJson
 import com.mongodb.casbah.Imports._
 import models.{DataSet, DomainConfiguration, GrantType, Group}
+import models.mongoContext._
 import play.api.i18n.Messages
 import controllers.{OrganizationController, ViewModel, Token}
 import play.api.mvc.{Results, AnyContent, RequestHeader, Action}

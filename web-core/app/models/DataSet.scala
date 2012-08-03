@@ -19,6 +19,7 @@ package models
 import _root_.util.DomainConfigurationHandler
 import extensions.ConfigurationException
 import org.bson.types.ObjectId
+import models.mongoContext._
 import com.mongodb.casbah.Imports._
 import com.novus.salat.dao._
 import xml.{Node, XML}
