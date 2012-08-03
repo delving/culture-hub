@@ -1,7 +1,7 @@
 #{extends themeInfo.get('themeLayout') /}
 
 #{set 'moreScripts'}
-<script type="text/javascript" src="@{routes.Assets.at("common/javascripts/jquery.easyListSplitter.js")}"></script>
+<script type="text/javascript" src="@{routes.Assets.at("common/javascripts/underscore-min.js")}"></script>
 #{/set}
 <style>
     .controls {
@@ -11,7 +11,7 @@
 <div class="row">
     <div class="span8 offset2">
         <div class="page-header"><h2>&{'plugin.advancedsearch'}</h2></div>
-        <form class="form-horizontal well" action="/search/advanced" method="POST">
+        <form id="advancedSearchForm" class="form-horizontal well" action="/search/advanced" method="POST">
             *{ SEARCH IN }*
             <div class="control-group">
                 <label class="control-label">&{'plugin.advancedsearch.searchIn'}</label>
@@ -66,28 +66,18 @@
                 </div>
             </div>
 
-            *{ SELECT CONTENT PROVIDERS }*
+            *{ SELECT COLLECTIONS }*
             <div class="control-group">
-                <label class="control-label">&{'metadata.delving.owner'}</label>
-                <div class="controls">
-                    <select name="allCollections" id="select-collections">
-                        <option selected="selected" value="all">&{'plugin.advancedsearch.allProviders'}</option>
-                        <option value="select">&{'plugin.advancedsearch.selectProviders'}</option>
-                    </select>
-                    <div id="collection-list" class="clearfix">
-                        #{if providers.size() > 0}
-                        <ul class="unstyled collection-list span1of4">
-                        #{list providers, as: 'p'}
-                            <li><label><input type="checkbox" class="collection" name="collectionList" value="${p}"/><span class="label">${p}</span></label></li>
-                        #{/list}
-                        </ul>
-                        #{/if}
-                        #{else}
-                            <p>sorry, nothing to show</p>
-                        #{/else}
-
-                    </div>
+              <label class="control-label">&{'metadata.delving.owner'}</label>
+              <div class="controls">
+                <select name="allCollections" id="select-collections">
+                  <option selected="selected" value="all">&{'plugin.advancedsearch.allProviders'}</option>
+                  <option value="select">&{'plugin.advancedsearch.selectProviders'}</option>
+                </select>
+                <div id="collection-list" class="clearfix">
+                  <input type="text" id="collectionList">
                 </div>
+              </div>
             </div>
 
             *{ ORDER BY }*
@@ -110,7 +100,7 @@
                 <label class="control-label"></label>
 
                 <div class="controls">
-                    <input type="submit" value="&{'ui.label.search'}" class="btn btn-primary"/>
+                    <input type="submit" id="search" value="&{'ui.label.search'}" class="btn btn-primary"/>
                     <input type="reset" value="&{'ui.label.reset'}" class="btn pull-right" id="reset"/>
                 </div>
 
@@ -133,13 +123,30 @@
                 $("#collection-list").hide("slow");
             }
         });
+        $('#collectionList').tokenInput('/organizations/${orgId}/api/search?explain=fieldValue&field=delving_owner_facet&value=&format=json', {
+          queryParam: 'value',
+          propertyToSearch: 'value',
+          jsonContainer: 'results',
+          tokenValue: 'name',
+          minChars: 0
+        });
         $("#reset").on("click", function(){
             $("#collection-list").hide("slow");
             $("span.label").removeClass("label-success");
         });
-        $('.collection-list').easyListSplitter({
-            colNumber: 4,
-            direction: 'vertical'
+        $('#search').click(function(event) {
+          event.preventDefault();
+          var collections = _.map($('#collectionList').tokenInput('get'), function(element) {
+            return '&collectionList=' + encodeURIComponent(element['value']);
+          });
+
+          var qs = $('#advancedSearchForm').serialize() + collections;
+
+          $.post('/search/advanced', qs, function(data) {
+            document.location = data;
+          });
+
+          console.log(qs);
         });
     });
 

@@ -20,7 +20,7 @@ object AdvancedSearch extends DelvingController {
   def advancedSearch = Root {
     Action {
       implicit request =>
-        Ok(Template('providers -> getProviders.asJava))
+        Ok(Template('orgId -> configuration.orgId))
     }
   }
 
@@ -45,12 +45,9 @@ object AdvancedSearch extends DelvingController {
 
         val query = form.toSolrQuery
 
-        Redirect("/search?query=" + query)
+        Ok("/search?query=" + query)
     }
 
   }
-
-  def getProviders(implicit configuration: DomainConfiguration) = DataSet.dao.findAllByOrgId(configuration.orgId).map(_.getDataProvider).toList.distinct
-
 
 }
