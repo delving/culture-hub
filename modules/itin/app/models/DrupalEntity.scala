@@ -5,10 +5,8 @@ import org.bson.types.ObjectId
 import com.mongodb.casbah._
 import org.apache.solr.common.SolrInputDocument
 import core.Constants._
-import core.search.SolrServer
 import java.util.Date
 import xml.NodeSeq
-import models.mongoContext._
 import core.indexing.IndexingService
 
 case class DrupalEntity(_id: ObjectId = new ObjectId, rawXml: String, id: DrupalEntityId, enrichments: Map[String, Array[String]] = Map.empty, deleted: Boolean = false) {
