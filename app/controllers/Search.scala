@@ -43,7 +43,7 @@ object Search extends DelvingController {
             'returnToResults -> request.rawQueryString)).withSession(
             session +
               (RETURN_TO_RESULTS -> request.rawQueryString) +
-              (SEARCH_TERM -> query.mkString(" ")))
+              (SEARCH_TERM -> query))
         } catch {
           case MalformedQueryException(s, t) => BadRequest(Template("/Search/invalidQuery.html", 'query -> query))
           case c: SolrConnectionException => Error(Messages("search.backendConnectionError"))
