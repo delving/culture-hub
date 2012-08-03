@@ -306,6 +306,8 @@ metadata.dcterms.extent=Extent
 metadata.delving.dimensions=Dimensions
 metadata.delving.owner=Owner
 metadata.delving.creator=Creator
+metadata.delving.provider=Provider
+metadata.delving.owner=Data Provider
 metadata.delving.recordType=Record type
 metadata.delving.hasDigitalObject=Record has a digital object
 
@@ -395,7 +397,7 @@ metadata.museum.type=Museum type
 metadata.is.about=Is about
 metadata.searchfield.recordType=Object type
 metadata.searchfield.contributor=Contributor
-metadata.searchfield.dataprovider=Provider
+metadata.searchfield.dataprovider=Data Provider
 metadata.searchfield.creator=Creator
 metadata.searchfield.hasDigitalObject=Has digital object
 metadata.type.all=All
@@ -664,8 +666,8 @@ plugin.advancedsearch.searchInAll=All
 plugin.advancedsearch.booleanAnd=AND
 plugin.advancedsearch.booleanOr=OR
 plugin.advancedsearch.booleanNot=NOT
-plugin.advancedsearch.allProviders=All providers
-plugin.advancedsearch.selectProviders=Select provider(s)
+plugin.advancedsearch.allProviders=All data providers
+plugin.advancedsearch.selectProviders=Select data provider(s)
 
 
 

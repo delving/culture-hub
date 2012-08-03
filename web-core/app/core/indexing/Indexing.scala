@@ -82,6 +82,16 @@ object Indexing extends SolrServer {
     // for backwards-compatibility
     inputDoc.addField(PMH_ID, URLEncoder.encode(record.itemId, "utf-8"))
 
+    // force the provider and dataProvider configured in the DataSet
+    if(inputDoc.containsKey(PROVIDER)) {
+      inputDoc.remove(PROVIDER)
+      inputDoc.addField(PROVIDER, dataSet.getProvider)
+    }
+    if(inputDoc.containsKey(OWNER)) {
+      inputDoc.remove(OWNER)
+      inputDoc.addField(OWNER, dataSet.getDataProvider)
+    }
+
     // deepZoom hack
     val DEEPZOOMURL: String = "delving_deepZoomUrl_string"
     val DEEPZOOM_PATH: String = "/iip/deepzoom"
@@ -111,7 +121,7 @@ object Indexing extends SolrServer {
           }
         }
       } catch {
-        case t =>
+        case t: Throwable =>
           Logger("CultureHub").error("Error during deepZoomUrl check, deepZoomURL " + inputDoc.get(DEEPZOOMURL).getFirstValue, t)
           // in doubt, remove
           inputDoc.remove(DEEPZOOMURL)

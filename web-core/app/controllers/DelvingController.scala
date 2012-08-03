@@ -362,7 +362,8 @@ trait DelvingController extends ApplicationController with CoreImplicits {
           val navigation = CultureHubPlugin.getEnabledPlugins.map {
             plugin => plugin.
               getOrganizationNavigation(
-                context = Map("orgId" -> orgId, "currentLanguage" -> getLang),
+                orgId = orgId,
+                lang = getLang,
                 roles = roles,
                 isMember = HubUser.dao.findByUsername(connectedUser).map(u => u.organizations.contains(orgId)).getOrElse(false)
             ).map(_.asJavaMap)

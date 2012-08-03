@@ -314,11 +314,11 @@ public class AdvancedSearchForm {
         }
         if (collectionList != null && !ALL_COLLECTIONS.equals(allCollections)) {
             for (String coll : collectionList) {
-                builder.append("&qf=DATAPROVIDER:").append(coll);
+                builder.append("&qf=delving_owner_facet:").append(coll);
             }
         }
         if (isValid(collection) && !collection.equalsIgnoreCase("all_collections")) {
-            builder.append("&qf=DATAPROVIDER:").append(collection).append("");
+            builder.append("&qf=delving_owner_facet:").append(collection).append("");
         }
         if (isValid(getSortBy())) {
             builder.append("&sortBy=").append(getSortBy());

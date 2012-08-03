@@ -342,7 +342,7 @@ class DataSetDAO(collection: MongoCollection) extends SalatDAO[DataSet, ObjectId
   def delete(dataSet: DataSet) {
     MetadataCache.get(dataSet.orgId, dataSet.spec, ITEM_TYPE_MDR).removeAll()
     HubServices.basexStorage(dataSet.configuration).deleteCollection(dataSet)
-    remove(dataSet)
+    remove(MongoDBObject("_id" -> dataSet._id))
   }
 
   // ~~~ record handling

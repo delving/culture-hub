@@ -67,7 +67,7 @@ class SearchService(orgId: Option[String], request: RequestHeader, hiddenQueryFi
   def getApiResult: PlainResult = {
 
     val response = try {
-      if (configuration.apiWsKey) {
+      if (configuration.searchService.apiWsKey) {
         val wskey = params.getValueOrElse("wskey", "unknown") //paramMap.getOrElse("wskey", Array[String]("unknown")).head
         // todo add proper wskey checking
         if (!wskey.toString.equalsIgnoreCase("unknown")) {
@@ -98,10 +98,12 @@ class SearchService(orgId: Option[String], request: RequestHeader, hiddenQueryFi
 
     require(params._contains("query") || params._contains("id") || params._contains("explain"))
 
+    val renderRelatedItems = params.getFirst("mlt").getOrElse("false") == "true"
+
     val response: String = params match {
       case x if x._contains("explain") && x.getValueOrElse("explain", "nothing").equalsIgnoreCase("fieldValue") => FacetAutoComplete(params, configuration).renderAsJson
       case x if x._contains("explain") => ExplainResponse(configuration, params).renderAsJson
-      case x if x.valueIsNonEmpty("id") => getRenderedFullView("api", x.getFirst("schema"), configuration) match {
+      case x if x.valueIsNonEmpty("id") => getRenderedFullView("api", x.getFirst("schema"), renderRelatedItems, configuration) match {
         case Right(rendered) => rendered.toJson
         case Left(error) => return errorResponse("Unable to render full record", error, "json")
       }
@@ -116,10 +118,12 @@ class SearchService(orgId: Option[String], request: RequestHeader, hiddenQueryFi
   def getXMLResultResponse(authorized: Boolean = true): PlainResult = {
     require(params._contains("query") || params._contains("id") || params._contains("explain"))
 
+    val renderRelatedItems = params.getFirst("mlt").getOrElse("false") == "true"
+
     val response: Elem = params match {
       case x if x._contains("explain") && x.getValueOrElse ("explain", "nothing").equalsIgnoreCase("fieldValue") => FacetAutoComplete(params, configuration).renderAsXml
       case x if x._contains("explain") => ExplainResponse(configuration, params).renderAsXml
-      case x if x.valueIsNonEmpty("id") => getRenderedFullView("api", x.getFirst("schema"), configuration) match {
+      case x if x.valueIsNonEmpty("id") => getRenderedFullView("api", x.getFirst("schema"), renderRelatedItems, configuration) match {
           case Right(rendered) => return Ok(rendered.toXmlString).as(XML)
           case Left(error) => return errorResponse("Unable to render full record", error, "xml")
       }
@@ -133,16 +137,16 @@ class SearchService(orgId: Option[String], request: RequestHeader, hiddenQueryFi
 
   private def getBriefResultsFromSolr: BriefItemView = {
     require(params.valueIsNonEmpty("query"))
-    val chQuery = SolrQueryService.createCHQuery(request, configuration, true, additionalSystemHQFs = hiddenQueryFilters)
+    val chQuery = SolrQueryService.createCHQuery(request, configuration, additionalSystemHQFs = hiddenQueryFilters)
     BriefItemView(CHResponse(params, configuration, SolrQueryService.getSolrResponseFromServer(chQuery.solrQuery, configuration, true), chQuery))
   }
 
-  def getRenderedFullView(viewName: String, schema: Option[String] = None, configuration: DomainConfiguration): Either[String, RenderedView] = {
+  def getRenderedFullView(viewName: String, schema: Option[String] = None, renderRelatedItems: Boolean, configuration: DomainConfiguration): Either[String, RenderedView] = {
     require(params._contains("id"))
     val id = params.getValue("id")
     val idType = params.getValueOrElse("idType", HUB_ID)
-    SolrQueryService.resolveHubIdAndFormat(orgId, URLEncoder.encode(id, "utf-8"), idType, configuration) match {
-      case Some((hubId, defaultSchema, publicSchemas)) =>
+    SolrQueryService.getSolrItemReference(orgId, URLEncoder.encode(id, "utf-8"), idType, renderRelatedItems, configuration) match {
+      case Some(DocItemReference(hubId, defaultSchema, publicSchemas, relatedItems)) =>
         val prefix = if(schema.isDefined && publicSchemas.contains(schema.get)) {
           schema.get
         } else if(schema.isDefined && !publicSchemas.contains(schema.get)) {
@@ -156,7 +160,7 @@ class SearchService(orgId: Option[String], request: RequestHeader, hiddenQueryFi
         if(idType == "indexItem") {
           renderIndexItem(id)
         } else {
-          renderMetadataRecord(prefix, URLDecoder.decode(hubId, "utf-8"), viewName)
+          renderMetadataRecord(prefix, URLDecoder.decode(hubId, "utf-8"), viewName, renderRelatedItems, relatedItems)
         }
       case None =>
         Left("Could not resolve identifier for hubId '%s' and idType '%s'".format(id, idType))
@@ -179,7 +183,7 @@ class SearchService(orgId: Option[String], request: RequestHeader, hiddenQueryFi
     }
   }
 
-  private def renderMetadataRecord(prefix: String, hubId: String, viewName: String): Either[String, RenderedView] = {
+  private def renderMetadataRecord(prefix: String, hubId: String, viewName: String, renderRelatedItems: Boolean, relatedItems: Seq[BriefDocItem]): Either[String, RenderedView] = {
     if(hubId.split("_").length < 3) return Left("Invalid hubId " + hubId)
     val HubId(orgId, collection, itemId) = hubId
     val cache = MetadataCache.get(orgId, collection, ITEM_TYPE_MDR)
@@ -188,6 +192,15 @@ class SearchService(orgId: Option[String], request: RequestHeader, hiddenQueryFi
       Logger("Search").info("Could not find cached record in mongo with format %s for hubId %s".format(prefix, hubId))
       Left("Could not find full record with hubId '%s' for format '%s'".format(hubId, prefix))
     } else {
+
+      println()
+      println()
+      println()
+      println()
+      println(relatedItems)
+      println()
+      println()
+      println()
 
       // handle legacy formats
       val legacyFormats = List("tib", "abm", "ese", "abc")
@@ -204,12 +217,11 @@ class SearchService(orgId: Option[String], request: RequestHeader, hiddenQueryFi
             try {
               val cleanRawRecord = rawRecord.get.replaceFirst("<\\?xml.*?>", "")
               log.debug(cleanRawRecord)
-//              val wrappedRecord = "<root %s>%s</root>".format(definition.getNamespaces.map(ns => "xmlns:" + ns._1 + "=\"" + ns._2 + "\"").mkString(" "), cleanRawRecord)
               // TODO see what to do with roles
               val rendered: RenderedView = viewRenderer.get.renderRecord(cleanRawRecord, List.empty, definition.getNamespaces, Lang(apiLanguage))
               Right(rendered)
             } catch {
-              case t =>
+              case t: Throwable =>
                 log.error("Exception while rendering view %s for record %s".format(viewDefinitionFormatName, hubId), t)
                 Left("Error while rendering view '%s' for record with hubId '%s'".format(viewDefinitionFormatName, hubId))
             }
@@ -320,6 +332,7 @@ case class SearchSummary(result: BriefItemView, language: String = "en", chRespo
   val briefDocs = result.getBriefDocs
 
   val filterKeys = List("id", "timestamp", "score")
+  // FIXME why are delving fields filtered out here????
   val uniqueKeyNames = result.getBriefDocs.flatMap(doc => doc.solrDocument.getFieldNames).distinct.filterNot(_.startsWith("delving")).filterNot(filterKeys.contains(_)).sortWith(_ > _)
 
   def translateFacetValue(name: String, value: String) = {
@@ -412,7 +425,7 @@ case class SearchSummary(result: BriefItemView, language: String = "en", chRespo
 
     def createJsonRecord(doc: BriefDocItem): ListMap[String, Any] = {
       val recordMap = collection.mutable.ListMap[String, Any]();
-      doc.getFieldValuesFiltered(false, Array())
+      doc.getFieldValuesFiltered(false, filteredFields)
         .sortWith((fv1, fv2) => fv1.getKey < fv2.getKey).foreach(fv => recordMap.put(fv.getKey, fv.getValueAsArray))
       ListMap("item" ->
         ListMap("fields" ->

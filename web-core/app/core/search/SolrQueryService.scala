@@ -29,6 +29,8 @@ import scala.xml.Elem
 import org.apache.solr.client.solrj.SolrQuery
 import java.net.{URLDecoder, URLEncoder}
 import org.apache.commons.lang.StringEscapeUtils
+import org.apache.solr.common.SolrDocumentList
+import org.apache.solr.client.solrj.SolrServerException
 
 /**
  *
@@ -91,15 +93,6 @@ object SolrQueryService extends SolrServer {
     query setHighlight true
     query addHighlightField ("*_snippet")
   }
-
-  //  def getSolrFullItemQueryWithDefaults(facets: List[SolrFacetElement] = List.empty): SolrQuery = {
-  //    // todo finish this
-  //    val query = new SolrQuery("*:*")
-  //    query set ("edismax")
-  //    query setRows 12
-  //    query setStart 0
-  //    query
-  //  }
 
   def parseSolrQueryFromParams(params: Params, configuration: DomainConfiguration) : SolrQuery = {
     import scala.collection.JavaConversions._
@@ -187,12 +180,12 @@ object SolrQueryService extends SolrServer {
       ).toList
   }
 
-  def createCHQuery(request: RequestHeader, configuration: DomainConfiguration, summaryView: Boolean = true, connectedUser: Option[String] = None, additionalSystemHQFs: List[String] = List.empty[String]): CHQuery = {
+  def createCHQuery(request: RequestHeader, configuration: DomainConfiguration, connectedUser: Option[String] = None, additionalSystemHQFs: List[String] = List.empty[String]): CHQuery = {
     val params = Params(request.queryString)
-    createCHQuery(params, configuration, summaryView, connectedUser, additionalSystemHQFs)
+    createCHQuery(params, configuration, connectedUser, additionalSystemHQFs)
   }
 
-  def createCHQuery(params: Params, configuration: DomainConfiguration, summaryView: Boolean, connectedUser: Option[String], additionalSystemHQFs: List[String]): CHQuery = {
+  def createCHQuery(params: Params, configuration: DomainConfiguration, connectedUser: Option[String], additionalSystemHQFs: List[String]): CHQuery = {
 
     def getAllFilterQueries(fqKey: String): Array[String] = {
       params.all.filter(key => key._1.equalsIgnoreCase(fqKey) || key._1.equalsIgnoreCase("%s[]".format(fqKey))).flatMap(entry => entry._2).toArray
@@ -232,7 +225,7 @@ object SolrQueryService extends SolrServer {
 
     val format = params.getValueOrElse("format", "xml")
     val filterQueries = createFilterQueryList(getAllFilterQueries("qf"))
-    val hiddenQueryFilters = createFilterQueryList(if (!configuration.hiddenQueryFilter.isEmpty) getAllFilterQueries("hqf") ++ configuration.hiddenQueryFilter.getOrElse("").split(",") else getAllFilterQueries("hqf"))
+    val hiddenQueryFilters = createFilterQueryList(if (!configuration.searchService.hiddenQueryFilter.isEmpty) getAllFilterQueries("hqf") ++ configuration.searchService.hiddenQueryFilter.getOrElse("").split(",") else getAllFilterQueries("hqf"))
 
     val query = parseSolrQueryFromParams(params, configuration)
 
@@ -245,14 +238,7 @@ object SolrQueryService extends SolrServer {
   }
 
 
-  def getFullSolrResponseFromServer(id: String, idType: String = "", relatedItems: Boolean = false, configuration: DomainConfiguration): QueryResponse = {
-    val r = DelvingIdType(id, idType)
-    val query = new SolrQuery("%s:\"%s\"".format(r.idSearchField, r.normalisedId))
-    if (relatedItems) query.setQueryType(MORE_LIKE_THIS)
-    SolrQueryService.getSolrResponseFromServer(query, configuration)
-  }
-
-  def resolveHubIdAndFormat(orgId: Option[String], id: String, idType: String, configuration: DomainConfiguration): Option[(String, String, Seq[String])] = {
+  def getSolrItemReference(orgId: Option[String], id: String, idType: String, findRelatedItems: Boolean, configuration: DomainConfiguration): Option[DocItemReference] = {
     val t = DelvingIdType(id, idType)
     val solrQuery = if(orgId.isDefined) {
       if (idType == "legacy") {
@@ -264,6 +250,20 @@ object SolrQueryService extends SolrServer {
       "%s:\"%s\"".format(t.idSearchField, t.normalisedId)
     }
     val query = new SolrQuery(solrQuery)
+    if (findRelatedItems) {
+      val mlt = configuration.searchService.moreLikeThis
+      query.set("mlt", true)
+      query.set("mlt.fl", mlt.fieldList : _ *)
+      query.set("mlt.mintf", mlt.minTermFrequency)
+      query.set("mlt.mindf", mlt.minDocumentFrequency)
+      query.set("mlt.minwl", mlt.minWordLength)
+      query.set("mlt.maxwl", mlt.maxWordLength)
+      query.set("mlt.maxqt", mlt.maxQueryTerms)
+      query.set("mlt.maxntp", mlt.maxNumToken)
+      query.set("mlt.qf", mlt.queryFields.map(_.replaceAll(" ", "%20")) : _ *)
+      query.set("mlt.match.include", java.lang.Boolean.TRUE)
+      query.set("mlt.interestingTerms", "details")
+    }
     val response = SolrQueryService.getSolrResponseFromServer(query, configuration)
     if(response.getResults.size() == 0) {
       Logger("Search").info("Didn't find record for query:  %s".format(solrQuery))
@@ -272,18 +272,26 @@ object SolrQueryService extends SolrServer {
       val first = response.getResults.get(0)
       val currentFormat = if(first.containsKey(SCHEMA)) first.getFirstValue(SCHEMA).toString else ""
       val publicFormats = if(first.containsKey(ALL_SCHEMAS)) first.getFieldValues("delving_allSchemas").asScala.map(_.toString).toSeq else Seq.empty
+
+      val relatedItems = if(findRelatedItems) {
+        val matchDoc: SolrDocumentList = response.getResponse.get("match").asInstanceOf[SolrDocumentList]
+        if (matchDoc != null) SolrBindingService.getBriefDocsWithIndex(response) else Seq.empty
+      } else {
+        Seq.empty
+      }
+
       Some(
-        first.getFirstValue(HUB_ID).toString,
-        currentFormat,
-        publicFormats
+        DocItemReference(
+          first.getFirstValue(HUB_ID).toString,
+          currentFormat,
+          publicFormats,
+          relatedItems
+        )
       )
     }
   }
 
   def getSolrResponseFromServer(solrQuery: SolrQuery, configuration: DomainConfiguration, decrementStart: Boolean = false): QueryResponse = {
-    import org.apache.solr.common.SolrException
-    import play.Logger
-    import org.apache.solr.client.solrj.SolrServerException
 
     // solr is 0 based so we need to decrement from our page start
     if (solrQuery.getStart != null && solrQuery.getStart.intValue() < 0) {
@@ -411,63 +419,6 @@ object SolrQueryService extends SolrServer {
 
 }
 
-case class DocIdWindowPager (test: String) {
-
-  //  def getDocIdWindow: DocIdWindow
-  //
-  //  def isNext: Boolean
-  //
-  //  def isPrevious: Boolean
-  //
-  //  def getQueryStringForPaging: String
-  //
-  //  def getFullDocUri: String
-  //
-  //  def getNextFullDocUrl: String
-  //
-  //  def getPreviousFullDocUrl: String
-  //
-  //  def getNextUri: String
-  //
-  //  def getNextInt: Int
-  //
-  //  def getPreviousUri: String
-  //
-  //  def getPreviousInt: Int
-  //
-  //  def getQuery: String
-  //
-  //  def getReturnToResults: String = {}
-  //
-  //  def getPageId: String
-  //
-  //  def getTab: String
-  //
-  //  override def toString: String
-  //
-  //  def getStartPage: String
-  //
-  //  def getBreadcrumbs: List[BreadCrumb]
-  //
-  //  def getNumFound: Int
-  //
-  //  def getFullDocUriInt: Int
-  //
-  ////  def initialize(httpParameters: Map[String, Array[String]], breadcrumbFactory: BreadcrumbFactory, locale: Locale, originalBriefSolrQuery: SolrQuery, queryModelFactory: QueryModelFactory, metadataModel: RecordDefinition): Unit
-  //
-  //  def getSortBy: String
-}
-
-trait DocIdWindow  {
-  def getIds: List[_ <: DocId]
-  def getOffset: Int
-  def getHitCount: Int
-}
-
-case class DocId(solrIdentifier: String)  {
-  def getEuropeanaUri: String = solrIdentifier
-}
-
 case class DelvingIdType(id: String, idType: String) {
   lazy val idSearchField = idType match {
     case "solr" => ID
@@ -477,7 +428,7 @@ case class DelvingIdType(id: String, idType: String) {
     case "hubId" => HUB_ID
     case "indexItem" => ID
     case "legacy" => EUROPEANA_URI
-    case _ => PMH_ID
+    case _ => HUB_ID
   }
   lazy val normalisedId = idSearchField match {
     case PMH_ID => id.replaceAll("/", "_")
@@ -648,7 +599,7 @@ case class PresentationQuery(chResponse: CHResponse) {
   }
 
   private def removePresentationFilters(requestQueryString: String): String = {
-    var filterQueries: Array[String] = requestQueryString.split("&")
+    val filterQueries: Array[String] = requestQueryString.split("&")
     filterQueries.filter(fq => fq.startsWith("qf=TYPE:") || fq.startsWith("tab=") || fq.startsWith("view=") || fq.startsWith("start=")).mkString("&")
   }
 
@@ -667,15 +618,9 @@ case class BriefItemView(chResponse: CHResponse) {
   val pagination = ResultPagination(chResponse)
 
   def getPagination: ResultPagination = pagination
-  //
-  //  def getFacetLogs: Map[String, String]
-  //
-  //  def getMatchDoc: BriefDocItem
-  //
-  //  def getSpellCheck: SpellCheckResponse
-  //
-  //  def getFacetMap: FacetMap
 }
+
+case class DocItemReference(hubId: String, defaultSchema: String, publicSchemas: Seq[String], relatedItems: Seq[BriefDocItem] = Seq.empty)
 
 // todo implement the traits as case classes
 
