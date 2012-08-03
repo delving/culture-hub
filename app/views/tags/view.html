@@ -94,7 +94,7 @@ switch (_view.nodeType) {
         #{else}
             #{if _view.attr("label")}<h5>&{_view.attr("label")}</h5>#{/if}
             #{if _view.attr("url")}
-                <p>${ _view.parent.attr("type")}<a href="${_view.attr("url")}" rel="${_view.attr("type")} nofollow">&{_view.attr("text")}</a></p>
+                <p>${ _view.parent.attr("type")}<a href="${_view.attr("url")}" data-type="${_view.attr("type")}" rel="nofollow">&{_view.attr("text")}</a></p>
             #{/if}
             #{else}
                 <p>&{_view.attr("text")}</p>

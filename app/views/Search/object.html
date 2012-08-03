@@ -80,9 +80,9 @@
 }*
 $(document).ready(function() {
 
-    if ($('a[rel=zoom]').size() > 0) {
+    if ($('a[data-type=zoom]').size() > 0) {
         // Deepzoom image
-        var zoomImg = $('a[rel=zoom]').attr('href');
+        var zoomImg = $('a[data-type=zoom]').attr('href');
         // Deepzoom viewer
         var viewer;
 
