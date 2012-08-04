@@ -37,7 +37,7 @@
 <div class="accordion" id="instructions">
     <div class="accordion-group">
         <div class="accordion-heading  clearfix">
-            <a class="accordion-toggle pull-right" href="#collapseOne" data-parent="instructions" data-toggle="collapse">
+            <a class="accordion-toggle pull-right" href="#collapseOne" data-parent="instructions" data-toggle="collapse" rel="nofollow">
                 <i class="icon-question-sign"></i> &{'org.cms.page.help.toggle'}
             </a>
         </div>
@@ -47,10 +47,10 @@
                 <div class="tabbable">
 
                     <ul class="nav nav-pills">
-                        <li class="active"><a href="#fields" data-toggle="tab">&{'org.cms.page.help.fields.tab'}</a></li>
-                        <li><a href="#images" data-toggle="tab">&{'org.cms.page.help.images.tab'}</a></li>
-                        <li><a href="#templates" data-toggle="tab">&{'org.cms.page.help.templates.tab'}</a></li>
-                        <li><a href="#homepage" data-toggle="tab">&{'org.cms.page.help.homepage.tab'}</a></li>
+                        <li class="active"><a href="#fields" data-toggle="tab" rel="nofollow">&{'org.cms.page.help.fields.tab'}</a></li>
+                        <li><a href="#images" data-toggle="tab" rel="nofollow">&{'org.cms.page.help.images.tab'}</a></li>
+                        <li><a href="#templates" data-toggle="tab" rel="nofollow">&{'org.cms.page.help.templates.tab'}</a></li>
+                        <li><a href="#homepage" data-toggle="tab" rel="nofollow">&{'org.cms.page.help.homepage.tab'}</a></li>
                     </ul>
 
                     <div class="tab-content">
@@ -150,7 +150,7 @@
                     <span class="page-title" data-bind="text: $.format.date(new Date(dateCreated()), 'dd MMM yyyy HH:mm')"></span>
                 </td>
                 <td>
-                    <a class="" href="#" data-bind="click: function() { $parent.loadVersion($data) }">
+                    <a class="" href="#" data-bind="click: function() { $parent.loadVersion($data) }" rel="nofollow">
                         <span class="badge badge-info">&{'ui.label.load'}</span>
                     </a>
                 </td>

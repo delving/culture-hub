@@ -184,12 +184,12 @@
                             <tbody>
                             <tr>
                                 <th>CultureHub search</th>
-                                <td><a data-bind="text: baseUri() + 'search?query=delving_spec%3A' + spec(), attr: {href: baseUri() + 'search?query=delving_spec%3A' + spec() }"></a></td>
+                                <td><a data-bind="text: baseUri() + 'search?query=delving_spec%3A' + spec(), attr: {href: baseUri() + 'search?query=delving_spec%3A' + spec() }" rel="nofollow"></a></td>
                             </tr>
                             <!-- ko foreach: harvestingConfiguration -->
                             <tr>
                                 <th>OAI-PMH harvesting for schema <span data-bind="text: schema"></span></th>
-                                <td><a data-bind="text: $parent.baseUri() + 'organizations/' + $parent.orgId() + '/api/oai-pmh?verb=ListRecords&set=' + $parent.spec() + '&metadataPrefix=' + schema(), attr: {href: $parent.baseUri() + 'organizations/' + $parent.orgId() + '/api/oai-pmh?verb=ListRecords&set=' + $parent.spec() + '&metadataPrefix=' + schema() }"></a></td>
+                                <td><a data-bind="text: $parent.baseUri() + 'organizations/' + $parent.orgId() + '/api/oai-pmh?verb=ListRecords&set=' + $parent.spec() + '&metadataPrefix=' + schema(), attr: {href: $parent.baseUri() + 'organizations/' + $parent.orgId() + '/api/oai-pmh?verb=ListRecords&set=' + $parent.spec() + '&metadataPrefix=' + schema() }" rel="nofollow"></a></td>
                             </tr>
                             <!-- /ko -->
                             </tbody>

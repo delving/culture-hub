@@ -47,13 +47,13 @@
                         <!-- /ko -->
                     </td>
                     <td>
-                        <a class="btn btn-primary btn-mini" href="#" data-bind="click: function() { $parent.editPage($data) }">
+                        <a class="btn btn-primary btn-mini" href="#" data-bind="click: function() { $parent.editPage($data) }" rel="nofollow">
                             <i class="icon-edit icon-white"></i> &{'ui.label.edit'}
                         </a>
-                        <a class="btn btn-inverse btn-mini" target="_blank" href="#" data-bind="click: function() { $parent.previewPage($data) }">
+                        <a class="btn btn-inverse btn-mini" target="_blank" href="#" data-bind="click: function() { $parent.previewPage($data) }" rel="nofollow">
                             <i class="icon-eye-open icon-white"></i> &{'ui.label.preview'}
                         </a>
-                        <a class="btn btn-danger btn-mini pull-right delete" href="#" data-bind="click: function() { $parent.deletePage($data) }">
+                        <a class="btn btn-danger btn-mini pull-right delete" href="#" data-bind="click: function() { $parent.deletePage($data) }" rel="nofollow">
                             <i class="icon-trash icon-white"></i> &{'ui.label.delete'}
                         </a>
                     </td>
@@ -67,7 +67,7 @@
                             No pages available
                         </td>
                         <td>
-                            <a class="btn btn-primary btn-mini" href="/organizations/${orgId}/site/${currentLanguage}/page/add">${messages.get('org.cms.page.new')}</a>
+                            <a class="btn btn-primary btn-mini" href="/organizations/${orgId}/site/${currentLanguage}/page/add" rel="nofollow">${messages.get('org.cms.page.new')}</a>
                         </td>
                     </tr>
                 </tbody>
