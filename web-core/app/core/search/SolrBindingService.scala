@@ -42,9 +42,12 @@ object SolrBindingService {
 
 
   def getSolrDocumentList(queryResponse : QueryResponse) : List[SolrResultDocument] = {
-    
-    import java.lang.{Integer => JInteger}
     val highLightMap: JMap[String, JMap[String, JList[String]]] = queryResponse.getHighlighting
+    getSolrDocumentList(queryResponse.getResults, highLightMap)
+  }
+
+  def getSolrDocumentList(documentList: SolrDocumentList, highLightMap: JMap[String, JMap[String, JList[String]]] = null) : List[SolrResultDocument] = {
+    import java.lang.{Integer => JInteger}
 
     val docs = new ListBuffer[SolrResultDocument]
     val ArrayListObject = classOf[ArrayList[Any]]
@@ -54,33 +57,40 @@ object SolrBindingService {
     val BooleanObject = classOf[JBoolean]
     val IntegerObject = classOf[JInteger]
     // check for required fields else check exception
-    queryResponse.getResults.foreach{
-        doc =>
-          val solrDoc = SolrResultDocument()
-          doc.entrySet.filter(!_.getKey.endsWith("_facet")).foreach{
-            field =>
-              val normalisedField = stripDynamicFieldLabels(field.getKey)
-              val FieldValueClass: Class[_] = field.getValue.getClass
-               FieldValueClass match {
-                case ArrayListObject => solrDoc.add(normalisedField, addFieldNodes(normalisedField, field.getValue.asInstanceOf[ArrayList[Any]].toList))
-                case StringObject | DateObject | BooleanObject | FloatObject | IntegerObject =>
-                  solrDoc.add(normalisedField, List(FieldValueNode(normalisedField, field.getValue.toString)))
-                case _ => println("unknown class in SolrBindingService " + normalisedField + FieldValueClass.getCanonicalName)
-              }
-          }
-          val id = solrDoc getFirst ("id")
-          if (highLightMap != null && highLightMap.containsKey(id)) {
-            highLightMap.get(id).filterNot(_._1.endsWith("_facet")).foreach(entry => solrDoc addHighLightField (entry._1, entry._2.toList))
-          }
-      docs add solrDoc
+
+    documentList.foreach{
+      doc =>
+        val solrDoc = SolrResultDocument()
+        doc.entrySet.filter(!_.getKey.endsWith("_facet")).foreach{
+          field =>
+            val normalisedField = stripDynamicFieldLabels(field.getKey)
+            val FieldValueClass: Class[_] = field.getValue.getClass
+            FieldValueClass match {
+              case ArrayListObject => solrDoc.add(normalisedField, addFieldNodes(normalisedField, field.getValue.asInstanceOf[ArrayList[Any]].toList))
+              case StringObject | DateObject | BooleanObject | FloatObject | IntegerObject =>
+                solrDoc.add(normalisedField, List(FieldValueNode(normalisedField, field.getValue.toString)))
+              case _ => println("unknown class in SolrBindingService " + normalisedField + FieldValueClass.getCanonicalName)
+            }
+        }
+        val id = solrDoc getFirst ("id")
+        if (highLightMap != null && highLightMap.containsKey(id)) {
+          highLightMap.get(id).filterNot(_._1.endsWith("_facet")).foreach(entry => solrDoc addHighLightField (entry._1, entry._2.toList))
+        }
+        docs add solrDoc
     }
     docs.toList
   }
 
   def getBriefDocsWithIndex(queryResponse: QueryResponse, start: Int = 1): List[BriefDocItem] = addIndexToBriefDocs(getBriefDocs(queryResponse), start)
 
+  def getBriefDocsWithIndexFromSolrDocumentList(documentList: SolrDocumentList, start: Int = 1): List[BriefDocItem] = addIndexToBriefDocs(getBriefDocs(documentList), start)
+
   def getBriefDocs(queryResponse: QueryResponse): List[BriefDocItem] = {
     getSolrDocumentList(queryResponse).map(doc => BriefDocItem(doc))
+  }
+
+  def getBriefDocs(documentList: SolrDocumentList): List[BriefDocItem] = {
+    getSolrDocumentList(documentList).map(doc => BriefDocItem(doc))
   }
 
   // todo test this

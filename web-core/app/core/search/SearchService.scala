@@ -519,6 +519,7 @@ case class ExplainResponse(configuration: DomainConfiguration, params: Params) {
     ExplainItem("fl", List("any valid search field in a comma-separated list"), "Will only output the specified search fields"),
     ExplainItem("facet.limit", List("Any valid integer. Default is 100"), "Will limit the number of facet entries returned to integer specified."),
     ExplainItem("facetBoolType", List("AND", "OR", "Default is OR"), "Will determine how the Facet Multiselect functionality is handled within a facet. Between facets it is always AND."),
+    ExplainItem("group.field", List("Any valid non-multivalued field"), "This field can be used to return the result grouped by the 'group.field' values."),
     ExplainItem("start", List("any non negative integer")),
     ExplainItem("qf", List("any valid Facet as defined in the facets block")),
     ExplainItem("hqf", List("any valid Facet as defined in the facets block"), "This link is not used for the display part of the API." +
