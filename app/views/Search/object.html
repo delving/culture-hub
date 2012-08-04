@@ -9,7 +9,9 @@
 #{/set}
 
 #{breadcrumbs params:["search":["searchTerm": searchTerm, "returnToResults": returnToResults], "title": ["url":"", "label": systemFields.apply("delving_title").get(0)], "inOrg": ["inOrg": "yes"]] /}
-
+<div class="return-to-results">
+    <a href="/search?${returnToResults}" rel="nofollow"><i class="icon icon-arrow-left"></i> &{'ui.label.returnToResults'}</a>
+</div>
 <div class="page-header">
     <h1>${systemFields.apply("delving_title").get(0)}</h1>
 </div>
