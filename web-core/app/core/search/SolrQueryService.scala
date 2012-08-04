@@ -31,6 +31,7 @@ import java.net.{URLDecoder, URLEncoder}
 import org.apache.commons.lang.StringEscapeUtils
 import org.apache.solr.common.SolrDocumentList
 import org.apache.solr.client.solrj.SolrServerException
+import org.apache.solr.common.util.SimpleOrderedMap
 
 /**
  *
@@ -153,6 +154,13 @@ object SolrQueryService extends SolrServer {
               values foreach (facet => {
                 queryParams addFacetField ("{!ex=%s}%s".format(values.indexOf(facet).toString,facet))
               })
+            case "group.field" =>
+              // add the params stuff now
+              queryParams setParam ("group", "true")
+              queryParams setParam ("group.limit", "5")
+              values foreach (grouping => {
+                queryParams add ("group.field", grouping)
+              })
             case "pt" =>
               val ptField = values.head
               if (ptField.split(",").size == 2) queryParams setParam ("pt", ptField)
@@ -253,14 +261,14 @@ object SolrQueryService extends SolrServer {
     if (findRelatedItems) {
       val mlt = configuration.searchService.moreLikeThis
       query.set("mlt", true)
-      query.set("mlt.fl", mlt.fieldList : _ *)
+      query.set("mlt.fl", mlt.fieldList.mkString(","))
       query.set("mlt.mintf", mlt.minTermFrequency)
       query.set("mlt.mindf", mlt.minDocumentFrequency)
       query.set("mlt.minwl", mlt.minWordLength)
       query.set("mlt.maxwl", mlt.maxWordLength)
       query.set("mlt.maxqt", mlt.maxQueryTerms)
       query.set("mlt.maxntp", mlt.maxNumToken)
-      query.set("mlt.qf", mlt.queryFields.map(_.replaceAll(" ", "%20")) : _ *)
+      query.set("mlt.qf", mlt.queryFields.map(_.replaceAll(" ", "%20")).mkString(","))
       query.set("mlt.match.include", java.lang.Boolean.TRUE)
       query.set("mlt.interestingTerms", "details")
     }
@@ -274,8 +282,10 @@ object SolrQueryService extends SolrServer {
       val publicFormats = if(first.containsKey(ALL_SCHEMAS)) first.getFieldValues("delving_allSchemas").asScala.map(_.toString).toSeq else Seq.empty
 
       val relatedItems = if(findRelatedItems) {
-        val matchDoc: SolrDocumentList = response.getResponse.get("match").asInstanceOf[SolrDocumentList]
-        if (matchDoc != null) SolrBindingService.getBriefDocsWithIndex(response) else Seq.empty
+        val moreLikeThis = response.getResponse.get("moreLikeThis").asInstanceOf[SimpleOrderedMap[Any]].asScala.head.getValue.asInstanceOf[SolrDocumentList]
+         if (moreLikeThis != null && !moreLikeThis.isEmpty) {
+          SolrBindingService.getBriefDocsWithIndexFromSolrDocumentList(moreLikeThis)
+        } else Seq.empty
       } else {
         Seq.empty
       }

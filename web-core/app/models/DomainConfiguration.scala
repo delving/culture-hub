@@ -135,15 +135,15 @@ case class SearchServiceConfiguration(
 
 /** See http://wiki.apache.org/solr/MoreLikeThis **/
 case class MoreLikeThis(
-  fieldList: Seq[String] = Seq(Constants.DESCRIPTION),
-  minTermFrequency: Int = 2,
-  minDocumentFrequency: Int = 5,
+  fieldList: Seq[String] = Seq(Constants.DESCRIPTION,"dc_creator_text"),
+  minTermFrequency: Int = 1,
+  minDocumentFrequency: Int = 2,
   minWordLength: Int = 0,
   maxWordLength: Int = 0,
   maxQueryTerms: Int = 25,
   maxNumToken: Int = 5000,
   boost: Boolean = false,
-  queryFields: Seq[String] = Seq(Constants.DESCRIPTION + " ^1.1")
+  queryFields: Seq[String] = Seq()
 )
 
 case class BaseXConfiguration(
@@ -296,8 +296,8 @@ object DomainConfiguration {
                     } else {
                       MoreLikeThis(
                         fieldList = mlt.get.underlying.getStringList("fieldList").asScala,
-                        minTermFrequency = mlt.get.getInt("minimumTermFrequency").getOrElse(2),
-                        minDocumentFrequency = mlt.get.getInt("minimumDocumentFrequency").getOrElse(5),
+                        minTermFrequency = mlt.get.getInt("minimumTermFrequency").getOrElse(1),
+                        minDocumentFrequency = mlt.get.getInt("minimumDocumentFrequency").getOrElse(2),
                         minWordLength = mlt.get.getInt("minWordLength").getOrElse(0),
                         maxWordLength = mlt.get.getInt("maxWordLength").getOrElse(0),
                         maxQueryTerms = mlt.get.getInt("maxQueryTerms").getOrElse(25),
