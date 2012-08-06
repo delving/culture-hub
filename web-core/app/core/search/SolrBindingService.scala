@@ -24,6 +24,8 @@ import org.apache.solr.common.SolrDocumentList
 import java.lang.{Boolean => JBoolean, Float => JFloat}
 import java.util.{Date, ArrayList, List => JList, Map => JMap}
 import models.MetadataAccessors
+import play.api.Logger
+import xml.Elem
 
 /**
  *
@@ -258,26 +260,60 @@ case class SolrDocId(solrDocument : SolrResultDocument) {
   def getEuropeanaUri : String = solrDocument.getFirst("europeana_uri")
 }
 
-case class BriefDocItem(solrDocument : SolrResultDocument) extends MetadataAccessors  {
+case class BriefDocItem(solrDocument : SolrResultDocument) extends MetadataAccessors {
 
-    protected def assign(key: String) = solrDocument.getFirst(key)
+  protected def assign(key: String) = solrDocument.getFirst(key)
 
-    protected def values(key: String): List[String] = getFieldValue(key).getValueAsArray.toList
+  protected def values(key: String): List[String] = getFieldValue(key).getValueAsArray.toList
 
-    def getFieldValue(key : String) : FieldValue = FieldValue(key, solrDocument)
+  def getFieldValue(key : String) : FieldValue = FieldValue(key, solrDocument)
 
-    def getFieldValuesFiltered(include: Boolean, fields: Array[String]) : List[FieldValue] = solrDocument.getFieldValuesFiltered(include, fields.toList)
+  def getFieldValuesFiltered(include: Boolean, fields: Seq[String]) : List[FieldValue] = solrDocument.getFieldValuesFiltered(include, fields.toList)
 
-    def getFieldValueList : List[FieldValue] = solrDocument.getFieldValueList
+  def getFieldValueList : List[FieldValue] = solrDocument.getFieldValueList
 
-    def getAsString(key: String) : String = assign(key)
+  def getAsString(key: String) : String = assign(key)
 
-    def getHighlights: List[FieldValue] = solrDocument.getHighLightsAsFieldValueList
+  def getHighlights: List[FieldValue] = solrDocument.getHighLightsAsFieldValueList
 
-    var index : Int = _
-    var fullDocUrl: String = _
+  var index : Int = _
+  var fullDocUrl: String = _
 
-    // debug and scoring information
-    var score : Int = _
-    var debugQuery : String = _
+  // debug and scoring information
+  var score : Int = _
+  var debugQuery : String = _
+
+
+  def toXml(filteredFields: Seq[String] = Seq.empty, include: Boolean = false) = {
+
+    val renderedFields = getFieldValuesFiltered(include, filteredFields).
+                             sortWith((fv1, fv2) => fv1.getKey < fv2.getKey).
+                             map(field => SolrQueryService.renderXMLFields(field))
+
+    val (fields, fieldErrors) = (renderedFields.flatMap(f => f._1), renderedFields.flatMap(f => f._2))
+
+    val renderedHighlights = getHighlights.map(field => SolrQueryService.renderHighLightXMLFields(field))
+    val (highlights, highlighErrors) = (renderedHighlights.flatMap(f => f._2), renderedHighlights.flatMap(f => f._2))
+
+    fieldErrors.foreach { e =>
+      Logger("CultureHub").warn(
+        "Couldn't parse value %s for field %s: %s".format(
+          e._1, e._2, e._3
+        ), e._3)
+    }
+
+    highlighErrors.foreach { e =>
+      Logger("CultureHub").warn(
+        "Couldn't parse highlight value %s for field %s: %s".format(
+          e._1, e._2, e._3
+        ), e._3)
+    }
+
+    <item>
+      <fields>{fields}</fields>{if (getHighlights.isEmpty) <highlights/>
+    else
+      <highlights>{highlights}</highlights>}
+    </item>
+    }
+
 }

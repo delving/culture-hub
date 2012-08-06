@@ -38,9 +38,13 @@ package object mongoContext extends models.MongoContext {
   }
 
   lazy val hubFileStore: Map[DomainConfiguration, GridFS] = {
-    DomainConfigurationHandler.domainConfigurations.map(c => (c -> GridFS(createConnection(c.mongoDatabase)))).toMap
+    DomainConfigurationHandler.domainConfigurations.map(c => (c -> GridFS(mongoConnections(c)))).toMap
   }
 
+  lazy val mongoConnections: Map[DomainConfiguration, MongoDB] =
+    DomainConfigurationHandler.domainConfigurations.map {
+      config => (config -> createConnection(config.mongoDatabase))
+    }.toMap
 
   // ~~~ shared indexes
 

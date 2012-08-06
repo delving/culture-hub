@@ -16,6 +16,7 @@ package core.search
  * limitations under the License.
  */
 
+import core.Constants
 import org.apache.solr.client.solrj.response.{QueryResponse, FacetField}
 import scala.collection.JavaConverters._
 import exceptions.SolrConnectionException
@@ -45,34 +46,31 @@ object SolrQueryService extends SolrServer {
   val FACET_PROMPT: String = "&qf="
   val QUERY_PROMPT: String = "query="
 
-  def renderXMLFields(field : FieldValue, response: CHResponse) : Seq[Elem] = {
+  def renderXMLFields(field : FieldValue): (Seq[Elem], Seq[(String, String, Throwable)]) = {
     val keyAsXml = field.getKeyAsXml
-    field.getValueAsArray.map(value =>
-    {
+    val values = field.getValueAsArray.map(value => {
       val cleanValue = if (value.startsWith("http")) value.replaceAll("&(?!amp;)", "&amp;") else StringEscapeUtils.escapeXml(value)
       try {
-        XML.loadString("<%s>%s</%s>\n".format(keyAsXml, cleanValue, keyAsXml))
+        Right(XML.loadString("<%s>%s</%s>\n".format(keyAsXml, cleanValue, keyAsXml)))
+      } catch {
+        case t: Throwable =>
+          Left((cleanValue, keyAsXml, t))
       }
-      catch {
-        case ex: Exception =>
-          Logger("CultureHub") error ("For query %s we are unable to parse %s for field %s".format(response.params.toString(), cleanValue, keyAsXml), ex)
-            <error/>
-      }
-    }
-    ).toSeq
+    })
+
+    (values.filter(_.isRight).map(_.right.get), values.filter(_.isLeft).map(_.left.get))
   }
 
-  def renderHighLightXMLFields(field : FieldValue, response: CHResponse) : Seq[Elem] = {
-    field.getHighLightValuesAsArray.map(value =>
+  def renderHighLightXMLFields(field : FieldValue) : (Seq[Elem], Seq[(String, String, Throwable)]) = {
+    val values = field.getHighLightValuesAsArray.map(value =>
       try {
-        XML.loadString("<%s><![CDATA[%s]]></%s>\n".format(field.getKeyAsXml, value, field.getKeyAsXml))
+        Right(XML.loadString("<%s><![CDATA[%s]]></%s>\n".format(field.getKeyAsXml, value, field.getKeyAsXml)))
+      } catch {
+        case t: Throwable => Left(value, field.getKeyAsXml, t)
       }
-      catch {
-        case ex : Exception =>
-          Logger("CultureHub") error ("unable to parse " + value + "for field " + field.getKeyAsXml, ex)
-            <error/>
-      }
-    ).toSeq
+    )
+
+    (values.filter(_.isRight).map(_.right.get), values.filter(_.isLeft).map(_.left.get))
   }
 
   def encodeUrl(text: String): String = URLEncoder.encode(text, "utf-8")
@@ -246,10 +244,10 @@ object SolrQueryService extends SolrServer {
   }
 
 
-  def getSolrItemReference(orgId: Option[String], id: String, idType: String, findRelatedItems: Boolean, configuration: DomainConfiguration): Option[DocItemReference] = {
-    val t = DelvingIdType(id, idType)
+  def getSolrItemReference(orgId: Option[String], id: String, idType: DelvingIdType, findRelatedItems: Boolean, configuration: DomainConfiguration): Option[DocItemReference] = {
+    val t = idType.resolve(id)
     val solrQuery = if(orgId.isDefined) {
-      if (idType == "legacy") {
+      if (idType == DelvingIdType.LEGACY) {
         "%s:\"%s\" delving_orgId:%s".format(t.idSearchField, URLDecoder.decode(t.normalisedId, "utf-8"), orgId.get)
       } else {
         "%s:\"%s\" delving_orgId:%s".format(t.idSearchField, t.normalisedId, orgId.get)
@@ -429,21 +427,29 @@ object SolrQueryService extends SolrServer {
 
 }
 
-case class DelvingIdType(id: String, idType: String) {
-  lazy val idSearchField = idType match {
-    case "solr" => ID
-    case "pmh" => PMH_ID
-    case "drupal" => "id" // maybe later drup_id
-    case "dataSetId" => HUB_ID
-    case "hubId" => HUB_ID
-    case "indexItem" => ID
-    case "legacy" => EUROPEANA_URI
-    case _ => HUB_ID
+case class DelvingIdType(idType: String, resolution: String) {
+
+  def resolve(id: String) = new {
+    lazy val idSearchField = resolution
+    lazy val normalisedId = idType match {
+      case DelvingIdType.PMH => id.replaceAll("/", "_")
+      case _ => id
+    }
   }
-  lazy val normalisedId = idSearchField match {
-    case PMH_ID => id.replaceAll("/", "_")
-    case _ => id
-  }
+}
+
+object DelvingIdType {
+  val SOLR = DelvingIdType("solr", ID)
+  val PMH = DelvingIdType("pmh", PMH_ID)
+  val DRUPAL = DelvingIdType("drupal", "id")
+  val HUB_ID = DelvingIdType("hubId", Constants.HUB_ID)
+  val INDEX_ITEM = DelvingIdType("indexItem", ID)
+  val LEGACY = DelvingIdType("legacy", EUROPEANA_URI)
+
+  val types = Seq(SOLR, PMH, DRUPAL, HUB_ID, INDEX_ITEM, LEGACY)
+
+  def apply(idType: String): DelvingIdType = types.find(_.idType == idType).getOrElse(DelvingIdType.HUB_ID)
+
 }
 
 case class FacetCountLink(facetCount: FacetField.Count, url: String, remove: Boolean) {
