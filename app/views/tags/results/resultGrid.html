@@ -1,5 +1,23 @@
+%{ def counter = 1 }%
+#{list _results, as: 'doc'}
+    #{if counter == 1}
+    <ul class="thumbnails">
+    #{/if}
+    <li class="span1of4">
+        <div class="thumbnail ${doc.getItemType()} ">
+            #{results.thingSummaryView data:doc, iSize: 220 /}
+            <input type="hidden" name="idUri" value="${doc.getUri()}"/>
+            <input type="hidden" name="thumb" value="${doc.getThumbnailUri(100)}"/>
+            <input type="hidden" name="title" value="${doc.getTitle()}"/>
+        </div>
+    </li>
+%{ counter++ }%
+    #{if counter > 4 || doc_isLast }
+    </ul>
+    %{ counter = 1 }%
+    #{/if}
+#{/list}
 
-*{%{ def counter = 1 }%}*
 *{#{list _results, as: 'doc'}}*
     *{#{if counter == 1}}*
     *{<div class="row">}*
@@ -18,30 +36,6 @@
     *{%{ counter = 1 }%}*
     *{#{/if}}*
 *{#{/list}}*
-
-
-%{ def counter = 1 }%
-
-#{list _results, as: 'doc'}
-    #{if counter == 1}
-    <ul class="thumbnails">
-    #{/if}
-    <li class="span1of4">
-        <div class="thumbnail ${doc.getItemType()} ">
-            #{results.thingSummaryView data:doc, iSize: 220 /}
-            <input type="hidden" name="idUri" value="${doc.getUri()}"/>
-            <input type="hidden" name="thumb" value="${doc.getThumbnailUri(100)}"/>
-            <input type="hidden" name="title" value="${doc.getTitle()}"/>
-        </div>
-    </li>
-    %{ counter++ }%
-    #{if counter > 4 || doc_isLast }
-    </ul>
-    %{ counter = 1 }%
-    #{/if}
-#{/list}
-
-
 
 
 *{<ul class="thumbnails">}*
