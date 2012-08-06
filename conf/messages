@@ -635,6 +635,8 @@ organization.datasets.cannotBeInvalidated=Dataset hashes cannot be reset in the 
 
 search.backendConnectionError=Cannot connect to the search backend
 
+rendering.notViewable=The item cannot be displayed - {0}
+
 
 
 locale.en=English (en)

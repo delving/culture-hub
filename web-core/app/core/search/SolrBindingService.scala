@@ -284,9 +284,9 @@ case class BriefDocItem(solrDocument : SolrResultDocument) extends MetadataAcces
   var debugQuery : String = _
 
 
-  def toXml(filteredFields: Seq[String] = Seq.empty) = {
+  def toXml(filteredFields: Seq[String] = Seq.empty, include: Boolean = false) = {
 
-    val renderedFields = getFieldValuesFiltered(false, filteredFields).
+    val renderedFields = getFieldValuesFiltered(include, filteredFields).
                              sortWith((fv1, fv2) => fv1.getKey < fv2.getKey).
                              map(field => SolrQueryService.renderXMLFields(field))
 

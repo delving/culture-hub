@@ -67,9 +67,6 @@
                 </container>
             </column>
         </row>
-        <row>
-
-        </row>
     </view>
 
     <view name="api">

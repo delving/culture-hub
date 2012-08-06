@@ -27,12 +27,14 @@ import collection.immutable.ListMap
 import play.api.mvc.{PlainResult, RequestHeader}
 import core.ExplainItem
 import java.lang.String
-import core.rendering.{RenderNode, RenderedView, ViewRenderer}
-import models.{MetadataCache, RecordDefinition, DomainConfiguration}
-import xml.{Node, PrettyPrinter, NodeSeq, Elem}
+import core.rendering._
+import models.DomainConfiguration
+import xml.{PrettyPrinter, Elem}
 import org.apache.solr.client.solrj.response.FacetField.Count
 import org.apache.solr.client.solrj.response.FacetField
-import java.net.{URLEncoder, URLDecoder}
+import net.liftweb.json.JsonAST._
+import net.liftweb.json.{Extraction, Printer}
+import scala.collection.immutable.ListMap
 
 /**
  *
@@ -103,7 +105,7 @@ class SearchService(orgId: Option[String], request: RequestHeader, hiddenQueryFi
     val response: String = params match {
       case x if x._contains("explain") && x.getValueOrElse("explain", "nothing").equalsIgnoreCase("fieldValue") => FacetAutoComplete(params, configuration).renderAsJson
       case x if x._contains("explain") => ExplainResponse(configuration, params).renderAsJson
-      case x if x.valueIsNonEmpty("id") => getRenderedFullView("api", x.getFirst("schema"), renderRelatedItems, configuration) match {
+      case x if x.valueIsNonEmpty("id") => getRenderedFullView("api", x.getFirst("schema"), renderRelatedItems) match {
         case Right(rendered) => rendered.toJson
         case Left(error) => return errorResponse("Unable to render full record", error, "json")
       }
@@ -123,7 +125,7 @@ class SearchService(orgId: Option[String], request: RequestHeader, hiddenQueryFi
     val response: Elem = params match {
       case x if x._contains("explain") && x.getValueOrElse ("explain", "nothing").equalsIgnoreCase("fieldValue") => FacetAutoComplete(params, configuration).renderAsXml
       case x if x._contains("explain") => ExplainResponse(configuration, params).renderAsXml
-      case x if x.valueIsNonEmpty("id") => getRenderedFullView("api", x.getFirst("schema"), renderRelatedItems, configuration) match {
+      case x if x.valueIsNonEmpty("id") => getRenderedFullView("api", x.getFirst("schema"), renderRelatedItems) match {
           case Right(rendered) => return Ok(rendered.toXmlString).as(XML)
           case Left(error) => return errorResponse("Unable to render full record", error, "xml")
       }
@@ -141,102 +143,11 @@ class SearchService(orgId: Option[String], request: RequestHeader, hiddenQueryFi
     BriefItemView(CHResponse(params, configuration, SolrQueryService.getSolrResponseFromServer(chQuery.solrQuery, configuration, true), chQuery))
   }
 
-  def getRenderedFullView(viewName: String, schema: Option[String] = None, renderRelatedItems: Boolean, configuration: DomainConfiguration): Either[String, RenderedView] = {
+  private def getRenderedFullView(viewName: String, schema: Option[String] = None, renderRelatedItems: Boolean) = {
     require(params._contains("id"))
     val id = params.getValue("id")
-    val idType = params.getValueOrElse("idType", HUB_ID)
-    SolrQueryService.getSolrItemReference(orgId, URLEncoder.encode(id, "utf-8"), idType, renderRelatedItems, configuration) match {
-      case Some(DocItemReference(hubId, defaultSchema, publicSchemas, relatedItems)) =>
-        val prefix = if(schema.isDefined && publicSchemas.contains(schema.get)) {
-          schema.get
-        } else if(schema.isDefined && !publicSchemas.contains(schema.get)) {
-          val m = "Schema '%s' not available for hubId '%s'".format(schema.get, hubId)
-          Logger("Search").info(m)
-          return Left(m)
-        } else {
-          defaultSchema
-        }
-
-        if(idType == "indexItem") {
-          renderIndexItem(id)
-        } else {
-          renderMetadataRecord(prefix, URLDecoder.decode(hubId, "utf-8"), viewName, renderRelatedItems, relatedItems)
-        }
-      case None =>
-        Left("Could not resolve identifier for hubId '%s' and idType '%s'".format(id, idType))
-    }
-  }
-
-  private def renderIndexItem(id: String): Either[String, RenderedView] = {
-    if(id.split("_").length < 3) {
-      Left("Invalid hubId")
-    } else {
-      val HubId(orgId, itemType, itemId) = id
-      val cache = MetadataCache.get(orgId, "indexApiItems", itemType)
-      val indexItem = cache.findOne(itemId).getOrElse(return Left("Could not find IndexItem with id '%s".format(id)))
-      Right(new RenderedView {
-        def toXmlString: String = indexItem.getRawXmlString
-        def toJson: String = "JSON rendering not supported"
-        def toXml: NodeSeq = scala.xml.XML.loadString(indexItem.getRawXmlString)
-        def toViewTree: RenderNode = null
-      })
-    }
-  }
-
-  private def renderMetadataRecord(prefix: String, hubId: String, viewName: String, renderRelatedItems: Boolean, relatedItems: Seq[BriefDocItem]): Either[String, RenderedView] = {
-    if(hubId.split("_").length < 3) return Left("Invalid hubId " + hubId)
-    val HubId(orgId, collection, itemId) = hubId
-    val cache = MetadataCache.get(orgId, collection, ITEM_TYPE_MDR)
-    val rawRecord: Option[String] = cache.findOne(hubId).flatMap(_.xml.get(prefix))
-    if (rawRecord.isEmpty) {
-      Logger("Search").info("Could not find cached record in mongo with format %s for hubId %s".format(prefix, hubId))
-      Left("Could not find full record with hubId '%s' for format '%s'".format(hubId, prefix))
-    } else {
-
-      // handle legacy formats
-      val legacyFormats = List("tib", "abm", "ese", "abc")
-      val viewDefinitionFormatName = if (legacyFormats.contains(prefix)) "legacy" else prefix
-
-      // let's do some rendering
-      RecordDefinition.getRecordDefinition(prefix) match {
-        case Some(definition) =>
-          val viewRenderer = ViewRenderer.fromDefinition(viewDefinitionFormatName, viewName, configuration)
-          if (viewRenderer.isEmpty) {
-            log.warn("Tried rendering full record with id '%s' for non-existing view type '%s'".format(hubId, viewName))
-            Left("Could not render full record with hubId '%s' for view type '%s': view type does not exist".format(hubId, viewName))
-          } else {
-            try {
-              val cleanRawRecord = if(renderRelatedItems) {
-                // mix the related items to the record coming from mongo
-                val record = scala.xml.XML.loadString(rawRecord.get)
-                val relatedItemsXml = <relatedItems>{relatedItems.map(_.toXml())}</relatedItems>
-                val mergedRecord = addChild(record, relatedItemsXml)
-                mergedRecord.toString.replaceFirst("<\\?xml.*?>", "")
-              } else {
-                rawRecord.get.replaceFirst("<\\?xml.*?>", "")
-              }
-              log.debug(cleanRawRecord)
-
-              // TODO see what to do with roles
-              val rendered: RenderedView = viewRenderer.get.renderRecord(cleanRawRecord, List.empty, definition.getNamespaces, Lang(apiLanguage))
-              Right(rendered)
-            } catch {
-              case t: Throwable =>
-                log.error("Exception while rendering view %s for record %s".format(viewDefinitionFormatName, hubId), t)
-                Left("Error while rendering view '%s' for record with hubId '%s'".format(viewDefinitionFormatName, hubId))
-            }
-          }
-        case None =>
-          val m = "Error while rendering view '%s' for record with hubId '%s': could not find record definition with prefix '%s'".format(viewDefinitionFormatName, hubId, prefix)
-          log.error(m)
-          Left(m)
-      }
-    }
-  }
-
-  private def addChild(n: Node, newChild: Node) = n match {
-    case Elem(prefix, label, attribs, scope, child @ _*) => Elem(prefix, label, attribs, scope, child ++ newChild : _*)
-    case _ => Logger("CultureHub").error("Can only add children to elements!")
+    val idTypeParam = params.getValueOrElse("idType", HUB_ID)
+    RecordRenderer.getRenderedFullView(orgId, id, DelvingIdType(idTypeParam), apiLanguage, schema, renderRelatedItems)
   }
 
   def errorResponse(error: String = "Unable to respond to the API request",
@@ -254,8 +165,6 @@ class SearchService(orgId: Option[String], request: RequestHeader, hiddenQueryFi
     }
 
     def toJSON: String = {
-      import net.liftweb.json.JsonAST._
-      import net.liftweb.json.{Extraction, Printer}
       implicit val formats = net.liftweb.json.DefaultFormats
       val docMap = ListMap("status" -> error, "message" -> errorMessage)
       Printer pretty (render(Extraction.decompose(docMap)))
@@ -270,8 +179,6 @@ class SearchService(orgId: Option[String], request: RequestHeader, hiddenQueryFi
   }
 
   def getSimileResultResponse(callback : String = "") : PlainResult  = {
-    import net.liftweb.json.JsonAST._
-    import net.liftweb.json.{Extraction, Printer}
     implicit val formats = net.liftweb.json.DefaultFormats
 
     try {
@@ -585,9 +492,6 @@ case class ExplainResponse(configuration: DomainConfiguration, params: Params) {
   }
 
   def renderAsJson: String = {
-    import net.liftweb.json.JsonAST._
-    import net.liftweb.json.{Extraction, Printer}
-    import scala.collection.immutable.ListMap
     implicit val formats = net.liftweb.json.DefaultFormats
 
     val outputJson = Printer.pretty(render(Extraction.decompose(
