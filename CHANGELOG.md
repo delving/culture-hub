@@ -2,6 +2,14 @@
 
 This is the changelog of the CultureHub. It documents changes of the main platform, without modules.
 
+# 12.08
+
+### New features
+
+- manu: multi-tenancy support
+- manu, eric: advanced search plugin with auto-completion
+- manu, sjoerd: reviving related items feature
+
 # 12.07
 
 ### New features
