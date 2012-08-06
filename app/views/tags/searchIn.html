@@ -1,0 +1,6 @@
+<select name="searchIn" class="span2">
+    <option #{if _searchIn && _searchIn.contains("text")}selected="selected"#{/} value="text">&{'ui.label.all'}</option>
+    #{list _fields, as: 'field'}
+      <option #{if _searchIn && _searchIn.contains(field.key)}selected="selected"#{/} value="${field.key}">&{field.value}</option>
+    #{/list}
+</select>
