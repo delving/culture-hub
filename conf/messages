@@ -81,6 +81,7 @@ ui.label.remove=Remove
 ui.label.required=Required
 ui.label.reset=Reset
 ui.label.returnToResults=Return to results
+ui.label.save=Save
 ui.label.scope=Scope
 ui.label.scope.public=Public
 ui.label.scope.notpublic=Not public
@@ -438,6 +439,7 @@ org.list.grantType.view=with rights to view
 org.list.grantType.modify=with rights to modify
 org.list.grantType.own=with full access to everything
 org.list.dataSetCount={0} Dataset(s)
+org.list.filter=Type here to narrow down the list
 
 org.group.grantType.view=Dataset view rights
 org.group.grantType.modify=Dataset modification rights
