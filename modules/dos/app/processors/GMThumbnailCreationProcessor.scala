@@ -81,6 +81,7 @@ object GMThumbnailCreationProcessor extends ThumbnailCreationProcessor with Thum
           val thumb = storeThumbnail(
             thumbnailStream = new BufferedInputStream(new FileInputStream(thumbnailFile)),
             filename = image.getName,
+            contentType = "image/jpeg",
             width = width,
             store = getStore(task.orgId),
             params = Map(

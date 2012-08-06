@@ -16,29 +16,29 @@ trait Thumbnail {
 
   protected def createThumbnails(image: GridFSDBFile, store: GridFS, globalParams: Map[String, String] = Map.empty[String, String]): Map[Int, ObjectId] = {
     thumbnailSizes.map {
-      size => createThumbnailFromStream(image.inputStream, image.filename, size._2, store, globalParams + (FILE_POINTER_FIELD -> image._id.get))
+      size => createThumbnailFromStream(image.inputStream, image.filename, image.contentType, size._2, store, globalParams + (FILE_POINTER_FIELD -> image._id.get))
     }
   }
 
-  protected def createThumbnailFromStream(imageStream: InputStream, filename: String, width: Int, store: GridFS, params: Map[String, AnyRef] = Map.empty[String, AnyRef]): (Int, ObjectId) = {
-    val resizedStream = createThumbnail(imageStream, width)
-    storeThumbnail(resizedStream, filename, width, store, params)
+  protected def createThumbnailFromStream(imageStream: InputStream, filename: String, contentType: String, width: Int, store: GridFS, params: Map[String, AnyRef] = Map.empty[String, AnyRef]): (Int, ObjectId) = {
+    val resizedStream = createThumbnail(imageStream, contentType, width)
+    storeThumbnail(resizedStream, filename, contentType, width, store, params)
   }
 
-  protected def storeThumbnail(thumbnailStream: InputStream, filename: String, width: Int, store: GridFS, params: Map[String, AnyRef] = Map.empty[String, AnyRef]): (Int, ObjectId) = {
+  protected def storeThumbnail(thumbnailStream: InputStream, filename: String, contentType: String, width: Int, store: GridFS, params: Map[String, AnyRef] = Map.empty[String, AnyRef]): (Int, ObjectId) = {
     val thumbnail = store.createFile(thumbnailStream)
     thumbnail.filename = filename
-    thumbnail.contentType = "image/jpeg"
+    thumbnail.contentType = contentType
     thumbnail.put (THUMBNAIL_WIDTH_FIELD, width.asInstanceOf[AnyRef])
     params foreach { p => thumbnail.put(p._1, p._2)}
     thumbnail.save
     (width, thumbnail._id.get)
   }
 
-  private def createThumbnail(sourceStream: InputStream, thumbnailWidth: Int, boundingBox: Boolean = true): InputStream = {
+  private def createThumbnail(sourceStream: InputStream, contentType: String, thumbnailWidth: Int, boundingBox: Boolean = true): InputStream = {
     val thumbnail: BufferedImage = resizeImage(sourceStream, thumbnailWidth, boundingBox)
     val os: ByteArrayOutputStream = new ByteArrayOutputStream()
-    ImageIO.write(thumbnail, "jpg", os)
+    ImageIO.write(thumbnail, contentType, os)
     new ByteArrayInputStream(os.toByteArray)
   }
 
