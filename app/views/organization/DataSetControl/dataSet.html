@@ -68,17 +68,17 @@
                 <div class="row">
                     <div class="span6">
 
-                        #{textField name:"spec", form: dataSetForm, label: messages.get('organization.dataset.label.identifier'), dataBind:"value: spec", help: messages.get('organization.dataset.help.identifier') /}
+                        #{form.textField name:"spec", form: dataSetForm, label: messages.get('organization.dataset.label.identifier'), dataBind:"value: spec", help: messages.get('organization.dataset.help.identifier') /}
 
                         %{for(i in 0..factDefinitions.size() - 1) {
                             def factDef = factDefinitions.apply(i);
                         }%
 
                         #{if factDef.hasOptions()}
-                            #{populatedSelectField name: "facts." + factDef.name, form: dataSetForm, label: factDef.prompt, options: factDef.opts, dataBind: "value: facts." + factDef.name, help: factDef.tooltip /}
+                            #{form.populatedSelectField name: "facts." + factDef.name, form: dataSetForm, label: factDef.prompt, options: factDef.opts, dataBind: "value: facts." + factDef.name, help: factDef.tooltip /}
                         #{/if}
                         #{else}
-                            #{textField name: "facts." + factDef.name, form: dataSetForm, label: factDef.prompt, dataBind: "value: facts." + factDef.name, help: factDef.tooltip, isDisabled: factDef.automatic /}
+                            #{form.textField name: "facts." + factDef.name, form: dataSetForm, label: factDef.prompt, dataBind: "value: facts." + factDef.name, help: factDef.tooltip, isDisabled: factDef.automatic /}
                         #{/else}
 
                         %{ }}%
@@ -93,7 +93,7 @@
                                 <tbody>
                                 #{list recordDefinitions, as: 'recordDef'}
                             <tr>
-                                <td align="left">#{checkboxField name: recordDef + "_field", label: recordDef, value: recordDef, dataBind: "checked: recordDefinitions" /}</td>
+                                <td align="left">#{form.checkboxField name: recordDef + "_field", label: recordDef, value: recordDef, dataBind: "checked: recordDefinitions" /}</td>
                                 <td align="left">
                                 <span data-bind="visible: recordDefinitions().indexOf('${recordDef}') > -1">
                                     <select id="oaiAccess-${recordDef}">

@@ -28,10 +28,10 @@
     #{/if}
 
     <div class="row">
-        <div class="span8">
+        <div class="span9">
             #{resultGrid results: briefDocs /}
         </div>
-        <div class="span4">
+        <div class="span3">
             #{list items: themeFacets, as: 'tf'}
                 #{facet facetMap: facets,
                         type: tf.facetName()+'_facet',
