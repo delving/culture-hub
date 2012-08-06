@@ -201,13 +201,22 @@ object DomainConfiguration {
   val BASEX_USER = "basex.user"
   val BASEX_PASSWORD = "basex.password"
 
+  val EMAIL_ADMINTO = "emailTarget.adminTo"
+  val EMAIL_EXCEPTIONTO = "emailTarget.exceptionTo"
+  val EMAIL_FEEDBACKTO = "emailTarget.feedbackTo"
+  val EMAIL_REGISTERTO = "emailTarget.registerTo"
+  val EMAIL_SYSTEMFROM = "emailTarget.systemFrom"
+  val EMAIL_FEEDBACKFROM = "emailTarget.feedbackFrom"
+
+
   val MANDATORY_OVERRIDABLE_KEYS = Seq(
     SOLR_BASE_URL,
     COMMONS_HOST, COMMONS_NODE_NAME,
     IMAGE_CACHE_DATABASE, FILESTORE_DATABASE, TILES_WORKING_DIR, TILES_OUTPUT_DIR,
     OAI_REPO_NAME, OAI_ADMIN_EMAIL, OAI_EARLIEST_TIMESTAMP, OAI_REPO_IDENTIFIER, OAI_SAMPLE_IDENTIFIER, OAI_RESPONSE_LIST_SIZE,
     BASEX_HOST, BASEX_PORT, BASEX_EPORT, BASEX_USER, BASEX_PASSWORD,
-    PROVIDER_DIRECTORY_URL
+    PROVIDER_DIRECTORY_URL,
+    EMAIL_ADMINTO, EMAIL_EXCEPTIONTO, EMAIL_FEEDBACKTO, EMAIL_REGISTERTO, EMAIL_SYSTEMFROM, EMAIL_FEEDBACKFROM
   )
 
   val MANDATORY_DOMAIN_KEYS = Seq(ORG_ID, MONGO_DATABASE, COMMONS_API_TOKEN, IMAGE_CACHE_ENABLED, SCHEMAS, CROSSWALKS, PLUGINS)
@@ -319,14 +328,13 @@ object DomainConfiguration {
                   siteSlogan = configuration.getString("ui.siteSlogan").orElse(Some("Delving CultureHub"))
                 ),
                 emailTarget = {
-                  val emailTarget = configuration.getConfig("emailTarget").get
                   EmailTarget(
-                    adminTo = emailTarget.getString("adminTo").getOrElse("servers@delving.eu"),
-                    exceptionTo = emailTarget.getString("exceptionTo").getOrElse("servers@delving.eu"),
-                    feedbackTo = emailTarget.getString("feedbackTo").getOrElse("servers@delving.eu"),
-                    registerTo = emailTarget.getString("registerTo").getOrElse("servers@delving.eu"),
-                    systemFrom = emailTarget.getString("systemFrom").getOrElse("servers@delving.eu"),
-                    feedbackFrom = emailTarget.getString("feedbackFrom").getOrElse("servers@delving.eu")
+                    adminTo = getString(configuration, EMAIL_ADMINTO),
+                    exceptionTo = getString(configuration, EMAIL_EXCEPTIONTO),
+                    feedbackTo = getString(configuration, EMAIL_FEEDBACKTO),
+                    registerTo = getString(configuration, EMAIL_REGISTERTO),
+                    systemFrom = getString(configuration, EMAIL_SYSTEMFROM),
+                    feedbackFrom = getString(configuration, EMAIL_FEEDBACKFROM)
                   )
                 },
                 roles = configuration.getConfig("roles").map {
