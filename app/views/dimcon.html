@@ -40,12 +40,12 @@
         <div class="row">
             <div class="span12">
                 <form method="get" action="/search" class="form-horizontal form-search" id="simple-search" onsubmit="return checkSimpleSearchSubmit('query');">
-                    *{<select name="search_in" class="span2">}*
-                        *{<option selected="selected" value="text">Alles</option>}*
-                        *{<option value="dc_title">Titel</option>}*
-                        *{<option value="dc_creator">Vervaardiger</option>}*
-                        *{<option value="dc_subject">Onderwerp</option>}*
-                    *{</select>}*
+                    <select name="searchIn" class="span2">
+                        <option #{if params.searchIn && params.searchIn.contains("text")}selected="selected"#{/} value="text">&{'ui.label.all'}</option>
+                        #{list searchIn, as: 'field'}
+                          <option #{if params.searchIn && params.searchIn.contains(field.key)}selected="selected"#{/} value="${field.key}">&{field.value}</option>
+                        #{/list}
+                    </select>
                     <input class="search-query" placeholder="&{'ui.label.search'} ..." type="text" id="query" name="query" value='${params.get("query")? params.get("query").apply(0) : ""}'/>
                     <button type="submit" class="btn btn-primary submit" title="&{'ui.label.search'}"><i class="icon icon-search icon-white"></i></button>
                     &#160;<a href="/search/advanced" rel="nofollow">&{'plugin.advancedsearch'}</a>

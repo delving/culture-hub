@@ -231,7 +231,7 @@ object SolrQueryService extends SolrServer {
 
     val format = params.getValueOrElse("format", "xml")
     val filterQueries = createFilterQueryList(getAllFilterQueries("qf"))
-    val hiddenQueryFilters = createFilterQueryList(if (!configuration.searchService.hiddenQueryFilter.isEmpty) getAllFilterQueries("hqf") ++ configuration.searchService.hiddenQueryFilter.getOrElse("").split(",") else getAllFilterQueries("hqf"))
+    val hiddenQueryFilters = createFilterQueryList(if (!configuration.searchService.hiddenQueryFilter.isEmpty) getAllFilterQueries("hqf") ++ configuration.searchService.hiddenQueryFilter.split(",") else getAllFilterQueries("hqf"))
 
     val query = parseSolrQueryFromParams(params, configuration)
 

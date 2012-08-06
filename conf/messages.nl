@@ -97,6 +97,7 @@ ui.label.visibility.public=Publiek
 ui.label.visibility.notpublic=Privé
 ui.label.website=Website
 ui.label.welcome=Welkom
+ui.label.all=Alles
 
 # General 'thing' like object, collection or story
 thing.label=Label

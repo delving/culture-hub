@@ -54,7 +54,7 @@ case class DomainConfiguration(
 ) {
 
   def getFacets: List[SolrFacetElement] = {
-    searchService.facets.getOrElse("").split(",").filter(k => k.split(":").size > 0 && k.split(":").size < 4).map {
+    searchService.facets.split(",").filter(k => k.split(":").size > 0 && k.split(":").size < 4).map {
       entry => {
         val k = entry.split(":")
         k.length match {
@@ -74,7 +74,7 @@ case class DomainConfiguration(
   }
 
   def getSortFields: List[SolrSortElement] = {
-    searchService.sortFields.getOrElse("").split(",").filter(sf => sf.split(":").size > 0 && sf.split(":").size < 3).map {
+    searchService.sortFields.split(",").filter(sf => sf.split(":").size > 0 && sf.split(":").size < 3).map {
       entry => {
         val k = entry.split(":")
         k.length match {
@@ -126,10 +126,11 @@ case class DirectoryServiceConfiguration(
 )
 
 case class SearchServiceConfiguration(
-  hiddenQueryFilter:           Option[String] = Some(""),
-  facets:                      Option[String] = None, // dc_creator:crea:Creator,dc_type
-  sortFields:                  Option[String] = None, // dc_creator,dc_provider:desc
+  hiddenQueryFilter:           String,
+  facets:                      String, // dc_creator:crea:Creator,dc_type
+  sortFields:                  String, // dc_creator,dc_provider:desc
   moreLikeThis:                MoreLikeThis,
+  searchIn:                    Map[String, String],
   apiWsKey:                    Boolean = false
 )
 
@@ -188,6 +189,13 @@ object DomainConfiguration {
   val SCHEMAS = "schemas"
   val CROSSWALKS = "crossWalks"
 
+  val SEARCH_HQF = "services.search.hiddenQueryFilter"
+  val SEARCH_FACETS = "services.search.facets"
+  val SEARCH_SORTFIELDS = "services.search.sortFields"
+  val SEARCH_APIWSKEY = "services.search.apiWsKey"
+  val SEARCH_MORELIKETHIS = "services.search.moreLikeThis"
+  val SEARCH_SEARCHIN = "services.search.searchIn"
+
   val OAI_REPO_NAME = "services.pmh.repositoryName"
   val OAI_ADMIN_EMAIL = "services.pmh.adminEmail"
   val OAI_EARLIEST_TIMESTAMP = "services.pmh.earliestDateStamp"
@@ -214,6 +222,7 @@ object DomainConfiguration {
     COMMONS_HOST, COMMONS_NODE_NAME,
     IMAGE_CACHE_DATABASE, FILESTORE_DATABASE, TILES_WORKING_DIR, TILES_OUTPUT_DIR,
     OAI_REPO_NAME, OAI_ADMIN_EMAIL, OAI_EARLIEST_TIMESTAMP, OAI_REPO_IDENTIFIER, OAI_SAMPLE_IDENTIFIER, OAI_RESPONSE_LIST_SIZE,
+    SEARCH_FACETS, SEARCH_SORTFIELDS, SEARCH_APIWSKEY,
     BASEX_HOST, BASEX_PORT, BASEX_EPORT, BASEX_USER, BASEX_PASSWORD,
     PROVIDER_DIRECTORY_URL,
     EMAIL_ADMINTO, EMAIL_EXCEPTIONTO, EMAIL_FEEDBACKTO, EMAIL_REGISTERTO, EMAIL_SYSTEMFROM, EMAIL_FEEDBACKFROM
@@ -294,12 +303,12 @@ object DomainConfiguration {
                   providerDirectoryUrl = configuration.getString(PROVIDER_DIRECTORY_URL).getOrElse("")
                 ),
                 searchService = SearchServiceConfiguration(
-                  hiddenQueryFilter = configuration.getString("hiddenQueryFilter"),
-                  facets = configuration.getString("facets"),
-                  sortFields = configuration.getString("sortFields"),
-                  apiWsKey = configuration.getBoolean("apiWsKey").getOrElse(false),
+                  hiddenQueryFilter = getOptionalString(configuration, SEARCH_HQF).getOrElse(""),
+                  facets = getString(configuration, SEARCH_FACETS),
+                  sortFields = getString(configuration, SEARCH_SORTFIELDS),
+                  apiWsKey = getBoolean(configuration, SEARCH_APIWSKEY),
                   moreLikeThis = {
-                    val mlt = configuration.getConfig("moreLikeThis")
+                    val mlt = configuration.getConfig(SEARCH_MORELIKETHIS)
                     val default = MoreLikeThis()
                     if(mlt.isEmpty) {
                       default
@@ -314,6 +323,19 @@ object DomainConfiguration {
                         maxNumToken = mlt.get.getInt("maxNumToken").getOrElse(default.maxNumToken),
                         boost = mlt.get.getBoolean("boost").getOrElse(default.boost),
                         queryFields = mlt.get.underlying.getStringList("queryFields").asScala
+                      )
+                    }
+                  },
+                  searchIn = {
+                    configuration.getConfig(SEARCH_SEARCHIN).map { searchIn =>
+                      searchIn.keys.map { field =>
+                        (field -> searchIn.getString(field).getOrElse(""))
+                      }.toMap
+                    }.getOrElse {
+                      Map(
+                        "dc_title" -> "metadata.dc.title",
+                        "dc_creator" -> "metadata.dc.creator",
+                        "dc_subject" -> "metadata.dc.subject"
                       )
                     }
                   }
@@ -408,8 +430,14 @@ object DomainConfiguration {
   private def getString(configuration: Configuration, key: String): String =
     configuration.getString(key).getOrElse(Play.configuration.getString(key).get)
 
+  private def getOptionalString(configuration: Configuration, key: String): Option[String] =
+    configuration.getString(key).orElse(Play.configuration.getString(key))
+
   private def getInt(configuration: Configuration, key: String): Int =
     configuration.getInt(key).getOrElse(Play.configuration.getInt(key).get)
+
+  private def getBoolean(configuration: Configuration, key: String): Boolean =
+    configuration.getBoolean(key).getOrElse(Play.configuration.getBoolean(key).get)
 
 }
 

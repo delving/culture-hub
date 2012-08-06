@@ -33,17 +33,22 @@ object Search extends DelvingController {
     Action {
       implicit request =>
         try {
-          val (items, briefItemView) = CommonSearch.search(Option(connectedUser), List(query))
+
+          val solrQuery = request.queryString.getFirst("searchIn").map { searchIn =>
+            List("""%s:"%s"""".format(searchIn, query))
+          }.getOrElse(List(query))
+
+          val (items, briefItemView) = CommonSearch.search(Option(connectedUser), solrQuery)
           Ok(Template("/Search/index.html",
             'briefDocs -> items,
             'pagination -> briefItemView.getPagination,
             'facets -> briefItemView.getFacetQueryLinks,
             'themeFacets -> configuration.getFacets,
-            'searchTerm -> query,
+            'searchTerm -> solrQuery.mkString(" "),
             'returnToResults -> request.rawQueryString)).withSession(
             session +
               (RETURN_TO_RESULTS -> request.rawQueryString) +
-              (SEARCH_TERM -> query))
+              (SEARCH_TERM -> solrQuery.mkString(" ")))
         } catch {
           case MalformedQueryException(s, t) => BadRequest(Template("/Search/invalidQuery.html", 'query -> query))
           case c: SolrConnectionException => Error(Messages("search.backendConnectionError"))

@@ -7,7 +7,7 @@ import play.api.data.Form
 import play.api.i18n.{Lang, Messages}
 import play.libs.Time
 import eu.delving.templates.scala.GroovyTemplates
-import extensions.{Extensions, ConfigurationException}
+import extensions.Extensions
 import collection.JavaConverters._
 import org.bson.types.ObjectId
 import xml.NodeSeq
@@ -274,6 +274,10 @@ trait DelvingController extends ApplicationController with CoreImplicits {
               additionalSessionParams += (Constants.GROUPS -> u.groups.mkString(","))
             }
           }
+
+          // Search in
+          // TODO move to search plugin, one day
+          renderArgs += ("searchIn" -> configuration.searchService.searchIn.asJava)
 
           // ignore AsyncResults for these things for the moment
           val res = action(request)
