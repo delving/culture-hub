@@ -6,6 +6,7 @@ import com.novus.salat
 import models.mongoContext._
 import com.mongodb.casbah.Imports._
 import play.api.Logger
+import com.mongodb.casbah.Imports
 
 /**
  * Multi-tenancy capable model. Implementing model objects get a chance to work with several databases depending
@@ -16,10 +17,16 @@ import play.api.Logger
 
 trait MultiModel[A <: salat.CaseClass, B <: SalatDAO[A, ObjectId]] {
 
+  private lazy val connections: Map[DomainConfiguration, MongoDB] =
+    DomainConfigurationHandler.domainConfigurations.map {
+      config => (config -> createConnection(config.mongoDatabase))
+    }.toMap
+
+
   private lazy val multiDAOs: Map[DomainConfiguration, B] = {
     DomainConfigurationHandler.domainConfigurations.map {
       config => {
-        val connection = createConnection(config.mongoDatabase)
+        val connection = connections(config)
         val collection = connection(connectionName)
         initIndexes(collection)
         val dao = initDAO(collection, connection)
