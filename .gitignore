@@ -10,6 +10,7 @@ test-result
 /system.out
 /conf/production.conf
 /conf/*_themes.xml
+/conf/development.conf
 target/
 extras/servlet-server/solr/*/data/
 extras/servlet-server/work/

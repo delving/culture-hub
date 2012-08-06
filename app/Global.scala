@@ -95,11 +95,17 @@ object Global extends GlobalSettings {
     ), name = "dataSetParser")
 
     // DataSet processing
-    val processor = Akka.system.actorOf(Props[Processor].withRouter(
-      RoundRobinRouter(Runtime.getRuntime.availableProcessors(), supervisorStrategy = OneForOneStrategy() {
-        case _ => Stop
-      })
-    ), name = "dataSetProcessor")
+    // Play can't do multi-threading in DEV mode...
+    val processor = if(Play.isDev) {
+      Akka.system.actorOf(Props[Processor], name = "dataSetProcessor")
+    } else {
+      Akka.system.actorOf(Props[Processor].withRouter(
+            RoundRobinRouter(Runtime.getRuntime.availableProcessors(), supervisorStrategy = OneForOneStrategy() {
+              case _ => Stop
+            })
+          ), name = "dataSetProcessor")
+    }
+
     Akka.system.scheduler.schedule(
       0 seconds,
       10 seconds,

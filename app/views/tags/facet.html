@@ -9,7 +9,7 @@
         <div class="facet-container">
             #{list facet.getLinks(), as: 'link'}
                 %{
-                    def qs = '/search?query='+ _qString + link.url
+                    def qs = '/search?query='+ _qString + '&searchIn=' + _searchIn + link.url
                     // translate object types
                     def thingType = link.value()
                     if (facet.getType() == "delving_recordType_facet") {
