@@ -135,7 +135,7 @@ case class SearchServiceConfiguration(
 
 /** See http://wiki.apache.org/solr/MoreLikeThis **/
 case class MoreLikeThis(
-  fieldList: Seq[String] = Seq(Constants.DESCRIPTION,"dc_creator_text"),
+  fieldList: Seq[String] = Seq(Constants.DESCRIPTION, "dc_creator_text"),
   minTermFrequency: Int = 1,
   minDocumentFrequency: Int = 2,
   minWordLength: Int = 0,
@@ -291,18 +291,19 @@ object DomainConfiguration {
                   apiWsKey = configuration.getBoolean("apiWsKey").getOrElse(false),
                   moreLikeThis = {
                     val mlt = configuration.getConfig("moreLikeThis")
+                    val default = MoreLikeThis()
                     if(mlt.isEmpty) {
-                      MoreLikeThis()
+                      default
                     } else {
                       MoreLikeThis(
                         fieldList = mlt.get.underlying.getStringList("fieldList").asScala,
-                        minTermFrequency = mlt.get.getInt("minimumTermFrequency").getOrElse(1),
-                        minDocumentFrequency = mlt.get.getInt("minimumDocumentFrequency").getOrElse(2),
-                        minWordLength = mlt.get.getInt("minWordLength").getOrElse(0),
-                        maxWordLength = mlt.get.getInt("maxWordLength").getOrElse(0),
-                        maxQueryTerms = mlt.get.getInt("maxQueryTerms").getOrElse(25),
-                        maxNumToken = mlt.get.getInt("maxNumToken").getOrElse(5000),
-                        boost = mlt.get.getBoolean("boost").getOrElse(false),
+                        minTermFrequency = mlt.get.getInt("minimumTermFrequency").getOrElse(default.minTermFrequency),
+                        minDocumentFrequency = mlt.get.getInt("minimumDocumentFrequency").getOrElse(default.minDocumentFrequency),
+                        minWordLength = mlt.get.getInt("minWordLength").getOrElse(default.minWordLength),
+                        maxWordLength = mlt.get.getInt("maxWordLength").getOrElse(default.maxWordLength),
+                        maxQueryTerms = mlt.get.getInt("maxQueryTerms").getOrElse(default.maxQueryTerms),
+                        maxNumToken = mlt.get.getInt("maxNumToken").getOrElse(default.maxNumToken),
+                        boost = mlt.get.getBoolean("boost").getOrElse(default.boost),
                         queryFields = mlt.get.underlying.getStringList("queryFields").asScala
                       )
                     }

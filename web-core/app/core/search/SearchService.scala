@@ -29,7 +29,7 @@ import core.ExplainItem
 import java.lang.String
 import core.rendering.{RenderNode, RenderedView, ViewRenderer}
 import models.{MetadataCache, RecordDefinition, DomainConfiguration}
-import xml.{PrettyPrinter, NodeSeq, Elem}
+import xml.{Node, PrettyPrinter, NodeSeq, Elem}
 import org.apache.solr.client.solrj.response.FacetField.Count
 import org.apache.solr.client.solrj.response.FacetField
 import java.net.{URLEncoder, URLDecoder}
@@ -87,9 +87,9 @@ class SearchService(orgId: Option[String], request: RequestHeader, hiddenQueryFi
       }
     }
     catch {
-      case ex: Exception =>
-        Logger("CultureHub").error("something went wrong", ex)
-        errorResponse(errorMessage = ex.getLocalizedMessage, format = format)
+      case t: Throwable =>
+        Logger("CultureHub").error("something went wrong", t)
+        errorResponse(errorMessage = t.getLocalizedMessage, format = format)
     }
     response
   }
@@ -193,15 +193,6 @@ class SearchService(orgId: Option[String], request: RequestHeader, hiddenQueryFi
       Left("Could not find full record with hubId '%s' for format '%s'".format(hubId, prefix))
     } else {
 
-      println()
-      println()
-      println()
-      println()
-      println(relatedItems)
-      println()
-      println()
-      println()
-
       // handle legacy formats
       val legacyFormats = List("tib", "abm", "ese", "abc")
       val viewDefinitionFormatName = if (legacyFormats.contains(prefix)) "legacy" else prefix
@@ -215,8 +206,17 @@ class SearchService(orgId: Option[String], request: RequestHeader, hiddenQueryFi
             Left("Could not render full record with hubId '%s' for view type '%s': view type does not exist".format(hubId, viewName))
           } else {
             try {
-              val cleanRawRecord = rawRecord.get.replaceFirst("<\\?xml.*?>", "")
+              val cleanRawRecord = if(renderRelatedItems) {
+                // mix the related items to the record coming from mongo
+                val record = scala.xml.XML.loadString(rawRecord.get)
+                val relatedItemsXml = <relatedItems>{relatedItems.map(_.toXml())}</relatedItems>
+                val mergedRecord = addChild(record, relatedItemsXml)
+                mergedRecord.toString.replaceFirst("<\\?xml.*?>", "")
+              } else {
+                rawRecord.get.replaceFirst("<\\?xml.*?>", "")
+              }
               log.debug(cleanRawRecord)
+
               // TODO see what to do with roles
               val rendered: RenderedView = viewRenderer.get.renderRecord(cleanRawRecord, List.empty, definition.getNamespaces, Lang(apiLanguage))
               Right(rendered)
@@ -232,6 +232,11 @@ class SearchService(orgId: Option[String], request: RequestHeader, hiddenQueryFi
           Left(m)
       }
     }
+  }
+
+  private def addChild(n: Node, newChild: Node) = n match {
+    case Elem(prefix, label, attribs, scope, child @ _*) => Elem(prefix, label, attribs, scope, child ++ newChild : _*)
+    case _ => Logger("CultureHub").error("Can only add children to elements!")
   }
 
   def errorResponse(error: String = "Unable to respond to the API request",
@@ -325,7 +330,7 @@ case class SearchSummary(result: BriefItemView, language: String = "en", chRespo
 
   private val pagination = result.getPagination
   private val searchTerms = pagination.getPresentationQuery.getUserSubmittedQuery
-  private val filteredFields = Array(SYSTEM_TYPE, "delving_snippet", "delving_fullTextObjectUrl")
+  private val filteredFields = Seq(SYSTEM_TYPE, "delving_snippet", "delving_fullTextObjectUrl")
 
   def minusAmp(link: String) = link.replaceAll("amp;", "").replaceAll(" ", "%20").replaceAll("qf=", "qf[]=")
 
@@ -392,19 +397,7 @@ case class SearchSummary(result: BriefItemView, language: String = "en", chRespo
           }}
           </fields>
         </layout>
-        <items>
-          {briefDocs.map(item =>
-          <item>
-            <fields>
-              {item.getFieldValuesFiltered(false, filteredFields).sortWith((fv1, fv2) => fv1.getKey < fv2.getKey).map(field => SolrQueryService.renderXMLFields(field, chResponse))}
-            </fields>{if (item.getHighlights.isEmpty) <highlights/>
-          else
-            <highlights>
-              {item.getHighlights.map(field => SolrQueryService.renderHighLightXMLFields(field, chResponse))}
-            </highlights>}
-          </item>
-        )}
-        </items>
+        <items>{briefDocs.map(item => item.toXml(filteredFields))}</items>
         <facets>
           {result.getFacetQueryLinks.map(fql =>
           <facet name={fql.getType} isSelected={fql.facetSelected.toString} i18n={SearchService.localiseKey(SolrBindingService.stripDynamicFieldLabels(fql.getType), language)} missingDocs={fql.getMissingValueCount.toString}>

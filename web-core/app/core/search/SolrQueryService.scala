@@ -45,34 +45,31 @@ object SolrQueryService extends SolrServer {
   val FACET_PROMPT: String = "&qf="
   val QUERY_PROMPT: String = "query="
 
-  def renderXMLFields(field : FieldValue, response: CHResponse) : Seq[Elem] = {
+  def renderXMLFields(field : FieldValue): (Seq[Elem], Seq[(String, String, Throwable)]) = {
     val keyAsXml = field.getKeyAsXml
-    field.getValueAsArray.map(value =>
-    {
+    val values = field.getValueAsArray.map(value => {
       val cleanValue = if (value.startsWith("http")) value.replaceAll("&(?!amp;)", "&amp;") else StringEscapeUtils.escapeXml(value)
       try {
-        XML.loadString("<%s>%s</%s>\n".format(keyAsXml, cleanValue, keyAsXml))
+        Right(XML.loadString("<%s>%s</%s>\n".format(keyAsXml, cleanValue, keyAsXml)))
+      } catch {
+        case t: Throwable =>
+          Left((cleanValue, keyAsXml, t))
       }
-      catch {
-        case ex: Exception =>
-          Logger("CultureHub") error ("For query %s we are unable to parse %s for field %s".format(response.params.toString(), cleanValue, keyAsXml), ex)
-            <error/>
-      }
-    }
-    ).toSeq
+    })
+
+    (values.filter(_.isRight).map(_.right.get), values.filter(_.isLeft).map(_.left.get))
   }
 
-  def renderHighLightXMLFields(field : FieldValue, response: CHResponse) : Seq[Elem] = {
-    field.getHighLightValuesAsArray.map(value =>
+  def renderHighLightXMLFields(field : FieldValue) : (Seq[Elem], Seq[(String, String, Throwable)]) = {
+    val values = field.getHighLightValuesAsArray.map(value =>
       try {
-        XML.loadString("<%s><![CDATA[%s]]></%s>\n".format(field.getKeyAsXml, value, field.getKeyAsXml))
+        Right(XML.loadString("<%s><![CDATA[%s]]></%s>\n".format(field.getKeyAsXml, value, field.getKeyAsXml)))
+      } catch {
+        case t: Throwable => Left(value, field.getKeyAsXml, t)
       }
-      catch {
-        case ex : Exception =>
-          Logger("CultureHub") error ("unable to parse " + value + "for field " + field.getKeyAsXml, ex)
-            <error/>
-      }
-    ).toSeq
+    )
+
+    (values.filter(_.isRight).map(_.right.get), values.filter(_.isLeft).map(_.left.get))
   }
 
   def encodeUrl(text: String): String = URLEncoder.encode(text, "utf-8")
