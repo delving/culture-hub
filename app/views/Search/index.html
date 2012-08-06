@@ -24,7 +24,7 @@
     </div>
 
     #{if pagination.getNumFound() > views.Helpers.PAGE_SIZE()}
-        #{results.resultPagination pageLinks: pagination, pQuery: pagination.getPresentationQuery().getQueryForPresentation(), searchIn: params.searchIn[0], lastPage: pagination.getNumFound() - pagination.getRows(), extraClass:"pagination-top" /}
+        #{results.resultPagination pageLinks: pagination, pQuery: pagination.getPresentationQuery().getQueryForPresentation(), searchIn: params.searchIn ? params.searchIn[0] : "text", lastPage: pagination.getNumFound() - pagination.getRows(), extraClass:"pagination-top" /}
     #{/if}
 
     <div class="row">
@@ -37,14 +37,14 @@
                         type: tf.facetName()+'_facet',
                         typeKey: messages.get(tf.facetInternationalisationCode()),
                         qString: pagination.getPresentationQuery().getUserSubmittedQuery(),
-                        searchIn: params.searchIn[0],
+                        searchIn: params.searchIn ? params.searchIn[0] : "text",
                         columns: tf.nrDisplayColumns/}
             #{/list}
         </div>
     </div>
 
     #{if pagination.getNumFound() > views.Helpers.PAGE_SIZE()}
-        #{results.resultPagination pageLinks: pagination, pQuery: pagination.getPresentationQuery().getQueryForPresentation(), searchIn: params.searchIn[0], lastPage: pagination.getNumFound() - pagination.getRows(), extraClass:"pagination-bottom" /}
+        #{results.resultPagination pageLinks: pagination, pQuery: pagination.getPresentationQuery().getQueryForPresentation(), searchIn: params.searchIn ? params.searchIn[0] : "text", lastPage: pagination.getNumFound() - pagination.getRows(), extraClass:"pagination-bottom" /}
     #{/if}
 
 *{#{if userName}}*
