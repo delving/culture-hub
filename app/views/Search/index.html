@@ -24,12 +24,12 @@
     </div>
 
     #{if pagination.getNumFound() > views.Helpers.PAGE_SIZE()}
-        #{resultPagination pageLinks: pagination, pQuery: pagination.getPresentationQuery().getQueryForPresentation(), lastPage: pagination.getNumFound() - pagination.getRows(), extraClass:"pagination-top" /}
+        #{results.resultPagination pageLinks: pagination, pQuery: pagination.getPresentationQuery().getQueryForPresentation(), lastPage: pagination.getNumFound() - pagination.getRows(), extraClass:"pagination-top" /}
     #{/if}
 
     <div class="row">
         <div class="span9">
-            #{resultGrid results: briefDocs /}
+            #{results.resultGrid results: briefDocs /}
         </div>
         <div class="span3">
             #{list items: themeFacets, as: 'tf'}
@@ -43,7 +43,7 @@
     </div>
 
     #{if pagination.getNumFound() > views.Helpers.PAGE_SIZE()}
-        #{resultPagination pageLinks: pagination, pQuery: pagination.getPresentationQuery().getQueryForPresentation(), lastPage: pagination.getNumFound() - pagination.getRows(), extraClass:"pagination-bottom" /}
+        #{results.resultPagination pageLinks: pagination, pQuery: pagination.getPresentationQuery().getQueryForPresentation(), lastPage: pagination.getNumFound() - pagination.getRows(), extraClass:"pagination-bottom" /}
     #{/if}
 
 *{#{if userName}}*
