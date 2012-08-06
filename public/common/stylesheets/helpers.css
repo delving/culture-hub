@@ -205,6 +205,10 @@ dt, dd, li {
     float: left;
 }
 
+.media.media-stack {
+    margin-top: 0px;
+}
+
 .media.media-stack .clip {
     clear: both;
     float: none;
@@ -336,11 +340,6 @@ dt, dd, li {
     display: block;
     font-size: smaller;
     z-index: 14;
-}
-
-/* Pagination */
-.pagination {
-    margin: 11px 0;
 }
 
 /** BOOTSTRAP TABLE HELPER **/
@@ -648,7 +647,7 @@ form label.radio {
 }
 
 /*---------------------------------
-	BOOTSTRAP DROPDOWN HELPER
+	BOOTSTRAP PAGINATION HELPER
 -----------------------------------*/
 
 /* bootstrap pagination: include spans for object list pages */
@@ -656,7 +655,7 @@ form label.radio {
 .pagination a,
 .pagination span {
     float: left;
-    padding: 0 14px;
+    padding: 0 13px;
     line-height: 34px;
     text-decoration: none;
     border: 1px solid #ddd;
