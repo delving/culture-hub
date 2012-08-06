@@ -20,15 +20,15 @@
             </ul>
         #{/if}
 
-        #{textField form: registrationForm, name:"firstName", label: messages.get('ui.label.firstname') , required: true /}
-        #{textField form: registrationForm, name:"lastName", label: messages.get('ui.label.lastname') , required: true /}
-        #{textField form: registrationForm, name:"email", label: messages.get('ui.label.email') , required: true /}
-        #{textField form: registrationForm, name:"userName", label:  messages.get('ui.label.username') , required: true /}
+        #{form.textField form: registrationForm, name:"firstName", label: messages.get('ui.label.firstname') , required: true /}
+        #{form.textField form: registrationForm, name:"lastName", label: messages.get('ui.label.lastname') , required: true /}
+        #{form.textField form: registrationForm, name:"email", label: messages.get('ui.label.email') , required: true /}
+        #{form.textField form: registrationForm, name:"userName", label:  messages.get('ui.label.username') , required: true /}
     </div>
 
     <div class="span6">
-        #{passwordField form: registrationForm, name:"password1", label: messages.get('ui.label.password') , required: true /}
-        #{passwordField form: registrationForm, name:"password2", label: messages.get('ui.label.passwordrepeat') , required: true /}
+        #{form.passwordField form: registrationForm, name:"password1", label: messages.get('ui.label.password') , required: true /}
+        #{form.passwordField form: registrationForm, name:"password2", label: messages.get('ui.label.passwordrepeat') , required: true /}
         <div class="control-group">
             <label class="" for="code">&{'ui.label.captcha'}</label>
             <div class="controls">

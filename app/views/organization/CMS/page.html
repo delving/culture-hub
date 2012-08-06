@@ -96,11 +96,11 @@
             <div data-bind="text: errors().global"></div>
             <div class="row">
                 <div class="span4">
-                #{textField name:"title", form:pageForm, label:messages.get('thing.title'), dataBind:"value: title", maxLength: 35, required: true /}
-                #{textField name:"key", form:pageForm, label:messages.get('org.cms.page.key'), dataBind:"value: key", required: true, disabled: !isNew, extHtml: '<span id="createKey" class="btn btn-mini">'+messages.get("org.cms.page.keyauto.button")+'</span><p class="error"></p>' /}
+                #{form.textField name:"title", form:pageForm, label:messages.get('thing.title'), dataBind:"value: title", maxLength: 35, required: true /}
+                #{form.textField name:"key", form:pageForm, label:messages.get('org.cms.page.key'), dataBind:"value: key", required: true, disabled: !isNew, extHtml: '<span id="createKey" class="btn btn-mini">'+messages.get("org.cms.page.keyauto.button")+'</span><p class="error"></p>' /}
                 </div>
                 <div class="span4">
-                #{populatedSelectField options:languages, name:"lang", form: pageForm, label:messages.get('ui.label.language'), dataBind:"value: lang", required: true /}
+                #{form.populatedSelectField options:languages, name:"lang", form: pageForm, label:messages.get('ui.label.language'), dataBind:"value: lang", required: true /}
                 </div>
                 <div class="span4">
                     <div class="control-group">
@@ -112,13 +112,13 @@
                             </select>
                         </div>
                     </div>
-                    #{textField name:"position", form: pageForm, label:messages.get('org.cms.page.menu.position'), dataBind:"value: position", required: true /}
+                    #{form.textField name:"position", form: pageForm, label:messages.get('org.cms.page.menu.position'), dataBind:"value: position", required: true /}
                 </div>
             </div>
             <hr/>
-            #{textArea id: "editor", name:"pageContent", form: pageForm, inputClass:"mceEditor", label:messages.get('ui.label.content'), dataBind:"tinymce: content, tinymceOptions: {orgId: '${orgId}'}", required: true /}
+            #{form.textArea id: "editor", name:"pageContent", form: pageForm, inputClass:"mceEditor", label:messages.get('ui.label.content'), dataBind:"tinymce: content, tinymceOptions: {orgId: '${orgId}'}", required: true /}
             <hr/>
-            #{checkboxField name: "published", label: messages.get('org.cms.page.publish'), value: "true", dataBind: "checked: published", extHelp: messages.get('org.cms.page.publish.help') /}
+            #{form.checkboxField name: "published", label: messages.get('org.cms.page.publish'), value: "true", dataBind: "checked: published", extHelp: messages.get('org.cms.page.publish.help') /}
             <hr/>
             <div class="well">
                 #{btnButton label: messages.get('org.cms.page.save'), extraClass:"btn-success btn-large span6 pull-right", iconClass:"icon-ok-circle icon-white", id:"saveButton", type:"submit" /}

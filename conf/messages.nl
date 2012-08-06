@@ -79,6 +79,7 @@ ui.label.remove=Verwijder
 ui.label.required=Verplicht
 ui.label.reset=Herstel
 ui.label.returnToResults=Terug naar resultaten
+ui.label.save=Bewaar
 ui.label.scope=Scope
 ui.label.scope.public=Publiek
 ui.label.scope.notpublic=Niet publiek
@@ -406,6 +407,7 @@ org.list.grantType.view=with rights to view
 org.list.grantType.modify=with rights to modify
 org.list.grantType.own=with full access to everything
 org.list.dataSetCount={0} Dataset(s)
+org.list.filter=Type hier om de lijst te filteren
 
 org.group.grantType.view=View rights
 org.group.grantType.modify=Modification rights

@@ -14,7 +14,7 @@
 <div class="row">
     <form action="" id="groupForm" class="form-delving">
         <div class="span6">
-            #{textField name:"name", form: groupForm, label:messages.get('thing.name'), dataBind:"value: name, enable: canChangeGrantType", required: true /}
+            #{form.textField name:"name", form: groupForm, label:messages.get('thing.name'), dataBind:"value: name, enable: canChangeGrantType", required: true /}
             <div class="control-group" data-bind="visible: canChangeGrantType">
                 <label class="control-label" for="grantType">&{'thing.grantType'}<span class="label">&{'ui.label.required'}</span></label>
                 <div class="controls">
