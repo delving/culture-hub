@@ -21,7 +21,7 @@ trait TestContext {
   def contentAsXML(response: Result) = XML.loadString(contentAsString(response))
 
   def withTestConfig[T](block: => T) = {
-    running(FakeApplication(additionalConfiguration = Map("solr.baseUrl" -> "http://localhost:8983/solr/test"))) {
+    running(FakeApplication()) {
       block
     }
   }

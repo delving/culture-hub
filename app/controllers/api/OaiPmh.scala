@@ -18,7 +18,7 @@ object OaiPmh extends DelvingController {
     Action {
       implicit request =>
         Async {
-          val oaiPmhService = new OaiPmhService(request.queryString, request.uri, orgId, format, accessKey, configuration)
+          val oaiPmhService = new OaiPmhService(request.queryString, request.uri, orgId, format, accessKey)
           Promise.pure(oaiPmhService.parseRequest).map {
             response =>
 

@@ -7,7 +7,9 @@ import com.mongodb.casbah.Imports._
 import controllers.ErrorReporter
 import org.apache.solr.client.solrj.SolrQuery
 import akka.actor._
+import plugins.CustomHarvestCollectionPlugin
 import util.DomainConfigurationHandler
+import core.CultureHubPlugin
 
 /**
  *
@@ -18,29 +20,33 @@ class VirtualCollectionCount extends Actor with SolrServer {
 
   val log: Logger = Logger("CultureHub")
 
+  lazy val affectedDAOs = VirtualCollection.byConfiguration.
+    filter(c => c._1.plugins.contains(CustomHarvestCollectionPlugin.CUSTOM_HARVEST_COLLECTION_KEY))
+    .map(_._2)
+
   protected def receive = {
 
     case UpdateVirtualCollectionCount =>
 
-      VirtualCollection.all.foreach {
+      affectedDAOs.foreach {
         dao => {
           dao.find(MongoDBObject()) foreach {
             vc =>
               val c: Long = count(vc)
-              dao.update(MongoDBObject("_id" -> vc._id), $set ("currentQueryCount" -> c))
+              dao.update(MongoDBObject("_id" -> vc._id), $set("currentQueryCount" -> c))
           }
-
         }
       }
 
 
     case UpdateVirtualCollection =>
-      VirtualCollection.all.foreach {
+
+      affectedDAOs.foreach {
         dao => {
           dao.find(MongoDBObject("autoUpdate" -> true)) foreach {
             vc =>
               val currentCount = count(vc)
-              if(currentCount != vc.getTotalRecords) {
+              if (currentCount != vc.getTotalRecords) {
                 val domainConfiguration = DomainConfigurationHandler.getByName(vc.query.domainConfiguration)
                 dao.createVirtualCollectionFromQuery(vc._id, vc.query.toSolrQuery, domainConfiguration, null) match {
                   case Right(computed) =>
@@ -51,7 +57,6 @@ class VirtualCollectionCount extends Actor with SolrServer {
                 }
               }
           }
-
         }
       }
 

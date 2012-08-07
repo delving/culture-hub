@@ -20,7 +20,7 @@ import collection.immutable.ListMap
 
 class CustomHarvestCollectionPlugin(app: Application) extends CultureHubPlugin(app) {
 
-  val pluginKey: String = "customHarvestCollection"
+  val pluginKey: String = CustomHarvestCollectionPlugin.CUSTOM_HARVEST_COLLECTION_KEY
 
   private val customHarvestCollectionHarvestCollectionLookup = new CustomHarvestCollectionHarvestCollectionLookup
 
@@ -76,17 +76,23 @@ class CustomHarvestCollectionPlugin(app: Application) extends CultureHubPlugin(a
   )
 
 
-  override def organizationMenuEntries(context: Map[String, String], roles: Seq[String]): Seq[MainMenuEntry] = Seq(
+  override def organizationMenuEntries(orgId: String, lang: String, roles: Seq[String]): Seq[MainMenuEntry] = Seq(
     MainMenuEntry(
       key = "virtual-collections",
       titleKey = "thing.virtualCollections",
       items = Seq(
-        MenuElement("/organizations/%s/virtualCollection".format(context("orgId")), "org.vc.list"),
-        MenuElement("/organizations/%s/virtualCollection/add".format(context("orgId")), "org.vc.new", Seq(GrantType.OWN))
+        MenuElement("/organizations/%s/virtualCollection".format(orgId), "org.vc.list"),
+        MenuElement("/organizations/%s/virtualCollection/add".format(orgId), "org.vc.new", Seq(GrantType.OWN))
       )
     )
   )
 
   override def getHarvestCollectionLookups: Seq[HarvestCollectionLookup] = Seq(customHarvestCollectionHarvestCollectionLookup)
+
+}
+
+object CustomHarvestCollectionPlugin {
+
+  val CUSTOM_HARVEST_COLLECTION_KEY = "customHarvestCollection"
 
 }

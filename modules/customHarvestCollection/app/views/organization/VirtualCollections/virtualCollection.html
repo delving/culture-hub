@@ -68,13 +68,13 @@
 
         <form id="virtualCollectionForm" method="post" action="" class="form-delving">
             <div data-bind="text: errors().global"></div>
-            #{textField name:"name", form:virtualCollectionForm, label:messages.get('thing.name'), dataBind:"value: name", maxLength: 30, required: true /}
-            #{textField name:"spec", form:virtualCollectionForm, label:messages.get('org.vc.spec'), dataBind:"value: spec", required: true,
+            #{form.textField name:"name", form:virtualCollectionForm, label:messages.get('thing.name'), dataBind:"value: name", maxLength: 30, required: true /}
+            #{form.textField name:"spec", form:virtualCollectionForm, label:messages.get('org.vc.spec'), dataBind:"value: spec", required: true,
                 extHtml: '<span class="autoGen btn btn-mini" data-source="input#name" data-destination="input#spec" data-error="'+messages.get('org.vc.keyauto.error')+'" class="btn btn-mini">'+messages.get('org.vc.keyauto.button')+'</span><p class="error"></p>' /}
-            #{checkboxField name:"autoUpdate", label:messages.get('org.vc.autoUpdate'), dataBind:"checked: autoUpdate" /}
+            #{form.checkboxField name:"autoUpdate", label:messages.get('org.vc.autoUpdate'), dataBind:"checked: autoUpdate" /}
             #{boundAddRemoveTokenField id:"dataSets", name:"dataSets", searchUrl: "/organizations/"+orgId+"/datasets/searchBySpec", dataBind:"tokens: dataSets", required: true, label:messages.get('thing.datasets') /}
-            #{textField name:"includeTerm", form:virtualCollectionForm, label:messages.get('org.vc.query'), dataBind:"value: freeFormQuery", inputClass:"span5", required: true/}
-            #{textArea name:"excludedIdentifiers", form:virtualCollectionForm, label:messages.get('org.vc.excludedIds'), dataBind:"value: excludedIdentifiers", inputClass:"span5", required: false, extraCss:"height: 120px;"/}
+            #{form.textField name:"includeTerm", form:virtualCollectionForm, label:messages.get('org.vc.query'), dataBind:"value: freeFormQuery", inputClass:"span5", required: true/}
+            #{form.textArea name:"excludedIdentifiers", form:virtualCollectionForm, label:messages.get('org.vc.excludedIds'), dataBind:"value: excludedIdentifiers", inputClass:"span5", required: false, extraCss:"height: 120px;"/}
             <hr/>
             <div class="row">
                 #{btnButton label: messages.get('ui.label.preview'), extraClass:"btn-large btn-inverse span6", iconClass:"icon-eye-open icon-white", id:"previewButton", type:"button" /}

@@ -58,7 +58,7 @@ case class ListItem(id: String,
                     isPrivate: Boolean,
                     url: String) extends ViewableItem {
 
-  def getHubId = "%s_%s_%s".format(userName, itemType, id)
+  def getHubId = id
   def getItemType = itemType
   def getTitle = title
   def getDescription = description

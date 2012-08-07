@@ -45,7 +45,7 @@
     <div class="row">
     #{/if}
     <div class="span3 #{if i.isPrivate}private#{/if}">
-        #{thingSummaryView data: i, iSize: 220, isPrivate: i.isPrivate /}
+        #{results.thingSummaryView data: i, iSize: 220, isPrivate: i.isPrivate /}
     </div>
     %{ counter++ }%
     #{if counter > 4 || i_isLast }

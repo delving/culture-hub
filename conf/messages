@@ -81,6 +81,7 @@ ui.label.remove=Remove
 ui.label.required=Required
 ui.label.reset=Reset
 ui.label.returnToResults=Return to results
+ui.label.save=Save
 ui.label.scope=Scope
 ui.label.scope.public=Public
 ui.label.scope.notpublic=Not public
@@ -101,6 +102,7 @@ ui.label.website=Website
 ui.label.welcome=Welcome
 ui.label.theme=Site theme
 ui.label.identifier=Identifier
+ui.label.all=All
 
 # General 'thing' like object, collection or story
 thing.label=Label
@@ -303,11 +305,18 @@ metadata.dcterms.temporal=Temporal coverage
 metadata.dcterms.rightsHolder=Rights holder
 metadata.dcterms.extent=Extent
 
-metadata.delving.dimensions=Dimensions
+### Delving NS
+
 metadata.delving.owner=Owner
 metadata.delving.creator=Creator
+metadata.delving.provider=Provider
+metadata.delving.owner=Data Provider
 metadata.delving.recordType=Record type
 metadata.delving.hasDigitalObject=Record has a digital object
+
+## TODO remove
+metadata.delving.dimensions=Dimensions
+
 
 metadata.europeana.country=Country
 metadata.europeana.dataProvider=Data Provider
@@ -395,7 +404,7 @@ metadata.museum.type=Museum type
 metadata.is.about=Is about
 metadata.searchfield.recordType=Object type
 metadata.searchfield.contributor=Contributor
-metadata.searchfield.dataprovider=Provider
+metadata.searchfield.dataprovider=Data Provider
 metadata.searchfield.creator=Creator
 metadata.searchfield.hasDigitalObject=Has digital object
 metadata.type.all=All
@@ -436,6 +445,7 @@ org.list.grantType.view=with rights to view
 org.list.grantType.modify=with rights to modify
 org.list.grantType.own=with full access to everything
 org.list.dataSetCount={0} Dataset(s)
+org.list.filter=Type here to narrow down the list
 
 org.group.grantType.view=Dataset view rights
 org.group.grantType.modify=Dataset modification rights
@@ -633,6 +643,8 @@ organization.datasets.cannotBeInvalidated=Dataset hashes cannot be reset in the 
 
 search.backendConnectionError=Cannot connect to the search backend
 
+rendering.notViewable=The item cannot be displayed - {0}
+
 
 
 locale.en=English (en)
@@ -657,6 +669,16 @@ plugin.statistics.withObjects=With objects
 plugin.statistics.withoutObjects=Without objects
 plugin.statistics.nrRecords=Number of records
 plugin.statistics.landingPages=With landing-pages
+
+plugin.advancedsearch=Advanced search
+plugin.advancedsearch.searchIn=Search in
+plugin.advancedsearch.searchInAll=All
+plugin.advancedsearch.booleanAnd=AND
+plugin.advancedsearch.booleanOr=OR
+plugin.advancedsearch.booleanNot=NOT
+plugin.advancedsearch.allProviders=All data providers
+plugin.advancedsearch.selectProviders=Select data provider(s)
+
 
 
 

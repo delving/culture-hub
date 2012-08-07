@@ -168,7 +168,7 @@ class VirtualCollectionDAO(collection: MongoCollection, connection: MongoDB) ext
 
     // for the start, only pass a dead-simple query
     val params = Params(Map("query" -> Seq(query), "start" -> Seq(start.toString)))
-    val chQuery: CHQuery = SolrQueryService.createCHQuery(params, configuration, true, Option(connectedUser), List.empty[String])
+    val chQuery: CHQuery = SolrQueryService.createCHQuery(params, configuration, Option(connectedUser), List.empty[String])
     val response = CHResponse(params, configuration, SolrQueryService.getSolrResponseFromServer(chQuery.solrQuery, configuration, true), chQuery)
     val briefItemView = BriefItemView(response)
     val hubIds = briefItemView.getBriefDocs.map(_.getHubId).filterNot(_.isEmpty)

@@ -19,7 +19,7 @@ trait MultiModel[A <: salat.CaseClass, B <: SalatDAO[A, ObjectId]] {
   private lazy val multiDAOs: Map[DomainConfiguration, B] = {
     DomainConfigurationHandler.domainConfigurations.map {
       config => {
-        val connection = createConnection(config.mongoDatabase)
+        val connection = mongoConnections(config)
         val collection = connection(connectionName)
         initIndexes(collection)
         val dao = initDAO(collection, connection)
@@ -45,5 +45,7 @@ trait MultiModel[A <: salat.CaseClass, B <: SalatDAO[A, ObjectId]] {
   }
 
   def all: Seq[B] = multiDAOs.values.toSeq
+
+  def byConfiguration = multiDAOs
 
 }

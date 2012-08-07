@@ -39,7 +39,16 @@ case class RecordDefinition(prefix: String,
   def getNamespaces = allNamespaces.map(ns => (ns.prefix, ns.uri)).toMap[String, String]
 }
 
-case class Namespace(prefix: String, uri: String, schema: String)
+case class Namespace(prefix: String, uri: String, schema: String) {
+  override def hashCode(): Int = (prefix + uri + schema).hashCode
+
+  override def equals(other: Any): Boolean = canEqual(other) && {
+    val ns = other.asInstanceOf[Namespace]
+      ns.prefix == prefix && ns.uri == uri && ns.schema == schema
+  }
+
+  override def canEqual(that: Any): Boolean = that.isInstanceOf[Namespace]
+}
 
 case class FormatAccessControl(accessType: String = "none", accessKey: Option[String] = None) {
   def hasAccess(key: Option[String]) = isPublicAccess || (isProtectedAccess && key != None && accessKey == key)

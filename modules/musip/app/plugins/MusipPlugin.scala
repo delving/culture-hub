@@ -29,14 +29,15 @@ class MusipPlugin(app: Application) extends CultureHubPlugin(app) {
 
   override def mainMenuEntries(implicit configuration: DomainConfiguration, lang: String): Seq[MainMenuEntry] = Seq(
     MainMenuEntry(
-      key = "museums",
-      titleKey = "plugin.musip.museums",
-      mainEntry = Some(MenuElement(url = "/search?query=*:*&qf=delving_recordType_facet:museum", titleKey = "plugin.musip.museums"))
-    ),
-    MainMenuEntry(
       key = "collections",
       titleKey = "plugin.musip.collections",
       mainEntry = Some(MenuElement(url = "/search?query=*:*&qf=delving_recordType_facet:collection", titleKey = "plugin.musip.collections"))
+    ),
+    MainMenuEntry(
+      key = "museums",
+      titleKey = "plugin.musip.museums",
+      mainEntry = Some(MenuElement(url = "/search?query=*:*&qf=delving_recordType_facet:museum", titleKey = "plugin.musip.museums"))
     )
+
   )
 }

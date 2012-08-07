@@ -81,6 +81,10 @@ object Build extends sbt.Build {
     resolvers ++= commonResolvers
   ).dependsOn(webCore)
 
+  val advancedSearch = PlayProject("advanced-search", "1.0-SNAPSHOT", Seq.empty, path = file("modules/advanced-search")).settings(
+    resolvers ++= commonResolvers
+  ).dependsOn(webCore)
+
   val statistics = PlayProject("statistics", "1.0-SNAPSHOT", Seq.empty, path = file("modules/statistics")).settings(
     resolvers ++= commonResolvers
   ).dependsOn(webCore)
@@ -106,6 +110,7 @@ object Build extends sbt.Build {
 
     watchSources <++= baseDirectory map { path => ((path / "web-core" / "app")                             ** "*").get },
     watchSources <++= baseDirectory map { path => ((path / "modules"  / "customHarvestCollection" / "app") ** "*").get },
+    watchSources <++= baseDirectory map { path => ((path / "modules"  / "advanced-search"         / "app") ** "*").get },
     watchSources <++= baseDirectory map { path => ((path / "modules"  / "statistics"              / "app") ** "*").get },
     watchSources <++= baseDirectory map { path => ((path / "modules"  / "dos"                     / "app") ** "*").get },
     watchSources <++= baseDirectory map { path => ((path / "modules"  / "musip"                   / "app") ** "*").get },
@@ -118,7 +123,7 @@ object Build extends sbt.Build {
   ).settings(
     addArtifact(
       Artifact((appName + "-" + cultureHubVersion), "zip", "zip"), dist
-    ).settings :_*).dependsOn(webCore, dos, statistics, musip, customHarvestCollection, itin)
+    ).settings :_*).dependsOn(webCore, dos, statistics, musip, customHarvestCollection, itin, advancedSearch)
 
 
 }

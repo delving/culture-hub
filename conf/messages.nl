@@ -79,6 +79,7 @@ ui.label.remove=Verwijder
 ui.label.required=Verplicht
 ui.label.reset=Herstel
 ui.label.returnToResults=Terug naar resultaten
+ui.label.save=Bewaar
 ui.label.scope=Scope
 ui.label.scope.public=Publiek
 ui.label.scope.notpublic=Niet publiek
@@ -96,6 +97,7 @@ ui.label.visibility.public=Publiek
 ui.label.visibility.notpublic=Privé
 ui.label.website=Website
 ui.label.welcome=Welkom
+ui.label.all=Alles
 
 # General 'thing' like object, collection or story
 thing.label=Label
@@ -406,6 +408,7 @@ org.list.grantType.view=with rights to view
 org.list.grantType.modify=with rights to modify
 org.list.grantType.own=with full access to everything
 org.list.dataSetCount={0} Dataset(s)
+org.list.filter=Type hier om de lijst te filteren
 
 org.group.grantType.view=View rights
 org.group.grantType.modify=Modification rights
@@ -601,3 +604,13 @@ plugin.statistics.withObjects=Met objecten
 plugin.statistics.withoutObjects=Zonder objecten
 plugin.statistics.nrRecords=Aantal records
 plugin.statistics.landingPages=Met landing-pages
+
+plugin.advancedsearch=Uitgebreid zoeken
+plugin.advancedsearch.searchIn=Zoek in
+plugin.advancedsearch.searchInAll=Alles
+plugin.advancedsearch.booleanAnd=EN
+plugin.advancedsearch.booleanOr=OF
+plugin.advancedsearch.booleanNot=NIET
+plugin.advancedsearch.allProviders=Alle aanbieders
+plugin.advancedsearch.selectProviders=Selecteer aanbieder(s)
+

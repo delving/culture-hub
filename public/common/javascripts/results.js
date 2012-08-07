@@ -1,13 +1,5 @@
 $(document).ready(function() {
-    // masonry grid
-    var $container = $('.grid-container');
-    $container.imagesLoaded( function() {
-        $container.masonry({
-            itemSelector : '.grid-item',
-            gutterWidth : 10
-        });
-    });
-    
+
 // facets
 //    if ($(".facet-container").length > 0) {
 //        // hide() or show() the toggle containers on load
