@@ -14,4 +14,4 @@ addSbtPlugin("com.eed3si9n" %% "sbt-buildinfo" % "0.1.2")
 
 addSbtPlugin("eu.delving" %% "groovy-templates-sbt-plugin" % "1.4")
 
-addSbtPlugin("play" % "sbt-plugin" % "2.0.2")
+addSbtPlugin("play" % "sbt-plugin" % "2.0.3")

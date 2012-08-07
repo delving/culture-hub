@@ -53,13 +53,6 @@ object Global extends GlobalSettings {
       """.format(BuildInfo.version, BuildInfo.sipCreator))
     }
 
-    // temporary deployment trick
-    if (Play.isProd) {
-      val port = if(System.getProperty("http.port") == null) "9000" else System.getProperty("http.port")
-      val runningPid = new File(current.path, "RUNNING_PID")
-      Files.moveFile(runningPid, new File(current.path, "../" + port + "/RUNNING_PID"))
-    }
-
     // ~~~ load configurations
     try {
       DomainConfigurationHandler.startup()
