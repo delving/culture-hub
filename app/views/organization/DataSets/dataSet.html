@@ -9,7 +9,7 @@
 #{/set}
 
 #{set bodyId: 'organization' /}
-#{breadcrumbs /}
+#{breadcrumbs configuration: themeInfo.getConfiguration() /}
 
 #{organizationNavBar orgId: orgId, active: "datasets", navigation: navigation /}
 

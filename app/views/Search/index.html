@@ -13,7 +13,7 @@
 <script type='text/javascript' src="@{routes.Assets.at('common/javascripts/results.js')}"></script>
 #{/set}
 
-#{breadcrumbs params:["search":["searchTerm": searchTerm, "returnToResults": returnToResults]], queryCrumbs: pagination/}
+#{breadcrumbs params:["search":["searchTerm": searchTerm, "returnToResults": returnToResults]], queryCrumbs: pagination, configuration: themeInfo.getConfiguration() /}
 
 #{if briefDocs }
 

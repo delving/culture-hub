@@ -18,7 +18,7 @@
 #{/set}
 #{/if}
 
-#{breadcrumbs /}
+#{breadcrumbs configuration: themeInfo.getConfiguration() /}
 
 #{if browsedUserName}
     #{set title: messages.get('ui.label.browse') + ' ' + messages.get("thing.${itemName.pluralize()}") + ': ' + browsedUserName + ' (' + count +')' /}
