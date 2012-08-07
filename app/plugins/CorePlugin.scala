@@ -22,6 +22,9 @@ class CorePlugin(app: Application) extends CultureHubPlugin(app) {
 
   override def enabled: Boolean = true
 
+
+  override def isEnabled(configuration: DomainConfiguration): Boolean = true
+
   override def mainMenuEntries(implicit configuration: DomainConfiguration, lang: String): Seq[MainMenuEntry] = Seq(
     MainMenuEntry(
       key = "home",
@@ -30,39 +33,39 @@ class CorePlugin(app: Application) extends CultureHubPlugin(app) {
     )
   )
 
-  override def organizationMenuEntries(context: Map[String, String], roles: Seq[String]): Seq[MainMenuEntry] = Seq(
+  override def organizationMenuEntries(orgId: String, lang: String, roles: Seq[String]): Seq[MainMenuEntry] = Seq(
     MainMenuEntry(
       key = "overview",
       titleKey = "ui.label.overview",
-      mainEntry = Some(MenuElement("/organizations/" + context("orgId"), "ui.label.overview")),
+      mainEntry = Some(MenuElement("/organizations/" + orgId, "ui.label.overview")),
       membersOnly = false
     ),
     MainMenuEntry(
       key = "administration",
       titleKey = "ui.label.administration",
-      mainEntry = Some(MenuElement("/organizations/%s/admin".format(context("orgId")), "ui.label.administration")),
+      mainEntry = Some(MenuElement("/organizations/%s/admin".format(orgId), "ui.label.administration")),
       roles = Seq(GrantType.OWN)
     ),
     MainMenuEntry(
       key = "groups",
       titleKey = "thing.groups",
       items = Seq(
-        MenuElement("/organizations/%s/groups".format(context("orgId")), "org.group.list"),
-        MenuElement("/organizations/%s/groups/create".format(context("orgId")), "org.group.create", Seq(GrantType.OWN))
+        MenuElement("/organizations/%s/groups".format(orgId), "org.group.list"),
+        MenuElement("/organizations/%s/groups/create".format(orgId), "org.group.create", Seq(GrantType.OWN))
       )
     ),
     MainMenuEntry(
       key = "datasets",
       titleKey = "thing.datasets",
       items = Seq(
-        MenuElement("/organizations/%s/dataset".format(context("orgId")), "organization.dataset.list"),
-        MenuElement("/organizations/%s/dataset/add".format(context("orgId")), "organization.dataset.create", Seq(GrantType.OWN))
+        MenuElement("/organizations/%s/dataset".format(orgId), "organization.dataset.list"),
+        MenuElement("/organizations/%s/dataset/add".format(orgId), "organization.dataset.create", Seq(GrantType.OWN))
       )
     ),
     MainMenuEntry(
       key = "sipcreator",
       titleKey = "ui.label.sipcreator",
-      mainEntry = Some(MenuElement("/organizations/%s/sip-creator".format(context("orgId")), "ui.label.sipcreator"))
+      mainEntry = Some(MenuElement("/organizations/%s/sip-creator".format(orgId), "ui.label.sipcreator"))
     )
   )
 

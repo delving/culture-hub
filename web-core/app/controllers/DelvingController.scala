@@ -7,7 +7,7 @@ import play.api.data.Form
 import play.api.i18n.{Lang, Messages}
 import play.libs.Time
 import eu.delving.templates.scala.GroovyTemplates
-import extensions.{Extensions, ConfigurationException}
+import extensions.Extensions
 import collection.JavaConverters._
 import org.bson.types.ObjectId
 import xml.NodeSeq
@@ -22,10 +22,6 @@ import play.api.data.Forms._
 
 
 trait ApplicationController extends Controller with GroovyTemplates with DomainConfigurationAware with Logging with Extensions {
-
-  protected val hubPlugins = current.plugins.filter(_.isInstanceOf[CultureHubPlugin]).map(_.asInstanceOf[CultureHubPlugin])
-
-  private val onApplicationRequestHandlers: Seq[RequestContext => Unit] = hubPlugins.map(_.onApplicationRequest)
 
   // ~~~ i18n
 
@@ -66,11 +62,8 @@ trait ApplicationController extends Controller with GroovyTemplates with DomainC
           // action composition being applied after the template has been rendered, we need to pass it in this way
           renderArgs += (__LANG -> requestLanguage)
 
-          // apply plugin handlers
-          onApplicationRequestHandlers.foreach(handler => handler(RequestContext(request, configuration, renderArgs, getLang)))
-
           // main navigation
-          val menu = hubPlugins.map(
+          val menu = CultureHubPlugin.getEnabledPlugins.map(
             plugin => plugin.mainMenuEntries(configuration, getLang).map(_.asJavaMap)
           ).flatten.asJava
 
@@ -282,6 +275,10 @@ trait DelvingController extends ApplicationController with CoreImplicits {
             }
           }
 
+          // Search in
+          // TODO move to search plugin, one day
+          renderArgs += ("searchIn" -> configuration.searchService.searchIn.asJava)
+
           // ignore AsyncResults for these things for the moment
           val res = action(request)
           if(res.isInstanceOf[PlainResult]) {
@@ -366,10 +363,11 @@ trait DelvingController extends ApplicationController with CoreImplicits {
 
           renderArgs += ("roles" -> roles.asJava)
 
-          val navigation = hubPlugins.map {
+          val navigation = CultureHubPlugin.getEnabledPlugins.map {
             plugin => plugin.
               getOrganizationNavigation(
-                context = Map("orgId" -> orgId, "currentLanguage" -> getLang),
+                orgId = orgId,
+                lang = getLang,
                 roles = roles,
                 isMember = HubUser.dao.findByUsername(connectedUser).map(u => u.organizations.contains(orgId)).getOrElse(false)
             ).map(_.asJavaMap)

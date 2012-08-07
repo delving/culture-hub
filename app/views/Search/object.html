@@ -1,60 +1,24 @@
 #{extends themeInfo.get('themeLayout') /}
 
-#{set title: systemFields.apply("delving_owner").get(0) +" | "+ systemFields.apply("delving_title").get(0) /}
+#{set title: systemFields.contains("delving_owner") ? systemFields.apply("delving_owner").get(0) + " | " : "" + systemFields.apply("delving_title").get(0) /}
+
+#{set bodyId: 'object'/}
 
 #{set 'moreScripts'}
 <script type='text/javascript' src="@{routes.Assets.at('common/javascripts/seadragon/seadragon-min.js')}"></script>
 #{/set}
 
 #{breadcrumbs params:["search":["searchTerm": searchTerm, "returnToResults": returnToResults], "title": ["url":"", "label": systemFields.apply("delving_title").get(0)], "inOrg": ["inOrg": "yes"]] /}
-
-<style>
-    body {
-        margin-bottom: 50px;
-    }
-    h5 {
-        margin: 0 0 0 0;
-    }
-    p {
-        margin: 0 0 2px 10px;
-        padding: 0;
-    }
-    dl {
-        margin: 0 0 10px 0;
-    }
-    ul {
-        margin-bottom: 10px;
-    }
-    img {
-        max-width: 100%;
-        height: auto;
-    }
-    #collections ul {
-        display: inline-block;
-        width: 44%;
-        vertical-align: top;
-    }
-    div.image {
-        margin-bottom: 21px;
-        text-align: center;
-    }
-    img.img {
-        height: auto;
-        max-width: 100%;
-    }
-
-    div#zoom-viewer {
-        width: 100%;
-        height: 300px;
-    }
-
-</style>
-
+<div class="return-to-results">
+    <a href="/search?${returnToResults}" rel="nofollow"><i class="icon icon-arrow-left"></i> &{'ui.label.returnToResults'}</a>
+</div>
 <div class="page-header">
     <h1>${systemFields.apply("delving_title").get(0)}</h1>
 </div>
 
-#{view view: fullView /}
+<div class="object-view">
+    #{view view: fullView /}
+</div>
 
 *{
 <!-- overlayed element -->
@@ -66,26 +30,12 @@
 </div>
 }*
 <script type="text/javascript" language="javascript">
-*{
-//    $(function () {
-//        $("a.overlay-trigger").overlay({
-//            closeOnClick: true,
-//            mask: {
-//                color: "#ddddd0",
-//                loadSpeed: 200,
-//                opacity: 0.5
-//            }
-//        });
-//    });
-}*
+
 $(document).ready(function() {
 
-    if ($('a[rel=zoom]').size() > 0) {
-        // Deepzoom image
-        var zoomImg = $('a[rel=zoom]').attr('href');
-        // Deepzoom viewer
-        var viewer;
-
+    if ($('a[data-type=zoom]').size() > 0) {
+        // Deepzoom image & viewer
+        var zoomImg = $('a[data-type=zoom]').attr('href'), viewer;
         Seadragon.Config.imagePath = "/assets/common/javascripts/seadragon/img/";
         Seadragon.Config.autoHideControls = false;
         viewer = new Seadragon.Viewer("zoom-viewer");
@@ -97,6 +47,16 @@ $(document).ready(function() {
             "tileOverlap":0,
             "tileFormat":"jpg"});
     }
+//    $(function () {
+//        $("a.overlay-trigger").overlay({
+//            closeOnClick: true,
+//            mask: {
+//                color: "#ddddd0",
+//                loadSpeed: 200,
+//                opacity: 0.5
+//            }
+//        });
+//    });
 });
 
 

@@ -1,0 +1,33 @@
+#{if _pageLinks.getPageLinks().length() > 0}
+<div class="pagination ${_extraClass ? _extraClass : ''}">
+ <ul>
+    #{if _pageLinks.previous}
+        <li><a rel="nofollow" href="?${_pQuery}&amp;searchIn=${_searchIn}&amp;start=1&facetBoolType=OR">${messages.get('ui.label.first')}</a></li>
+        <li><a rel="nofollow" href="?${_pQuery}&amp;searchIn=${_searchIn}&amp;start=${_pageLinks.previousPage}&facetBoolType=OR">&laquo;&#160;${messages.get('ui.label.previous')}</a></li>
+    #{/if}
+    #{else}
+        <li class="disabled"><a href="#" rel="nofollow">${messages.get('ui.label.first')}</a></li>
+        <li class="disabled"><a href="#" rel="nofollow">&laquo;&#160;${messages.get('ui.label.previous')}</a></li>
+    #{/else}
+
+    #{list _pageLinks.getPageLinks(), as:'link'}
+
+    #{if link.linked}
+       <li><a href="?${_pQuery}&amp;searchIn=${_searchIn}&amp;start=${link.start}&facetBoolType=OR" rel="nofollow">${link.display}</a></li>
+    #{/if}
+    #{else}
+       <li class="active"><a href="#" rel="nofollow">${link.display}</a></li>
+    #{/else}
+    #{/list}
+
+    #{if _pageLinks.next}
+       <li class="next"><a href="?${_pQuery}&amp;searchIn=${_searchIn}&amp;start=${_pageLinks.nextPage}&facetBoolType=OR" rel="nofollow">${messages.get('ui.label.next')}&#160;&raquo;</a></li>
+       <li class="next"><a href="?${_pQuery}&amp;searchIn=${_searchIn}&amp;start=${_lastPage}&facetBoolType=OR" rel="nofollow">${messages.get('ui.label.last')}</a></li>
+    #{/if}
+    #{else}
+        <li class="disabled"><a href="#" rel="nofollow">${messages.get('ui.label.next')}</a>&#160;&raquo;</li>
+        <li class="disabled"><a href="#" rel="nofollow">${messages.get('ui.label.last')}</a></li>
+    #{/else}
+ </ul>
+</div>
+#{/if}

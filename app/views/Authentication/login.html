@@ -28,8 +28,8 @@
             </div>
             #{/if}
 
-            #{textField name:"userName", placeholder: messages.get("ui.label.username"), form: loginForm /}
-            #{passwordField name:"password", placeholder: messages.get("ui.label.password"), form: loginForm /}
+            #{form.textField name:"userName", placeholder: messages.get("ui.label.username"), form: loginForm /}
+            #{form.passwordField name:"password", placeholder: messages.get("ui.label.password"), form: loginForm /}
 
             <div class="field">
                 <label for="remember" class="checkbox">

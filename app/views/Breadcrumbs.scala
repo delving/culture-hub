@@ -33,7 +33,7 @@ object Breadcrumbs {
       case "org" :: orgId :: "thing" :: spec :: recordId :: Nil =>
         val returnToResults = Option(p.get("search").get("returnToResults"))
         returnToResults match {
-          case Some(r) if r.length() > 0 => List(("NOLINK", Messages("ui.label.search")), ("/search?" + r, "[%s]".format(p.get("search").get("searchTerm"))), ("NOLINK", p.get("title").get("label")))
+          case Some(r) if r.length() > 0 => List(("NOLINK", Messages("ui.label.search")), ("/search?" + r, "%s".format(p.get("search").get("searchTerm"))), ("NOLINK", p.get("title").get("label")))
           case _ => List(("/organizations/" + orgId, orgId), ("NOLINK", Messages("thing.objects")), ("NOLINK", spec), ("NOLINK", p.get("title").get("label")))
         }
 
@@ -41,14 +41,14 @@ object Breadcrumbs {
       case "org" :: orgId :: "museum" :: id :: Nil =>
         val returnToResults = Option(p.get("search").get("returnToResults"))
         returnToResults match {
-          case Some(r) if r.length() > 0 => List(("NOLINK", Messages("ui.label.search")), ("/search?" + r, "[%s]".format(p.get("search").get("searchTerm"))), ("NOLINK", p.get("title").get("label")))
+          case Some(r) if r.length() > 0 => List(("NOLINK", Messages("ui.label.search")), ("/search?" + r, "%s".format(p.get("search").get("searchTerm"))), ("NOLINK", p.get("title").get("label")))
           case _ => List(("/organizations/" + orgId, orgId), ("NOLINK", Messages("plugin.musip.museums")), ("NOLINK", p.get("title").get("label")))
         }
 
       case "org" :: orgId :: "collection" :: id :: Nil =>
         val returnToResults = Option(p.get("search").get("returnToResults"))
         returnToResults match {
-          case Some(r) if r.length() > 0 => List(("NOLINK", Messages("ui.label.search")), ("/search?" + r, "[%s]".format(p.get("search").get("searchTerm"))), ("NOLINK", p.get("title").get("label")))
+          case Some(r) if r.length() > 0 => List(("NOLINK", Messages("ui.label.search")), ("/search?" + r, "%s".format(p.get("search").get("searchTerm"))), ("NOLINK", p.get("title").get("label")))
           case _ => List(("/organizations/" + orgId, orgId), ("NOLINK", Messages("plugin.musip.collections")), ("NOLINK", p.get("title").get("label")))
         }
 

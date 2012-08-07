@@ -54,7 +54,7 @@
             ${views.Helpers.shorten(c._1._2, 50)}<span class="divider">/</span>
         #{/if}
         #{else}
-            <a href="${c._1._1}">${views.Helpers.shorten(c._1._2, 50)}</a><span class="divider">/</span>
+            <a href="${c._1._1}" rel="nofollow">${views.Helpers.shorten(c._1._2, 50)}</a><span class="divider">/</span>
         #{/else}
         #{/if}
         #{if c._2 < views.Breadcrumbs.crumble(_params, request, _configuration).length() - 1 && views.Breadcrumbs.crumble(_params, request, _configuration).length() == 1}
@@ -62,7 +62,7 @@
             ${views.Helpers.shorten(c._1._2, 50)}
         #{/if}
         #{else}
-            <a href="${c._1._1}">${views.Helpers.shorten(c._1._2, 50)}</a><span class="divider">/</span>
+            <a href="${c._1._1}" rel="nofollow">${views.Helpers.shorten(c._1._2, 50)}</a><span class="divider">/</span>
         #{/else}
         #{/if}
 
@@ -72,7 +72,7 @@
         #{list _queryCrumbs.getBreadcrumbs(), as: 'crumb'}
             #{ifnot crumb_isLast}
             <li class="linked">
-                <span class="divider">/</span><a href="/search?${crumb.href()}">${views.Helpers.shorten(crumb.value(),50)}</a></li>
+                <span class="divider">/</span><a href="/search?${crumb.href()}" rel="nofollow">${views.Helpers.shorten(crumb.value(),50)}</a></li>
             #{/ifnot}
             #{else}
                 <li><span class="divider">/</span> ${crumb.value()}</li>

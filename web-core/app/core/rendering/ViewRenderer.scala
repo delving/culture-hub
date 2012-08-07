@@ -119,7 +119,7 @@ class ViewRenderer(val schema: String, viewName: String, configuration: DomainCo
 
       viewDefinitionNode.foreach {
         n =>
-          log.debug("Node " + n)
+          log.trace("Node " + n)
           val ifExpr = n.attr("if")
           val ifNotExpr = n.attr("ifNot")
 
@@ -367,14 +367,14 @@ class ViewRenderer(val schema: String, viewName: String, configuration: DomainCo
     }
 
     def enterAndAppendNode(viewDefinitionNode: Node, dataNode: WNode, renderNode: RenderNode) {
-      log.debug("Entered " + viewDefinitionNode.label)
+      log.trace("Entered " + viewDefinitionNode.label)
       renderNode.parent = defaultParent
 
       treeStack.head += renderNode
       push(renderNode)
       viewDefinitionNode.child foreach {
         n =>
-          log.debug("Node " + n)
+          log.trace("Node " + n)
           walk(n, dataNode)
       }
       pop
@@ -382,10 +382,10 @@ class ViewRenderer(val schema: String, viewName: String, configuration: DomainCo
 
     /** enters a view definition node, but without appending a new node on the the current tree **/
     def enterNode(viewDefinitionNode: Node, dataNode: WNode) {
-      log.debug("Entered " + viewDefinitionNode.label)
+      log.trace("Entered " + viewDefinitionNode.label)
       viewDefinitionNode.child foreach {
         n =>
-          log.debug("Node " + n)
+          log.trace("Node " + n)
           walk(n, dataNode)
       }
 

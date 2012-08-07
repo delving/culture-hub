@@ -68,17 +68,17 @@
                 <div class="row">
                     <div class="span6">
 
-                        #{textField name:"spec", form: dataSetForm, label: messages.get('organization.dataset.label.identifier'), dataBind:"value: spec", help: messages.get('organization.dataset.help.identifier') /}
+                        #{form.textField name:"spec", form: dataSetForm, label: messages.get('organization.dataset.label.identifier'), dataBind:"value: spec", help: messages.get('organization.dataset.help.identifier') /}
 
                         %{for(i in 0..factDefinitions.size() - 1) {
                             def factDef = factDefinitions.apply(i);
                         }%
 
                         #{if factDef.hasOptions()}
-                            #{populatedSelectField name: "facts." + factDef.name, form: dataSetForm, label: factDef.prompt, options: factDef.opts, dataBind: "value: facts." + factDef.name, help: factDef.tooltip /}
+                            #{form.populatedSelectField name: "facts." + factDef.name, form: dataSetForm, label: factDef.prompt, options: factDef.opts, dataBind: "value: facts." + factDef.name, help: factDef.tooltip /}
                         #{/if}
                         #{else}
-                            #{textField name: "facts." + factDef.name, form: dataSetForm, label: factDef.prompt, dataBind: "value: facts." + factDef.name, help: factDef.tooltip, isDisabled: factDef.automatic /}
+                            #{form.textField  name: "facts." + factDef.name, form: dataSetForm, label: factDef.prompt, dataBind: "value: facts." + factDef.name, help: factDef.tooltip, isDisabled: factDef.automatic /}
                         #{/else}
 
                         %{ }}%
@@ -93,7 +93,7 @@
                                 <tbody>
                                 #{list recordDefinitions, as: 'recordDef'}
                             <tr>
-                                <td align="left">#{checkboxField name: recordDef + "_field", label: recordDef, value: recordDef, dataBind: "checked: recordDefinitions" /}</td>
+                                <td align="left">#{form.checkboxField name: recordDef + "_field", label: recordDef, value: recordDef, dataBind: "checked: recordDefinitions" /}</td>
                                 <td align="left">
                                 <span data-bind="visible: recordDefinitions().indexOf('${recordDef}') > -1">
                                     <select id="oaiAccess-${recordDef}">
@@ -101,7 +101,7 @@
                                         <option value="public">Public access</option>
                                         <option value="protected">Protected access</option>
                                     </select>
-                                    <span id="protected-${recordDef}" style="display: none;">
+                                    <span id="protected-${recordDef}" style="visibility: hidden;">
                                         <label for="accessKey-${recordDef}">Access key</label>
                                         <input type="text" id="accessKey-${recordDef}">
                                     </span>
@@ -125,8 +125,8 @@
                         <hr/>
                         <div class="well">
                             <div class="row">
-                                #{btnHref id:"saveButton", name:"saveButton", label:messages.get('organization.dataset.save'), extraClass:"btn-success btn-large span4", iconClass:"icon-ok-circle icon-white"/}
-                                <button type="reset" class="btn pull-right">Reset</button>
+                                #{btnHref id:"saveButton", name:"saveButton", label:messages.get('organization.dataset.save'), extraClass:"btn-success btn-large span4", iconClass:"icon-ok-circle icon-white", rel:"nofollow"/}
+                                <button type="reset" class="btn btn-large pull-right">Reset</button>
                             </div>
                         </div>
                     </div>
@@ -156,7 +156,7 @@
                 $('#oaiAccess-' + access.format()).val(access.accessType());
                 if(access.accessType() == 'protected') {
                     $('#accessKey-' + access.format()).val(access.accessKey());
-                    $('#protected-' + access.format()).css('display', 'block');
+                    $('#protected-' + access.format()).css('visibility', 'visible');
                 }
             });
 

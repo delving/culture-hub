@@ -127,14 +127,27 @@ class ImageCacheService extends HTTPClient with Thumbnail {
   private def retrieveImageFromUrl(url: String): WebResource = {
     val method = new GetMethod(url)
     try {
-      getHttpClient executeMethod (method)
+      val response = getHttpClient.executeMethod(method)
+      val isRedirect = Seq(300, 301, 302, 303, 307).contains(response)
+      if(isRedirect) {
+        val location = Option(method.getResponseHeader("Location"))
+        if(location.isDefined) {
+          retrieveImageFromUrl(location.get.getValue)
+        } else {
+          log.error("Could not retrieve Location header for redirect response returned by " + url)
+          WebResource()
+        }
+      } else {
+        WebResource(method)
+      }
     } catch {
       case timeout: org.apache.commons.httpclient.ConnectTimeoutException =>
         log.error("""Could not retrieve image at URL "%s" because of connection timeout: %s""".format(url, timeout.getMessage))
+        WebResource()
       case t =>
       log.error("""Error downloading image at URL "%s": %s""".format(url, t.getMessage), t)
+      WebResource()
     }
-    WebResource(method)
   }
 
 }
@@ -142,6 +155,8 @@ class ImageCacheService extends HTTPClient with Thumbnail {
 case class WebResource(url: String, dataAsStream: InputStream, storable: Boolean, contentType: String)
 
 case object WebResource {
+
+  def apply(): WebResource = WebResource("", null, false, "unknown/unknown")
 
   def apply(method: GetMethod): WebResource = {
     val contentType = method.getResponseHeader("Content-Type").getValue.toLowerCase.split(",").headOption.getOrElse("")

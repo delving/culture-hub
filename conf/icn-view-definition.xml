@@ -22,13 +22,13 @@
                     <field path="/icn:record/dcterms:provenance" label="metadata.dcterms.provenance"/>
                 </container>
                 <!-- MUSEOMETRIE FIELDS -->
-                <container id="admin" role="icn">
-                        <field path="/icn:record/icn:currentLocation" label="metadata.icn.currentLocation" role="icn"/>
-                        <field path="/icn:record/icn:previousLocation" label="metadata.icn.previousLocation" role="icn"/>
-                        <field path="/icn:record/icn:acquisitionMeans" label="metadata.icn.acquisitionMeans" role="icn"/>
-                        <field path="/icn:record/icn:acquisitionYear" label="metadata.icn.acquisitionYear" role="icn"/>
-                        <field path="/icn:record/icn:acquiredWithHelpFrom" label="metadata.icn.acquiredWithHelpFrom" role="icn"/>
-                        <field path="/icn:record/icn:purchasePrice" label="metadata.icn.purchasePrice" role="icn"/>
+                <container id="admin" role="museometrie">
+                        <field path="/icn:record/icn:currentLocation" label="metadata.icn.currentLocation" role="museometrie"/>
+                        <field path="/icn:record/icn:previousLocation" label="metadata.icn.previousLocation" role="museometrie"/>
+                        <field path="/icn:record/icn:acquisitionMeans" label="metadata.icn.acquisitionMeans" role="museometrie"/>
+                        <field path="/icn:record/icn:acquisitionYear" label="metadata.icn.acquisitionYear" role="museometrie"/>
+                        <field path="/icn:record/icn:acquiredWithHelpFrom" label="metadata.icn.acquiredWithHelpFrom" role="museometrie"/>
+                        <field path="/icn:record/icn:purchasePrice" label="metadata.icn.purchasePrice" role="museometrie"/>
                 </container>
 
             </column>
@@ -48,12 +48,12 @@
                 <field path="/icn:record/europeana:country" label="metadata.europeana.country"/>
                 <field path="/icn:record/dc:rights" label="metadata.dc.rights"/>
                 <!-- MUSEOMETRIE FIELDS -->
-                <container role="icn">
-                    <field path="/icn:record/icn:legalStatus" label="metadata.icn.legalStatus" role="icn"/>
-                    <field path="/icn:record/icn:stateAcceptsCharges" label="metadata.icn.stateAcceptsCharges" role="icn"/>
-                    <field path="/icn:record/icn:expulsionFromStateYear" label="metadata.icn.expulsionFromStateYear" role="icn"/>
-                    <field path="/icn:record/icn:meansOfExpulsion" label="metadata.icn.meansOfExpulsion" role="icn"/>
-                    <field path="/icn:record/icn:physicalState" label="metadata.icn.physicalState" role="icn"/>
+                <container role="museometrie">
+                    <field path="/icn:record/icn:legalStatus" label="metadata.icn.legalStatus" role="museometrie"/>
+                    <field path="/icn:record/icn:stateAcceptsCharges" label="metadata.icn.stateAcceptsCharges" role="museometrie"/>
+                    <field path="/icn:record/icn:expulsionFromStateYear" label="metadata.icn.expulsionFromStateYear" role="museometrie"/>
+                    <field path="/icn:record/icn:meansOfExpulsion" label="metadata.icn.meansOfExpulsion" role="museometrie"/>
+                    <field path="/icn:record/icn:physicalState" label="metadata.icn.physicalState" role="museometrie"/>
                 </container>
 
             </column>
@@ -66,9 +66,6 @@
                     <link textValue="zoom" urlExpr="/icn:record/delving:deepZoomUrl" type="zoom"/>
                 </container>
             </column>
-        </row>
-        <row>
-
         </row>
     </view>
 
@@ -83,15 +80,22 @@
                 <attr prefix="xmlns" name="icn" value="http://www.icn.nl/"/>
             </attrs>
             <elem name="layout">
-                <list name="fields" path="/icn:record/*[fn:not(fn:contains('currentLocation previousLocation acquisitionMeans acquiredWithHelpFrom purchasePrice legalStatus stateAcceptsCharges expulsionFromStateYear meansOfExpulsion physicalState', local-name()))]" distinct="name">
+                <list name="fields" path="/icn:record/*[fn:not(fn:contains('relatedItems currentLocation previousLocation acquisitionMeans acquiredWithHelpFrom purchasePrice legalStatus stateAcceptsCharges expulsionFromStateYear meansOfExpulsion physicalState', local-name()))]" distinct="name">
                     <auto-layout-field/>
                 </list>
             </elem>
             <elem name="item">
-                <list name="fields" path="/icn:record/*[fn:not(fn:contains('currentLocation previousLocation acquisitionMeans acquiredWithHelpFrom purchasePrice legalStatus stateAcceptsCharges expulsionFromStateYear meansOfExpulsion physicalState', local-name()))]">
+                <list name="fields" path="/icn:record/*[fn:not(fn:contains('relatedItems currentLocation previousLocation acquisitionMeans acquiredWithHelpFrom purchasePrice legalStatus stateAcceptsCharges expulsionFromStateYear meansOfExpulsion physicalState', local-name()))]">
                     <auto-field/>
                 </list>
             </elem>
+            <list name="relatedItems" path="//*[local-name()='record']/*[fn:contains('relatedItems', local-name())]/*">
+                <elem name="item">
+                    <elem prefix="delving" name="title" expr="./fields/delving:title" />
+                    <elem prefix="delving" name="thumbnail" expr="./fields/delving:thumbnail" />
+                    <elem prefix="delving" name="hubId" expr="./fields/delving:hubId" />
+                </elem>
+            </list>
         </elem>
     </view>
 </views>

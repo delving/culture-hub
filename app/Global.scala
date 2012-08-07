@@ -25,7 +25,10 @@ import play.api.mvc.Results._
 
 object Global extends GlobalSettings {
 
-  lazy val hubPlugins: List[CultureHubPlugin] = Play.application.plugins.filter(_.isInstanceOf[CultureHubPlugin]).map(_.asInstanceOf[CultureHubPlugin]).toList
+  lazy val hubPlugins: List[CultureHubPlugin] = Play.application.plugins.
+    filter(_.isInstanceOf[CultureHubPlugin]).
+    map(_.asInstanceOf[CultureHubPlugin]).
+    toList
 
   override def onStart(app: Application) {
     if (!Play.isTest) {
@@ -92,11 +95,17 @@ object Global extends GlobalSettings {
     ), name = "dataSetParser")
 
     // DataSet processing
-    val processor = Akka.system.actorOf(Props[Processor].withRouter(
-      RoundRobinRouter(Runtime.getRuntime.availableProcessors(), supervisorStrategy = OneForOneStrategy() {
-        case _ => Stop
-      })
-    ), name = "dataSetProcessor")
+    // Play can't do multi-threading in DEV mode...
+    val processor = if(Play.isDev) {
+      Akka.system.actorOf(Props[Processor], name = "dataSetProcessor")
+    } else {
+      Akka.system.actorOf(Props[Processor].withRouter(
+            RoundRobinRouter(Runtime.getRuntime.availableProcessors(), supervisorStrategy = OneForOneStrategy() {
+              case _ => Stop
+            })
+          ), name = "dataSetProcessor")
+    }
+
     Akka.system.scheduler.schedule(
       0 seconds,
       10 seconds,
@@ -198,7 +207,7 @@ object Global extends GlobalSettings {
   override def onError(request: RequestHeader, ex: Throwable) = {
     if (Play.isProd) {
       import play.api.mvc.Results._
-      InternalServerError(views.html.errors.error(Some(ex)))
+      InternalServerError(views.html.errors.error(Some(ex), None))
     } else {
       super.onError(request, ex)
     }
@@ -214,8 +223,6 @@ object Global extends GlobalSettings {
 
   }
 
-  lazy val routes = hubPlugins.flatMap(_.routes)
-
   override def onRouteRequest(request: RequestHeader): Option[Handler] = {
 
     // check if we access a configured domain
@@ -223,6 +230,9 @@ object Global extends GlobalSettings {
       Logger("CultureHub").debug("Accessed invalid domain %s, redirecting...".format(request.domain))
       Some(controllers.Default.redirect(Play.configuration.getString("defaultDomainRedirect").getOrElse("http://www.delving.eu")))
     } else {
+      val configuration = DomainConfigurationHandler.getByDomain(request.domain)
+      val routes = hubPlugins.filter(p => p.isEnabled(configuration)).flatMap(_.routes)
+
       val routeLogger = Akka.system.actorFor("akka://application/user/routeLogger")
       val apiRouteMatcher = """^/organizations/([A-Za-z0-9-]+)/api/(.)*""".r
       val matcher = apiRouteMatcher.pattern.matcher(request.uri)
@@ -231,7 +241,8 @@ object Global extends GlobalSettings {
         // log route access, for API calls
         routeLogger ! RouteRequest(request)
 
-        if(request.queryString.contains("explain") && request.queryString("explain").head == "true") {
+        // TODO proper routing for search
+        if(request.queryString.contains("explain") && request.queryString("explain").head == "true" && !request.path.contains("search")) {
           // redirect to the standard explain response
           return Some(controllers.api.Api.explainPath(matcher.group(1), request.path))
         }

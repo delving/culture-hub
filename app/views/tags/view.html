@@ -84,17 +84,17 @@ switch (_view.nodeType) {
     case "link": if (_view.attr("text")){ }%
 
         #{if _view.parent.attr("type") == "labelled-list"  }
-            <dt>&{_view.attr("label")}</dt><dd><a href="${_view.attr("url")}">&{_view.attr("text")}</a></dd>
+            <dt>&{_view.attr("label")}</dt><dd><a href="${_view.attr("url")}" rel="nofollow">&{_view.attr("text")}</a></dd>
         #{/if}
 
         #{elseif _view.parent.attr("type") == "list"}
-            <li><a href="${_view.attr("url")}">&{_view.attr("text")}</a></li>
+            <li><a href="${_view.attr("url")}" rel="nofollow">&{_view.attr("text")}</a></li>
         #{/elseif}
 
         #{else}
             #{if _view.attr("label")}<h5>&{_view.attr("label")}</h5>#{/if}
             #{if _view.attr("url")}
-                <p>${ _view.parent.attr("type")}<a href="${_view.attr("url")}" rel="${_view.attr("type")}">&{_view.attr("text")}</a></p>
+                <p>${ _view.parent.attr("type")}<a href="${_view.attr("url")}" data-type="${_view.attr("type")}" rel="nofollow">&{_view.attr("text")}</a></p>
             #{/if}
             #{else}
                 <p>&{_view.attr("text")}</p>
