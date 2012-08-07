@@ -35,7 +35,7 @@ class IndexApiSpec extends Specification with TestContext {
 
       withTestConfig {
 
-        val configuration = DomainConfigurationHandler.getByOrgId("delving")
+        implicit val configuration = DomainConfigurationHandler.getByOrgId("delving")
 
         val fakeRequest: FakeRequest[scala.xml.NodeSeq] = FakeRequest(
           method = "POST",
@@ -63,8 +63,8 @@ class IndexApiSpec extends Specification with TestContext {
         cacheMovie.count() must equalTo(1)
         cacheBook.count() must equalTo(1)
 
-        val queryByType = SolrQueryService.getSolrResponseFromServer(new SolrQuery("delving_orgId:delving delving_recordType:book"), configuration)
-        val queryById = SolrQueryService.getSolrResponseFromServer(new SolrQuery("delving_orgId:delving id:delving_movie_456"), configuration)
+        val queryByType = SolrQueryService.getSolrResponseFromServer(new SolrQuery("delving_orgId:delving delving_recordType:book"))
+        val queryById = SolrQueryService.getSolrResponseFromServer(new SolrQuery("delving_orgId:delving id:delving_movie_456"))
 
         queryByType.getResults.size() must equalTo(1)
         queryById.getResults.size() must equalTo(1)
@@ -163,7 +163,7 @@ class IndexApiSpec extends Specification with TestContext {
 
     withTestConfig {
 
-      val configuration = DomainConfigurationHandler.getByOrgId("delving")
+      implicit val configuration = DomainConfigurationHandler.getByOrgId("delving")
 
       val fakeRequest: FakeRequest[scala.xml.NodeSeq] = FakeRequest(
         method = "POST",
@@ -191,7 +191,7 @@ class IndexApiSpec extends Specification with TestContext {
 
       trim(XML.loadString(contentAsString(result))) must equalTo(trim(expected))
 
-      val queryByHasDigitalObject = SolrQueryService.getSolrResponseFromServer(new SolrQuery("delving_orgId:delving delving_recordType:foo delving_hasDigitalObject:true"), configuration)
+      val queryByHasDigitalObject = SolrQueryService.getSolrResponseFromServer(new SolrQuery("delving_orgId:delving delving_recordType:foo delving_hasDigitalObject:true"))
 
       queryByHasDigitalObject.getResults.size() must equalTo (1)
       queryByHasDigitalObject.getResults.get(0).getFirstValue("custom_title_string") must equalTo ("FooBar")

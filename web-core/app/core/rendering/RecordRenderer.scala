@@ -27,15 +27,14 @@ object RecordRenderer {
    * Gets the full view of a record, for access via the search API.
    * This is complex because we have to cater for legacy deployments with special idTypes
    */
-  def getRenderedFullView(orgId: Option[String],
-                          id: String,
+  def getRenderedFullView(id: String,
                           idType: DelvingIdType,
                           language: String,
                           schema: Option[String] = None,
                           renderRelatedItems: Boolean)(implicit configuration: DomainConfiguration): Either[String, RenderedView] = {
 
 
-    SolrQueryService.getSolrItemReference(orgId, URLEncoder.encode(id, "utf-8"), idType, renderRelatedItems, configuration) match {
+    SolrQueryService.getSolrItemReference(URLEncoder.encode(id, "utf-8"), idType, renderRelatedItems) match {
       case Some(DocItemReference(hubId, defaultSchema, publicSchemas, relatedItems)) =>
         val prefix = if(schema.isDefined && publicSchemas.contains(schema.get)) {
           schema.get
@@ -116,7 +115,8 @@ object RecordRenderer {
                            viewType: ViewType,
                            language: String,
                            renderRelatedItems: Boolean,
-                           relatedItems: Seq[BriefDocItem])(implicit configuration: DomainConfiguration): Either[String, RenderedView]  = {
+                           relatedItems: Seq[BriefDocItem],
+                           parameters: Map[String, String] = Map.empty)(implicit configuration: DomainConfiguration): Either[String, RenderedView]  = {
 
       // let's do some rendering
       RecordDefinition.getRecordDefinition(schemaPrefix) match {
@@ -147,7 +147,7 @@ object RecordRenderer {
               log.debug(cleanRawRecord)
 
               // TODO see what to do with roles
-              val rendered: RenderedView = viewRenderer.get.renderRecord(cleanRawRecord, List.empty, definition.getNamespaces + ("delving" -> "http://www.delving.eu/schemas/"), Lang(language))
+              val rendered: RenderedView = viewRenderer.get.renderRecord(cleanRawRecord, List.empty, definition.getNamespaces + ("delving" -> "http://www.delving.eu/schemas/"), Lang(language), parameters)
               Right(rendered)
             } catch {
               case t: Throwable =>

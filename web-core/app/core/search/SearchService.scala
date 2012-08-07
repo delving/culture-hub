@@ -43,8 +43,8 @@ import scala.collection.immutable.ListMap
  */
 object SearchService {
 
-  def getApiResult(orgId: Option[String], request: RequestHeader, configuration: DomainConfiguration, hiddenQueryFilters: List[String] = List.empty): PlainResult =
-    new SearchService(orgId, request, hiddenQueryFilters)(configuration).getApiResult
+  def getApiResult(request: RequestHeader, configuration: DomainConfiguration, hiddenQueryFilters: List[String] = List.empty): PlainResult =
+    new SearchService(request, hiddenQueryFilters)(configuration).getApiResult
 
 
   def localiseKey(metadataField: String, language: String = "en", defaultLabel: String = "unknown"): String = {
@@ -53,7 +53,7 @@ object SearchService {
   }
 }
 
-class SearchService(orgId: Option[String], request: RequestHeader, hiddenQueryFilters: List[String] = List.empty)(implicit configuration: DomainConfiguration) {
+class SearchService(request: RequestHeader, hiddenQueryFilters: List[String] = List.empty)(implicit configuration: DomainConfiguration) {
 
   val log = Logger("CultureHub")
 
@@ -139,15 +139,15 @@ class SearchService(orgId: Option[String], request: RequestHeader, hiddenQueryFi
 
   private def getBriefResultsFromSolr: BriefItemView = {
     require(params.valueIsNonEmpty("query"))
-    val chQuery = SolrQueryService.createCHQuery(request, configuration, additionalSystemHQFs = hiddenQueryFilters)
-    BriefItemView(CHResponse(params, configuration, SolrQueryService.getSolrResponseFromServer(chQuery.solrQuery, configuration, true), chQuery))
+    val chQuery = SolrQueryService.createCHQuery(request, additionalSystemHQFs = hiddenQueryFilters)
+    BriefItemView(CHResponse(params, configuration, SolrQueryService.getSolrResponseFromServer(chQuery.solrQuery, true), chQuery))
   }
 
   private def getRenderedFullView(viewName: String, schema: Option[String] = None, renderRelatedItems: Boolean) = {
     require(params._contains("id"))
     val id = params.getValue("id")
     val idTypeParam = params.getValueOrElse("idType", HUB_ID)
-    RecordRenderer.getRenderedFullView(orgId, id, DelvingIdType(idTypeParam), apiLanguage, schema, renderRelatedItems)
+    RecordRenderer.getRenderedFullView(id, DelvingIdType(idTypeParam), apiLanguage, schema, renderRelatedItems)
   }
 
   def errorResponse(error: String = "Unable to respond to the API request",
