@@ -6,7 +6,7 @@ package controllers.search;
  */
 
 public class AdvancedSearchForm {
-    private static final String ALL_COLLECTIONS = "all";
+    private static final String ALL_OWNERS = "all";
     private String facet0 = "";
     private String value0 = "";
     private String operator1 = "";
@@ -24,9 +24,9 @@ public class AdvancedSearchForm {
     private String purchasePrice = "";
     private boolean allProvinces = true;
     private String[] provinceList = null;
-    private String allCollections = ALL_COLLECTIONS;
-    private String collection = "";
-    private String[] collectionList = null;
+    private String allOwners = ALL_OWNERS;
+    private String owner = "";
+    private String[] ownerList = null;
     private String vervaardigerscollectief = "";
     private String techniek = "";
     private String materiaal = "";
@@ -175,29 +175,29 @@ public class AdvancedSearchForm {
         this.provinceList = provinceList;
     }
 
-    public String getAllCollections() {
-        return allCollections;
+    public String getAllOwners() {
+        return allOwners;
     }
 
-    public void setAllCollections(String allCollections) {
-        this.allCollections = allCollections;
+    public void setAllOwners(String allOwners) {
+        this.allOwners = allOwners;
     }
 
 
-    public String getCollection() {
-        return collection;
+    public String getOwner() {
+        return owner;
     }
 
-    public void setCollection(String collection) {
-        this.collection = collection;
+    public void setOwner(String owner) {
+        this.owner = owner;
     }
 
-    public String[] getCollectionList() {
-        return collectionList;
+    public String[] getOwnerList() {
+        return ownerList;
     }
 
-    public void setCollectionList(String[] collectionList) {
-        this.collectionList = collectionList;
+    public void setOwnerList(String[] ownerList) {
+        this.ownerList = ownerList;
     }
 
     public String getSortBy() {
@@ -312,13 +312,13 @@ public class AdvancedSearchForm {
                 builder.append("&qf=icn_province:").append(prov);
             }
         }
-        if (collectionList != null && !ALL_COLLECTIONS.equals(allCollections)) {
-            for (String coll : collectionList) {
+        if (ownerList != null && !ALL_OWNERS.equals(allOwners)) {
+            for (String coll : ownerList) {
                 builder.append("&qf=delving_owner_facet:").append(coll);
             }
         }
-        if (isValid(collection) && !collection.equalsIgnoreCase("all_collections")) {
-            builder.append("&qf=delving_owner_facet:").append(collection).append("");
+        if (isValid(owner) && !owner.equalsIgnoreCase("all_owners")) {
+            builder.append("&qf=delving_owner_facet:").append(owner).append("");
         }
         if (isValid(getSortBy())) {
             builder.append("&sortBy=").append(getSortBy());
@@ -428,8 +428,8 @@ public class AdvancedSearchForm {
                 ", purchasePrice=" + purchasePrice +
                 ", allProvinces=" + allProvinces +
                 ", provinceList='" + provinceList + '\'' +
-                ", allCollections='" + allCollections + '\'' +
-                ", collection='" + collection + '\'' +
+                ", allCollections='" + allOwners + '\'' +
+                ", collection='" + owner + '\'' +
                 ", sortBy='" + sortBy + '\'' +
                 '}';
     }

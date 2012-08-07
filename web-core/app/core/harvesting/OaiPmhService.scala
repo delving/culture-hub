@@ -83,7 +83,7 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
     catch {
       case ace  : AccessKeyException => createErrorResponse("cannotDisseminateFormat", ace)
       case bae  : BadArgumentException => createErrorResponse("badArgument", bae)
-      case dsnf : DataSetNotFoundException => createErrorResponse("cannotDisseminateFormat", dsnf)
+      case dsnf : DataSetNotFoundException => createErrorResponse("noRecordsMatch", dsnf)
       case mnf  : MappingNotFoundException => createErrorResponse("cannotDisseminateFormat", mnf)
       case rpe  : RecordParseException => createErrorResponse("cannotDisseminateFormat", rpe)
       case rtnf : ResumptionTokenNotFoundException => createErrorResponse("badResumptionToken", rtnf)
@@ -223,7 +223,10 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
 
     if(format.isDefined && metadataFormat != format.get) throw new MappingNotFoundException("Invalid format provided for this URL")
 
-    val collection = AggregatingHarvestCollectionLookup.findBySpecAndOrgId(setName, orgId).getOrElse(throw new DataSetNotFoundException("unable to find set: " + setName))
+    val collection = AggregatingHarvestCollectionLookup.findBySpecAndOrgId(setName, orgId).getOrElse {
+      throw new DataSetNotFoundException("unable to find set: " + setName)
+    }
+
     if(!collection.getVisibleMetadataFormats(accessKey).exists(f => f.prefix == metadataFormat)) {
       throw new MappingNotFoundException("Format %s unknown".format(metadataFormat))
     }

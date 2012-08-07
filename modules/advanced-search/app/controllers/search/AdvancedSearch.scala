@@ -40,8 +40,8 @@ object AdvancedSearch extends DelvingController {
         form.setOperator2(field("operator2"))
         form.setFacet2(field("facet2"))
         form.setValue2(field("value2"))
-        form.setAllCollections(field("allCollections"))
-        form.setCollectionList(request.body.get("collectionList").getOrElse(Seq.empty).toArray)
+        form.setAllOwners(field("allOwners"))
+        form.setOwnerList(request.body.get("ownersList").getOrElse(Seq.empty).toArray)
 
         val query = form.toSolrQuery
 

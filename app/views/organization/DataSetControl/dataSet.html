@@ -78,7 +78,7 @@
                             #{form.populatedSelectField name: "facts." + factDef.name, form: dataSetForm, label: factDef.prompt, options: factDef.opts, dataBind: "value: facts." + factDef.name, help: factDef.tooltip /}
                         #{/if}
                         #{else}
-                            #{form.textField name: "facts." + factDef.name, form: dataSetForm, label: factDef.prompt, dataBind: "value: facts." + factDef.name, help: factDef.tooltip, isDisabled: factDef.automatic /}
+                            #{form.textField  name: "facts." + factDef.name, form: dataSetForm, label: factDef.prompt, dataBind: "value: facts." + factDef.name, help: factDef.tooltip, isDisabled: factDef.automatic /}
                         #{/else}
 
                         %{ }}%
@@ -101,7 +101,7 @@
                                         <option value="public">Public access</option>
                                         <option value="protected">Protected access</option>
                                     </select>
-                                    <span id="protected-${recordDef}" style="display: none;">
+                                    <span id="protected-${recordDef}" style="visibility: hidden;">
                                         <label for="accessKey-${recordDef}">Access key</label>
                                         <input type="text" id="accessKey-${recordDef}">
                                     </span>
@@ -156,7 +156,7 @@
                 $('#oaiAccess-' + access.format()).val(access.accessType());
                 if(access.accessType() == 'protected') {
                     $('#accessKey-' + access.format()).val(access.accessKey());
-                    $('#protected-' + access.format()).css('display', 'block');
+                    $('#protected-' + access.format()).css('visibility', 'visible');
                 }
             });
 

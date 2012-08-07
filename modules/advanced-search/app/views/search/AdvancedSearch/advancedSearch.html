@@ -66,23 +66,23 @@
                 </div>
             </div>
 
-            *{ SELECT COLLECTIONS }*
+            *{ SELECT OWNERS }*
             <div class="control-group">
               <label class="control-label">&{'metadata.delving.owner'}</label>
               <div class="controls">
-                <select name="allCollections" id="select-collections">
+                <select name="allOwners" id="select-owners">
                   <option selected="selected" value="all">&{'plugin.advancedsearch.allProviders'}</option>
                   <option value="select">&{'plugin.advancedsearch.selectProviders'}</option>
                 </select>
-                <div id="collection-list" class="clearfix">
-                  <input type="text" id="collectionList">
+                <div id="owners-list" class="clearfix" style="display: none;">
+                  <input type="text" id="ownersList">
                 </div>
               </div>
             </div>
 
             *{ ORDER BY }*
             <div class="control-group">
-                <label class="control-label">Sorteren op</label>
+                <label class="control-label">&{'search.sortby'}/label>
 
                 <div class="controls">
                     <select name="sortBy">
@@ -90,7 +90,7 @@
                         <option value="title">&{'metadata.dc.title'}</option>
                         <option value="creator">&{'metadata.dc.creator'}</option>
                         <option value="YEAR">&{'metadata.tib.year'}</option>
-                        <option value="COLLECTION">&{'metadata.abm.contentProvider'}</option>
+                        <option value="OWNER">&{'metadata.delving.owner'}</option>
                     </select>
                 </div>
             </div>
@@ -112,18 +112,18 @@
 
 <script>
     jQuery(document).ready(function() {
-        $("#collection-list .collection").on("click", function(){
+        $("#owners-list .collection").on("click", function(){
              $(this).next("span.label").toggleClass("label-success");
         });
-        $("#select-collections").change(function() {
-            if ($("#select-collections :selected").val() == "select") {
-                $("#collection-list").show("slow");
+        $("#select-owners").change(function() {
+            if ($("#select-owners :selected").val() == "select") {
+                $("#owners-list").show("slow");
             }
-            if ($("#select-collections :selected").val() == "all") {
-                $("#collection-list").hide("slow");
+            if ($("#select-owners :selected").val() == "all") {
+                $("#owners-list").hide("slow");
             }
         });
-        $('#collectionList').tokenInput('/organizations/${orgId}/api/search?explain=fieldValue&field=delving_owner_facet&value=&format=json', {
+        $('#ownersList').tokenInput('/organizations/${orgId}/api/search?explain=fieldValue&field=delving_owner_facet&value=&format=json', {
           queryParam: 'value',
           propertyToSearch: 'value',
           jsonContainer: 'results',
@@ -131,16 +131,16 @@
           minChars: 0
         });
         $("#reset").on("click", function(){
-            $("#collection-list").hide("slow");
+            $("#owners-list").hide("slow");
             $("span.label").removeClass("label-success");
         });
         $('#search').click(function(event) {
           event.preventDefault();
-          var collections = _.map($('#collectionList').tokenInput('get'), function(element) {
-            return '&collectionList=' + encodeURIComponent(element['value']);
+          var owners = _.map($('#ownersList').tokenInput('get'), function(element) {
+            return '&ownersList=' + encodeURIComponent(element['value']);
           });
 
-          var qs = $('#advancedSearchForm').serialize() + collections;
+          var qs = $('#advancedSearchForm').serialize() + owners;
 
           $.post('/search/advanced', qs, function(data) {
             document.location = data;
