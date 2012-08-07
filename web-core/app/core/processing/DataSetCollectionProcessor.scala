@@ -117,7 +117,7 @@ object DataSetCollectionProcessor {
       // it does not matter how long we wait
       // hence, we just trigger it here, and ignore the exception.
       try {
-        IndexingService.runQuery(new SolrQuery("%s:%s".format(SPEC, dataSet.spec)), configuration)
+        IndexingService.runQuery(new SolrQuery("%s:%s %s:%s".format(SPEC, dataSet.spec, ORG_ID, dataSet.orgId)), configuration)
       } catch {
         case t => // as described earlier on, just ignore this exception
       }

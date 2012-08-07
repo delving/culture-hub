@@ -30,7 +30,7 @@ object Search extends DelvingController {
             if (!orgId.isEmpty)
               hiddenQueryFilters += "%s:%s".format(ORG_ID, orgId)
 
-            SearchService.getApiResult(Some(orgId), request, configuration, hiddenQueryFilters.toList)
+            SearchService.getApiResult(request, configuration, hiddenQueryFilters.toList)
 
           } map {
             // CORS - see http://www.w3.org/TR/cors/

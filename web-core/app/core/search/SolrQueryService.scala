@@ -186,12 +186,12 @@ object SolrQueryService extends SolrServer {
       ).toList
   }
 
-  def createCHQuery(request: RequestHeader, configuration: DomainConfiguration, connectedUser: Option[String] = None, additionalSystemHQFs: List[String] = List.empty[String]): CHQuery = {
+  def createCHQuery(request: RequestHeader, connectedUser: Option[String] = None, additionalSystemHQFs: List[String] = List.empty[String])(implicit configuration: DomainConfiguration): CHQuery = {
     val params = Params(request.queryString)
-    createCHQuery(params, configuration, connectedUser, additionalSystemHQFs)
+    createCHQuery(params, connectedUser, additionalSystemHQFs)
   }
 
-  def createCHQuery(params: Params, configuration: DomainConfiguration, connectedUser: Option[String], additionalSystemHQFs: List[String]): CHQuery = {
+  def createCHQuery(params: Params, connectedUser: Option[String], additionalSystemHQFs: List[String])(implicit configuration: DomainConfiguration): CHQuery = {
 
     def getAllFilterQueries(fqKey: String): Array[String] = {
       params.all.filter(key => key._1.equalsIgnoreCase(fqKey) || key._1.equalsIgnoreCase("%s[]".format(fqKey))).flatMap(entry => entry._2).toArray
@@ -237,23 +237,24 @@ object SolrQueryService extends SolrServer {
 
 
     addPrefixedFilterQueries (filterQueries ++ hiddenQueryFilters, query)
-    val defaultSystemHQFs = if (connectedUser.isEmpty) List("%s:10".format(VISIBILITY)) else List("%s:10 OR %s:\"%s\"".format(VISIBILITY, OWNER, connectedUser.get))
-    val systemHQFs  =  defaultSystemHQFs  ++ additionalSystemHQFs
+
+    // manu: deactivated this query since we don't have this kind of access rights any longer
+    // val defaultSystemHQFs = if (connectedUser.isEmpty) List("%s:10".format(VISIBILITY)) else List("%s:10 OR %s:\"%s\"".format(VISIBILITY, OWNER, connectedUser.get))
+
+    val defaultSystemHQFs = List("""delving_orgId:%s""".format(configuration.orgId)) // always filter by organization
+
+    val systemHQFs =  defaultSystemHQFs ++ additionalSystemHQFs
     systemHQFs.foreach(fq => query addFilterQuery (fq))
     CHQuery(query, format, filterQueries, hiddenQueryFilters, systemHQFs)
   }
 
 
-  def getSolrItemReference(orgId: Option[String], id: String, idType: DelvingIdType, findRelatedItems: Boolean, configuration: DomainConfiguration): Option[DocItemReference] = {
+  def getSolrItemReference(id: String, idType: DelvingIdType, findRelatedItems: Boolean)(implicit configuration: DomainConfiguration): Option[DocItemReference] = {
     val t = idType.resolve(id)
-    val solrQuery = if(orgId.isDefined) {
-      if (idType == DelvingIdType.LEGACY) {
-        "%s:\"%s\" delving_orgId:%s".format(t.idSearchField, URLDecoder.decode(t.normalisedId, "utf-8"), orgId.get)
-      } else {
-        "%s:\"%s\" delving_orgId:%s".format(t.idSearchField, t.normalisedId, orgId.get)
-      }
+    val solrQuery = if (idType == DelvingIdType.LEGACY) {
+      "%s:\"%s\" delving_orgId:%s".format(t.idSearchField, URLDecoder.decode(t.normalisedId, "utf-8"), configuration.orgId)
     } else {
-      "%s:\"%s\"".format(t.idSearchField, t.normalisedId)
+      "%s:\"%s\" delving_orgId:%s".format(t.idSearchField, t.normalisedId, configuration.orgId)
     }
     val query = new SolrQuery(solrQuery)
     if (findRelatedItems) {
@@ -270,7 +271,7 @@ object SolrQueryService extends SolrServer {
       query.set("mlt.match.include", java.lang.Boolean.TRUE)
       query.set("mlt.interestingTerms", "details")
     }
-    val response = SolrQueryService.getSolrResponseFromServer(query, configuration)
+    val response = SolrQueryService.getSolrResponseFromServer(query)
     if(response.getResults.size() == 0) {
       Logger("Search").info("Didn't find record for query:  %s".format(solrQuery))
       None
@@ -299,7 +300,7 @@ object SolrQueryService extends SolrServer {
     }
   }
 
-  def getSolrResponseFromServer(solrQuery: SolrQuery, configuration: DomainConfiguration, decrementStart: Boolean = false): QueryResponse = {
+  def getSolrResponseFromServer(solrQuery: SolrQuery, decrementStart: Boolean = false)(implicit configuration: DomainConfiguration): QueryResponse = {
 
     // solr is 0 based so we need to decrement from our page start
     if (solrQuery.getStart != null && solrQuery.getStart.intValue() < 0) {

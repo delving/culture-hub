@@ -33,30 +33,50 @@ object Admin extends OrganizationController {
     Action {
       implicit request =>
         val museums = WS.url(museumUrl).get().await(timeout, TimeUnit.SECONDS).fold(t => { log.error("Could not sync museums at " + museumUrl); None } , r => Some(r.body))
-        val syncedMuseums = museums.map(r => scala.xml.XML.loadString(r) \ "actor").map(sync(_, orgId, "museum", {
-              museum =>
-                Map(
-                    TITLE -> List((museum \ "name").text.trim),
-                    DESCRIPTION -> List((museum \ "description").text.trim),
-                    THUMBNAIL -> List((museum \ "image").text.trim)
-                   )
-            })).getOrElse(0)
+
+        val extractMuseumSystemFields: NodeSeq => MultiMap = { museum =>
+            Map(
+                TITLE -> List((museum \ "name").text.trim),
+                DESCRIPTION -> List((museum \ "description").text.trim),
+                THUMBNAIL -> List((museum \ "image").text.trim)
+               )
+        }
+
+        val extractMuseumFacetFields: NodeSeq => Map[String, String] = { museum =>
+          Map(
+            "musip_municipality" -> (museum \ "municipality").text.trim,
+            "musip_province" -> (museum \ "province").text.trim
+          )
+
+        }
+
+        val syncedMuseums = museums.
+                map(r => scala.xml.XML.loadString(r) \ "actor").
+                map(sync(_, orgId, "museum", extractMuseumSystemFields, extractMuseumFacetFields)).
+                getOrElse(0)
 
         val collections = WS.url(collectionUrl).get().await(timeout, TimeUnit.SECONDS).fold(t => { log.error("Could not sync collections at URL " + collectionUrl); None }, r => Some(r.body))
-        val syncedCollections = collections.map(r => scala.xml.XML.loadString(r) \ "collection").map(sync(_, orgId, "collection", {
-          collection =>
+
+        val extractCollectionSystemFields: NodeSeq => MultiMap = { collection =>
             Map(
                 TITLE -> List((collection \ "name").text.trim),
                 DESCRIPTION -> List((collection \ "description").text.trim),
                 THUMBNAIL -> (collection \ "images" \ "url").map(_.text.trim).toList
                )
-        })).getOrElse(0)
+        }
+
+        val extractCollectionFacetsFields: NodeSeq => Map[String, String] = { collection => Map.empty }
+
+        val syncedCollections = collections.
+                map(r => scala.xml.XML.loadString(r) \ "collection").
+                map(sync(_, orgId, "collection", extractCollectionSystemFields, extractCollectionFacetsFields)).
+                getOrElse(0)
 
         Ok("Synchronized %s museums and %s collections".format(syncedMuseums, syncedCollections))
     }
   }
 
-  private def sync(items: NodeSeq, orgId: String, itemType: String, extractSystemFields: NodeSeq => MultiMap): Int = {
+  private def sync(items: NodeSeq, orgId: String, itemType: String, extractSystemFields: NodeSeq => MultiMap, extractFacetFields: NodeSeq => Map[String, String]): Int = {
 
     implicit val configuration = DomainConfigurationHandler.getByOrgId(orgId)
 
@@ -86,6 +106,12 @@ object Admin extends OrganizationController {
       doc.addField(RECORD_TYPE, itemType)
       doc.addField(SYSTEM_TYPE, HUB_ITEM)
       doc.addField(HUB_URI, "/%s/%s/%s".format(orgId, itemType, localId))
+
+      // facets
+      extractFacetFields(i).foreach { facetField =>
+        doc.addField(facetField._1, facetField._2)
+        doc.addField(facetField._1 + "_facet", facetField._2)
+      }
 
       IndexingService.stageForIndexing(doc)(DomainConfigurationHandler.getByOrgId(orgId))
     }
