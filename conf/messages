@@ -305,13 +305,18 @@ metadata.dcterms.temporal=Temporal coverage
 metadata.dcterms.rightsHolder=Rights holder
 metadata.dcterms.extent=Extent
 
-metadata.delving.dimensions=Dimensions
+### Delving NS
+
 metadata.delving.owner=Owner
 metadata.delving.creator=Creator
 metadata.delving.provider=Provider
 metadata.delving.owner=Data Provider
 metadata.delving.recordType=Record type
 metadata.delving.hasDigitalObject=Record has a digital object
+
+## TODO remove
+metadata.delving.dimensions=Dimensions
+
 
 metadata.europeana.country=Country
 metadata.europeana.dataProvider=Data Provider
