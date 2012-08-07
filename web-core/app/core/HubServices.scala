@@ -61,11 +61,14 @@ object HubServices {
           u => memoryServices.users += u
         }
 
-        // add example organization
-
+        // add example organizations
         DomainConfigurationHandler.domainConfigurations.foreach { configuration =>
           val org = MemoryOrganization(orgId = configuration.orgId, name = Map("en" -> configuration.orgId.capitalize), admins = List("bob"))
           memoryServices.organizations += (configuration.orgId -> org)
+
+          // now ensure that bob is memeber everywhere
+          HubUser.dao(configuration).addToOrganization("bob", configuration.orgId)
+
         }
         memoryServices
 
