@@ -53,7 +53,7 @@ object RecordRenderer {
           renderMetadataRecord(prefix, URLDecoder.decode(hubId, "utf-8"), ViewType.API, language, renderRelatedItems, relatedItems)
         }
       case None =>
-        Left("Could not resolve identifier for hubId '%s' and idType '%s'".format(id, idType))
+        Left("Could not resolve identifier for hubId '%s' and idType '%s'".format(id, idType.idType))
     }
   }
 
@@ -147,7 +147,7 @@ object RecordRenderer {
               log.debug(cleanRawRecord)
 
               // TODO see what to do with roles
-              val rendered: RenderedView = viewRenderer.get.renderRecord(cleanRawRecord, List.empty, definition.getNamespaces, Lang(language))
+              val rendered: RenderedView = viewRenderer.get.renderRecord(cleanRawRecord, List.empty, definition.getNamespaces + ("delving" -> "http://www.delving.eu/schemas/"), Lang(language))
               Right(rendered)
             } catch {
               case t: Throwable =>
