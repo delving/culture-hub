@@ -30,9 +30,8 @@ object MetadataCache {
   def getMongoCollectionName(orgId: String) = "%s_MetadataCache".format(orgId)
 
   def get(orgId: String, col: String, itemType: String): core.MetadataCache = {
-    // FIXME TODO cache the connection set-up!!!!
     val configuration = DomainConfigurationHandler.getByOrgId(orgId)
-    val mongoConnection = createConnection(configuration.mongoDatabase)
+    val mongoConnection = mongoConnections(configuration)
     val mongoCollection: MongoCollection = mongoConnection(getMongoCollectionName(configuration.orgId))
     mongoCollection.ensureIndex(MongoDBObject("collection" -> 1, "itemType" -> 1, "itemId" -> 1))
     mongoCollection.ensureIndex(MongoDBObject("collection" -> 1, "itemType" -> 1))

@@ -16,8 +16,8 @@ import models.{Visibility, DomainConfiguration}
 object CommonSearch extends DelvingController {
 
   def search(user: Option[String], query: List[String])(implicit request: RequestHeader, configuration: DomainConfiguration) = {
-    val chQuery = SolrQueryService.createCHQuery(request, configuration, user, query)
-    val queryResponse = SolrQueryService.getSolrResponseFromServer(chQuery.solrQuery, configuration, true)
+    val chQuery = SolrQueryService.createCHQuery(request, user, query)
+    val queryResponse = SolrQueryService.getSolrResponseFromServer(chQuery.solrQuery, true)
     val chResponse = CHResponse(Params(request.queryString), configuration, queryResponse, chQuery)
     val briefItemView = BriefItemView(chResponse)
 

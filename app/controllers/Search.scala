@@ -14,7 +14,7 @@ import com.mongodb.casbah.Imports._
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-object Search extends DelvingController {
+object  Search extends DelvingController {
 
   // TODO move later
   lazy val viewRenderers: Map[DomainConfiguration, Map[String, ViewRenderer]] = RecordDefinition.enabledDefinitions.map {
@@ -35,7 +35,11 @@ object Search extends DelvingController {
         try {
 
           val solrQuery = request.queryString.getFirst("searchIn").map { searchIn =>
-            List("""%s:"%s"""".format(searchIn, query))
+            if(searchIn == "all") {
+              List(query)
+            } else {
+              List("""%s:"%s"""".format(searchIn, query))
+            }
           }.getOrElse(List(query))
 
           val (items, briefItemView) = CommonSearch.search(Option(connectedUser), solrQuery)
@@ -97,7 +101,7 @@ object Search extends DelvingController {
                 if(renderingSchema.isEmpty) {
                   NotFound(Messages("heritageObject.notViewable", "No appropriate rendering schema could be found"))
                 } else {
-                  val renderResult = RecordRenderer.renderMetadataRecord(hubId, mdr.xml(renderingSchema.get), renderingSchema.get, renderingSchema.get, ViewType.HTML, getLang, false, Seq.empty)
+                  val renderResult = RecordRenderer.renderMetadataRecord(hubId, mdr.xml(renderingSchema.get), renderingSchema.get, renderingSchema.get, ViewType.HTML, getLang, false, Seq.empty, facts.toMap)
 
                   if(renderResult.isRight) {
                     val updatedSession = if (request.headers.get(REFERER) == None || !request.headers.get(REFERER).get.contains("search")) {
