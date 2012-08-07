@@ -54,15 +54,18 @@ $(document).ready(function() {
     var mltEndpoint = "/organizations/${orgId}/api/search?id=${hubId}&format=json&mlt=true";
 
     $.get(mltEndpoint, function(data) {
-        var rItems = data.result.relatedItems.item, html ='', objId, tmp;
+        var rItems = data.result.relatedItems.item, html ='', tmp, org, owner, id, uri;
         console.log(rItems);
         if(rItems){
             html = '<h4>&{'thing.relatedItems'}</h4><ul class="thumbnails">';
             $.each(rItems, function(i, item){
                 tmp = item['delving_hubId'].split('_');
-                objId = tmp[tmp.length];
+                org = tmp[0];
+                owner = tmp[1];
+                id = tmp[2];
+                uri = "/"+org+"/thing/"+owner+"/"+id;
                 html += '<li class="thumbnail">'
-                html += '<a href="' + objId + '" rel="nofollow"><img src="' + item['delving_thumbnail'] + '" alt="' + item['delving_title'] +'" width="100"/></a></li>';
+                html += '<a href="' + uri + '" rel="nofollow"><img class="mlt" src="' + item['delving_thumbnail'] + '" alt="' + item['delving_title'] +'" width="100"/></a></li>';
             });
             html += "</ul>";
             $('.related-items').html(html);
