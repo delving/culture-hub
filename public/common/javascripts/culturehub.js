@@ -856,6 +856,10 @@ function showDefaultImg(obj){
     obj.src = "/assets/common/images/dummy-object.png";
 }
 
+
+/**
+ * Utility class to check if href url is internal or external
+ */
 var externalLinks = function(){
     var hostname = window.location.hostname;
     hostname = hostname.replace("www.","").toLowerCase();

@@ -167,6 +167,7 @@ thing.startYear=Start jaar
 thing.endYear=Eind jaar
 thing.keyword=Trefwoord
 thing.keywords=Trefwoorden
+thing.relatedItems=Gerelateerde content
 
 
 
@@ -271,7 +272,7 @@ metadata.delving.dimensions=Afmeting
 metadata.delving.owner=Eigenaar
 metadata.delving.creator=Vervaardiger
 metadata.delving.recordType=Record type
-metadata.delving.hasDigitalObject=Record heeft een digital object
+metadata.delving.hasDigitalObject=Record heeft een digitaal object
 
 
 metadata.europeana.country=Land
