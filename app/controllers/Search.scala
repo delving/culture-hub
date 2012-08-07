@@ -99,7 +99,7 @@ object  Search extends DelvingController {
                 }
 
                 if(renderingSchema.isEmpty) {
-                  NotFound(Messages("heritageObject.notViewable", "No appropriate rendering schema could be found"))
+                  NotFound(Messages("rendering.notViewable", "This object cannot be displayed because no appropriate rendering schema could be found"))
                 } else {
                   val renderResult = RecordRenderer.renderMetadataRecord(hubId, mdr.xml(renderingSchema.get), renderingSchema.get, renderingSchema.get, ViewType.HTML, getLang, false, Seq.empty, facts.toMap)
 
