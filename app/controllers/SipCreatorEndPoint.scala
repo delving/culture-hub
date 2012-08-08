@@ -222,7 +222,7 @@ object SipCreatorEndPoint extends ApplicationController {
                 }
               }
               case "validation" if extension == "int" => receiveInvalidRecords(dataSet.get, prefix, inputStream)
-              case x if x.startsWith("stats-") => receiveSourceStats(dataSet.get, inputStream, request.body.file)
+              case x if x.startsWith("stats-") => receiveSourceStats(dataSet.get, inputStream, prefix, fileName, request.body.file)
               case _ => {
                 val msg = "Unknown file type %s".format(kind)
                 Left(msg)
@@ -260,7 +260,7 @@ object SipCreatorEndPoint extends ApplicationController {
     Right("Good news everybody")
   }
 
-  private def receiveSourceStats(dataSet: DataSet, inputStream: InputStream, file: File)(implicit configuration: DomainConfiguration): Either[String, String] = {
+  private def receiveSourceStats(dataSet: DataSet, inputStream: InputStream, schemaPrefix: String, fileName: String, file: File)(implicit configuration: DomainConfiguration): Either[String, String] = {
     try {
       val f = hubFileStore(configuration).createFile(file)
 
@@ -268,6 +268,7 @@ object SipCreatorEndPoint extends ApplicationController {
 
       val context = DataSetStatisticsContext(dataSet.orgId,
                                              dataSet.spec,
+                                             schemaPrefix,
                                              dataSet.details.facts.get("provider").toString,
                                              dataSet.details.facts.get("dataProvider").toString,
                                              if(dataSet.details.facts.containsField("providerUri")) dataSet.details.facts.get("providerUri").toString else "",
@@ -277,8 +278,10 @@ object SipCreatorEndPoint extends ApplicationController {
       f.put("contentType", "application/x-gzip")
       f.put("orgId", dataSet.orgId)
       f.put("spec", dataSet.spec)
+      f.put("schema", schemaPrefix)
       f.put("uploadDate", context.uploadDate)
       f.put("hubFileType", "source-statistics")
+      f.put("filename", fileName)
       f.save
 
       val dss = DataSetStatistics(
@@ -527,7 +530,11 @@ object SipCreatorEndPoint extends ApplicationController {
 
     val parser = new SimpleDataSetParser(source, dataSet)
 
-    val totalRecords = DataSetStatistics.dao.getMostRecent(dataSet.orgId, dataSet.spec).map(_.recordCount)
+    // use the uploaded statistics to know how many records we expect. For that purpose, use the mappings to know what prefixes we have...
+    // TODO we should have a more direct route to know what to expect here.
+    val totalRecords = dataSet.mappings.keySet.headOption.flatMap { schema =>
+      DataSetStatistics.dao.getMostRecent(dataSet.orgId, dataSet.spec, schema).map(_.recordCount)
+    }
     val modulo = if(totalRecords.isDefined) math.round(totalRecords.get / 100) else 100
 
     def onRecordInserted(count: Long) {
