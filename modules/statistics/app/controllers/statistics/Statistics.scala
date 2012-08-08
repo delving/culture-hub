@@ -7,6 +7,10 @@ import collection.JavaConverters._
 import models.statistics.DataSetStatistics
 
 /**
+ * Prototype statistics plugin based on the statistics provided by the Sip-Creator.
+ *
+ * TODO configurable schema
+ * TODO generify the fields we're most interested in, i.e. make some kind of interoperability mapping for them.
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
@@ -20,7 +24,7 @@ object Statistics extends OrganizationController {
         val statistics = DataSet.dao.findAll(orgId).map {
           ds => {
 
-            DataSetStatistics.dao.getMostRecent(ds.orgId, ds.spec).map {
+            DataSetStatistics.dao.getMostRecent(ds.orgId, ds.spec, "icn").map {
               stats =>
                 val total = stats.recordCount
 
