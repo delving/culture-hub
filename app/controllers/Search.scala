@@ -114,7 +114,18 @@ object  Search extends DelvingController {
                     val returnToResults = updatedSession.get(RETURN_TO_RESULTS).getOrElse("")
                     val searchTerm = updatedSession.get(SEARCH_TERM).getOrElse("")
 
-                    Ok(Template("Search/object.html", 'systemFields -> mdr.systemFields, 'fullView -> renderResult.right.get.toViewTree, 'returnToResults -> returnToResults, 'searchTerm -> searchTerm, 'orgId -> orgId, 'hubId -> hubId)).withSession(updatedSession)
+                    Ok(
+                      Template(
+                        "Search/object.html",
+                        'systemFields -> mdr.systemFields,
+                        'fullView -> renderResult.right.get.toViewTree,
+                        'returnToResults -> returnToResults,
+                        'searchTerm -> searchTerm,
+                        'orgId -> orgId,
+                        'hubId -> hubId,
+                        'rights -> collection.getRights
+                      )
+                    ).withSession(updatedSession)
 
                   } else {
                     NotFound(Messages("rendering.notViewable", "Error during rendering: " + renderResult.left.get))
