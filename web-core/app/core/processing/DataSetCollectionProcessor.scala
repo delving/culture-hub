@@ -40,7 +40,7 @@ object DataSetCollectionProcessor {
       }
     }
 
-    val crosswalks: Seq[(RecordDefinition, URL)] = selectedSchemas.map(source => (source -> RecordDefinition.getCrosswalkResources(configuration, source.prefix))).flatMap(cw => cw._2.map(c => (cw._1, c)))
+    val crosswalks: Seq[(RecordDefinition, URL)] = selectedSchemas.map(source => (source -> RecordDefinition.getCrosswalkResources(source.prefix))).flatMap(cw => cw._2.map(c => (cw._1, c)))
     val crosswalkSchemas: Seq[ProcessingSchema] = crosswalks flatMap {
       c =>
         val prefix = c._2.getPath.substring(c._2.getPath.indexOf(c._1.prefix + "-")).split("-")(0)

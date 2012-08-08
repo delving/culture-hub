@@ -38,8 +38,8 @@ case class DataSetCreationViewModel(id: Option[ObjectId] = None,
                             spec: String = "",
                             facts: HardcodedFacts = HardcodedFacts(),
                             recordDefinitions: Seq[String] = Seq.empty,
-                            allRecordDefinitions: List[String],
-                            oaiPmhAccess: List[OaiPmhAccessViewModel],
+                            allRecordDefinitions: Seq[String],
+                            oaiPmhAccess: Seq[OaiPmhAccessViewModel],
                             indexingMappingPrefix: Option[String] = None,
                             errors: Map[String, String] = Map.empty) extends ViewModel
 
@@ -92,8 +92,8 @@ object DataSetCreationViewModel {
         "type" -> nonEmptyText
       )(HardcodedFacts.apply)(HardcodedFacts.unapply),
       "recordDefinitions" -> seq(text),
-      "allRecordDefinitions" -> list(text),
-      "oaiPmhAccess" -> list(
+      "allRecordDefinitions" -> seq(text),
+      "oaiPmhAccess" -> seq(
         mapping(
           "format" -> nonEmptyText,
           "accessType" -> nonEmptyText,
@@ -114,12 +114,12 @@ object DataSetControl extends OrganizationController {
     Action {
       implicit request =>
         val dataSet = if (spec == None) None else DataSet.dao.findBySpecAndOrgId(spec.get, orgId)
-        val allRecordDefinitions: List[String] = RecordDefinition.recordDefinitions.map(r => r.prefix).toList
+        val allRecordDefinitions: Seq[String] = RecordDefinition.enabledDefinitions(configuration)
 
         val data = if (dataSet == None) {
           JJson.generate(DataSetCreationViewModel(
             allRecordDefinitions = allRecordDefinitions,
-            oaiPmhAccess = RecordDefinition.recordDefinitions.map(rDef => OaiPmhAccessViewModel(rDef.prefix))
+            oaiPmhAccess = RecordDefinition.enabledDefinitions(configuration).map(prefix => OaiPmhAccessViewModel(prefix))
           ))
         } else {
           val dS = dataSet.get
@@ -147,7 +147,7 @@ object DataSetControl extends OrganizationController {
           'data -> data,
           'dataSetForm -> DataSetCreationViewModel.dataSetForm,
           'factDefinitions -> DataSet.factDefinitionList.filterNot(factDef => factDef.automatic || factDef.name == "spec").toList,
-          'recordDefinitions -> RecordDefinition.recordDefinitions.map(rDef => rDef.prefix)
+          'recordDefinitions -> RecordDefinition.enabledDefinitions(configuration)
         ))
     }
   }
@@ -172,7 +172,7 @@ object DataSetControl extends OrganizationController {
 
             def buildMappings(recordDefinitions: Seq[String]): Map[String, Mapping] = {
               val mappings = recordDefinitions.map {
-                recordDef => (recordDef, Mapping(format = RecordDefinition.recordDefinitions.filter(rDef => rDef.prefix == recordDef).head))
+                recordDef => (recordDef, Mapping(format = RecordDefinition.getRecordDefinition(recordDef).get))
               }
               mappings.toMap[String, Mapping]
             }

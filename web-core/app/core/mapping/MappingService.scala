@@ -24,7 +24,7 @@ object MappingService {
     try {
       Logger("CultureHub").info("Initializing MappingService")
 
-      val recordDefinitions = RecordDefinition.getRecordDefinitionResources
+      val recordDefinitions = RecordDefinition.getRecordDefinitionResources(None)
       recordDefinitions.foreach {
         definition => Logger("CultureHub").info("Loading record definition: " + definition.getPath)
       }

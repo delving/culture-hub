@@ -72,6 +72,8 @@ object TestDataLoader {
   }
 
   private def bootstrapDatasets() {
+    implicit val configuration = DomainConfigurationHandler.getByOrgId(("delving"))
+
     val factMap = new BasicDBObject()
     factMap.put("spec", "PrincesseofSample")
     factMap.put("name", "Princessehof Sample Dataset")
@@ -97,7 +99,7 @@ object TestDataLoader {
       idxMappings = List("icn"),
       invalidRecords = Map("icn" -> List(1)),
       mappings = Map("icn" -> Mapping(
-        format = RecordDefinition.recordDefinitions.filter(rDef => rDef.prefix == "icn").head,
+        format = RecordDefinition.getRecordDefinition("icn").get,
         recordMapping = Some(Source.fromInputStream(Play.application.resource("/bootstrap/A2098A0036EAC14E798CA3B653B96DD5__mapping_icn.xml").get.openStream()).getLines().mkString("\n"))
       )),
       formatAccessControl = Map("icn" -> FormatAccessControl(accessType = "public"))

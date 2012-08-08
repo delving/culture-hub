@@ -296,8 +296,8 @@ class DataSetDAO(collection: MongoCollection) extends SalatDAO[DataSet, ObjectId
     // TODO fire off appropriate state change event
   }
 
-  def updateMapping(dataSet: DataSet, mapping: RecMapping): DataSet = {
-    val ns: Option[RecordDefinition] = RecordDefinition.recordDefinitions.filter(rd => rd.prefix == mapping.getPrefix).headOption
+  def updateMapping(dataSet: DataSet, mapping: RecMapping)(implicit configuration: DomainConfiguration): DataSet = {
+    val ns: Option[RecordDefinition] = RecordDefinition.getRecordDefinition(mapping.getPrefix)
     if (ns == None) {
       throw new MetaRepoSystemException(String.format("Namespace prefix %s not recognized", mapping.getPrefix))
     }

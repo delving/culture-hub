@@ -84,23 +84,27 @@ object RecordDefinition {
   lazy val enabledCrosswalks: Map[DomainConfiguration, Seq[String]] = DomainConfigurationHandler.domainConfigurations.
       map(configuration => (configuration -> configuration.crossWalks)).toMap
 
-  def recordDefinitions = parseRecordDefinitions
+  def getRecordDefinition(prefix: String)(implicit configuration: DomainConfiguration): Option[RecordDefinition] = parseRecordDefinitions.find(_.prefix == prefix)
 
-  def getRecordDefinition(prefix: String): Option[RecordDefinition] = recordDefinitions.find(_.prefix == prefix)
+  def getRecordDefinitionResources(configuration: Option[DomainConfiguration]): Seq[URL] = {
+    val prefixes = configuration.map { conf =>
+      enabledDefinitions(conf)
+    }.getOrElse {
+      enabledDefinitions.values
+    }
 
-  def getRecordDefinitionResources: Seq[URL] = {
-    enabledDefinitions.values.flatMap(seq => seq.flatMap(prefix => Play.resource("definitions/%s/%s-record-definition.xml".format(prefix, prefix)))).toSeq
+    prefixes.flatMap(prefix => Play.resource("definitions/%s/%s-record-definition.xml".format(prefix, prefix))).toSeq
   }
 
-  def getCrosswalkResources(configuration: DomainConfiguration, sourcePrefix: String): Seq[URL] = {
+  def getCrosswalkResources(sourcePrefix: String)(implicit configuration: DomainConfiguration): Seq[URL] = {
     enabledCrosswalks(configuration).
       filter(_.startsWith(sourcePrefix)).
       flatMap(prefix => Play.resource("definitions/%s/%s-crosswalk.xml".format(sourcePrefix, prefix))).
       toSeq
   }
 
-  private def parseRecordDefinitions: List[RecordDefinition] = {
-    val definitionContent = getRecordDefinitionResources.map { r => XML.load(r) }
+  private def parseRecordDefinitions(implicit configuration: DomainConfiguration): List[RecordDefinition] = {
+    val definitionContent = getRecordDefinitionResources(Some(configuration)).map { r => XML.load(r) }
     definitionContent.flatMap(parseRecordDefinition(_)).toList
   }
 

@@ -255,7 +255,7 @@ object SipCreatorEndPoint extends ApplicationController {
     Right("All clear")
   }
 
-  private def receiveMapping(dataSet: DataSet, recordMapping: RecMapping, spec: String, hash: String): Either[String, String] = {
+  private def receiveMapping(dataSet: DataSet, recordMapping: RecMapping, spec: String, hash: String)(implicit configuration: DomainConfiguration): Either[String, String] = {
     DataSet.dao(dataSet.orgId).updateMapping(dataSet, recordMapping)
     Right("Good news everybody")
   }
