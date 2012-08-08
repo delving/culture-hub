@@ -26,7 +26,7 @@ import xml.{Elem, PrettyPrinter, XML}
 import java.net.URLEncoder
 import core.Constants._
 import models._
-import core.collection.Harvestable
+import core.collection.{OrganizationCollectionInformation, Harvestable}
 
 /**
  *  This class is used to parse an OAI-PMH instruction from an HttpServletRequest and return the proper XML response
@@ -165,6 +165,11 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
         <set>
           <setSpec>{set.spec}</setSpec>
           <setName>{set.getName}</setName>
+          <setDescription>
+            <totalRecords>{set.getTotalRecords}</totalRecords>{if (set.isInstanceOf[OrganizationCollectionInformation]) {
+            val organizationCollectionInformation = set.asInstanceOf[OrganizationCollectionInformation]
+            <dataProvider>{organizationCollectionInformation.getDataProvider}</dataProvider>}}
+          </setDescription>
         </set>
         }
       </ListSets>
