@@ -14,11 +14,89 @@
     <a href="/search?${returnToResults}" rel="nofollow"><i class="icon icon-arrow-left"></i> &{'ui.label.returnToResults'}</a>
 </div>
 
-<div class="page-header">
+<header>
     <h1>${systemFields.apply("delving_title").get(0)}</h1>
-    *{<a href="${rights}" target="_blank">${rights}</a>}*
-    *{${themeInfo.addThisTrackingCode()}}*
-</div>
+</header>
+*{
+<ul>
+<li><a href="http://creativecommons.org/publicdomain/mark/1.0/" target="_blank">http://creativecommons.org/publicdomain/mark/1.0/</a></li>
+<li><a href="http://creativecommons.org/publicdomain/zero/1.0/" target="_blank">http://creativecommons.org/publicdomain/zero/1.0/</a></li>
+<li><a href="http://creativecommons.org/licenses/by/3.0/" target="_blank">http://creativecommons.org/licenses/by/3.0/</a></li>
+<li><a href="http://creativecommons.org/licenses/by-sa/3.0/nl/" target="_blank">http://creativecommons.org/licenses/by-sa/3.0/nl/</a></li>
+<li><a href="http://creativecommons.org/licenses/by-nc/3.0/de/" target="_blank">http://creativecommons.org/licenses/by-nc/3.0/de/</a></li>
+<li><a href="http://creativecommons.org/licenses/by-nc-sa/2.0/fr/" target="_blank">http://creativecommons.org/licenses/by-nc-sa/2.0/fr/</a></li>
+<li><a href="http://creativecommons.org/licenses/by-nd/2.0/es/" target="_blank">http://creativecommons.org/licenses/by-nd/2.0/es/</a></li>
+<li><a href="http://creativecommons.org/licenses/by-nc-nd/1.0/fi/" target="_blank">http://creativecommons.org/licenses/by-nc-nd/1.0/fi/</a></li>
+<li><a href="http://www.europeana.eu/rights/rr-f/" target="_blank">http://www.europeana.eu/rights/rr-f/</a> Europeana: Rights Reserved - Free Access</li>
+<li><a href="http://www.europeana.eu/rights/rr-p/" target="_blank">http://www.europeana.eu/rights/rr-p/</a> Europeana: Rights Reserved - Paid Access</li>
+<li><a href="http://www.europeana.eu/rights/rr-r/" target="_blank">http://www.europeana.eu/rights/rr-r/</a> Europeana: Rights Reserved - Restricted Access</li>
+<li><a href="http://www.europeana.eu/rights/unknown/" target="_blank">http://www.europeana.eu/rights/unknown/</a> Europeana: Unknown copyright status</li>
+</ul>
+}*
+%{
+    def rightsImage
+    switch (rights) {
+        case 'http://creativecommons.org/publicdomain/mark/1.0/':
+            rightsImage = 'cc_publicdomain_mark.png'
+            break
+        case 'http://creativecommons.org/publicdomain/zero/1.0/':
+            rightsImage = 'cc_publicdomain_zero.png'
+            break
+        case 'http://creativecommons.org/licenses/by/3.0/':
+            rightsImage = 'cc_by.png'
+            break
+        case 'http://www.europeana.eu/rights/rr-f/':
+            rightsImage = 'eu_free_access.jpg'
+            break
+        case 'http://www.europeana.eu/rights/rr-p/':
+            rightsImage = 'eu_paid_access.jpg'
+            break
+        case 'http://www.europeana.eu/rights/rr-r/':
+            rightsImage = 'eu_restricted_access.jpg'
+            break
+        case 'http://www.europeana.eu/rights/unknown/':
+            rightsImage = 'eu_unknown.jpg'
+            break
+    }
+}%
+
+*{<div class="row">}*
+    *{<div class="span12">}*
+        *{<div class="well well-small">}*
+        <div class="row">
+
+            #{if rightsImage}
+            <div class="span1">
+                <a href="${rights}" target="_blank"> <img src="/assets/common/images/rights/${rightsImage}" width="100"/></a>
+            </div>
+            #{/if}
+
+            #{if themeInfo.addThisTrackingCode().length() > 0}
+            <div class="span6">
+                <!-- AddThis Button BEGIN -->
+                <div class="addthis_toolbox addthis_default_style ">
+                    <a class="addthis_button_facebook_like" fb:like:layout="button_count"></a>
+                    <a class="addthis_button_tweet"></a>
+                    <a class="addthis_counter addthis_pill_style"></a>
+                </div>
+                <script type="text/javascript" src="http://s7.addthis.com/js/250/addthis_widget.js#pubid=${themeInfo.googleAnalyticsTrackingCode()}"></script>
+                <!-- AddThis Button END -->
+                <script type="text/javascript">
+                    var addthis_config = {
+                        ui_language: "nl",
+                        ui_click: true,
+                        ui_cobrand: "",
+                        ui_header_color: "#ffffff",
+                        ui_header_background:"#01689b",
+                        data_track_clickback: true
+                    }
+                </script>
+            </div>
+            #{/if}
+        </div>
+        *{</div>}*
+    *{</div>}*
+*{</div>}*
 
 <div class="object-view">
     #{view view: fullView /}
