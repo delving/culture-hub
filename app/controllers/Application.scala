@@ -26,7 +26,7 @@ object Application extends DelvingController {
           case t: Throwable =>
             List.empty
         }
-        val homepageCmsContent = CMSPage.dao.find(MongoDBObject("key" -> "homepage", "lang" -> getLang)).$orderby(MongoDBObject("_id" -> -1)).limit(1).toList.headOption
+        val homepageCmsContent = CMSPage.dao.find(MongoDBObject("key" -> "homepage", "lang" -> getLang, "orgId" -> configuration.orgId)).$orderby(MongoDBObject("_id" -> -1)).limit(1).toList.headOption
 
         homepageCmsContent match {
           case None =>
@@ -41,7 +41,7 @@ object Application extends DelvingController {
     Action {
       implicit request =>
       // TODO link the themes to the organization so this also works on multi-org hubs
-        CMSPage.dao.find(MongoDBObject("key" -> key, "lang" -> getLang)).$orderby(MongoDBObject("_id" -> -1)).limit(1).toList.headOption match {
+        CMSPage.dao.find(MongoDBObject("key" -> key, "lang" -> getLang, "orgId" -> configuration.orgId)).$orderby(MongoDBObject("_id" -> -1)).limit(1).toList.headOption match {
           case None => NotFound(key)
           case Some(page) => Ok(Template('page -> page))
         }
