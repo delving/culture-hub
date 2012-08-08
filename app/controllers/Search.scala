@@ -122,7 +122,9 @@ object  Search extends DelvingController {
                         'returnToResults -> returnToResults,
                         'searchTerm -> searchTerm,
                         'orgId -> orgId,
-                        'hubId -> hubId)
+                        'hubId -> hubId,
+                        'rights -> collection.getRights
+                      )
                     ).withSession(updatedSession)
 
                   } else {
