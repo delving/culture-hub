@@ -48,11 +48,11 @@ object  Search extends DelvingController {
             'pagination -> briefItemView.getPagination,
             'facets -> briefItemView.getFacetQueryLinks,
             'themeFacets -> configuration.getFacets,
-            'searchTerm -> solrQuery.mkString(" "),
+            'searchTerm -> query,
             'returnToResults -> request.rawQueryString)).withSession(
             session +
               (RETURN_TO_RESULTS -> request.rawQueryString) +
-              (SEARCH_TERM -> solrQuery.mkString(" ")))
+              (SEARCH_TERM -> query))
         } catch {
           case MalformedQueryException(s, t) => BadRequest(Template("/Search/invalidQuery.html", 'query -> query))
           case c: SolrConnectionException => Error(Messages("search.backendConnectionError"))
