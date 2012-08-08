@@ -103,6 +103,8 @@ ui.label.welcome=Welcome
 ui.label.theme=Site theme
 ui.label.identifier=Identifier
 ui.label.all=All
+ui.label.withoutDigitalObject=Without digital object
+ui.label.withDigitalObject=With digital object
 
 # General 'thing' like object, collection or story
 thing.label=Label
