@@ -91,9 +91,9 @@
             </elem>
             <list name="relatedItems" path="//*[local-name()='record']/*[fn:contains('relatedItems', local-name())]/*">
                 <elem name="item">
-                    <elem prefix="delving" name="title" expr="./fields/delving:title" />
-                    <elem prefix="delving" name="thumbnail" expr="./fields/delving:thumbnail" />
-                    <elem prefix="delving" name="hubId" expr="./fields/delving:hubId" />
+                    <elem prefix="delving" name="title" expr=".//*[fn:contains('title', local-name())]" />
+                    <elem prefix="delving" name="thumbnail" expr=".//*[fn:contains('thumbnail', local-name())]" />
+                    <elem prefix="delving" name="hubId" expr=".//*[fn:contains('hubId', local-name())]" />
                 </elem>
             </list>
         </elem>

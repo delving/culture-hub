@@ -80,7 +80,7 @@ object TestDataLoader {
     factMap.put("collectionType", "all")
     factMap.put("namespacePrefix", "raw")
     factMap.put("language", "nl")
-    factMap.put("country", "netherlands");
+    factMap.put("country", "netherlands")
     factMap.put("provider", "Sample Man")
     factMap.put("dataProvider", "Sample Man")
     factMap.put("rights", "http://creativecommons.org/publicdomain/mark/1.0/")

@@ -135,7 +135,7 @@ object RecordRenderer {
                 var mergedRecord: Elem = addChild(record, relatedItemsXml).get // we know what we're doing here
 
                 // prepend the delving namespace if it ain't there
-                // and yes this check is ugly but scala's XML <-> namespace support ain't pretty to say the least
+                // and yes this check is ugly but Scala's XML <-> namespace support ain't pretty to say the least
                 if(!rawRecord.contains("xmlns:delving")) {
                   mergedRecord = mergedRecord % new UnprefixedAttribute("xmlns:delving", "http://www.delving.eu/schemas/", Null)
                 }
