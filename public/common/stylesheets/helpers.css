@@ -714,9 +714,9 @@ form label.radio {
 
 .facet-toggle {
     border-bottom: 1px solid #eaeaea;
-    color: #a9a9a9;
+    color: #888;
     padding: 8px 0;
-    text-transform: uppercase;
+    /*text-transform: uppercase;*/
     margin: 0;
 }
 
