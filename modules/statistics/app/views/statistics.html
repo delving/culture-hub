@@ -37,8 +37,8 @@
                         <tr>
                             <td>${dss.spec}</td>
                             <td>${dss.total}</td>
-                            <td><span class="badge badge-info" rel="tooltip" title="${dss.hasDigitalObjectCount} records">${dss.hasDigitalObjectPercentage}%</span></td>
-                            <td><span class="badge badge-info" rel="tooltip" title="${dss.hasLandingPageCount} records">${dss.hasLandingPagePercentage}%</span></td>
+                            <td><span class="badge badge-info" rel="tooltip" title="${dss.hasDigitalObjectCount} records">${dss.hasDigitalObjectPercentage == "N/A" ? "N/A" : dss.hasDigitalObjectPercentage + " %" }</span></td>
+                            <td><span class="badge badge-info" rel="tooltip" title="${dss.hasLandingPageCount} records">${dss.hasLandingPagePercentage == "N/A" ? "N/A" : dss.hasLandingPagePercentage + " %" }</span></td>
                         </tr>
                         #{/list}
                         </tbody>
