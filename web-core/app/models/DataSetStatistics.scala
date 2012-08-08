@@ -78,6 +78,7 @@ object ValueStats {
 
 case class DataSetStatisticsContext(orgId: String,
                             spec: String,
+                            schema: String,
                             provider: String,
                             dataProvider: String,
                             providerUri: String,
@@ -107,6 +108,6 @@ class DataSetStatisticsDAO(collection: MongoCollection, connection: MongoDB) ext
 
   val values = new ChildCollection[FieldValues, ObjectId](collection = fieldValues, parentIdField = "parentId") {}
 
-  def getMostRecent(orgId: String, spec: String) = find(MongoDBObject("context.orgId" -> orgId, "context.spec" -> spec)).$orderby(MongoDBObject("_id" -> -1)).limit(1).toList.headOption
+  def getMostRecent(orgId: String, spec: String, schema: String) = find(MongoDBObject("context.orgId" -> orgId, "context.spec" -> spec, "context.schema" -> schema)).$orderby(MongoDBObject("_id" -> -1)).limit(1).toList.headOption
 
 }
