@@ -8,7 +8,7 @@
 <script type='text/javascript' src="@{routes.Assets.at('common/javascripts/seadragon/seadragon-min.js')}"></script>
 #{/set}
 
-#{breadcrumbs params:["search":["searchTerm": searchTerm, "returnToResults": returnToResults], "title": ["url":"", "label": systemFields.apply("delving_title").get(0)], "inOrg": ["inOrg": "yes"]] /}
+#{breadcrumbs params:["search":["searchTerm": searchTerm, "returnToResults": returnToResults], "title": ["url":"", "label": systemFields.apply("delving_title").get(0)], "inOrg": ["inOrg": "yes"]], configuration: themeInfo.getConfiguration() /}
 
 <div class="return-to-results">
     <a href="/search?${returnToResults}" rel="nofollow"><i class="icon icon-arrow-left"></i> &{'ui.label.returnToResults'}</a>
