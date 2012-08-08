@@ -30,6 +30,16 @@
                             thingType = link.value()
                         }
                     }
+                    if (facet.getType() == "delving_hasDigitalObject_facet") {
+                      switch (link.value()) {
+                          case 'false':
+                          thingType = messages.get('ui.label.withoutDigitalObject')
+                          break
+                          case 'true':
+                          thingType = messages.get('ui.label.withDigitalObject')
+                          break
+                      }
+                    }
                 }%
                 <div class="facet #{if _columns == 2}span1of2#{/if}">
                     #{if !link.remove()}
