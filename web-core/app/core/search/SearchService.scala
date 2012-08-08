@@ -43,7 +43,7 @@ import scala.collection.immutable.ListMap
  */
 object SearchService {
 
-  def getApiResult(request: RequestHeader, configuration: DomainConfiguration, hiddenQueryFilters: List[String] = List.empty): PlainResult =
+  def getApiResult(request: RequestHeader, hiddenQueryFilters: List[String] = List.empty)(implicit configuration: DomainConfiguration): PlainResult =
     new SearchService(request, hiddenQueryFilters)(configuration).getApiResult
 
 

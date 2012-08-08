@@ -37,7 +37,7 @@ object ItinEndPoint extends DelvingController with DomainConfigurationAware {
   def search = DomainConfigured {
     Action {
       implicit request =>
-        SearchService.getApiResult(request, configuration, List())
+        SearchService.getApiResult(request, List())
     }
   }
 

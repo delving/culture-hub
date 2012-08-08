@@ -1,6 +1,6 @@
 package controllers.api
 
-import controllers.DelvingController
+import controllers.{RenderingExtensions, DelvingController}
 import play.api.mvc._
 import play.api.libs.concurrent.Promise
 import scala.xml._
@@ -12,15 +12,18 @@ import org.joda.time.format.ISODateTimeFormat
 import collection.mutable.{ArrayBuffer, ListBuffer}
 import com.mongodb.casbah.commons.MongoDBObject
 import play.api.Logger
+import core.DomainConfigurationAware
 
 /**
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-object Index extends DelvingController {
+object Index extends Controller with DomainConfigurationAware with RenderingExtensions {
 
   val CACHE_COLLECTION = "indexApiItems"
+
+  val log = Logger("IndexApi")
 
   def explain(path: List[String]) = path match {
     case Nil =>
