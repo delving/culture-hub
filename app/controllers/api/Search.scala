@@ -1,11 +1,12 @@
 package controllers.api
 
-import controllers.DelvingController
-import play.api.mvc.Action
+import play.api.mvc._
 import core.Constants._
 import core.search.SearchService
 import collection.mutable.ListBuffer
 import play.api.libs.concurrent.Promise
+import core.DomainConfigurationAware
+import play.api.Logger
 
 /**
  * Search API
@@ -13,16 +14,16 @@ import play.api.libs.concurrent.Promise
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-object Search extends DelvingController {
+object Search extends Controller with DomainConfigurationAware {
 
-  def searchApi(orgId: String, provider: Option[String], dataProvider: Option[String], collection: Option[String]) = Root {
+  def searchApi(orgId: String, provider: Option[String], dataProvider: Option[String], collection: Option[String]) = DomainConfigured {
     Action {
       implicit request =>
         Async {
           Promise.pure {
 
             if(!request.path.contains("api")) {
-              warning("Using deprecated API call " + request.uri)
+              Logger("CultureHub").warn("Using deprecated API call " + request.uri)
             }
 
             val hiddenQueryFilters = ListBuffer[String]("%s:%s".format(RECORD_TYPE, ITEM_TYPE_MDR))
@@ -30,7 +31,7 @@ object Search extends DelvingController {
             if (!orgId.isEmpty)
               hiddenQueryFilters += "%s:%s".format(ORG_ID, orgId)
 
-            SearchService.getApiResult(request, configuration, hiddenQueryFilters.toList)
+            SearchService.getApiResult(request, hiddenQueryFilters.toList)
 
           } map {
             // CORS - see http://www.w3.org/TR/cors/

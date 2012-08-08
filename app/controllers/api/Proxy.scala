@@ -1,13 +1,13 @@
 package controllers.api
 
-import controllers.DelvingController
 import play.api.libs.concurrent.Promise
 import collection.immutable.Map
 import play.api.libs.ws.{Response, WS}
 import xml.{NodeSeq, TopScope, Elem}
 import play.api.mvc._
-import core.ExplainItem
-import play.api.Play
+import core.{DomainConfigurationAware, ExplainItem}
+import play.api.{Logger, Play}
+import controllers.RenderingExtensions
 
 /**
  * FIXME adjust namespace rendering in proxy responses. Also support JSON.
@@ -15,9 +15,11 @@ import play.api.Play
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-object Proxy extends DelvingController {
+object Proxy extends Controller with DomainConfigurationAware with RenderingExtensions {
 
   val proxies = List[ProxyConfiguration](europeana, wikipediaEn, wikipediaNl, wikipediaNo, wikipediaNn)
+
+  val log = Logger("ProxyApi")
 
   def explain(path: List[String]) = path match {
     case Nil =>
@@ -35,12 +37,12 @@ object Proxy extends DelvingController {
     case _ => None
   }
 
-  def list(orgId: String) = Root {
+  def list(orgId: String) = DomainConfigured {
     Action {
       implicit request =>
 
         if(!request.path.contains("api")) {
-          warning("Using deprecated API call " + request.uri)
+          log.warn("Using deprecated API call " + request.uri)
         }
 
         val list =
@@ -63,7 +65,7 @@ object Proxy extends DelvingController {
       Async {
 
         if(!request.path.contains("api")) {
-          warning("Using deprecated API call " + request.uri)
+          log.warn("Using deprecated API call " + request.uri)
         }
 
         proxies.find(_.key == proxyKey).map {
@@ -85,7 +87,7 @@ object Proxy extends DelvingController {
       Async {
 
         if(!request.path.contains("api")) {
-          warning("Using deprecated API call " + request.uri)
+          log.warn("Using deprecated API call " + request.uri)
         }
 
         proxies.find(_.key == proxyKey).map {

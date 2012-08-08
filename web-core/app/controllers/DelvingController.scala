@@ -21,7 +21,7 @@ import play.api.data.Forms._
  */
 
 
-trait ApplicationController extends Controller with GroovyTemplates with DomainConfigurationAware with Logging with Extensions {
+trait ApplicationController extends Controller with GroovyTemplates with DomainConfigurationAware with Logging with Extensions with RenderingExtensions {
 
   // ~~~ i18n
 
@@ -127,25 +127,6 @@ trait ApplicationController extends Controller with GroovyTemplates with DomainC
 
     Json(Map("errors" -> (fieldErrors ++ globalErrors)), BAD_REQUEST)
   }
-
-  // ~~~ API rendering helpers
-
-  def wantsJson(implicit request: RequestHeader) = request.queryString.get("format").isDefined && request.queryString("format").contains("json") ||
-    request.queryString.get("format").isEmpty && request.headers.get(ACCEPT).isDefined && request.headers(ACCEPT).contains("application/json")
-
-  def wantsHtml(implicit request: RequestHeader) = request.headers.get(ACCEPT).isDefined && request.headers(ACCEPT).contains("html")
-
-  def wantsXml(implicit request: RequestHeader) = request.queryString.get("format").isDefined && request.queryString("format").contains("xml") ||
-    request.queryString.get("format").isEmpty && request.headers.get(ACCEPT).isDefined && request.headers(ACCEPT).contains("application/xml")
-
-  def DOk(xml: NodeSeq, sequences: List[String]*)(implicit request: RequestHeader): Result = {
-    if(wantsJson) {
-      Ok(util.Json.toJson(xml, false, sequences)).as(JSON)
-    } else {
-      Ok(xml)
-    }
-  }
-
 
   // ~~~ Form utilities
   import extensions.Formatters._
