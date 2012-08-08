@@ -60,43 +60,37 @@
     }
 }%
 
-*{<div class="row">}*
-    *{<div class="span12">}*
-        *{<div class="well well-small">}*
-        <div class="row">
+<div class="row">
 
-            #{if rightsImage}
-            <div class="span1">
-                <a href="${rights}" target="_blank"> <img src="/assets/common/images/rights/${rightsImage}" width="100"/></a>
-            </div>
-            #{/if}
+    #{if rightsImage}
+    <div class="span1">
+        <a href="${rights}" target="_blank"> <img src="/assets/common/images/rights/${rightsImage}" width="100"/></a>
+    </div>
+    #{/if}
 
-            #{if themeInfo.addThisTrackingCode().length() > 0}
-            <div class="span6">
-                <!-- AddThis Button BEGIN -->
-                <div class="addthis_toolbox addthis_default_style ">
-                    <a class="addthis_button_facebook_like" fb:like:layout="button_count"></a>
-                    <a class="addthis_button_tweet"></a>
-                    <a class="addthis_counter addthis_pill_style"></a>
-                </div>
-                <script type="text/javascript" src="http://s7.addthis.com/js/250/addthis_widget.js#pubid=${themeInfo.googleAnalyticsTrackingCode()}"></script>
-                <!-- AddThis Button END -->
-                <script type="text/javascript">
-                    var addthis_config = {
-                        ui_language: "nl",
-                        ui_click: true,
-                        ui_cobrand: "",
-                        ui_header_color: "#ffffff",
-                        ui_header_background:"#01689b",
-                        data_track_clickback: true
-                    }
-                </script>
-            </div>
-            #{/if}
+    #{if themeInfo.addThisTrackingCode().length() > 0}
+    <div class="span6">
+        <!-- AddThis Button BEGIN -->
+        <div class="addthis_toolbox addthis_default_style ">
+            <a class="addthis_button_facebook_like" fb:like:layout="button_count"></a>
+            <a class="addthis_button_tweet"></a>
+            <a class="addthis_counter addthis_pill_style"></a>
         </div>
-        *{</div>}*
-    *{</div>}*
-*{</div>}*
+        <script type="text/javascript" src="http://s7.addthis.com/js/250/addthis_widget.js#pubid=${themeInfo.googleAnalyticsTrackingCode()}"></script>
+        <!-- AddThis Button END -->
+        <script type="text/javascript">
+            var addthis_config = {
+                ui_language: "${lang ?: 'en'}",
+                ui_click: true,
+                ui_cobrand: "",
+                ui_header_color: "#ffffff",
+                ui_header_background:"#01689b",
+                data_track_clickback: true
+            }
+        </script>
+    </div>
+    #{/if}
+</div>
 
 <div class="object-view">
     #{view view: fullView /}
@@ -135,7 +129,6 @@ $(document).ready(function() {
 
     $.get(mltEndpoint, function(data) {
         var rItems = data.result.relatedItems.item, html ='', tmp, org, owner, id, uri;
-        console.log(rItems);
         if(rItems){
             html = '<h4>&{'thing.relatedItems'}</h4><ul class="thumbnails">';
             $.each(rItems, function(i, item){
