@@ -170,7 +170,7 @@ thing.startYear=Start jaar
 thing.endYear=Eind jaar
 thing.keyword=Trefwoord
 thing.keywords=Trefwoorden
-thing.relatedItems=Gerelateerde content
+thing.relatedItems=Soortgelijke inhoud
 
 
 
