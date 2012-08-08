@@ -24,7 +24,7 @@
     </div>
 
     #{if pagination.getNumFound() > views.Helpers.PAGE_SIZE()}
-        #{results.resultPagination pageLinks: pagination, pQuery: pagination.getPresentationQuery().getQueryForPresentation(), searchIn: params.searchIn ? params.searchIn[0] : "all", lastPage: pagination.getNumFound() - pagination.getRows(), extraClass:"pagination-top" /}
+        #{results.resultPagination pageLinks: pagination, pQuery: pagination.getPresentationQuery().getQueryForPresentation(), searchIn: params.searchIn ? params.searchIn[0] : "all", lastPage: pagination.getNumFound(), extraClass:"pagination-top" /}
     #{/if}
 
     <div class="row">
@@ -44,7 +44,7 @@
     </div>
 
     #{if pagination.getNumFound() > views.Helpers.PAGE_SIZE()}
-        #{results.resultPagination pageLinks: pagination, pQuery: pagination.getPresentationQuery().getQueryForPresentation(), searchIn: params.searchIn ? params.searchIn[0] : "all", lastPage: pagination.getNumFound() - pagination.getRows(), extraClass:"pagination-bottom" /}
+        #{results.resultPagination pageLinks: pagination, pQuery: pagination.getPresentationQuery().getQueryForPresentation(), searchIn: params.searchIn ? params.searchIn[0] : "all", lastPage: pagination.getNumFound(), extraClass:"pagination-bottom" /}
     #{/if}
 
 *{#{if userName}}*
