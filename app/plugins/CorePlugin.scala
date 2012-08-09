@@ -69,5 +69,5 @@ class CorePlugin(app: Application) extends CultureHubPlugin(app) {
     )
   )
 
-  override def getHarvestCollectionLookups: Seq[HarvestCollectionLookup] = Seq(dataSetHarvestCollectionLookup)
+  override def harvestCollectionLookups: Seq[HarvestCollectionLookup] = Seq(dataSetHarvestCollectionLookup)
 }

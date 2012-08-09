@@ -1,6 +1,7 @@
 package core
 
 import collection.HarvestCollectionLookup
+import core.access.ResourceLookup
 import scala.collection.immutable.ListMap
 import scala.util.matching.Regex
 import play.api._
@@ -68,6 +69,26 @@ abstract class CultureHubPlugin(app: Application) extends play.api.Plugin {
    */
   def organizationMenuEntries(orgId: String, lang: String, roles: Seq[String]): Seq[MainMenuEntry] = Seq.empty
 
+  /**
+   * Override this to provide harvest collections via this plugin
+   *
+   * @return a sequence of [[core.collection.HarvestCollectionLookup]] instances
+   */
+  def harvestCollectionLookups: Seq[HarvestCollectionLookup] = Seq.empty
+
+  /**
+   * Override this to provide custom roles to the platform, that can be used in Groups
+   * @return a sequence of [[models.Role]] instances
+   */
+  def roles: Seq[Role] = Seq.empty
+
+  /**
+   * Override this to provide the necessary lookup for a [[core.access.Resource]] depicted by a [[models.Role]]
+   * @return
+   **/
+  def resourceLookups: Seq[ResourceLookup] = Seq.empty
+
+
 
   // ~~~ API
 
@@ -89,16 +110,6 @@ abstract class CultureHubPlugin(app: Application) extends play.api.Plugin {
     Seq.empty
   }
 
-  /**
-   * Override this to provide harvest collections via this plugin
-   *
-   * @return a sequence of [[core.collection.HarvestCollectionLookup]] instances
-   */
-  def getHarvestCollectionLookups: Seq[HarvestCollectionLookup] = List.empty
-
-
-
-
 
   // ~~~ Play Plugin lifecycle integration
 
@@ -117,7 +128,7 @@ abstract class CultureHubPlugin(app: Application) extends play.api.Plugin {
 
   override def hashCode(): Int = pluginKey.hashCode
 
-  override def equals(p1: Any): Boolean = p1.isInstanceOf[CultureHubPlugin] && p1.asInstanceOf[CultureHubPlugin].pluginKey == pluginKey
+  override def equals(plugin: Any): Boolean = plugin.isInstanceOf[CultureHubPlugin] && plugin.asInstanceOf[CultureHubPlugin].pluginKey == pluginKey
 
 
 

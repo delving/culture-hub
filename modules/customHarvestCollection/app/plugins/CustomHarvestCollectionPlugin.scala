@@ -87,7 +87,7 @@ class CustomHarvestCollectionPlugin(app: Application) extends CultureHubPlugin(a
     )
   )
 
-  override def getHarvestCollectionLookups: Seq[HarvestCollectionLookup] = Seq(customHarvestCollectionHarvestCollectionLookup)
+  override def harvestCollectionLookups: Seq[HarvestCollectionLookup] = Seq(customHarvestCollectionHarvestCollectionLookup)
 
 }
 

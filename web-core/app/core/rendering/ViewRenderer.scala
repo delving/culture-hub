@@ -419,10 +419,10 @@ class ViewRenderer(val schema: String, viewName: String, configuration: DomainCo
     def withAccessControl(roles: List[String])(block: Option[Role] => Unit) {
       if(roles.isEmpty) {
         block(None)
-      } else if(userGrantTypes.exists(gt => gt.key == "own" && gt.origin == "System")) {
+      } else if(userGrantTypes.contains(Role.OWN)) {
         block(Some(Role.OWN))
-      } else if(userGrantTypes.exists(gt => roles.contains(gt.key) && gt.origin == prefix)) {
-        block(userGrantTypes.find(gt => roles.contains(gt.key) && gt.origin == prefix).headOption)
+      } else if(userGrantTypes.exists(gt => roles.contains(gt.key))) {
+        block(userGrantTypes.find(gt => roles.contains(gt.key)).headOption)
       } else {
         // though luck, man
       }

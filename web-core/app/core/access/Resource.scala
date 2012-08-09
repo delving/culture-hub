@@ -24,13 +24,14 @@ trait Resource {
 
 trait ResourceLookup {
 
+  def resourceType: ResourceType
+
   /**
    * Queries resources by type and name
-   * @param resourceType the type of the resource
    * @param query the query on the resource name
    * @return a sequence of resources matching the query
    */
-  def findResources(resourceType: ResourceType, query: String): Seq[Resource]
+  def findResources(orgId: String, query: String): Seq[Resource]
 
 }
 

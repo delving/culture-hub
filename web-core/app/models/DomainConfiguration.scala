@@ -1,17 +1,19 @@
 package models {
 
-import core.Constants
+import core.access.ResourceType
+import core.{CultureHubPlugin, Constants}
 import org.apache.solr.client.solrj.SolrQuery
 import core.search.{SolrSortElement, SolrFacetElement}
 import play.api.{Configuration, Play, Logger}
 import Play.current
 import collection.JavaConverters._
+import collection.mutable.ArrayBuffer
 
 /**
  * Holds configuration that is used when a specific domain is accessed. It overrides a default configuration.
  *
- * @author Sjoerd Siebinga <sjoerd.siebinga@gmail.com>
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
+ * @author Sjoerd Siebinga <sjoerd.siebinga@gmail.com>
  */
 
 case class DomainConfiguration(
@@ -237,11 +239,11 @@ object DomainConfiguration {
   /**
    * Computes all domain configurations based on the default Play configuration mechanism.
    */
-  def getAll = {
+  def startup(plugins: Seq[CultureHubPlugin]) = {
 
-    var missingKeys = new collection.mutable.HashMap[String, Seq[String]]
+      var missingKeys = new collection.mutable.HashMap[String, Seq[String]]
 
-    val config = Play.configuration.getConfig("configurations").get
+      val config = Play.configuration.getConfig("configurations").get
       val allDomainConfigurations: Seq[String] = config.keys.filterNot(_.indexOf(".") < 0).map(_.split("\\.").head).toList.distinct
       val configurations: Seq[DomainConfiguration] = allDomainConfigurations.flatMap {
         configurationKey => {
@@ -416,8 +418,97 @@ object DomainConfiguration {
       throw new RuntimeException("Invalid configuration. No can do.")
     }
 
+
+    // plugin time! now that we read all the configuration, enrich it with things provided by the plugins
+
+    // start by doing sanity check on plugins
+
+    val duplicatePluginKeys = plugins.groupBy(_.pluginKey).filter(_._2.size > 1)
+    if (!duplicatePluginKeys.isEmpty) {
+      log.error(
+        "Found two or more plugins with the same pluginKey: " +
+              duplicatePluginKeys.map(t => t._1 + ": " + t._2.map(_.getClass).mkString(", ")).mkString(", ")
+      )
+      throw new RuntimeException("Plugin inconsistency. No can do.")
+    }
+
+    // can I haz plugin?
+
+    val invalidPluginKeys: Seq[(DomainConfiguration, String, Option[CultureHubPlugin])] = configurations.flatMap { configuration =>
+      configuration.plugins.map(key => Tuple3(configuration, key, plugins.find(_.pluginKey == key))).filter(_._3.isEmpty)
+    }
+    if(!invalidPluginKeys.isEmpty) {
+      log.error(
+        "Found two or more configurations that reference non-existing plugins:\n" +
+              invalidPluginKeys.map(r => "Configuration " + r._1.name + ": " + r._2 + " does not exist or is not available").mkString("\n")
+      )
+      throw new RuntimeException("Role definition inconsistency. No can do.")
+    }
+
+
+    // access control subsystem: check roles and resource handlers defined by plugins
+
+    val duplicateRoleKeys = plugins.flatMap(plugin => plugin.roles.map(r => (r -> plugin.pluginKey))).groupBy(_._1.key).filter(_._2.size > 1)
+    if(!duplicateRoleKeys.isEmpty) {
+      log.error(
+        "Found two or more roles with the same key: " +
+              duplicateRoleKeys.map(r => r._1 + ": " + r._2.map(pair => "Plugin " + pair._2).mkString(", ")).mkString(", ")
+      )
+      throw new RuntimeException("Role definition inconsistency. No can do.")
+    }
+
+    // make sure that if a Role defines a ResourceType, its declaring plugin also provides a ResourceLookup
+    val triplets = new ArrayBuffer[(CultureHubPlugin, Role, ResourceType)]()
+    plugins.foreach { plugin =>
+      plugin.roles.foreach { role =>
+        if(role.resourceType.isDefined) {
+          val isResourceLookupProvided = plugin.resourceLookups.exists(lookup => lookup.resourceType == role.resourceType.get)
+          if (!isResourceLookupProvided) {
+            triplets += Tuple3(plugin, role, role.resourceType.get)
+          }
+        }
+      }
+    }
+    if(!triplets.isEmpty) {
+      log.error(
+        """Found plugin-defined role(s) that do not provide a ResourceLookup for their ResourceType:
+          |
+          |Plugin\t\tRole\t\tResourceType
+          |
+          |%s
+        """.stripMargin.format(
+          triplets.map { t =>
+            """%s\t\t%s\t\t%s""".format(
+              t._1.pluginKey, t._2.key, t._3.resourceType
+            )
+          }.mkString("\n")
+        )
+      )
+      throw new RuntimeException("Resource definition inconsistency. No can do.")
+    }
+
+    // now we're good to go...
+
+    val enhancedConfigurations = configurations.map { configuration =>
+      val pluginRoles: Seq[Role] = configuration.plugins.flatMap(key => plugins.find(_.pluginKey == key)).flatMap(_.roles)
+
+      val duplicateRolesDefinition = configuration.roles.filter(configRole => pluginRoles.exists(_.key == configRole.key))
+      if(!duplicateRolesDefinition.isEmpty) {
+        log.error(
+          "Configuration %s defines role(s) that are already provided via plugins: %s".format(
+            configuration.name, duplicateRolesDefinition.map(_.key).mkString(", ")
+          )
+        )
+        throw new RuntimeException("Configuration Roles + Plugin Roles clash.")
+      }
+
+      configuration.copy(roles = configuration.roles ++ pluginRoles)
+    }
+
+
+
     if (Play.isTest) {
-      configurations.map { c =>
+      enhancedConfigurations.map { c =>
         c.copy(
           mongoDatabase = c.mongoDatabase + "-TEST",
           solrBaseUrl = "http://localhost:8983/solr/test",
@@ -428,7 +519,7 @@ object DomainConfiguration {
         )
       }
     } else {
-      configurations
+      enhancedConfigurations
     }
   }
 

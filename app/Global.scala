@@ -55,7 +55,14 @@ object Global extends GlobalSettings {
 
     // ~~~ load configurations
     try {
-      DomainConfigurationHandler.startup()
+
+      println()
+      println()
+      println(hubPlugins)
+      println()
+      println()
+
+      DomainConfigurationHandler.startup(hubPlugins)
     } catch {
       case t: Throwable =>
         t.printStackTrace()
@@ -146,7 +153,7 @@ object Global extends GlobalSettings {
       PersistRouteAccess
     )
 
-    // ~~~ plugins
+    // ~~~ finally, bootstrap plugins
     hubPlugins.foreach(_.onApplicationStart())
 
 
