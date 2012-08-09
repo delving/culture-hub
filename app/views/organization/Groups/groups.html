@@ -20,7 +20,7 @@
                 <div class="controls">
                     <select id="grantType" name="grantType" data-bind="value: grantType" class="span4">
                     #{list grantTypes, as: 'gt'}
-                        <option value="${gt.key}">&{gt.description}</option>
+                        <option value="${gt.key}">&{gt.value}</option>
                     #{/list}
                     </select>
                     <span class="error">${views.Helpers.showError('grantType', null)}</span>
@@ -44,10 +44,10 @@
                 <label class="control-label" for="datasetsInput">&{'thing.datasets'}</label>
                 <div class="controls">
                 #{if id.isDefined()}
-                    #{addRemoveTokenField id:"datasetsInput", name: "datasetsInput", searchUrl: "/organizations/"+orgId+"/datasets/search", prePopulate: dataSets, addUrl: "/organizations/"+orgId+"/groups/"+id.get()+"/addDataset", removeUrl: "/organizations/"+orgId+"/groups/"+id.get()+"/removeDataset" /}
+                    #{addRemoveTokenField id:"datasetsInput", name: "datasetsInput", searchUrl: "/organizations/"+orgId+"/datasets/searchBySpec", prePopulate: dataSets, addUrl: "/organizations/"+orgId+"/groups/"+id.get()+"/addDataset", removeUrl: "/organizations/"+orgId+"/groups/"+id.get()+"/removeDataset" /}
                 #{/if}
                 #{else}
-                    #{boundAddRemoveTokenField id:"datasetsInput", name:"datasetsInput", searchUrl: "/organizations/"+orgId+"/datasets/search", dataBind:"tokens: dataSets" /}
+                    #{boundAddRemoveTokenField id:"datasetsInput", name:"datasetsInput", searchUrl: "/organizations/"+orgId+"/datasets/searchBySpec", dataBind:"tokens: dataSets" /}
                 #{/else}
                 </div>
             </div>
@@ -63,7 +63,6 @@
 <script type="text/javascript">
     $(document).ready(function () {
         var groupModel = {};
-//        $("body").css('visibility', 'visible');
         load(${data.raw()}, groupModel, null, function () {
             $("body").css('visibility', 'visible');
         });

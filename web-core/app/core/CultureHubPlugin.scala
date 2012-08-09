@@ -6,7 +6,7 @@ import scala.util.matching.Regex
 import play.api._
 import play.api.Play.current
 import mvc.{RequestHeader, Handler}
-import models.{GrantType, DomainConfiguration}
+import models.{Role, DomainConfiguration}
 import scala.collection.JavaConverters._
 
 /**
@@ -139,7 +139,7 @@ object CultureHubPlugin {
 
 }
 
-case class MainMenuEntry(key: String, titleKey: String, roles: Seq[GrantType] = Seq.empty, items: Seq[MenuElement] = Seq.empty, mainEntry: Option[MenuElement] = None, membersOnly: Boolean = true) {
+case class MainMenuEntry(key: String, titleKey: String, roles: Seq[Role] = Seq.empty, items: Seq[MenuElement] = Seq.empty, mainEntry: Option[MenuElement] = None, membersOnly: Boolean = true) {
 
   def asJavaMap = Map(
     "key" -> key,
@@ -150,7 +150,7 @@ case class MainMenuEntry(key: String, titleKey: String, roles: Seq[GrantType] = 
   ).asJava
 }
 
-case class MenuElement(url: String, titleKey: String, roles: Seq[GrantType] = Seq.empty) {
+case class MenuElement(url: String, titleKey: String, roles: Seq[Role] = Seq.empty) {
   val asJavaMap = Map(
     "url" -> url,
     "titleKey" -> titleKey

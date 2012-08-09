@@ -13,6 +13,6 @@ trait Harvestable extends OrganizationCollection with CollectionInformation {
 
   def getRecords(metadataFormat: String, position: Int, limit: Int): (List[MetadataItem], Long)
 
-  def getVisibleMetadataFormats(accessKey: Option[String]): Seq[RecordDefinition]
+  def getVisibleMetadataSchemas(accessKey: Option[String]): Seq[RecordDefinition]
 
 }

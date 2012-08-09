@@ -35,11 +35,7 @@ object DataSets extends OrganizationController {
           NotFound(Messages("organization.datasets.dataSetNotFound", spec))
         } else {
           val ds = maybeDataSet.get
-          if (!DataSet.dao.canView(ds, userName)) {
-            NotFound(Messages("datasets.dataSetNotFound", ds.spec))
-          } else {
-            Ok(Template('spec -> ds.spec))
-          }
+          Ok(Template('spec -> ds.spec))
         }
     }
   }

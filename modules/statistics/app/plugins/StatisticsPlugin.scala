@@ -3,7 +3,7 @@ package plugins
 import play.api.Application
 import scala.util.matching.Regex
 import play.api.mvc.Handler
-import models.GrantType
+import models.Role
 import core.{MenuElement, MainMenuEntry, CultureHubPlugin}
 import collection.immutable.ListMap
 
@@ -25,7 +25,7 @@ class StatisticsPlugin(app: Application) extends CultureHubPlugin(app) {
     MainMenuEntry(
       key = "statistics",
       titleKey = "plugin.statistics.statistics",
-      roles = Seq(GrantType.OWN),
+      roles = Seq(Role.OWN),
       items = Seq(
         MenuElement(url = "/organizations/%s/statistics/dataset".format(orgId), titleKey = "plugin.statistics.dataset")
       )

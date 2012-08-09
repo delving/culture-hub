@@ -92,7 +92,7 @@ object SipCreatorEndPoint extends ApplicationController {
   def listAll(accessToken: Option[String]) = AuthenticatedAction(accessToken) {
     Action {
       implicit request =>
-        val dataSets = DataSet.dao.findAllForUser(connectedUserObject.get.userName, connectedUserObject.get.organizations, GrantType.MODIFY)
+        val dataSets = DataSet.dao.findAllForUser(connectedUserObject.get.userName, configuration.orgId, Role.MODIFY)
 
         val dataSetsXml = <data-set-list>
           {dataSets.map {

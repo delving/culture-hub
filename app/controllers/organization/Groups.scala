@@ -3,7 +3,7 @@ package controllers.organization
 import org.bson.types.ObjectId
 import extensions.JJson
 import com.mongodb.casbah.Imports._
-import models.{DataSet, DomainConfiguration, GrantType, Group}
+import models.{DomainConfiguration, Role, Group}
 import models.mongoContext._
 import play.api.i18n.Messages
 import controllers.{OrganizationController, ViewModel, Token}
@@ -12,6 +12,8 @@ import play.api.data.Forms._
 import extensions.Formatters._
 import play.api.data.Form
 import core.HubServices
+import core.access.ResourceType
+import collection.JavaConverters._
 
 /**
  *
@@ -22,7 +24,7 @@ object Groups extends OrganizationController {
   def list(orgId: String) = OrgMemberAction(orgId) {
     Action {
       implicit request =>
-        val groups = Group.dao.list(userName, orgId).toSeq.sortWith((a, b) => a.grantType == GrantType.OWN || a.name < b.name)
+        val groups = Group.dao.list(userName, orgId).toSeq.sortWith((a, b) => a.grantType == Role.OWN || a.name < b.name)
         Ok(Template('groups -> groups))
     }
   }
@@ -37,8 +39,9 @@ object Groups extends OrganizationController {
           val (usersAsTokens, dataSetsAsTokens) = group match {
             case None => (JJson.generate(List()), JJson.generate(List()))
             case Some(g) =>
-              val dataSets = DataSet.dao.collection.find("_id" $in g.dataSets, MongoDBObject("_id" -> 1, "spec" -> 1))
-              (JJson.generate(g.users.map(m => Token(m, m))), JJson.generate(dataSets.map(ds => Token(ds.get("_id").toString, ds.get("spec").toString))))
+              val userTokens = g.users.map(m => Token(m, m))
+              val resourceTokens = g.resources.map(r => Token(r.getResourceKey, r.getResourceKey))
+              (JJson.generate(userTokens), JJson.generate(resourceTokens))
           }
           Ok(Template(
             'id -> groupId,
@@ -46,7 +49,10 @@ object Groups extends OrganizationController {
             'groupForm -> GroupViewModel.groupForm,
             'users -> usersAsTokens,
             'dataSets -> dataSetsAsTokens,
-            'grantTypes -> GrantType.allGrantTypes(configuration).filterNot(_ == GrantType.OWN)
+            'grantTypes -> Role.allGrantTypes(configuration).
+                    filterNot(_ == Role.OWN).
+                    map(role => (role.key -> role.getDescription(lang))).
+                    toMap.asJava
           ))
         }
     }
@@ -72,26 +78,26 @@ object Groups extends OrganizationController {
     }
   }
 
+  // TODO generify
   def addDataset(orgId: String, groupId: ObjectId) = OrgMemberAction(orgId) {
     Action {
       implicit request =>
         val id = request.body.getFirstAsString("id").getOrElse(null)
         elementAction(orgId, id, groupId, "organizations.group.cannotAddDataset") {
           (id, groupId) =>
-            if (!ObjectId.isValid(id)) false
-            Group.dao.addDataSet(new ObjectId(id), groupId)
+            Group.dao.addResource(orgId, id, ResourceType("dataSet"), groupId)
         }
     }
   }
 
+  // TODO generify
   def removeDataset(orgId: String, groupId: ObjectId) = OrgMemberAction(orgId) {
     Action {
       implicit request =>
         val id = request.body.getFirstAsString("id").getOrElse(null)
         elementAction(orgId, id, groupId, "organizations.group.cannotRemoveDataset") {
           (id, groupId) =>
-            if (!ObjectId.isValid(id)) false
-            Group.dao.removeDataSet(new ObjectId(id), groupId)
+            Group.dao.removeResource(orgId, id, ResourceType("dataSet"), groupId)
         }
     }
   }
@@ -132,17 +138,17 @@ object Groups extends OrganizationController {
             formWithErrors => handleValidationError(formWithErrors),
             groupModel => {
 
-              val grantType = try {
-                GrantType.get(groupModel.grantType)
+              val role = try {
+                Role.get(groupModel.grantType)
               } catch {
                 case t =>
-                  reportSecurity("Attempting to save Group with grantType " + groupModel.grantType)
+                  reportSecurity("Attempting to save Group with role " + groupModel.grantType)
                   return Action {
-                    BadRequest("Invalid GrantType " + groupModel.grantType)
+                    BadRequest("Invalid Role " + groupModel.grantType)
                   }
               }
 
-              if (grantType == GrantType.OWN && (groupModel.id == None || (groupModel.id != None && Group.dao.findOneById(groupModel.id.get) == None))) {
+              if (role == Role.OWN && (groupModel.id == None || (groupModel.id != None && Group.dao.findOneById(groupModel.id.get) == None))) {
                 reportSecurity("User %s tried to create an owners team!".format(connectedUser))
                 return Action {
                   Forbidden("Your IP has been logged and reported to the police.")
@@ -151,11 +157,11 @@ object Groups extends OrganizationController {
 
               val persisted = groupModel.id match {
                 case None =>
-                  Group.dao.insert(Group(node = getNode, name = groupModel.name, orgId = orgId, grantType = grantType.key)) match {
+                  Group.dao.insert(Group(node = getNode, name = groupModel.name, orgId = orgId, grantType = role.key)) match {
                     case None => None
                     case Some(id) =>
                       groupModel.users.foreach(u => Group.dao.addUser(orgId, u.id, id))
-                      groupModel.dataSets.foreach(ds => Group.dao.addDataSet(new ObjectId(ds.id), id))
+                      groupModel.dataSets.foreach(ds => Group.dao.addResource(orgId, ds.id, ResourceType("dataSet"), id))
                       Some(groupModel.copy(id = Some(id)))
                   }
                 case Some(id) =>
@@ -165,8 +171,8 @@ object Groups extends OrganizationController {
                     }
                     case Some(g) =>
                       g.grantType match {
-                        case GrantType.OWN.key => // do nothing
-                        case _ => Group.dao.updateGroupInfo(id, groupModel.name, grantType)
+                        case Role.OWN.key => // do nothing
+                        case _ => Group.dao.updateGroupInfo(id, groupModel.name, role)
                       }
                       Some(groupModel)
                   }
@@ -186,7 +192,7 @@ object Groups extends OrganizationController {
   private def load(orgId: String, groupId: Option[ObjectId])(implicit configuration: DomainConfiguration): String = {
     groupId.flatMap(Group.dao.findOneById(_)) match {
       case None => JJson.generate(GroupViewModel())
-      case Some(group) => JJson.generate(GroupViewModel(id = Some(group._id), name = group.name, grantType = group.grantType, canChangeGrantType = group.grantType != GrantType.OWN.key))
+      case Some(group) => JJson.generate(GroupViewModel(id = Some(group._id), name = group.name, grantType = group.grantType, canChangeGrantType = group.grantType != Role.OWN.key))
     }
   }
 
@@ -199,7 +205,7 @@ object Groups extends OrganizationController {
 
 case class GroupViewModel(id: Option[ObjectId] = None,
                           name: String = "",
-                          grantType: String = GrantType.VIEW.key,
+                          grantType: String = Role.VIEW.key,
                           canChangeGrantType: Boolean = true,
                           users: List[Token] = List.empty[Token],
                           dataSets: List[Token] = List.empty[Token],

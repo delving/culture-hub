@@ -42,9 +42,9 @@ case class VirtualCollection(_id: ObjectId = new ObjectId,
 
   // ~~~ VC specific
 
-  def dataSets: Seq[DataSet] = dataSetReferences.flatMap(r => DataSet.dao(orgId).findBySpecAndOrgId(r.spec, r.orgId))
+  def collections: Seq[Harvestable] = dataSetReferences.flatMap(r => DataSet.dao(orgId).findBySpecAndOrgId(r.spec, r.orgId))
 
-  def getPublicMetadataPrefixes = getVisibleMetadataFormats(None).map(_.prefix).asJava
+  def getPublicMetadataPrefixes = getVisibleMetadataSchemas(None).map(_.prefix).asJava
 
   // ~~~ harvesting
   def getRecords(metadataFormat: String, position: Int, limit: Int): (List[MetadataItem], Long) = {
@@ -59,21 +59,21 @@ case class VirtualCollection(_id: ObjectId = new ObjectId,
     (records, totalSize.toInt)
   }
 
-  def getVisibleMetadataFormats(accessKey: Option[String]): List[RecordDefinition] = {
+  def getVisibleMetadataSchemas(accessKey: Option[String]): Seq[RecordDefinition] = {
     // all available formats to all dataSets in common
     // can probably be done in a more functional way, but how?
-    var intersect: List[RecordDefinition] = List.empty
-    for (dataSet: DataSet <- dataSets) yield {
+    var intersect: Seq[RecordDefinition] = List.empty
+    for (harvestable: Harvestable <- collections) yield {
       if (intersect.isEmpty) {
-        intersect = dataSet.getVisibleMetadataSchemas(accessKey)
+        intersect = harvestable.getVisibleMetadataSchemas(accessKey)
       } else {
-        intersect = dataSet.getVisibleMetadataSchemas(accessKey).intersect(intersect)
+        intersect = harvestable.getVisibleMetadataSchemas(accessKey).intersect(intersect)
       }
     }
     intersect
   }
 
-  def getNamespaces = dataSets.map(_.getNamespaces).flatten.toMap[String, String]
+  def getNamespaces = collections.map(_.getNamespaces).flatten.toMap[String, String]
 
 
 }

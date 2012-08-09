@@ -6,7 +6,7 @@ import play.api.mvc.Handler
 import play.api.Play.current
 import play.api.libs.concurrent.Akka
 import play.api.Application
-import models.{VirtualCollection, GrantType, CustomHarvestCollectionHarvestCollectionLookup}
+import models.{VirtualCollection, Role, CustomHarvestCollectionHarvestCollectionLookup}
 import akka.actor.Props
 import akka.util.duration._
 import jobs.{UpdateVirtualCollection, UpdateVirtualCollectionCount, VirtualCollectionCount}
@@ -82,7 +82,7 @@ class CustomHarvestCollectionPlugin(app: Application) extends CultureHubPlugin(a
       titleKey = "thing.virtualCollections",
       items = Seq(
         MenuElement("/organizations/%s/virtualCollection".format(orgId), "org.vc.list"),
-        MenuElement("/organizations/%s/virtualCollection/add".format(orgId), "org.vc.new", Seq(GrantType.OWN))
+        MenuElement("/organizations/%s/virtualCollection/add".format(orgId), "org.vc.new", Seq(Role.OWN))
       )
     )
   )

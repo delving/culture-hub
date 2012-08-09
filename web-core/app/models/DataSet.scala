@@ -17,6 +17,7 @@
 package models
 
 import _root_.util.DomainConfigurationHandler
+import core.access.{ResourceType, Resource}
 import extensions.ConfigurationException
 import org.bson.types.ObjectId
 import models.mongoContext._
@@ -77,7 +78,7 @@ case class DataSet(
                    idxMappings: List[String] = List.empty[String], // the mapping(s) used at indexing time (for the moment, use only one)
                    idxFacets: List[String] = List.empty[String], // the facet fields selected for indexing, at the moment derived from configuration
                    idxSortFields: List[String] = List.empty[String] // the sort fields selected for indexing, at the moment derived from configuration
-                   ) extends OrganizationCollection with OrganizationCollectionInformation with Harvestable {
+                   ) extends OrganizationCollection with OrganizationCollectionInformation with Harvestable with Resource {
 
   val configuration = DomainConfigurationHandler.getByOrgId(orgId)
 
@@ -123,6 +124,12 @@ case class DataSet(
     HubServices.basexStorage(configuration).openCollection(this).isDefined && DataSet.dao(orgId).getSourceRecordCount(this) != 0
   }
 
+  // ~~~ access rights
+
+  def getResourceKey: String = spec
+
+  def getResourceType = DataSet.RESOURCE_TYPE
+
   // ~~~ harvesting
 
   def getRecords(metadataFormat: String, position: Int, limit: Int): (List[MetadataItem], Long) = {
@@ -132,7 +139,6 @@ case class DataSet(
     (records, totalSize)
   }
 
-  def getVisibleMetadataFormats(accessKey: Option[String]): Seq[RecordDefinition] = DataSet.dao(orgId).getMetadataFormats(spec, orgId, accessKey)
 
   def getNamespaces: Map[String, String] = namespaces
 
@@ -168,6 +174,8 @@ object DataSet extends MultiModel[DataSet, DataSetDAO] {
   protected def initDAO(collection: MongoCollection, connection: MongoDB): DataSetDAO = new DataSetDAO(collection)
 
   lazy val factDefinitionList = parseFactDefinitionList
+
+  val RESOURCE_TYPE = ResourceType("dataSet")
 
   def getFactDefinitionResource: URL = {
     val r = Play.resource(("definitions/global/fact-definition-list.xml"))
@@ -226,40 +234,46 @@ class DataSetDAO(collection: MongoCollection) extends SalatDAO[DataSet, ObjectId
 
   def findAll(orgId: String): List[DataSet] = find(MongoDBObject("deleted" -> false)).sort(MongoDBObject("name" -> 1)).toList
 
-  def findAllForUser(userName: String, orgIds: List[String], grantType: GrantType)(implicit configuration: DomainConfiguration): List[DataSet] = {
-    val groupDataSets = Group.
+  // ~~~ access control
+
+
+  // TODO generify, move to Group
+  def findAllForUser(userName: String, orgId: String, role: Role)(implicit configuration: DomainConfiguration): Seq[DataSet] = {
+    val groupDataSets: Seq[DataSet] = Group.
                               dao.
                               find(MongoDBObject("users" -> userName)).
-                              filter(g => g.grantType == grantType.key).
-                              map(g => find("_id" $in g.dataSets).toList).
-                              toList.flatten
-    val adminDataSets = orgIds.filter(orgId => HubServices.organizationService(configuration).isAdmin(orgId, userName)).map(orgId => findAllByOrgId(orgId)).toList.flatten
+                              filter(g => g.grantType == role.key).
+                              flatMap(g => g.resources).
+                              filter(resource => resource.getResourceType == DataSet.RESOURCE_TYPE).
+                              flatMap(dataSetResources => findBySpecAndOrgId(dataSetResources.getResourceKey, orgId)).
+                              toSeq
+
+    val adminDataSets: Seq[DataSet] = if(HubServices.organizationService(configuration).isAdmin(orgId, userName)) findAllByOrgId(orgId).toSeq else Seq.empty
 
     (groupDataSets ++ adminDataSets).distinct
   }
 
+  // TODO generify, move to Group... (see above)
+  // FIXME TODO use view rights. no rights are used at all here...
   def findAllCanSee(orgId: String, userName: String)(implicit configuration: DomainConfiguration): List[DataSet] = {
-    if(HubServices.organizationService(configuration).isAdmin(orgId, userName)) return findAllByOrgId(orgId).toList
-    val ids = Group.dao.find(MongoDBObject("orgId" -> orgId, "users" -> userName)).map(_.dataSets).toList.flatten.distinct
-    (find(("_id" $in ids)) ++ find(MongoDBObject("orgId" -> orgId))).filterNot(_.deleted).toList
+
+    if(HubServices.organizationService(configuration).isAdmin(orgId, userName)) {
+      findAllByOrgId(orgId).toList
+    } else {
+      // lookup by Group membership
+      Group.dao.
+            find(MongoDBObject("orgId" -> orgId, "users" -> userName)).
+            flatMap(_.resources).
+            filter(r => r.getResourceType == DataSet.RESOURCE_TYPE).
+            flatMap(dataSetResource => findBySpecAndOrgId(dataSetResource.getResourceKey, orgId)).
+            toList
+    }
   }
 
   def findAllByOrgId(orgId: String) = find(MongoDBObject("orgId" -> orgId, "deleted" -> false))
 
-  // ~~~ access control
-
-  def canView(ds: DataSet, userName: String)(implicit configuration: DomainConfiguration) = {
-    HubServices.organizationService(configuration).isAdmin(ds.orgId, userName) ||
-    Group.dao.count(MongoDBObject("dataSets" -> ds._id, "users" -> userName)) > 0 ||
-    ds.visibility == Visibility.PUBLIC
-  }
-
   def canEdit(ds: DataSet, userName: String)(implicit configuration: DomainConfiguration) = {
-    HubServices.organizationService(configuration).isAdmin(ds.orgId, userName) || Group.dao.count(MongoDBObject(
-      "dataSets" -> ds._id,
-      "users" -> userName,
-      "grantType" -> GrantType.MODIFY.key)
-    ) > 0
+    findAllForUser(userName, configuration.orgId, Role.MODIFY).contains(ds)
   }
 
   // workaround for salat not working as it should

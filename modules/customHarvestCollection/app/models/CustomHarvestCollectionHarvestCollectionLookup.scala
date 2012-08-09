@@ -13,7 +13,7 @@ class CustomHarvestCollectionHarvestCollectionLookup extends HarvestCollectionLo
   def findAllNonEmpty(orgId: String, format: Option[String], accessKey: Option[String]): List[Harvestable] = {
     val vcs = VirtualCollection.dao(orgId).findAllNonEmpty(orgId)
     if (format.isDefined) {
-      vcs.filter(vc => vc.getVisibleMetadataFormats(accessKey).exists(_.prefix == format.get))
+      vcs.filter(vc => vc.getVisibleMetadataSchemas(accessKey).exists(_.prefix == format.get))
     } else {
       vcs
     }

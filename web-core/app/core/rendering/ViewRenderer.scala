@@ -16,7 +16,7 @@
 
 package core.rendering
 
-import models.{DomainConfiguration, GrantType}
+import models.{DomainConfiguration, Role}
 import play.libs.XPath
 import collection.JavaConverters._
 import javax.xml.parsers.DocumentBuilderFactory
@@ -74,7 +74,7 @@ class ViewRenderer(val schema: String, viewName: String, configuration: DomainCo
   dbFactory.setNamespaceAware(true)
   val dBuilder = dbFactory.newDocumentBuilder
 
-  def renderRecord(record: String, userGrantTypes: List[GrantType], namespaces: Map[String, String], lang: Lang, parameters: Map[String, String] = Map.empty): RenderedView = {
+  def renderRecord(record: String, userGrantTypes: List[Role], namespaces: Map[String, String], lang: Lang, parameters: Map[String, String] = Map.empty): RenderedView = {
     viewDef match {
       case Some(viewDefinition) =>
         renderRecordWithView(schema, viewName, viewDefinition, record, userGrantTypes, namespaces, lang, parameters)
@@ -82,7 +82,7 @@ class ViewRenderer(val schema: String, viewName: String, configuration: DomainCo
     }
   }
 
-  def renderRecordWithView(prefix: String, viewName: String, viewDefinition: Node, rawRecord: String, userGrantTypes: List[GrantType], namespaces: Map[String, String], lang: Lang, parameters: Map[String, String]): RenderedView = {
+  def renderRecordWithView(prefix: String, viewName: String, viewDefinition: Node, rawRecord: String, userGrantTypes: List[Role], namespaces: Map[String, String], lang: Lang, parameters: Map[String, String]): RenderedView = {
 
     val record = dBuilder.parse(new ByteArrayInputStream(rawRecord.getBytes("utf-8")))
 
@@ -271,7 +271,7 @@ class ViewRenderer(val schema: String, viewName: String, configuration: DomainCo
               case "column" => enterAndAppendOne(n, dataNode, "column", true, 'proportion -> n.attr("proportion"))
               case "container" => withAccessControl(roleList) {
                 role =>
-                  enterAndAppendOne(n, dataNode, "container", true, 'id -> n.attr("id"), 'title -> n.attr("title"), 'label -> n.attr("label"), 'type -> n.attr("type"), 'role -> role.map(_.description).getOrElse(""))
+                  enterAndAppendOne(n, dataNode, "container", true, 'id -> n.attr("id"), 'title -> n.attr("title"), 'label -> n.attr("label"), 'type -> n.attr("type"), 'role -> role.map(_.getDescription(lang)).getOrElse(""))
               }
               case "image" => withAccessControl(roleList) {
                 role =>
@@ -283,7 +283,7 @@ class ViewRenderer(val schema: String, viewName: String, configuration: DomainCo
                         url
                       }
                   }
-                  append("image", value, 'title -> n.attr("title"), 'type -> n.attr("type"), 'role -> role.map(_.description).getOrElse("")) { renderNode => }
+                  append("image", value, 'title -> n.attr("title"), 'type -> n.attr("type"), 'role -> role.map(_.getDescription(lang)).getOrElse("")) { renderNode => }
                 }
               case "field" => withAccessControl(roleList) {
                 role =>
@@ -292,11 +292,11 @@ class ViewRenderer(val schema: String, viewName: String, configuration: DomainCo
                   else
                     fetchPaths(dataNode, path.split(",").map(_.trim).toList, namespaces).headOption
 
-                  append("field", v, 'label -> label, 'queryLink -> queryLink, 'role -> role.map(_.description).getOrElse("")) { renderNode => }
+                  append("field", v, 'label -> label, 'queryLink -> queryLink, 'role -> role.map(_.getDescription(lang)).getOrElse("")) { renderNode => }
                 }
               case "enumeration" => withAccessControl(roleList) {
                 role =>
-                  appendSimple("enumeration", 'label -> label, 'queryLink -> queryLink, 'separator -> n.attr("separator"), 'role -> role.map(_.description).getOrElse("")) {
+                  appendSimple("enumeration", 'label -> label, 'queryLink -> queryLink, 'separator -> n.attr("separator"), 'role -> role.map(_.getDescription(lang)).getOrElse("")) {
                     list =>
 
                       if (!n.child.isEmpty) {
@@ -416,11 +416,11 @@ class ViewRenderer(val schema: String, viewName: String, configuration: DomainCo
       treeStack.head += node
     }
 
-    def withAccessControl(roles: List[String])(block: Option[GrantType] => Unit) {
+    def withAccessControl(roles: List[String])(block: Option[Role] => Unit) {
       if(roles.isEmpty) {
         block(None)
       } else if(userGrantTypes.exists(gt => gt.key == "own" && gt.origin == "System")) {
-        block(Some(GrantType.OWN))
+        block(Some(Role.OWN))
       } else if(userGrantTypes.exists(gt => roles.contains(gt.key) && gt.origin == prefix)) {
         block(userGrantTypes.find(gt => roles.contains(gt.key) && gt.origin == prefix).headOption)
       } else {

@@ -44,14 +44,14 @@ class CorePlugin(app: Application) extends CultureHubPlugin(app) {
       key = "administration",
       titleKey = "ui.label.administration",
       mainEntry = Some(MenuElement("/organizations/%s/admin".format(orgId), "ui.label.administration")),
-      roles = Seq(GrantType.OWN)
+      roles = Seq(Role.OWN)
     ),
     MainMenuEntry(
       key = "groups",
       titleKey = "thing.groups",
       items = Seq(
         MenuElement("/organizations/%s/groups".format(orgId), "org.group.list"),
-        MenuElement("/organizations/%s/groups/create".format(orgId), "org.group.create", Seq(GrantType.OWN))
+        MenuElement("/organizations/%s/groups/create".format(orgId), "org.group.create", Seq(Role.OWN))
       )
     ),
     MainMenuEntry(
@@ -59,7 +59,7 @@ class CorePlugin(app: Application) extends CultureHubPlugin(app) {
       titleKey = "thing.datasets",
       items = Seq(
         MenuElement("/organizations/%s/dataset".format(orgId), "organization.dataset.list"),
-        MenuElement("/organizations/%s/dataset/add".format(orgId), "organization.dataset.create", Seq(GrantType.OWN))
+        MenuElement("/organizations/%s/dataset/add".format(orgId), "organization.dataset.create", Seq(Role.OWN))
       )
     ),
     MainMenuEntry(
