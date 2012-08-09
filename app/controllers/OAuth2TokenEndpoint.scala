@@ -31,8 +31,6 @@ import models.{DomainConfiguration, HubUser}
  */
 object OAuth2TokenEndpoint extends Controller with DomainConfigurationAware {
 
-  val TOKEN_TIMEOUT = 3600
-
   def token: Action[AnyContent] = DomainConfigured {
     Action {
       implicit request =>
@@ -88,7 +86,7 @@ object OAuth2TokenEndpoint extends Controller with DomainConfigurationAware {
                   }
                 }
 
-                val resp: OAuthResponse = OAuthASResponse.tokenResponse(HttpServletResponse.SC_OK).setAccessToken(accessToken).setRefreshToken(refreshToken).setExpiresIn(TOKEN_TIMEOUT.toString).buildJSONMessage()
+                val resp: OAuthResponse = OAuthASResponse.tokenResponse(HttpServletResponse.SC_OK).setAccessToken(accessToken).setRefreshToken(refreshToken).setExpiresIn(HubUser.OAUTH2_TOKEN_TIMEOUT.toString).buildJSONMessage()
                 WrappedJson(resp.getBody)
 
               }
@@ -120,15 +118,6 @@ object OAuth2TokenEndpoint extends Controller with DomainConfigurationAware {
   /**ensure that some content is set, so that there will always be a Content-Length in the response **/
   def WrappedJson(payload: String) = if (payload == null) Ok("").as(JSON) else Ok(payload).as(JSON)
 
-
-  // ~~~
-
-  def isValidToken(token: String)(implicit configuration: DomainConfiguration): Boolean = {
-    if ((Play.isTest || Play.isDev) && token == "TEST") return true
-    HubUser.dao.isValidAccessToken(token, TOKEN_TIMEOUT)
-  }
-
-  def getUserByToken(token: String)(implicit configuration: DomainConfiguration) = HubUser.dao.findByAccessToken(token)
 
 }
 

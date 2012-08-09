@@ -1,7 +1,7 @@
 import sbt._
+import scala._
 import PlayProject._
 import sbt.Keys._
-import scala._
 import sbtbuildinfo.Plugin._
 import eu.delving.templates.Plugin._
 
@@ -70,50 +70,59 @@ object Build extends sbt.Build {
   val dos = PlayProject("dos", dosVersion, dosDependencies, path = file("modules/dos")).settings(
     resolvers += "buzzmedia" at "http://maven.thebuzzmedia.com",
     resolvers ++= commonResolvers
-  ).dependsOn(webCore)
+  ).dependsOn(webCore % "test->test;compile->compile")
 
   // TODO move to its own source repo once we have something stable
   val musip = PlayProject("musip", "1.0-SNAPSHOT", Seq.empty, path = file("modules/musip")).settings(
     resolvers ++= commonResolvers
-  ).dependsOn(webCore)
+  ).dependsOn(webCore % "test->test;compile->compile")
 
   val itin = PlayProject("itin", "1.0", Seq.empty, path = file("modules/itin")).settings(
     resolvers ++= commonResolvers
-  ).dependsOn(webCore)
+  ).dependsOn(webCore % "test->test;compile->compile")
+
+  val dataset = PlayProject("dataset", "1.0-SNAPSHOT", Seq.empty, path = file("modules/dataset"), settings = Defaults.defaultSettings ++ buildInfoSettings).settings(
+    resolvers ++= commonResolvers,
+    sipCreator := sipCreatorVersion,
+    sourceGenerators in Compile <+= buildInfo,
+    buildInfoKeys := Seq[Scoped](name, version, scalaVersion, sbtVersion, sipCreator),
+    buildInfoPackage := "eu.delving.culturehub"
+  ).dependsOn(webCore % "test->test;compile->compile")
+
 
   val advancedSearch = PlayProject("advanced-search", "1.0-SNAPSHOT", Seq.empty, path = file("modules/advanced-search")).settings(
     resolvers ++= commonResolvers
-  ).dependsOn(webCore)
+  ).dependsOn(webCore % "test->test;compile->compile")
 
   val statistics = PlayProject("statistics", "1.0-SNAPSHOT", Seq.empty, path = file("modules/statistics")).settings(
     resolvers ++= commonResolvers
-  ).dependsOn(webCore)
+  ).dependsOn(webCore, dataset) // FIXME
 
-  val customHarvestCollection = PlayProject("customHarvestCollection", "1.0", Seq.empty, path = file("modules/customHarvestCollection")).settings(
+  val customHarvestCollection = PlayProject("custom-harvest-collection", "1.0", Seq.empty, path = file("modules/custom-harvest-collection")).settings(
     resolvers ++= commonResolvers
-  ).dependsOn(webCore)
+  ).dependsOn(webCore % "test->test;compile->compile")
 
   val main = PlayProject(appName, cultureHubVersion, appDependencies, mainLang = SCALA, settings = Defaults.defaultSettings ++ buildInfoSettings ++ groovyTemplatesSettings).settings(
 
     onLoadMessage := "May the force be with you",
 
-    sipCreator := sipCreatorVersion,
     resolvers += Resolver.file("local-ivy-repo", file(Path.userHome + "/.ivy2/local"))(Resolver.ivyStylePatterns),
     resolvers ++= commonResolvers,
     resolvers += "apache-snapshots" at "https://repository.apache.org/content/groups/snapshots-group/",
 
     sourceGenerators in Compile <+= groovyTemplatesList,
 
+    sipCreator := sipCreatorVersion,
     sourceGenerators in Compile <+= buildInfo,
     buildInfoKeys := Seq[Scoped](name, version, scalaVersion, sbtVersion, sipCreator),
     buildInfoPackage := "eu.delving.culturehub",
 
-    watchSources <++= baseDirectory map { path => ((path / "web-core" / "app")                             ** "*").get },
-    watchSources <++= baseDirectory map { path => ((path / "modules"  / "customHarvestCollection" / "app") ** "*").get },
-    watchSources <++= baseDirectory map { path => ((path / "modules"  / "advanced-search"         / "app") ** "*").get },
-    watchSources <++= baseDirectory map { path => ((path / "modules"  / "statistics"              / "app") ** "*").get },
-    watchSources <++= baseDirectory map { path => ((path / "modules"  / "dos"                     / "app") ** "*").get },
-    watchSources <++= baseDirectory map { path => ((path / "modules"  / "musip"                   / "app") ** "*").get },
+    watchSources <++= baseDirectory.map { path => ((path / "web-core"                               / "app") ** "*").get },
+    watchSources <++= baseDirectory.map { path => ((path / "modules"  / "custom-harvest-collection" / "app") ** "*").get },
+    watchSources <++= baseDirectory.map { path => ((path / "modules"  / "advanced-search"           / "app") ** "*").get },
+    watchSources <++= baseDirectory.map { path => ((path / "modules"  / "statistics"                / "app") ** "*").get },
+    watchSources <++= baseDirectory.map { path => ((path / "modules"  / "dos"                       / "app") ** "*").get },
+    watchSources <++= baseDirectory.map { path => ((path / "modules"  / "musip"                     / "app") ** "*").get },
 
     publishTo := Some(delvingRepository(cultureHubVersion)),
     credentials += Credentials(Path.userHome / ".ivy2" / ".credentials"),
@@ -123,7 +132,16 @@ object Build extends sbt.Build {
   ).settings(
     addArtifact(
       Artifact((appName + "-" + cultureHubVersion), "zip", "zip"), dist
-    ).settings :_*).dependsOn(webCore, dos, statistics, musip, customHarvestCollection, itin, advancedSearch)
+    ).settings :_*).dependsOn(
+    webCore                 % "test->test;compile->compile",
+    dataset                 % "test->test;compile->compile",
+    dos                     % "test->test;compile->compile",
+    statistics              % "test->test;compile->compile",
+    musip                   % "test->test;compile->compile",
+    customHarvestCollection % "test->test;compile->compile",
+    itin                    % "test->test;compile->compile",
+    advancedSearch          % "test->test;compile->compile"
+  )
 
 
 }

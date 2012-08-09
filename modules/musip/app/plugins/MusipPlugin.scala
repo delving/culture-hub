@@ -16,15 +16,15 @@ class MusipPlugin(app: Application) extends CultureHubPlugin(app) {
 
   val pluginKey: String = "musip"
 
-  override val routes: ListMap[(String, Regex), List[String] => Handler] = ListMap(
+  override val routes: ListMap[(String, Regex), (List[String], Map[String, String]) => Handler] = ListMap(
     ("GET", """^/([A-Za-z0-9-]+)/collection/([A-Za-z0-9-]+)$""".r) -> {
-      pathArgs: List[String] => controllers.musip.Show.collection(pathArgs(0), pathArgs(1))
+      (pathArgs: List[String], queryString: Map[String, String]) => controllers.musip.Show.collection(pathArgs(0), pathArgs(1))
     },
     ("GET", """^/([A-Za-z0-9-]+)/museum/([A-Za-z0-9-]+)$""".r) -> {
-      pathArgs: List[String] => controllers.musip.Show.museum(pathArgs(0), pathArgs(1))
+      (pathArgs: List[String], queryString: Map[String, String]) => controllers.musip.Show.museum(pathArgs(0), pathArgs(1))
     },
     ("GET", """^/organizations/([A-Za-z0-9-]+)/admin/musip/synchronize$""".r) -> {
-      pathArgs: List[String] => controllers.musip.Admin.synchronize(pathArgs(0))
+      (pathArgs: List[String], queryString: Map[String, String]) => controllers.musip.Admin.synchronize(pathArgs(0))
     })
 
   override def mainMenuEntries(implicit configuration: DomainConfiguration, lang: String): Seq[MainMenuEntry] = Seq(

@@ -16,9 +16,9 @@ class StatisticsPlugin(app: Application) extends CultureHubPlugin(app) {
 
   val pluginKey: String = "statistics"
 
-  override val routes: ListMap[(String, Regex), (List[String]) => Handler] = ListMap(
+  override val routes: ListMap[(String, Regex), (List[String], Map[String, String]) => Handler] = ListMap(
     ("GET", """^/organizations/([A-Za-z0-9-]+)/statistics/dataset$""".r) -> {
-      pathArgs: List[String] => controllers.statistics.Statistics.statistics(pathArgs(0))
+      (pathArgs: List[String], queryString: Map[String, String]) => controllers.statistics.Statistics.statistics(pathArgs(0))
     })
 
   override def organizationMenuEntries(orgId: String, lang: String, roles: Seq[String]): Seq[MainMenuEntry] = Seq(

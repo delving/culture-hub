@@ -40,7 +40,9 @@
                     <p>&{'org.admin.index.addMembers'}</p>
                 </div>
             </div>
-            <div class="control-group" data-bind="visible: canChangeGrantType() && (grantType() == 'view' || grantType() == 'modify')">
+
+            *{ TODO generify to resource of any kind, not only DataSet }*
+            <div class="control-group" data-bind="visible: canChangeGrantType() && (grantType() == 'canView' || grantType() == 'canUpdate')">
                 <label class="control-label" for="datasetsInput">&{'thing.datasets'}</label>
                 <div class="controls">
                 #{if id.isDefined()}

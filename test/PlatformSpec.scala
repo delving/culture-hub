@@ -1,3 +1,4 @@
+import core.CultureHubPlugin
 import models.DomainConfiguration
 import org.specs2.mutable.Specification
 import util.DomainConfigurationHandler
@@ -18,8 +19,11 @@ class PlatformSpec extends Specification with TestContext {
 
     "load configurations from disk into memory" in {
       withTestConfig {
-        domainConfigurationHandler.startup()
-        DomainConfiguration.getAll.size should not equalTo (0)
+
+
+
+        domainConfigurationHandler.startup(CultureHubPlugin.hubPlugins)
+        DomainConfiguration.startup(CultureHubPlugin.hubPlugins).size should not equalTo (0)
       }
     }
 

@@ -45,7 +45,7 @@ class ViewRenderSpec extends Specification with TestContext {
         val namespaces = Map("delving" -> "http://www.delving.eu/schemas/delving-1.0.xsd", "dc" -> "http://dublincore.org/schemas/xmls/qdc/dc.xsd", "icn" -> "http://www.icn.nl/schemas/ICN-V3.2.xsd")
 
         val renderer = new ViewRenderer("icn", "full", configuration)
-        val view = renderer.renderRecordWithView("icn", "full", testHtmlViewDefinition, testRecord(), List(Role("administrator", "blabla", "icn")), namespaces, Lang("en"), Map.empty)
+        val view = renderer.renderRecordWithView("icn", "full", testHtmlViewDefinition, testRecord(), List(Role("administrator", Map("en" -> "blabla"))), namespaces, Lang("en"), Map.empty)
 
         val template = GenericTemplateLoader.load(Play2VirtualFile.fromFile(Play.getFile("test/view.html")))
         val args: java.util.Map[String, Object] = new java.util.HashMap[String, Object]()

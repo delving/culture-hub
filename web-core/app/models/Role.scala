@@ -27,28 +27,24 @@ object Role {
       (lang.language -> Messages("org.group.grantType." + key))
   }.toMap
 
-  // TODO move to plugin, or better yet, replace by the generic resource rights
-  val VIEW = Role("view", description("view"), Seq(MetaRole.CAN_VIEW), Some(DataSet.RESOURCE_TYPE))
-  val MODIFY = Role("modify", description("modify"), Seq(MetaRole.CAN_VIEW, MetaRole.CAN_UPDATE), Some(DataSet.RESOURCE_TYPE))
-  val OWN = Role("own", description("own"), Seq(MetaRole.CAN_VIEW, MetaRole.CAN_CREATE, MetaRole.CAN_UPDATE, MetaRole.CAN_DELETE), Some(DataSet.RESOURCE_TYPE))
+  val OWN = Role("own", description("own"), Seq(ResourceRole.CAN_VIEW, ResourceRole.CAN_CREATE, ResourceRole.CAN_UPDATE, ResourceRole.CAN_DELETE))
 
   // TODO move to plugin
   val CMS = Role("cms", description("cms"), Seq.empty, None)
 
-  val systemGrantTypes = List(VIEW, MODIFY, CMS, OWN)
+  val systemGrantTypes = List(CMS, OWN)
 
   def dynamicGrantTypes(configuration: DomainConfiguration) = configuration.roles
 
   def computeGrantTypes(configuration: DomainConfiguration) = (systemGrantTypes ++ dynamicGrantTypes(configuration))
 
-  def allGrantTypes(configuration: DomainConfiguration) = computeGrantTypes(configuration)
+  def allGrantTypes(configuration: DomainConfiguration): Seq[Role] = computeGrantTypes(configuration)
 
   def get(grantType: String)(implicit configuration: DomainConfiguration) = allGrantTypes(configuration).find(_.key == grantType).getOrElse(illegal(grantType))
 
 }
 
-// TODO remember what we designed this for.
-object MetaRole {
+object ResourceRole {
 
   val RESOURCE_TYPE_SYSTEM = Some(ResourceType("system"))
 

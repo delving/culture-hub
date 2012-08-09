@@ -205,7 +205,7 @@ object Groups extends OrganizationController {
 
 case class GroupViewModel(id: Option[ObjectId] = None,
                           name: String = "",
-                          grantType: String = Role.VIEW.key,
+                          grantType: String = Role.CMS.key,
                           canChangeGrantType: Boolean = true,
                           users: List[Token] = List.empty[Token],
                           dataSets: List[Token] = List.empty[Token],

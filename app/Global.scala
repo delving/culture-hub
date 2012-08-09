@@ -4,19 +4,12 @@
  */
 
 import actors._
-import akka.actor.SupervisorStrategy.{Stop, Restart}
-import akka.routing.RoundRobinRouter
-import controllers.ReceiveSource
-import core.indexing.IndexingService
 import core.{CultureHubPlugin, HubServices}
-import java.io.File
-import models.{DataSetState, DataSet}
 import play.api.libs.concurrent._
 import akka.util.duration._
 import akka.actor._
 import core.mapping.MappingService
 import play.api._
-import libs.Files
 import mvc.{Handler, RequestHeader}
 import play.api.Play.current
 import util.DomainConfigurationHandler
@@ -25,10 +18,6 @@ import play.api.mvc.Results._
 
 object Global extends GlobalSettings {
 
-  lazy val hubPlugins: List[CultureHubPlugin] = Play.application.plugins.
-    filter(_.isInstanceOf[CultureHubPlugin]).
-    map(_.asInstanceOf[CultureHubPlugin]).
-    toList
 
   override def onStart(app: Application) {
     if (!Play.isTest) {
@@ -56,13 +45,7 @@ object Global extends GlobalSettings {
     // ~~~ load configurations
     try {
 
-      println()
-      println()
-      println(hubPlugins)
-      println()
-      println()
-
-      DomainConfigurationHandler.startup(hubPlugins)
+      DomainConfigurationHandler.startup(CultureHubPlugin.hubPlugins)
     } catch {
       case t: Throwable =>
         t.printStackTrace()
@@ -86,36 +69,6 @@ object Global extends GlobalSettings {
     }
 
     // ~~~ bootstrap jobs
-
-    // DataSet source parsing
-    Akka.system.actorOf(Props[ReceiveSource].withRouter(
-      RoundRobinRouter(Runtime.getRuntime.availableProcessors(), supervisorStrategy = OneForOneStrategy() {
-        case _ => Restart
-      })
-    ), name = "dataSetParser")
-
-    // DataSet processing
-    // Play can't do multi-threading in DEV mode...
-    val processor = if(Play.isDev) {
-      Akka.system.actorOf(Props[Processor], name = "dataSetProcessor")
-    } else {
-      Akka.system.actorOf(Props[Processor].withRouter(
-            RoundRobinRouter(Runtime.getRuntime.availableProcessors(), supervisorStrategy = OneForOneStrategy() {
-              case _ => Stop
-            })
-          ), name = "dataSetProcessor")
-    }
-
-    Akka.system.scheduler.schedule(
-      0 seconds,
-      10 seconds,
-      processor,
-      PollDataSets
-    )
-
-    // DataSet housekeeping
-    val dataSetHousekeeper = Akka.system.actorOf(Props[DataSetEventHousekeeper])
-    Akka.system.scheduler.schedule(20 seconds, 30 minutes, dataSetHousekeeper, CleanupTransientEvents)
 
     // token expiration
     val tokenExpiration = Akka.system.actorOf(Props[TokenExpiration])
@@ -153,28 +106,6 @@ object Global extends GlobalSettings {
       PersistRouteAccess
     )
 
-    // ~~~ finally, bootstrap plugins
-    hubPlugins.foreach(_.onApplicationStart())
-
-
-    // ~~~ cleanup set states
-    // TODO move to appropriate component initialization
-
-    DataSet.all.foreach {
-      dataSetDAO =>
-        dataSetDAO.findByState(DataSetState.PROCESSING, DataSetState.CANCELLED).foreach {
-          set =>
-            dataSetDAO.updateState(set, DataSetState.CANCELLED)
-            try {
-              IndexingService.deleteBySpec(set.orgId, set.spec)(DomainConfigurationHandler.getByOrgId(set.orgId))
-            } catch {
-              case t => Logger("CultureHub").error("Couldn't delete SOLR index for cancelled set %s:%s at startup".format(set.orgId, set.spec), t)
-            } finally {
-              dataSetDAO.updateState(set, DataSetState.UPLOADED)
-            }
-        }
-    }
-
     // ~~~ load test data
 
     if (Play.isDev || Play.isTest) {
@@ -189,19 +120,6 @@ object Global extends GlobalSettings {
     import models.mongoContext._
     close()
     }
-
-    // TODO move to component initialization
-    // cleanly cancel all active processing
-    DataSet.all.foreach {
-      dataSetDAO =>
-        dataSetDAO.findByState(DataSetState.PROCESSING).foreach {
-          set =>
-            dataSetDAO.updateState(set, DataSetState.CANCELLED)
-        }
-
-    }
-    Thread.sleep(2000)
-
   }
 
   override def onError(request: RequestHeader, ex: Throwable) = {
@@ -231,7 +149,7 @@ object Global extends GlobalSettings {
       Some(controllers.Default.redirect(Play.configuration.getString("defaultDomainRedirect").getOrElse("http://www.delving.eu")))
     } else {
       val configuration = DomainConfigurationHandler.getByDomain(request.domain)
-      val routes = hubPlugins.filter(p => p.isEnabled(configuration)).flatMap(_.routes)
+      val routes = CultureHubPlugin.hubPlugins.filter(p => p.isEnabled(configuration)).flatMap(_.routes)
 
       val routeLogger = Akka.system.actorFor("akka://application/user/routeLogger")
       val apiRouteMatcher = """^/organizations/([A-Za-z0-9-]+)/api/(.)*""".r
@@ -249,6 +167,7 @@ object Global extends GlobalSettings {
       }
 
       // poor man's modular routing, based on CultureHub plugins
+      // thou shalt not try to improve this code, it's meant to be provided by the framework at some point
 
       val matches = routes.flatMap(r => {
         val matcher = r._1._2.pattern.matcher(request.path)
@@ -262,7 +181,7 @@ object Global extends GlobalSettings {
 
       if (matches.headOption.isDefined) {
         val handlerCall = matches.head
-        val handler = handlerCall._2(handlerCall._1)
+        val handler = handlerCall._2(handlerCall._1, request.queryString.filterNot(_._2.isEmpty).map(qs => (qs._1 -> qs._2.head)))
         Some(handler)
       } else {
         super.onRouteRequest(request)

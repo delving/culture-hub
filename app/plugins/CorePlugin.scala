@@ -1,10 +1,13 @@
 package plugins
 
 import play.api.Application
-import core.{HubServices, MenuElement, MainMenuEntry, CultureHubPlugin}
+import core.CultureHubPlugin
 import models._
 import core.collection.HarvestCollectionLookup
+import org.bson.types.ObjectId
+import com.mongodb.casbah.Imports._
 import core.MainMenuEntry
+import models.UserProfile
 import scala.Some
 import core.MenuElement
 
@@ -18,7 +21,7 @@ class CorePlugin(app: Application) extends CultureHubPlugin(app) {
 
   val pluginKey: String = "core"
 
-  private val dataSetHarvestCollectionLookup = new DataSetHarvestCollectionLookup
+  private val dataSetHarvestCollectionLookup = new DataSetLookup
 
   override def enabled: Boolean = true
 
@@ -53,21 +56,52 @@ class CorePlugin(app: Application) extends CultureHubPlugin(app) {
         MenuElement("/organizations/%s/groups".format(orgId), "org.group.list"),
         MenuElement("/organizations/%s/groups/create".format(orgId), "org.group.create", Seq(Role.OWN))
       )
-    ),
-    MainMenuEntry(
-      key = "datasets",
-      titleKey = "thing.datasets",
-      items = Seq(
-        MenuElement("/organizations/%s/dataset".format(orgId), "organization.dataset.list"),
-        MenuElement("/organizations/%s/dataset/add".format(orgId), "organization.dataset.create", Seq(Role.OWN))
-      )
-    ),
-    MainMenuEntry(
-      key = "sipcreator",
-      titleKey = "ui.label.sipcreator",
-      mainEntry = Some(MenuElement("/organizations/%s/sip-creator".format(orgId), "ui.label.sipcreator"))
     )
   )
 
   override def harvestCollectionLookups: Seq[HarvestCollectionLookup] = Seq(dataSetHarvestCollectionLookup)
+
+  /**
+   * Executed when test data is loaded (for development and testing)
+   */
+  override def onLoadTestData() {
+    if (HubUser.dao("delving").count() == 0) bootstrapUser()
+    if (Group.dao("delving").count() == 0) bootstrapAccessControl()
+
+    def bootstrapUser() {
+      val profile = UserProfile()
+      HubUser.dao("delving").insert(new HubUser(
+        _id = new ObjectId("4e5679a80364ae80333ab939"),
+        userName = "bob",
+        firstName = "bob",
+        lastName = "Marley",
+        email = "bob@gmail.com",
+        userProfile = profile
+      ))
+      HubUser.dao("delving").insert(new HubUser(
+        _id = new ObjectId("4e5679a80364ae80333ab93a"),
+        userName = "jimmy",
+        firstName = "Jimmy",
+        lastName = "Hendrix",
+        email = "jimmy@gmail.com",
+        userProfile = profile
+      ))
+      HubUser.dao("delving").insert(new HubUser(
+        _id = new ObjectId("4e5679a80364ae80333ab93b"),
+        userName = "dan",
+        firstName = "Dan",
+        lastName = "Brown",
+        email = "dan@gmail.com",
+        userProfile = profile
+      ))
+    }
+
+    def bootstrapAccessControl() {
+
+      // all users are in delving
+      HubUser.dao("delving").find(MongoDBObject()).foreach(u => HubUser.dao("delving").addToOrganization(u.userName, "delving"))
+
+    }
+
+  }
 }

@@ -13,7 +13,6 @@ class OAIPMHSpec extends Specification with TestContext {
   step {
     withTestConfig {
       load()
-      loadDataSet()
     }
   }
 
