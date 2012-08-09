@@ -768,8 +768,19 @@ form label.radio {
 
 /* object view ************/
 
-#object .page-header h1 {
-    line-height: 135%;
+#object .page-header {
+    /*line-height: 135%;*/
+    /*background: #888;*/
+    /*color: white;*/
+    font-size: 150%;
+    border-bottom: none;
+    line-height: 125%;
+    margin: 13px 0;
+    padding: 0;
+}
+
+#object .social-media-block {
+    margin: 13px 0;
 }
 
 #object h5 {
