@@ -59,7 +59,9 @@ object Build extends sbt.Build {
     credentials += Credentials(Path.userHome / ".ivy2" / ".credentials"),
     publishMavenStyle := true,
     resolvers ++= commonResolvers,
-    resolvers += "BaseX Repository" at "http://files.basex.org/maven"
+    resolvers += "BaseX Repository" at "http://files.basex.org/maven",
+    publish := { }
+
   )
 
   val dosDependencies = Seq(
@@ -69,16 +71,19 @@ object Build extends sbt.Build {
 
   val dos = PlayProject("dos", dosVersion, dosDependencies, path = file("modules/dos")).settings(
     resolvers += "buzzmedia" at "http://maven.thebuzzmedia.com",
-    resolvers ++= commonResolvers
+    resolvers ++= commonResolvers,
+    publish := { }
   ).dependsOn(webCore % "test->test;compile->compile")
 
   // TODO move to its own source repo once we have something stable
   val musip = PlayProject("musip", "1.0-SNAPSHOT", Seq.empty, path = file("modules/musip")).settings(
-    resolvers ++= commonResolvers
+    resolvers ++= commonResolvers,
+    publish := { }
   ).dependsOn(webCore % "test->test;compile->compile")
 
   val itin = PlayProject("itin", "1.0", Seq.empty, path = file("modules/itin")).settings(
-    resolvers ++= commonResolvers
+    resolvers ++= commonResolvers,
+    publish := { }
   ).dependsOn(webCore % "test->test;compile->compile")
 
   val dataSet = PlayProject("dataset", "1.0-SNAPSHOT", Seq.empty, path = file("modules/dataset"), settings = Defaults.defaultSettings ++ buildInfoSettings).settings(
@@ -86,20 +91,24 @@ object Build extends sbt.Build {
     sipCreator := sipCreatorVersion,
     sourceGenerators in Compile <+= buildInfo,
     buildInfoKeys := Seq[Scoped](name, version, scalaVersion, sbtVersion, sipCreator),
-    buildInfoPackage := "eu.delving.culturehub"
+    buildInfoPackage := "eu.delving.culturehub",
+    publish := { }
   ).dependsOn(webCore % "test->test;compile->compile")
 
 
   val advancedSearch = PlayProject("advanced-search", "1.0-SNAPSHOT", Seq.empty, path = file("modules/advanced-search")).settings(
-    resolvers ++= commonResolvers
+    resolvers ++= commonResolvers,
+    publish := { }
   ).dependsOn(webCore % "test->test;compile->compile")
 
   val statistics = PlayProject("statistics", "1.0-SNAPSHOT", Seq.empty, path = file("modules/statistics")).settings(
-    resolvers ++= commonResolvers
+    resolvers ++= commonResolvers,
+    publish := { }
   ).dependsOn(webCore, dataSet) // FIXME
 
   val customHarvestCollection = PlayProject("custom-harvest-collection", "1.0", Seq.empty, path = file("modules/custom-harvest-collection")).settings(
-    resolvers ++= commonResolvers
+    resolvers ++= commonResolvers,
+    publish := { }
   ).dependsOn(webCore % "test->test;compile->compile")
 
   val main = PlayProject(appName, cultureHubVersion, appDependencies, mainLang = SCALA, settings = Defaults.defaultSettings ++ buildInfoSettings ++ groovyTemplatesSettings).settings(
