@@ -48,11 +48,11 @@ object  Search extends DelvingController {
             'pagination -> briefItemView.getPagination,
             'facets -> briefItemView.getFacetQueryLinks,
             'themeFacets -> configuration.getFacets,
-            'searchTerm -> solrQuery.mkString(" "),
+            'searchTerm -> query,
             'returnToResults -> request.rawQueryString)).withSession(
             session +
               (RETURN_TO_RESULTS -> request.rawQueryString) +
-              (SEARCH_TERM -> solrQuery.mkString(" ")))
+              (SEARCH_TERM -> query))
         } catch {
           case MalformedQueryException(s, t) => BadRequest(Template("/Search/invalidQuery.html", 'query -> query))
           case c: SolrConnectionException => Error(Messages("search.backendConnectionError"))
@@ -104,7 +104,9 @@ object  Search extends DelvingController {
                   val renderResult = RecordRenderer.renderMetadataRecord(hubId, mdr.xml(renderingSchema.get), renderingSchema.get, renderingSchema.get, ViewType.HTML, getLang, false, Seq.empty, facts.toMap)
 
                   if(renderResult.isRight) {
-                    val updatedSession = if (request.headers.get(REFERER) == None || !request.headers.get(REFERER).get.contains("search")) {
+                    val navigateFromSearch = request.headers.get(REFERER) != None && request.headers.get(REFERER).get.contains("search")
+                    val navigateFromRelatedItem = request.queryString.getFirst("mlt").getOrElse("false").toBoolean
+                    val updatedSession = if (!navigateFromSearch && !navigateFromRelatedItem) {
                       // we're coming from someplace else then a search, remove the return to results cookie
                       request.session - (RETURN_TO_RESULTS)
                     } else {
@@ -114,7 +116,18 @@ object  Search extends DelvingController {
                     val returnToResults = updatedSession.get(RETURN_TO_RESULTS).getOrElse("")
                     val searchTerm = updatedSession.get(SEARCH_TERM).getOrElse("")
 
-                    Ok(Template("Search/object.html", 'systemFields -> mdr.systemFields, 'fullView -> renderResult.right.get.toViewTree, 'returnToResults -> returnToResults, 'searchTerm -> searchTerm, 'orgId -> orgId, 'hubId -> hubId)).withSession(updatedSession)
+                    Ok(
+                      Template(
+                        "Search/object.html",
+                        'systemFields -> mdr.systemFields,
+                        'fullView -> renderResult.right.get.toViewTree,
+                        'returnToResults -> returnToResults,
+                        'searchTerm -> searchTerm,
+                        'orgId -> orgId,
+                        'hubId -> hubId,
+                        'rights -> collection.getRights
+                      )
+                    ).withSession(updatedSession)
 
                   } else {
                     NotFound(Messages("rendering.notViewable", "Error during rendering: " + renderResult.left.get))

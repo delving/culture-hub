@@ -98,6 +98,9 @@ ui.label.visibility.notpublic=Privé
 ui.label.website=Website
 ui.label.welcome=Welkom
 ui.label.all=Alles
+ui.label.withoutDigitalObject=Heeft geen afbeelding
+ui.label.withDigitalObject=Heeft afbeelding
+
 
 # General 'thing' like object, collection or story
 thing.label=Label
@@ -167,7 +170,7 @@ thing.startYear=Start jaar
 thing.endYear=Eind jaar
 thing.keyword=Trefwoord
 thing.keywords=Trefwoorden
-thing.relatedItems=Gerelateerde content
+thing.relatedItems=Soortgelijke inhoud
 
 
 

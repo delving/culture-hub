@@ -1,10 +1,10 @@
 package controllers.api
 
-import controllers.DelvingController
-import play.api.mvc.Action
-import core.HubServices
+import controllers.RenderingExtensions
+import play.api.mvc.{Controller, Action}
+import core.{DomainConfigurationAware, HubServices}
 import play.api.i18n.Messages
-import models.{DataSet, Visibility}
+import models.DataSet
 
 /**
  * Organization API
@@ -12,9 +12,9 @@ import models.{DataSet, Visibility}
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-object Organization extends DelvingController {
+object Organization extends Controller with DomainConfigurationAware with RenderingExtensions {
 
-  def providers(orgId: String) = Root {
+  def providers(orgId: String) = DomainConfigured {
     Action {
       implicit request =>
         if (HubServices.organizationService(configuration).exists(orgId)) {
@@ -38,7 +38,7 @@ object Organization extends DelvingController {
     }
   }
 
-  def dataProviders(orgId: String) = Root {
+  def dataProviders(orgId: String) = DomainConfigured {
     Action {
       implicit request =>
         if (HubServices.organizationService(configuration).exists(orgId)) {
@@ -62,7 +62,7 @@ object Organization extends DelvingController {
     }
   }
 
-  def collections(orgId: String) = Root {
+  def collections(orgId: String) = DomainConfigured {
     Action {
       implicit request =>
         if (HubServices.organizationService(configuration).exists(orgId)) {

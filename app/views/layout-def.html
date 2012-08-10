@@ -7,7 +7,7 @@
        <div class="navbar navbar-fixed-top">
             <div class="navbar-inner">
                 <div class="container"  id="top-nav">
-                #{userNav userName: userName, email:email, organizations:organizations, showLang:themeInfo.get('userNavLangSelect'), showLogin:themeInfo.get('showLogin')/}
+                #{userNav userName: userName, email:email, organizations:organizations, showLang:themeInfo.get('userNavLangSelect'), showLogin:themeInfo.showLogin()/}
                 <div class="nav-collapse">
                     <form method="get" action="/search" class="navbar-search pull-right form-horizontal" id="simple-search" onsubmit="return checkSimpleSearchSubmit('query');">
                         #{searchIn searchIn: params.searchIn, fields: searchIn /}

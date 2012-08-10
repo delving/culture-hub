@@ -1,7 +1,5 @@
 package controllers.organization
 
-import play.api.Play
-import play.api.Play.current
 import play.api.mvc._
 import play.api.i18n._
 import play.api.data.Form
@@ -15,7 +13,6 @@ import models._
 import cms.{MenuEntry, CMSPage}
 import com.mongodb.casbah.Imports._
 import core.HubServices
-import util.DomainConfigurationHandler
 
 
 /**
@@ -159,13 +156,6 @@ object CMS extends OrganizationController {
         }
     }
   }
-
-  private def getThemes = if (Play.isDev || DomainConfigurationHandler.domainConfigurations.length == 1) {
-    DomainConfigurationHandler.domainConfigurations.map(t => (t.name, t.name))
-  } else {
-    DomainConfigurationHandler.domainConfigurations.filterNot(_.name == "default").map(t => (t.name, t.name))
-  }
-
 
 }
 
