@@ -33,7 +33,7 @@ import util.DomainConfigurationHandler
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-class ViewRenderSpec extends Specification with TestContext {
+class ViewRenderSpec extends TestContext {
 
   "The ViewRenderer" should {
 

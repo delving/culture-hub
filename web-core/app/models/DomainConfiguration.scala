@@ -433,28 +433,29 @@ object DomainConfiguration {
     }
 
     // can I haz plugin?
+//    val invalidPluginKeys: Seq[(DomainConfiguration, String, Option[CultureHubPlugin])] = configurations.flatMap { configuration =>
+//      configuration.plugins.map(key => Tuple3(configuration, key, plugins.find(_.pluginKey == key))).filter(_._3.isEmpty)
+//    }
+//    if(!invalidPluginKeys.isEmpty) {
+//
+//      val error = "Found two or more configurations that reference non-existing plugins:\n" +
+//                    invalidPluginKeys.map(r => "Configuration " + r._1.name + ": " + r._2 + " does not exist or is not available").mkString("\n")
+//
+//      log.error(error)
+//      throw new RuntimeException("Role definition inconsistency. No can do.\n\n" + error)
+//    }
 
-    val invalidPluginKeys: Seq[(DomainConfiguration, String, Option[CultureHubPlugin])] = configurations.flatMap { configuration =>
-      configuration.plugins.map(key => Tuple3(configuration, key, plugins.find(_.pluginKey == key))).filter(_._3.isEmpty)
-    }
-    if(!invalidPluginKeys.isEmpty) {
-      log.error(
-        "Found two or more configurations that reference non-existing plugins:\n" +
-              invalidPluginKeys.map(r => "Configuration " + r._1.name + ": " + r._2 + " does not exist or is not available").mkString("\n")
-      )
-      throw new RuntimeException("Role definition inconsistency. No can do.")
-    }
 
 
     // access control subsystem: check roles and resource handlers defined by plugins
 
     val duplicateRoleKeys = plugins.flatMap(plugin => plugin.roles.map(r => (r -> plugin.pluginKey))).groupBy(_._1.key).filter(_._2.size > 1)
     if(!duplicateRoleKeys.isEmpty) {
-      log.error(
-        "Found two or more roles with the same key: " +
-              duplicateRoleKeys.map(r => r._1 + ": " + r._2.map(pair => "Plugin " + pair._2).mkString(", ")).mkString(", ")
-      )
-      throw new RuntimeException("Role definition inconsistency. No can do.")
+      val error = "Found two or more roles with the same key: " +
+                    duplicateRoleKeys.map(r => r._1 + ": " + r._2.map(pair => "Plugin " + pair._2).mkString(", ")).mkString(", ")
+
+      log.error(error)
+      throw new RuntimeException("Role definition inconsistency. No can do.\n\n" + error)
     }
 
     // make sure that if a Role defines a ResourceType, its declaring plugin also provides a ResourceLookup

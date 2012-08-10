@@ -4,11 +4,10 @@
  */
 
 import actors._
-import core.{CultureHubPlugin, HubServices}
+import core.CultureHubPlugin
 import play.api.libs.concurrent._
 import akka.util.duration._
 import akka.actor._
-import core.mapping.MappingService
 import play.api._
 import mvc.{Handler, RequestHeader}
 import play.api.Play.current
@@ -17,7 +16,6 @@ import eu.delving.culturehub.BuildInfo
 import play.api.mvc.Results._
 
 object Global extends GlobalSettings {
-
 
   override def onStart(app: Application) {
     if (!Play.isTest) {
@@ -40,32 +38,6 @@ object Global extends GlobalSettings {
             Sip-Creator Version %s
 
       """.format(BuildInfo.version, BuildInfo.sipCreator))
-    }
-
-    // ~~~ load configurations
-    try {
-
-      DomainConfigurationHandler.startup(CultureHubPlugin.hubPlugins)
-    } catch {
-      case t: Throwable =>
-        t.printStackTrace()
-        System.exit(-1)
-    }
-
-    if (!Play.isTest) {
-      println("Using the following configurations: " + DomainConfigurationHandler.domainConfigurations.map(_.name).mkString(", "))
-    }
-
-    // ~~~ bootstrap services
-    HubServices.init()
-    MappingService.init()
-
-    // ~~~ sanity check
-    DomainConfigurationHandler.domainConfigurations.foreach { configuration =>
-      if(!HubServices.organizationService(configuration).exists(configuration.orgId)) {
-        println("Organization %s does not exist on the configured Organizations service!".format(configuration.orgId))
-        System.exit(-1)
-      }
     }
 
     // ~~~ bootstrap jobs

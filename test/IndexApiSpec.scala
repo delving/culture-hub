@@ -2,7 +2,6 @@ import core.indexing.IndexingService
 import core.search.SolrQueryService
 import models.MetadataCache
 import org.apache.solr.client.solrj.SolrQuery
-import org.specs2.mutable.Specification
 import play.api.test.Helpers._
 import play.api.test.{FakeHeaders, FakeRequest}
 import util.DomainConfigurationHandler
@@ -14,7 +13,7 @@ import scala.xml.Utility.trim
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-class IndexApiSpec extends Specification with TestContext {
+class IndexApiSpec extends TestContext {
 
   val testItems = <indexRequest>
                       <indexItem itemId="123" itemType="book">

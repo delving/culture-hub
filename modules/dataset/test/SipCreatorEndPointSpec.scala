@@ -4,32 +4,21 @@ import core.mapping.MappingService
 import eu.delving.metadata.RecMapping
 import java.io._
 import java.util.zip.{ZipInputStream, GZIPInputStream}
-import org.apache.commons.io.{FileUtils, IOUtils}
-import org.apache.solr.common.util.FileUtils
+import org.apache.commons.io.IOUtils
 import org.specs2.mutable._
 import collection.JavaConverters._
-import play.api.mvc.AnyContentAsText
-import play.api.mvc.AnyContentAsText
-import play.api.mvc.AnyContentAsText
 import play.api.test._
-import play.api.test.FakeHeaders
-import play.api.test.FakeHeaders
-import play.api.test.FakeHeaders
 import play.api.test.Helpers._
 import models._
 import play.api.mvc._
 import play.api.libs.Files.TemporaryFile
 import play.api.libs.Files
-import scala.Some
-import scala.Some
-import scala.Some
 import util.DomainConfigurationHandler
 import xml.XML
 
-class SipCreatorEndPointSpec extends Specification with TestContext {
+class SipCreatorEndPointSpec extends TestContext {
 
   step {
-    cleanup()
     loadStandalone()
   }
 
@@ -83,8 +72,8 @@ F1D3FF8443297732862DF21DC4E57262__validation_icn.int"""
 
     "accept a hints file" in {
       withTestConfig {
-        val hintsSource: String = "conf/bootstrap/E6D086CAC8F6316F70050BC577EB3920__hints.txt"
-        val hintsTarget = "target/E6D086CAC8F6316F70050BC577EB3920__hints.txt"
+        val hintsSource: String = "modules/dataset/conf/bootstrap/E6D086CAC8F6316F70050BC577EB3920__hints.txt"
+        val hintsTarget = "modules/dataset/target/E6D086CAC8F6316F70050BC577EB3920__hints.txt"
         Files.copyFile(new File(hintsSource), new File(hintsTarget))
 
         val result = controllers.SipCreatorEndPoint.acceptFile("delving", "PrincessehofSample", "E6D086CAC8F6316F70050BC577EB3920__hints.txt", Some("TEST"))(FakeRequest(
@@ -103,8 +92,8 @@ F1D3FF8443297732862DF21DC4E57262__validation_icn.int"""
 
     "accept a mappings file" in {
       withTestConfig {
-        val mappingSource: String = "conf/bootstrap/A2098A0036EAC14E798CA3B653B96DD5__mapping_icn.xml"
-        val mappingTarget = "target/A2098A0036EAC14E798CA3B653B96DD5__mapping_icn.xml"
+        val mappingSource: String = "modules/dataset/conf/bootstrap/A2098A0036EAC14E798CA3B653B96DD5__mapping_icn.xml"
+        val mappingTarget = "modules/dataset/target/A2098A0036EAC14E798CA3B653B96DD5__mapping_icn.xml"
         Files.copyFile(new File(mappingSource), new File(mappingTarget))
 
         val result = controllers.SipCreatorEndPoint.acceptFile("delving", "PrincessehofSample", "A2098A0036EAC14E798CA3B653B96DD5__mapping_icn.xml", Some("TEST"))(FakeRequest(
@@ -130,8 +119,8 @@ F1D3FF8443297732862DF21DC4E57262__validation_icn.int"""
 
     "accept a int file" in {
       withTestConfig {
-        val intSource: String = "conf/bootstrap/F1D3FF8443297732862DF21DC4E57262__validation_icn.int"
-        val intTarget = "target/F1D3FF8443297732862DF21DC4E57262__validation_icn.int"
+        val intSource: String = "modules/dataset/conf/bootstrap/F1D3FF8443297732862DF21DC4E57262__validation_icn.int"
+        val intTarget = "modules/dataset/target/F1D3FF8443297732862DF21DC4E57262__validation_icn.int"
         Files.copyFile(new File(intSource), new File(intTarget))
 
         val result = controllers.SipCreatorEndPoint.acceptFile("delving", "PrincessehofSample", "F1D3FF8443297732862DF21DC4E57262__validation_icn.int", Some("TEST"))(FakeRequest(
@@ -155,8 +144,8 @@ F1D3FF8443297732862DF21DC4E57262__validation_icn.int"""
 
     "accept a source file" in {
       withTestConfig {
-        val sourceSource: String = "conf/bootstrap/EA525DF3C26F760A1D744B7A63C67247__source.xml.gz"
-        val sourceTarget = "target/EA525DF3C26F760A1D744B7A63C67247__source.xml.gz"
+        val sourceSource: String = "modules/dataset/conf/bootstrap/EA525DF3C26F760A1D744B7A63C67247__source.xml.gz"
+        val sourceTarget = "modules/dataset/target/EA525DF3C26F760A1D744B7A63C67247__source.xml.gz"
         Files.copyFile(new File(sourceSource), new File(sourceTarget))
 
         val result = controllers.SipCreatorEndPoint.acceptFile("delving", "PrincessehofSample", "EA525DF3C26F760A1D744B7A63C67247__source.xml.gz", Some("TEST"))(FakeRequest(
@@ -198,8 +187,8 @@ F1D3FF8443297732862DF21DC4E57262__validation_icn.int"""
 
     "update an int file" in {
       withTestConfig {
-        val intSource: String = "conf/bootstrap/F1D3FF8443297732862DF21EC4E57262__validation_icn.int"
-        val intTarget = "target/F1D3FF8443297732862DF21EC4E57262__validation_icn.int"
+        val intSource: String = "modules/dataset/conf/bootstrap/F1D3FF8443297732862DF21EC4E57262__validation_icn.int"
+        val intTarget = "modules/dataset/target/F1D3FF8443297732862DF21EC4E57262__validation_icn.int"
         Files.copyFile(new File(intSource), new File(intTarget))
 
         val result = controllers.SipCreatorEndPoint.acceptFile("delving", "PrincessehofSample", "F1D3FF8443297732862DF21EC4E57262__validation_icn.int", Some("TEST"))(FakeRequest(
@@ -232,7 +221,7 @@ F1D3FF8443297732862DF21DC4E57262__validation_icn.int"""
         val dataSet = DataSet.dao("delving").findBySpecAndOrgId("PrincessehofSample", "delving").get
 
         // first, ingest all sorts of things
-        val sourceFile = new File("conf/bootstrap/EA525DF3C26F760A1D744B7A63C67247__source.xml.gz")
+        val sourceFile = new File("modules/dataset/conf/bootstrap/EA525DF3C26F760A1D744B7A63C67247__source.xml.gz")
         val fis = new FileInputStream(sourceFile)
         val gis = new GZIPInputStream(fis)
         SipCreatorEndPoint.loadSourceData(dataSet, gis)
@@ -287,8 +276,8 @@ F1D3FF8443297732862DF21DC4E57262__validation_icn.int"""
     }
   }
 
-  withTestConfig {
-    step(cleanup)
+  step {
+    cleanup()
   }
 
 

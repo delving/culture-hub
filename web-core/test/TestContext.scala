@@ -2,6 +2,7 @@ import core.collection.AggregatingOrganizationCollectionLookup
 import core.HubServices
 import core.indexing.IndexingService
 import models.mongoContext._
+import org.specs2.mutable.Specification
 import play.api.mvc.{AsyncResult, Result}
 import play.api.test._
 import play.api.test.Helpers._
@@ -14,7 +15,9 @@ import xml.XML
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-trait TestContext {
+trait TestContext extends Specification {
+
+  args(sequential = true)
 
   def asyncToResult(response: Result) = response.asInstanceOf[AsyncResult].result.await.get
 

@@ -21,11 +21,13 @@ import scala.collection.immutable.ListMap
 import scala.util.matching.Regex
 import play.api.mvc.Handler
 import core._
+import collection.HarvestCollectionLookup
 
-class DatasetPlugin(app: Application) extends CultureHubPlugin(app) {
+class DataSetPlugin(app: Application) extends CultureHubPlugin(app) {
 
-  val pluginKey: String = "dataset"
+  val pluginKey: String = "dataSet"
 
+  private val dataSetHarvestCollectionLookup = new DataSetLookup
 
   /**
 
@@ -119,6 +121,7 @@ class DatasetPlugin(app: Application) extends CultureHubPlugin(app) {
 
   )
 
+  override def harvestCollectionLookups: Seq[HarvestCollectionLookup] = Seq(dataSetHarvestCollectionLookup)
 
   /**
    * Runs globally on application start, for the whole Hub. Make sure that whatever you run here is multitenancy-aware
@@ -147,7 +150,7 @@ class DatasetPlugin(app: Application) extends CultureHubPlugin(app) {
     }
 
     Akka.system.scheduler.schedule(
-      0 seconds,
+      10 seconds,
       10 seconds,
       processor,
       PollDataSets
@@ -160,36 +163,39 @@ class DatasetPlugin(app: Application) extends CultureHubPlugin(app) {
 
     // ~~~ cleanup set states
 
-    DataSet.all.foreach {
-      dataSetDAO =>
-        dataSetDAO.findByState(DataSetState.PROCESSING, DataSetState.CANCELLED).foreach {
-          set =>
-            dataSetDAO.updateState(set, DataSetState.CANCELLED)
-            try {
-              IndexingService.deleteBySpec(set.orgId, set.spec)(DomainConfigurationHandler.getByOrgId(set.orgId))
-            } catch {
-              case t: Throwable => Logger("CultureHub").error("Couldn't delete SOLR index for cancelled set %s:%s at startup".format(set.orgId, set.spec), t)
-            } finally {
-              dataSetDAO.updateState(set, DataSetState.UPLOADED)
-            }
-        }
+    if (!Play.isTest) {
+      DataSet.all.foreach {
+        dataSetDAO =>
+          dataSetDAO.findByState(DataSetState.PROCESSING, DataSetState.CANCELLED).foreach {
+            set =>
+              dataSetDAO.updateState(set, DataSetState.CANCELLED)
+              try {
+                IndexingService.deleteBySpec(set.orgId, set.spec)(DomainConfigurationHandler.getByOrgId(set.orgId))
+              } catch {
+                case t: Throwable => Logger("CultureHub").error("Couldn't delete SOLR index for cancelled set %s:%s at startup".format(set.orgId, set.spec), t)
+              } finally {
+                dataSetDAO.updateState(set, DataSetState.UPLOADED)
+              }
+          }
+      }
+      Thread.sleep(3000)
     }
-
   }
 
 
   override def onStop() {
-    // cleanly cancel all active processing
-    DataSet.all.foreach {
-      dataSetDAO =>
-        dataSetDAO.findByState(DataSetState.PROCESSING).foreach {
-          set =>
-            dataSetDAO.updateState(set, DataSetState.CANCELLED)
-        }
+    if (!Play.isTest) {
+      // cleanly cancel all active processing
+      DataSet.all.foreach {
+        dataSetDAO =>
+          dataSetDAO.findByState(DataSetState.PROCESSING).foreach {
+            set =>
+              dataSetDAO.updateState(set, DataSetState.CANCELLED)
+          }
 
+      }
+      Thread.sleep(2000)
     }
-    Thread.sleep(2000)
-
   }
 
   /**
@@ -198,52 +204,58 @@ class DatasetPlugin(app: Application) extends CultureHubPlugin(app) {
   override def onLoadTestData() {
     if (DataSet.dao("delving").count() == 0) bootstrapDatasets()
 
-    loadDataSet()
+    implicit val configuration = DomainConfigurationHandler.getByOrgId(("delving"))
+    val dataSet = DataSet.dao.findBySpecAndOrgId("PrincessehofSample", "delving").get
 
-    def loadDataSet() {
-      implicit val configuration = DomainConfigurationHandler.getByOrgId(("delving"))
-      val dataSet = DataSet.dao.findBySpecAndOrgId("PrincessehofSample", "delving").get
-      _root_.controllers.SipCreatorEndPoint.loadSourceData(dataSet, new GZIPInputStream(new FileInputStream(new File("conf/bootstrap/EA525DF3C26F760A1D744B7A63C67247__source.xml.gz"))))
-      DataSet.dao.updateState(dataSet, DataSetState.QUEUED)
-      DataSetCollectionProcessor.process(dataSet)
+    // provision records, but only if necessary
+    if (HubServices.basexStorage(configuration).openCollection(dataSet).isEmpty) {
+      _root_.controllers.SipCreatorEndPoint.loadSourceData(dataSet, new GZIPInputStream(Play.application.resourceAsStream("/bootstrap/EA525DF3C26F760A1D744B7A63C67247__source.xml.gz").get))
+      Thread.sleep(2000)
     }
 
+    // index them
+    DataSet.dao.updateState(dataSet, DataSetState.QUEUED)
+    DataSetCollectionProcessor.process(dataSet)
 
-    def bootstrapDatasets() {
-      implicit val configuration = DomainConfigurationHandler.getByOrgId(("delving"))
-
-      val factMap = new BasicDBObject()
-      factMap.put("spec", "PrincesseofSample")
-      factMap.put("name", "Princessehof Sample Dataset")
-      factMap.put("collectionType", "all")
-      factMap.put("namespacePrefix", "raw")
-      factMap.put("language", "nl")
-      factMap.put("country", "netherlands")
-      factMap.put("provider", "Sample Man")
-      factMap.put("dataProvider", "Sample Man")
-      factMap.put("rights", "http://creativecommons.org/publicdomain/mark/1.0/")
-      factMap.put("type", "IMAGE")
-
-      DataSet.dao("delving").insert(DataSet(
-        spec = "PrincessehofSample",
-        userName = "bob",
-        orgId = "delving",
-        state = DataSetState.ENABLED,
-        deleted = false,
-        details = Details(
-          name = "Princessehof Sample Dataset",
-          facts = factMap
-        ),
-        idxMappings = List("icn"),
-        invalidRecords = Map("icn" -> List(1)),
-        mappings = Map("icn" -> Mapping(
-          format = RecordDefinition.getRecordDefinition("icn").get,
-          recordMapping = Some(Source.fromInputStream(Play.application.resource("/bootstrap/A2098A0036EAC14E798CA3B653B96DD5__mapping_icn.xml").get.openStream()).getLines().mkString("\n"))
-        )),
-        formatAccessControl = Map("icn" -> FormatAccessControl(accessType = "public"))
-      ))
+    while (DataSet.dao.getState(dataSet.orgId, dataSet.spec) == DataSetState.PROCESSING) {
+      Thread.sleep(1000)
     }
 
+  }
+
+  def bootstrapDatasets() {
+    implicit val configuration = DomainConfigurationHandler.getByOrgId(("delving"))
+
+    val factMap = new BasicDBObject()
+    factMap.put("spec", "PrincesseofSample")
+    factMap.put("name", "Princessehof Sample Dataset")
+    factMap.put("collectionType", "all")
+    factMap.put("namespacePrefix", "raw")
+    factMap.put("language", "nl")
+    factMap.put("country", "netherlands")
+    factMap.put("provider", "Sample Man")
+    factMap.put("dataProvider", "Sample Man")
+    factMap.put("rights", "http://creativecommons.org/publicdomain/mark/1.0/")
+    factMap.put("type", "IMAGE")
+
+    DataSet.dao("delving").insert(DataSet(
+      spec = "PrincessehofSample",
+      userName = "bob",
+      orgId = "delving",
+      state = DataSetState.ENABLED,
+      deleted = false,
+      details = Details(
+        name = "Princessehof Sample Dataset",
+        facts = factMap
+      ),
+      idxMappings = List("icn"),
+      invalidRecords = Map("icn" -> List(1)),
+      mappings = Map("icn" -> Mapping(
+        format = RecordDefinition.getRecordDefinition("icn").get,
+        recordMapping = Some(Source.fromInputStream(Play.application.resource("/bootstrap/A2098A0036EAC14E798CA3B653B96DD5__mapping_icn.xml").get.openStream()).getLines().mkString("\n"))
+      )),
+      formatAccessControl = Map("icn" -> FormatAccessControl(accessType = "public"))
+    ))
   }
 }
 

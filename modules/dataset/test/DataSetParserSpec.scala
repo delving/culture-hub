@@ -4,25 +4,27 @@ import core.storage.Record
 import java.io.ByteArrayInputStream
 import models.DataSet
 import org.specs2.execute.Error
-import org.specs2.mutable.Specification
 import play.api.test._
 import play.api.test.Helpers._
 import util.SimpleDataSetParser
-import xml.XML
 
 /**
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-class DataSetParserSpec extends Specification with TestContext {
+class DataSetParserSpec extends TestContext {
 
+  step {
+    loadStandalone()
+  }
+  
 
   "The DataSetParser" should {
 
     "parse an input stream" in {
 
-      withTestData {
+      withTestConfig {
         val buffer = parseStream()
         buffer.length must be equalTo (2)
       }
@@ -31,7 +33,7 @@ class DataSetParserSpec extends Specification with TestContext {
 
     "properly assign invalid metadata formats" in {
 
-      withTestData {
+      withTestConfig {
         val ds = DataSet.dao("delving").findBySpecAndOrgId("PrincessehofSample", "delving").get
         DataSet.dao("delving").getInvalidRecords(ds)("icn").contains(1) must equalTo(true)
       }
@@ -39,14 +41,14 @@ class DataSetParserSpec extends Specification with TestContext {
     }
 
     "preserve cdata" in {
-      withTestData {
+      withTestConfig {
         val buffer = parseStream()
         buffer(0).document must contain("<![CDATA[")
       }
     }
 
     "preserve &amp; in elements" in {
-      withTestData {
+      withTestConfig {
         val buffer = parseStream()
 
         val parsed = buffer(0).document
@@ -55,7 +57,7 @@ class DataSetParserSpec extends Specification with TestContext {
     }
 
     "preserve &amp; in attributes" in {
-      withTestData {
+      withTestConfig {
         val buffer = parseStream()
 
         val parsed = buffer(0).document
@@ -64,7 +66,7 @@ class DataSetParserSpec extends Specification with TestContext {
     }
 
     "propertly escape identifiers with non-valid XML characters in them" in {
-      withTestData {
+      withTestConfig {
         val buffer = parseStream(sampleSourceWithWeirdId)
 
         val parsed = buffer(0)
@@ -75,6 +77,9 @@ class DataSetParserSpec extends Specification with TestContext {
 
 
   }
+  
+  step(cleanup())
+  
 
   def parseStream(): mutable.Buffer[Record] = parseStream(sampleSource)
 

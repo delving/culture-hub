@@ -81,7 +81,7 @@ object Build extends sbt.Build {
     resolvers ++= commonResolvers
   ).dependsOn(webCore % "test->test;compile->compile")
 
-  val dataset = PlayProject("dataset", "1.0-SNAPSHOT", Seq.empty, path = file("modules/dataset"), settings = Defaults.defaultSettings ++ buildInfoSettings).settings(
+  val dataSet = PlayProject("dataset", "1.0-SNAPSHOT", Seq.empty, path = file("modules/dataset"), settings = Defaults.defaultSettings ++ buildInfoSettings).settings(
     resolvers ++= commonResolvers,
     sipCreator := sipCreatorVersion,
     sourceGenerators in Compile <+= buildInfo,
@@ -96,7 +96,7 @@ object Build extends sbt.Build {
 
   val statistics = PlayProject("statistics", "1.0-SNAPSHOT", Seq.empty, path = file("modules/statistics")).settings(
     resolvers ++= commonResolvers
-  ).dependsOn(webCore, dataset) // FIXME
+  ).dependsOn(webCore, dataSet) // FIXME
 
   val customHarvestCollection = PlayProject("custom-harvest-collection", "1.0", Seq.empty, path = file("modules/custom-harvest-collection")).settings(
     resolvers ++= commonResolvers
@@ -127,20 +127,32 @@ object Build extends sbt.Build {
     publishTo := Some(delvingRepository(cultureHubVersion)),
     credentials += Credentials(Path.userHome / ".ivy2" / ".credentials"),
 
-    routesImport += "extensions.Binders._"
+    routesImport += "extensions.Binders._",
+
+    parallelExecution in (ThisBuild) := false
 
   ).settings(
     addArtifact(
       Artifact((appName + "-" + cultureHubVersion), "zip", "zip"), dist
-    ).settings :_*).dependsOn(
+    ).settings :_*
+  ).dependsOn(
     webCore                 % "test->test;compile->compile",
-    dataset                 % "test->test;compile->compile",
+    dataSet                 % "test->test;compile->compile",
     dos                     % "test->test;compile->compile",
     statistics              % "test->test;compile->compile",
     musip                   % "test->test;compile->compile",
     customHarvestCollection % "test->test;compile->compile",
     itin                    % "test->test;compile->compile",
     advancedSearch          % "test->test;compile->compile"
+  ).aggregate(
+    webCore,
+    dataSet,
+    dos,
+    statistics,
+    musip,
+    customHarvestCollection,
+    itin,
+    advancedSearch
   )
 
 
