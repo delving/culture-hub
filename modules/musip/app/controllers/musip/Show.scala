@@ -53,7 +53,9 @@ object Show extends DelvingController {
           InternalServerError("Could not find renderer for " + itemType)
         } else {
 
-          val updatedSession = if (request.headers.get(REFERER) == None || !request.headers.get(REFERER).get.contains("search")) {
+          val navigateFromSearch = request.headers.get(REFERER) != None && request.headers.get(REFERER).get.contains("search")
+          val navigateFromRelatedItem = request.queryString.getFirst("mlt").getOrElse("false").toBoolean
+          val updatedSession = if (!navigateFromSearch && !navigateFromRelatedItem) {
             // we're coming from someplace else then a search, remove the return to results cookie
             request.session - (RETURN_TO_RESULTS)
           } else {

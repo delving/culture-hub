@@ -16,11 +16,17 @@ class CMSPlugin(app: Application) extends CultureHubPlugin(app) {
   val pluginKey: String = "cms"
 
   override def mainMenuEntries(implicit configuration: DomainConfiguration, lang: String): Seq[MainMenuEntry] = {
-    _root_.models.cms.MenuEntry.dao.findEntries(configuration.orgId, CMS.MAIN_MENU).filterNot(e => !e.title.contains(lang) || !e.published).map(e => MainMenuEntry(
-      key = e.menuKey,
-      titleKey = e.title(lang),
-      mainEntry = Some(MenuElement(url = "/page/" + e.targetPageKey.getOrElse(""), titleKey = e.title(lang)))
-    )).toSeq
+    _root_.models.cms.MenuEntry.dao.
+            findEntries(configuration.orgId, CMS.MAIN_MENU).
+            filterNot(e => !e.title.contains(lang) || !e.published).
+            filterNot(e => _root_.models.cms.CMSPage.dao.findByKeyAndLanguage(e.targetPageKey.getOrElse(""), lang).isEmpty).
+            map(e =>
+                    MainMenuEntry(
+                       key = e.menuKey,
+                       titleKey = e.title(lang),
+                       mainEntry = Some(MenuElement(url = "/page/" + e.targetPageKey.getOrElse(""), titleKey = e.title(lang)))
+                    )
+            ).toSeq
   }
 
   override def organizationMenuEntries(orgId: String, lang: String, roles: Seq[String]): Seq[MainMenuEntry] = Seq(

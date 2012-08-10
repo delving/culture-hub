@@ -1,12 +1,12 @@
 #{list _facetMap, as: 'facet'}
     #{if facet.getLinks().length() > 0 && facet.getType() == _type}
         *{ FACET HEADER }*
-        <h4 class="facet-toggle dropdown #{if facet.isFacetSelected()}open#{/if}">
+        <header class="facet-toggle dropdown #{if facet.isFacetSelected()}open#{/if}">
             ${_typeKey ? _typeKey : _type}
             #{if _collapsable == true}<b class="caret"></b>#{/if}
-        </h4>
+        </header>
         *{ FACET CONTAINER: lists all facets of type x }*
-        <div class="facet-container">
+        <section class="facet-container">
             #{list facet.getLinks(), as: 'link'}
                 %{
                     def qs = '/search?query='+ _qString + '&searchIn=' + _searchIn + link.url
@@ -30,6 +30,16 @@
                             thingType = link.value()
                         }
                     }
+                    if (facet.getType() == "delving_hasDigitalObject_facet") {
+                      switch (link.value()) {
+                          case 'false':
+                          thingType = messages.get('ui.label.withoutDigitalObject')
+                          break
+                          case 'true':
+                          thingType = messages.get('ui.label.withDigitalObject')
+                          break
+                      }
+                    }
                 }%
                 <div class="facet #{if _columns == 2}span1of2#{/if}">
                     #{if !link.remove()}
@@ -40,7 +50,7 @@
                     #{/else}
                 </div>
             #{/list}
-        </div>
+        </section>
 
     #{/if}
 #{/list}

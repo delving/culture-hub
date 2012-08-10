@@ -1,16 +1,17 @@
 package controllers.api
 
-import controllers.DelvingController
-import play.api.mvc.Action
+import play.api.mvc.{Controller, Action}
 import core.harvesting.OaiPmhService
 import play.api.libs.concurrent.Promise
+import core.DomainConfigurationAware
+import play.api.Logger
 
 /**
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-object OaiPmh extends DelvingController {
+object OaiPmh extends Controller with DomainConfigurationAware {
 
   // TODO API documentation
 
@@ -19,11 +20,10 @@ object OaiPmh extends DelvingController {
       implicit request =>
         Async {
           val oaiPmhService = new OaiPmhService(request.queryString, request.uri, orgId, format, accessKey)
-          Promise.pure(oaiPmhService.parseRequest).map {
-            response =>
+          Promise.pure(oaiPmhService.parseRequest).map { response =>
 
               if (!request.path.contains("api")) {
-                warning("Using deprecated API call " + request.uri)
+                Logger("CultureHub").warn("Using deprecated API call " + request.uri)
               }
 
               Ok(response).as(XML)

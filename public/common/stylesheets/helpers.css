@@ -714,9 +714,9 @@ form label.radio {
 
 .facet-toggle {
     border-bottom: 1px solid #eaeaea;
-    color: #a9a9a9;
+    color: #888;
     padding: 8px 0;
-    text-transform: uppercase;
+    /*text-transform: uppercase;*/
     margin: 0;
 }
 
@@ -768,8 +768,19 @@ form label.radio {
 
 /* object view ************/
 
-#object .page-header h1 {
-    line-height: 135%;
+#object .page-header {
+    /*line-height: 135%;*/
+    /*background: #888;*/
+    /*color: white;*/
+    font-size: 150%;
+    border-bottom: none;
+    line-height: 125%;
+    margin: 13px 0;
+    padding: 0;
+}
+
+#object .social-media-block {
+    margin: 13px 0;
 }
 
 #object h5 {

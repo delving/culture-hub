@@ -95,7 +95,10 @@ case class UserInterfaceConfiguration(
   themeDir:                    String,
   defaultLanguage:             String = "en",
   siteName:                    Option[String],
-  siteSlogan:                  Option[String]
+  siteSlogan:                  Option[String],
+  addThisTrackingCode:         Option[String],
+  googleAnalyticsTrackingCode: Option[String],
+  showLogin:                   Boolean
 )
 
 case class CommonsServiceConfiguration(
@@ -347,7 +350,10 @@ object DomainConfiguration {
                   themeDir = configuration.getString("ui.themeDir").getOrElse("default"),
                   defaultLanguage = configuration.getString("ui.defaultLanguage").getOrElse("en"),
                   siteName = configuration.getString("ui.siteName"),
-                  siteSlogan = configuration.getString("ui.siteSlogan").orElse(Some("Delving CultureHub"))
+                  siteSlogan = configuration.getString("ui.siteSlogan").orElse(Some("Delving CultureHub")),
+                  addThisTrackingCode = configuration.getString("ui.addThisTrackingCode").orElse(None),
+                  googleAnalyticsTrackingCode = configuration.getString("ui.googleAnalyticsTrackingCode").orElse(None),
+                  showLogin = configuration.getBoolean("ui.showLogin").getOrElse(false)
                 ),
                 emailTarget = {
                   EmailTarget(
