@@ -3,8 +3,9 @@ package controllers.organization
 import play.api.i18n.Messages
 import controllers._
 import play.api.mvc.Action
-import models.{DataSet, HubUser}
-import core.{Constants, HubServices}
+import models.HubUser
+import core.HubServices
+import core.collection.{OrganizationCollection, AggregatingOrganizationCollectionLookup}
 
 /**
  *
@@ -19,14 +20,14 @@ object Organizations extends DelvingController {
       implicit request =>
         if (HubServices.organizationService(configuration).exists(orgId)) {
           val members: List[HubUser] = HubUser.dao.listOrganizationMembers(orgId).flatMap(HubUser.dao.findByUsername(_))
-          val dataSets: List[ShortDataSet] = DataSet.dao.findAllCanSee(orgId, connectedUser)
+          val collections: Seq[OrganizationCollection] = AggregatingOrganizationCollectionLookup.findAll
           val lang = language.getOrElse(getLang)
           Ok(Template(
             'orgId -> orgId,
             'orgName -> HubServices.organizationService(configuration).getName(orgId, "en").getOrElse(orgId),
             'isMember -> HubUser.dao.findByUsername(connectedUser).map(u => u.organizations.contains(orgId)).getOrElse(false),
             'members -> members,
-            'dataSets -> dataSets,
+            'collections -> collections,
             'currentLanguage -> lang
 
           ))

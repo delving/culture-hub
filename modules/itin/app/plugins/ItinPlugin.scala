@@ -19,12 +19,12 @@ class ItinPlugin(app: Application) extends CultureHubPlugin(app) {
    *  GET         /services/api/itin                                               controllers.custom.ItinEndPoint.search
    *  POST        /services/api/itin                                               controllers.custom.ItinEndPoint.store
    */
-  override val routes: ListMap[(String, Regex), (List[String]) => Handler] = ListMap(
+  override val routes: ListMap[(String, Regex), (List[String], Map[String, String]) => Handler] = ListMap(
     (("GET", """/services/api/itin""".r) -> {
-      pathArgs: List[String] => controllers.itin.ItinEndPoint.search
+      (pathArgs: List[String], queryString: Map[String, String]) => controllers.itin.ItinEndPoint.search
     }),
     (("POST", """/services/api/itin""".r) -> {
-      pathArgs: List[String] => controllers.itin.ItinEndPoint.store
+      (pathArgs: List[String], queryString: Map[String, String]) => controllers.itin.ItinEndPoint.store
     })
   )
 }

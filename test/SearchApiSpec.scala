@@ -13,13 +13,10 @@ import play.api.test.FakeRequest
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-class SearchApiSpec extends Specification with TestContext {
+class SearchApiSpec extends TestContext {
 
   step {
-    withTestConfig {
-      load()
-      loadDataSet()
-    }
+    loadStandalone()
   }
 
   "the Search API" should {
@@ -43,7 +40,6 @@ class SearchApiSpec extends Specification with TestContext {
 
     withTestConfig {
 
-
       val response = id("delving_PrincessehofSample_8")
       status(response) must equalTo(OK)
       val result = contentAsXML(response)
@@ -63,6 +59,10 @@ class SearchApiSpec extends Specification with TestContext {
     val request = FakeRequest("GET", "?id=" + id)
     val r = controllers.api.Search.searchApi("delving", None, None, None)(request)
     asyncToResult(r)
+  }
+
+  step {
+    cleanup()
   }
 
 }

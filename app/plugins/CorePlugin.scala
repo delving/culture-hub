@@ -1,11 +1,9 @@
 package plugins
 
 import play.api.Application
-import core.{HubServices, MenuElement, MainMenuEntry, CultureHubPlugin}
+import core.CultureHubPlugin
 import models._
-import core.collection.HarvestCollectionLookup
 import core.MainMenuEntry
-import scala.Some
 import core.MenuElement
 
 
@@ -18,10 +16,7 @@ class CorePlugin(app: Application) extends CultureHubPlugin(app) {
 
   val pluginKey: String = "core"
 
-  private val dataSetHarvestCollectionLookup = new DataSetHarvestCollectionLookup
-
   override def enabled: Boolean = true
-
 
   override def isEnabled(configuration: DomainConfiguration): Boolean = true
 
@@ -44,30 +39,17 @@ class CorePlugin(app: Application) extends CultureHubPlugin(app) {
       key = "administration",
       titleKey = "ui.label.administration",
       mainEntry = Some(MenuElement("/organizations/%s/admin".format(orgId), "ui.label.administration")),
-      roles = Seq(GrantType.OWN)
+      roles = Seq(Role.OWN)
     ),
     MainMenuEntry(
       key = "groups",
       titleKey = "thing.groups",
       items = Seq(
         MenuElement("/organizations/%s/groups".format(orgId), "org.group.list"),
-        MenuElement("/organizations/%s/groups/create".format(orgId), "org.group.create", Seq(GrantType.OWN))
+        MenuElement("/organizations/%s/groups/create".format(orgId), "org.group.create", Seq(Role.OWN))
       )
-    ),
-    MainMenuEntry(
-      key = "datasets",
-      titleKey = "thing.datasets",
-      items = Seq(
-        MenuElement("/organizations/%s/dataset".format(orgId), "organization.dataset.list"),
-        MenuElement("/organizations/%s/dataset/add".format(orgId), "organization.dataset.create", Seq(GrantType.OWN))
-      )
-    ),
-    MainMenuEntry(
-      key = "sipcreator",
-      titleKey = "ui.label.sipcreator",
-      mainEntry = Some(MenuElement("/organizations/%s/sip-creator".format(orgId), "ui.label.sipcreator"))
     )
   )
 
-  override def getHarvestCollectionLookups: Seq[HarvestCollectionLookup] = Seq(dataSetHarvestCollectionLookup)
+
 }

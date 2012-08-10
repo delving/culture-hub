@@ -40,6 +40,19 @@ object HubUser extends MultiModel[HubUser, HubUserDAO] {
   }
 
   protected def initDAO(collection: MongoCollection, connection: MongoDB): HubUserDAO = new HubUserDAO(collection)
+
+
+  // ~~~ OAuth 2
+
+  val OAUTH2_TOKEN_TIMEOUT = 3600
+
+  def isValidToken(token: String)(implicit configuration: DomainConfiguration): Boolean = {
+    if ((Play.isTest || Play.isDev) && token == "TEST") return true
+    HubUser.dao.isValidAccessToken(token, OAUTH2_TOKEN_TIMEOUT)
+  }
+
+  def getUserByToken(token: String)(implicit configuration: DomainConfiguration) = HubUser.dao.findByAccessToken(token)
+
 }
 
 class HubUserDAO(collection: MongoCollection) extends SalatDAO[HubUser, ObjectId](collection) with Pager[HubUser] {

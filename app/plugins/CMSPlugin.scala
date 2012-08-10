@@ -3,7 +3,7 @@ package plugins
 import play.api.Application
 import controllers.organization.CMS
 import core.{HubServices, MenuElement, MainMenuEntry, CultureHubPlugin}
-import models.{DomainConfiguration, GrantType}
+import models.{DomainConfiguration, Role}
 import models.cms.{MenuEntry, CMSPage}
 
 /**
@@ -33,7 +33,7 @@ class CMSPlugin(app: Application) extends CultureHubPlugin(app) {
     MainMenuEntry(
       key = "site",
       titleKey = "org.cms",
-      roles = Seq(GrantType.OWN, GrantType.CMS),
+      roles = Seq(Role.OWN, Role.CMS),
       items = Seq(
         MenuElement("/organizations/%s/site".format(orgId), "org.cms.page.list"),
         MenuElement("/organizations/%s/site/%s/page/add".format(orgId, lang), "org.cms.page.new"),

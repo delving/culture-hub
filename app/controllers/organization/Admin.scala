@@ -55,15 +55,6 @@ object Admin extends OrganizationController {
     }
   }
 
-  def indexDataSets(orgId: String) = OrgOwnerAction(orgId) {
-    Action {
-      implicit request =>
-        val reIndexable = DataSet.dao.findByState(DataSetState.ENABLED).toList
-        reIndexable foreach { r => DataSet.dao.updateState(r, DataSetState.QUEUED, Some(connectedUser)) }
-        Ok("Queued %s DataSets for processing".format(reIndexable.size))
-    }
-  }
-
   def solrSearchProxy(orgId: String) = OrgOwnerAction(orgId) {
     Action {
       implicit request =>

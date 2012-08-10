@@ -16,16 +16,12 @@
 
 package util
 
-import play.api.Play
-import play.api.Play.current
+import core.CultureHubPlugin
 import collection.immutable.HashMap
 import models.DomainConfiguration
-import extensions.ConfigurationException
 
 /**
  * Takes care of loading domain-specific configuration
- *
- * TODO always have a default configuration / or NO default configuration!
  *
  * @author Sjoerd Siebinga <sjoerd.siebinga@gmail.com>
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
@@ -44,8 +40,8 @@ object DomainConfigurationHandler {
     set
   }
 
-  def startup() {
-    domainConfigurations = DomainConfiguration.getAll
+  def startup(plugins: Seq[CultureHubPlugin]) {
+    domainConfigurations = DomainConfiguration.startup(plugins)
     domainConfigurationsMap = toDomainList(domainConfigurations)
     domainLookupCache = HashMap.empty
   }
@@ -61,9 +57,6 @@ object DomainConfigurationHandler {
   def hasConfiguration(domain: String) = domainConfigurations.exists(_.domains.exists(domain.startsWith(_)))
 
   def getByDomain(domain: String): DomainConfiguration = {
-    if (Play.isDev) {
-      startup()
-    }
     // FIXME - this is, of course, vulnerable. Implement correct algorithmic solution not relying on fold.
     if(!domainLookupCache.contains(domain)) {
       // fetch by longest matching domain
