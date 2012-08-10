@@ -22,6 +22,7 @@ import scala.util.matching.Regex
 import play.api.mvc.Handler
 import core._
 import collection.HarvestCollectionLookup
+import com.mongodb.casbah.commons.MongoDBObject
 
 class DataSetPlugin(app: Application) extends CultureHubPlugin(app) {
 
@@ -202,7 +203,7 @@ class DataSetPlugin(app: Application) extends CultureHubPlugin(app) {
    * Executed when test data is loaded (for development and testing)
    */
   override def onLoadTestData() {
-    if (DataSet.dao("delving").count() == 0) bootstrapDatasets()
+    if (DataSet.dao("delving").count(MongoDBObject("spec" -> "PrincessehofSample")) == 0) bootstrapDatasets()
 
     implicit val configuration = DomainConfigurationHandler.getByOrgId(("delving"))
     val dataSet = DataSet.dao.findBySpecAndOrgId("PrincessehofSample", "delving").get
