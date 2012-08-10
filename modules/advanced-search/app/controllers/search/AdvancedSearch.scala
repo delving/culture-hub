@@ -1,13 +1,7 @@
 package controllers.search
 
 import play.api.mvc._
-import controllers.{CommonSearch, DelvingController}
-import scala.collection.JavaConverters._
-import models.{DomainConfiguration, DataSet}
-import core.Constants._
-import core.search.MalformedQueryException
-import exceptions.SolrConnectionException
-import play.api.i18n.Messages
+import controllers.DelvingController
 
 /**
  * Advanced search. This one is tailored from ICN and is taken from the legacy system.

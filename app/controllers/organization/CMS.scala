@@ -29,7 +29,7 @@ object CMS extends OrganizationController {
     OrgMemberAction(orgId) {
       Action(action.parser) {
         implicit request => {
-          if (HubServices.organizationService(configuration).isAdmin(orgId, connectedUser) || Group.dao.count(MongoDBObject("users" -> connectedUser, "grantType" -> GrantType.CMS.key)) > 0) {
+          if (HubServices.organizationService(configuration).isAdmin(orgId, connectedUser) || Group.dao.count(MongoDBObject("users" -> connectedUser, "grantType" -> Role.CMS.key)) > 0) {
             action(request)
           } else {
             Forbidden(Messages("user.secured.noAccess"))

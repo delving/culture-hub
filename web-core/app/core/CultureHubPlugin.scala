@@ -1,12 +1,13 @@
 package core
 
-import collection.HarvestCollectionLookup
+import core.collection.{OrganizationCollectionLookup, HarvestCollectionLookup}
+import core.access.ResourceLookup
 import scala.collection.immutable.ListMap
 import scala.util.matching.Regex
 import play.api._
 import play.api.Play.current
 import mvc.{RequestHeader, Handler}
-import models.{GrantType, DomainConfiguration}
+import models.{Role, DomainConfiguration}
 import scala.collection.JavaConverters._
 
 /**
@@ -20,8 +21,9 @@ abstract class CultureHubPlugin(app: Application) extends play.api.Plugin {
   // ~~~ Implementation
 
   /**
-   * The key of this plugin, must be unique across all deployed plugins. Should not contains spaces or weird characters, keep it simple
-   **/
+   * The key of this plugin, must be unique across all deployed plugins.
+   * Should not contains spaces or weird characters, keep it simple, e.g. "semantic-enrichment"
+   */
   val pluginKey: String
 
   /**
@@ -39,15 +41,13 @@ abstract class CultureHubPlugin(app: Application) extends play.api.Plugin {
    * }}}
    *
    */
-  val routes: ListMap[(String, Regex), List[String] => Handler] = ListMap.empty
+  val routes: ListMap[(String, Regex), (List[String], Map[String, String]) => Handler] = ListMap.empty
 
 
   /**
-   * Runs globally on application start, for the whole Hub. Make sure that whatever you run here is multitenancy-aware
+   * Executed when test data is loaded (for development and testing)
    */
-  def onApplicationStart() {
-
-  }
+  def onLoadTestData() {}
 
   /**
    * Override this to add menu entries to the main menu
@@ -67,6 +67,34 @@ abstract class CultureHubPlugin(app: Application) extends play.api.Plugin {
    * @return a sequence of [[core.MainMenuEntry]] for the organization menu
    */
   def organizationMenuEntries(orgId: String, lang: String, roles: Seq[String]): Seq[MainMenuEntry] = Seq.empty
+
+
+  /**
+   * Override this to provide organization collections via this plugin
+   *
+   * @return a sequence of [[core.collection.OrganizationCollectionLookup]] instances
+   */
+  def organizationCollectionLookups: Seq[OrganizationCollectionLookup] = Seq.empty
+
+  /**
+   * Override this to provide harvest collections via this plugin
+   *
+   * @return a sequence of [[core.collection.HarvestCollectionLookup]] instances
+   */
+  def harvestCollectionLookups: Seq[HarvestCollectionLookup] = Seq.empty
+
+  /**
+   * Override this to provide custom roles to the platform, that can be used in Groups
+   * @return a sequence of [[models.Role]] instances
+   */
+  def roles: Seq[Role] = Seq.empty
+
+  /**
+   * Override this to provide the necessary lookup for a [[core.access.Resource]] depicted by a [[models.Role]]
+   * @return
+   **/
+  def resourceLookups: Seq[ResourceLookup] = Seq.empty
+
 
 
   // ~~~ API
@@ -89,16 +117,6 @@ abstract class CultureHubPlugin(app: Application) extends play.api.Plugin {
     Seq.empty
   }
 
-  /**
-   * Override this to provide harvest collections via this plugin
-   *
-   * @return a sequence of [[core.collection.HarvestCollectionLookup]] instances
-   */
-  def getHarvestCollectionLookups: Seq[HarvestCollectionLookup] = List.empty
-
-
-
-
 
   // ~~~ Play Plugin lifecycle integration
 
@@ -117,7 +135,7 @@ abstract class CultureHubPlugin(app: Application) extends play.api.Plugin {
 
   override def hashCode(): Int = pluginKey.hashCode
 
-  override def equals(p1: Any): Boolean = p1.isInstanceOf[CultureHubPlugin] && p1.asInstanceOf[CultureHubPlugin].pluginKey == pluginKey
+  override def equals(plugin: Any): Boolean = plugin.isInstanceOf[CultureHubPlugin] && plugin.asInstanceOf[CultureHubPlugin].pluginKey == pluginKey
 
 
 
@@ -126,11 +144,19 @@ abstract class CultureHubPlugin(app: Application) extends play.api.Plugin {
 object CultureHubPlugin {
 
   /**
+   * All available hub plugins to the application
+   */
+  lazy val hubPlugins: List[CultureHubPlugin] = Play.application.plugins.
+    filter(_.isInstanceOf[CultureHubPlugin]).
+    map(_.asInstanceOf[CultureHubPlugin]).
+    toList
+
+  /**
    * Retrieves all enabled plugins for the current domain
    * @param configuration the [[models.DomainConfiguration]] being accessed
    * @return the set of active plugins
    */
-  def getEnabledPlugins(implicit configuration: DomainConfiguration): List[CultureHubPlugin] = Play.application.plugins
+  def getEnabledPlugins(implicit configuration: DomainConfiguration): Seq[CultureHubPlugin] = Play.application.plugins
       .filter(_.isInstanceOf[CultureHubPlugin])
       .map(_.asInstanceOf[CultureHubPlugin])
       .filter(_.isEnabled(configuration))
@@ -139,7 +165,7 @@ object CultureHubPlugin {
 
 }
 
-case class MainMenuEntry(key: String, titleKey: String, roles: Seq[GrantType] = Seq.empty, items: Seq[MenuElement] = Seq.empty, mainEntry: Option[MenuElement] = None, membersOnly: Boolean = true) {
+case class MainMenuEntry(key: String, titleKey: String, roles: Seq[Role] = Seq.empty, items: Seq[MenuElement] = Seq.empty, mainEntry: Option[MenuElement] = None, membersOnly: Boolean = true) {
 
   def asJavaMap = Map(
     "key" -> key,
@@ -150,7 +176,7 @@ case class MainMenuEntry(key: String, titleKey: String, roles: Seq[GrantType] = 
   ).asJava
 }
 
-case class MenuElement(url: String, titleKey: String, roles: Seq[GrantType] = Seq.empty) {
+case class MenuElement(url: String, titleKey: String, roles: Seq[Role] = Seq.empty) {
   val asJavaMap = Map(
     "url" -> url,
     "titleKey" -> titleKey
@@ -158,4 +184,3 @@ case class MenuElement(url: String, titleKey: String, roles: Seq[GrantType] = Se
 }
 
 case class RequestContext(request: RequestHeader, configuration: DomainConfiguration, renderArgs: scala.collection.mutable.Map[String, AnyRef], lang: String)
-

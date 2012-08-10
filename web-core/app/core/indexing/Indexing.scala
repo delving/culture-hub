@@ -16,6 +16,7 @@
 
 package core.indexing
 
+import core.collection.{Harvestable, OrganizationCollectionInformation}
 import extensions.HTTPClient
 import org.apache.solr.common.SolrInputDocument
 import play.api.Logger
@@ -29,8 +30,8 @@ import core.search.{SolrBindingService, SolrServer}
 import org.apache.tika.parser.ParseContext
 import org.apache.tika.metadata.Metadata
 import java.net.URLEncoder
-import models.{DomainConfiguration, Visibility, MetadataItem, DataSet}
-import org.apache.commons.lang.{StringEscapeUtils, StringUtils}
+import models.{DomainConfiguration, Visibility, MetadataItem}
+import org.apache.commons.lang.StringEscapeUtils
 
 
 /**
@@ -40,7 +41,9 @@ import org.apache.commons.lang.{StringEscapeUtils, StringUtils}
 
 object Indexing extends SolrServer {
 
-  def indexOne(dataSet: DataSet, mdr: MetadataItem, mapped: Map[String, List[Any]], metadataFormatForIndexing: String)(implicit configuration: DomainConfiguration): Either[Throwable, String] = {
+  type IndexableCollection = Harvestable with OrganizationCollectionInformation
+
+  def indexOne(dataSet: IndexableCollection, mdr: MetadataItem, mapped: Map[String, List[Any]], metadataFormatForIndexing: String)(implicit configuration: DomainConfiguration): Either[Throwable, String] = {
     val doc = createSolrInputDocument(mapped)
     addDelvingHouseKeepingFields(doc, dataSet, mdr, metadataFormatForIndexing)
     try {
@@ -66,11 +69,11 @@ object Indexing extends SolrServer {
     doc
   }
 
-  def addDelvingHouseKeepingFields(inputDoc: SolrInputDocument, dataSet: DataSet, record: MetadataItem, schemaPrefix: String) {
+  def addDelvingHouseKeepingFields(inputDoc: SolrInputDocument, dataSet: IndexableCollection, record: MetadataItem, schemaPrefix: String)(implicit configuration: DomainConfiguration) {
     import scala.collection.JavaConversions._
 
     // mandatory fields
-    inputDoc.addField(ORG_ID, dataSet.orgId)
+    inputDoc.addField(ORG_ID, dataSet.getOwner)
     inputDoc.addField(VISIBILITY, Visibility.PUBLIC.value.toString)
     inputDoc.addField(RECORD_TYPE, MDR)
     inputDoc.addField(SYSTEM_TYPE, HUB_ITEM)
@@ -154,25 +157,25 @@ object Indexing extends SolrServer {
       inputDoc.addField(EUROPEANA_URI, uriValue)
     }
 
-    dataSet.getAllMappingSchemas.foreach(schema => inputDoc.addField(ALL_SCHEMAS, schema.prefix))
+    dataSet.getVisibleMetadataSchemas(None).foreach(schema => inputDoc.addField(ALL_SCHEMAS, schema.prefix))
 
     val indexedKeys = inputDoc.keys.map(key => (SolrBindingService.stripDynamicFieldLabels(key), key)).toMap // to filter always index a facet with _facet .filter(!_.matches(".*_(s|string|link|single)$"))
 
     // add facets at indexing time
-    dataSet.idxFacets.foreach {
+    configuration.getFacets.foreach {
       facet =>
         if (indexedKeys.contains(facet)) {
-          val facetContent = inputDoc.get(indexedKeys.get(facet).get).getValues
+          val facetContent = inputDoc.get(indexedKeys.get(facet.facetName).get).getValues
           inputDoc addField("%s_facet".format(facet), facetContent)
           // enable case-insensitive autocomplete
           inputDoc addField ("%s_lowercase".format(facet), facetContent)
         }
     }
     // adding sort fields at index time
-    dataSet.idxSortFields.foreach {
+    configuration.getSortFields.foreach {
       sort =>
         if (indexedKeys.contains(sort)) {
-          inputDoc addField("sort_all_%s".format(sort), inputDoc.get(indexedKeys.get(sort).get))
+          inputDoc addField("sort_all_%s".format(sort), inputDoc.get(indexedKeys.get(sort.sortKey).get))
         }
     }
   }

@@ -15,9 +15,9 @@ import play.api.Play.current
 object AggregatingHarvestCollectionLookup {
 
 
-  def harvestCollectionLookups(implicit configuration: DomainConfiguration) = CultureHubPlugin.getEnabledPlugins.flatMap(_.getHarvestCollectionLookups)
+  def harvestCollectionLookups(implicit configuration: DomainConfiguration) = CultureHubPlugin.getEnabledPlugins.flatMap(_.harvestCollectionLookups)
 
-  def findAllNonEmpty(orgId: String, format: Option[String], accessKey: Option[String] = None)(implicit configuration: DomainConfiguration): List[Harvestable] = {
+  def findAllNonEmpty(orgId: String, format: Option[String], accessKey: Option[String] = None)(implicit configuration: DomainConfiguration): Seq[Harvestable] = {
     harvestCollectionLookups.flatMap(lookup => lookup.findAllNonEmpty(orgId, format, accessKey))
   }
 
@@ -28,7 +28,7 @@ object AggregatingHarvestCollectionLookup {
   /**
    * Gets all publicly available formats out there, plus the ones available via the accessKey.
    */
-  def getAllMetadataFormats(orgId: String, accessKey: Option[String])(implicit configuration: DomainConfiguration): List[RecordDefinition] = {
+  def getAllMetadataFormats(orgId: String, accessKey: Option[String])(implicit configuration: DomainConfiguration): Seq[RecordDefinition] = {
     harvestCollectionLookups.flatMap(_.getAllMetadataFormats(orgId, accessKey))
   }
 

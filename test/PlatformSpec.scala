@@ -1,5 +1,5 @@
+import core.CultureHubPlugin
 import models.DomainConfiguration
-import org.specs2.mutable.Specification
 import util.DomainConfigurationHandler
 
 import play.api.test._
@@ -10,7 +10,7 @@ import play.api.test.Helpers._
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-class PlatformSpec extends Specification with TestContext {
+class PlatformSpec extends TestContext {
 
   val domainConfigurationHandler = DomainConfigurationHandler
 
@@ -18,8 +18,11 @@ class PlatformSpec extends Specification with TestContext {
 
     "load configurations from disk into memory" in {
       withTestConfig {
-        domainConfigurationHandler.startup()
-        DomainConfiguration.getAll.size should not equalTo (0)
+
+
+
+        domainConfigurationHandler.startup(CultureHubPlugin.hubPlugins)
+        DomainConfiguration.startup(CultureHubPlugin.hubPlugins).size should not equalTo (0)
       }
     }
 

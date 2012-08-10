@@ -10,9 +10,8 @@ import eu.delving.templates.scala.GroovyTemplates
 import extensions.Extensions
 import collection.JavaConverters._
 import org.bson.types.ObjectId
-import xml.NodeSeq
 import core._
-import models.{DomainConfiguration, GrantType, Group, HubUser}
+import models.{DomainConfiguration, Role, Group, HubUser}
 import play.api.data.Forms._
 
 /**
@@ -146,10 +145,10 @@ trait ApplicationController extends Controller with GroovyTemplates with DomainC
   def getUserGrantTypes(orgId: String)(implicit request: RequestHeader, configuration: DomainConfiguration) = request.session.get(Constants.USERNAME).map {
     userName =>
       val isAdmin = HubServices.organizationService(configuration).isAdmin(orgId, userName)
-      val groups: List[GrantType] = Group.dao.findDirectMemberships(userName, orgId).map(_.grantType).toList.distinct.map(GrantType.get(_))
+      val groups: List[Role] = Group.dao.findDirectMemberships(userName, orgId).map(_.grantType).toList.distinct.map(Role.get(_))
       // TODO make this cleaner
       if(isAdmin) {
-        groups ++ List(GrantType.get("own"))
+        groups ++ List(Role.get("own"))
       } else {
         groups
       }
@@ -243,15 +242,19 @@ trait DelvingController extends ApplicationController with CoreImplicits {
           // Connected user
           HubUser.dao.findByUsername(userName).map {
             u => {
+
+              // TODO this is a sequence because earlier on it was possible to switch to multiple orgs. not so anymore.
+              val org = u.organizations.filter(orgId => orgId == configuration.orgId)
+
               renderArgs +=("fullName" -> u.fullname)
               renderArgs +=("userName" -> u.userName)
               renderArgs +=("userId" -> u._id)
               //        renderArgs += ("authenticityToken", session.getAuthenticityToken)
-              renderArgs +=("organizations" -> u.organizations)
+              renderArgs +=("organizations" -> org)
               renderArgs +=("email" -> u.email)
 
               // refresh session parameters
-              additionalSessionParams += (Constants.ORGANIZATIONS -> u.organizations.mkString(","))
+              additionalSessionParams += (Constants.ORGANIZATIONS -> org.mkString(","))
               additionalSessionParams += (Constants.GROUPS -> u.groups.mkString(","))
             }
           }
@@ -339,7 +342,7 @@ trait DelvingController extends ApplicationController with CoreImplicits {
             u => Group.dao.findDirectMemberships(userName, orgId).map(g => g.grantType).toSeq
           }.getOrElse {
             List.empty
-          }) ++ (if(isAdmin) Seq(GrantType.OWN.key) else Seq.empty)
+          }) ++ (if(isAdmin) Seq(Role.OWN.key) else Seq.empty)
 
 
           renderArgs += ("roles" -> roles.asJava)

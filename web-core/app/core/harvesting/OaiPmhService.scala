@@ -191,7 +191,7 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
       AggregatingHarvestCollectionLookup.getAllMetadataFormats(orgId, accessKey)
     } else {
       AggregatingHarvestCollectionLookup.findBySpecAndOrgId(identifierSpec, orgId).map {
-        c => c.getVisibleMetadataFormats(accessKey)
+        c => c.getVisibleMetadataSchemas(accessKey)
       }.getOrElse(List.empty)
     }
 
@@ -232,7 +232,7 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
       throw new DataSetNotFoundException("unable to find set: " + setName)
     }
 
-    if(!collection.getVisibleMetadataFormats(accessKey).exists(f => f.prefix == metadataFormat)) {
+    if(!collection.getVisibleMetadataSchemas(accessKey).exists(f => f.prefix == metadataFormat)) {
       throw new MappingNotFoundException("Format %s unknown".format(metadataFormat))
     }
     val (records, totalValidRecords) = collection.getRecords(metadataFormat, pmhRequestEntry.getLastTransferIdx, pmhRequestEntry.recordsReturned)
@@ -299,7 +299,7 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
     // check access rights
     val c = AggregatingHarvestCollectionLookup.findBySpecAndOrgId(set, orgId)
     if (c == None) return createErrorResponse("noRecordsMatch")
-    if (!c.get.getVisibleMetadataFormats(accessKey).contains(metadataFormat)) {
+    if (!c.get.getVisibleMetadataSchemas(accessKey).contains(metadataFormat)) {
       return createErrorResponse("idDoesNotExist")
     }
 

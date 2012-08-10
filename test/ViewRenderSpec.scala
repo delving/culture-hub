@@ -17,7 +17,7 @@
 import eu.delving.templates.Play2VirtualFile
 import io.Source
 import java.io.File
-import models.GrantType
+import models.Role
 import org.specs2.mutable._
 import play.api.i18n.Lang
 import play.api.Play
@@ -33,7 +33,7 @@ import util.DomainConfigurationHandler
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-class ViewRenderSpec extends Specification with TestContext {
+class ViewRenderSpec extends TestContext {
 
   "The ViewRenderer" should {
 
@@ -45,7 +45,7 @@ class ViewRenderSpec extends Specification with TestContext {
         val namespaces = Map("delving" -> "http://www.delving.eu/schemas/delving-1.0.xsd", "dc" -> "http://dublincore.org/schemas/xmls/qdc/dc.xsd", "icn" -> "http://www.icn.nl/schemas/ICN-V3.2.xsd")
 
         val renderer = new ViewRenderer("icn", "full", configuration)
-        val view = renderer.renderRecordWithView("icn", "full", testHtmlViewDefinition, testRecord(), List(GrantType("administrator", "blabla", "icn")), namespaces, Lang("en"), Map.empty)
+        val view = renderer.renderRecordWithView("icn", "full", testHtmlViewDefinition, testRecord(), List(Role("administrator", Map("en" -> "blabla"))), namespaces, Lang("en"), Map.empty)
 
         val template = GenericTemplateLoader.load(Play2VirtualFile.fromFile(Play.getFile("test/view.html")))
         val args: java.util.Map[String, Object] = new java.util.HashMap[String, Object]()
@@ -96,7 +96,7 @@ class ViewRenderSpec extends Specification with TestContext {
         val affTestRecord = Source.fromFile(new File(Play.application.path, "test/resource/aff-example.xml")).getLines().mkString("\n")
 
         val renderer = new ViewRenderer("aff", "html", configuration)
-        val view = renderer.renderRecord(affTestRecord, List.empty[GrantType], namespaces, Lang("en"))
+        val view = renderer.renderRecord(affTestRecord, List.empty[Role], namespaces, Lang("en"))
 
         val template = GenericTemplateLoader.load(Play2VirtualFile.fromFile(Play.getFile("test/view.html")))
         val args: java.util.Map[String, Object] = new java.util.HashMap[String, Object]()

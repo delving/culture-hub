@@ -107,8 +107,6 @@ GET          /:user                                                           co
 GET          /:orgId/thing/:spec/:recordId/overlay                            controllers.Search.record(orgId, spec, recordId, overlay: Boolean = true)
 GET          /:orgId/thing/:spec/:recordId                                    controllers.Search.record(orgId, spec, recordId, overlay: Boolean = false)
 
-GET          /:user/sip-creator.jnlp                                          controllers.organization.SipCreator.jnlp(user)
-
 GET          /:user/admin/profile/update                                      controllers.user.Admin.profile(user)
 POST         /:user/admin/profile                                             controllers.user.Admin.profileSubmit(user)
 
@@ -152,11 +150,9 @@ GET         /organizations/:orgId                                             co
 GET         /organizations/:orgId/admin                                       controllers.organization.Admin.index(orgId)
 POST        /organizations/:orgId/admin/users/add                             controllers.organization.Admin.addUser(orgId)
 DELETE      /organizations/:orgId/admin/users/remove                          controllers.organization.Admin.removeUser(orgId)
-GET         /organizations/:orgId/admin/indexDataSets                         controllers.organization.Admin.indexDataSets(orgId)
 
 GET         /organizations/:orgId/admin/solrSearchProxy                       controllers.organization.Admin.solrSearchProxy(orgId)
 
-GET         /organizations/:orgId/datasets/search                             controllers.organization.DataSets.listAsTokens(orgId: String, q: String ?= "")
 GET         /organizations/:orgId/datasets/searchBySpec                       controllers.organization.DataSets.listAsTokensBySpec(orgId: String, q: String ?= "")
 GET         /organizations/:orgId/users/search                                controllers.Users.listAsTokens(orgId: Option[String], q: String ?= "")
 
@@ -183,22 +179,8 @@ POST        /organizations/:orgId/site/page                                   co
 DELETE      /organizations/:orgId/site/:language/page/:key                    controllers.organization.CMS.pageDelete(orgId, key, language)
 GET         /organizations/:orgId/site/:language/page/preview/:key            controllers.organization.CMS.pagePreview(orgId, language, key)
 
-GET         /organizations/:orgId/dataset                                     controllers.organization.DataSets.list(orgId)
-GET         /organizations/:orgId/dataset/feed                                controllers.organization.DataSets.feed(orgId, clientId: String, spec: Option[String])
-GET         /organizations/:orgId/dataset/add                                 controllers.organization.DataSetControl.dataSet(orgId, spec: Option[String] = None)
-GET         /organizations/:orgId/dataset/:spec/update                        controllers.organization.DataSetControl.dataSet(orgId, spec: Option[String])
-POST        /organizations/:orgId/dataset/submit                              controllers.organization.DataSetControl.dataSetSubmit(orgId)
-GET         /organizations/:orgId/dataset/:spec                               controllers.organization.DataSets.dataSet(orgId, spec)
-
 GET         /organizations/:orgId/directory/organizationLookup                controllers.organization.DataSetControl.organizationLookup(orgId, term)
 
-GET         /organizations/:orgId/sip-creator                                 controllers.organization.SipCreator.index(orgId)
-
-GET         /api/sip-creator/list                                             controllers.SipCreatorEndPoint.listAll(accessKey: Option[String] ?= None)
-GET         /api/sip-creator/unlock/:orgId/:spec                              controllers.SipCreatorEndPoint.unlock(orgId, spec, accessKey: Option[String] ?= None)
-POST        /api/sip-creator/submit/:orgId/:spec                              controllers.SipCreatorEndPoint.acceptFileList(orgId, spec, accessKey: Option[String] ?= None)
-POST        /api/sip-creator/submit/:orgId/:spec/:fileName                    controllers.SipCreatorEndPoint.acceptFile(orgId, spec, fileName, accessKey: Option[String] ?= None)
-GET         /api/sip-creator/fetch/:orgId/:spec-sip.zip                       controllers.SipCreatorEndPoint.fetchSIP(orgId, spec, accessKey: Option[String] ?= None)
 
 # Map static resources from the /public folder to the /assets URL path
 GET         /assets/*file                                                     controllers.Assets.at(path="/public", file)

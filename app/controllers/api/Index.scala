@@ -274,5 +274,5 @@ case class IndexItem(orgId: String,
 }
 
 case object IndexItem {
-  def apply(orgId: String, item: MetadataItem): IndexItem = IndexItem(orgId, item.itemId, item.itemType, item.getRawXmlString, false)
+  def apply(orgId: String, item: MetadataItem): IndexItem = IndexItem(orgId, item.itemId, item.itemType, item.xml("raw"), false)
 }

@@ -20,10 +20,8 @@ import core.search.SearchService
 import collection.JavaConverters._
 import core.DomainConfigurationAware
 import play.api.Logger
-import controllers.DelvingController
 import models.{DrupalEntity, StoreResponse}
-import play.api.mvc.Action
-import core.Constants._
+import play.api.mvc.{Controller, Action}
 import play.api.libs.concurrent.Promise
 
 /**
@@ -32,7 +30,7 @@ import play.api.libs.concurrent.Promise
  * @since 11/5/11 10:35 AM
  */
 
-object ItinEndPoint extends DelvingController with DomainConfigurationAware {
+object ItinEndPoint extends Controller with DomainConfigurationAware {
 
   def search = DomainConfigured {
     Action {

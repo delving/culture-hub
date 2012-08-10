@@ -20,10 +20,7 @@ case class MetadataItem(modified: Date = new Date(),
                         index: Int,
                         invalidTargetSchemas: Seq[String] = Seq.empty,
                         systemFields: Map[String, List[String]] = Map.empty
-                       ) {
-
-  def getRawXmlString = xml("raw")
-}
+                       )
 
 object MetadataCache {
 

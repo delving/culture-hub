@@ -1,7 +1,7 @@
 package models
 
 import _root_.util.DomainConfigurationHandler
-import org.bson.types.ObjectId
+import core.access.{ResourceType, Resource}
 import com.novus.salat.dao.SalatDAO
 import mongoContext._
 import com.mongodb.casbah.Imports._
@@ -13,7 +13,7 @@ case class Group(_id: ObjectId = new ObjectId,
                  name: String,
                  orgId: String,
                  grantType: String,
-                 dataSets: List[ObjectId] = List.empty[ObjectId],
+                 resources: Seq[PersistedResource] = Seq.empty,
                  users: List[String] = List.empty[String])
 
 object Group extends MultiModel[Group, GroupDAO] {
@@ -53,21 +53,35 @@ class GroupDAO(collection: MongoCollection) extends SalatDAO[Group, ObjectId](co
     true
   }
 
-  def addDataSet(id: ObjectId, groupId: ObjectId): Boolean = {
-    // TODO FIXME make this operation safe
-    update(MongoDBObject("_id" -> groupId), $addToSet ("dataSets" -> id), false, false, WriteConcern.Safe)
-    true
+  def addResource(orgId: String, resourceKey: String, resourceType: ResourceType, groupId: ObjectId): Boolean = {
+    findOneById(groupId).map { group =>
+      val updated = group.copy(resources = group.resources ++ Seq(PersistedResource(resourceType.resourceType, resourceKey)))
+      save(updated)
+      true
+    }.getOrElse(false)
   }
 
-  def removeDataSet(id: ObjectId, groupId: ObjectId): Boolean = {
-    // TODO FIXME make this operation safe
-    update(MongoDBObject("_id" -> groupId), $pull ("dataSets" -> id), false, false, WriteConcern.Safe)
-    true
+  def removeResource(orgId: String, resourceKey: String, resourceType: ResourceType, groupId: ObjectId): Boolean = {
+    findOneById(groupId).map { group =>
+      val updated = group.copy(resources = group.resources.filterNot(r => r.getResourceType == resourceType && r.getResourceKey == resourceKey))
+      save(updated)
+      true
+    }.getOrElse(false)
   }
 
-  def updateGroupInfo(groupId: ObjectId, name: String, grantType: GrantType): Boolean = {
+  def updateGroupInfo(groupId: ObjectId, name: String, grantType: Role): Boolean = {
     update(MongoDBObject("_id" -> groupId), $set("name" -> name, "grantType" -> grantType.key))
     true
   }
+
+}
+
+case class PersistedResource(resourceType: String, resourceKey: String) extends Resource {
+
+  /** Kind of resource **/
+  def getResourceType: ResourceType = ResourceType(resourceType)
+
+  /** unique identifier of the resource **/
+  def getResourceKey: String = resourceKey
 
 }

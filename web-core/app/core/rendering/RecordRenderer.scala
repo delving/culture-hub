@@ -64,9 +64,9 @@ object RecordRenderer {
       val cache = MetadataCache.get(orgId, "indexApiItems", itemType)
       val indexItem = cache.findOne(itemId).getOrElse(return Left("Could not find IndexItem with id '%s".format(id)))
       Right(new RenderedView {
-        def toXmlString: String = indexItem.getRawXmlString
+        def toXmlString: String = indexItem.xml("raw")
         def toJson: String = "JSON rendering not supported"
-        def toXml: NodeSeq = scala.xml.XML.loadString(indexItem.getRawXmlString)
+        def toXml: NodeSeq = scala.xml.XML.loadString(indexItem.xml("raw"))
         def toViewTree: RenderNode = null
       })
     }

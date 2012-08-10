@@ -8,13 +8,10 @@ import play.api.test.Helpers._
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-class OAIPMHSpec extends Specification with TestContext {
+class OAIPMHSpec extends TestContext {
 
   step {
-    withTestConfig {
-      load()
-      loadDataSet()
-    }
+    loadStandalone()
   }
 
   "the OAI-PMH repository" should {
@@ -52,6 +49,9 @@ class OAIPMHSpec extends Specification with TestContext {
 
         val xml = contentAsXML(response)
         val error = xml \ "error"
+        if (error.length != 0) {
+          println(error)
+        }
         error.length must equalTo(0)
 
         val sets = xml \ "ListSets" \ "set"

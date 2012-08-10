@@ -13,7 +13,7 @@
     <div class="span4">
         <h3>&{'thing.datasets'}</h3>
         <ol>
-        #{list dataSets, as: 'ds'}
+        #{list collections, as: 'c'}
             <li><a href=${"/organizations/"+orgId+"/dataset/"+ds.spec}>${ds.spec}</a></li>
         #{/list}
         </ol>

@@ -4,7 +4,8 @@ import controllers.RenderingExtensions
 import play.api.mvc.{Controller, Action}
 import core.{DomainConfigurationAware, HubServices}
 import play.api.i18n.Messages
-import models.DataSet
+import models.DomainConfiguration
+import core.collection.{OrganizationCollectionInformation, AggregatingOrganizationCollectionLookup}
 
 /**
  * Organization API
@@ -19,7 +20,7 @@ object Organization extends Controller with DomainConfigurationAware with Render
       implicit request =>
         if (HubServices.organizationService(configuration).exists(orgId)) {
 
-          val providers = getFactAlternatives(orgId, "provider")
+          val providers = getAllOrganiztationCollectionInformation.map(_.getProvider)
 
           val xmlResponse =
             <providers>
@@ -43,7 +44,7 @@ object Organization extends Controller with DomainConfigurationAware with Render
       implicit request =>
         if (HubServices.organizationService(configuration).exists(orgId)) {
 
-          val dataProviders = getFactAlternatives(orgId, "dataProvider")
+          val dataProviders = getAllOrganiztationCollectionInformation.map(_.getDataProvider)
 
           val xmlResponse =
             <dataProviders>
@@ -66,14 +67,14 @@ object Organization extends Controller with DomainConfigurationAware with Render
     Action {
       implicit request =>
         if (HubServices.organizationService(configuration).exists(orgId)) {
-          val collections = models.DataSet.dao.findAllByOrgId(orgId)
+          val collections = AggregatingOrganizationCollectionLookup.findAll
 
           val xmlResponse =
             <collections>
               {for (c <- collections) yield
               <collection>
-                <id>{toIdentifier(c.spec)}</id>
-                <name>{c.getName}</name>
+                <id>{toIdentifier(c.spec)}</id>{if (c.isInstanceOf[OrganizationCollectionInformation]) {
+                <name>{c.asInstanceOf[OrganizationCollectionInformation].getName}</name>}}
               </collection>}
             </collections>
 
@@ -85,7 +86,13 @@ object Organization extends Controller with DomainConfigurationAware with Render
     }
   }
 
-  private def getFactAlternatives(orgId: String, fact: String) = DataSet.dao(orgId).findAll(orgId).map(ds => ds.details.facts.get(fact)).filterNot(_ == null).map(_.toString).toList.distinct
+  private def getAllOrganiztationCollectionInformation(implicit configuration: DomainConfiguration) = AggregatingOrganizationCollectionLookup.findAll.flatMap { collection =>
+    if(collection.isInstanceOf[OrganizationCollectionInformation]) {
+      Some(collection.asInstanceOf[OrganizationCollectionInformation])
+    } else {
+      None
+    }
+  }
 
   private def toIdentifier(name: String) = name.replaceAll(" ", "_")
 
