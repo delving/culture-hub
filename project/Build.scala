@@ -33,6 +33,10 @@ object Build extends sbt.Build {
     "org.apache.amber"          %  "oauth2-authzserver"              % "0.2-SNAPSHOT",
     "org.apache.amber"          %  "oauth2-client"                   % "0.2-SNAPSHOT",
     "net.liftweb"               %% "lift-json-ext"                   % "2.4-M4",
+    "org.seleniumhq.selenium"   %  "selenium-firefox-driver"         % "2.25.0"            % "test",
+    "org.seleniumhq.selenium"   %  "selenium-htmlunit-driver"        % "2.25.0"            % "test",
+    "org.fluentlenium"          %  "fluentlenium-core"               % "0.7.2"             % "test",
+    "net.sourceforge.htmlunit"  %  "htmlunit"                        % "2.10"              % "test",
     "eu.delving"                %% "themes"                          % "1.0-SNAPSHOT"      changing()
   )
 
