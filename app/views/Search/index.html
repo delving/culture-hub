@@ -29,7 +29,7 @@
 
     <div class="row">
         <div class="span9">
-            #{results.resultGrid results: briefDocs, colCount:3, spanClass:'span3' /}
+            #{results.resultGrid results: briefDocs, colCount: themeInfo.get('resultsColumns'), spanClass: themeInfo.get('resultsGridClass') /}
         </div>
         <div class="span3">
             #{list items: themeFacets, as: 'tf'}
