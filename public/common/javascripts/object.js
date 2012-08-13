@@ -29,7 +29,7 @@ $(document).ready(function() {
                 id = tmp[2];
                 uri = "/"+org+"/thing/"+owner+"/"+id+"?mlt=true";
                 html += '<li class="thumbnail">'
-                html += '<a href="' + uri + '" rel="nofollow"><img class="mlt" src="' + item['delving_thumbnail'] + '" alt="' + item['delving_title'] +'" width="100"/></a></li>';
+                html += '<a href="' + uri + '" rel="nofollow"><img class="mlt" src="' + item['delving_thumbnail'] + '" alt="' + item['delving_title'] +'" width="100" onerror="showDefaultImg(this)"/></a></li>';
             });
             html += "</ul>";
             $('.related-items').html(html);
