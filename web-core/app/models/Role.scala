@@ -32,15 +32,15 @@ object Role {
   // TODO move to plugin
   val CMS = Role("cms", description("cms"), Seq.empty, None)
 
-  val systemGrantTypes = List(CMS, OWN)
+  val systemRoles = List(CMS, OWN)
 
-  def dynamicGrantTypes(configuration: DomainConfiguration) = configuration.roles
+  def dynamicRoles(configuration: DomainConfiguration) = configuration.roles
 
-  def computeGrantTypes(configuration: DomainConfiguration) = (systemGrantTypes ++ dynamicGrantTypes(configuration))
+  def computeRoles(configuration: DomainConfiguration) = (systemRoles ++ dynamicRoles(configuration))
 
-  def allGrantTypes(configuration: DomainConfiguration): Seq[Role] = computeGrantTypes(configuration)
+  def allRoles(configuration: DomainConfiguration): Seq[Role] = computeRoles(configuration)
 
-  def get(grantType: String)(implicit configuration: DomainConfiguration) = allGrantTypes(configuration).find(_.key == grantType).getOrElse(illegal(grantType))
+  def get(role: String)(implicit configuration: DomainConfiguration) = allRoles(configuration).find(_.key == role).getOrElse(illegal(role))
 
 }
 

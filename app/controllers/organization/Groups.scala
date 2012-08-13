@@ -49,7 +49,7 @@ object Groups extends OrganizationController {
             'groupForm -> GroupViewModel.groupForm,
             'users -> usersAsTokens,
             'dataSets -> dataSetsAsTokens,
-            'grantTypes -> Role.allGrantTypes(configuration).
+            'grantTypes -> Role.allRoles(configuration).
                     filterNot(_ == Role.OWN).
                     map(role => (role.key -> role.getDescription(lang))).
                     toMap.asJava
@@ -141,7 +141,7 @@ object Groups extends OrganizationController {
               val role = try {
                 Role.get(groupModel.grantType)
               } catch {
-                case t =>
+                case t: Throwable =>
                   reportSecurity("Attempting to save Group with role " + groupModel.grantType)
                   return Action {
                     BadRequest("Invalid Role " + groupModel.grantType)
@@ -190,8 +190,12 @@ object Groups extends OrganizationController {
   }
 
   private def load(orgId: String, groupId: Option[ObjectId])(implicit configuration: DomainConfiguration): String = {
+    val resourceRoles = Role.allRoles(configuration).filterNot(_.resourceType.isEmpty)
     groupId.flatMap(Group.dao.findOneById(_)) match {
-      case None => JJson.generate(GroupViewModel())
+      case None => JJson.generate(GroupViewModel(
+        rolesWithResources = resourceRoles.map(_.key),
+        rolesWithResourceAdmin = Seq.empty
+      ))
       case Some(group) => JJson.generate(GroupViewModel(id = Some(group._id), name = group.name, grantType = group.grantType, canChangeGrantType = group.grantType != Role.OWN.key))
     }
   }
@@ -208,8 +212,13 @@ case class GroupViewModel(id: Option[ObjectId] = None,
                           grantType: String = Role.CMS.key,
                           canChangeGrantType: Boolean = true,
                           users: List[Token] = List.empty[Token],
+                          rolesWithResources: Seq[String] = Seq.empty,
+                          rolesWithResourceAdmin: Seq[String] = Seq.empty,
+                          rolesResourceType: Seq[RoleResourceType] = Seq.empty,
                           dataSets: List[Token] = List.empty[Token],
                           errors: Map[String, String] = Map.empty[String, String]) extends ViewModel
+
+case class RoleResourceType(roleKey: String, resourceType: String)
 
 object GroupViewModel {
 
@@ -221,6 +230,14 @@ object GroupViewModel {
       "grantType" -> nonEmptyText,
       "canChangeGrantType" -> boolean,
       "users" -> Groups.tokenListMapping,
+      "rolesWithResources" -> seq(nonEmptyText),
+      "rolesWithResourceAdmin" -> seq(nonEmptyText),
+      "rolesResourceType" -> seq(
+        mapping(
+        "roleKey" -> nonEmptyText,
+        "resourceType" -> nonEmptyText
+        )(RoleResourceType.apply)(RoleResourceType.unapply)
+      ),
       "dataSets" -> Groups.tokenListMapping,
       "errors" -> of[Map[String, String]]
     )(GroupViewModel.apply)(GroupViewModel.unapply)
