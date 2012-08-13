@@ -86,11 +86,11 @@ class DataSetPlugin(app: Application) extends CultureHubPlugin(app) {
     ("GET", """^/api/sip-creator/unlock/([A-Za-z0-9-]+)/([A-Za-z0-9-]+)""".r) -> {
       (pathArgs: List[String], queryString: Map[String, String]) => controllers.SipCreatorEndPoint.unlock(pathArgs(0), pathArgs(1), queryString.get("accessKey"))
     },
-    ("POST", """^/api/sip-creator/submit/([A-Za-z0-9-]+)/([A-Za-z0-9-]+)""".r) -> {
-      (pathArgs: List[String], queryString: Map[String, String]) => controllers.SipCreatorEndPoint.acceptFileList(pathArgs(0), pathArgs(1), queryString.get("accessKey"))
-    },
-    ("POST", """^/api/sip-creator/submit/([A-Za-z0-9-]+)/([A-Za-z0-9-]+)/([A-Za-z0-9-]+)""".r) -> {
+    ("POST", """^/api/sip-creator/submit/([A-Za-z0-9-]+)/([A-Za-z0-9-]+)/(.*)""".r) -> {
       (pathArgs: List[String], queryString: Map[String, String]) => controllers.SipCreatorEndPoint.acceptFile(pathArgs(0), pathArgs(1), pathArgs(2), queryString.get("accessKey"))
+    },
+    ("POST", """^/api/sip-creator/submit/([A-Za-z0-9-]+)/(.*)""".r) -> {
+      (pathArgs: List[String], queryString: Map[String, String]) => controllers.SipCreatorEndPoint.acceptFileList(pathArgs(0), pathArgs(1), queryString.get("accessKey"))
     },
     ("GET", """^/api/sip-creator/fetch/([A-Za-z0-9-]+)/([A-Za-z0-9-]+)-sip.zip""".r) -> {
       (pathArgs: List[String], queryString: Map[String, String]) => controllers.SipCreatorEndPoint.fetchSIP(pathArgs(0), pathArgs(1), queryString.get("accessKey"))
