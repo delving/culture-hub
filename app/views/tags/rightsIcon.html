@@ -1,0 +1,31 @@
+%{
+def rightsImage
+switch (_rights) {
+case 'http://creativecommons.org/publicdomain/mark/1.0/':
+rightsImage = 'cc_publicdomain_mark.png'
+break
+case 'http://creativecommons.org/publicdomain/zero/1.0/':
+rightsImage = 'cc_publicdomain_zero.png'
+break
+case 'http://creativecommons.org/licenses/by/3.0/':
+rightsImage = 'cc_by.png'
+break
+case 'http://www.europeana.eu/rights/rr-f/':
+rightsImage = 'eu_free_access.jpg'
+break
+case 'http://www.europeana.eu/rights/rr-p/':
+rightsImage = 'eu_paid_access.jpg'
+break
+case 'http://www.europeana.eu/rights/rr-r/':
+rightsImage = 'eu_restricted_access.jpg'
+break
+case 'http://www.europeana.eu/rights/unknown/':
+rightsImage = 'eu_unknown.jpg'
+break
+default:
+rightsImage = 'eu_unknown.jpg'
+}
+}%
+<div class="pull-right">
+    <a href="${_rights}" target="_blank" title="${_rights}" > <img src="/assets/common/images/rights/${rightsImage}" alt="${_rights}"/></a>
+</div>

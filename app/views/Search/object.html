@@ -68,16 +68,16 @@ break
 
 <div class="row">
 
-    <div class="span10">
+    <div class="span8">
         #{if returnToResults.length() > 0}
         <a href="/search?${returnToResults}" rel="nofollow"><i class="icon icon-arrow-left"></i> &{'ui.label.returnToResults'}</a>
         #{/if}&#160;
     </div>
 
-    <div class="span2">
-    #{if rightsImage}
-        <div class="pull-right input-small">
-            <a href="${rights}" target="_blank"> <img src="/assets/common/images/rights/${rightsImage}" width="100"/></a>
+    <div class="span4">
+    #{if themeInfo.addThisTrackingCode().length() > 0}
+        <div class="social-media-block pull-right">
+            #{addThis lang:lang ?: 'en', pubId:themeInfo.addThisTrackingCode()/}
         </div>
     #{/if}
     </div>
@@ -91,14 +91,16 @@ break
         </header>
     </div>
 
+
+
     <div class="span4">
-    #{if themeInfo.addThisTrackingCode().length() > 0}
-        <div class="social-media-block pull-right">
-        #{addThis lang:lang ?: 'en', pubId:themeInfo.addThisTrackingCode()/}
-        </div>
+    #{if rights}
+        #{rightsIcon rights: rights/}
+        *{<div class="pull-right input-small">}*
+            *{<a href="${rights}" target="_blank"> <img src="/assets/common/images/rights/${rightsImage}" width="100"/></a>}*
+        *{</div>}*
     #{/if}
     </div>
-
 </div>
 
 <div class="object-view">
