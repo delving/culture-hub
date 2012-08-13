@@ -656,8 +656,6 @@ locale.no=Norwegian (no)
 locale.nb=Norwegian b�kmal (nb)
 
 
-
-
 ###### Plugin messages (TODO: move to plugin once that is available)
 
 plugin.musip.museum=Museum
@@ -684,6 +682,9 @@ plugin.advancedsearch.booleanNot=NOT
 plugin.advancedsearch.allProviders=All data providers
 plugin.advancedsearch.selectProviders=Select data provider(s)
 
+
+
+accessControl.resourceType.dataSet=DataSets
 
 
 

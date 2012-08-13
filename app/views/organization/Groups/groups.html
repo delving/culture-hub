@@ -37,10 +37,12 @@
             </div>
 
             <div class="control-group" data-bind="visible: canChangeGrantType() && (rolesWithResources().indexOf(roleKey()) > -1)">
+              <div class="control-group">
+                <label class="control-label" for="resourceTokenInput" data-bind="text: resourceTypeName()"></label>
                 <div class="controls">
-                  <label for="resourceTokenInput" data-bind="value: resourceTypeName"></label>
                   <input type="text" id="resourceTokenInput" class="span4" data-bind="tokens: resources">
                 </div>
+              </div>
             </div>
             <div class="well">
             #{btnButton label: messages.get('org.group.save'), extraClass:"btn-primary btn-promiment", id:"saveButton", type:"submit" /}
