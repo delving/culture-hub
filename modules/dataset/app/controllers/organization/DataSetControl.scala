@@ -142,7 +142,8 @@ object DataSetControl extends OrganizationController {
         val data = if (dataSet == None) {
           JJson.generate(DataSetCreationViewModel(
             allRecordDefinitions = allRecordDefinitions,
-            oaiPmhAccess = RecordDefinition.enabledDefinitions(configuration).map(prefix => OaiPmhAccessViewModel(prefix))
+            oaiPmhAccess = RecordDefinition.enabledDefinitions(configuration).map(prefix => OaiPmhAccessViewModel(prefix)),
+            indexingMappingPrefix = Some("None")
           ))
         } else {
           val dS = dataSet.get
