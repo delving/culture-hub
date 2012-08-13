@@ -1,7 +1,7 @@
 %{
-    def counter = 1
+    def counter = 1 as Integer
     def span = _spanClass ?: 'span1of4'
-    def colCount = _colCount ?: 4
+    def colCount = _colCount as Integer ?: 4 as Integer
 }%
 #{list _results, as: 'doc'}
     #{if counter == 1}
