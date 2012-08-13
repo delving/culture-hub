@@ -23,6 +23,7 @@ import play.api.Logger
 import models.{DrupalEntity, StoreResponse}
 import play.api.mvc.{Controller, Action}
 import play.api.libs.concurrent.Promise
+import core.indexing.IndexingService
 
 /**
  *
@@ -66,6 +67,16 @@ object ItinEndPoint extends Controller with DomainConfigurationAware {
           }
         }
       }
+    }
+  }
+
+  def deleteAll() = DomainConfigured {
+    Action {
+      implicit request =>
+        IndexingService.deleteByQuery("delving_recordType:\"drupal\"")
+        DrupalEntity.dao.removeAll()
+        Ok(<response><status>success</status></response>)
+
     }
   }
 

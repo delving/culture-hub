@@ -21,9 +21,9 @@ abstract class ProcessingSchema {
   lazy val javaNamespaces = namespaces.asJava
   lazy val engine: Option[MappingEngine] = {
     if(prefix == "raw") {
-      Some(new MappingEngine("", Play.classloader, null, javaNamespaces))
+      Some(new MappingEngine(Play.classloader, javaNamespaces))
     } else {
-      mapping.map(new MappingEngine(_, Play.classloader, MappingService.recDefModel, javaNamespaces))
+      mapping.map(new MappingEngine(Play.classloader, javaNamespaces, MappingService.recDefModel, _))
     }
   }
 

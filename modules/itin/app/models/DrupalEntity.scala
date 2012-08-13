@@ -3,6 +3,7 @@ package models
 import com.novus.salat.dao.SalatDAO
 import org.bson.types.ObjectId
 import com.mongodb.casbah._
+import commons.MongoDBObject
 import org.apache.solr.common.SolrInputDocument
 import core.Constants._
 import core.search.SolrServer
@@ -157,6 +158,10 @@ class DrupalEntityDAO(collection: MongoCollection) extends SalatDAO[DrupalEntity
         IndexingService.rollback(configuration)
         StoreResponse(0, 0, false, ex.getMessage)
     }
+  }
+
+  def removeAll() {
+    remove(MongoDBObject())
   }
 }
 
