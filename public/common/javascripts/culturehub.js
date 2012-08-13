@@ -155,10 +155,10 @@ $.postKOJson = function (url, viewModel, onSuccess, onFailure, additionalData) {
  * @param data the data to load (as JSON object)
  * @param viewModel the view model to update
  * @param scope the scope for the view model binding
+ * @param onApplyBindings callback executed right before applying bindings
  */
-function load(data, viewModel, scope, callback) {
-    updateViewModel(data, viewModel, scope);
-    if (typeof callback !== 'undefined' && typeof callback === 'function') callback.call();
+function load(data, viewModel, scope, callback, onApplyBindings) {
+    updateViewModel(data, viewModel, scope, callback, onApplyBindings);
 }
 
 /**
@@ -166,8 +166,9 @@ function load(data, viewModel, scope, callback) {
  * @param data the data object
  * @param viewModel the knockoutJS viewModel
  * @param scope the scope of the model binding
+ * @param onApplyBindings callback executed right before applying bindings
  */
-function updateViewModel(data, viewModel, scope) {
+function updateViewModel(data, viewModel, scope, callback, onApplyBindings) {
 
     var mapping = {
         'errors': {
@@ -181,6 +182,8 @@ function updateViewModel(data, viewModel, scope) {
         ko.mapping.fromJS(data, viewModel)
     } else {
         $.extend(viewModel, ko.mapping.fromJS(data, mapping));
+        console.log(viewModel)
+        if(typeof onApplyBindings === 'function') onApplyBindings.call();
         if (typeof scope !== 'undefined') {
             ko.applyBindings(viewModel, scope);
         } else {
@@ -191,6 +194,9 @@ function updateViewModel(data, viewModel, scope) {
     if (data.errors) {
         viewModel.errors(ko.mapping.fromJS(data.errors));
     }
+
+    if (typeof callback !== 'undefined' && typeof callback === 'function') callback.call();
+
 }
 
 //function remove(buttonId, dialogId, removeUrl, redirectUrl) {

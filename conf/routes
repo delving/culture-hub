@@ -153,20 +153,15 @@ DELETE      /organizations/:orgId/admin/users/remove                          co
 
 GET         /organizations/:orgId/admin/solrSearchProxy                       controllers.organization.Admin.solrSearchProxy(orgId)
 
-GET         /organizations/:orgId/datasets/searchBySpec                       controllers.organization.DataSets.listAsTokensBySpec(orgId: String, q: String ?= "")
 GET         /organizations/:orgId/users/search                                controllers.Users.listAsTokens(orgId: Option[String], q: String ?= "")
+
+GET         /organizations/:orgId/groups/resources/:resourceType/search       controllers.organization.Groups.searchResourceTokens(orgId, resourceType, q: String ?= "")
 
 GET         /organizations/:orgId/groups                                      controllers.organization.Groups.list(orgId)
 GET         /organizations/:orgId/groups/create                               controllers.organization.Groups.groups(orgId, groupId: Option[org.bson.types.ObjectId] = None)
 GET         /organizations/:orgId/groups/update/:groupId                      controllers.organization.Groups.groups(orgId, groupId: Option[org.bson.types.ObjectId])
-POST        /organizations/:orgId/groups/create                               controllers.organization.Groups.update(orgId, groupId: Option[org.bson.types.ObjectId] = None)
 DELETE      /organizations/:orgId/groups/remove/:groupId                      controllers.organization.Groups.remove(orgId, groupId: Option[org.bson.types.ObjectId])
-POST        /organizations/:orgId/groups/update/                              controllers.organization.Groups.update(orgId, groupId: Option[org.bson.types.ObjectId] = None)
-POST        /organizations/:orgId/groups/update/:groupId                      controllers.organization.Groups.update(orgId, groupId: Option[org.bson.types.ObjectId])
-POST        /organizations/:orgId/groups/:groupId/addUser                     controllers.organization.Groups.addUser(orgId, groupId: org.bson.types.ObjectId)
-DELETE      /organizations/:orgId/groups/:groupId/removeUser                  controllers.organization.Groups.removeUser(orgId, groupId: org.bson.types.ObjectId)
-POST        /organizations/:orgId/groups/:groupId/addDataset                  controllers.organization.Groups.addDataset(orgId, groupId: org.bson.types.ObjectId)
-DELETE      /organizations/:orgId/groups/:groupId/removeDataset               controllers.organization.Groups.removeDataset(orgId, groupId: org.bson.types.ObjectId)
+POST        /organizations/:orgId/groups/submit                               controllers.organization.Groups.submit(orgId)
 
 GET         /organizations/:orgId/site/upload                                 controllers.organization.CMS.upload(orgId)
 POST        /organizations/:orgId/site/upload/:uid                            controllers.organization.CMS.uploadSubmit(orgId, uid)

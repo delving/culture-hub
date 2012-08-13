@@ -123,7 +123,8 @@ case class OaiPmhServiceConfiguration(
   earliestDateStamp:           String,
   repositoryIdentifier:        String,
   sampleIdentifier:            String,
-  responseListSize:            Int
+  responseListSize:            Int,
+  allowRawHarvesting:          Boolean
 )
 
 case class DirectoryServiceConfiguration(
@@ -207,6 +208,7 @@ object DomainConfiguration {
   val OAI_REPO_IDENTIFIER = "services.pmh.repositoryIdentifier"
   val OAI_SAMPLE_IDENTIFIER = "services.pmh.sampleIdentifier"
   val OAI_RESPONSE_LIST_SIZE = "services.pmh.responseListSize"
+  val OAI_ALLOW_RAW_HARVESTING = "services.pmh.allowRawHarvesting"
 
   val BASEX_HOST = "basex.host"
   val BASEX_PORT = "basex.port"
@@ -226,7 +228,7 @@ object DomainConfiguration {
     SOLR_BASE_URL,
     COMMONS_HOST, COMMONS_NODE_NAME,
     IMAGE_CACHE_DATABASE, FILESTORE_DATABASE, TILES_WORKING_DIR, TILES_OUTPUT_DIR,
-    OAI_REPO_NAME, OAI_ADMIN_EMAIL, OAI_EARLIEST_TIMESTAMP, OAI_REPO_IDENTIFIER, OAI_SAMPLE_IDENTIFIER, OAI_RESPONSE_LIST_SIZE,
+    OAI_REPO_NAME, OAI_ADMIN_EMAIL, OAI_EARLIEST_TIMESTAMP, OAI_REPO_IDENTIFIER, OAI_SAMPLE_IDENTIFIER, OAI_RESPONSE_LIST_SIZE, OAI_ALLOW_RAW_HARVESTING,
     SEARCH_FACETS, SEARCH_SORTFIELDS, SEARCH_APIWSKEY,
     BASEX_HOST, BASEX_PORT, BASEX_EPORT, BASEX_USER, BASEX_PASSWORD,
     PROVIDER_DIRECTORY_URL,
@@ -295,7 +297,8 @@ object DomainConfiguration {
                   earliestDateStamp = getString(configuration, OAI_EARLIEST_TIMESTAMP),
                   repositoryIdentifier = getString(configuration, OAI_REPO_IDENTIFIER),
                   sampleIdentifier = getString(configuration, OAI_SAMPLE_IDENTIFIER),
-                  responseListSize = getInt(configuration, OAI_RESPONSE_LIST_SIZE)
+                  responseListSize = getInt(configuration, OAI_RESPONSE_LIST_SIZE),
+                  allowRawHarvesting = getBoolean(configuration, OAI_ALLOW_RAW_HARVESTING)
                 ),
                 objectService = ObjectServiceConfiguration(
                   fileStoreDatabaseName = getString(configuration, FILESTORE_DATABASE),

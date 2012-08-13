@@ -92,7 +92,7 @@ class CollectionProcessor(collection: Collection,
                     try {
                       (targetSchema.prefix -> targetSchema.engine.get.execute(sourceRecord))
                     } catch {
-                      case t => {
+                      case t: Throwable => {
                         log.error(
                           """While processing source input document:
                             |
@@ -105,7 +105,7 @@ class CollectionProcessor(collection: Collection,
                   }).toMap
 
                   val derivedMappingResults: Map[String, MappingResult] = (for (targetSchema <- targetSchemas; if (targetSchema.sourceSchema != "raw")) yield {
-                    val sourceRecord = MappingService.nodeTreeToXmlString(directMappingResults(targetSchema.sourceSchema).root())
+                    val sourceRecord = MappingService.nodeTreeToXmlString(directMappingResults(targetSchema.sourceSchema).root(), true)
                     (targetSchema.prefix -> targetSchema.engine.get.execute(sourceRecord))
                   }).toMap
 
@@ -122,7 +122,7 @@ class CollectionProcessor(collection: Collection,
                   val serializedRecords = mappingResults.flatMap {
                     r => {
                       try {
-                        val serialized = MappingService.nodeTreeToXmlString(r._2.root())
+                        val serialized = MappingService.nodeTreeToXmlString(r._2.root(), r._1 != "raw")
                         Some((r._1 -> serialized))
                       } catch {
                         case t => {
@@ -222,7 +222,7 @@ class CollectionProcessor(collection: Collection,
 
 
   private def getSystemFields(mappingResult: MappingResult): MultiMap = {
-    val systemFields: Map[String, List[String]] = mappingResult.systemFields()
+    val systemFields: Map[String, List[String]] = mappingResult.systemFields().asScala.map(f => (f._1.getLocalPart -> f._2.asScala.toList)).toMap[String, List[String]]
     val renamedSystemFields: Map[String, List[String]] = systemFields.flatMap(sf => {
       try {
         Some(SystemField.valueOf(sf._1).tag -> sf._2)

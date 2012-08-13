@@ -18,7 +18,7 @@
             </thead>
             <tbody>
             #{list groups, as: 'group'}
-                #{if group.grantType == models.Role.OWN().key}
+                #{if group.roleKey == models.Role.OWN().key}
                 <tr>
                     <td>${group.name} - &{'org.list.memberCount', group.users.size()} &{'org.list.grantType.own'}</td>
                     <td>#{if isAdmin}<a class="btn btn-primary btn-mini" href="/organizations/${orgId}/groups/update/${group._id}">&{'ui.label.edit'}</a>#{/if}</td>

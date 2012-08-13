@@ -21,8 +21,10 @@ import scala.collection.immutable.ListMap
 import scala.util.matching.Regex
 import play.api.mvc.Handler
 import core._
+import access.{ResourceType, Resource, ResourceLookup}
 import collection.HarvestCollectionLookup
 import com.mongodb.casbah.commons.MongoDBObject
+import java.util.regex.Pattern
 
 class DataSetPlugin(app: Application) extends CultureHubPlugin(app) {
 
@@ -123,6 +125,46 @@ class DataSetPlugin(app: Application) extends CultureHubPlugin(app) {
   )
 
   override def harvestCollectionLookups: Seq[HarvestCollectionLookup] = Seq(dataSetHarvestCollectionLookup)
+
+  /**
+   * Override this to provide custom roles to the platform, that can be used in Groups
+   * @return a sequence of [[models.Role]] instances
+   */
+  override val roles: Seq[Role] = Seq(DataSetPlugin.ROLE_DATASET_ADMIN, DataSetPlugin.ROLE_DATASET_EDITOR)
+
+  /**
+   * Override this to provide the necessary lookup for a [[core.access.Resource]] depicted by a [[models.Role]]
+   * @return
+   **/
+  override val resourceLookups: Seq[core.access.ResourceLookup] = Seq(
+    new ResourceLookup {
+
+      def resourceType: ResourceType = DataSet.RESOURCE_TYPE
+
+      /**
+       * Queries resources by type and name
+       * @param query the query on the resource name
+       * @return a sequence of resources matching the query
+       */
+      def findResources(orgId: String, query: String): Seq[Resource] = {
+        implicit val configuration = DomainConfigurationHandler.getByOrgId(orgId)
+        DataSet.dao.find(MongoDBObject("orgId" -> orgId, "spec" -> Pattern.compile(query, Pattern.CASE_INSENSITIVE))).toSeq
+      }
+
+      /**
+       * Queries resources by key
+       * @param orgId the orgId
+       * @param resourceKey the resourceKey
+       * @return the resource of the given key, if found
+       */
+      def findResourceByKey(orgId: String, resourceKey: String): Option[Resource] = {
+        implicit val configuration = DomainConfigurationHandler.getByOrgId(orgId)
+        DataSet.dao.findOne(MongoDBObject("orgId" -> orgId, "spec" -> resourceKey))
+      }
+    }
+  )
+
+
 
   /**
    * Runs globally on application start, for the whole Hub. Make sure that whatever you run here is multitenancy-aware
@@ -260,3 +302,19 @@ class DataSetPlugin(app: Application) extends CultureHubPlugin(app) {
   }
 }
 
+object DataSetPlugin {
+  val ROLE_DATASET_ADMIN = Role(
+    key = "dataSetAdmin",
+    description = Map("en" -> "DataSet administration rights"),
+    isResourceAdmin = true,
+    resourceType = Some(DataSet.RESOURCE_TYPE)
+  )
+
+  val ROLE_DATASET_EDITOR = Role(
+    key = "dataSetEditor",
+    description = Map("en" -> "DataSet modification rights"),
+    isResourceAdmin = false,
+    resourceType = Some(DataSet.RESOURCE_TYPE)
+  )
+
+}

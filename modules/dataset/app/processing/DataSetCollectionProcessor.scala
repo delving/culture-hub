@@ -37,7 +37,7 @@ object DataSetCollectionProcessor {
         val mapping: Option[String] = if (dataSet.mappings.contains(t.prefix) && dataSet.mappings(t.prefix) != null) dataSet.mappings(t.prefix).recordMapping else None
         val sourceSchema: String = RAW_PREFIX
 
-        def isValidRecord(index: Int): Boolean = !invalidRecords(t.prefix).contains(index)
+        def isValidRecord(index: Int): Boolean = definition.prefix == RAW_PREFIX || !invalidRecords(t.prefix).contains(index)
       }
     }
 
@@ -65,8 +65,10 @@ object DataSetCollectionProcessor {
 
     val targetSchemas: List[ProcessingSchema] = selectedProcessingSchemas.toList ++ crosswalkSchemas.toList
 
-    val actionableTargetSchemas = targetSchemas.partition(_.hasMapping)._1
-    val incompleteTargetSchemas = targetSchemas.partition(_.hasMapping)._2
+    val isActionable: ProcessingSchema => Boolean = s => s.hasMapping || s.definition.prefix == RAW_PREFIX
+
+    val actionableTargetSchemas = targetSchemas.partition(isActionable)._1
+    val incompleteTargetSchemas = targetSchemas.partition(isActionable)._2
 
     if (!incompleteTargetSchemas.isEmpty) {
       log.warn("Could not find mapping for the following schemas: %s. They will be ignored in the mapping process.".format(incompleteTargetSchemas.mkString(", ")))

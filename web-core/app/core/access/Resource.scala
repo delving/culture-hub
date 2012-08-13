@@ -27,11 +27,20 @@ trait ResourceLookup {
   def resourceType: ResourceType
 
   /**
-   * Queries resources by type and name
+   * Queries resources name
+   * @param orgId the orgId
    * @param query the query on the resource name
    * @return a sequence of resources matching the query
    */
   def findResources(orgId: String, query: String): Seq[Resource]
+
+  /**
+   * Queries resources by key
+   * @param orgId the orgId
+   * @param resourceKey the resourceKey
+   * @return the resource of the given key, if found
+   */
+  def findResourceByKey(orgId: String, resourceKey: String): Option[Resource]
 
 }
 

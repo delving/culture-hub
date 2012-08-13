@@ -25,6 +25,10 @@ class ItinPlugin(app: Application) extends CultureHubPlugin(app) {
     }),
     (("POST", """/services/api/itin""".r) -> {
       (pathArgs: List[String], queryString: Map[String, String]) => controllers.itin.ItinEndPoint.store
+    }),
+    (("DELETE", """/services/api/itin""".r) -> {
+      (pathArgs: List[String], queryString: Map[String, String]) => controllers.itin.ItinEndPoint.deleteAll
     })
+
   )
 }

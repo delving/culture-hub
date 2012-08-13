@@ -24,11 +24,16 @@ import com.mongodb.casbah.Imports._
 import play.api.mvc.{AnyContent, Action}
 import play.api.data.Form
 import play.api.data.Forms._
-import play.api.data.validation.Constraints
+import play.api.data.validation._
 import collection.immutable.List
 import core.HubServices
 import core.Constants._
 import controllers.ListItem
+import play.api.data.validation.ValidationError
+import models.Details
+import models.FormatAccessControl
+import models.Mapping
+import controllers.ShortDataSet
 
 /**
  *
@@ -79,6 +84,10 @@ object HardcodedFacts {
 
 object DataSetCreationViewModel {
 
+  private def notRaw: Constraint[Option[String]] = Constraint[Option[String]]("constraint.notRaw") { o =>
+    if (o == Some("raw")) Invalid(ValidationError("error.notRaw")) else Valid
+  }
+
   val dataSetForm = Form(
     mapping(
       "id" -> optional(of[ObjectId]),
@@ -101,7 +110,7 @@ object DataSetCreationViewModel {
           "accessKey" -> optional(text)
         )(OaiPmhAccessViewModel.apply)(OaiPmhAccessViewModel.unapply)
       ),
-      "indexingMappingPrefix" -> optional(text),
+      "indexingMappingPrefix" -> optional(text).verifying(notRaw),
       "errors" -> of[Map[String, String]]
     )(DataSetCreationViewModel.apply)(DataSetCreationViewModel.unapply)
   )

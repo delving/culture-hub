@@ -37,6 +37,7 @@ case class RecordDefinition(prefix: String,
                             ) {
 
   def getNamespaces = allNamespaces.map(ns => (ns.prefix, ns.uri)).toMap[String, String]
+
 }
 
 case class Namespace(prefix: String, uri: String, schema: String) {
@@ -78,6 +79,14 @@ object RecordDefinition {
   val VALIDATION_SCHEMA_SUFFIX = "-validation.xsd"
   val CROSSWALK_SUFFIX = "-crosswalk.xml"
 
+  val rawRecordDefinition = RecordDefinition(
+    prefix = "raw",
+    schema = "http://delving.eu/namespaces/raw",
+    namespace = "http://delving.eu/namespaces/raw/schema.xsd",
+    allNamespaces = List(Namespace("raw", "http://delving.eu/namespaces/raw", "http://delving.eu/namespaces/raw/schema.xsd")),
+    isFlat = true
+  )
+
   lazy val enabledDefinitions: Map[DomainConfiguration, Seq[String]] = DomainConfigurationHandler.domainConfigurations.
     map(configuration => (configuration -> configuration.schemas)).toMap
 
@@ -105,8 +114,13 @@ object RecordDefinition {
 
   private def parseRecordDefinitions(implicit configuration: DomainConfiguration): List[RecordDefinition] = {
     val definitionContent = getRecordDefinitionResources(Some(configuration)).map { r => XML.load(r) }
-    definitionContent.flatMap(parseRecordDefinition(_)).toList
-  }
+    val definitions = definitionContent.flatMap(parseRecordDefinition(_)).toList
+    if(Play.configuration.getBoolean("cultureHub.allowRawHarvesting").getOrElse(false)) {
+      definitions ++ List(rawRecordDefinition)
+    } else {
+      definitions
+    }
+   }
 
   private def parseRecordDefinition(node: Node): Option[RecordDefinition] = {
     val prefix = (node \ "@prefix" ).text

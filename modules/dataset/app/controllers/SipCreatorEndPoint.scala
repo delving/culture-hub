@@ -30,6 +30,7 @@ import play.api.libs.concurrent.Promise
 import org.apache.commons.lang.StringEscapeUtils
 import scala.util.matching.Regex.Match
 import java.util.regex.Matcher
+import plugins.DataSetPlugin
 
 /**
  * This Controller is responsible for all the interaction with the SIP-Creator.
@@ -92,7 +93,7 @@ object SipCreatorEndPoint extends ApplicationController {
   def listAll(accessToken: Option[String]) = AuthenticatedAction(accessToken) {
     Action {
       implicit request =>
-        val dataSets = DataSet.dao.findAllForUser(connectedUserObject.get.userName, configuration.orgId, ResourceRole.CAN_UPDATE)
+        val dataSets = DataSet.dao.findAllForUser(connectedUserObject.get.userName, configuration.orgId, DataSetPlugin.ROLE_DATASET_EDITOR)
 
         val dataSetsXml = <data-set-list>
           {dataSets.map {

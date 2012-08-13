@@ -159,7 +159,7 @@ object VirtualCollections extends OrganizationController {
                                         spec: String,
                                         name: String,
                                         autoUpdate: Boolean,
-                                        dataSets: List[Token] = List.empty[Token],
+                                        dataSets: Seq[Token] = Seq.empty[Token],
                                         freeFormQuery: String,
                                         excludedIdentifiers: String, // comma-separated list of identifiers to be excluded
                                         errors: Map[String, String] = Map.empty[String, String]) extends ViewModel
