@@ -130,13 +130,13 @@ class DataSetPlugin(app: Application) extends CultureHubPlugin(app) {
    * Override this to provide custom roles to the platform, that can be used in Groups
    * @return a sequence of [[models.Role]] instances
    */
-  override def roles: Seq[Role] = Seq(DataSetPlugin.ROLE_DATASET_ADMIN, DataSetPlugin.ROLE_DATASET_EDITOR)
+  override val roles: Seq[Role] = Seq(DataSetPlugin.ROLE_DATASET_ADMIN, DataSetPlugin.ROLE_DATASET_EDITOR)
 
   /**
    * Override this to provide the necessary lookup for a [[core.access.Resource]] depicted by a [[models.Role]]
    * @return
    **/
-  override def resourceLookups: Seq[core.access.ResourceLookup] = Seq(
+  override val resourceLookups: Seq[core.access.ResourceLookup] = Seq(
     new ResourceLookup {
 
       def resourceType: ResourceType = DataSet.RESOURCE_TYPE
@@ -149,6 +149,17 @@ class DataSetPlugin(app: Application) extends CultureHubPlugin(app) {
       def findResources(orgId: String, query: String): Seq[Resource] = {
         implicit val configuration = DomainConfigurationHandler.getByOrgId(orgId)
         DataSet.dao.find(MongoDBObject("orgId" -> orgId, "spec" -> Pattern.compile(query, Pattern.CASE_INSENSITIVE))).toSeq
+      }
+
+      /**
+       * Queries resources by key
+       * @param orgId the orgId
+       * @param resourceKey the resourceKey
+       * @return the resource of the given key, if found
+       */
+      def findResourceByKey(orgId: String, resourceKey: String): Option[Resource] = {
+        implicit val configuration = DomainConfigurationHandler.getByOrgId(orgId)
+        DataSet.dao.findOne(MongoDBObject("orgId" -> orgId, "spec" -> resourceKey))
       }
     }
   )

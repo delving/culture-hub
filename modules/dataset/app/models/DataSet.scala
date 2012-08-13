@@ -251,13 +251,13 @@ class DataSetDAO(collection: MongoCollection) extends SalatDAO[DataSet, ObjectId
   def findAllForUser(userName: String, orgId: String, role: Role)(implicit configuration: DomainConfiguration): Seq[DataSet] = {
 
     val userGroups: Seq[Group] = Group.dao.find(MongoDBObject("users" -> userName)).toSeq
-    val userRoles: Seq[Role] = userGroups.map(group => Role.get(group.grantType))
+    val userRoles: Seq[Role] = userGroups.map(group => Role.get(group.roleKey))
 
     val isResourceAdmin = userRoles.exists(userRole => role.resourceType.isDefined && role.resourceType == userRole.resourceType && userRole.isResourceAdmin)
     val isAdmin = HubServices.organizationService(configuration).isAdmin(orgId, userName)
 
     val groupDataSets: Seq[DataSet] = userGroups.
-            filter(group => group.grantType == role.key).
+            filter(group => group.roleKey == role.key).
             flatMap(g => g.resources).
             filter(resource => resource.getResourceType == DataSet.RESOURCE_TYPE).
             flatMap(dataSetResources => findBySpecAndOrgId(dataSetResources.getResourceKey, orgId)).

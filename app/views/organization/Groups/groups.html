@@ -18,12 +18,12 @@
             <div class="control-group" data-bind="visible: canChangeGrantType">
                 <label class="control-label" for="grantType">&{'thing.grantType'}<span class="label">&{'ui.label.required'}</span></label>
                 <div class="controls">
-                    <select id="grantType" name="grantType" data-bind="value: grantType" class="span4">
-                    #{list grantTypes, as: 'gt'}
-                        <option value="${gt.key}">&{gt.value}</option>
+                    <select id="grantType" name="grantType" data-bind="value: roleKey" class="span4">
+                    #{list roles, as: 'r'}
+                        <option value="${r.key}">&{r.value}</option>
                     #{/list}
                     </select>
-                    <span class="error">${views.Helpers.showError('grantType', null)}</span>
+                    <span class="error">${views.Helpers.showError('roleKey', null)}</span>
                 </div>
             </div>
         </div>
@@ -36,16 +36,10 @@
                 </div>
             </div>
 
-            *{ TODO generify to resource of any kind, not only DataSet }*
-            <div class="control-group" data-bind="visible: canChangeGrantType() && (grantType() == 'canView' || grantType() == 'canUpdate')">
-                <label class="control-label" for="datasetsInput">&{'thing.datasets'}</label>
+            <div class="control-group" data-bind="visible: canChangeGrantType() && (rolesWithResources().indexOf(roleKey()) > -1)">
                 <div class="controls">
-                #{if id.isDefined()}
-                    #{addRemoveTokenField id:"datasetsInput", name: "datasetsInput", searchUrl: "/organizations/"+orgId+"/datasets/searchBySpec", prePopulate: dataSets, addUrl: "/organizations/"+orgId+"/groups/"+id.get()+"/addDataset", removeUrl: "/organizations/"+orgId+"/groups/"+id.get()+"/removeDataset" /}
-                #{/if}
-                #{else}
-                    #{boundAddRemoveTokenField id:"datasetsInput", name:"datasetsInput", searchUrl: "/organizations/"+orgId+"/datasets/searchBySpec", dataBind:"tokens: dataSets" /}
-                #{/else}
+                  <label for="resourceTokenInput" data-bind="value: resourceTypeName"></label>
+                  <input type="text" id="resourceTokenInput" class="span4" data-bind="tokens: resources">
                 </div>
             </div>
             <div class="well">
@@ -59,9 +53,31 @@
 
 <script type="text/javascript">
     $(document).ready(function () {
-        var groupModel = {};
+
+        var groupModel = {
+          resourceType: function() {
+            return $.grep(groupModel.rolesResourceType(), function(item, index) { return item.roleKey() == groupModel.roleKey() })[0];
+          },
+          resourceTypeName: function() {
+            return groupModel.resourceType().resourceTypeName();
+          },
+          resourceTypeKey: function() {
+            var rt = groupModel.resourceType();
+            if(typeof rt === 'undefined') {
+              return "";
+            } else {
+              return groupModel.resourceType().resourceType();
+            }
+          },
+          resourceTokensUrl: function() {
+            return '/organizations/${orgId}/groups/resources/' + groupModel.resourceTypeKey() + '/search';
+          }
+        };
+
         load(${data.raw()}, groupModel, null, function () {
             $("body").css('visibility', 'visible');
+        }, function() {
+          return $('#resourceTokenInput').tokenInput(groupModel.resourceTokensUrl);
         });
 
         $('#saveButton').click(function (event) {

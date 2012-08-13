@@ -3,18 +3,20 @@ package controllers.organization
 import org.bson.types.ObjectId
 import extensions.JJson
 import com.mongodb.casbah.Imports._
-import models.{DomainConfiguration, Role, Group}
+import models._
 import models.mongoContext._
 import play.api.i18n.Messages
-import controllers.{OrganizationController, ViewModel, Token}
+import controllers.{OrganizationController, ViewModel}
 import play.api.mvc.{Results, AnyContent, RequestHeader, Action}
 import play.api.data.Forms._
 import extensions.Formatters._
 import play.api.data.Form
-import core.HubServices
-import core.access.ResourceType
+import core.{CultureHubPlugin, HubServices}
+import core.access.{Resource, ResourceType}
 import collection.JavaConverters._
 import play.api.Logger
+import controllers.Token
+import scala.Some
 
 /**
  *
@@ -25,7 +27,7 @@ object Groups extends OrganizationController {
   def list(orgId: String) = OrgMemberAction(orgId) {
     Action {
       implicit request =>
-        val groups = Group.dao.list(userName, orgId).toSeq.sortWith((a, b) => a.grantType == Role.OWN || a.name < b.name)
+        val groups = Group.dao.list(userName, orgId).toSeq.sortWith((a, b) => a.roleKey == Role.OWN.key || a.name < b.name)
         Ok(Template('groups -> groups))
     }
   }
@@ -50,69 +52,12 @@ object Groups extends OrganizationController {
             'groupForm -> GroupViewModel.groupForm,
             'users -> usersAsTokens,
             'dataSets -> dataSetsAsTokens,
-            'grantTypes -> Role.allRoles(configuration).
+            'roles -> Role.allRoles(configuration).
                     filterNot(_ == Role.OWN).
                     map(role => (role.key -> role.getDescription(lang))).
                     toMap.asJava
           ))
         }
-    }
-  }
-
-  def addUser(orgId: String, groupId: ObjectId) = OrgMemberAction(orgId) {
-    Action {
-      implicit request =>
-        val id = request.body.getFirstAsString("id").getOrElse(null)
-        elementAction(orgId, id, groupId, "organizations.group.cannotAddUser") { (userName, groupId) =>
-          Group.dao.addUser(orgId, userName, groupId)
-        }
-    }
-  }
-
-  def removeUser(orgId: String, groupId: ObjectId) = OrgMemberAction(orgId) {
-    Action {
-      implicit request =>
-        val id = request.body.getFirstAsString("id").getOrElse(null)
-        elementAction(orgId, id, groupId, "organizations.group.cannotRemoveUser") { (userName, groupId) =>
-          Group.dao.removeUser(orgId, userName, groupId)
-        }
-    }
-  }
-
-  // TODO generify
-  def addDataset(orgId: String, groupId: ObjectId) = OrgMemberAction(orgId) {
-    Action {
-      implicit request =>
-        val id = request.body.getFirstAsString("id").getOrElse(null)
-        elementAction(orgId, id, groupId, "organizations.group.cannotAddDataset") {
-          (id, groupId) =>
-            Group.dao.addResource(orgId, id, ResourceType("dataSet"), groupId)
-        }
-    }
-  }
-
-  // TODO generify
-  def removeDataset(orgId: String, groupId: ObjectId) = OrgMemberAction(orgId) {
-    Action {
-      implicit request =>
-        val id = request.body.getFirstAsString("id").getOrElse(null)
-        elementAction(orgId, id, groupId, "organizations.group.cannotRemoveDataset") {
-          (id, groupId) =>
-            Group.dao.removeResource(orgId, id, ResourceType("dataSet"), groupId)
-        }
-    }
-  }
-
-  private def elementAction(orgId: String, id: String, groupId: ObjectId, messageKey: String)(op: (String, ObjectId) => Boolean)(implicit request: RequestHeader) = {
-    if (!canUpdateGroup(orgId, groupId)) {
-      Forbidden(Messages("user.secured.noAccess"))
-    } else if (id == null || groupId == null) {
-      Results.BadRequest
-    } else {
-      op(id, groupId) match {
-        case true => Ok
-        case false => Error(Messages(messageKey, id, groupId))
-      }
     }
   }
 
@@ -142,12 +87,12 @@ object Groups extends OrganizationController {
               Forbidden(Messages("user.secured.noAccess"))
             } else {
                   val role = try {
-                    Role.get(groupForm.grantType)
+                    Role.get(groupForm.roleKey)
                   } catch {
                     case t: Throwable =>
-                      reportSecurity("Attempting to save Group with role " + groupForm.grantType)
+                      reportSecurity("Attempting to save Group with role " + groupForm.roleKey)
                       return Action {
-                        BadRequest("Invalid Role " + groupForm.grantType)
+                        BadRequest("Invalid Role " + groupForm.roleKey)
                       }
                   }
 
@@ -165,13 +110,13 @@ object Groups extends OrganizationController {
                         Group(
                           name = groupForm.name,
                           orgId = orgId,
-                          grantType = role.key
+                          roleKey = role.key
                         )
                       ) match {
                         case None => None
                         case Some(id) =>
                           groupForm.users.foreach(u => Group.dao.addUser(orgId, u.id, id))
-                          groupForm.dataSets.foreach(ds => Group.dao.addResource(orgId, ds.id, ResourceType("dataSet"), id))
+                          groupForm.resources.foreach(r => Group.dao.addResource(orgId, r.id, role.resourceType.get, id))
                           Some(groupForm.copy(id = Some(id)))
                       }
                     case Some(id) =>
@@ -181,9 +126,21 @@ object Groups extends OrganizationController {
                           NotFound("Group with ID %s was not found".format(id))
                         }
                         case Some(g) =>
-                          g.grantType match {
+                          g.roleKey match {
                             case Role.OWN.key => // do nothing
-                            case _ => Group.dao.updateGroupInfo(id, groupForm.name, role)
+                            case _ =>
+
+                              val lookup = resourceLookup(role.resourceType.get.resourceType).get
+                              val resources: Seq[Resource] = role.resourceType.map { resourceType =>
+                                groupForm.resources.flatMap { resourceToken =>
+                                  lookup.findResourceByKey(orgId, resourceToken.id)
+                                }
+                              }.getOrElse {
+                                Seq.empty
+                              }
+                              Group.dao.updateGroupInfo(id, groupForm.name, role, groupForm.users.map(_.id), resources.map(r => PersistedResource(r)))
+                              groupForm.users.foreach(u => Group.dao.addUser(orgId, u.id, id))
+
                           }
                           Some(groupForm)
                       }
@@ -198,10 +155,34 @@ object Groups extends OrganizationController {
     }
   }
 
+  def searchResourceTokens(orgId: String, resourceType: String, q: String) = OrgMemberAction(orgId) {
+    Action {
+      implicit request =>
+        val maybeLookup = resourceLookup(resourceType)
+        maybeLookup.map { lookup =>
+          val tokens = lookup.findResources(orgId, q).map { resource =>
+            Token(resource.getResourceKey, resource.getResourceKey, Some(resource.getResourceType.resourceType))
+          }
+          Json(tokens)
+        }.getOrElse(
+          Json(Seq.empty)
+        )
+    }
+  }
+
+
+  private def resourceLookup(resourceType: String)(implicit configuration: DomainConfiguration) = {
+    CultureHubPlugin.
+      getEnabledPlugins.
+      flatMap(plugin => plugin.resourceLookups).
+      find(lookup => lookup.resourceType.resourceType == resourceType)
+
+  }
+
   private def load(orgId: String, groupId: Option[ObjectId])(implicit configuration: DomainConfiguration): String = {
     val resourceRoles = Role.allRoles(configuration).filterNot(_.resourceType.isEmpty)
     val defaultGroupViewModel = GroupViewModel(
-      grantType = Role.allRoles(configuration).head.key,
+      roleKey = Role.allRoles(configuration).head.key,
       rolesWithResources = resourceRoles.map(_.key),
       rolesWithResourceAdmin = Seq.empty,
       rolesResourceType = resourceRoles.map(r => RoleResourceType(r.key, r.resourceType.get.resourceType, Messages("accessControl.resourceType." + r.resourceType.get.resourceType)))
@@ -213,9 +194,10 @@ object Groups extends OrganizationController {
         GroupViewModel(
           id = Some(group._id),
           name = group.name,
-          grantType = group.grantType,
-          canChangeGrantType = group.grantType != Role.OWN.key,
+          roleKey = group.roleKey,
+          canChangeGrantType = group.roleKey != Role.OWN.key,
           users = group.users.map(u => Token(u, u)),
+          resources = group.resources.map(r => Token(r.getResourceKey, r.getResourceKey, Some(r.getResourceType.resourceType))),
           rolesWithResources = defaultGroupViewModel.rolesWithResources,
           rolesWithResourceAdmin = defaultGroupViewModel.rolesWithResourceAdmin,
           rolesResourceType = defaultGroupViewModel.rolesResourceType
@@ -233,13 +215,13 @@ object Groups extends OrganizationController {
 
 case class GroupViewModel(id: Option[ObjectId] = None,
                           name: String = "",
-                          grantType: String,
+                          roleKey: String,
                           canChangeGrantType: Boolean = true,
-                          users: List[Token] = List.empty[Token],
+                          users: Seq[Token] = Seq.empty[Token],
+                          resources: Seq[Token] = Seq.empty[Token],
                           rolesWithResources: Seq[String] = Seq.empty,
                           rolesWithResourceAdmin: Seq[String] = Seq.empty,
                           rolesResourceType: Seq[RoleResourceType] = Seq.empty,
-                          dataSets: List[Token] = List.empty[Token],
                           errors: Map[String, String] = Map.empty[String, String]) extends ViewModel
 
 case class RoleResourceType(roleKey: String, resourceType: String, resourceTypeName: String)
@@ -251,9 +233,10 @@ object GroupViewModel {
     mapping(
       "id" -> optional(of[ObjectId]),
       "name" -> nonEmptyText,
-      "grantType" -> nonEmptyText,
+      "roleKey" -> nonEmptyText,
       "canChangeGrantType" -> boolean,
       "users" -> Groups.tokenListMapping,
+      "resources" -> Groups.tokenListMapping,
       "rolesWithResources" -> seq(nonEmptyText),
       "rolesWithResourceAdmin" -> seq(nonEmptyText),
       "rolesResourceType" -> seq(
@@ -263,7 +246,6 @@ object GroupViewModel {
         "resourceTypeName" -> nonEmptyText
         )(RoleResourceType.apply)(RoleResourceType.unapply)
       ),
-      "dataSets" -> Groups.tokenListMapping,
       "errors" -> of[Map[String, String]]
     )(GroupViewModel.apply)(GroupViewModel.unapply)
   )
