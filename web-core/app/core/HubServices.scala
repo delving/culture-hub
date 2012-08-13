@@ -38,39 +38,40 @@ object HubServices {
           val apiToken = configuration.commonsService.apiToken
           new CommonsServices(host, orgId, apiToken, node)
 
-        case host if (host.isEmpty) && !Play.isProd =>
-        // in development mode, load all hubUsers as basis for the remote ones
-        val users = HubUser.all.flatMap { users =>
-          users.findAll.map {
-            u => {
-              MemoryUser(
-                u.userName,
-                u.firstName,
-                u.lastName,
-                u.email,
-                "secret",
-                u.userProfile,
-                true
-              )
+        case host if (host.isEmpty) && !Play.isProd => {
+          // in development mode, load all hubUsers as basis for the remote ones
+          val users = HubUser.all.flatMap { users =>
+            users.findAll.map {
+              u => {
+                MemoryUser(
+                  u.userName,
+                  u.firstName,
+                  u.lastName,
+                  u.email,
+                  "secret",
+                  u.userProfile,
+                  true
+                )
+              }
             }
+          }.map(u => (u.userName -> u)).toMap
+
+          val memoryServices = new MemoryServices
+          users.foreach {
+            u => memoryServices.users += u
           }
-        }.map(u => (u.userName -> u)).toMap
 
-        val memoryServices = new MemoryServices
-        users.foreach {
-          u => memoryServices.users += u
+          // add example organizations
+          DomainConfigurationHandler.domainConfigurations.foreach { configuration =>
+            val org = MemoryOrganization(orgId = configuration.orgId, name = Map("en" -> configuration.orgId.capitalize), admins = List("bob"))
+            memoryServices.organizations += (configuration.orgId -> org)
+
+            // now ensure that bob is member everywhere
+            HubUser.dao(configuration).addToOrganization("bob", configuration.orgId)
+          }
+          memoryServices
         }
 
-        // add example organizations
-        DomainConfigurationHandler.domainConfigurations.foreach { configuration =>
-          val org = MemoryOrganization(orgId = configuration.orgId, name = Map("en" -> configuration.orgId.capitalize), admins = List("bob"))
-          memoryServices.organizations += (configuration.orgId -> org)
-
-          // now ensure that bob is memeber everywhere
-          HubUser.dao(configuration).addToOrganization("bob", configuration.orgId)
-
-        }
-        memoryServices
 
         case _ => throw new RuntimeException("The remote services are not configured. You need to specify 'cultureCommons.host' and 'cultureCommons.apiToken")
       }

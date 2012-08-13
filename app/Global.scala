@@ -120,8 +120,8 @@ object Global extends GlobalSettings {
       Logger("CultureHub").debug("Accessed invalid domain %s, redirecting...".format(request.domain))
       Some(controllers.Default.redirect(Play.configuration.getString("defaultDomainRedirect").getOrElse("http://www.delving.eu")))
     } else {
-      val configuration = DomainConfigurationHandler.getByDomain(request.domain)
-      val routes = CultureHubPlugin.hubPlugins.filter(p => p.isEnabled(configuration)).flatMap(_.routes)
+      implicit val configuration = DomainConfigurationHandler.getByDomain(request.domain)
+      val routes = CultureHubPlugin.getEnabledPlugins.flatMap(_.routes)
 
       val routeLogger = Akka.system.actorFor("akka://application/user/routeLogger")
       val apiRouteMatcher = """^/organizations/([A-Za-z0-9-]+)/api/(.)*""".r
