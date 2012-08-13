@@ -214,8 +214,6 @@ trait OrganizationController extends DelvingController with Secured {
 
 trait DelvingController extends ApplicationController with CoreImplicits {
 
-  def getNode(implicit configuration: DomainConfiguration) = configuration.commonsService.nodeName
-
   def userName(implicit request: RequestHeader) = request.session.get(Constants.USERNAME).getOrElse(null)
 
   def Root[A](action: Action[A]): Action[A] = {

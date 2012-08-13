@@ -31,12 +31,7 @@
             <div class="control-group">
                 <label class="control-label" for="users">&{'thing.users'}</label>
                 <div class="controls">
-                #{if id.isDefined()}
-                    #{addRemoveTokenField id:"users", name: "users", searchUrl: "/organizations/"+orgId+"/users/search", prePopulate: users, addUrl: "/organizations/"+orgId+"/groups/"+id.get()+"/addUser", removeUrl: "/organizations/"+orgId+"/groups/"+id.get()+"/removeUser" /}
-                #{/if}
-                #{else}
                     #{boundAddRemoveTokenField id:"users", name:"users", searchUrl: "/organizations/"+orgId+"/users/search", dataBind:"tokens: users" /}
-                #{/else}
                     <p>&{'org.admin.index.addMembers'}</p>
                 </div>
             </div>
@@ -71,7 +66,9 @@
 
         $('#saveButton').click(function (event) {
             event.preventDefault();
-            handleSubmit('/organizations/${orgId}/groups/update/${views.Helpers.getOrElse(id, "")}', groupModel, '#groupForm', '/organizations/${orgId}/groups/update/', null, null);
+            handleSubmit('/organizations/${orgId}/groups/submit', groupModel, '#groupForm', null, function () {
+              document.location = '/organizations/${orgId}/groups/update/' + groupModel.id();
+            }, null);
         });
     });
 </script>

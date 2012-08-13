@@ -9,7 +9,6 @@ import com.mongodb.casbah.WriteConcern
 import core.HubServices
 
 case class Group(_id: ObjectId = new ObjectId,
-                 node: String,
                  name: String,
                  orgId: String,
                  grantType: String,
