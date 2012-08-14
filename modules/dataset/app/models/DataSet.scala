@@ -34,6 +34,7 @@ import core.Constants._
 import models.statistics.DataSetStatistics
 import core.collection.{OrganizationCollection, OrganizationCollectionInformation, Harvestable}
 import controllers.organization.DataSetEvent
+import plugins.DataSetPlugin
 
 /**
  * DataSet model
@@ -248,16 +249,21 @@ class DataSetDAO(collection: MongoCollection) extends SalatDAO[DataSet, ObjectId
 
   // TODO generify, move to Group
   def findAllForUser(userName: String, orgId: String, role: Role)(implicit configuration: DomainConfiguration): Seq[DataSet] = {
-    val groupDataSets: Seq[DataSet] = Group.
-            dao.
-            find(MongoDBObject("users" -> userName)).
-            filter(g => g.grantType == role.key || Role.allGrantTypes(configuration).exists(_.resourceRights.contains(role))).
+
+    val userGroups: Seq[Group] = Group.dao.find(MongoDBObject("users" -> userName)).toSeq
+    val userRoles: Seq[Role] = userGroups.map(group => Role.get(group.roleKey))
+
+    val isResourceAdmin = userRoles.exists(userRole => role.resourceType.isDefined && role.resourceType == userRole.resourceType && userRole.isResourceAdmin)
+    val isAdmin = HubServices.organizationService(configuration).isAdmin(orgId, userName)
+
+    val groupDataSets: Seq[DataSet] = userGroups.
+            filter(group => group.roleKey == role.key).
             flatMap(g => g.resources).
             filter(resource => resource.getResourceType == DataSet.RESOURCE_TYPE).
             flatMap(dataSetResources => findBySpecAndOrgId(dataSetResources.getResourceKey, orgId)).
             toSeq
 
-    val adminDataSets: Seq[DataSet] = if (HubServices.organizationService(configuration).isAdmin(orgId, userName)) findAllByOrgId(orgId).toSeq else Seq.empty
+    val adminDataSets: Seq[DataSet] = if (isResourceAdmin || isAdmin) findAllByOrgId(orgId).toSeq else Seq.empty
 
     (groupDataSets ++ adminDataSets).distinct
   }
@@ -282,7 +288,7 @@ class DataSetDAO(collection: MongoCollection) extends SalatDAO[DataSet, ObjectId
   def findAllByOrgId(orgId: String) = find(MongoDBObject("orgId" -> orgId, "deleted" -> false))
 
   def canEdit(ds: DataSet, userName: String)(implicit configuration: DomainConfiguration) = {
-    findAllForUser(userName, configuration.orgId, ResourceRole.CAN_UPDATE).contains(ds)
+    findAllForUser(userName, configuration.orgId, DataSetPlugin.ROLE_DATASET_EDITOR).contains(ds)
   }
 
   // workaround for salat not working as it should

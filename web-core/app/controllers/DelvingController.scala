@@ -130,7 +130,7 @@ trait ApplicationController extends Controller with GroovyTemplates with DomainC
   // ~~~ Form utilities
   import extensions.Formatters._
 
-  val tokenListMapping = list(
+  val tokenListMapping = seq(
     play.api.data.Forms.mapping(
       "id" -> text,
       "name" -> text,
@@ -145,7 +145,7 @@ trait ApplicationController extends Controller with GroovyTemplates with DomainC
   def getUserGrantTypes(orgId: String)(implicit request: RequestHeader, configuration: DomainConfiguration) = request.session.get(Constants.USERNAME).map {
     userName =>
       val isAdmin = HubServices.organizationService(configuration).isAdmin(orgId, userName)
-      val groups: List[Role] = Group.dao.findDirectMemberships(userName, orgId).map(_.grantType).toList.distinct.map(Role.get(_))
+      val groups: List[Role] = Group.dao.findDirectMemberships(userName, orgId).map(_.roleKey).toList.distinct.map(Role.get(_))
       // TODO make this cleaner
       if(isAdmin) {
         groups ++ List(Role.get("own"))
@@ -213,8 +213,6 @@ trait OrganizationController extends DelvingController with Secured {
 }
 
 trait DelvingController extends ApplicationController with CoreImplicits {
-
-  def getNode(implicit configuration: DomainConfiguration) = configuration.commonsService.nodeName
 
   def userName(implicit request: RequestHeader) = request.session.get(Constants.USERNAME).getOrElse(null)
 
@@ -339,7 +337,7 @@ trait DelvingController extends ApplicationController with CoreImplicits {
           renderArgs += ("isAdmin" -> isAdmin.asInstanceOf[AnyRef])
 
           val roles: Seq[String] = (session.get("userName").map {
-            u => Group.dao.findDirectMemberships(userName, orgId).map(g => g.grantType).toSeq
+            u => Group.dao.findDirectMemberships(userName, orgId).map(g => g.roleKey).toSeq
           }.getOrElse {
             List.empty
           }) ++ (if(isAdmin) Seq(Role.OWN.key) else Seq.empty)

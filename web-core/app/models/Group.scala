@@ -9,12 +9,11 @@ import com.mongodb.casbah.WriteConcern
 import core.HubServices
 
 case class Group(_id: ObjectId = new ObjectId,
-                 node: String,
                  name: String,
                  orgId: String,
-                 grantType: String,
+                 roleKey: String,
                  resources: Seq[PersistedResource] = Seq.empty,
-                 users: List[String] = List.empty[String])
+                 users: Seq[String] = Seq.empty[String])
 
 object Group extends MultiModel[Group, GroupDAO] {
 
@@ -69,9 +68,16 @@ class GroupDAO(collection: MongoCollection) extends SalatDAO[Group, ObjectId](co
     }.getOrElse(false)
   }
 
-  def updateGroupInfo(groupId: ObjectId, name: String, grantType: Role): Boolean = {
-    update(MongoDBObject("_id" -> groupId), $set("name" -> name, "grantType" -> grantType.key))
-    true
+  def updateGroupInfo(groupId: ObjectId, name: String, grantType: Role, users: Seq[String], resources: Seq[PersistedResource]): Boolean = {
+    findOneById(groupId).map { group =>
+      val updated = group.copy(
+        name = name,
+        roleKey = grantType.key,
+        users = users,
+        resources = resources)
+      save(updated)
+      true
+    }.getOrElse(false)
   }
 
 }
@@ -84,4 +90,9 @@ case class PersistedResource(resourceType: String, resourceKey: String) extends 
   /** unique identifier of the resource **/
   def getResourceKey: String = resourceKey
 
+}
+
+object PersistedResource {
+
+  def apply(r: Resource): PersistedResource = PersistedResource(r.getResourceType.resourceType, r.getResourceKey)
 }

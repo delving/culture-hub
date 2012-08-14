@@ -86,7 +86,7 @@ case class VirtualCollection(_id: ObjectId = new ObjectId,
 
 case class DataSetReference(spec: String, orgId: String)
 
-case class VirtualCollectionQuery(dataSets: List[String], freeFormQuery: String, excludeHubIds: List[String] = List.empty, domainConfiguration: String) {
+case class VirtualCollectionQuery(dataSets: Seq[String], freeFormQuery: String, excludeHubIds: List[String] = List.empty, domainConfiguration: String) {
 
   def toSolrQuery = {
     val specCondition = dataSets.map(s => SPEC + ":" + s + " ").mkString(" ")

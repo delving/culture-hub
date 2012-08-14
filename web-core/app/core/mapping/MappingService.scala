@@ -45,8 +45,8 @@ object MappingService {
 
   }
 
-  def nodeTreeToXmlString(node: Node): String = {
-    val serialized = serializer.toXml(node)
+  def nodeTreeToXmlString(node: Node, fromMapping: Boolean): String = {
+    val serialized = serializer.toXml(node, fromMapping)
     // chop of the XML prefix. kindof a hack. this should be a regex instead, more robust
     val xmlPrefix = """<?xml version='1.0' encoding='UTF-8'?>"""
     if(serialized.startsWith(xmlPrefix)) {
