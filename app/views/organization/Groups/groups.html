@@ -38,7 +38,7 @@
 
             <div class="control-group" data-bind="visible: canChangeGrantType() && (rolesWithResources().indexOf(roleKey()) > -1)">
               <div class="control-group">
-                <label class="control-label" for="resourceTokenInput" data-bind="text: resourceTypeName()"></label>
+                <label class="control-label" for="resourceTokenInput">&{'thing.resources'}</label>
                 <div class="controls">
                   <input type="text" id="resourceTokenInput" class="span4" data-bind="tokens: resources">
                 </div>
@@ -61,6 +61,7 @@
             return $.grep(groupModel.rolesResourceType(), function(item, index) { return item.roleKey() == groupModel.roleKey() })[0];
           },
           resourceTypeName: function() {
+            console.log("gmodel " + this)
             return groupModel.resourceType().resourceTypeName();
           },
           resourceTypeKey: function() {
