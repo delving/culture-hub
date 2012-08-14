@@ -1,6 +1,8 @@
 import java.util.concurrent.TimeUnit
+import models.HubUser
 import play.api.test._
 import play.api.test.Helpers._
+import util.DomainConfigurationHandler
 
 /**
  *
@@ -8,6 +10,10 @@ import play.api.test.Helpers._
  */
 
 class CustomHarvestCollectionSpec extends TestContext {
+
+  step {
+    loadStandalone()
+  }
 
   "The CustomHarvestCollection module" should {
 
@@ -30,13 +36,16 @@ class CustomHarvestCollectionSpec extends TestContext {
           browser.executeScript("$('#dataSets').tokenInput('add', {id: 'PrincessehofSample', name: 'PrincessehofSample'})")
 
           browser.$("#saveButton").click()
-          browser.await().atMost(10, TimeUnit.SECONDS).until("title").hasText("Virtual Collection TestHarvestCollection - Organization: delving")
+          browser.await().atMost(20, TimeUnit.SECONDS).until("title").hasText("Virtual Collection TestHarvestCollection - Organization: delving")
 
           browser.url must equalTo("http://delving.localhost:3333/organizations/delving/virtualCollection/testHarvestCollection")
-        //          browser.$("#title").getTexts().get(0) must equalTo("Hello Coco")
 
 
       }
     }
+  }
+
+  step {
+    cleanup()
   }
 }
