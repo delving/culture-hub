@@ -22,7 +22,11 @@ object Admin extends OrganizationController {
           NotFound(Messages("organizations.organization.orgNotFound").format(orgId))
         } else {
           val membersAsTokens = JJson.generate(HubUser.dao.listOrganizationMembers(orgId).map(m => Map("id" -> m, "name" -> m)))
-          Ok(Template('members -> membersAsTokens, 'owners -> HubServices.organizationService(configuration).listAdmins(orgId)))
+          val adminsAsTokens = JJson.generate(HubServices.organizationService(configuration).listAdmins(orgId).map(a => Map("id" -> a, "name" -> a)))
+          Ok(Template(
+            'members -> membersAsTokens,
+            'admins -> adminsAsTokens
+          ))
         }
     }
   }
@@ -34,10 +38,13 @@ object Admin extends OrganizationController {
     Action {
       implicit request =>
         val id = request.body.getFirstAsString("id").get
-        HubUser.dao.findByUsername(id).getOrElse(Error(Messages("organizations.admin.userNotFound", id)))
-        val success = HubUser.dao.addToOrganization(id, orgId)
-        // TODO logging
-        if (success) Ok else Error
+        HubUser.dao.findByUsername(id).map { user =>
+          val success = HubUser.dao.addToOrganization(id, orgId)
+          // TODO logging
+          if (success) Ok else Error
+        }.getOrElse {
+          Error(Messages("organizations.admin.userNotFound", id))
+        }
     }
   }
 
@@ -48,12 +55,44 @@ object Admin extends OrganizationController {
     Action {
       implicit request =>
         val id = request.body.getFirstAsString("id").get
-        HubUser.dao.findByUsername(id).getOrElse(Error(Messages("organizations.admin.userNotFound", id)))
-        val success = HubUser.dao.removeFromOrganization(id, orgId)
-        // TODO logging
-        if (success) Ok else Error
+        HubUser.dao.findByUsername(id).map { user =>
+          val success = HubUser.dao.removeFromOrganization(id, orgId)
+          // TODO logging
+          if (success) Ok else Error
+        }.getOrElse {
+          Error(Messages("organizations.admin.userNotFound", id))
+        }
     }
   }
+
+  def addAdmin(orgId: String) = OrgOwnerAction(orgId) {
+    Action {
+      implicit request =>
+        val id = request.body.getFirstAsString("id").get
+        HubUser.dao.findByUsername(id).map { user =>
+          val success = HubServices.organizationService(configuration).addAdmin(orgId, id)
+          // TODO logging
+          if (success) Ok else Error
+        }.getOrElse {
+          Error(Messages("organizations.admin.userNotFound", id))
+        }
+    }
+  }
+
+  def removeAdmin(orgId: String) = OrgOwnerAction(orgId) {
+    Action {
+      implicit request =>
+        val id = request.body.getFirstAsString("id").get
+        HubUser.dao.findByUsername(id).map { user =>
+          val success = HubServices.organizationService(configuration).removeAdmin(orgId, id)
+          // TODO logging
+          if (success) Ok else Error
+        }.getOrElse {
+          Error(Messages("organizations.admin.userNotFound", id))
+        }
+    }
+  }
+
 
   def solrSearchProxy(orgId: String) = OrgOwnerAction(orgId) {
     Action {

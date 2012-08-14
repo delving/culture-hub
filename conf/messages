@@ -548,11 +548,10 @@ org.vc.keyauto.error=Name field mandatory for identifier generation.
 
 org.admin.index.title=Organization administration
 org.admin.index.removeMemberConfirmation=Removing a member will also remove them from all groups they are in. Are you sure you want to proceed?
-org.admin.index.editOwners=You can edit the owners of the organization at the
-org.admin.index.editOwnersLink=owners group page
 org.admin.index.addMembers=Add a new member by typing the user-name into the blank area above and then press the ENTER key
 org.admin.index.members=Members
-org.admin.index.owners=Owners
+org.admin.index.admins=Administrators
+org.admin.index.addAdmins=Add an administrator by typing the user-name into the blank area above and then press the ENTER key.
 
 organization.dataset.title.create=Create new dataset for user {0}
 organization.dataset.title.update=Update dataset for user {0}

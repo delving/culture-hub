@@ -12,7 +12,7 @@ import play.api.data.Forms._
 import extensions.Formatters._
 import play.api.data.Form
 import core.{CultureHubPlugin, HubServices}
-import core.access.{Resource, ResourceType}
+import core.access.Resource
 import collection.JavaConverters._
 import play.api.Logger
 import controllers.Token
@@ -39,19 +39,17 @@ object Groups extends OrganizationController {
           Forbidden(Messages("user.secured.noAccess"))
         } else {
           val group: Option[Group] = groupId.flatMap(Group.dao.findOneById(_))
-          val (usersAsTokens, dataSetsAsTokens) = group match {
-            case None => (JJson.generate(List()), JJson.generate(List()))
+          val usersAsTokens = group match {
+            case None => (JJson.generate(List()))
             case Some(g) =>
               val userTokens = g.users.map(m => Token(m, m))
-              val resourceTokens = g.resources.map(r => Token(r.getResourceKey, r.getResourceKey))
-              (JJson.generate(userTokens), JJson.generate(resourceTokens))
+              JJson.generate(userTokens)
           }
           Ok(Template(
             'id -> groupId,
             'data -> load(orgId, groupId),
             'groupForm -> GroupViewModel.groupForm,
             'users -> usersAsTokens,
-            'dataSets -> dataSetsAsTokens,
             'roles -> Role.allRoles(configuration).
                     filterNot(_ == Role.OWN).
                     map(role => (role.key -> role.getDescription(lang))).

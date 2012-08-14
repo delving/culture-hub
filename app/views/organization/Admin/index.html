@@ -15,23 +15,23 @@
 <div class="row">
 
         <div class="span4">
-            <h3>&{'org.admin.index.owners'}</h3>
+          <h3>&{'org.admin.index.admins'}</h3>
 
-            <div>
-                <ul class="token-input-list">
-                    #{list items:owners, as:'o'}
-                    <li class="token-input-token">
-                        <p>${o}</p>
-                    </li>
-                    #{/list}
-                </ul>
-            </div>
-            *{<p>}*
-                *{&{'org.admin.index.editOwners'}}*
-                *{<a href="/organizations/${orgId}/groups/update/${ownerGroupId}">&{'org.admin.index.editOwnersLink'}</a>}*
-            *{</p>}*
+          <div>
+            #{addRemoveTokenField
+              id:"adminInput",
+              name: "adminInput",
+              searchUrl: "/users/search",
+              prePopulate: admins,
+              addUrl: "/organizations/"+orgId+"/admin/admin/add",
+              removeUrl: "/organizations/"+orgId+"/admin/admin/remove" /}
+          </div>
+          <div>
+              <p>&{'org.admin.index.addAdmins'}</p>
+          </div>
 
         </div>
+
         <div class="span4 offset2">
             <h3>&{'org.admin.index.members'}</h3>
 

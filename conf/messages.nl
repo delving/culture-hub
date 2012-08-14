@@ -501,11 +501,10 @@ org.vc.keyauto.error=Naam veld moet eerst ingevuld worden
 
 org.admin.index.title=Organisatie administratie
 org.admin.index.removeMemberConfirmation=Removing a member will also remove them from all groups they are in. Are you sure you want to proceed?
-org.admin.index.editOwners=U kunt de eigenaren van de organisatie aanpassen op de groep-pagina voor
-org.admin.index.editOwnersLink=eigenaren
 org.admin.index.addMembers=Voeg een nieuw lid toe door de gebruikersnaam hierboven in te vullen en dan op de ENTER toets indrukken
 org.admin.index.members=Leden
-org.admin.index.owners=Eigenaren
+org.admin.index.admins=Beheerders
+org.admin.index.addAdmins=Voeg een nieuwe beheerder toe door de gebruikersnaam hierboven in te vullen en dan op de ENTER toets indrukken
 
 organization.dataset.title.create=Create new dataset for user {0}
 organization.dataset.title.update=Update dataset for user {0}

@@ -150,6 +150,8 @@ GET         /organizations/:orgId                                             co
 GET         /organizations/:orgId/admin                                       controllers.organization.Admin.index(orgId)
 POST        /organizations/:orgId/admin/users/add                             controllers.organization.Admin.addUser(orgId)
 DELETE      /organizations/:orgId/admin/users/remove                          controllers.organization.Admin.removeUser(orgId)
+POST        /organizations/:orgId/admin/admin/add                             controllers.organization.Admin.addAdmin(orgId)
+DELETE      /organizations/:orgId/admin/admin/remove                          controllers.organization.Admin.removeAdmin(orgId)
 
 GET         /organizations/:orgId/admin/solrSearchProxy                       controllers.organization.Admin.solrSearchProxy(orgId)
 
