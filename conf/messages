@@ -254,7 +254,7 @@ registration.registerFor=Register for {0}
 search.facets=Facets
 search.nrfound= Found {0} results
 search.resultsfor=Search results for
-search.sortby= Sort by
+search.sortby=Sort by
 search.refineYourSearchBy=Refine your search by
 search.facet.byYear=Year
 search.facet.byProvider=Provider
@@ -682,7 +682,7 @@ plugin.advancedsearch.booleanOr=OR
 plugin.advancedsearch.booleanNot=NOT
 plugin.advancedsearch.allProviders=All data providers
 plugin.advancedsearch.selectProviders=Select data provider(s)
-
+plugin.advancedsearch.select=Select
 
 
 accessControl.resourceType.dataSet=DataSets

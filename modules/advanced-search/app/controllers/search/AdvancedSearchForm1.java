@@ -5,7 +5,7 @@ package controllers.search;
  * @since Sep 30, 2010 2:23:50 PM
  */
 
-public class AdvancedSearchForm {
+public class AdvancedSearchForm1 {
     private static final String ALL_OWNERS = "all";
     private String facet0 = "";
     private String value0 = "";
