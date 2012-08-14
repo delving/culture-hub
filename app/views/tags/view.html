@@ -124,10 +124,15 @@ switch (_view.nodeType) {
             separator = _view.attr("separator")
         }}%
         #{if _view.content().length() > 0 }
-        #{if _view.attr("label")}
-            <h5>&{_view.attr("label")}</h5>
-        #{/if}
-        <p>#{list _view.content(), as: 'e'}${e.text()}#{if !e_isLast}${separator.raw()}#{/if}#{/list}</p>
+            #{if _view.parent.attr("type") == "list"}
+                #{list _view.content(), as: 'e'}<li>${e.text()}</li>#{/list}
+            #{/if}
+            #{else}
+                #{if _view.attr("label")}
+                    <h5>&{_view.attr("label")}</h5>
+                #{/if}
+                <p>#{list _view.content(), as: 'e'}${e.text()}#{if !e_isLast}${separator.raw()}#{/if}#{/list}</p>
+            #{/else}
         #{/if}
     %{
     break
