@@ -182,7 +182,7 @@ object Groups extends OrganizationController {
     val defaultGroupViewModel = GroupViewModel(
       roleKey = Role.allRoles(configuration).head.key,
       rolesWithResources = resourceRoles.map(_.key),
-      rolesWithResourceAdmin = Seq.empty,
+      rolesWithResourceAdmin = Role.allRoles(configuration).filter(_.isResourceAdmin).map(_.key),
       rolesResourceType = resourceRoles.map(r => RoleResourceType(r.key, r.resourceType.get.resourceType, Messages("accessControl.resourceType." + r.resourceType.get.resourceType)))
     )
 
