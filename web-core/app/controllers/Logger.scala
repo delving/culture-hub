@@ -49,12 +49,12 @@ trait Logging extends Secured { self: ApplicationController =>
   }
   def Error(implicit request: RequestHeader)        = {
     Logger.error(withContext("Internal server error"))
-    reportError(request, "Internal server error", configuration)
+    reportError(request, "Internal server error")
     Results.InternalServerError(views.html.errors.error(None, None))
   }
   def Error(why: String)(implicit request: RequestHeader)                              = {
     Logger.error(withContext(why))
-    reportError(request, why, configuration)
+    reportError(request, why)
     Results.InternalServerError(views.html.errors.error(None, Some(why)))
   }
   def BadRequest(implicit request: RequestHeader)              = {
@@ -92,17 +92,17 @@ trait Logging extends Secured { self: ApplicationController =>
   }
   def logError(message: String, args: String*)(implicit request: RequestHeader, configuration: DomainConfiguration) {
     Logger(CH).error(withContext(m(message, args)))
-    reportError(request, if(message != null) message.format(args) else "", configuration)
+    reportError(request, if(message != null) message.format(args) else "")
   }
 
   def logError(e: Throwable, message: String, args: String*)(implicit request: RequestHeader, configuration: DomainConfiguration) {
     Logger(CH).error(withContext(m(message, args)), e)
-    reportError(request, if(message != null) message.format(args) else "", configuration)
+    reportError(request, if(message != null) message.format(args) else "")
   }
 
   def reportSecurity(message: String)(implicit request: RequestHeader)  {
     Logger(CH).error("Attempted security breach: " + message)
-    ErrorReporter.reportError(securitySubject, toReport(message, request), configuration)
+    ErrorReporter.reportError(securitySubject, toReport(message, request))
   }
   
   private def m(message: String, args: Seq[String]) = {
@@ -122,18 +122,18 @@ trait Logging extends Secured { self: ApplicationController =>
 
 object ErrorReporter {
 
-  def reportError(request: RequestHeader, message: String, configuration: DomainConfiguration) {
-    reportError(subject(request), toReport(message, request), configuration)
+  def reportError(request: RequestHeader, message: String)(implicit configuration: DomainConfiguration) {
+    reportError(subject(request), toReport(message, request))
   }
-  def reportError(request: RequestHeader, e: Throwable, message: String, configuration: DomainConfiguration) {
-    reportError(subject(request), toReport(message, e, request), configuration)
-  }
-
-  def reportError(job: String, t: Throwable, message: String, configuration: DomainConfiguration) {
-    reportError("[CultureHub] An error occured on node %s".format(configuration.commonsService.nodeName), toReport(job, message, t), configuration)
+  def reportError(request: RequestHeader, e: Throwable, message: String)(implicit configuration: DomainConfiguration) {
+    reportError(subject(request), toReport(message, e, request))
   }
 
-  def reportError(subject: String, report: String, configuration: DomainConfiguration) {
+  def reportError(job: String, t: Throwable, message: String)(implicit configuration: DomainConfiguration) {
+    reportError("[CultureHub] An error occured on node %s".format(configuration.commonsService.nodeName), toReport(job, message, t))
+  }
+
+  def reportError(subject: String, report: String)(implicit configuration: DomainConfiguration) {
     Email(configuration.emailTarget.systemFrom, subject).to(configuration.emailTarget.exceptionTo).withTemplate("Mails/reportError.txt", "en", 'report -> report, 'quote -> Quotes.randomQuote(), 'themeInfo -> new ThemeInfo(configuration)).send()
   }
 

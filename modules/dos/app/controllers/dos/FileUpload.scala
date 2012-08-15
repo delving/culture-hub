@@ -76,7 +76,7 @@ object FileUpload extends Controller with Extensions with Thumbnail with DomainC
 
   // ~~ public Scala API
 
-  def getFilesForUID(uid: String, configuration: DomainConfiguration): Seq[StoredFile] = fileStore(configuration).find(MongoDBObject(UPLOAD_UID_FIELD -> uid)) map {
+  def getFilesForUID(uid: String)(implicit configuration: DomainConfiguration): Seq[StoredFile] = fileStore(configuration).find(MongoDBObject(UPLOAD_UID_FIELD -> uid)) map {
     f => {
       val id = f.getId.asInstanceOf[ObjectId]
       val thumbnail = if (isImage(f)) {

@@ -121,7 +121,7 @@ object RecordRenderer {
       // let's do some rendering
       RecordDefinition.getRecordDefinition(schemaPrefix) match {
         case Some(definition) =>
-          val viewRenderer = ViewRenderer.fromDefinition(viewDefinitionFormatName, viewType.name, configuration)
+          val viewRenderer = ViewRenderer.fromDefinition(viewDefinitionFormatName, viewType.name)
           if (viewRenderer.isEmpty) {
             log.warn("Tried rendering full record with id '%s' for non-existing view type '%s'".format(hubId, viewType.name))
             Left("Could not render full record with hubId '%s' for view type '%s': view type does not exist".format(hubId, viewType.name))

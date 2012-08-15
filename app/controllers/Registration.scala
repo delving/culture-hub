@@ -139,7 +139,6 @@ object Registration extends ApplicationController {
                                         r.email,
                                         r.firstName + " " + r.lastName,
                                         token,
-                                        configuration,
                                         request.host
                                     )
                                     index.flashing(("registrationSuccess", r.email))
@@ -190,8 +189,7 @@ object Registration extends ApplicationController {
                                 configuration.commonsService.nodeName,
                                 activated.get.userName,
                                 activated.get.fullName,
-                                activated.get.email,
-                                configuration
+                                activated.get.email
                             )
                             indexAction.flashing(("activation", "true"))
                         } catch {
@@ -245,7 +243,6 @@ object Registration extends ApplicationController {
                                 Mails.resetPassword(
                                     resetPassword.email,
                                     resetPasswordToken,
-                                    configuration,
                                     request.host
                                 )
                                 Redirect(controllers.routes.Application.index).flashing(("resetPasswordEmail", "true"))

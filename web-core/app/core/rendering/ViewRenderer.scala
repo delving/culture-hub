@@ -43,7 +43,7 @@ import collection.mutable.{HashMap, ArrayBuffer, Stack}
 
 object ViewRenderer {
 
-  def fromDefinition(schema: String, viewName: String, configuration: DomainConfiguration) = {
+  def fromDefinition(schema: String, viewName: String)(implicit configuration: DomainConfiguration) = {
     val definition = getViewDefinition(schema, viewName)
     if(definition.isDefined) {
       Some(new ViewRenderer(schema, viewName, configuration))

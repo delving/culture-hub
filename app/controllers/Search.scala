@@ -21,7 +21,7 @@ object  Search extends DelvingController {
     pair => {
       (pair._1 -> {
         pair._2.
-          flatMap(f => ViewRenderer.fromDefinition(f, "html", pair._1)).
+          flatMap(f => ViewRenderer.fromDefinition(f, "html")(pair._1)).
           map(r => (r.schema -> r)).toMap[String, ViewRenderer]
       })
     }

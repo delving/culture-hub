@@ -104,7 +104,7 @@ class SearchService(request: RequestHeader, hiddenQueryFilters: List[String] = L
 
     val response: String = params match {
       case x if x._contains("explain") && x.getValueOrElse("explain", "nothing").equalsIgnoreCase("fieldValue") => FacetAutoComplete(params, configuration).renderAsJson
-      case x if x._contains("explain") => ExplainResponse(configuration, params).renderAsJson
+      case x if x._contains("explain") => ExplainResponse(params, configuration).renderAsJson
       case x if x.valueIsNonEmpty("id") => getRenderedFullView("api", x.getFirst("schema"), renderRelatedItems) match {
         case Right(rendered) => rendered.toJson
         case Left(error) => return errorResponse("Unable to render full record", error, "json")
@@ -124,7 +124,7 @@ class SearchService(request: RequestHeader, hiddenQueryFilters: List[String] = L
 
     val response: Elem = params match {
       case x if x._contains("explain") && x.getValueOrElse ("explain", "nothing").equalsIgnoreCase("fieldValue") => FacetAutoComplete(params, configuration).renderAsXml
-      case x if x._contains("explain") => ExplainResponse(configuration, params).renderAsXml
+      case x if x._contains("explain") => ExplainResponse(params, configuration).renderAsXml
       case x if x.valueIsNonEmpty("id") => getRenderedFullView("api", x.getFirst("schema"), renderRelatedItems) match {
           case Right(rendered) => return Ok(rendered.toXmlString).as(XML)
           case Left(error) => return errorResponse("Unable to render full record", error, "xml")
@@ -140,7 +140,7 @@ class SearchService(request: RequestHeader, hiddenQueryFilters: List[String] = L
   private def getBriefResultsFromSolr: BriefItemView = {
     require(params.valueIsNonEmpty("query"))
     val chQuery = SolrQueryService.createCHQuery(request, additionalSystemHQFs = hiddenQueryFilters)
-    BriefItemView(CHResponse(params, configuration, SolrQueryService.getSolrResponseFromServer(chQuery.solrQuery, true), chQuery))
+    BriefItemView(CHResponse(params, SolrQueryService.getSolrResponseFromServer(chQuery.solrQuery, true), chQuery, configuration))
   }
 
   private def getRenderedFullView(viewName: String, schema: Option[String] = None, renderRelatedItems: Boolean) = {
@@ -405,7 +405,7 @@ case class FacetAutoComplete(params: Params, configuration: DomainConfiguration)
 
 }
 
-case class ExplainResponse(configuration: DomainConfiguration, params: Params) {
+case class ExplainResponse(params: Params, configuration: DomainConfiguration) {
 
   val excludeList = List("europeana_unstored", "europeana_source", "europeana_userTag", "europeana_collectionTitle")
 

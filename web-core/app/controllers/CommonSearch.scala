@@ -18,7 +18,7 @@ object CommonSearch extends DelvingController {
   def search(user: Option[String], query: List[String])(implicit request: RequestHeader, configuration: DomainConfiguration) = {
     val chQuery = SolrQueryService.createCHQuery(request, user, query)
     val queryResponse = SolrQueryService.getSolrResponseFromServer(chQuery.solrQuery, true)
-    val chResponse = CHResponse(Params(request.queryString), configuration, queryResponse, chQuery)
+    val chResponse = CHResponse(Params(request.queryString), queryResponse, chQuery, configuration)
     val briefItemView = BriefItemView(chResponse)
 
     val items: Seq[ListItem] = toListItems(briefItemView.getBriefDocs.filterNot(_.getHubId.isEmpty))(configuration)

@@ -14,9 +14,9 @@ import core.Constants._
 
 object Show extends DelvingController {
 
-  def museumViewDefinition(configuration: DomainConfiguration) = ViewRenderer.fromDefinition("musip", "museum", configuration)
+  def museumViewDefinition(configuration: DomainConfiguration) = ViewRenderer.fromDefinition("musip", "museum")(configuration)
 
-  def collectionViewDefinition(configuration: DomainConfiguration) = ViewRenderer.fromDefinition("musip", "collection", configuration)
+  def collectionViewDefinition(configuration: DomainConfiguration) = ViewRenderer.fromDefinition("musip", "collection")(configuration)
 
 
   def collection(orgId: String, itemId: String) = DomainConfigured {

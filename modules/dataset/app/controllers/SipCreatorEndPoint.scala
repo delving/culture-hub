@@ -217,7 +217,7 @@ object SipCreatorEndPoint extends ApplicationController {
                   Left("%s: Cannot upload source while the set is being processed".format(spec))
                 } else {
                   val receiveActor = Akka.system.actorFor("akka://application/user/dataSetParser")
-                  receiveActor ! SourceStream(dataSet.get, connectedUser, configuration, inputStream, request.body)
+                  receiveActor ! SourceStream(dataSet.get, connectedUser, inputStream, request.body, configuration)
                   DataSet.dao.updateState(dataSet.get, DataSetState.PARSING)
                   Right("Received it")
                 }
@@ -552,14 +552,15 @@ class ReceiveSource extends Actor {
   var tempFileRef: TemporaryFile = null
 
   protected def receive = {
-    case SourceStream(dataSet, userName, configuration, inputStream, tempFile) =>
+    case SourceStream(dataSet, userName, inputStream, tempFile, conf) =>
+      implicit val configuration = conf
       val now = System.currentTimeMillis()
 
       // explicitly reference the TemporaryFile so it can't get garbage collected as long as this actor is around
       tempFileRef = tempFile
 
       try {
-        receiveSource(dataSet, userName, inputStream)(configuration) match {
+        receiveSource(dataSet, userName, inputStream) match {
           case Left(t) =>
             DataSet.dao(configuration).invalidateHashes(dataSet)
             val message = if(t.isInstanceOf[StorageInsertionException]) {
@@ -576,14 +577,14 @@ class ReceiveSource extends Actor {
             }
             DataSet.dao(configuration).updateState(dataSet, DataSetState.ERROR, Some(userName), message)
             Logger("CultureHub").error("Error while parsing records for spec %s of org %s".format(dataSet.spec, dataSet.orgId), t)
-            ErrorReporter.reportError("DataSet Source Parser", t, "Error occured while parsing records for spec %s of org %s".format(dataSet.spec, dataSet.orgId), configuration)
+            ErrorReporter.reportError("DataSet Source Parser", t, "Error occured while parsing records for spec %s of org %s".format(dataSet.spec, dataSet.orgId))
           case Right(inserted) =>
             val duration = Duration(System.currentTimeMillis() - now, TimeUnit.MILLISECONDS)
             Logger("CultureHub").info("Finished parsing source for DataSet %s of organization %s. %s records inserted in %s seconds.".format(dataSet.spec, dataSet.orgId, inserted, duration.toSeconds))
         }
 
       } catch {
-        case t =>
+        case t: Throwable =>
           Logger("CultureHub").error("Exception while processing uploaded source %s for DataSet %s".format(tempFile.file.getAbsolutePath, dataSet.spec), t)
           DataSet.dao(configuration).invalidateHashes(dataSet)
           DataSet.dao(configuration).updateState(dataSet, DataSetState.ERROR, Some(userName), Some("Error while parsing uploaded source: " + t.getMessage))
@@ -608,4 +609,4 @@ class ReceiveSource extends Actor {
 
 }
 
-case class SourceStream(dataSet: DataSet, userName: String, configuration: DomainConfiguration, stream: InputStream, temporaryFile: TemporaryFile)
+case class SourceStream(dataSet: DataSet, userName: String, stream: InputStream, temporaryFile: TemporaryFile, configuration: DomainConfiguration)
