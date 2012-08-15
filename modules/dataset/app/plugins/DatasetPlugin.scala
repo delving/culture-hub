@@ -8,13 +8,12 @@ import models._
 import processing.DataSetCollectionProcessor
 import util.DomainConfigurationHandler
 import java.util.zip.GZIPInputStream
-import java.io.{File, FileInputStream}
 import com.mongodb.BasicDBObject
 import io.Source
 import play.api.libs.concurrent.Akka
 import akka.actor.{OneForOneStrategy, Props}
 import akka.routing.RoundRobinRouter
-import akka.actor.SupervisorStrategy.{Stop, Restart}
+import akka.actor.SupervisorStrategy.Restart
 import controllers.{organization, ReceiveSource}
 import core.indexing.IndexingService
 import scala.collection.immutable.ListMap
@@ -191,13 +190,6 @@ class DataSetPlugin(app: Application) extends CultureHubPlugin(app) {
         })
       ), name = "dataSetProcessor")
     }
-
-    Akka.system.scheduler.schedule(
-      10 seconds,
-      10 seconds,
-      processor,
-      PollDataSets
-    )
 
     // DataSet event log housekeeping
     val dataSetHousekeeper = Akka.system.actorOf(Props[DataSetEventHousekeeper])
