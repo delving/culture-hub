@@ -42,14 +42,14 @@ object  Search extends DelvingController {
             }
           }.getOrElse(List(query))
 
+          renderArgs += ("breadcrumbs" -> Breadcrumbs.crumble(Map("search" -> Map("searchTerm" -> query, "returnToResults" -> request.rawQueryString))))
+
           val (items, briefItemView) = CommonSearch.search(Option(connectedUser), solrQuery)
           Ok(Template("/Search/index.html",
             'briefDocs -> items,
             'pagination -> briefItemView.getPagination,
             'facets -> briefItemView.getFacetQueryLinks,
-            'themeFacets -> configuration.getFacets,
-            'searchTerm -> query,
-            'returnToResults -> request.rawQueryString)).withSession(
+            'themeFacets -> configuration.getFacets)).withSession(
             session +
               (RETURN_TO_RESULTS -> request.rawQueryString) +
               (SEARCH_TERM -> query))
@@ -116,13 +116,22 @@ object  Search extends DelvingController {
                     val returnToResults = updatedSession.get(RETURN_TO_RESULTS).getOrElse("")
                     val searchTerm = updatedSession.get(SEARCH_TERM).getOrElse("")
 
+                    val fields = mdr.systemFields.get("delving_title").getOrElse(new BasicDBList).asInstanceOf[BasicDBList]
+
+                    renderArgs += ("breadcrumbs" -> Breadcrumbs.crumble(
+                      Map(
+                        "search" -> Map("searchTerm" -> searchTerm, "returnToResults" -> returnToResults),
+                        "title" -> Map("url" -> "", "label" -> Option(fields.get(0)).getOrElse("").toString),
+                        "inOrg" -> Map("inOrg" -> "yes")
+                      )
+                    ))
+
                     Ok(
                       Template(
                         "Search/object.html",
                         'systemFields -> mdr.systemFields,
                         'fullView -> renderResult.right.get.toViewTree,
                         'returnToResults -> returnToResults,
-                        'searchTerm -> searchTerm,
                         'orgId -> orgId,
                         'hubId -> hubId,
                         'rights -> collection.getRights

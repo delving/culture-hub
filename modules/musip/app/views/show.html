@@ -11,7 +11,7 @@
 <link rel="stylesheet" type="text/css" href="@{routes.Assets.at("common/stylesheets/musip/musip.css")}"/>
 #{/set}
 
-#{breadcrumbs params:["search":["searchTerm": searchTerm, "returnToResults": returnToResults], "title": ["url":"", "label": systemFields.apply("delving_title").get(0)], "inOrg": ["inOrg": "yes"]] /}
+#{breadcrumbs crumbs: breadcrumbs /}
 
 
 <div id="musip">
