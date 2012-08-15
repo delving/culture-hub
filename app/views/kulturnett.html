@@ -11,7 +11,10 @@
                 </div>
             </div>
             <div class="span8">
-            <ul class="nav pull-right">
+                <div class="navbar navbar-user">
+                    <div class="navbar-inner">
+                        <div class="container">
+                            <ul class="nav pull-right">
             #{if !userName }
                     <li><a href="/login" rel="nofollow" class="first" tabindex="1">${messages.get('ui.label.login')}</a></li>
             #{/if}
@@ -38,6 +41,9 @@
             #{/else}
             *{<li class="divider-vertical"></li>}*
             </ul>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
         <div class="row">
