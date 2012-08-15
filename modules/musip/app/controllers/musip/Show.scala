@@ -1,6 +1,6 @@
 package controllers.musip
 
-import controllers.DelvingController
+import controllers.{Breadcrumbs, DelvingController}
 import core.rendering.ViewRenderer
 import play.api.i18n.Lang
 import play.api.mvc.{RequestHeader, Action}
@@ -14,9 +14,9 @@ import core.Constants._
 
 object Show extends DelvingController {
 
-  def museumViewDefinition(configuration: DomainConfiguration) = ViewRenderer.fromDefinition("musip", "museum", configuration)
+  def museumViewDefinition(configuration: DomainConfiguration) = ViewRenderer.fromDefinition("musip", "museum")(configuration)
 
-  def collectionViewDefinition(configuration: DomainConfiguration) = ViewRenderer.fromDefinition("musip", "collection", configuration)
+  def collectionViewDefinition(configuration: DomainConfiguration) = ViewRenderer.fromDefinition("musip", "collection")(configuration)
 
 
   def collection(orgId: String, itemId: String) = DomainConfigured {
@@ -24,8 +24,16 @@ object Show extends DelvingController {
       Action {
         Action {
           implicit request => show(orgId, itemId, "collection", collectionViewDefinition(configuration)) match {
-            case Some((viewTree, systemFields, returnToResults, searchTerm)) =>
-              Ok(Template("show.html", 'view -> viewTree, 'systemFields -> systemFields, 'returnToResults -> returnToResults, 'searchTerm -> searchTerm))
+            case Some((viewTree, systemFields: Map[String, Map[String, String]], returnToResults: String, searchTerm: String)) =>
+              renderArgs += ("breadcrumbs" -> Breadcrumbs.crumble(
+                Map(
+                  "search" -> Map("searchTerm" -> searchTerm, "returnToResults" -> returnToResults),
+                  "title" -> Map("url" -> "", "label" -> systemFields.get("delving_title").getOrElse(Seq("")).headOption.getOrElse("").toString),
+                  "inOrg" -> Map("inOrg" -> "yes")
+                )
+              ))
+
+              Ok(Template("show.html", 'view -> viewTree, 'systemFields -> systemFields))
             case None => NotFound("Collection not found")
           }
         }
@@ -37,8 +45,15 @@ object Show extends DelvingController {
     Root {
       Action {
         implicit request => show(orgId, itemId, "museum", museumViewDefinition(configuration)) match {
-          case Some((viewTree, systemFields, returnToResults, searchTerm)) =>
-            Ok(Template("show.html", 'view -> viewTree, 'systemFields -> systemFields, 'returnToResults -> returnToResults, 'searchTerm -> searchTerm))
+          case Some((viewTree, systemFields: Map[String, Map[String, String]], returnToResults: String, searchTerm: String)) =>
+            renderArgs += ("breadcrumbs" -> Breadcrumbs.crumble(
+              Map(
+                "search" -> Map("searchTerm" -> searchTerm, "returnToResults" -> returnToResults),
+                "title" -> Map("url" -> "", "label" -> systemFields.get("delving_title").getOrElse(Seq("")).headOption.getOrElse("").toString),
+                "inOrg" -> Map("inOrg" -> "yes")
+              )
+            ))
+            Ok(Template("show.html", 'view -> viewTree, 'systemFields -> systemFields))
           case None => NotFound("Museum not found")
         }
       }

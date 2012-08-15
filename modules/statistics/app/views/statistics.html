@@ -5,7 +5,7 @@
 #{set 'moreScripts'}
 <script type="text/javascript" src="@{routes.Assets.at("common/javascripts/bootstrap/bootstrap-tooltip.js")}"></script>
 #{/set}
-#{breadcrumbs /}
+#{breadcrumbs crumbs: breadcrumbs /}
 
 #{organizationNavBar orgId: orgId, active:"statistics", navigation: navigation /}
 

@@ -20,7 +20,7 @@ import _root_.util.DomainConfigurationHandler
 import core.access.{ResourceType, Resource}
 import extensions.ConfigurationException
 import org.bson.types.ObjectId
-import models.mongoContext._
+import models.HubMongoContext._
 import com.mongodb.casbah.Imports._
 import com.novus.salat.dao._
 import xml.{Node, XML}

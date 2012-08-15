@@ -312,7 +312,7 @@ object SolrQueryService extends SolrServer {
     }
     try {
       Logger.debug(solrQuery.toString)
-      runQuery(solrQuery, configuration)
+      runQuery(solrQuery)
     }
     catch {
       case e: SolrServerException if e.getMessage.contains("returned non ok status:400") => {
@@ -519,7 +519,7 @@ case class SolrSortElement(sortKey: String, sortOrder: SolrQuery.ORDER = SolrQue
 
 case class CHQuery(solrQuery: SolrQuery, responseFormat: String = "xml", filterQueries: List[FilterQuery] = List.empty, hiddenFilterQueries: List[FilterQuery] = List.empty, systemQueries: List[String] = List.empty)
 
-case class CHResponse(params: Params, configuration: DomainConfiguration, response: QueryResponse, chQuery: CHQuery) { // todo extend with the other response elements
+case class CHResponse(params: Params, response: QueryResponse, chQuery: CHQuery, configuration: DomainConfiguration) { // todo extend with the other response elements
 
   def useCacheUrl: Boolean = params.hasKeyAndValue("cache", "true")
 

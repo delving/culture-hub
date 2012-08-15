@@ -2,9 +2,8 @@ package plugins
 
 import play.api.Application
 import controllers.organization.CMS
-import core.{HubServices, MenuElement, MainMenuEntry, CultureHubPlugin}
+import core.{MenuElement, MainMenuEntry, CultureHubPlugin}
 import models.{DomainConfiguration, Role}
-import models.cms.{MenuEntry, CMSPage}
 
 /**
  *
@@ -33,7 +32,7 @@ class CMSPlugin(app: Application) extends CultureHubPlugin(app) {
     MainMenuEntry(
       key = "site",
       titleKey = "org.cms",
-      roles = Seq(Role.OWN, Role.CMS),
+      roles = Seq(Role.OWN, CMSPlugin.ROLE_CMS_ADMIN),
       items = Seq(
         MenuElement("/organizations/%s/site".format(orgId), "org.cms.page.list"),
         MenuElement("/organizations/%s/site/%s/page/add".format(orgId, lang), "org.cms.page.new"),
@@ -41,4 +40,14 @@ class CMSPlugin(app: Application) extends CultureHubPlugin(app) {
       )
     )
   )
+
+  /**
+   * Override this to provide custom roles to the platform, that can be used in Groups
+   * @return a sequence of [[models.Role]] instances
+   */
+  override def roles: Seq[Role] = Seq(CMSPlugin.ROLE_CMS_ADMIN)
+}
+
+object CMSPlugin {
+  val ROLE_CMS_ADMIN = Role("cms", Role.descriptions("plugin.cms.adminRight"), false, None)
 }

@@ -5,7 +5,7 @@
 
 #{set bodyId: 'organization' /}
 
-#{breadcrumbs configuration: themeInfo.getConfiguration() /}
+#{breadcrumbs crumbs: breadcrumbs /}
 
 #{organizationNavBar orgId: orgId, active:"groups", navigation: navigation /}
 
@@ -36,7 +36,7 @@
                 </div>
             </div>
 
-            <div class="control-group" data-bind="visible: canChangeGrantType() && (rolesWithResources().indexOf(roleKey()) > -1)">
+            <div class="control-group" data-bind="visible: canChangeGrantType() && (rolesWithResources().indexOf(roleKey()) > -1)  && !(rolesWithResourceAdmin.indexOf(roleKey()) > -1)">
               <div class="control-group">
                 <label class="control-label" for="resourceTokenInput">&{'thing.resources'}</label>
                 <div class="controls">

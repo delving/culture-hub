@@ -3,7 +3,7 @@ package models
 import org.bson.types.ObjectId
 import com.mongodb.casbah.Imports._
 import com.novus.salat.dao.SalatDAO
-import models.mongoContext._
+import models.HubMongoContext._
 
 /**
  *

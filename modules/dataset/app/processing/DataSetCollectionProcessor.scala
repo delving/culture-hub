@@ -95,8 +95,8 @@ object DataSetCollectionProcessor {
     def onError(t: Throwable) {
       DataSet.dao.updateState(dataSet, DataSetState.ERROR, None, Some(t.getMessage))
     }
-    def indexOne(item: MetadataItem, fields: CollectionProcessor#MultiMap, prefix: String, configuration: DomainConfiguration) =
-      Indexing.indexOne(dataSet, item, fields, prefix)(configuration)
+    def indexOne(item: MetadataItem, fields: CollectionProcessor#MultiMap, prefix: String)(implicit configuration: DomainConfiguration) =
+      Indexing.indexOne(dataSet, item, fields, prefix)
 
     def onIndexingComplete(start: DateTime) {
       IndexingService.commit
@@ -120,7 +120,7 @@ object DataSetCollectionProcessor {
       // it does not matter how long we wait
       // hence, we just trigger it here, and ignore the exception.
       try {
-        IndexingService.runQuery(new SolrQuery("%s:%s %s:%s".format(SPEC, dataSet.spec, ORG_ID, dataSet.orgId)), configuration)
+        IndexingService.runQuery(new SolrQuery("%s:%s %s:%s".format(SPEC, dataSet.spec, ORG_ID, dataSet.orgId)))
       } catch {
         case t: Throwable => // as described earlier on, just ignore this exception
       }

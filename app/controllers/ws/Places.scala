@@ -2,7 +2,7 @@ package controllers.ws
 
 import play.api.mvc._
 import controllers.{DelvingController, Secured}
-import models.mongoContext._
+import models.HubMongoContext._
 import com.mongodb.casbah.Imports._
 import java.util.regex.Pattern
 

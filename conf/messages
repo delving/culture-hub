@@ -452,7 +452,6 @@ org.list.filter=Type here to narrow down the list
 
 org.group.grantType.view=Dataset view rights
 org.group.grantType.modify=Dataset modification rights
-org.group.grantType.cms=Site content administration rights
 org.group.grantType.own=Administrator rights
 org.group.save=Save group
 org.group.create=Create group
@@ -656,6 +655,9 @@ locale.nb=Norwegian b�kmal (nb)
 
 
 ###### Plugin messages (TODO: move to plugin once that is available)
+
+plugin.cms.adminRight=Site content administration rights
+
 
 plugin.musip.museum=Museum
 plugin.musip.museums=Museums

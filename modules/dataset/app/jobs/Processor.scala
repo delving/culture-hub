@@ -33,7 +33,7 @@ class Processor extends Actor {
         case t: Throwable => {
           t.printStackTrace()
           Logger("CultureHub").error("Error while processing DataSet %s".format(set.spec), t)
-          ErrorReporter.reportError(getClass.getName, "Error during processing of DataSet", configuration)
+          ErrorReporter.reportError(getClass.getName, "Error during processing of DataSet")
           DataSet.dao(set.orgId).updateState(set, DataSetState.ERROR, None, Some(t.getMessage))
         }
       }

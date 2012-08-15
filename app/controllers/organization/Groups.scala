@@ -4,7 +4,7 @@ import org.bson.types.ObjectId
 import extensions.JJson
 import com.mongodb.casbah.Imports._
 import models._
-import models.mongoContext._
+import models.HubMongoContext._
 import play.api.i18n.Messages
 import controllers.{OrganizationController, ViewModel}
 import play.api.mvc.{Results, AnyContent, RequestHeader, Action}
@@ -182,7 +182,7 @@ object Groups extends OrganizationController {
     val defaultGroupViewModel = GroupViewModel(
       roleKey = Role.allRoles(configuration).head.key,
       rolesWithResources = resourceRoles.map(_.key),
-      rolesWithResourceAdmin = Seq.empty,
+      rolesWithResourceAdmin = Role.allRoles(configuration).filter(_.isResourceAdmin).map(_.key),
       rolesResourceType = resourceRoles.map(r => RoleResourceType(r.key, r.resourceType.get.resourceType, Messages("accessControl.resourceType." + r.resourceType.get.resourceType)))
     )
 

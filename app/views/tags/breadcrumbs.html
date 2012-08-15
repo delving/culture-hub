@@ -1,55 +1,12 @@
-*{
-#{if views.Breadcrumbs.crumble(_params, request, _configuration).size() > 1}
-<div class="">
-    <ul class="breadcrumbs alt1">
-    #{list views.Breadcrumbs.crumble(_params, request, _configuration), as: 'c'}
-        <li>
-        #{if c._2 == views.Breadcrumbs.crumble(_params, request, _configuration).length() -1 && views.Breadcrumbs.crumble(_params, request, _configuration).length() > 1}
-            <span>${views.Helpers.shorten(c._1._2, 50)}</span>
-        #{/if}
-        #{if c._2 < views.Breadcrumbs.crumble(_params, request, _configuration).length() -1 && views.Breadcrumbs.crumble(_params, request, _configuration).length() > 1}
-            #{if c._1._1 == "NOLINK"}
-            <span>${views.Helpers.shorten(c._1._2, 50)}</span>
-            #{/}
-            #{else}
-            <a href="${c._1._1}"><span>${views.Helpers.shorten(c._1._2, 50)}</span></a>
-            #{/else}
-        #{/if}
-        #{if c._2 < views.Breadcrumbs.crumble(_params, request, _configuration).length() - 1 && views.Breadcrumbs.crumble(_params, request, _configuration).length() == 1}
-          #{if c._1._1 == "NOLINK"}
-            <span>${views.Helpers.shorten(c._1._2, 50)}</span>
-            #{/}
-            #{else}
-            <a href="${c._1._1}"><span>${views.Helpers.shorten(c._1._2, 50)}</span></a>
-            #{/else}
-          #{/if}
-        </li>
-    #{/list}
-    #{if _queryCrumbs}
-        #{list _queryCrumbs.getBreadcrumbs(), as: 'crumb'}
-            #{ifnot crumb_isLast}
-                *{<li><a href="@{Search.index()}?${crumb.href()}"><span>${crumb.value().shorten(50)}</span></a></li>}*
- *{
-           #{/ifnot}
-            #{else}
-                <li><span>${crumb.value()}</span></li>
-            #{/else}
-        #{/list}
-    #{/if}
-    </ul>
-</div>
-#{/if}
-}*
-
-#{if views.Breadcrumbs.crumble(_params, request, _configuration).size() > 1}
+#{if _crumbs.size() > 1}
 
     <ul class="breadcrumb">
-    #{list views.Breadcrumbs.crumble(_params, request, _configuration), as: 'c'}
+    #{list _crumbs, as: 'c'}
         <li #{if c._1._1 != "NOLINK"}class="linked"#{/if}>
-        #{if c._2 == views.Breadcrumbs.crumble(_params, request, _configuration).length() -1 && views.Breadcrumbs.crumble(_params, request, _configuration).length() > 1}
+        #{if c._2 == _crumbs.length() -1 && _crumbs.length() > 1}
             ${views.Helpers.shorten(c._1._2, 50)}
         #{/if}
-        #{if c._2 < views.Breadcrumbs.crumble(_params, request, _configuration).length() -1 && views.Breadcrumbs.crumble(_params, request, _configuration).length() > 1}
+        #{if c._2 < _crumbs.length() -1 && _crumbs.length() > 1}
         #{if c._1._1 == "NOLINK"}
             ${views.Helpers.shorten(c._1._2, 50)}<span class="divider">/</span>
         #{/if}
@@ -57,7 +14,7 @@
             <a href="${c._1._1}" rel="nofollow">${views.Helpers.shorten(c._1._2, 50)}</a><span class="divider">/</span>
         #{/else}
         #{/if}
-        #{if c._2 < views.Breadcrumbs.crumble(_params, request, _configuration).length() - 1 && views.Breadcrumbs.crumble(_params, request, _configuration).length() == 1}
+        #{if c._2 < _crumbs.length() - 1 && _crumbs.length() == 1}
         #{if c._1._1 == "NOLINK"}
             ${views.Helpers.shorten(c._1._2, 50)}
         #{/if}

@@ -89,7 +89,7 @@ object Global extends GlobalSettings {
   override def onStop(app: Application) {
     if (!Play.isTest) {
     // close all Mongo connections
-    import models.mongoContext._
+    import models.HubMongoContext._
     close()
     }
   }
