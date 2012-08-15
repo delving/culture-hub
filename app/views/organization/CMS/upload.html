@@ -29,7 +29,7 @@
 <script type="text/javascript" src="@{routes.Assets.at("common/javascripts/bootstrap/bootstrap-collapse.js")}"></script>
 #{/set}
 
-#{breadcrumbs request: request, configuration: themeInfo.getConfiguration() /}
+#{breadcrumbs crumbs: breadcrumbs /}
 
 #{organizationNavBar orgId: orgId, active:"site", navigation: navigation /}
 <div class="accordion" id="instructions">

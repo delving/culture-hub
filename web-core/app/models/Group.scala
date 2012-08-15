@@ -3,7 +3,7 @@ package models
 import _root_.util.DomainConfigurationHandler
 import core.access.{ResourceType, Resource}
 import com.novus.salat.dao.SalatDAO
-import mongoContext._
+import HubMongoContext._
 import com.mongodb.casbah.Imports._
 import com.mongodb.casbah.WriteConcern
 import core.HubServices

@@ -47,13 +47,13 @@ class VirtualCollectionCount extends Actor with SolrServer {
             vc =>
               val currentCount = count(vc)
               if (currentCount != vc.getTotalRecords) {
-                implicit val domainConfiguration = DomainConfigurationHandler.getByName(vc.query.domainConfiguration)
+                implicit val configuration = DomainConfigurationHandler.getByName(vc.query.domainConfiguration)
                 dao.createVirtualCollectionFromQuery(vc._id, vc.query.toSolrQuery, None) match {
                   case Right(computed) =>
                     log.info("Recomputed Virtual Collection %s, found %s records".format(vc.name, computed.getTotalRecords))
                   case Left(error) =>
                     Logger("CultureHub").error("Error computing virtual collection %s during periodic recomputation".format(vc.name), error)
-                    ErrorReporter.reportError("Periodic Virtual Collection computer", error, "Error computing Virtual Collection " + vc.name, domainConfiguration)
+                    ErrorReporter.reportError("Periodic Virtual Collection computer", error, "Error computing Virtual Collection " + vc.name)
                 }
               }
           }

@@ -48,7 +48,7 @@ class CollectionProcessor(collection: Collection,
   def process(interrupted: => Boolean,
               updateCount: Long => Unit,
               onError: Throwable => Unit,
-              indexOne: (MetadataItem, MultiMap, String, DomainConfiguration) => Either[Throwable, String],
+              indexOne: (MetadataItem, MultiMap, String) => Either[Throwable, String],
               onIndexingComplete: DateTime => Unit
              )(implicit configuration: DomainConfiguration) {
 
@@ -153,7 +153,7 @@ class CollectionProcessor(collection: Collection,
                     val r = mappingResults(indexingSchema.get.prefix)
                     val fields: Map[String, List[String]] = r.fields()
                     val searchFields: Map[String, List[String]] = r.searchFields()
-                    indexOne(cachedRecord, fields ++ searchFields ++ getSystemFields(r), indexingSchema.get.prefix, configuration)
+                    indexOne(cachedRecord, fields ++ searchFields ++ getSystemFields(r), indexingSchema.get.prefix)
                   }
 
                 }

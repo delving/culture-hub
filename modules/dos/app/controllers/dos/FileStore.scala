@@ -40,11 +40,11 @@ object FileStore extends Controller with DomainConfigurationAware {
   def getFilesForItemId(id: String)(implicit configuration: DomainConfiguration): List[StoredFile] =
     fileStore(configuration).
       find(MongoDBObject(ITEM_POINTER_FIELD -> id)).
-      map(f => fileToStoredFile(f, configuration)).toList
+      map(f => fileToStoredFile(f)).toList
 
   // ~~~ private
 
-  private[dos] def fileToStoredFile(f: GridFSDBFile, configuration: DomainConfiguration) = {
+  private[dos] def fileToStoredFile(f: GridFSDBFile)(implicit configuration: DomainConfiguration) = {
     val id = f.getId.asInstanceOf[ObjectId]
     val thumbnail = if (FileUpload.isImage(f)) {
       fileStore(configuration).findOne(MongoDBObject(FILE_POINTER_FIELD -> id)) match {

@@ -48,7 +48,7 @@ trait SolrServer {
 
   def getStreamingUpdateServer(configuration: DomainConfiguration) = SolrServer.streamingUpdateServer(configuration)
 
-  def runQuery(query: SolrQuery, configuration: DomainConfiguration): QueryResponse = SolrServer.solrServer(configuration).query(query)
+  def runQuery(query: SolrQuery)(implicit configuration: DomainConfiguration): QueryResponse = SolrServer.solrServer(configuration).query(query)
 
 }
 

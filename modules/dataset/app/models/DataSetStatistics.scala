@@ -5,7 +5,7 @@ import _root_.util.DomainConfigurationHandler
 import java.util.Date
 import org.bson.types.ObjectId
 import com.novus.salat.dao.SalatDAO
-import mongoContext._
+import HubMongoContext._
 import eu.delving.stats.Stats
 import collection.JavaConverters._
 import com.mongodb.casbah.Imports._

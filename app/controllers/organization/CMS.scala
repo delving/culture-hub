@@ -13,6 +13,7 @@ import models._
 import cms.{MenuEntry, CMSPage}
 import com.mongodb.casbah.Imports._
 import core.HubServices
+import plugins.CMSPlugin
 
 
 /**
@@ -29,7 +30,7 @@ object CMS extends OrganizationController {
     OrgMemberAction(orgId) {
       Action(action.parser) {
         implicit request => {
-          if (HubServices.organizationService(configuration).isAdmin(orgId, connectedUser) || Group.dao.count(MongoDBObject("users" -> connectedUser, "grantType" -> Role.CMS.key)) > 0) {
+          if (HubServices.organizationService(configuration).isAdmin(orgId, connectedUser) || Group.dao.count(MongoDBObject("users" -> connectedUser, "grantType" -> CMSPlugin.ROLE_CMS_ADMIN.key)) > 0) {
             action(request)
           } else {
             Forbidden(Messages("user.secured.noAccess"))

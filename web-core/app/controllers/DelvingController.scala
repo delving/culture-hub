@@ -261,6 +261,9 @@ trait DelvingController extends ApplicationController with CoreImplicits {
           // TODO move to search plugin, one day
           renderArgs += ("searchIn" -> configuration.searchService.searchIn.asJava)
 
+          // breadcrumbs
+          renderArgs += ("breadcrumbs" -> Breadcrumbs.crumble())
+
           // ignore AsyncResults for these things for the moment
           val res = action(request)
           if(res.isInstanceOf[PlainResult]) {

@@ -111,11 +111,11 @@ class ViewRenderSpec extends TestContext {
 
     "render a record as XML" in {
       withTestConfig {
-        val configuration = DomainConfigurationHandler.getByOrgId("delving")
+        implicit val configuration = DomainConfigurationHandler.getByOrgId("delving")
 
         val namespaces = Map("delving" -> "http://www.delving.eu/schemas/delving-1.0.xsd", "dc" -> "http://dublincore.org/schemas/xmls/qdc/dc.xsd", "icn" -> "http://www.icn.nl/schemas/ICN-V3.2.xsd")
 
-        val view = ViewRenderer.fromDefinition("aff", "full", configuration).get.renderRecordWithView("aff", "full", testXmlViewDefinition, testRecord(), List.empty, namespaces, Lang("en"), Map.empty)
+        val view = ViewRenderer.fromDefinition("aff", "full").get.renderRecordWithView("aff", "full", testXmlViewDefinition, testRecord(), List.empty, namespaces, Lang("en"), Map.empty)
 
         val xml = view.toXmlString
 

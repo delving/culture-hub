@@ -1,7 +1,7 @@
 import core.collection.AggregatingOrganizationCollectionLookup
 import core.HubServices
 import core.indexing.IndexingService
-import models.mongoContext._
+import models.HubMongoContext._
 import org.specs2.mutable.Specification
 import play.api.mvc.{AsyncResult, Result}
 import play.api.test._
