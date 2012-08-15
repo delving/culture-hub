@@ -3,7 +3,7 @@ package models
 import _root_.util.DomainConfigurationHandler
 import com.novus.salat.dao.SalatDAO
 import com.novus.salat
-import models.mongoContext._
+import models.HubMongoContext._
 import com.mongodb.casbah.Imports._
 import play.api.Logger
 

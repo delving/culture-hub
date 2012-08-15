@@ -19,7 +19,7 @@ package models.cms
 import com.mongodb.casbah.Imports._
 import org.bson.types.ObjectId
 import com.novus.salat.dao.SalatDAO
-import models.mongoContext._
+import models.HubMongoContext._
 import com.mongodb.casbah.commons.MongoDBObject
 import models.MultiModel
 

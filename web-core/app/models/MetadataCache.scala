@@ -3,7 +3,7 @@ package models
 import _root_.util.DomainConfigurationHandler
 import com.mongodb.casbah.Imports._
 import org.bson.types.ObjectId
-import mongoContext._
+import HubMongoContext._
 import com.novus.salat.dao.SalatDAO
 import java.util.Date
 

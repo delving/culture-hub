@@ -24,7 +24,7 @@ import eu.delving.stats.Stats
 import scala.collection.JavaConverters._
 import java.util.Date
 import models.statistics._
-import models.mongoContext.hubFileStore
+import HubMongoContext.hubFileStore
 import xml.Node
 import play.api.libs.concurrent.Promise
 import org.apache.commons.lang.StringEscapeUtils

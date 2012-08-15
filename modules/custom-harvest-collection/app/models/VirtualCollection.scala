@@ -3,7 +3,7 @@ package models
 import org.bson.types.ObjectId
 import com.mongodb.casbah.Imports._
 import com.novus.salat.dao.SalatDAO
-import mongoContext._
+import HubMongoContext._
 import core.Constants._
 import scala.collection.JavaConverters._
 import play.api.Logger

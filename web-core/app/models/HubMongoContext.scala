@@ -21,7 +21,7 @@ import com.mongodb.casbah.Imports._
 import com.mongodb.DBObject
 import com.mongodb.casbah.gridfs.GridFS
 
-package object mongoContext extends models.MongoContext {
+object HubMongoContext extends models.MongoContext {
 
   val geonamesConnection = createConnection("geonames")
   lazy val geonamesCollection = geonamesConnection("geonames")
