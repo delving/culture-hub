@@ -187,7 +187,7 @@ class DataSetPlugin(app: Application) extends CultureHubPlugin(app) {
     } else {
       Akka.system.actorOf(Props[Processor].withRouter(
         RoundRobinRouter(Runtime.getRuntime.availableProcessors(), supervisorStrategy = OneForOneStrategy() {
-          case _ => Stop
+          case _ => Restart
         })
       ), name = "dataSetProcessor")
     }
