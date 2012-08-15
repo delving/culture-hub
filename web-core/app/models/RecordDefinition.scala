@@ -115,12 +115,12 @@ object RecordDefinition {
   private def parseRecordDefinitions(implicit configuration: DomainConfiguration): List[RecordDefinition] = {
     val definitionContent = getRecordDefinitionResources(Some(configuration)).map { r => XML.load(r) }
     val definitions = definitionContent.flatMap(parseRecordDefinition(_)).toList
-    if(Play.configuration.getBoolean("cultureHub.allowRawHarvesting").getOrElse(false)) {
+    if(configuration.oaiPmhService.allowRawHarvesting) {
       definitions ++ List(rawRecordDefinition)
     } else {
       definitions
     }
-   }
+  }
 
   private def parseRecordDefinition(node: Node): Option[RecordDefinition] = {
     val prefix = (node \ "@prefix" ).text
