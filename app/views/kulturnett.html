@@ -15,32 +15,32 @@
                     <div class="navbar-inner">
                         <div class="container">
                             <ul class="nav pull-right">
-            #{if !userName }
-                    <li><a href="/login" rel="nofollow" class="first" tabindex="1">${messages.get('ui.label.login')}</a></li>
-            #{/if}
-            #{else}
-                <li class="user"><a href="/${_userName}" rel="nofollow">#{gravatar.img email, size:21 /}Hi ${userName}</a></li>
-                <li class="divider-vertical"></li>
-                <li><a href="/${userName}" rel="nofollow">${messages.get('user.nav.yourprofile')}</a></li>
-                <li class="divider-vertical"></li>
-                #{if organizations.length() > 0}
-                    <li class="dropdown" id="orgs">
-                        <a class="dropdown-toggle" data-toggle="dropdown" href="#orgs" rel="nofollow">
-                        ${messages.get('thing.organizations')}
-                            <b class="caret"></b>
-                        </a>
-                        <ul class="dropdown-menu">
-                            #{list organizations, as: 'org'}
-                                <li><a href="/organizations/${org}" rel="nofollow">${org}</a></li>
-                            #{/list}
-                        </ul>
-                    </li>
-                #{/if}
-                <li class="divider-vertical"></li>
-                <li><a href="/logout" rel="nofollow">${messages.get('ui.label.logout')}</a></li>
-            #{/else}
+                            #{if !userName }
+                               <li><a href="/login" rel="nofollow" class="first" tabindex="1">${messages.get('ui.label.login')}</a></li>
+                            #{/if}
+                            #{else}
+                                <li class="user"><a href="/${_userName}" rel="nofollow">#{gravatar.img email, size:21 /}Hi ${userName}</a></li>
+                                <li class="divider-vertical"></li>
+                                <li><a href="/${userName}" rel="nofollow">${messages.get('user.nav.yourprofile')}</a></li>
+                                <li class="divider-vertical"></li>
+                                #{if organizations.length() > 0}
+                                    <li class="dropdown" id="orgs">
+                                        <a class="dropdown-toggle" data-toggle="dropdown" href="#orgs" rel="nofollow">
+                                        ${messages.get('thing.organizations')}
+                                            <b class="caret"></b>
+                                        </a>
+                                        <ul class="dropdown-menu">
+                                            #{list organizations, as: 'org'}
+                                                <li><a href="/organizations/${org}" rel="nofollow">${org}</a></li>
+                                            #{/list}
+                                        </ul>
+                                    </li>
+                                #{/if}
+                                <li class="divider-vertical"></li>
+                                <li><a href="/logout" rel="nofollow">${messages.get('ui.label.logout')}</a></li>
+                            #{/else}
             *{<li class="divider-vertical"></li>}*
-            </ul>
+                         </ul>
                         </div>
                     </div>
                 </div>
@@ -53,13 +53,13 @@
                         *{<div class="container">}*
                             *{<div class="nav-collapse">}*
                                 <ul class="nav k-nav">
-                                    <li><a href="https://liferay.abmd.no/portal/web/kulturnett/home" tabindex="-1"><span> Hjem</span></a></li>
+                                    <li><a href="https://beta.kulturnett.no/portal/web/kulturnett/home" tabindex="-1"><span> Hjem</span></a></li>
                                     <li #{if pageId != 'statistics'}class="active"#{/if}><a href="http://samlinger.kulturnett.no/portal/search?query=*:*&amp;qf=HASDIGITALOBJECT:true&amp;tab=all&amp;view=table" tabindex="0" class="active"><span>Kulturs&#248;k</span></a></li>
-                                    <li><a href="https://liferay.abmd.no/portal/web/kulturnett/e-kultur-i-sosiale-media" tabindex="-1" ><span> Sosiale media</span></a></li>
+                                    <li><a href="https:/beta.kulturnett.no/portal/web/kulturnett/e-kultur-i-sosiale-media" tabindex="-1" ><span> Sosiale media</span></a></li>
                                     <li #{if  pageId == 'statistics'}class="active"#{/if}><a href="http://samlinger.kulturnett.no/portal/statistics.html#provider-tab" tabindex="-1"><span> Statistikk</span></a></li>
-                                    <li><a href="https://liferay.abmd.no/portal/web/kulturnett/om" tabindex="-1"><span> Om</span></a></li>
-                                    <li><a href="https://liferay.abmd.no/portal/web/kulturnett/regionale-kulturnett" tabindex="-1"><span> Regionale kulturnett</span></a></li>
-                                    <li><a href="https://liferay.abmd.no/portal/web/kulturnett/tidligere-kulturnett" tabindex="-1"><span> Tidligere kulturnett</span></a></li>
+                                    <li><a href="https://beta.kulturnett.no/portal/web/kulturnett/om" tabindex="-1"><span> Om</span></a></li>
+                                    <li><a href="https://beta.kulturnett.no/portal/web/kulturnett/regionale-kulturnett" tabindex="-1"><span> Regionale kulturnett</span></a></li>
+                                    <li><a href="https://beta.kulturnett.no/portal/web/kulturnett/tidligere-kulturnett" tabindex="-1"><span> Tidligere kulturnett</span></a></li>
                                 </ul>
                             *{</div><!-- /.nav-collapse -->}*
                         *{</div>}*
@@ -112,9 +112,10 @@
         <div class="row">
             <div class="span12">
                 <div class="pull-right">
-                    <a href="http://www.delving.eu" target="_blank" title="Powered by DELVING.EU"><img
-                            src="@{routes.Assets.at('common/images/delving-small.png')}"
-                            alt="Powered by DELVING.EU" id="pbd" />Powered by Delving</a>
+                    <a href="http://www.delving.eu" target="_blank" title="Powered by DELVING.EU">
+                        <img src="@{routes.Assets.at('common/images/delving-small.png')}" alt="Powered by DELVING.EU" id="pbd" />
+                        Powered by Delving
+                    </a>
                 </div>
             </div>
         </div>
