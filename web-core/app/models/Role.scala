@@ -25,16 +25,13 @@ object Role {
 
   def illegal(key: String) = throw new IllegalArgumentException("Illegal key %s for Role".format(key))
 
-  def description(key: String) = Lang.availables.map { lang =>
-      (lang.language -> Messages("org.group.grantType." + key))
+  def descriptions(key: String) = Lang.availables.map { lang =>
+      (lang.language -> Messages(key))
   }.toMap
 
-  val OWN = Role("own", description("own"), false)
+  val OWN = Role("own", descriptions("org.group.grantType.own"), false)
 
-  // TODO move to plugin
-  val CMS = Role("cms", description("cms"), false, None)
-
-  val systemRoles = List(CMS, OWN)
+  val systemRoles = List(OWN)
 
   def dynamicRoles(configuration: DomainConfiguration) = configuration.roles
 
