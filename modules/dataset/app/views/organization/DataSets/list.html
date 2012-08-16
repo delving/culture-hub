@@ -52,7 +52,7 @@
         </tfoot>
         <tbody data-bind="foreach: sets()">
             <tr>
-                <td><a data-bind="attr: { href: '/organizations/' + orgId() + '/dataset/' + spec() }" rel="nofollow"><i class="icon icon-wrench"></i> <span data-bind="text: name"></span></a></td>
+                <td><a data-bind="attr: { href: '/organizations/' + orgId() + '/dataset/' + spec() }" rel="nofollow" class="btn"><i class="icon icon-wrench"></i> <span data-bind="text: name"></span></a></td>
                 <td><span data-bind="text: nodeName"></span></td>
                 <td>
                     <a data-bind="text: totalRecords, attr: { href: '/search?query%3Ddelving_spec%3A' + spec() }" class="rCount" rel="nofollow"></a>
