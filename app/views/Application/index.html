@@ -54,7 +54,12 @@
 #{/if}
 
 #{if themeInfo.get('homepageRecentMdrs') == "true" && recentMdrs.size() > 0 }
-    #{results.resultGrid results: recentMdrs/}
+    #{results.resultGrid
+        results: recentMdrs,
+        colCount: themeInfo.get('homepageRecentMdrsColumns'),
+        spanClass: themeInfo.get('homepageRecentMdrsGridClass'),
+        clipClass: themeInfo.get('homepageRecentMdrsImageClip'),
+        clipHeight: themeInfo.get('homepageRecentMdrsImageClipHeight')/}
 #{/if}
 
 

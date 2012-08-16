@@ -21,7 +21,7 @@ switch (recordType) {
 *{<div class="thing-container ${_data.getItemType()} media media-stack">}*
 <div class="${_data.getItemType()} media media-stack">
     *{<div class="category">${recordType}</div>}*
-        <div class="clip clip-120">
+        <div class="clip ${_clipClass}" style="height:${_clipHeight}">
         <a class="img" href="${_data.getUri()}" title="${_data.getTitle()}"  rel="nofollow">
 
             #{if _data.getMimeType().contains('image/') }
