@@ -10,16 +10,16 @@
     *{#{authenticityToken /}}*
         <div class="row">
     <div class="span6">
-        <div class="alert alert-error">
         #{if views.Helpers.hasErrors(registrationForm)}
+        <div class="alert alert-error">
             <p class="error">Error creating your account, please correct the errors</p>
             <ul>
                 #{list views.Helpers.listGlobalErrors(registrationForm), as: 'e'}
                     <li>${e}</li>
                 #{/list}
             </ul>
-        #{/if}
         </div>
+        #{/if}
 
         #{form.textField form: registrationForm, name:"firstName", label: messages.get('ui.label.firstname') , required: true /}
         #{form.textField form: registrationForm, name:"lastName", label: messages.get('ui.label.lastname') , required: true /}
