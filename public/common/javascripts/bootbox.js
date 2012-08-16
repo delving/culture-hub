@@ -1,5 +1,5 @@
 /**
- * bootbox.js v2.3.1
+ * bootbox.js v2.3.2
  *
  * The MIT License
  *
@@ -23,13 +23,13 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE
  */
-var bootbox = window.bootbox || (function() {
+var bootbox = window.bootbox || (function($) {
 
     var _locale        = 'en',
         _defaultLocale = 'en',
         _animate       = true,
         _icons         = {},
-        /* last var should always be the public object we'll return */
+    /* last var should always be the public object we'll return */
         that           = {};
 
     /**
@@ -71,6 +71,11 @@ var bootbox = window.bootbox || (function() {
             OK      : 'OK',
             CANCEL  : 'Отмена',
             CONFIRM : 'Применить'
+        },
+        'it' : {
+            OK      : 'OK',
+            CANCEL  : 'Annulla',
+            CONFIRM : 'Conferma'
         }
     };
 
@@ -404,7 +409,7 @@ var bootbox = window.bootbox || (function() {
                 icon = "<i class='"+handlers[i]['icon']+"'></i> ";
             }
 
-            buttons += "<a data-handler='"+i+"' class='btn "+_class+"' href='#'>"+icon+""+label+"</a>";
+            buttons += "<a data-handler='"+i+"' class='btn "+_class+"' href='javascript:;'>"+icon+""+label+"</a>";
 
             callbacks[i] = callback;
         }
@@ -414,7 +419,7 @@ var bootbox = window.bootbox || (function() {
         if (options['header']) {
             var closeButton = '';
             if (typeof options['headerCloseButton'] == 'undefined' || options['headerCloseButton']) {
-                closeButton = "<a href='#' class='close'>&times;</a>";
+                closeButton = "<a href='javascript:;' class='close'>&times;</a>";
             }
 
             parts.push("<div class='modal-header'>"+closeButton+"<h3>"+options['header']+"</h3></div>");
@@ -503,4 +508,4 @@ var bootbox = window.bootbox || (function() {
     }
 
     return that;
-})();
+})( window.jQuery );
