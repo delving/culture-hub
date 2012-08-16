@@ -2,11 +2,14 @@ package controllers.statistics
 
 import controllers.OrganizationController
 import play.api.mvc.Action
-import models.DataSet
+import models.{DomainConfiguration, DataSet}
 import collection.JavaConverters._
 import models.statistics.DataSetStatistics
 import collection.immutable.ListMap
-import core.search.FacetStatisticsMap
+import core.search.{SolrBindingService, SolrQueryService, FacetStatisticsMap}
+import org.apache.solr.client.solrj.SolrQuery
+import core.Constants
+import org.apache.solr.client.solrj.response.FacetField.Count
 
 /**
  * Prototype statistics plugin based on the statistics provided by the Sip-Creator.
@@ -73,21 +76,10 @@ object Statistics extends OrganizationController {
   def legacyStatistics(orgId: String) = {
     Action {
       implicit request =>
-      // get facet.fields from the requests
-      // create list of facets you want returned
-      // query for all *:* with facets
-      // query for with only digital objects
-      // query with landing pages
-      // create combined query blocks per facet
-      // add to list of StatisticsHeader
-      // render list
-
-
-        Ok().as(JSON)
+        val statistics = new SolrFacetBasedStatistics(request.queryString.get("facet.field"), orgId)
+        Ok("{sjoerd: ok}").as(JSON) // later add statistics.renderAsJSON
     }
-
   }
-
 
 }
 
@@ -129,16 +121,66 @@ case class StatisticsHeader(name: String, label: String = "", entries: Seq[Combi
   }
 }
 
-case class StatisticsMap(facets: Seq[String], all: FacetStatisticsMap, digitalObjects: FacetStatisticsMap, landingPages: FacetStatisticsMap) {
+class SolrFacetBasedStatistics(facets: Option[Seq[String]], orgId: String) (implicit configuration: DomainConfiguration) {
 
-//  def createHeader(name: String): StatisticsHeader = {
-//    StatisticsHeader(
-//      name = name,
-//      entries = createEntries
-//    )
-//  }
+    val orgIdFilter = "%s:%s".format(Constants.ORG_ID, orgId)
 
-  val entries: Seq[StatisticsHeader] = Seq.empty // todo replace late with facets.map(createHeader(_))
+    // create list of facets you want returned
+    val query = new SolrQuery
+    // query for all *:* with facets
+    query setQuery ("*:*")
+    query setFacet (true)
+    val facetsForStatistics = if (facets != None) facets.get else List(Constants.OWNER)
+    query addFacetField (facetsForStatistics: _*)
+    query setRows (0)
+
+    val allRecordsResponse = SolrQueryService.getSolrResponseFromServer(solrQuery = query)
+    val allRecords = SolrBindingService.createFacetStatistics(allRecordsResponse.getFacetFields.asScala.toList)
+    val totalRecords = allRecordsResponse.getResults.getNumFound.toInt
+
+    // query for with only digital objects
+    query setFilterQueries("%s:true".format(Constants.HAS_DIGITAL_OBJECT), orgIdFilter)
+    val digitalObjectsResponse = SolrQueryService.getSolrResponseFromServer(solrQuery = query)
+    val digitalObjects = SolrBindingService.createFacetStatistics(digitalObjectsResponse.getFacetFields.asScala.toList)
+    val totalDigitalObjects = digitalObjectsResponse.getResults.getNumFound
+
+    // query with landing pages
+    query setFilterQueries("%s:[* TO *]".format(Constants.EXTERNAL_LANDING_PAGE))
+    val landingPagesResponse = SolrQueryService.getSolrResponseFromServer(solrQuery = query)
+    val landingPages = SolrBindingService.createFacetStatistics(landingPagesResponse.getFacetFields.asScala.toList)
+    val totalLandingPages = landingPagesResponse.getResults.getNumFound
+
+
+  def createHeader(name: String): StatisticsHeader = {
+    StatisticsHeader(
+      name = name,
+      entries = createEntries(name)
+    )
+  }
+
+  def getCountForFacet(name: String, facetList: List[Count]) : Int = {
+    val facetItem = facetList.find(count => count.getName.equalsIgnoreCase(name))
+    if (facetItem == None) 0 else facetItem.get.getCount.toInt
+  }
+
+  def createEntries(name: String): Seq[CombinedStatisticEntry] = {
+    val digitalObjectFacet = digitalObjects.getFacet(name)
+    val landingPageFacet = landingPages.getFacet(name)
+
+    allRecords.getFacet(name).map{
+      count => {
+        CombinedStatisticEntry(
+          name = name,
+          total = totalRecords,
+          digitalObject = StatisticsCounter(name = name, total = totalRecords, withNr = getCountForFacet(name, digitalObjectFacet)),
+          landingPage = StatisticsCounter(name = name, total = totalRecords, withNr = getCountForFacet(name, landingPageFacet))
+        )
+      }
+    }
+    Seq.empty
+  }
+
+  val entries: Seq[StatisticsHeader] = facetsForStatistics.map(createHeader(_))
 
   def renderAsJSON(): String = {
     import net.liftweb.json.{Extraction, JsonAST, Printer}
@@ -146,19 +188,20 @@ case class StatisticsMap(facets: Seq[String], all: FacetStatisticsMap, digitalOb
 
     val outputJson = Printer.pretty(JsonAST.render(Extraction.decompose(
       ListMap("Statistics" ->
-        entries.map(_.asListMap)
+        ListMap(
+          "totalRecords" -> totalRecords,
+          "totalRecordsWithDigitalObjects" -> totalDigitalObjects,
+          "totalRecordsWithLandingPages" -> totalLandingPages,
+          "entries" -> entries.map(_.asListMap)
+        )
       ))))
 
     outputJson
   }
 
-
-
-
-
 }
 
-/*todo output to be generated
+/*
 
 {
 statistics: [
