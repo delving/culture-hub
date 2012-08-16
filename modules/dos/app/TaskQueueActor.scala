@@ -1,8 +1,11 @@
 import _root_.util.Logging
-import akka.actor.Actor
+import akka.actor.{Cancellable, Actor}
 import models.dos.{TaskType, TaskState, Task}
+import play.api.libs.concurrent.Akka
 import play.api.Logger
 import processors._
+import akka.util.duration._
+import play.api.Play.current
 
 /**
  * Scheduled actor that processes queued tasks, one at a time
@@ -13,6 +16,22 @@ import processors._
  */
 
 class TaskQueueActor extends Actor with Logging {
+
+  private var scheduler: Cancellable = null
+
+
+  override def preStart() {
+    scheduler = Akka.system.scheduler.schedule(
+      0 seconds,
+      10 seconds,
+      self,
+      Poll
+    )
+  }
+
+  override def postStop() {
+    scheduler.cancel()
+  }
 
   def receive = {
 

@@ -6,7 +6,6 @@
 import actors._
 import core.CultureHubPlugin
 import play.api.libs.concurrent._
-import akka.util.duration._
 import akka.actor._
 import play.api._
 import mvc.{Handler, RequestHeader}
@@ -43,40 +42,16 @@ object Global extends GlobalSettings {
     // ~~~ bootstrap jobs
 
     // token expiration
-    val tokenExpiration = Akka.system.actorOf(Props[TokenExpiration])
-    Akka.system.scheduler.schedule(
-      0 seconds,
-      5 minutes,
-      tokenExpiration,
-      EvictOAuth2Tokens
-    )
+    Akka.system.actorOf(Props[TokenExpiration])
 
     // DoS
-    val dos = Akka.system.actorOf(Props[TaskQueueActor])
-    Akka.system.scheduler.schedule(
-      0 seconds,
-      10 seconds,
-      dos,
-      Poll
-    )
+    Akka.system.actorOf(Props[TaskQueueActor])
 
     // SOLR
-    val solrCache = Akka.system.actorOf(Props[SolrCache])
-    Akka.system.scheduler.schedule(
-      30 seconds,
-      120 minutes,
-      solrCache,
-      CacheSolrFields
-    )
+    Akka.system.actorOf(Props[SolrCache])
 
     // routes access logger
-    val routeLogger = Akka.system.actorOf(Props[RouteLogger], name = "routeLogger")
-    Akka.system.scheduler.schedule(
-      0 seconds,
-      3 minutes, // TODO we may have to see what is the optimal value for this
-      routeLogger,
-      PersistRouteAccess
-    )
+    Akka.system.actorOf(Props[RouteLogger], name = "routeLogger")
 
     // ~~~ load test data
 
