@@ -64,7 +64,7 @@ case class SummaryField(name: String, xpath: String) {
     SystemField.valueOf(name)
     true
   } catch {
-    case _ => false
+    case t: Throwable => false
   }
 
   def tag = "delving_" + SystemField.valueOf(name).tag
