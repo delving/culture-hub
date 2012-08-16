@@ -108,12 +108,12 @@ break
     <div class="related-items"></div>
 </div>
 
-*{
-<!-- overlayed element -->
-<div id="overlay" class="result-overlay" style="padding: 20px;width:auto">
-<div class="contentWrap">
-    <img src="${systemFields.apply("delving_thumbnail").get(0)}" alt="${systemFields.apply("delving_title").get(0)}" style="max-width:900px" />
-    <div class="title"> ${systemFields.apply("delving_title").get(0)}</div>
-</div>
-</div>
-}*
+
+*{<!-- overlayed element -->}*
+*{<div id="overlay" class="modal hide" style="padding: 20px;width:auto">}*
+*{<div class="contentWrap">}*
+    *{<img src="${systemFields.apply("delving_thumbnail").get(0)}" alt="${systemFields.apply("delving_title").get(0)}" width="500" />}*
+    *{<div class="title"> ${systemFields.apply("delving_title").get(0)}</div>}*
+*{</div>}*
+*{</div>}*
+

@@ -28,7 +28,7 @@
 
     <div class="row">
         <div class="span9">
-            #{results.resultGrid results: briefDocs, colCount: themeInfo.get('resultsColumns'), spanClass: themeInfo.get('resultsGridClass') /}
+            #{results.resultGrid results: briefDocs, colCount: themeInfo.get('resultsColumns'), spanClass: themeInfo.get('resultsGridClass'), clipClass: themeInfo.get('resultsImageClip'), clipHeight: themeInfo.get('resultsImageClipHeight') /}
         </div>
         <div class="span3">
             #{list items: themeFacets, as: 'tf'}
