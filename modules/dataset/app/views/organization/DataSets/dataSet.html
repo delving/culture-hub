@@ -103,6 +103,7 @@
         <div data-bind="template: { name: 'statusInformation' }"></div>
 
         <h4>Dataset actions</h4>
+
         <div class="">
 
             <div class="btn-toolbar">
@@ -136,7 +137,7 @@
             <!-- /ko -->
 
             <!-- ko if: dataSetState() == 'incomplete' -->
-            <p>The DataSet has been created but not yet uploaded by the Sip-Creator. It requires source data and a mapping.</p>
+            <p>The Dataset has been created but not yet uploaded by the Sip-Creator. It requires source data and a mapping.</p>
             <!-- /ko -->
 
             <!-- ko if: dataSetState() == 'parsing' -->
@@ -144,15 +145,15 @@
             <!-- /ko -->
 
             <!-- ko if: dataSetState() == 'uploaded' -->
-            <p>The DataSet is uploaded and ready to be processed.</p>
+            <p>The Dataset is uploaded and ready to be processed.</p>
             <!-- /ko -->
 
             <!-- ko if: dataSetState() == 'queued' -->
-            <p>The DataSet is queued and waiting to be processed.</p>
+            <p>The Dataset is queued and waiting to be processed.</p>
             <!-- /ko -->
 
             <!-- ko if: dataSetState() == 'processing' -->
-            <p>The DataSet is being processed. The source records are transformed into the selected output schemas, and if an indexing schema is selected, the set is also being indexed for search in SOLR.</p>
+            <p>The Dataset is being processed. The source records are transformed into the selected output schemas, and if an indexing schema is selected, the set is also being indexed for search in SOLR.</p>
             <div>
                 <div class="progress progress-striped active" data-bind="css: { active: progressPercentage != '0%' }">
                     <div class="bar" data-bind="style: { width: progressPercentage() }"></div>
@@ -167,7 +168,8 @@
             <!-- /ko -->
 
             <!-- ko if: dataSetState() == 'enabled' -->
-            <p>The DataSet is enabled and data can be harvested. If an indexing schema is selected, it can also be searched and displayed</p>
+            <p>The Dataset is enabled and data can be harvested. If an indexing schema is selected, it can also be searched and displayed</p>
+            <p>To perform <em>expert actions</em> you need to <strong>disable</strong> the dataset</p>
             <!-- /ko -->
 
         </div>
