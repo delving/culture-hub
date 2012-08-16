@@ -193,3 +193,19 @@ May not be a problem but we need to check if there are any items live.
       db.getCollection(cache).insert(item);
       c = c + 1;
     });
+
+
+16.08.2012 - DataSet model should not hold a RecordDefinition anymore
+
+    db.Datasets.find().forEach(function(ds) {
+      for(var key in ds.mappings) {
+        if(ds.mappings.hasOwnProperty(key)) {
+          print(key);
+          var mapping = ds.mappings[key];
+          ds.mappings[key].schemaPrefix = mapping.format.prefix;
+          ds.mappings[key].schemaVersion = "1.0.0";
+//          delete ds.mappings[key].format;
+        }
+      }
+      db.Datasets.save(ds);
+    })

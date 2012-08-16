@@ -223,17 +223,17 @@ object DataSetControl extends OrganizationController {
             enrich("provider", "providerUri")
             enrich("dataProvider", "dataProviderUri")
 
-            def buildMappings(recordDefinitions: Seq[String]): Map[String, Mapping] = {
-              val mappings = recordDefinitions.map {
-                recordDef => (recordDef, Mapping(format = RecordDefinition.getRecordDefinition(recordDef).get))
+            def buildMappings(schemaProcessingConfigurations: Seq[SchemaProcessingConfiguration]): Map[String, Mapping] = {
+              val mappings = schemaProcessingConfigurations.map {
+                s => (s.prefix, Mapping(schemaPrefix = s.prefix, schemaVersion = s.version))
               }
               mappings.toMap[String, Mapping]
             }
 
-            def updateMappings(recordDefinitions: Seq[String], mappings: Map[String, Mapping]): Map[String, Mapping] = {
-              val existing = mappings.filter(m => recordDefinitions.contains(m._1))
+            def updateMappings(schemaProcessingConfigurations: Seq[SchemaProcessingConfiguration], mappings: Map[String, Mapping]): Map[String, Mapping] = {
+              val existing = mappings.filter(m => schemaProcessingConfigurations.exists(s => s.prefix == m._1))
               val keyList = mappings.keys.toList
-              val added = recordDefinitions.filter(prefix => !keyList.contains(prefix))
+              val added = schemaProcessingConfigurations.filter(s => !keyList.contains(s.prefix))
               existing ++ buildMappings(added)
             }
 
@@ -245,6 +245,7 @@ object DataSetControl extends OrganizationController {
               filter(a => dataSetForm.selectedSchemas.contains(a.prefix)).
               map(a => (a.prefix -> FormatAccessControl(a.accessType, if (a.accessKey.isEmpty) None else Some(a.accessKey)))).toMap
 
+            val submittedSchemaConfigurations = dataSetForm.selectedSchemas.flatMap(prefix => dataSetForm.schemaProcessingConfigurations.find(p => p.prefix == prefix))
 
             dataSetForm.id match {
               case Some(id) => {
@@ -259,7 +260,7 @@ object DataSetControl extends OrganizationController {
                 val updated = existing.copy(
                     spec = dataSetForm.spec,
                     details = updatedDetails,
-                    mappings = updateMappings(dataSetForm.selectedSchemas, existing.mappings),
+                    mappings = updateMappings(submittedSchemaConfigurations, existing.mappings),
                     formatAccessControl = formatAccessControl,
                     idxMappings = dataSetForm.indexingMappingPrefix.map(List(_)).getOrElse(List.empty)
                   )
@@ -282,7 +283,7 @@ object DataSetControl extends OrganizationController {
                       name = dataSetForm.facts.name,
                       facts = factsObject
                     ),
-                    mappings = buildMappings(dataSetForm.selectedSchemas),
+                    mappings = buildMappings(submittedSchemaConfigurations),
                     formatAccessControl = formatAccessControl,
                     idxMappings = dataSetForm.indexingMappingPrefix.map(List(_)).getOrElse(List.empty)
                   )

@@ -28,7 +28,7 @@ object DataSetCollectionProcessor {
 
     val invalidRecords = DataSet.dao.getInvalidRecords(dataSet)
 
-    val selectedSchemas: List[RecordDefinition] = dataSet.getAllMappingSchemas.flatMap(recDef => RecordDefinition.getRecordDefinition(recDef.prefix))
+    val selectedSchemas: Seq[RecordDefinition] = dataSet.getAllMappingSchemas.flatMap(recDef => RecordDefinition.getRecordDefinition(recDef))
 
     val selectedProcessingSchemas: Seq[ProcessingSchema] = selectedSchemas map {
       t => new ProcessingSchema {
