@@ -1,6 +1,6 @@
 package controllers.api
 
-import controllers.{RenderingExtensions, DelvingController}
+import controllers.{DomainConfigurationAware, RenderingExtensions, DelvingController}
 import play.api.mvc._
 import play.api.libs.concurrent.Promise
 import scala.xml._
@@ -12,7 +12,6 @@ import org.joda.time.format.ISODateTimeFormat
 import collection.mutable.{ArrayBuffer, ListBuffer}
 import com.mongodb.casbah.commons.MongoDBObject
 import play.api.Logger
-import core.DomainConfigurationAware
 
 /**
  *

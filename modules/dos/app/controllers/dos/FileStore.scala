@@ -6,7 +6,7 @@ import org.bson.types.ObjectId
 import com.mongodb.gridfs.GridFSDBFile
 import com.mongodb.casbah.commons.MongoDBObject
 import play.api.libs.iteratee.Enumerator
-import core.DomainConfigurationAware
+import controllers.DomainConfigurationAware
 import models.DomainConfiguration
 
 /**

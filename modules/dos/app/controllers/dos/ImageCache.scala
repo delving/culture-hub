@@ -12,7 +12,7 @@ import org.apache.commons.httpclient.Header
 import extensions.HTTPClient
 import com.mongodb.casbah.commons.MongoDBObject
 import java.net.URLDecoder
-import core.DomainConfigurationAware
+import controllers.DomainConfigurationAware
 import models.DomainConfiguration
 
 

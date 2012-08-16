@@ -288,7 +288,8 @@ class DataSetPlugin(app: Application) extends CultureHubPlugin(app) {
       idxMappings = List("icn"),
       invalidRecords = Map("icn" -> List(1)),
       mappings = Map("icn" -> Mapping(
-        format = RecordDefinition.getRecordDefinition("icn").get,
+        schemaPrefix = "icn",
+        schemaVersion = "1.0.0", // TODO
         recordMapping = Some(Source.fromInputStream(Play.application.resource("/bootstrap/A2098A0036EAC14E798CA3B653B96DD5__mapping_icn.xml").get.openStream()).getLines().mkString("\n"))
       )),
       formatAccessControl = Map("icn" -> FormatAccessControl(accessType = "public"))
