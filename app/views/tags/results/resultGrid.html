@@ -8,7 +8,7 @@
     <ul class="thumbnails">
     #{/if}
     <li class="${span}">
-        <div class="thumbnail ${doc.getItemType()} ">
+        <div class="thumbnail ${doc.getItemType()}">
             #{results.thingSummaryView data:doc, iSize: 220 /}
             <input type="hidden" name="idUri" value="${doc.getUri()}"/>
             <input type="hidden" name="thumb" value="${doc.getThumbnailUri(100)}"/>

@@ -21,7 +21,7 @@ $(document).ready(function() {
     $.get(mltEndpoint, function(data) {
         var rItems = data.result.relatedItems.item, html ='', tmp, org, owner, id, uri;
         if(rItems){
-            html = '<h4>'+jsLabels.relatedItems+'</h4><ul class="thumbnails">';
+            html = '<h5>'+jsLabels.relatedItems+'</h5><ul class="thumbnails">';
             $.each(rItems, function(i, item){
                 tmp = item['delving_hubId'].split('_');
                 org = tmp[0];

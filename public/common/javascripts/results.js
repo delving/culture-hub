@@ -19,6 +19,7 @@ $(document).ready(function() {
 //            }
 //        });
 //    }
+
     // create click functionality for checkboxes
     if ($(".facet-container input[type=checkbox]").length > 0) {
         $(".facet-container input[type=checkbox]").click(function() {
