@@ -70,7 +70,7 @@ object Statistics extends OrganizationController {
    *  The purpose of this fu
    */
 
-  def legacyStatistics(orgId: String, facet: String) = {
+  def legacyStatistics(orgId: String) = {
     Action {
       implicit request =>
       // get facet.fields from the requests
