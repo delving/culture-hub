@@ -12,37 +12,37 @@
 <div class="messages-container row">
     <div class="messages span12">
         #{if flash.registrationSuccess}
-        <p class="success">
+        <p class="alert alert-success">
             ${messages.get("ui.message.registration.success", flash.registrationSuccess)}
         </p>
         #{/}
         #{if flash.registrationError}
-        <p class="error">
+        <p class="alert alert-error">
             ${messages.get("ui.message.registration.error", flash.registrationError)}
         </p>
         #{/}
         #{if flash.activation && flash.activation == "true"}
-        <p class="success">
+        <p class="alert alert-success">
             ${messages.get("ui.message.activation.success")}
         </p>
         #{/}
         #{if flash.activation && flash.activation == "false"}
-        <p class="error">
+        <p class="alert alert-error">
             ${messages.get("ui.message.activation.error")}
         </p>
         #{/}
         #{if flash.resetPasswordEmail && flash.resetPasswordEmail == "true"}
-        <p class="success">
+        <p class="alert alert-success">
             ${messages.get("ui.message.resetpassword.email.success")}
         </p>
         #{/}
         #{if flash.resetPasswordError}
-        <p class="error">
+        <p class="alert alert-error">
             ${messages.get("ui.message.resetpassword.error", flash.resetPasswordError)}
         </p>
         #{/}
         #{if flash.resetPasswordSuccess && flash.resetPasswordSuccess == "true"}
-        <p class="success">
+        <p class="alert alert-success">
             ${messages.get("ui.message.resetpassword.success")}
         </p>
         #{/}
