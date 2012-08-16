@@ -87,6 +87,8 @@ object RecordDefinition {
     isFlat = true
   )
 
+  def availableSchemas(implicit configuration: DomainConfiguration): Seq[String] = parseRecordDefinitions.map(_.prefix).toSeq
+
   lazy val enabledDefinitions: Map[DomainConfiguration, Seq[String]] = DomainConfigurationHandler.domainConfigurations.
     map(configuration => (configuration -> configuration.schemas)).toMap
 
@@ -96,13 +98,16 @@ object RecordDefinition {
   def getRecordDefinition(prefix: String)(implicit configuration: DomainConfiguration): Option[RecordDefinition] = parseRecordDefinitions.find(_.prefix == prefix)
 
   def getRecordDefinitionResources(configuration: Option[DomainConfiguration]): Seq[URL] = {
-    val prefixes = configuration.map { conf =>
+    val prefixes: Seq[String] = configuration.map { conf =>
       enabledDefinitions(conf)
     }.getOrElse {
-      enabledDefinitions.values
+      enabledDefinitions.values.flatten.toSeq.distinct
     }
 
-    prefixes.flatMap(prefix => Play.resource("definitions/%s/%s-record-definition.xml".format(prefix, prefix))).toSeq
+    val allowRaw = if (configuration.isDefined) configuration.get.oaiPmhService.allowRawHarvesting else true
+
+    prefixes.filterNot(p => p == "raw" && !allowRaw)
+            .flatMap(prefix => Play.resource("definitions/%s/%s-record-definition.xml".format(prefix, prefix))).toSeq
   }
 
   def getCrosswalkResources(sourcePrefix: String)(implicit configuration: DomainConfiguration): Seq[URL] = {

@@ -90,25 +90,35 @@
                             <div class="controls">
                                 <table class="table">
                                 <thead><th width="150">Schema</th><th>OAI-PMH Access</th></thead>
-                                <tbody>
-                                #{list recordDefinitions, as: 'recordDef'}
-                            <tr>
-                                <td align="left">#{form.checkboxField name: recordDef + "_field", label: recordDef, value: recordDef, dataBind: "checked: recordDefinitions" /}</td>
-                                <td align="left">
-                                <span data-bind="visible: recordDefinitions().indexOf('${recordDef}') > -1">
-                                    <select id="oaiAccess-${recordDef}">
-                                        <option value="none">No access</option>
-                                        <option value="public">Public access</option>
-                                        <option value="protected">Protected access</option>
-                                    </select>
-                                    <span id="protected-${recordDef}" style="visibility: hidden;">
-                                        <label for="accessKey-${recordDef}">Access key</label>
-                                        <input type="text" id="accessKey-${recordDef}">
-                                    </span>
-                                </span>
-                                </td>
-                            </tr>
-                            #{/list}
+                                <tbody data-bind="foreach: schemaProcessingConfigurations">
+                                    <tr>
+                                        <td align="left">
+                                          <div class="control-group">
+                                            <span data-bind="text: prefix"></span>
+                                            <div class="controls">
+                                              <input type="checkbox" data-bind="attr: { value: prefix }, checked: $root.selectedSchemas">
+                                            </div>
+                                          </div>
+                                        </td>
+                                        <td align="left">
+                                          <span data-bind="visible: $root.selectedSchemas().indexOf(prefix()) > -1">
+                                            <select data-bind="options: availableVersions, value: version"></select>
+                                          </span>
+                                        </td>
+                                        <td align="left">
+                                          <span data-bind="visible: $root.selectedSchemas().indexOf(prefix()) > -1">
+                                              <select data-bind="value: accessType">
+                                                  <option value="none">No access</option>
+                                                  <option value="public">Public access</option>
+                                                  <option value="protected">Protected access</option>
+                                              </select>
+                                              <span data-bind="visible: accessType() == 'protected'">
+                                                  <span>Access key</span>
+                                                  <input type="text" data-bind="value: accessKey">
+                                              </span>
+                                          </span>
+                                        </td>
+                                    </tr>
                                 </tbody>
                                 </table>
                             </div>
@@ -116,7 +126,7 @@
                         <div class="control-group">
                             <label class="control-label">Indexing and Rendering Schema</label>
                             <div class="controls">
-                                <select id="mapping-prefix" name="mapping-prefix" data-bind="options: recordDefinitions, optionsCaption: 'None', value: indexingMappingPrefix"></select>
+                                <select id="mapping-prefix" name="mapping-prefix" data-bind="options: selectedSchemas, optionsCaption: 'None', value: indexingMappingPrefix"></select>
                                 <span class="help-inline">Select a schema for indexing so that this set can be searchable and displayable in the hub</span>
                                 <span class="error" data-bind="text: errors().indexingMappingPrefix"></span>
                             </div>
@@ -136,6 +146,10 @@
         </div>
     </div>
 
+<script type="text/html" id="schemaProcessingConfiguration">
+
+</script>
+
 <script type="text/javascript">
     $(document).ready(function() {
         var dataSetModel = {};
@@ -148,58 +162,6 @@
         });
 
         load(${data.raw()}, dataSetModel, null, function() {
-
-            // set initial state of visible oai-pmh access control settings
-            $.each(dataSetModel.oaiPmhAccess(), function(index, access) {
-                $('#oaiAccess-' + access.format()).val(access.accessType());
-                if(access.accessType() == 'protected') {
-                    $('#accessKey-' + access.format()).val(access.accessKey());
-                    $('#protected-' + access.format()).css('visibility', 'visible');
-                }
-            });
-
-            // listen to oaiPmh accessType changes
-            $.each(dataSetModel.allRecordDefinitions(), function(index, prefix) {
-                $('#oaiAccess-' + prefix).change(function() {
-                    var access = dataSetModel.oaiPmhAccess.remove(function(it) { return it.format() == prefix; });
-                    var selectedValue = $('#oaiAccess-' + prefix).val();
-
-                    if(selectedValue == "protected") {
-                        $('#protected-' + prefix).css('visibility', 'visible');
-                    } else {
-                        $('#protected-' + prefix).css('visibility', 'hidden');
-                    }
-
-                    if(access.length > 0) {
-                        access[0].accessType(selectedValue);
-                    } else {
-                        access[0] = {
-                            format: ko.observable(prefix),
-                            accessType: ko.observable(selectedValue)
-                        }
-                    }
-                    dataSetModel.oaiPmhAccess.push(access[0]);
-                });
-            });
-
-            // do the same thing for the accessKeys
-            $.each(dataSetModel.allRecordDefinitions(), function(index, prefix) {
-                $('#accessKey-' + prefix).change(function() {
-                    var access = dataSetModel.oaiPmhAccess.remove(function(it) { return it.format() == prefix; });
-                    var accessKeyValue = $('#accessKey-' + prefix).val();
-
-                    if(access.length > 0) {
-                        access[0].accessKey = ko.observable(accessKeyValue);
-                    } else {
-                        access[0] = {
-                            format: ko.observable(prefix),
-                            accessType: ko.observable("protected"),
-                            accessKey: ko.observable(accessKeyValue)
-                        }
-                    }
-                    dataSetModel.oaiPmhAccess.push(access[0]);
-                });
-            });
 
             $("[id='facts.provider']").autocomplete({
                 source: '/organizations/${orgId}/directory/organizationLookup',

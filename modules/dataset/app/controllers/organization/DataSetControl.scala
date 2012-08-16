@@ -43,13 +43,18 @@ import controllers.ShortDataSet
 case class DataSetCreationViewModel(id: Option[ObjectId] = None,
                             spec: String = "",
                             facts: HardcodedFacts = HardcodedFacts(),
-                            recordDefinitions: Seq[String] = Seq.empty,
-                            allRecordDefinitions: Seq[String],
-                            oaiPmhAccess: Seq[OaiPmhAccessViewModel],
+                            selectedSchemas: Seq[String] = Seq.empty,
+                            allAvailableSchemas: Seq[String],
+                            schemaProcessingConfigurations: Seq[SchemaProcessingConfiguration],
                             indexingMappingPrefix: Option[String] = None,
                             errors: Map[String, String] = Map.empty) extends ViewModel
 
-case class OaiPmhAccessViewModel(format: String, accessType: String = "none", accessKey: Option[String] = None)
+case class SchemaProcessingConfiguration(prefix: String,
+                                         availableVersions: Seq[String] = Seq("1.0.0"),
+                                         version: String = "1.0.0",
+                                         accessType: String = "none",
+                                         accessKey: String = ""
+)
 
 case class HardcodedFacts(name: String = "",
                           language: String = "",
@@ -101,14 +106,16 @@ object DataSetCreationViewModel {
         "rights" -> nonEmptyText,
         "type" -> nonEmptyText
       )(HardcodedFacts.apply)(HardcodedFacts.unapply),
-      "recordDefinitions" -> seq(text),
-      "allRecordDefinitions" -> seq(text),
-      "oaiPmhAccess" -> seq(
+      "selectedSchemas" -> seq(text),
+      "allAvailableSchemas" -> seq(text),
+      "schemaProcessingConfigurations" -> seq(
         mapping(
-          "format" -> nonEmptyText,
+          "prefix" -> nonEmptyText,
+          "availableVersions" -> seq(text),
+          "version" -> nonEmptyText,
           "accessType" -> nonEmptyText,
-          "accessKey" -> optional(text)
-        )(OaiPmhAccessViewModel.apply)(OaiPmhAccessViewModel.unapply)
+          "accessKey" -> text
+        )(SchemaProcessingConfiguration.apply)(SchemaProcessingConfiguration.unapply)
       ),
       "indexingMappingPrefix" -> optional(text).verifying(notRaw),
       "errors" -> of[Map[String, String]]
@@ -146,7 +153,7 @@ object DataSetControl extends OrganizationController {
     Action {
       implicit request =>
         val dataSet = if (spec == None) None else DataSet.dao.findBySpecAndOrgId(spec.get, orgId)
-        val allRecordDefinitions: Seq[String] = RecordDefinition.enabledDefinitions(configuration)
+        val allRecordDefinitions: Seq[String] = RecordDefinition.availableSchemas
 
         if (dataSet != None && !DataSet.dao.canEdit(dataSet.get, connectedUser)) {
           Forbidden("You are not allowed to edit DataSet %s".format(spec.get))
@@ -155,25 +162,37 @@ object DataSetControl extends OrganizationController {
         } else {
           val data = if (dataSet == None) {
             JJson.generate(DataSetCreationViewModel(
-              allRecordDefinitions = allRecordDefinitions,
-              oaiPmhAccess = RecordDefinition.enabledDefinitions(configuration).map(prefix => OaiPmhAccessViewModel(prefix)),
+              allAvailableSchemas = allRecordDefinitions,
+              schemaProcessingConfigurations = allRecordDefinitions.map { prefix =>
+                // TODO once we know them, set available versions, and selected version to the most recent
+                SchemaProcessingConfiguration(prefix = prefix)
+              },
               indexingMappingPrefix = Some("None")
             ))
-          } else {
+        } else {
             val dS = dataSet.get
+
+            def acl(prefix: String) = dS.formatAccessControl.get(prefix).map(f => (f.accessType, f.accessKey)).getOrElse(("none", None))
+
             JJson.generate(
               DataSetCreationViewModel(
                 id = Some(dS._id),
                 spec = dS.spec,
                 facts = HardcodedFacts.fromMap(dS.getFacts),
-                recordDefinitions = dS.recordDefinitions,
-                allRecordDefinitions = allRecordDefinitions,
-                oaiPmhAccess = dS.formatAccessControl.map(e => OaiPmhAccessViewModel(e._1, e._2.accessType, e._2.accessKey)).toList,
+                selectedSchemas = dS.recordDefinitions,
+                allAvailableSchemas = allRecordDefinitions,
+                schemaProcessingConfigurations = allRecordDefinitions.map { prefix =>
+                  // TODO versions
+                  SchemaProcessingConfiguration(
+                    prefix = prefix,
+                    accessType = acl(prefix)._1,
+                    accessKey = acl(prefix)._2.getOrElse("")
+                  )
+                },
                 indexingMappingPrefix = if(dS.getIndexingMappingPrefix.isEmpty) Some("None") else dS.getIndexingMappingPrefix
               )
             )
           }
-
           Ok(Template(
             'spec -> spec,
             'data -> data,
@@ -181,9 +200,9 @@ object DataSetControl extends OrganizationController {
             'factDefinitions -> DataSet.factDefinitionList.filterNot(factDef => factDef.automatic || factDef.name == "spec").toList,
             'recordDefinitions -> RecordDefinition.enabledDefinitions(configuration)
           ))
+          
         }
     }
-
   }
 
   def dataSetSubmit(orgId: String): Action[AnyContent] = OrgMemberAction(orgId) {
@@ -222,9 +241,9 @@ object DataSetControl extends OrganizationController {
             factsObject.append("spec", dataSetForm.spec)
             factsObject.append("orgId", orgId)
 
-            val formatAccessControl = dataSetForm.oaiPmhAccess.
-              filter(a => dataSetForm.recordDefinitions.contains(a.format)).
-              map(a => (a.format -> FormatAccessControl(a.accessType, a.accessKey))).toMap
+            val formatAccessControl = dataSetForm.schemaProcessingConfigurations.
+              filter(a => dataSetForm.selectedSchemas.contains(a.prefix)).
+              map(a => (a.prefix -> FormatAccessControl(a.accessType, if (a.accessKey.isEmpty) None else Some(a.accessKey)))).toMap
 
 
             dataSetForm.id match {
@@ -240,7 +259,7 @@ object DataSetControl extends OrganizationController {
                 val updated = existing.copy(
                     spec = dataSetForm.spec,
                     details = updatedDetails,
-                    mappings = updateMappings(dataSetForm.recordDefinitions, existing.mappings),
+                    mappings = updateMappings(dataSetForm.selectedSchemas, existing.mappings),
                     formatAccessControl = formatAccessControl,
                     idxMappings = dataSetForm.indexingMappingPrefix.map(List(_)).getOrElse(List.empty)
                   )
@@ -263,7 +282,7 @@ object DataSetControl extends OrganizationController {
                       name = dataSetForm.facts.name,
                       facts = factsObject
                     ),
-                    mappings = buildMappings(dataSetForm.recordDefinitions),
+                    mappings = buildMappings(dataSetForm.selectedSchemas),
                     formatAccessControl = formatAccessControl,
                     idxMappings = dataSetForm.indexingMappingPrefix.map(List(_)).getOrElse(List.empty)
                   )
