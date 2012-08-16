@@ -41,5 +41,6 @@ class ThemeInfo(configuration: DomainConfiguration) {
   val addThisTrackingCode = configuration.ui.addThisTrackingCode.getOrElse("")
   val googleAnalyticsTrackingCode = configuration.ui.googleAnalyticsTrackingCode.getOrElse("")
   val showLogin = configuration.ui.showLogin
+  val showRegistration = configuration.ui.showRegistration
 
 }
