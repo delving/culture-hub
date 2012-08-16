@@ -248,12 +248,14 @@ class DataSetPlugin(app: Application) extends CultureHubPlugin(app) {
       Thread.sleep(2000)
     }
 
-    // index them
-    DataSet.dao.updateState(dataSet, DataSetState.QUEUED)
-    DataSetCollectionProcessor.process(dataSet)
+    // index them if in test mode
+    if(Play.isTest) {
+      DataSet.dao.updateState(dataSet, DataSetState.QUEUED)
+      DataSetCollectionProcessor.process(dataSet)
 
-    while (DataSet.dao.getState(dataSet.orgId, dataSet.spec) == DataSetState.PROCESSING) {
-      Thread.sleep(1000)
+      while (DataSet.dao.getState(dataSet.orgId, dataSet.spec) == DataSetState.PROCESSING) {
+        Thread.sleep(1000)
+      }
     }
 
   }
@@ -295,6 +297,7 @@ class DataSetPlugin(app: Application) extends CultureHubPlugin(app) {
 }
 
 object DataSetPlugin {
+
   val ROLE_DATASET_ADMIN = Role(
     key = "dataSetAdmin",
     description = Map("en" -> "Dataset administration rights"),
