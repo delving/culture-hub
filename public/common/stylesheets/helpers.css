@@ -172,6 +172,11 @@ dt, dd, li {
     height: 140px;
 }
 
+.clip-160 {
+    display: block;
+    height: 160px;
+}
+
 .clip-180 {
     display: block;
     height: 180px;
