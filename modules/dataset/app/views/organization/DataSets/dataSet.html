@@ -214,7 +214,7 @@
 
         var clientId = Math.floor(1 + 10001 * Math.random());
         var ws = new WebSocket("ws://" + location.host + "/organizations/${orgId}/dataset/feed?clientId=" + clientId + '&spec=${spec}');
-
+        var msgUnlock = "When a dataset is locked, the locking user is considered to be in full control.  Unlocking implies taking that control away, which should not be done without the permission of the locking user because it invalidates their current work on the dataset.";
         var viewModel = {
 
             progressPercentage: ko.observable('0%'),
@@ -252,11 +252,16 @@
                 }));
             },
             unlock: function(spec) {
-                ws.send(JSON.stringify({
-                    eventType: 'unlockSet',
-                    clientId: clientId,
-                    payload: '${spec}'
-                }));
+                bootbox.confirm(msgUnlock, function(result){
+                    if(result){
+                        ws.send(JSON.stringify({
+                            eventType: 'unlockSet',
+                            clientId: clientId,
+                            payload: '${spec}'
+                        }));
+                    }
+                });
+
             },
             resetHashes: function(spec) {
                 bootbox.confirm("<h4>Reset hashes</h4><p>Are you sure?</p>", function(result) {
