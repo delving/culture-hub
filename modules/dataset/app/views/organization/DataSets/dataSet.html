@@ -117,7 +117,7 @@
                         <span class="caret"></span>
                     </a>
                     <ul class="dropdown-menu" data-bind="css: { disabled: cannotEdit | (dataSetState() == 'enabled') }">
-                        <li><a data-bind="css: { disabled: lockState() == 'unlocked'}, click: function() { unlock(spec); } "><i class="icon icon-lock"></i> Unlock</a></li>
+                        <li data-bind="css: { disabled: lockState() == 'unlocked'},"><a data-bind="click: function() { unlock(spec); } "><i class="icon icon-lock"></i> Unlock</a></li>
                         <li><a data-bind="click: function() { resetHashes(spec); }"><i class="icon icon-warning-sign"></i> Reset Hashes</a></li>
                         <li><a data-bind="click: function() { deleteSet(spec); }"><i class="icon icon-remove"></i> Delete</a></li>
                     </ul>
@@ -210,8 +210,6 @@
 <script type="text/javascript" language="javascript">
     $(document).ready(function () {
 
-
-
         var clientId = Math.floor(1 + 10001 * Math.random());
         var ws = new WebSocket("ws://" + location.host + "/organizations/${orgId}/dataset/feed?clientId=" + clientId + '&spec=${spec}');
         var msgUnlock = "When a dataset is locked, the locking user is considered to be in full control.  Unlocking implies taking that control away, which should not be done without the permission of the locking user because it invalidates their current work on the dataset.";
@@ -251,7 +249,7 @@
                     payload: '${spec}'
                 }));
             },
-            unlock: function(spec) {
+            unlockOrig: function(spec) {
                 bootbox.confirm(msgUnlock, function(result){
                     if(result){
                         ws.send(JSON.stringify({
@@ -263,6 +261,24 @@
                 });
 
             },
+            unlock: function(spec) {
+                bootbox.dialog(msgUnlock, [{
+                    "label"     :   "I am aware of this. Unlock please!",
+                    "class"     :   "btn-warning",
+                    "callback"  :   function() {
+                        ws.send(JSON.stringify({
+                            eventType: 'unlockSet',
+                            clientId: clientId,
+                            payload: '${spec}'
+                            }));
+                        }
+                    },{
+                    "label" : "No thanks!"
+                    }]);
+
+
+            },
+
             resetHashes: function(spec) {
                 bootbox.confirm("<h4>Reset hashes</h4><p>Are you sure?</p>", function(result) {
                      if (result) {
