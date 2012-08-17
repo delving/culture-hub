@@ -6,7 +6,7 @@ import models.{DomainConfiguration, DataSet}
 import collection.JavaConverters._
 import models.statistics.DataSetStatistics
 import collection.immutable.ListMap
-import core.search.{SolrBindingService, SolrQueryService, FacetStatisticsMap}
+import core.search.{SolrBindingService, SolrQueryService}
 import org.apache.solr.client.solrj.SolrQuery
 import core.Constants
 import org.apache.solr.client.solrj.response.FacetField.Count
@@ -74,20 +74,22 @@ object Statistics extends OrganizationController {
    */
 
   def legacyStatistics(orgId: String) = {
-    Action {
-      implicit request =>
-        val statistics = new SolrFacetBasedStatistics(request.queryString.get("facet.field"), orgId)
-        Ok("{sjoerd: ok}").as(JSON) // later add statistics.renderAsJSON
+    DomainConfigured {
+      Action {
+        implicit request =>
+          val statistics = new SolrFacetBasedStatistics(request.queryString.get("facet.field"), orgId)
+          Ok(statistics.renderAsJSON()).as(JSON)
+      }
     }
   }
-
 }
 
 case class StatisticsCounter(name: String, total: Int, withNr: Int = 0)  {
+  private val percent = 100.0
 
-  lazy val withPercentage: Int = withNr / (total / 100)
-  lazy val withoutNr: Int = total - withNr
-  lazy val withOutPercentage: Int = withoutNr / (total / 100)
+  lazy val withPercentage: Long = Math.round(withNr / (total / percent))
+  lazy val withoutNr: Long = total - withNr
+  lazy val withOutPercentage: Long = Math.round(withoutNr / (total / percent))
 
 }
 
@@ -133,6 +135,7 @@ class SolrFacetBasedStatistics(facets: Option[Seq[String]], orgId: String) (impl
     val facetsForStatistics = if (facets != None) facets.get else List(Constants.OWNER)
     query addFacetField (facetsForStatistics: _*)
     query setRows (0)
+    query setFilterQueries (orgIdFilter)
 
     val allRecordsResponse = SolrQueryService.getSolrResponseFromServer(solrQuery = query)
     val allRecords = SolrBindingService.createFacetStatistics(allRecordsResponse.getFacetFields.asScala.toList)
@@ -145,7 +148,7 @@ class SolrFacetBasedStatistics(facets: Option[Seq[String]], orgId: String) (impl
     val totalDigitalObjects = digitalObjectsResponse.getResults.getNumFound
 
     // query with landing pages
-    query setFilterQueries("%s:[* TO *]".format(Constants.EXTERNAL_LANDING_PAGE))
+    query setFilterQueries("%s:[* TO *]".format(Constants.EXTERNAL_LANDING_PAGE), orgIdFilter)
     val landingPagesResponse = SolrQueryService.getSolrResponseFromServer(solrQuery = query)
     val landingPages = SolrBindingService.createFacetStatistics(landingPagesResponse.getFacetFields.asScala.toList)
     val totalLandingPages = landingPagesResponse.getResults.getNumFound
@@ -170,14 +173,13 @@ class SolrFacetBasedStatistics(facets: Option[Seq[String]], orgId: String) (impl
     allRecords.getFacet(name).map{
       count => {
         CombinedStatisticEntry(
-          name = name,
+          name = count.getName,
           total = totalRecords,
-          digitalObject = StatisticsCounter(name = name, total = totalRecords, withNr = getCountForFacet(name, digitalObjectFacet)),
-          landingPage = StatisticsCounter(name = name, total = totalRecords, withNr = getCountForFacet(name, landingPageFacet))
+          digitalObject = StatisticsCounter(name = count.getName, total = totalRecords, withNr = getCountForFacet(count.getName, digitalObjectFacet)),
+          landingPage = StatisticsCounter(name = count.getName, total = totalRecords, withNr = getCountForFacet(count.getName, landingPageFacet))
         )
       }
     }
-    Seq.empty
   }
 
   val entries: Seq[StatisticsHeader] = facetsForStatistics.map(createHeader(_))
@@ -200,60 +202,3 @@ class SolrFacetBasedStatistics(facets: Option[Seq[String]], orgId: String) (impl
   }
 
 }
-
-/*
-
-{
-statistics: [
-    {
-    name: "municipality",
-    i18n: "plugins.statistics.municipality",
-    entries: [
-            {
-                name: "Norsk Folkemuseum",
-                total: 359045,
-                withDigitalObject: 299152,
-                withDIgitalObjectPercentage: 81,
-                withoutDigitalObject: 59893,
-                withoutDigitalObjectPercentage: 19
-            },
-            {
-                name: "Fylkesarkivet i Sogn og Fjordane",
-                total: 248369,
-                withDigitalObject: 220025,
-                withDIgitalObjectPercentage: 85,
-                withoutDigitalObject: 28344,
-                withoutDigitalObjectPercentage: 15
-            }
-            ]
-        },
-        {
-    name: "province",
-    i18n: "plugins.statistics. province",
-    entries: [                                                                         
-            {
-                name: "adfafwwere",
-                total: 359045,
-                withDigitalObject: 299152,
-                withDIgitalObjectPercentage: 81,
-                withoutDigitalObject: 59893,
-                withoutDigitalObjectPercentage: 19
-            },
-            {
-                name: "asdfwrewrwerewr",
-                total: 248369,
-                withDigitalObject: 220025,
-                withDIgitalObjectPercentage: 85,
-                withoutDigitalObject: 28344,
-                withoutDigitalObjectPercentage: 15
-            }
-            ]
-        }
-    ]
-}
-
-
-
-*/
-
-

@@ -20,7 +20,7 @@ class StatisticsPlugin(app: Application) extends CultureHubPlugin(app) {
     ("GET", """^/organizations/([A-Za-z0-9-]+)/statistics/dataset$""".r) -> {
       (pathArgs: List[String], queryString: Map[String, String]) => controllers.statistics.Statistics.statistics(pathArgs(0))
     },
-    ("GET", """^/organizations/([A-Za-z0-9-]+)/api/statistics/$""".r) -> {
+    ("GET", """^/organizations/([A-Za-z0-9-]+)/api/statistics$""".r) -> {
       (pathArgs: List[String], queryString: Map[String, String]) => controllers.statistics.Statistics.legacyStatistics(pathArgs(0))
     }
   )
