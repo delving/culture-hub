@@ -690,6 +690,13 @@ form label.radio {
     border-bottom: 4px solid #000000;
 }
 
+.facets-header {
+    border-bottom: 4px solid #ccc;
+    color: #666;
+    padding: 0 0 8px 0;
+    font-weight: bold;
+}
+
 .facet-container {
     border-bottom: 1px solid #eaeaea;
     display: block;
@@ -700,7 +707,7 @@ form label.radio {
 }
 
 .facet-container .facet {
-    padding: 2px 0;
+    padding: 2px;
 }
 
 .facet-container input[type=checkbox] {
