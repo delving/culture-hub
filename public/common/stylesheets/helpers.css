@@ -655,7 +655,8 @@ form label.radio {
 
 /* bootstrap dropdown disabled state */
 
-.dropdown-menu.disabled {
+.dropdown-menu.disabled,
+.dropdown-menu li.disabled{
     display: none;
 }
 
