@@ -130,13 +130,11 @@
 
         <div data-bind="css: { disabled: cannotEdit } "></div>
 
-
+        <div id="extra-alert"></div>
 
         <div id="state-alert" data-bind="attr: { class: 'alert alert-' + stateToClass(dataSetState())}">
 
             <p>Dataset state: <strong data-bind="text: dataSetState"></strong></p>
-
-            <div id="extra-alert"></div>
 
             <!-- ko if: errorMessage().length > 0 -->
             <p data-bind="text: errorMessage"></p>
