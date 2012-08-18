@@ -2,11 +2,23 @@
 
 #{include 'commonHeader.html' /}
 
-<div id="page-top">
+<div class="page-top">
     <div class="container">
-       <div class="navbar navbar-fixed-top">
+        <div class="branding row">
+            <div class="branding-inner">
+                <div class="site-logo span1">
+                    <img src='${themeInfo.path("images/logo-primary.png")}' alt="${themeInfo.siteName}" title="${themeInfo.siteName}" style="width:75px"/>
+                </div>
+                <div class="site-name span11">
+                    <h1><a href="/" class="brand">${themeInfo.siteName}</a> <small>${themeInfo.siteSlogan}</small></h1>
+                </div>
+            </div>
+        </div>
+
+        <div class="navbar">
             <div class="navbar-inner">
-                <div class="container"  id="top-nav">
+                <div class="container">
+                <a class="brand" href="/">${themeInfo.siteName()}</a>
                 #{userNav userName: userName, email:email, organizations:organizations, showLang:themeInfo.get('userNavLangSelect'), showLogin:themeInfo.showLogin(), showRegistration:themeInfo.showRegistration(), /}
                 <div class="nav-collapse">
                     <form method="get" action="/search" class="navbar-search pull-right form-horizontal" id="simple-search" onsubmit="return checkSimpleSearchSubmit('query');">
@@ -18,23 +30,16 @@
                 </div>
             </div>
         </div>
-        <div class="row">
-            <div class="span6">
-                <div class="branding">
-                    <img class="site-logo pull-left" src='${themeInfo.path("images/logo-primary.png")}' alt="${themeInfo.siteName}" title="${themeInfo.siteName}"/>
-                    <div class="pull-left">
-                        <h1 class="site-name"><a href="/" class="brand">${themeInfo.siteName}</a></h1>
-                        <h2 class="site-slogan">${themeInfo.siteSlogan}</h2>
-                    </div>
-                </div>
-            </div>
-            <div class="span6 site-nav">
-            #{mainMenu menu:menu, extraClass: "nav-pills bordered" /}
+
+        <div class="site-nav row">
+            <div class="site-nav-inner span12">
+            #{mainMenu menu:menu, extraClass: "nav-pills" /}
             </div>
         </div>
+
     </div>
 </div>
-</div>
+
 <div id="content" role="main">
     <div class="container">
         #{doLayout /}
