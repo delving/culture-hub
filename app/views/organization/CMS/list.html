@@ -108,7 +108,8 @@
         });
 
         $('#language').change(function () {
-            document.location = '/organizations/${orgId}/site/' + $('select option:selected').val();
+            document.location = '/organizations/${orgId}/site/' + $('select#language').val();
+
         });
 
 

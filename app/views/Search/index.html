@@ -14,7 +14,7 @@
 
 #{breadcrumbs crumbs: breadcrumbs, queryCrumbs: pagination /}
 
-#{if briefDocs }
+#{if pagination.getNumFound() > 0}
 
     <div class="row">
         <div class="item-count span12">
@@ -93,7 +93,7 @@
 #{/if}
 
 #{else}
-<div class="span12 centered pam">
+<div class="span12">
 &{'ui.message.nothingFound'}
 </div>
 #{/else}
