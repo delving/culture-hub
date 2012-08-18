@@ -44,13 +44,12 @@
         <tfoot>
         <tr>
             <td colspan="6">
-            <!-- ko if: sets().isEmpty -->
-                ${messages.get('thing.notavailable.plural', messages.get('thing.datasets'))}
-            <!-- /ko -->
+                <a href="/organizations/${orgId}/dataset/add" class="btn pull-right">Create new dataset</a>
             </td>
         </tr>
         </tfoot>
         <tbody data-bind="foreach: sets()">
+
             <tr>
                 <td><a data-bind="attr: { href: '/organizations/' + orgId() + '/dataset/' + spec() }" rel="nofollow" class="btn"><i class="icon icon-wrench"></i> <span data-bind="text: name"></span></a></td>
                 <td><span data-bind="text: nodeName"></span></td>
