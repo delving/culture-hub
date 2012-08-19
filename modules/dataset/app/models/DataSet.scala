@@ -105,18 +105,18 @@ case class DataSet(
     initialFacts ++ storedFacts
   }
 
-  def getAllMappingSchemas = mappings.map(mapping => mapping._2.format).toList
+  def getAllMappingSchemas: Seq[Schema] = mappings.map(mapping => Schema(mapping._2.schemaPrefix, mapping._2.schemaVersion)).toSeq.distinct
 
   def getPublishableMappingSchemas = getAllMappingSchemas.
-    filter(schemaPrefix => formatAccessControl.get(schemaPrefix).isDefined).
-    filter(schemaPrefix => formatAccessControl(schemaPrefix).isPublicAccess || formatAccessControl(schemaPrefix).isProtectedAccess).
+    filter(schema => formatAccessControl.get(schema.prefix).isDefined).
+    filter(schema => formatAccessControl(schema.prefix).isPublicAccess || formatAccessControl(schema.prefix).isProtectedAccess).
     toList
 
   def getVisibleMetadataSchemas(accessKey: Option[String] = None): Seq[RecordDefinition] = {
     getAllMappingSchemas.
-      filterNot(schemaPrefix => formatAccessControl.get(schemaPrefix).isEmpty).
-      filter(format => formatAccessControl(format).hasAccess(accessKey)).
-      flatMap(schemaPrefix => RecordDefinition.getRecordDefinition(schemaPrefix))
+      filterNot(schema => formatAccessControl.get(schema.prefix).isEmpty).
+      filter(schema => formatAccessControl(schema.prefix).hasAccess(accessKey)).
+      flatMap(schema => RecordDefinition.getRecordDefinition(schema))
   }
 
   def hasHash(hash: String): Boolean = hashes.values.filter(h => h == hash).nonEmpty
@@ -338,13 +338,14 @@ class DataSetDAO(collection: MongoCollection) extends SalatDAO[DataSet, ObjectId
   }
 
   def updateMapping(dataSet: DataSet, mapping: RecMapping)(implicit configuration: DomainConfiguration): DataSet = {
-    val ns: Option[RecordDefinition] = RecordDefinition.getRecordDefinition(mapping.getPrefix)
+    val ns: Option[RecordDefinition] = RecordDefinition.getRecordDefinition(mapping.getPrefix, "1.0.0") // TODO version
     if (ns == None) {
       throw new MetaRepoSystemException(String.format("Namespace prefix %s not recognized", mapping.getPrefix))
     }
 
     // if we already have a mapping, update it but keep the format access control settings
-    val updatedMapping = dataSet.mappings.get(mapping.getPrefix) match {
+    // TODO version
+    val updatedMapping = dataSet.mappings.values.find(m => m.schemaPrefix == mapping.getPrefix && m.schemaVersion == "1.0.0") match {
       case Some(existingMapping) =>
         existingMapping.copy(
           recordMapping = Some(mapping.toString)

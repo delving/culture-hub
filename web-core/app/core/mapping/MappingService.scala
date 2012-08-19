@@ -1,13 +1,15 @@
 package core.mapping
 
+import core.schema.SchemaProvider
 import models.RecordDefinition
-import play.api.{Play, Logger}
+import play.api.Logger
 import play.api.Play.current
-import eu.delving.MappingEngine
 import eu.delving.metadata._
 import scala.collection.JavaConverters._
 import org.w3c.dom.Node
 import eu.delving.groovy.XmlSerializer
+import eu.delving.schema.SchemaType
+import java.io.ByteArrayInputStream
 
 /**
  * Initializes the MetadataModel used by the mapping engine
@@ -24,16 +26,17 @@ object MappingService {
     try {
       Logger("CultureHub").info("Initializing MappingService")
 
-      val recordDefinitions = RecordDefinition.getRecordDefinitionResources(None)
-      recordDefinitions.foreach {
-        definition => Logger("CultureHub").info("Loading record definition: " + definition.getPath)
-      }
-
       recDefModel = new RecDefModel {
         def createRecDef(prefix: String): RecDefTree = {
-          RecDefTree.create(
-            RecDef.read(Play.classloader.getResourceAsStream("definitions/%s/%s-record-definition.xml".format(prefix, prefix)))
-          )
+          // FIXME need to pass version when it will be available in the RecDefModel
+          val schema = SchemaProvider.getSchema(prefix, "1.0.0", SchemaType.RECORD_DEFINITION)
+          if(schema.isEmpty) {
+            throw new RuntimeException("Empty schema for prefix " + prefix)
+          } else {
+            RecDefTree.create(
+              RecDef.read(new ByteArrayInputStream(schema.get.getBytes("utf-8")))
+            )
+          }
         }
       }
 

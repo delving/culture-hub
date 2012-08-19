@@ -2,6 +2,7 @@ package plugins
 
 import _root_.util.DomainConfigurationHandler
 import core.mapping.MappingService
+import core.schema.SchemaProvider
 import core.{HubServices, CultureHubPlugin}
 import play.api.{Play, Application}
 import Play.current
@@ -38,6 +39,8 @@ class ConfigurationPlugin(app: Application) extends CultureHubPlugin(app) {
     }
 
     // ~~~ bootstrap services
+
+    SchemaProvider.default ! SchemaProvider.Refresh
     HubServices.init()
     MappingService.init()
 

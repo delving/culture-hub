@@ -10,6 +10,8 @@ import core.Constants._
 import org.joda.time.DateTime
 import core.HubServices
 import core.processing.{CollectionProcessor, ProcessingSchema}
+import core.schema.SchemaProvider
+import eu.delving.schema.SchemaType
 
 
 /**
@@ -28,7 +30,7 @@ object DataSetCollectionProcessor {
 
     val invalidRecords = DataSet.dao.getInvalidRecords(dataSet)
 
-    val selectedSchemas: Seq[RecordDefinition] = dataSet.getAllMappingSchemas.flatMap(recDef => RecordDefinition.getRecordDefinition(recDef))
+    val selectedSchemas: Seq[RecordDefinition] = dataSet.mappings.flatMap(mapping => RecordDefinition.getRecordDefinition(mapping._2.schemaPrefix, mapping._2.schemaVersion)).toSeq
 
     val selectedProcessingSchemas: Seq[ProcessingSchema] = selectedSchemas map {
       t => new ProcessingSchema {
@@ -45,7 +47,7 @@ object DataSetCollectionProcessor {
     val crosswalkSchemas: Seq[ProcessingSchema] = crosswalks flatMap {
       c =>
         val prefix = c._2.getPath.substring(c._2.getPath.indexOf(c._1.prefix + "-")).split("-")(0)
-        val recordDefinition = RecordDefinition.getRecordDefinition(prefix)
+        val recordDefinition = RecordDefinition.getRecordDefinition(prefix, "1.0.0")
 
         if (recordDefinition.isDefined) {
           val schema = new ProcessingSchema {

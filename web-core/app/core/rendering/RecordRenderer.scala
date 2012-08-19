@@ -76,7 +76,8 @@ object RecordRenderer {
     if(hubId.split("_").length < 3) return Left("Invalid hubId " + hubId)
     val HubId(orgId, collection, itemId) = hubId
     val cache = MetadataCache.get(orgId, collection, ITEM_TYPE_MDR)
-    val rawRecord: Option[String] = cache.findOne(hubId).flatMap(_.xml.get(prefix))
+    val record = cache.findOne(hubId)
+    val rawRecord: Option[String] = record.flatMap(_.xml.get(prefix))
     if (rawRecord.isEmpty) {
       Logger("Search").info("Could not find cached record in mongo with format %s for hubId %s".format(prefix, hubId))
       Left("Could not find full record with hubId '%s' for format '%s'".format(hubId, prefix))
@@ -90,7 +91,10 @@ object RecordRenderer {
       } else {
         if(legacyHtmlFormats.contains(prefix)) "legacy" else prefix
       }
-      renderMetadataRecord(hubId, rawRecord.get, prefix, viewDefinitionFormatName, viewType, language, renderRelatedItems, relatedItems)
+
+      val schemaVersion = record.get.schemaVersions(prefix)
+
+      renderMetadataRecord(hubId, rawRecord.get, prefix, schemaVersion, viewDefinitionFormatName, viewType, language, renderRelatedItems, relatedItems)
     }
   }
 
@@ -111,6 +115,7 @@ object RecordRenderer {
   def renderMetadataRecord(hubId: String,
                            rawRecord: String,
                            schemaPrefix: String,
+                           schemaVersion: String,
                            viewDefinitionFormatName: String,
                            viewType: ViewType,
                            language: String,
@@ -119,7 +124,7 @@ object RecordRenderer {
                            parameters: Map[String, String] = Map.empty)(implicit configuration: DomainConfiguration): Either[String, RenderedView]  = {
 
       // let's do some rendering
-      RecordDefinition.getRecordDefinition(schemaPrefix) match {
+      RecordDefinition.getRecordDefinition(schemaPrefix, schemaVersion) match {
         case Some(definition) =>
           val viewRenderer = ViewRenderer.fromDefinition(viewDefinitionFormatName, viewType.name)
           if (viewRenderer.isEmpty) {

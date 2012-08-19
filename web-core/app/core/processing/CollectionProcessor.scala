@@ -125,7 +125,7 @@ class CollectionProcessor(collection: Collection,
                         val serialized = MappingService.nodeTreeToXmlString(r._2.root(), r._1 != "raw")
                         Some((r._1 -> serialized))
                       } catch {
-                        case t => {
+                        case t: Throwable => {
                           log.error(
                             """While attempting to serialize the following output document:
                               |
@@ -139,11 +139,17 @@ class CollectionProcessor(collection: Collection,
                     }
                   }
 
+                  val mappingResultSchemaVersions: Map[String, String] = mappingResults.keys.
+                          flatMap(schemaPrefix => targetSchemas.find(_.prefix == schemaPrefix)).
+                          map(processingSchema => (processingSchema.definition.prefix -> processingSchema.definition.schemaVersion)).
+                          toMap
+
                   val cachedRecord = MetadataItem(
                     collection = collection.spec,
                     itemType = ITEM_TYPE_MDR,
                     itemId = hubId,
                     xml = serializedRecords,
+                    schemaVersions = mappingResultSchemaVersions,
                     systemFields = allSystemFields.getOrElse(Map.empty),
                     index = index
                   )

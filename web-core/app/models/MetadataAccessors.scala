@@ -60,7 +60,7 @@ abstract class MetadataAccessors {
     case MDR =>
       // TODO don't use heuristics
       val allSchemas = values(ALL_SCHEMAS)
-      val allSupportedFormats = RecordDefinition.availableSchemas(configuration)
+      val allSupportedFormats = configuration.schemas
       val renderFormat = allSupportedFormats.intersect(allSchemas).headOption
       if(renderFormat.isDefined) {
         "/" + getOrgId + "/thing/" + getSpec + "/" + getRecordId

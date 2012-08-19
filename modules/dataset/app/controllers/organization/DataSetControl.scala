@@ -34,6 +34,8 @@ import models.Details
 import models.FormatAccessControl
 import models.Mapping
 import controllers.ShortDataSet
+import core.schema.SchemaProvider
+import scala.collection.JavaConverters._
 
 /**
  *
@@ -153,7 +155,14 @@ object DataSetControl extends OrganizationController {
     Action {
       implicit request =>
         val dataSet = if (spec == None) None else DataSet.dao.findBySpecAndOrgId(spec.get, orgId)
-        val allRecordDefinitions: Seq[String] = RecordDefinition.availableSchemas
+        val allSchemas: Seq[String] = SchemaProvider.getSchemas.map(_.prefix)
+        val versions: Map[String, Seq[String]] = allSchemas.map { prefix =>
+          (prefix -> {
+            SchemaProvider.getSchemas.find(_.prefix == prefix).map { schema =>
+              schema.versions.asScala.map(_.number)
+            }.getOrElse(Seq.empty)
+          })
+        }.toMap
 
         if (dataSet != None && !DataSet.dao.canEdit(dataSet.get, connectedUser)) {
           Forbidden("You are not allowed to edit DataSet %s".format(spec.get))
@@ -161,16 +170,19 @@ object DataSetControl extends OrganizationController {
           Forbidden("You are not allowed to create DataSets")
         } else {
           val data = if (dataSet == None) {
-            JJson.generate(DataSetCreationViewModel(
-              allAvailableSchemas = allRecordDefinitions,
-              schemaProcessingConfigurations = allRecordDefinitions.map { prefix =>
-                // TODO once we know them, set available versions, and selected version to the most recent
-                SchemaProcessingConfiguration(prefix = prefix)
-              },
-              indexingMappingPrefix = Some("None")
-            ))
+          JJson.generate(DataSetCreationViewModel(
+            allAvailableSchemas = allSchemas,
+            schemaProcessingConfigurations = allSchemas.map { prefix =>
+              SchemaProcessingConfiguration(
+                prefix = prefix,
+                availableVersions = versions(prefix),
+                version = versions(prefix).sorted.head
+              )
+            },
+            indexingMappingPrefix = Some("None")
+          ))
         } else {
-            val dS = dataSet.get
+          val dS = dataSet.get
 
             def acl(prefix: String) = dS.formatAccessControl.get(prefix).map(f => (f.accessType, f.accessKey)).getOrElse(("none", None))
 
@@ -180,11 +192,12 @@ object DataSetControl extends OrganizationController {
                 spec = dS.spec,
                 facts = HardcodedFacts.fromMap(dS.getFacts),
                 selectedSchemas = dS.recordDefinitions,
-                allAvailableSchemas = allRecordDefinitions,
-                schemaProcessingConfigurations = allRecordDefinitions.map { prefix =>
-                  // TODO versions
+                allAvailableSchemas = allSchemas,
+                schemaProcessingConfigurations = allSchemas.map { prefix =>
                   SchemaProcessingConfiguration(
                     prefix = prefix,
+                    availableVersions = versions(prefix),
+                    version = dS.mappings.get(prefix).map(_.schemaVersion).getOrElse(versions(prefix).headOption.getOrElse("")),
                     accessType = acl(prefix)._1,
                     accessKey = acl(prefix)._2.getOrElse("")
                   )
@@ -192,16 +205,15 @@ object DataSetControl extends OrganizationController {
                 indexingMappingPrefix = if(dS.getIndexingMappingPrefix.isEmpty) Some("None") else dS.getIndexingMappingPrefix
               )
             )
-          }
-          Ok(Template(
-            'spec -> spec,
-            'data -> data,
-            'dataSetForm -> DataSetCreationViewModel.dataSetForm,
-            'factDefinitions -> DataSet.factDefinitionList.filterNot(factDef => factDef.automatic || factDef.name == "spec").toList,
-            'recordDefinitions -> RecordDefinition.enabledDefinitions(configuration)
-          ))
-          
         }
+
+        Ok(Template(
+          'spec -> spec,
+          'data -> data,
+          'dataSetForm -> DataSetCreationViewModel.dataSetForm,
+          'factDefinitions -> DataSet.factDefinitionList.filterNot(factDef => factDef.automatic || factDef.name == "spec").toList
+        ))
+      }
     }
   }
 
