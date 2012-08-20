@@ -268,7 +268,7 @@ class DataSetEventFeed extends Actor {
                 if(DataSet.dao.canEdit(set, userName)) {
                   block(set)
                 } else {
-                  send(s, error("You don't have the right to do this!"))
+                  send(s, error("Sorry, you are not authorized to perform this action!"))
                 }
               }
             }.getOrElse {

@@ -100,7 +100,8 @@ case class UserInterfaceConfiguration(
   siteSlogan:                  Option[String],
   addThisTrackingCode:         Option[String],
   googleAnalyticsTrackingCode: Option[String],
-  showLogin:                   Boolean
+  showLogin:                   Boolean,
+  showRegistration:            Boolean
 )
 
 case class CommonsServiceConfiguration(
@@ -358,7 +359,8 @@ object DomainConfiguration {
                   siteSlogan = configuration.getString("ui.siteSlogan").orElse(Some("Delving CultureHub")),
                   addThisTrackingCode = configuration.getString("ui.addThisTrackingCode").orElse(None),
                   googleAnalyticsTrackingCode = configuration.getString("ui.googleAnalyticsTrackingCode").orElse(None),
-                  showLogin = configuration.getBoolean("ui.showLogin").getOrElse(false)
+                  showLogin = configuration.getBoolean("ui.showLogin").getOrElse(false),
+                  showRegistration =  configuration.getBoolean("ui.showRegistration").getOrElse(false)
                 ),
                 emailTarget = {
                   EmailTarget(

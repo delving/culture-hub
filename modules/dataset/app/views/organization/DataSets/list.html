@@ -24,7 +24,6 @@
             <input onclick="saveFilter()" class="btn" type="button" value="&{'ui.label.save'}"/>
             <input onclick="resetFilter()" class="btn" type="reset" value="&{'ui.label.reset'}"/>
             <a class="icon icon-question-sign extHelp" href="#" rel="tooltip" title="Type in any dataset value(s) to filter the table. Press 'Save' to save the filter."></a>
-
         </form>
     </div>
 
@@ -43,16 +42,15 @@
         </thead>
         <tfoot>
         <tr>
-            <td colspan="5">
-            <!-- ko if: sets().isEmpty -->
-                ${messages.get('thing.notavailable.plural', messages.get('thing.datasets'))}
-            <!-- /ko -->
+            <td colspan="6">
+                <a href="/organizations/${orgId}/dataset/add" class="btn pull-right"><i class="icon icon-plus-sign"></i> Create new dataset</a>
             </td>
         </tr>
         </tfoot>
         <tbody data-bind="foreach: sets()">
+
             <tr>
-                <td><a data-bind="attr: { href: '/organizations/' + orgId() + '/dataset/' + spec() }" rel="nofollow"><i class="icon icon-wrench"></i> <span data-bind="text: name"></span></a></td>
+                <td><a data-bind="attr: { href: '/organizations/' + orgId() + '/dataset/' + spec() }" rel="nofollow" class="btn"><i class="icon icon-wrench"></i> <span data-bind="text: name"></span></a></td>
                 <td><span data-bind="text: nodeName"></span></td>
                 <td>
                     <a data-bind="text: totalRecords, attr: { href: '/search?query%3Ddelving_spec%3A' + spec() }" class="rCount" rel="nofollow"></a>
@@ -78,11 +76,15 @@
                     <!-- /ko -->
                 </td>
                 <td>
+                    ${canModify}
                     #{if isAdmin}
                         <a data-bind="attr: { href: '/organizations/' + orgId() + '/dataset/' + spec() + '/update' }" rel="nofollow">
                             <i class="icon icon-edit"></i> ${messages.get('ui.label.edit')}
                         </a>
                     #{/if}
+                    #{else}
+                       - - -
+                    #{/else}
                 </td>
 
             </tr>

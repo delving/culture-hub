@@ -54,10 +54,17 @@ dt, dd, li {
 }
 
 .span1of4 {
-    width: 21.5%;
+    width: 22%;
+    float: left;
+}
+
+.grid1of4 {
+    width: 21.77%;
     margin: 0 0 0 3.33%;
     float: left;
 }
+
+
 
 /* `Clear Floated Elements
 ----------------------------------------------------------------------------------------------------*/
@@ -165,6 +172,11 @@ dt, dd, li {
     height: 140px;
 }
 
+.clip-160 {
+    display: block;
+    height: 160px;
+}
+
 .clip-180 {
     display: block;
     height: 180px;
@@ -245,102 +257,37 @@ dt, dd, li {
     width: 35px;
 }
 
-/* RESULT / BROWSE LIST CAPTIONS / thin-CONTAINER ************************************************************************/
+/* RESULT / BROWSE LIST CAPTIONS / thumbnail grid ************************************************************************/
 
-.thing-container {
-    margin-bottom: 13px;
-    position: relative;
-    padding: 0 0 5px 0;
-    list-style: none;
-    /*background-color: #FBFBFB;*/
-    /*background-image: -moz-linear-gradient(top, white, whiteSmoke);*/
-    /*background-image: -ms-linear-gradient(top, white, whiteSmoke);*/
-    /*background-image: -webkit-gradient(linear, 0 0, 0 100%, from(white), to(whiteSmoke));*/
-    /*background-image: -webkit-linear-gradient(top, white, whiteSmoke);*/
-    /*background-image: -o-linear-gradient(top, white, whiteSmoke);*/
-    /*background-image: linear-gradient(top, white, whiteSmoke);*/
-    /*background-repeat: repeat-x;*/
-    /*filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='white', endColorstr='whiteSmoke', GradientType=0);*/
-    /*border: 1px solid #DDD;*/
-    /*-webkit-border-radius: 3px;*/
-    /*-moz-border-radius: 3px;*/
-    /*border-radius: 3px;*/
-    /*-webkit-box-shadow: inset 0 1px 0 white;*/
-    /*-moz-box-shadow: inset 0 1px 0 white;*/
-    box-shadow: inset 0 1px 0 white;
 
+
+/*.thumbnails > li {*/
+    /*margin-bottom: 8px;*/
+/*}*/
+
+.thumbnail {
+    background-color: whiteSmoke;
+    -moz-border-radius: 0;
+    -wekit-border-radius: 0;
+    border-radius: 0;
 }
 
-.thing-container.no-image {
-    background: #e1e1e1;
-    margin-bottom: 10px;
+.thumbnail .media {
+    margin-top: 0px;
 }
 
-.thing-container .bd {
-    clear: both;
+.thumbnail .media .bd {
+    padding: 8px;
 }
 
-.thing-container .category {
-    background: #0088cc;
-    color: #fff;
-    letter-spacing: 2px;
-    padding: 2px 6px;
-    margin: 0;
-    text-shadow: 1px 2px 3px #666;
-    /*position: absolute;*/
-    /*top: 0px;*/
-    /*right: 0px;*/
-    /*opacity: .8;*/
-}
-
-.thing-container .title {
-    font-weight: bold;
-    font-size: 110%;
-    line-height: 1.5;
-    clear: both;
-}
-
-.thing-container .title a {
-    /*color: #fff;*/
-}
-
-.thing-container .img img {
-    max-width: 100%;
-}
-
-.thing-container .media-slide-over {
-    background: #000;
-    position: absolute;
-    bottom: 0px;
-    width: 100%;
-}
-
-
-.thumbnails > li {
+.thumbnail .media .title {
     margin-bottom: 8px;
 }
 
-.thumbnail {
-    border: none;
-    -webkit-box-shadow: none;
-    -moz-box-shadow: none;
-    box-shadow: none;
-}
-
-.is_private {
-    background: #fff;
-    color: #000;
-    opacity: 0.7;
-    position: absolute;
-    top: 0px;
-}
-
-.is_private span {
-    padding: 5px;
-    display: block;
+.thumbnail .media .description {
     font-size: smaller;
-    z-index: 14;
 }
+
 
 /** BOOTSTRAP TABLE HELPER **/
 
@@ -708,7 +655,8 @@ form label.radio {
 
 /* bootstrap dropdown disabled state */
 
-.dropdown-menu.disabled {
+.dropdown-menu.disabled,
+.dropdown-menu li.disabled{
     display: none;
 }
 
@@ -743,6 +691,13 @@ form label.radio {
     border-bottom: 4px solid #000000;
 }
 
+.facets-header {
+    border-bottom: 4px solid #ccc;
+    color: #666;
+    padding: 0 0 8px 0;
+    font-weight: bold;
+}
+
 .facet-container {
     border-bottom: 1px solid #eaeaea;
     display: block;
@@ -753,7 +708,7 @@ form label.radio {
 }
 
 .facet-container .facet {
-    padding: 2px 0;
+    padding: 2px;
 }
 
 .facet-container input[type=checkbox] {
@@ -775,8 +730,13 @@ form label.radio {
     font-size: 150%;
     border-bottom: none;
     line-height: 125%;
-    margin: 13px 0;
+    margin: 0 0 13px 0;
     padding: 0;
+}
+
+#object .return-to-results {
+    display: block;
+    margin: 13px 0 0 0;
 }
 
 #object .social-media-block {
@@ -785,16 +745,16 @@ form label.radio {
 
 #object h5 {
     margin: 0 0 0 0;
-    color: #888;
-    font-size: 102%;
+    color: #adadad;
+    font-size: 105%;
 }
 
 #object p {
-    margin: 0 0 5px 0;
+    margin: 0 0 8px 0;
 }
 
 #object ul {
-    margin-bottom: 10px;
+    margin-bottom: 8px;
 }
 
 #object img {
@@ -814,6 +774,10 @@ form label.radio {
 #object div#zoom-viewer {
    width: 100%;
    height: 300px;
+}
+
+#object .related-items ul {
+    margin-top: 8px;
 }
 
 /* Advanced search plugin */

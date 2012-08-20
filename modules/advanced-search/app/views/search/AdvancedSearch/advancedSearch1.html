@@ -82,7 +82,7 @@
 
             *{ ORDER BY }*
             <div class="control-group">
-                <label class="control-label">&{'search.sortby'}/label>
+                <label class="control-label">&{'search.sortby'}</label>
 
                 <div class="controls">
                     <select name="sortBy">
@@ -111,7 +111,7 @@
 </div>
 
 <script>
-    jQuery(document).ready(function() {
+    $(document).ready(function() {
         $("#owners-list .collection").on("click", function(){
              $(this).next("span.label").toggleClass("label-success");
         });
