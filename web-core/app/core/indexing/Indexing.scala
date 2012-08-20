@@ -150,8 +150,7 @@ object Indexing extends SolrServer {
       val uriValue: String = inputDoc.get(uriWithTypeSuffix).getFirstValue.toString
       inputDoc.remove(uriWithTypeSuffix)
       inputDoc.addField(EUROPEANA_URI, uriValue)
-    }
-    else if (inputDoc.contains(uriWithTextSuffix)) {
+    } else if (inputDoc.contains(uriWithTextSuffix)) {
       val uriValue: String = inputDoc.get(uriWithTextSuffix).getFirstValue.toString
       inputDoc.remove(uriWithTextSuffix)
       inputDoc.addField(EUROPEANA_URI, uriValue)
@@ -165,19 +164,17 @@ object Indexing extends SolrServer {
     configuration.getFacets.foreach {
       facet =>
         if (indexedKeys.contains(facet.facetName)) {
-          println("indexedKeys contains facet " + facet)
           val facetContent = inputDoc.get(indexedKeys.get(facet.facetName).get).getValues
-          println ("adding facet content " + facetContent)
-          inputDoc addField("%s_facet".format(facet), facetContent)
+          inputDoc addField("%s_facet".format(facet.facetName), facetContent)
           // enable case-insensitive autocomplete
-          inputDoc addField ("%s_lowercase".format(facet), facetContent)
+          inputDoc addField ("%s_lowercase".format(facet.facetName), facetContent)
         }
     }
     // adding sort fields at index time
     configuration.getSortFields.foreach {
       sort =>
         if (indexedKeys.contains(sort.sortKey)) {
-          inputDoc addField("sort_all_%s".format(sort), inputDoc.get(indexedKeys.get(sort.sortKey).get))
+          inputDoc addField("sort_all_%s".format(sort.sortKey), inputDoc.get(indexedKeys.get(sort.sortKey).get))
         }
     }
   }
