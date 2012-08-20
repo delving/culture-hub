@@ -15,7 +15,7 @@
 
 <div class="row">
     <div class="span4">
-
+    ${rights}
         <table class="table table-condensed table-wrap">
             <caption>Basic information</caption>
             <tbody>
@@ -49,7 +49,9 @@
                 </tr>
                 <tr>
                     <th>Rights</th>
-                    <td><span data-bind="text: information.rights, attr: {title: information.rights}"></span></td>
+                    <td>
+                        <span data-bind="text: information.rights, attr: {title: information.rights, rel: 'tooltip', class: 'extHelp'}"></span>
+                    </td>
                 </tr>
                 <tr>
                     <th>Type</th>
@@ -101,6 +103,7 @@
         <div data-bind="template: { name: 'statusInformation' }"></div>
 
         <h4>Dataset actions</h4>
+
         <div class="">
 
             <div class="btn-toolbar">
@@ -114,7 +117,7 @@
                         <span class="caret"></span>
                     </a>
                     <ul class="dropdown-menu" data-bind="css: { disabled: cannotEdit | (dataSetState() == 'enabled') }">
-                        <li><a data-bind="css: { disabled: lockState() == 'unlocked'}, click: function() { unlock(spec); } "><i class="icon icon-lock"></i> Unlock</a></li>
+                        <li data-bind="css: { disabled: lockState() == 'unlocked'},"><a data-bind="click: function() { unlock(spec); } "><i class="icon icon-lock"></i> Unlock</a></li>
                         <li><a data-bind="click: function() { resetHashes(spec); }"><i class="icon icon-warning-sign"></i> Reset Hashes</a></li>
                         <li><a data-bind="click: function() { deleteSet(spec); }"><i class="icon icon-remove"></i> Delete</a></li>
                     </ul>
@@ -125,6 +128,10 @@
             </div>
         </div>
 
+        <div data-bind="css: { disabled: cannotEdit } "></div>
+
+        <div id="extra-alert"></div>
+
         <div id="state-alert" data-bind="attr: { class: 'alert alert-' + stateToClass(dataSetState())}">
 
             <p>Dataset state: <strong data-bind="text: dataSetState"></strong></p>
@@ -134,7 +141,7 @@
             <!-- /ko -->
 
             <!-- ko if: dataSetState() == 'incomplete' -->
-            <p>The DataSet has been created but not yet uploaded by the Sip-Creator. It requires source data and a mapping.</p>
+            <p>The Dataset has been created but not yet uploaded by the Sip-Creator. It requires source data and a mapping.</p>
             <!-- /ko -->
 
             <!-- ko if: dataSetState() == 'parsing' -->
@@ -142,15 +149,15 @@
             <!-- /ko -->
 
             <!-- ko if: dataSetState() == 'uploaded' -->
-            <p>The DataSet is uploaded and ready to be processed.</p>
+            <p>The Dataset is uploaded and ready to be processed.</p>
             <!-- /ko -->
 
             <!-- ko if: dataSetState() == 'queued' -->
-            <p>The DataSet is queued and waiting to be processed.</p>
+            <p>The Dataset is queued and waiting to be processed.</p>
             <!-- /ko -->
 
             <!-- ko if: dataSetState() == 'processing' -->
-            <p>The DataSet is being processed. The source records are transformed into the selected output schemas, and if an indexing schema is selected, the set is also being indexed for search in SOLR.</p>
+            <p>The Dataset is being processed. The source records are transformed into the selected output schemas, and if an indexing schema is selected, the set is also being indexed for search in SOLR.</p>
             <div>
                 <div class="progress progress-striped active" data-bind="css: { active: progressPercentage != '0%' }">
                     <div class="bar" data-bind="style: { width: progressPercentage() }"></div>
@@ -165,7 +172,8 @@
             <!-- /ko -->
 
             <!-- ko if: dataSetState() == 'enabled' -->
-            <p>The DataSet is enabled and data can be harvested. If an indexing schema is selected, it can also be searched and displayed</p>
+            <p>The Dataset is enabled and data can be harvested. If an indexing schema is selected, it can also be searched and displayed</p>
+            <p>To perform <em>expert actions</em> you need to <strong>disable</strong> the dataset</p>
             <!-- /ko -->
 
         </div>
@@ -206,11 +214,9 @@
 <script type="text/javascript" language="javascript">
     $(document).ready(function () {
 
-
-
         var clientId = Math.floor(1 + 10001 * Math.random());
         var ws = new WebSocket("ws://" + location.host + "/organizations/${orgId}/dataset/feed?clientId=" + clientId + '&spec=${spec}');
-
+        var msgUnlock = "When a dataset is locked, the locking user is considered to be in full control.  Unlocking implies taking that control away, which should not be done without the permission of the locking user because it invalidates their current work on the dataset.";
         var viewModel = {
 
             progressPercentage: ko.observable('0%'),
@@ -247,12 +253,41 @@
                     payload: '${spec}'
                 }));
             },
+            unlockOrig: function(spec) {
+                bootbox.confirm(msgUnlock, function(result){
+                    if(result){
+                        ws.send(JSON.stringify({
+                            eventType: 'unlockSet',
+                            clientId: clientId,
+                            payload: '${spec}'
+                        }));
+
+                    }
+                });
+
+            },
             unlock: function(spec) {
-                ws.send(JSON.stringify({
-                    eventType: 'unlockSet',
-                    clientId: clientId,
-                    payload: '${spec}'
-                }));
+                bootbox.dialog(msgUnlock, [{
+                    "label"     :   "I am aware of this. Unlock anyway!",
+                    "class"     :   "btn-warning",
+                    "callback"  :   function() {
+                        ws.send(JSON.stringify({
+                            eventType: 'unlockSet',
+                            clientId: clientId,
+                            payload: '${spec}'
+                            }));
+                            var html = '<div class="alert alert-block"><a class="close" data-dismiss="alert" href="#">x</a>' +
+//                                '<strong>Attention!</strong>' +
+                                '<p>Dataset is now unlocked!</p>' +
+                                '</div>'
+                        $('#extra-alert').html(html);
+                        }
+
+                    },{
+                    "label" : "No thanks!"
+                    }]);
+
+
             },
             resetHashes: function(spec) {
                 bootbox.confirm("<h4>Reset hashes</h4><p>Are you sure?</p>", function(result) {
@@ -296,7 +331,6 @@
 
         ws.onmessage = function(evt) {
             var data = $.parseJSON(evt.data);
-            console.log(data);
             switch(data.eventType) {
                 case "loadSet":
                     $.extend(viewModel, ko.mapping.fromJS(data.payload));

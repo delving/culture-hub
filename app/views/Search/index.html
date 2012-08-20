@@ -9,13 +9,12 @@
 #{/set}
 
 #{set 'moreScripts'}
-*{<script type='text/javascript' src="@{routes.Assets.at('common/javascripts/jquery.masonry.min.js')}"></script>}*
 <script type='text/javascript' src="@{routes.Assets.at('common/javascripts/results.js')}"></script>
 #{/set}
 
 #{breadcrumbs crumbs: breadcrumbs, queryCrumbs: pagination /}
 
-#{if briefDocs }
+#{if pagination.getNumFound() > 0}
 
     <div class="row">
         <div class="item-count span12">
@@ -29,9 +28,13 @@
 
     <div class="row">
         <div class="span9">
-            #{results.resultGrid results: briefDocs, colCount:3, spanClass:'span3' /}
+            #{results.resultGrid results: briefDocs,
+                colCount: themeInfo.get('resultsColumns'),
+                spanClass: themeInfo.get('resultsGridClass'),
+                clipHeight: themeInfo.get('resultsImageClipHeight') /}
         </div>
         <div class="span3">
+            <div class="facets-header">&{'search.refineYourSearch'}</div>
             #{list items: themeFacets, as: 'tf'}
                 #{facet facetMap: facets,
                         type: tf.facetName()+'_facet',
@@ -90,7 +93,7 @@
 #{/if}
 
 #{else}
-<div class="span12 centered pam">
+<div class="span12">
 &{'ui.message.nothingFound'}
 </div>
 #{/else}

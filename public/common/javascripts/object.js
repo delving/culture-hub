@@ -21,7 +21,7 @@ $(document).ready(function() {
     $.get(mltEndpoint, function(data) {
         var rItems = data.result.relatedItems.item, html ='', tmp, org, owner, id, uri;
         if(rItems){
-            html = '<h4>'+jsLabels.relatedItems+'</h4><ul class="thumbnails">';
+            html = '<h5>'+jsLabels.relatedItems+'</h5><ul class="thumbnails">';
             $.each(rItems, function(i, item){
                 tmp = item['delving_hubId'].split('_');
                 org = tmp[0];
@@ -29,10 +29,12 @@ $(document).ready(function() {
                 id = tmp[2];
                 uri = "/"+org+"/thing/"+owner+"/"+id+"?mlt=true";
                 html += '<li class="thumbnail">'
-                html += '<a href="' + uri + '" rel="nofollow"><img class="mlt" src="' + item['delving_thumbnail'] + '" alt="' + item['delving_title'] +'" width="100"/></a></li>';
+                html += '<a href="' + uri + '" rel="nofollow"><img class="mlt" src="' + item['delving_thumbnail'] + '" alt="' + item['delving_title'] +'" width="108" onerror="showDefaultImg(this)"/></a></li>';
             });
             html += "</ul>";
             $('.related-items').html(html);
         }
     });
+
+
 });

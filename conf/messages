@@ -60,6 +60,7 @@ ui.label.lastname=Last name
 ui.label.less=Less
 ui.label.load=Load
 ui.label.location=Location
+ui.label.loggedInAs=Logged in as
 ui.label.login=Login
 ui.label.logout=Logout
 ui.label.memberSince=Member since
@@ -254,8 +255,8 @@ registration.registerFor=Register for {0}
 search.facets=Facets
 search.nrfound= Found {0} results
 search.resultsfor=Search results for
-search.sortby= Sort by
-search.refineYourSearchBy=Refine your search by
+search.sortby=Sort by
+search.refineYourSearch=Refine your search
 search.facet.byYear=Year
 search.facet.byProvider=Provider
 search.facet.byObjectType=Object type
@@ -682,7 +683,7 @@ plugin.advancedsearch.booleanOr=OR
 plugin.advancedsearch.booleanNot=NOT
 plugin.advancedsearch.allProviders=All data providers
 plugin.advancedsearch.selectProviders=Select data provider(s)
-
+plugin.advancedsearch.select=Select
 
 
 accessControl.resourceType.dataSet=DataSets

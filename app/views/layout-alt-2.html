@@ -14,11 +14,11 @@
                 <div class="navbar navbar-user">
                     <div class="navbar-inner">
                         <div class="container">
-                        #{userNav userName: userName, email:email, organizations:organizations, showLogin:themeInfo.showLogin(), extraClass:"pull-right"/}
+                        #{userNav userName: userName, email:email, organizations:organizations, showLogin:themeInfo.showLogin(), showRegistration:themeInfo.showRegistration(), extraClass:"pull-right"/}
                         </div>
                     </div>
                 </div>
-                    #{mainMenu menu:menu /}
+                #{mainMenu menu:menu, extraClass: 'nav-site'/}
             </div>
         </div>
     </div>

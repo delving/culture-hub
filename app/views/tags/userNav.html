@@ -2,14 +2,18 @@
 #{if !_userName }
 #{if _showLogin == true}
     <li><a href="/login" rel="nofollow" class="first" tabindex="1">${messages.get('ui.label.login')}</a></li>
+    #{if _showRegistration == true}
     <li class="divider-vertical"></li>
     <li><a href="/registration" rel="nofollow" class="" tabindex="2">${messages.get('ui.label.register')}</a></li>
+    #{/if}
 #{/if}
 #{/if}
 #{else}
-    <li class="user"><a href="/${_userName}" rel="nofollow">#{gravatar.img _email, size:21 /}Hi ${_userName}</a></li>
-    <li class="divider-vertical"></li>
-    <li><a href="/${_userName}" rel="nofollow">${messages.get('user.nav.yourprofile')}</a></li>
+    <li class="user">
+        <a href="/${_userName}" rel="nofollow">
+            #{gravatar.img _email, size:21 /} ${messages.get('ui.label.loggedInAs')}: ${_userName}
+        </a>
+    </li>
     <li class="divider-vertical"></li>
     #{if _organizations.length() > 0}
         <li class="dropdown" id="orgs">
@@ -23,10 +27,10 @@
                 #{/list}
             </ul>
         </li>
+        <li class="divider-vertical"></li>
     #{/if}
-    <li class="divider-vertical"></li>
+
     <li><a href="/logout" rel="nofollow">${messages.get('ui.label.logout')}</a></li>
 #{/else}
-    *{<li class="divider-vertical"></li>}*
 </ul>
 
