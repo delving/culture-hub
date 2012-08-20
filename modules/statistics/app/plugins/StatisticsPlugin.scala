@@ -33,14 +33,14 @@ class StatisticsPlugin(app: Application) extends CultureHubPlugin(app) {
       c =>
         c.underlying.getStringList("facets").asScala.map {
           facet => {
-            val s = facet.split(":")
-            if (s.length == 0) {
+            val s: Array[String] = facet.split(':')
+            if (s.length == 1) {
               (facet -> facet)
-            } else if (s.length == 1) {
-              (s.head -> s.reverse.head)
+            } else if (s.length == 2) {
+              (s(0) -> s(1))
             } else {
               Logger("CultureHub").warn("Invalid configuration key for statistic facets in configuration %s: %s".format(configuration.name, facet))
-              (s.head -> s.head)
+              (s(0) -> s(0))
             }
           }
         }.toMap

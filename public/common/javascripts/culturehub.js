@@ -182,7 +182,6 @@ function updateViewModel(data, viewModel, scope, callback, onApplyBindings) {
         ko.mapping.fromJS(data, viewModel)
     } else {
         $.extend(viewModel, ko.mapping.fromJS(data, mapping));
-        console.log(viewModel)
         if(typeof onApplyBindings === 'function') onApplyBindings.call();
         if (typeof scope !== 'undefined') {
             ko.applyBindings(viewModel, scope);

@@ -455,7 +455,7 @@ object DomainConfiguration {
 
     configurations.map { configuration =>
       configuration.plugins.foreach { pluginKey =>
-        val conf = config.getConfig("configurations.%s.plugin.%s".format(configuration.name, pluginKey))
+        val conf = config.getConfig("%s.plugin.%s".format(configuration.name, pluginKey))
         CultureHubPlugin.hubPlugins.find(_.pluginKey == pluginKey).map(_.onBuildConfiguration(configuration, conf))
       }
     }
