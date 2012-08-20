@@ -437,18 +437,30 @@ object DomainConfiguration {
       throw new RuntimeException("Plugin inconsistency. No can do.")
     }
 
-    // can I haz plugin?
-//    val invalidPluginKeys: Seq[(DomainConfiguration, String, Option[CultureHubPlugin])] = configurations.flatMap { configuration =>
-//      configuration.plugins.map(key => Tuple3(configuration, key, plugins.find(_.pluginKey == key))).filter(_._3.isEmpty)
-//    }
-//    if(!invalidPluginKeys.isEmpty) {
-//
-//      val error = "Found two or more configurations that reference non-existing plugins:\n" +
-//                    invalidPluginKeys.map(r => "Configuration " + r._1.name + ": " + r._2 + " does not exist or is not available").mkString("\n")
-//
-//      log.error(error)
-//      throw new RuntimeException("Role definition inconsistency. No can do.\n\n" + error)
-//    }
+    if (!Play.isTest) {
+      val invalidPluginKeys: Seq[(DomainConfiguration, String, Option[CultureHubPlugin])] = configurations.flatMap { configuration =>
+        configuration.plugins.map(key => Tuple3(configuration, key, plugins.find(_.pluginKey == key))).filter(_._3.isEmpty)
+      }
+      if(!invalidPluginKeys.isEmpty) {
+
+        val error = "Found two or more configurations that reference non-existing plugins:\n" +
+                      invalidPluginKeys.map(r => "Configuration " + r._1.name + ": " + r._2 + " does not exist or is not available").mkString("\n")
+
+        log.error(error)
+        throw new RuntimeException("Role definition inconsistency. No can do.\n\n" + error)
+      }
+    }
+
+    // plugin configuration
+
+    configurations.map { configuration =>
+      configuration.plugins.foreach { pluginKey =>
+        val conf = config.getConfig("%s.plugin.%s".format(configuration.name, pluginKey))
+        CultureHubPlugin.hubPlugins.find(_.pluginKey == pluginKey).map(_.onBuildConfiguration(configuration, conf))
+      }
+    }
+
+
 
 
 

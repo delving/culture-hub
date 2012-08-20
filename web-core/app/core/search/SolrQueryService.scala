@@ -97,7 +97,7 @@ object SolrQueryService extends SolrServer {
     import scala.collection.JavaConversions._
 
     val queryParams = getSolrQueryWithDefaults
-    val facetsFromConfiguration: List[String] = configuration.getFacets.filterNot(_.toString.isEmpty).map(facet => "%s_facet".format(facet.facetName))
+    val facetsFromConfiguration: List[String] = configuration.getFacets.filterNot(_.facetName.isEmpty).map(facet => "%s_facet".format(facet.facetName))
     val facetFields: List[String] = if (params._contains("facet.field")) facetsFromConfiguration ::: params.getValues("facet.field").toList
     else facetsFromConfiguration
 
