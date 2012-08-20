@@ -43,6 +43,13 @@ abstract class CultureHubPlugin(app: Application) extends play.api.Plugin {
    */
   val routes: ListMap[(String, Regex), (List[String], Map[String, String]) => Handler] = ListMap.empty
 
+  /**
+   * Called at configuration building time, giving the plugin the chance to build internal configuration
+   *
+   * @param configuration the DomainConfiguration
+   * @param config the Play Configuration object
+   */
+  def onBuildConfiguration(configuration: DomainConfiguration, config: Option[Configuration]) {}
 
   /**
    * Executed when test data is loaded (for development and testing)

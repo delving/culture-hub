@@ -2,9 +2,16 @@ package controllers.statistics
 
 import controllers.OrganizationController
 import play.api.mvc.Action
-import models.DataSet
+import models.{DomainConfiguration, DataSet}
 import collection.JavaConverters._
 import models.statistics.DataSetStatistics
+import collection.immutable.ListMap
+import core.search.{SolrBindingService, SolrQueryService}
+import org.apache.solr.client.solrj.SolrQuery
+import core.{CultureHubPlugin, Constants}
+import org.apache.solr.client.solrj.response.FacetField.Count
+import play.api.i18n.{Lang, Messages}
+import plugins.StatisticsPlugin
 
 /**
  * Prototype statistics plugin based on the statistics provided by the Sip-Creator.
@@ -13,6 +20,7 @@ import models.statistics.DataSetStatistics
  * TODO generify the fields we're most interested in, i.e. make some kind of interoperability mapping for them.
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
+ * @author Sjoerd Siebinga <sjoerd.siebinga@gmail.com>
  */
 
 object Statistics extends OrganizationController {
@@ -61,6 +69,151 @@ object Statistics extends OrganizationController {
 
         Ok(Template("statistics.html", 'dataSetStatistics -> dataSetStatistics))
     }
+  }
+
+  /**
+   *  The purpose of this fu
+   */
+
+  def legacyStatistics(orgId: String) = {
+    DomainConfigured {
+      Action {
+        implicit request =>
+
+          val requestFacets = request.queryString.get("facet.field")
+          val facets: Map[String, String] = requestFacets.map { facet =>
+            facet.map(f => (f -> f)).toMap
+          }.getOrElse {
+            CultureHubPlugin.getEnabledPlugins.find(_.pluginKey == "statistics").map { p =>
+              p.asInstanceOf[StatisticsPlugin].getStatisticsFacets
+            }.getOrElse {
+              Map.empty
+            }
+          }
+
+          val statistics = new SolrFacetBasedStatistics(facets, orgId)
+          Ok(statistics.renderAsJSON()).as(JSON)
+      }
+    }
+  }
+}
+
+case class StatisticsCounter(name: String, total: Int, withNr: Int = 0)  {
+  private val percent = 100.0
+
+  lazy val withPercentage: Long = math.round(withNr / (total / percent))
+  lazy val withoutNr: Long = total - withNr
+  lazy val withOutPercentage: Long = math.round(withoutNr / (total / percent))
+
+}
+
+case class CombinedStatisticEntry(name: String, total: Int, digitalObject: StatisticsCounter, landingPage: StatisticsCounter) {
+
+  def asListMap = {
+    ListMap(
+      "name" -> name,
+      "total" -> total,
+      "digitalObjects" -> digitalObject.withNr,
+      "digitalObjectsPercentage" -> digitalObject.withPercentage,
+      "noDigitalObjects" -> digitalObject.withoutNr,
+      "noDigitalObjectsPercentage" -> digitalObject.withOutPercentage,
+      "landingPages" -> landingPage.withNr,
+      "landingPagesPercentage" -> landingPage.withPercentage,
+      "nolandingPages" -> landingPage.withoutNr,
+      "nolandingPagesPercentage" -> landingPage.withOutPercentage
+    )
+  }
+}
+
+case class StatisticsHeader(name: String, label: String = "", entries: Seq[CombinedStatisticEntry]) {
+
+  def asListMap = {
+    ListMap(
+      "name" -> name,
+      "i18n" -> (if (label.isEmpty) name else label),
+      "entries" ->
+        entries.map(_.asListMap)
+    )
+  }
+}
+
+class SolrFacetBasedStatistics(facets: Map[String, String], orgId: String)(implicit configuration: DomainConfiguration, lang: Lang) {
+
+    val orgIdFilter = "%s:%s".format(Constants.ORG_ID, orgId)
+
+    // create list of facets you want returned
+    val query = new SolrQuery
+    // query for all *:* with facets
+    query setQuery ("*:*")
+    query setFacet (true)
+    val facetsForStatistics = facets.keys.toSeq
+    query addFacetField (facetsForStatistics: _ *)
+    query setRows (0)
+    query setFilterQueries (orgIdFilter)
+
+    val allRecordsResponse = SolrQueryService.getSolrResponseFromServer(solrQuery = query)
+    val allRecords = SolrBindingService.createFacetStatistics(allRecordsResponse.getFacetFields.asScala.toList)
+    val totalRecords = allRecordsResponse.getResults.getNumFound.toInt
+
+    // query for with only digital objects
+    query setFilterQueries("%s:true".format(Constants.HAS_DIGITAL_OBJECT), orgIdFilter)
+    val digitalObjectsResponse = SolrQueryService.getSolrResponseFromServer(solrQuery = query)
+    val digitalObjects = SolrBindingService.createFacetStatistics(digitalObjectsResponse.getFacetFields.asScala.toList)
+    val totalDigitalObjects = digitalObjectsResponse.getResults.getNumFound
+
+    // query with landing pages
+    query setFilterQueries("%s:[* TO *]".format(Constants.EXTERNAL_LANDING_PAGE), orgIdFilter)
+    val landingPagesResponse = SolrQueryService.getSolrResponseFromServer(solrQuery = query)
+    val landingPages = SolrBindingService.createFacetStatistics(landingPagesResponse.getFacetFields.asScala.toList)
+    val totalLandingPages = landingPagesResponse.getResults.getNumFound
+
+
+  def createHeader(facet: (String, String)): StatisticsHeader = {
+    StatisticsHeader(
+      name = facet._1,
+      label = Messages(facet._2),
+      entries = createEntries(facet._1)
+    )
+  }
+
+  def getCountForFacet(name: String, facetList: List[Count]) : Int = {
+    val facetItem = facetList.find(count => count.getName.equalsIgnoreCase(name))
+    if (facetItem == None) 0 else facetItem.get.getCount.toInt
+  }
+
+  def createEntries(name: String): Seq[CombinedStatisticEntry] = {
+    val digitalObjectFacet = digitalObjects.getFacet(name)
+    val landingPageFacet = landingPages.getFacet(name)
+
+    allRecords.getFacet(name).map{
+      count => {
+        CombinedStatisticEntry(
+          name = count.getName,
+          total = totalRecords,
+          digitalObject = StatisticsCounter(name = count.getName, total = totalRecords, withNr = getCountForFacet(count.getName, digitalObjectFacet)),
+          landingPage = StatisticsCounter(name = count.getName, total = totalRecords, withNr = getCountForFacet(count.getName, landingPageFacet))
+        )
+      }
+    }
+  }
+
+  val entries: Seq[StatisticsHeader] = facets.map(createHeader(_)).toSeq
+
+  def renderAsJSON(): String = {
+    import net.liftweb.json.{Extraction, JsonAST, Printer}
+    implicit val formats = net.liftweb.json.DefaultFormats
+
+    val outputJson = Printer.pretty(JsonAST.render(Extraction.decompose(
+      ListMap("statistics" ->
+        ListMap(
+          "totalRecords" -> totalRecords,
+          "totalRecordsWithDigitalObjects" -> totalDigitalObjects,
+          "totalRecordsWithLandingPages" -> totalLandingPages,
+          "facets" -> entries.map(_.asListMap)
+        )
+      ))))
+
+    outputJson
   }
 
 }
