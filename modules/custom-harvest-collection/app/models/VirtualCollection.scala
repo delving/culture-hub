@@ -12,6 +12,7 @@ import core.search._
 import core.collection.Harvestable
 import util.DomainConfigurationHandler
 import core.harvesting.AggregatingHarvestCollectionLookup
+import java.util.Date
 
 /**
  * A VirtualCollection is a collection resulting from a search, with references to the search results being cached.
@@ -53,10 +54,19 @@ case class VirtualCollection(_id: ObjectId = new ObjectId,
   def getPublicMetadataPrefixes = getVisibleMetadataSchemas(None).map(_.prefix).asJava
 
   // ~~~ harvesting
-  def getRecords(metadataFormat: String, position: Int, limit: Int): (List[MetadataItem], Long) = {
+  def getRecords(metadataFormat: String, position: Int, limit: Int, from: Option[Date] = None, until: Option[Date] = None): (List[MetadataItem], Long) = {
     val children = VirtualCollection.dao(orgId).children
-    val references = children.find(MongoDBObject("parentId" -> _id) ++ ("invalidTargetSchemas" $ne metadataFormat) ++ ("index" $gt position)).sort(MongoDBObject("index" -> 1)).limit(limit)
-    val totalSize = children.count(MongoDBObject("parentId" -> _id) ++ ("invalidTargetSchemas" $ne metadataFormat) ++ ("index" $gt position))
+
+    val query = MongoDBObject("parentId" -> _id) ++ ("invalidTargetSchemas" $ne metadataFormat) ++ ("index" $gt position)
+    val fromQuery = from.map { f => ("modified" $gte f) }
+    val untilQuery = until.map { u => ("modified" $lte u) }
+
+    val q = Seq(fromQuery, untilQuery).foldLeft(query) { (c, r) =>
+      if (r.isDefined) c ++ r.get else c
+    }
+
+    val references = children.find(q).sort(MongoDBObject("index" -> 1)).limit(limit)
+    val totalSize = children.count(q)
     val records = references.toList.groupBy(_.collection).map {
       grouped =>
         val cache = MetadataCache.get(orgId, grouped._1, ITEM_TYPE_MDR)
@@ -98,6 +108,7 @@ case class VirtualCollectionQuery(dataSets: Seq[String], freeFormQuery: String, 
 // reference to an MDR with a minimal cache to speed up lookups
 case class MDRReference(_id: ObjectId = new ObjectId,
                         parentId: ObjectId = new ObjectId,
+                        modified: Date = new Date,
                         collection: String, // collection in which this one is kept
                         itemId: String, // id of the MDR
                         index: Int, // index, generated at collection creation time, to use as count
