@@ -331,7 +331,6 @@
 
         ws.onmessage = function(evt) {
             var data = $.parseJSON(evt.data);
-            console.log(data);
             switch(data.eventType) {
                 case "loadSet":
                     $.extend(viewModel, ko.mapping.fromJS(data.payload));
