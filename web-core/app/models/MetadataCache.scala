@@ -53,9 +53,16 @@ class MongoMetadataCache(orgId: String, col: String, itemType: String, mongoColl
     )
   }
 
-  def iterate(index: Int = 0, limit: Option[Int]): Iterator[MetadataItem] = {
+  def iterate(index: Int = 0, limit: Option[Int], from: Option[Date] = None, until: Option[Date] = None): Iterator[MetadataItem] = {
     val query = MongoDBObject("collection" -> col, "itemType" -> itemType) ++ ("index" $gt index)
-    val cursor = find(query).sort(MongoDBObject("index" -> 1))
+    val fromQuery = from.map { f => ("modified" $gte f) }
+    val untilQuery = until.map { u => ("modified" $lte u) }
+
+    val q = Seq(fromQuery, untilQuery).foldLeft(query) { (c, r) =>
+      if (r.isDefined) c ++ r.get else c
+    }
+
+    val cursor = find(q).sort(MongoDBObject("index" -> 1))
     if(limit.isDefined) {
       cursor.limit(limit.get)
     } else {
@@ -63,7 +70,7 @@ class MongoMetadataCache(orgId: String, col: String, itemType: String, mongoColl
     }
   }
 
-  def list(index: Int = 0, limit: Option[Int]): List[MetadataItem] = iterate(index, limit).toList
+  def list(index: Int = 0, limit: Option[Int], from: Option[Date] = None, until: Option[Date] = None): List[MetadataItem] = iterate(index, limit, from, until).toList
 
   def count(): Long = count(MongoDBObject("collection" -> col, "itemType" -> itemType))
 
