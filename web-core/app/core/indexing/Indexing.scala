@@ -159,13 +159,15 @@ object Indexing extends SolrServer {
 
     dataSet.getVisibleMetadataSchemas(None).foreach(schema => inputDoc.addField(ALL_SCHEMAS, schema.prefix))
 
-    val indexedKeys = inputDoc.keys.map(key => (SolrBindingService.stripDynamicFieldLabels(key), key)).toMap // to filter always index a facet with _facet .filter(!_.matches(".*_(s|string|link|single)$"))
+    val indexedKeys: Map[String, String] = inputDoc.keys.map(key => (SolrBindingService.stripDynamicFieldLabels(key), key)).toMap // to filter always index a facet with _facet .filter(!_.matches(".*_(s|string|link|single)$"))
 
     // add facets at indexing time
     configuration.getFacets.foreach {
       facet =>
-        if (indexedKeys.contains(facet)) {
+        if (indexedKeys.contains(facet.facetName)) {
+          println("indexedKeys contains facet " + facet)
           val facetContent = inputDoc.get(indexedKeys.get(facet.facetName).get).getValues
+          println ("adding facet content " + facetContent)
           inputDoc addField("%s_facet".format(facet), facetContent)
           // enable case-insensitive autocomplete
           inputDoc addField ("%s_lowercase".format(facet), facetContent)
@@ -174,7 +176,7 @@ object Indexing extends SolrServer {
     // adding sort fields at index time
     configuration.getSortFields.foreach {
       sort =>
-        if (indexedKeys.contains(sort)) {
+        if (indexedKeys.contains(sort.sortKey)) {
           inputDoc addField("sort_all_%s".format(sort), inputDoc.get(indexedKeys.get(sort.sortKey).get))
         }
     }
