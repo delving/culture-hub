@@ -84,7 +84,7 @@ object Statistics extends OrganizationController {
           val facets: Map[String, String] = requestFacets.map { facet =>
             facet.map(f => (f -> f)).toMap
           }.getOrElse {
-            CultureHubPlugin.getEnabledPlugins.find(_.pluginKey == "statistics").map { p =>
+            CultureHubPlugin.getEnabledPlugins.find(_.pluginKey == "statistics").flatMap { p =>
               p.asInstanceOf[StatisticsPlugin].getStatisticsFacets
             }.getOrElse {
               Map.empty
