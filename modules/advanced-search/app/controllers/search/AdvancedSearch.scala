@@ -4,6 +4,9 @@ import play.api.mvc._
 import play.api.Play.current
 import controllers.DelvingController
 import play.api.Play
+import core.CultureHubPlugin
+import models.DomainConfiguration
+import plugins.AdvancedSearchPlugin
 
 /**
  * Advanced search. This one is tailored from ICN and is taken from the legacy system.
@@ -93,6 +96,8 @@ object AdvancedSearch extends DelvingController {
 
   }
 
-  private def advancedSearchType = Play.configuration.getString("modules.advancedSearch.type", Some(Set("icn", "kulturnett")))
+  private def advancedSearchType(implicit configuration: DomainConfiguration): Option[String] = CultureHubPlugin.getEnabledPlugins.find(_.pluginKey == "advanced-search").flatMap { p =>
+    p.asInstanceOf[AdvancedSearchPlugin].getAdvancedSearchType
+  }
 
 }
