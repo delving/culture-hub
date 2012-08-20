@@ -124,7 +124,7 @@ class CollectionProcessor(collection: Collection,
                   val serializedRecords = mappingResults.flatMap {
                     r => {
                       try {
-                        val serialized = MappingService.nodeTreeToXmlString(r._2.root(), r._1 != "raw")
+                        val serialized = MappingService.nodeTreeToXmlString(r._2.rootAugmented(), r._1 != "raw")
                         Some((r._1 -> serialized))
                       } catch {
                         case t: Throwable => {
