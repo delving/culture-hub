@@ -106,7 +106,7 @@ switch (_view.nodeType) {
     break
 
     case "image": if (_view.text()){ }%
-        <div class="image img"><img src="${_view.text()}"#{if _view.attr("class")} class="${_view.attr("class")}"#{/if} #{if _view.attr("title")} title="${_view.attr("title")}"#{/if}/></div>
+        <div class="image img"><img src="${_view.text()}"#{if _view.attr("class")} class="${_view.attr("class")}"#{/if} #{if _view.attr("title")} title="${_view.attr("title")}"#{/if} onerror="showDefaultImg(this)"/></div>
     %{ }
     break
 

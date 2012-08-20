@@ -60,6 +60,7 @@ ui.label.lastname=Last name
 ui.label.less=Less
 ui.label.load=Load
 ui.label.location=Location
+ui.label.loggedInAs=Logged in as
 ui.label.login=Login
 ui.label.logout=Logout
 ui.label.memberSince=Member since

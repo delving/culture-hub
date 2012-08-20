@@ -150,8 +150,7 @@ object Indexing extends SolrServer {
       val uriValue: String = inputDoc.get(uriWithTypeSuffix).getFirstValue.toString
       inputDoc.remove(uriWithTypeSuffix)
       inputDoc.addField(EUROPEANA_URI, uriValue)
-    }
-    else if (inputDoc.contains(uriWithTextSuffix)) {
+    } else if (inputDoc.contains(uriWithTextSuffix)) {
       val uriValue: String = inputDoc.get(uriWithTextSuffix).getFirstValue.toString
       inputDoc.remove(uriWithTextSuffix)
       inputDoc.addField(EUROPEANA_URI, uriValue)
@@ -159,23 +158,23 @@ object Indexing extends SolrServer {
 
     dataSet.getVisibleMetadataSchemas(None).foreach(schema => inputDoc.addField(ALL_SCHEMAS, schema.prefix))
 
-    val indexedKeys = inputDoc.keys.map(key => (SolrBindingService.stripDynamicFieldLabels(key), key)).toMap // to filter always index a facet with _facet .filter(!_.matches(".*_(s|string|link|single)$"))
+    val indexedKeys: Map[String, String] = inputDoc.keys.map(key => (SolrBindingService.stripDynamicFieldLabels(key), key)).toMap // to filter always index a facet with _facet .filter(!_.matches(".*_(s|string|link|single)$"))
 
     // add facets at indexing time
     configuration.getFacets.foreach {
       facet =>
-        if (indexedKeys.contains(facet)) {
+        if (indexedKeys.contains(facet.facetName)) {
           val facetContent = inputDoc.get(indexedKeys.get(facet.facetName).get).getValues
-          inputDoc addField("%s_facet".format(facet), facetContent)
+          inputDoc addField("%s_facet".format(facet.facetName), facetContent)
           // enable case-insensitive autocomplete
-          inputDoc addField ("%s_lowercase".format(facet), facetContent)
+          inputDoc addField ("%s_lowercase".format(facet.facetName), facetContent)
         }
     }
     // adding sort fields at index time
     configuration.getSortFields.foreach {
       sort =>
-        if (indexedKeys.contains(sort)) {
-          inputDoc addField("sort_all_%s".format(sort), inputDoc.get(indexedKeys.get(sort.sortKey).get))
+        if (indexedKeys.contains(sort.sortKey)) {
+          inputDoc addField("sort_all_%s".format(sort.sortKey), inputDoc.get(indexedKeys.get(sort.sortKey).get))
         }
     }
   }
