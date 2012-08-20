@@ -8,8 +8,10 @@ import models.statistics.DataSetStatistics
 import collection.immutable.ListMap
 import core.search.{SolrBindingService, SolrQueryService}
 import org.apache.solr.client.solrj.SolrQuery
-import core.Constants
+import core.{CultureHubPlugin, Constants}
 import org.apache.solr.client.solrj.response.FacetField.Count
+import play.api.i18n.{Lang, Messages}
+import plugins.StatisticsPlugin
 
 /**
  * Prototype statistics plugin based on the statistics provided by the Sip-Creator.
@@ -77,7 +79,19 @@ object Statistics extends OrganizationController {
     DomainConfigured {
       Action {
         implicit request =>
-          val statistics = new SolrFacetBasedStatistics(request.queryString.get("facet.field"), orgId)
+
+          val requestFacets = request.queryString.get("facet.field")
+          val facets: Map[String, String] = requestFacets.map { facet =>
+            facet.map(f => (f -> f)).toMap
+          }.getOrElse {
+            CultureHubPlugin.getEnabledPlugins.find(_.pluginKey == "statistics").map { p =>
+              p.asInstanceOf[StatisticsPlugin].getStatisticsFacets
+            }.getOrElse {
+              Map.empty
+            }
+          }
+
+          val statistics = new SolrFacetBasedStatistics(facets, orgId)
           Ok(statistics.renderAsJSON()).as(JSON)
       }
     }
@@ -87,9 +101,9 @@ object Statistics extends OrganizationController {
 case class StatisticsCounter(name: String, total: Int, withNr: Int = 0)  {
   private val percent = 100.0
 
-  lazy val withPercentage: Long = Math.round(withNr / (total / percent))
+  lazy val withPercentage: Long = math.round(withNr / (total / percent))
   lazy val withoutNr: Long = total - withNr
-  lazy val withOutPercentage: Long = Math.round(withoutNr / (total / percent))
+  lazy val withOutPercentage: Long = math.round(withoutNr / (total / percent))
 
 }
 
@@ -116,14 +130,14 @@ case class StatisticsHeader(name: String, label: String = "", entries: Seq[Combi
   def asListMap = {
     ListMap(
       "name" -> name,
-      "i18n" -> "plugin.statistics.%s".format(if (label.isEmpty) name else label),
+      "i18n" -> (if (label.isEmpty) name else label),
       "entries" ->
         entries.map(_.asListMap)
     )
   }
 }
 
-class SolrFacetBasedStatistics(facets: Option[Seq[String]], orgId: String) (implicit configuration: DomainConfiguration) {
+class SolrFacetBasedStatistics(facets: Map[String, String], orgId: String)(implicit configuration: DomainConfiguration, lang: Lang) {
 
     val orgIdFilter = "%s:%s".format(Constants.ORG_ID, orgId)
 
@@ -132,8 +146,8 @@ class SolrFacetBasedStatistics(facets: Option[Seq[String]], orgId: String) (impl
     // query for all *:* with facets
     query setQuery ("*:*")
     query setFacet (true)
-    val facetsForStatistics = if (facets != None) facets.get else List(Constants.OWNER)
-    query addFacetField (facetsForStatistics: _*)
+    val facetsForStatistics = facets.keys.toSeq
+    query addFacetField (facetsForStatistics: _ *)
     query setRows (0)
     query setFilterQueries (orgIdFilter)
 
@@ -154,10 +168,11 @@ class SolrFacetBasedStatistics(facets: Option[Seq[String]], orgId: String) (impl
     val totalLandingPages = landingPagesResponse.getResults.getNumFound
 
 
-  def createHeader(name: String): StatisticsHeader = {
+  def createHeader(facet: (String, String)): StatisticsHeader = {
     StatisticsHeader(
-      name = name,
-      entries = createEntries(name)
+      name = facet._1,
+      label = Messages(facet._2),
+      entries = createEntries(facet._1)
     )
   }
 
@@ -182,19 +197,19 @@ class SolrFacetBasedStatistics(facets: Option[Seq[String]], orgId: String) (impl
     }
   }
 
-  val entries: Seq[StatisticsHeader] = facetsForStatistics.map(createHeader(_))
+  val entries: Seq[StatisticsHeader] = facets.map(createHeader(_)).toSeq
 
   def renderAsJSON(): String = {
     import net.liftweb.json.{Extraction, JsonAST, Printer}
     implicit val formats = net.liftweb.json.DefaultFormats
 
     val outputJson = Printer.pretty(JsonAST.render(Extraction.decompose(
-      ListMap("Statistics" ->
+      ListMap("statistics" ->
         ListMap(
           "totalRecords" -> totalRecords,
           "totalRecordsWithDigitalObjects" -> totalDigitalObjects,
           "totalRecordsWithLandingPages" -> totalLandingPages,
-          "entries" -> entries.map(_.asListMap)
+          "facets" -> entries.map(_.asListMap)
         )
       ))))
 
