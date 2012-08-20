@@ -1,3 +1,7 @@
+import core.harvesting.OaiPmhService
+import java.util.Date
+import org.joda.time.DateTime
+import org.joda.time.format.ISODateTimeFormat
 import org.specs2.mutable._
 import play.api.test._
 import play.api.test.Helpers._
@@ -98,7 +102,81 @@ class OAIPMHSpec extends TestContext {
 
     }
 
+    "list records with a 'from' datestamp using YYYYMMDD format" in {
+      withTestConfig {
+        val today = OaiPmhService.dateFormat.format(new Date())
+        val request = FakeRequest("GET", "?verb=ListRecords&set=PrincessehofSample&metadataPrefix=icn&from=" + today)
+        val r = controllers.api.OaiPmh.oaipmh("delving", None, None)(request)
+
+        val response = asyncToResult(r)
+
+        status(response) must equalTo(OK)
+
+        val xml = contentAsXML(response)
+        val error = xml \ "error"
+        error.length must equalTo(0)
+
+        val records = xml \ "ListRecords" \ "record"
+        records.length must equalTo(6) // 6 valid records were inserted today
+      }
+    }
+
+
+    "list records with an 'until' datestamp using YYYYMMDD format" in {
+      withTestConfig {
+        val today = OaiPmhService.dateFormat.format(new Date())
+        val request = FakeRequest("GET", "?verb=ListRecords&set=PrincessehofSample&metadataPrefix=icn&until=" + today)
+        val r = controllers.api.OaiPmh.oaipmh("delving", None, None)(request)
+
+        val response = asyncToResult(r)
+
+        status(response) must equalTo(OK)
+
+        val xml = contentAsXML(response)
+        val error = xml \ "error"
+        error.length must equalTo(1)
+        (error \ "@code").text must equalTo("noRecordsMatch")
+      }
+    }
+
+
+    "list no records with a 'from' datestamp using a future YYYYMMDD format" in {
+      withTestConfig {
+        val d = new DateTime()
+        val tomorrow = OaiPmhService.dateFormat.format(d.plusDays(1).toDate)
+        val request = FakeRequest("GET", "?verb=ListRecords&set=PrincessehofSample&metadataPrefix=icn&from=" + tomorrow)
+        val r = controllers.api.OaiPmh.oaipmh("delving", None, None)(request)
+
+        val response = asyncToResult(r)
+
+        status(response) must equalTo(OK)
+
+        val xml = contentAsXML(response)
+        val error = xml \ "error"
+        error.length must equalTo(1)
+        (error \ "@code").text must equalTo("noRecordsMatch")
+      }
+    }
   }
+
+  "list no records with an 'until' datestamp using a past YYYYMMDD format" in {
+    withTestConfig {
+      val d = new DateTime()
+      val yesterday = OaiPmhService.dateFormat.format(d.minusDays(1).toDate)
+      val request = FakeRequest("GET", "?verb=ListRecords&set=PrincessehofSample&metadataPrefix=icn&until=" + yesterday)
+      val r = controllers.api.OaiPmh.oaipmh("delving", None, None)(request)
+
+      val response = asyncToResult(r)
+
+      status(response) must equalTo(OK)
+
+      val xml = contentAsXML(response)
+      val error = xml \ "error"
+      error.length must equalTo(1)
+      (error \ "@code").text must equalTo("noRecordsMatch")
+    }
+  }
+
 
   step(cleanup())
 

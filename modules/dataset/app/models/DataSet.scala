@@ -35,6 +35,7 @@ import models.statistics.DataSetStatistics
 import core.collection.{OrganizationCollection, OrganizationCollectionInformation, Harvestable}
 import controllers.organization.DataSetEvent
 import plugins.DataSetPlugin
+import java.util.Date
 
 /**
  * DataSet model
@@ -136,9 +137,9 @@ case class DataSet(
 
   // ~~~ harvesting
 
-  def getRecords(metadataFormat: String, position: Int, limit: Int): (List[MetadataItem], Long) = {
+  def getRecords(metadataFormat: String, position: Int, limit: Int, from: Option[Date], until: Option[Date]): (List[MetadataItem], Long) = {
     val cache = MetadataCache.get(orgId, spec, ITEM_TYPE_MDR)
-    val records = cache.list(position, Some(limit)).filter(_.xml.contains(metadataFormat))
+    val records = cache.list(position, Some(limit), from, until).filter(_.xml.contains(metadataFormat))
     val totalSize = cache.count()
     (records, totalSize)
   }

@@ -34,22 +34,9 @@ import core.collection.{OrganizationCollectionInformation, Harvestable}
  *  This implementation is based on the v.2.0 specification that can be found here: http://www.openarchives.org/OAI/openarchivesprotocol.html
  *
  * @author Sjoerd Siebinga <sjoerd.siebinga@gmail.com>
+ * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  * @since Jun 16, 2010 12:06:56 AM
  */
-
-object OaiPmhService {
-
-  val utcFormat: SimpleDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'")
-  val dateFormat = new SimpleDateFormat("yyyy-MM-dd")
-
-  def toUtcDateTime(date: Date): String = utcFormat.format(date)
-
-  def currentDate = toUtcDateTime(new Date())
-
-  def printDate(date: Date): String = if (date != null) toUtcDateTime(date) else ""
-
-}
-
 class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, orgId: String, format: Option[String], accessKey: Option[String])(implicit configuration: DomainConfiguration) {
 
   private val log = Logger("CultureHub")
@@ -106,22 +93,29 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
     // check for illegal queryParameter keys
     if (!(params.keys filterNot (legalParameterKeys contains)).isEmpty) return false
 
+    // check for validity of dates
+    Seq(params.getFirst("from"), params.getFirst("until")).filterNot(_.isEmpty).foreach { date =>
+      try {
+        OaiPmhService.dateFormat.parse(date.get)
+      } catch {
+        case t: Throwable => {
+          try {
+            OaiPmhService.utcFormat.parse(date.get)
+          } catch {
+            case t: Throwable => return false
+          }
+        }
+      }
+    }
+
     true
   }
-
-  val utcFormat: SimpleDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'")
-  private def toUtcDateTime(date: Date) : String = utcFormat.format(date)
-  private def currentDate = toUtcDateTime (new Date())
-  private def printDate(date: Date) : String = if (date != null) toUtcDateTime(date) else ""
-
-  /**
-   */
 
   def processIdentify(pmhRequestEntry: PmhRequestEntry) : Elem = {
     <OAI-PMH xmlns="http://www.openarchives.org/OAI/2.0/"
              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
              xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/ http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd">
-      <responseDate>{currentDate}</responseDate>
+      <responseDate>{OaiPmhService.currentDate}</responseDate>
       <request verb="Identify">{requestURL}</request>
       <Identify>
         <repositoryName>{configuration.oaiPmhService.repositoryName}</repositoryName>
@@ -129,7 +123,7 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
         <protocolVersion>2.0</protocolVersion>
         <adminEmail>{configuration.oaiPmhService.adminEmail}</adminEmail>
         <earliestDatestamp>{configuration.oaiPmhService.earliestDateStamp}</earliestDatestamp>
-        <deletedRecord>persistent</deletedRecord>
+        <deletedRecord>no</deletedRecord>
         <granularity>YYYY-MM-DDThh:mm:ssZ</granularity>
         <compression>deflate</compression>
         <description>
@@ -158,7 +152,7 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
     <OAI-PMH xmlns="http://www.openarchives.org/OAI/2.0/"
              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
              xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/ http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd">
-      <responseDate>{currentDate}</responseDate>
+      <responseDate>{OaiPmhService.currentDate}</responseDate>
       <request verb="ListSets">{requestURL}</request>
       <ListSets>
         { for (set <- collections) yield
@@ -205,7 +199,7 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
       <OAI-PMH xmlns="http://www.openarchives.org/OAI/2.0/"
                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/ http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd">
-        <responseDate>{currentDate}</responseDate>
+        <responseDate>{OaiPmhService.currentDate}</responseDate>
         {formatRequest}
         <ListMetadataFormats>
           {for (format <- metadataFormats) yield
@@ -223,7 +217,7 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
   def processListRecords(pmhRequestEntry: PmhRequestEntry, idsOnly: Boolean = false) : Elem = {
 
     val setName = pmhRequestEntry.getSet
-    if(setName.isEmpty) throw new BadArgumentException("No set provided")
+    if (setName.isEmpty) throw new BadArgumentException("No set provided")
     val metadataFormat = pmhRequestEntry.getMetadataFormat
 
     if(format.isDefined && metadataFormat != format.get) throw new MappingNotFoundException("Invalid format provided for this URL")
@@ -235,20 +229,20 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
     if(!collection.getVisibleMetadataSchemas(accessKey).exists(f => f.prefix == metadataFormat)) {
       throw new MappingNotFoundException("Format %s unknown".format(metadataFormat))
     }
-    val (records, totalValidRecords) = collection.getRecords(metadataFormat, pmhRequestEntry.getLastTransferIdx, pmhRequestEntry.recordsReturned)
+    val (records, totalValidRecords) = collection.getRecords(metadataFormat, pmhRequestEntry.getLastTransferIdx, pmhRequestEntry.recordsReturned, pmhRequestEntry.pmhRequestItem.from, pmhRequestEntry.pmhRequestItem.until)
 
     val recordList = records.toList
 
     if(recordList.size == 0) throw new RecordNotFoundException(requestURL)
 
-    val from = printDate(recordList.head.modified)
-    val to = printDate(recordList.last.modified)
+    val from = OaiPmhService.printDate(recordList.head.modified)
+    val to = OaiPmhService.printDate(recordList.last.modified)
 
     val elem: Elem = if (!idsOnly) {
       <OAI-PMH xmlns="http://www.openarchives.org/OAI/2.0/"
                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/ http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd">
-        <responseDate>{currentDate}</responseDate>
+        <responseDate>{OaiPmhService.currentDate}</responseDate>
         <request verb="ListRecords" from={from} until={to} metadataPrefix={metadataFormat}>{requestURL}</request>
         <ListRecords>
           {for (record <- recordList) yield
@@ -261,7 +255,7 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
       <OAI-PMH xmlns="http://www.openarchives.org/OAI/2.0/"
                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/ http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd">
-        <responseDate>{currentDate}</responseDate>
+        <responseDate>{OaiPmhService.currentDate}</responseDate>
         <request verb="ListIdentifiers" from={from} until={to}
                  metadataPrefix={metadataFormat}
                  set={setName}>{requestURL}</request>
@@ -317,7 +311,7 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/ http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd">
         <responseDate>
-          {currentDate}
+          {OaiPmhService.currentDate}
         </responseDate>
         <request verb="GetRecord" identifier={identifier}
                  metadataPrefix={metadataFormat}>
@@ -343,7 +337,7 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
       <record>
         <header>
           <identifier>{URLEncoder.encode(record.itemId, "utf-8")}</identifier>
-          <datestamp>{printDate(record.modified)}</datestamp>
+          <datestamp>{OaiPmhService.printDate(record.modified)}</datestamp>
           <setSpec>{set}</setSpec>
         </header>
         <metadata>
@@ -380,13 +374,28 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
   
 
   def createPmhRequest(params: Params, verb: PmhVerb): PmhRequestEntry = {
+
     def getParam(key: String) = params.getValueOrElse(key, "")
+
+    def parseDate(date: String) = try {
+      OaiPmhService.dateFormat.parse(date)
+    } catch {
+      case t: Throwable => {
+        try {
+          OaiPmhService.utcFormat.parse(date)
+        } catch {
+          case t: Throwable =>
+            log.warn("Trying to parse invalid date " + date)
+            new Date()
+        }
+      }
+    }
 
     val pmh = PmhRequestItem(
       verb,
       getParam("set"),
-      getParam("from"),
-      getParam("until"),
+      params.getFirst("from").map(parseDate(_)),
+      params.getFirst("until").map(parseDate(_)),
       getParam("metadataPrefix"),
       getParam("identifier")
     )
@@ -406,7 +415,7 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
     <OAI-PMH xmlns="http://www.openarchives.org/OAI/2.0/"
              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
              xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/ http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd">
-      <responseDate>{currentDate}</responseDate>
+      <responseDate>{OaiPmhService.currentDate}</responseDate>
       <request>{requestURL}</request>
       {errorCode match {
       case "badArgument" => <error code="badArgument">The request includes illegal arguments, is missing required arguments, includes a repeated argument, or values for arguments have an illegal syntax.</error>
@@ -422,7 +431,7 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
     </OAI-PMH>
   }
 
-  case class PmhRequestItem(verb: PmhVerb, set: String, from: String, until: String, metadataPrefix: String, identifier: String)
+  case class PmhRequestItem(verb: PmhVerb, set: String, from: Option[Date], until: Option[Date], metadataPrefix: String, identifier: String)
 
   case class PmhRequestEntry(pmhRequestItem: PmhRequestItem, resumptionToken: String) {
 
@@ -450,7 +459,7 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
 
       val cursor = currentPageNr * recordsReturned
       if (cursor < originalListSize) {
-        <resumptionToken expirationDate={printDate(new Date())} completeListSize={(originalListSize).toString}
+        <resumptionToken expirationDate={OaiPmhService.printDate(new Date())} completeListSize={(originalListSize).toString}
                          cursor={cursor.toString}>{nextResumptionToken}</resumptionToken>
       }
       else
@@ -458,6 +467,17 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
     }
 
   }
+
+}
+
+object OaiPmhService {
+  val utcFormat: SimpleDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'")
+  val dateFormat = new SimpleDateFormat("yyyy-MM-dd")
+  utcFormat.setLenient(false)
+  dateFormat.setLenient(false)
+  private def toUtcDateTime(date: Date) : String = utcFormat.format(date)
+  private def currentDate = toUtcDateTime (new Date())
+  private def printDate(date: Date) : String = if (date != null) toUtcDateTime(date) else ""
 
 }
 
