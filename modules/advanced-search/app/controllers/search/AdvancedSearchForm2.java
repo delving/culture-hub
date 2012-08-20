@@ -260,7 +260,7 @@ public class AdvancedSearchForm2 {
             builder.append("*:*");
         }
         if (isValidRangeQuery(creationFrom, creationTo)) {
-            builder.append(" ").append(makeRangeQueryString("dc_date", creationFrom, creationTo));
+            builder.append("&").append(makeRangeQueryString("dc_date", creationFrom, creationTo));
         }
         if (countyList != null && !allCounties) {
             for (String county : countyList) {
@@ -291,7 +291,7 @@ public class AdvancedSearchForm2 {
             builder.append("&qf=delving_hasDigitalObject_facet:true");
         }
         if (isValid(owner) && !owner.equalsIgnoreCase("all_owners")) {
-            builder.append("&qf=delving_owner:").append(owner).append("");
+            builder.append("&qf=delving_owner_facet:").append(owner).append("");
         }
         if (isValid(getSortBy())) {
             builder.append("&sortBy=").append(getSortBy());

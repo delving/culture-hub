@@ -72,9 +72,11 @@ object AdvancedSearch extends DelvingController {
                 form.setOwnerList(request.body.get("ownersList").getOrElse(Seq.empty).toArray)
                 form.setCountyList(request.body.get("countyList").getOrElse(Seq.empty).toArray)
                 form.setMunicipalityList(request.body.get("municipalityList").getOrElse(Seq.empty).toArray)
-                form.setOnlyDigitalObjects(field("onlyDigitalObjects").toBoolean)
+                form.setOnlyDigitalObjects(field("onlyDigitalObjects") == "true")
                 form.setAllTypes(field("allTypes") == "all")
                 form.setTypeList(request.body.get("typeList").getOrElse(Seq.empty).toArray)
+                form.setCreationFrom(field("creationFrom"))
+                form.setCreationTo(field("creationTo"))
 
                 form.toSolrQuery
 

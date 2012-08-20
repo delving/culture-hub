@@ -181,7 +181,7 @@
               $(event.target).siblings(".multiselectList").hide("slow");
             }
         });
-        $('#ownersList').tokenInput('/organizations/${orgId}/api/search?explain=fieldValue&field=delving_owner&value=&format=json', {
+        $('#ownersList').tokenInput('/organizations/${orgId}/api/search?explain=fieldValue&field=delving_owner_facet&value=&format=json', {
           queryParam: 'value',
           propertyToSearch: 'value',
           jsonContainer: 'results',
