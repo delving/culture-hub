@@ -58,6 +58,7 @@ ui.label.lastname=Achternaam
 ui.label.less=Minder
 ui.label.load=Laden
 ui.label.location=Plaats
+ui.label.loggedInAs=Ingelogd als
 ui.label.login=Inloggen
 ui.label.logout=Uitloggen
 ui.label.memberSince=Lid sinds
