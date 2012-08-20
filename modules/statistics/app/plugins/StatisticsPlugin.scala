@@ -18,9 +18,9 @@ class StatisticsPlugin(app: Application) extends CultureHubPlugin(app) {
   val pluginKey: String = "statistics"
 
   /** facet key -> i18n key **/
-  private var statisticsFacets: Map[String, String] = null
+  private var statisticsFacets: Map[DomainConfiguration, Map[String, String]] = Map.empty
 
-  def getStatisticsFacets = statisticsFacets
+  def getStatisticsFacets(implicit configuration: DomainConfiguration) = statisticsFacets.get(configuration)
 
   /**
    * Called at configuration building time, giving the plugin the chance to build internal configuration
@@ -29,7 +29,7 @@ class StatisticsPlugin(app: Application) extends CultureHubPlugin(app) {
    * @param config the Play Configuration object
    */
   override def onBuildConfiguration(configuration: DomainConfiguration, config: Option[Configuration]) {
-    statisticsFacets = config.map {
+    val facets = config.map {
       c =>
         c.underlying.getStringList("facets").asScala.map {
           facet => {
@@ -50,10 +50,12 @@ class StatisticsPlugin(app: Application) extends CultureHubPlugin(app) {
         "delving_provider" -> "metadata.delving.provider"
       )
     }
+
+    statisticsFacets = statisticsFacets + (configuration -> facets)
   }
 
   override val routes: ListMap[(String, Regex), (List[String], Map[String, String]) => Handler] = ListMap(
-    ("GET", """^/organizations/([A-Za-z0-9-]+)/statistics/dataset$""".r) -> {
+    ("GET", """^/organizations/([A-Za-z0-9-]+)/statistics""".r) -> {
       (pathArgs: List[String], queryString: Map[String, String]) => controllers.statistics.Statistics.statistics(pathArgs(0))
     },
     ("GET", """^/organizations/([A-Za-z0-9-]+)/api/statistics$""".r) -> {
@@ -66,8 +68,8 @@ class StatisticsPlugin(app: Application) extends CultureHubPlugin(app) {
       key = "statistics",
       titleKey = "plugin.statistics.statistics",
       roles = Seq(Role.OWN),
-      items = Seq(
-        MenuElement(url = "/organizations/%s/statistics/dataset".format(orgId), titleKey = "plugin.statistics.dataset")
+      mainEntry = Some(
+        MenuElement(url = "/organizations/%s/statistics".format(orgId), titleKey = "plugin.statistics.statistics")
       )
     )
   )

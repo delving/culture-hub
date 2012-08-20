@@ -451,19 +451,6 @@ object DomainConfiguration {
       }
     }
 
-    // plugin configuration
-
-    configurations.map { configuration =>
-      configuration.plugins.foreach { pluginKey =>
-        val conf = config.getConfig("%s.plugin.%s".format(configuration.name, pluginKey))
-        CultureHubPlugin.hubPlugins.find(_.pluginKey == pluginKey).map(_.onBuildConfiguration(configuration, conf))
-      }
-    }
-
-
-
-
-
     // access control subsystem: check roles and resource handlers defined by plugins
 
     val duplicateRoleKeys = plugins.flatMap(plugin => plugin.roles.map(r => (r -> plugin.pluginKey))).groupBy(_._1.key).filter(_._2.size > 1)
@@ -523,9 +510,7 @@ object DomainConfiguration {
       configuration.copy(roles = configuration.roles ++ pluginRoles)
     }
 
-
-
-    if (Play.isTest) {
+    val configs = if (Play.isTest) {
       enhancedConfigurations.map { c =>
         c.copy(
           mongoDatabase = c.mongoDatabase + "-TEST",
@@ -539,6 +524,19 @@ object DomainConfiguration {
     } else {
       enhancedConfigurations
     }
+
+
+    // when everything else is ready, do the plugin configuration
+
+    configs.map { configuration =>
+      configuration.plugins.foreach { pluginKey =>
+        val conf = config.getConfig("%s.plugin.%s".format(configuration.name, pluginKey))
+        CultureHubPlugin.hubPlugins.find(_.pluginKey == pluginKey).map(_.onBuildConfiguration(configuration, conf))
+      }
+    }
+
+    configs
+
   }
 
 
