@@ -138,8 +138,8 @@ object Groups extends OrganizationController {
                             case Role.OWN.key => // do nothing
                             case _ =>
 
-                              val lookup = resourceLookup(role.resourceType.get.resourceType).get
                               val resources: Seq[Resource] = role.resourceType.map { resourceType =>
+                                val lookup = resourceLookup(role.resourceType.get.resourceType).get
                                 groupForm.resources.flatMap { resourceToken =>
                                   lookup.findResourceByKey(orgId, resourceToken.id)
                                 }
