@@ -1,6 +1,5 @@
 package plugins
 
-import akka.util.duration._
 import jobs._
 import play.api.{Logger, Play, Application}
 import Play.current
@@ -181,7 +180,7 @@ class DataSetPlugin(app: Application) extends CultureHubPlugin(app) {
 
     // DataSet processing
     // Play can't do multi-threading in DEV mode...
-    val processor = if (Play.isDev) {
+    if (Play.isDev) {
       Akka.system.actorOf(Props[Processor], name = "dataSetProcessor")
     } else {
       Akka.system.actorOf(Props[Processor].withRouter(
@@ -191,10 +190,11 @@ class DataSetPlugin(app: Application) extends CultureHubPlugin(app) {
       ), name = "dataSetProcessor")
     }
 
-    // DataSet event log housekeeping
-    val dataSetHousekeeper = Akka.system.actorOf(Props[DataSetEventHousekeeper])
-    Akka.system.scheduler.schedule(20 seconds, 30 minutes, dataSetHousekeeper, CleanupTransientEvents)
+    // Processing queue watcher
+    Akka.system.actorOf(Props[ProcessingQueueWatcher])
 
+    // DataSet event log housekeeping
+    Akka.system.actorOf(Props[DataSetEventHousekeeper])
 
     // ~~~ cleanup set states
 
