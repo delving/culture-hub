@@ -135,7 +135,7 @@ case class DataSet(
 
   def getResourceType = DataSet.RESOURCE_TYPE
 
-  def editors: Seq[String] = Group.dao(configuration).findUsersInRole(orgId, DataSetPlugin.ROLE_DATASET_EDITOR.key)
+  def editors: Seq[String] = Group.dao(configuration).findUsersWithAccess(orgId, DataSetPlugin.ROLE_DATASET_EDITOR.key, this)
 
   val administrators: Seq[String] = Group.dao(configuration).findResourceAdministrators(orgId, DataSet.RESOURCE_TYPE)
 

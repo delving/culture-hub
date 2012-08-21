@@ -46,17 +46,18 @@ class GroupDAO(collection: MongoCollection) extends SalatDAO[Group, ObjectId](co
   def findResourceAdministrators(orgId: String, resourceType: ResourceType): Seq[String] = {
     Role.
             allRoles(DomainConfigurationHandler.getByOrgId(orgId)).
-            filter(_.resourceType == Some(resourceType)).
+            filter(r => r.resourceType == Some(resourceType) && r.isResourceAdmin).
             flatMap(role => find(MongoDBObject("orgId" -> orgId, "roleKey" -> role.key))).
             flatMap(group => group.users).
             toSeq
   }
 
-  def findUsersInRole(orgId: String, roleKey: String): Seq[String] = {
+  def findUsersWithAccess(orgId: String, roleKey: String, resource: Resource): Seq[String] = {
     Role.
             allRoles(DomainConfigurationHandler.getByOrgId(orgId)).
             filter(_.key == roleKey).
             flatMap(role => find(MongoDBObject("orgId" -> orgId, "roleKey" -> role.key))).
+            filter(group => group.resources.exists(p => p.getResourceKey == resource.getResourceKey && p.getResourceType == resource.getResourceType)).
             flatMap(group => group.users).
             toSeq
   }
