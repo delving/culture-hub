@@ -16,7 +16,7 @@
 
 package core.indexing
 
-import core.collection.{Harvestable, OrganizationCollectionInformation}
+import core.collection.{Indexable, Harvestable, OrganizationCollectionInformation}
 import extensions.HTTPClient
 import org.apache.solr.common.SolrInputDocument
 import play.api.Logger
@@ -41,7 +41,7 @@ import org.apache.commons.lang.StringEscapeUtils
 
 object Indexing extends SolrServer {
 
-  type IndexableCollection = Harvestable with OrganizationCollectionInformation
+  type IndexableCollection = Indexable with OrganizationCollectionInformation
 
   def indexOne(dataSet: IndexableCollection, mdr: MetadataItem, mapped: Map[String, List[Any]], metadataFormatForIndexing: String)(implicit configuration: DomainConfiguration): Either[Throwable, String] = {
     val doc = createSolrInputDocument(mapped)
@@ -156,7 +156,7 @@ object Indexing extends SolrServer {
       inputDoc.addField(EUROPEANA_URI, uriValue)
     }
 
-    dataSet.getVisibleMetadataSchemas(None).foreach(schema => inputDoc.addField(ALL_SCHEMAS, schema.prefix))
+    dataSet.getIndexingMappingPrefix.foreach(prefix => inputDoc.addField(ALL_SCHEMAS, prefix))
 
     val indexedKeys: Map[String, String] = inputDoc.keys.map(key => (SolrBindingService.stripDynamicFieldLabels(key), key)).toMap // to filter always index a facet with _facet .filter(!_.matches(".*_(s|string|link|single)$"))
 

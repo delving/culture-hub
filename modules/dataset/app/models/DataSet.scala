@@ -32,7 +32,7 @@ import play.api.Play.current
 import java.net.URL
 import core.Constants._
 import models.statistics.DataSetStatistics
-import core.collection.{OrganizationCollection, OrganizationCollectionInformation, Harvestable}
+import core.collection.{Indexable, OrganizationCollection, OrganizationCollectionInformation, Harvestable}
 import controllers.organization.DataSetEvent
 import plugins.DataSetPlugin
 import java.util.Date
@@ -83,7 +83,7 @@ case class DataSet(
                           // TODO not in use anymore, we read the configuration directly. revive if necessary.
                           idxFacets: List[String] = List.empty[String], // the facet fields selected for indexing, at the moment derived from configuration
                           idxSortFields: List[String] = List.empty[String] // the sort fields selected for indexing, at the moment derived from configuration
-                          ) extends OrganizationCollection with OrganizationCollectionInformation with Harvestable with Resource {
+                          ) extends OrganizationCollection with OrganizationCollectionInformation with Harvestable with Indexable with Resource {
 
   val configuration = DomainConfigurationHandler.getByOrgId(orgId)
 
@@ -104,8 +104,6 @@ case class DataSet(
     val storedFacts = (for (fact <- details.facts) yield (fact._1, fact._2.toString)).toMap[String, String]
     initialFacts ++ storedFacts
   }
-
-  def getIndexingMappingPrefix = idxMappings.headOption
 
   def getAllMappingSchemas = mappings.map(mapping => mapping._2.format).toList
 
@@ -149,8 +147,11 @@ case class DataSet(
     (records, totalSize)
   }
 
-
   def getNamespaces: Map[String, String] = namespaces
+
+  // ~~~ indexing
+
+  def getIndexingMappingPrefix = idxMappings.headOption
 
 
   // ~~~ collection information
