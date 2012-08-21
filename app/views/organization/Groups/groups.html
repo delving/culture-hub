@@ -85,9 +85,7 @@
 
         $('#saveButton').click(function (event) {
             event.preventDefault();
-            handleSubmit('/organizations/${orgId}/groups/submit', groupModel, '#groupForm', null, function () {
-              document.location = '/organizations/${orgId}/groups/update/' + groupModel.id();
-            }, null);
+            handleSubmit('/organizations/${orgId}/groups/submit', groupModel, '#groupForm', '/organizations/${orgId}/groups');
         });
     });
 </script>
