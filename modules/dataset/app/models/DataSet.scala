@@ -135,6 +135,10 @@ case class DataSet(
 
   def getResourceType = DataSet.RESOURCE_TYPE
 
+  def editors: Seq[String] = Group.dao(configuration).findUsersInRole(orgId, DataSetPlugin.ROLE_DATASET_EDITOR.key)
+
+  val administrators: Seq[String] = Group.dao(configuration).findResourceAdministrators(orgId, DataSet.RESOURCE_TYPE)
+
   // ~~~ harvesting
 
   def getRecords(metadataFormat: String, position: Int, limit: Int, from: Option[Date], until: Option[Date]): (List[MetadataItem], Long) = {
@@ -290,6 +294,10 @@ class DataSetDAO(collection: MongoCollection) extends SalatDAO[DataSet, ObjectId
 
   def canEdit(ds: DataSet, userName: String)(implicit configuration: DomainConfiguration) = {
     findAllForUser(userName, configuration.orgId, DataSetPlugin.ROLE_DATASET_EDITOR).contains(ds)
+  }
+
+  def canAdministrate(ds: DataSet, userName: String)(implicit configuration: DomainConfiguration) = {
+    findAllForUser(userName, configuration.orgId, DataSetPlugin.ROLE_DATASET_ADMIN).contains(ds)
   }
 
   // workaround for salat not working as it should

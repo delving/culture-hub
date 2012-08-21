@@ -76,15 +76,14 @@
                     <!-- /ko -->
                 </td>
                 <td>
-                    ${canModify}
-                    #{if isAdmin}
-                        <a data-bind="attr: { href: '/organizations/' + orgId() + '/dataset/' + spec() + '/update' }" rel="nofollow">
-                            <i class="icon icon-edit"></i> ${messages.get('ui.label.edit')}
-                        </a>
-                    #{/if}
-                    #{else}
-                       - - -
-                    #{/else}
+                  <!-- ko if: canEdit().indexOf('${userName}') > -1 -->
+                    <a data-bind="attr: { href: '/organizations/' + orgId() + '/dataset/' + spec() + '/update' }" rel="nofollow">
+                        <i class="icon icon-edit"></i> ${messages.get('ui.label.edit')}
+                    </a>
+                  <!-- /ko -->
+                  <!-- ko ifnot: canEdit().indexOf('${userName}') > -1 -->
+                    - - -
+                  <!-- /ko -->
                 </td>
 
             </tr>

@@ -43,6 +43,24 @@ class GroupDAO(collection: MongoCollection) extends SalatDAO[Group, ObjectId](co
 
   def findDirectMemberships(userName: String, orgId: String) = find(MongoDBObject("orgId" -> orgId, "users" -> userName))
 
+  def findResourceAdministrators(orgId: String, resourceType: ResourceType): Seq[String] = {
+    Role.
+            allRoles(DomainConfigurationHandler.getByOrgId(orgId)).
+            filter(_.resourceType == Some(resourceType)).
+            flatMap(role => find(MongoDBObject("orgId" -> orgId, "roleKey" -> role.key))).
+            flatMap(group => group.users).
+            toSeq
+  }
+
+  def findUsersInRole(orgId: String, roleKey: String): Seq[String] = {
+    Role.
+            allRoles(DomainConfigurationHandler.getByOrgId(orgId)).
+            filter(_.key == roleKey).
+            flatMap(role => find(MongoDBObject("orgId" -> orgId, "roleKey" -> role.key))).
+            flatMap(group => group.users).
+            toSeq
+  }
+
   def addUser(orgId: String, userName: String, groupId: ObjectId): Boolean = {
     // TODO FIXME make this operation safe
     HubUser.dao(orgId).update(MongoDBObject("userName" -> userName), $addToSet ("groups" -> groupId), false, false, WriteConcern.Safe)
