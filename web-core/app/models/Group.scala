@@ -7,13 +7,18 @@ import HubMongoContext._
 import com.mongodb.casbah.Imports._
 import com.mongodb.casbah.WriteConcern
 import core.HubServices
+import play.api.i18n.Lang
 
 case class Group(_id: ObjectId = new ObjectId,
                  name: String,
                  orgId: String,
                  roleKey: String,
                  resources: Seq[PersistedResource] = Seq.empty,
-                 users: Seq[String] = Seq.empty[String])
+                 users: Seq[String] = Seq.empty[String]) {
+
+  def description(lang: String)(implicit configuration: DomainConfiguration) = Role.get(roleKey).getDescription(Lang(lang))
+
+}
 
 object Group extends MultiModel[Group, GroupDAO] {
 

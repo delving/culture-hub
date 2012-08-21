@@ -27,8 +27,18 @@ object Groups extends OrganizationController {
   def list(orgId: String) = OrgMemberAction(orgId) {
     Action {
       implicit request =>
-        val groups = Group.dao.list(userName, orgId).toSeq.sortWith((a, b) => a.roleKey == Role.OWN.key || a.name < b.name)
-        Ok(Template('groups -> groups))
+        val groups = Group.dao.list(userName, orgId).map { group =>
+          GroupListModel(
+            id = group._id.toString,
+            name = group.name,
+            description = Role.get(group.roleKey).getDescription(lang),
+            size = group.users.size
+          )
+        }.toSeq
+
+        val groupsData = Map("groups" -> groups)
+
+        Ok(Template('groups -> JJson.generate(groupsData)))
     }
   }
 
@@ -249,3 +259,5 @@ object GroupViewModel {
   )
   
 }
+
+case class GroupListModel(id: String, name: String, size: Int, description: String)
