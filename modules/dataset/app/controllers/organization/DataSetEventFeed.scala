@@ -266,7 +266,7 @@ class DataSetEventFeed extends Actor {
           implicit val configuration = DomainConfigurationHandler.getByName(subscriber._2.configuration)
 
           def withAdministrableSet(block: DataSet => Unit) {
-            withSet(block, (set, userName) => DataSet.dao.canAdministrate(set, userName))
+            withSet(block, (set, userName) => DataSet.dao.canAdministrate(userName))
           }
 
           def withEditableSet(block: DataSet => Unit) {

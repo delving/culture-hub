@@ -296,8 +296,9 @@ class DataSetDAO(collection: MongoCollection) extends SalatDAO[DataSet, ObjectId
     findAllForUser(userName, configuration.orgId, DataSetPlugin.ROLE_DATASET_EDITOR).contains(ds)
   }
 
-  def canAdministrate(ds: DataSet, userName: String)(implicit configuration: DomainConfiguration) = {
-    findAllForUser(userName, configuration.orgId, DataSetPlugin.ROLE_DATASET_ADMIN).contains(ds)
+  def canAdministrate(userName: String)(implicit configuration: DomainConfiguration) = {
+    Group.dao.findResourceAdministrators(configuration.orgId, DataSet.RESOURCE_TYPE).contains(userName) ||
+    HubServices.organizationService(configuration).isAdmin(configuration.orgId, userName)
   }
 
   // workaround for salat not working as it should

@@ -148,8 +148,10 @@ object DataSetControl extends OrganizationController {
         val dataSet = if (spec == None) None else DataSet.dao.findBySpecAndOrgId(spec.get, orgId)
         val allRecordDefinitions: Seq[String] = RecordDefinition.enabledDefinitions(configuration)
 
-        if (dataSet.isDefined && !DataSet.dao.canEdit(dataSet.get, connectedUser)) {
+        if (dataSet != None && !DataSet.dao.canEdit(dataSet.get, connectedUser)) {
           Forbidden("You are not allowed to edit DataSet %s".format(spec.get))
+        } else if(dataSet == None && !DataSet.dao.canAdministrate(connectedUser)) {
+          Forbidden("You are not allowed to create DataSets")
         } else {
           val data = if (dataSet == None) {
             JJson.generate(DataSetCreationViewModel(
@@ -247,7 +249,7 @@ object DataSetControl extends OrganizationController {
               }
               case None =>
                 // TODO for now only admins can do
-                if (!isAdmin(orgId)) return Action {
+                if (!DataSet.dao.canAdministrate(connectedUser)) return Action {
                   implicit request => Forbidden("You are not allowed to create a DataSet.")
                 }
 

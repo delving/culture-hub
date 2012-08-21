@@ -21,7 +21,7 @@ object DataSets extends OrganizationController {
   def list(orgId: String) = OrgMemberAction(orgId) {
     Action {
       implicit request =>
-        Ok(Template('title -> listPageTitle("dataset")))
+        Ok(Template('title -> listPageTitle("dataset"), 'canAdministrate -> DataSet.dao.canAdministrate(connectedUser)))
     }
   }
 
