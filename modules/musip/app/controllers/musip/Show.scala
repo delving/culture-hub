@@ -6,6 +6,9 @@ import play.api.i18n.Lang
 import play.api.mvc.{RequestHeader, Action}
 import models.{DomainConfiguration, MetadataCache}
 import core.Constants._
+import com.mongodb.BasicDBList
+import com.mongodb.casbah.Imports._
+import scala.Some
 
 /**
  *
@@ -25,10 +28,13 @@ object Show extends DelvingController {
         Action {
           implicit request => show(orgId, itemId, "collection", collectionViewDefinition(configuration)) match {
             case Some((viewTree, systemFields: Map[String, Map[String, String]], returnToResults: String, searchTerm: String)) =>
+
+              val fields = systemFields.get("delving_title").getOrElse(new BasicDBList).asInstanceOf[BasicDBList]
+
               renderArgs += ("breadcrumbs" -> Breadcrumbs.crumble(
                 Map(
                   "search" -> Map("searchTerm" -> searchTerm, "returnToResults" -> returnToResults),
-                  "title" -> Map("url" -> "", "label" -> systemFields.get("delving_title").getOrElse(Seq("")).headOption.getOrElse("").toString),
+                  "title" -> Map("url" -> "", "label" -> Option(fields.get(0)).getOrElse("").toString),
                   "inOrg" -> Map("inOrg" -> "yes")
                 )
               ))
@@ -46,13 +52,16 @@ object Show extends DelvingController {
       Action {
         implicit request => show(orgId, itemId, "museum", museumViewDefinition(configuration)) match {
           case Some((viewTree, systemFields: Map[String, Map[String, String]], returnToResults: String, searchTerm: String)) =>
+            val fields = systemFields.get("delving_title").getOrElse(new BasicDBList).asInstanceOf[BasicDBList]
+
             renderArgs += ("breadcrumbs" -> Breadcrumbs.crumble(
               Map(
                 "search" -> Map("searchTerm" -> searchTerm, "returnToResults" -> returnToResults),
-                "title" -> Map("url" -> "", "label" -> systemFields.get("delving_title").getOrElse(Seq("")).headOption.getOrElse("").toString),
+                "title" -> Map("url" -> "", "label" -> Option(fields.get(0)).getOrElse("").toString),
                 "inOrg" -> Map("inOrg" -> "yes")
               )
             ))
+            
             Ok(Template("show.html", 'view -> viewTree, 'systemFields -> systemFields))
           case None => NotFound("Museum not found")
         }
