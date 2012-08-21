@@ -35,10 +35,11 @@ object DataSetEventFeed {
     validRecords = ds.details.invalidRecordCount.map(f => (f._1 -> (ds.getTotalRecords - f._2))),
     state = ds.state.name,
     lockState = if (ds.lockedBy.isDefined) "locked" else "unlocked",
-    lockedBy = if (ds.lockedBy.isDefined) ds.lockedBy.get else ""
+    lockedBy = if (ds.lockedBy.isDefined) ds.lockedBy.get else "",
+    canEdit = (ds.editors ++ ds.administrators).distinct
   )
 
-  implicit def dataSetListToListViewModelList(dsl: Seq[DataSet]): Seq[ListDataSetViewModel] = dsl.map(dataSetToListViewModel(_))
+  implicit def dataSetListToListViewModelList(dsl: Seq[DataSet]): Seq[ListDataSetViewModel] = dsl.map(ds => dataSetToListViewModel(ds))
 
 
   implicit def dataSetToViewModel(ds: DataSet): DataSetViewModel = DataSetViewModel(
@@ -122,15 +123,16 @@ object DataSetEventFeed {
   case class ClientMessage(message: JsValue)
 
   case class ListDataSetViewModel(spec: String,
-                              orgId: String,
-                              name: String,
-                              nodeId: String,
-                              nodeName: String,
-                              totalRecords: Long,
-                              validRecords: Map[String, Long],
-                              state: String,
-                              lockState: String,
-                              lockedBy: String) {
+                                  orgId: String,
+                                  name: String,
+                                  nodeId: String,
+                                  nodeName: String,
+                                  totalRecords: Long,
+                                  validRecords: Map[String, Long],
+                                  state: String,
+                                  lockState: String,
+                                  lockedBy: String,
+                                  canEdit: Seq[String]) {
 
     def toJson: JsObject = JsObject(
       Seq(
@@ -143,7 +145,8 @@ object DataSetEventFeed {
         "validRecords" -> JsArray(validRecords.toSeq.map(f => JsObject(Seq(("schema" -> JsString(f._1)), ("valid" -> JsNumber(f._2)))))),
         "dataSetState" -> JsString(state),
         "lockState" -> JsString(lockState),
-        "lockedBy" -> JsString(lockedBy)
+        "lockedBy" -> JsString(lockedBy),
+        "canEdit" -> JsArray(canEdit.map(JsString(_)))
       )
     )
   }
@@ -262,10 +265,18 @@ class DataSetEventFeed extends Actor {
           val userName = subscriber._2.userName
           implicit val configuration = DomainConfigurationHandler.getByName(subscriber._2.configuration)
 
+          def withAdministrableSet(block: DataSet => Unit) {
+            withSet(block, (set, userName) => DataSet.dao.canAdministrate(userName))
+          }
+
           def withEditableSet(block: DataSet => Unit) {
+            withSet(block, (set, userName) => DataSet.dao.canEdit(set, userName))
+          }
+
+          def withSet(block: DataSet => Unit, checkAccess: (DataSet, String) => Boolean) {
             DataSet.dao.findBySpecAndOrgId(spec, orgId).map {
               set => {
-                if(DataSet.dao.canEdit(set, userName)) {
+                if(checkAccess(set, userName)) {
                   block(set)
                 } else {
                   send(s, error("Sorry, you are not authorized to perform this action!"))
@@ -392,7 +403,7 @@ class DataSetEventFeed extends Actor {
               }
 
             case "deleteSet" =>
-              withEditableSet {
+              withAdministrableSet {
                 set => {
                   set.state match {
                     case INCOMPLETE | DISABLED | ERROR | UPLOADED =>
@@ -437,7 +448,7 @@ class DataSetEventFeed extends Actor {
                 case EventType.CREATED | EventType.UPDATED =>
                   DataSet.dao(event.orgId).findBySpecAndOrgId(event.spec, event.orgId).map {
                     set => {
-                      val viewModel: ListDataSetViewModel = set
+                      val viewModel: ListDataSetViewModel = dataSetToListViewModel(set)
                       viewModel.toJson
                     }
                   }
