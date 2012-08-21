@@ -137,7 +137,8 @@ case class DataSet(
 
   def editors: Seq[String] = Group.dao(configuration).findUsersWithAccess(orgId, DataSetPlugin.ROLE_DATASET_EDITOR.key, this)
 
-  val administrators: Seq[String] = Group.dao(configuration).findResourceAdministrators(orgId, DataSet.RESOURCE_TYPE)
+  val administrators: Seq[String] = (Group.dao(configuration).findResourceAdministrators(orgId, DataSet.RESOURCE_TYPE) ++
+          HubServices.organizationService(configuration).listAdmins(orgId)).distinct
 
   // ~~~ harvesting
 
