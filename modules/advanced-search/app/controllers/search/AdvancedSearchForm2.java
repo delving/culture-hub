@@ -279,7 +279,7 @@ public class AdvancedSearchForm2 {
         }
         if (typeList != null) {
             for (String type : typeList) {
-                builder.append("&qf=dc_type_facet:").append(type);
+                builder.append("&qf=europeana_type_facet:").append(type);
             }
         }
         if (municipalityList != null && !allMunicipalities) {
