@@ -120,7 +120,7 @@ function handleSubmit(url, viewModel, formSelector, redirectUrl, onSuccess, onEr
             $(".wait").spinner("hide");
             updateViewModel(data, viewModel);
             if (onSuccess) onSuccess.call();
-            if (redirectUrl) window.location.href = redirectUrl + viewModel.id();
+            if (redirectUrl) window.location.href = redirectUrl;
         }, function(jqXHR, textStatus, errorThrown) {
             $(".wait").spinner("hide");
             updateViewModel($.parseJSON(jqXHR.responseText), viewModel);

@@ -148,15 +148,19 @@ object DataSetControl extends OrganizationController {
         val dataSet = if (spec == None) None else DataSet.dao.findBySpecAndOrgId(spec.get, orgId)
         val allRecordDefinitions: Seq[String] = RecordDefinition.enabledDefinitions(configuration)
 
-        val data = if (dataSet == None) {
-          JJson.generate(DataSetCreationViewModel(
-            allRecordDefinitions = allRecordDefinitions,
-            oaiPmhAccess = RecordDefinition.enabledDefinitions(configuration).map(prefix => OaiPmhAccessViewModel(prefix)),
-            indexingMappingPrefix = Some("None")
-          ))
+        if (dataSet != None && !DataSet.dao.canEdit(dataSet.get, connectedUser)) {
+          Forbidden("You are not allowed to edit DataSet %s".format(spec.get))
+        } else if(dataSet == None && !DataSet.dao.canAdministrate(connectedUser)) {
+          Forbidden("You are not allowed to create DataSets")
         } else {
-          val dS = dataSet.get
-          if (DataSet.dao.canEdit(dS, connectedUser)) {
+          val data = if (dataSet == None) {
+            JJson.generate(DataSetCreationViewModel(
+              allRecordDefinitions = allRecordDefinitions,
+              oaiPmhAccess = RecordDefinition.enabledDefinitions(configuration).map(prefix => OaiPmhAccessViewModel(prefix)),
+              indexingMappingPrefix = Some("None")
+            ))
+          } else {
+            val dS = dataSet.get
             JJson.generate(
               DataSetCreationViewModel(
                 id = Some(dS._id),
@@ -168,21 +172,18 @@ object DataSetControl extends OrganizationController {
                 indexingMappingPrefix = if(dS.getIndexingMappingPrefix.isEmpty) Some("None") else dS.getIndexingMappingPrefix
               )
             )
-          } else {
-            return Action {
-              Forbidden("You are not allowed to edit DataSet %s".format(spec))
-            }
           }
-        }
 
-        Ok(Template(
-          'spec -> spec,
-          'data -> data,
-          'dataSetForm -> DataSetCreationViewModel.dataSetForm,
-          'factDefinitions -> DataSet.factDefinitionList.filterNot(factDef => factDef.automatic || factDef.name == "spec").toList,
-          'recordDefinitions -> RecordDefinition.enabledDefinitions(configuration)
-        ))
+          Ok(Template(
+            'spec -> spec,
+            'data -> data,
+            'dataSetForm -> DataSetCreationViewModel.dataSetForm,
+            'factDefinitions -> DataSet.factDefinitionList.filterNot(factDef => factDef.automatic || factDef.name == "spec").toList,
+            'recordDefinitions -> RecordDefinition.enabledDefinitions(configuration)
+          ))
+        }
     }
+
   }
 
   def dataSetSubmit(orgId: String): Action[AnyContent] = OrgMemberAction(orgId) {
@@ -248,7 +249,7 @@ object DataSetControl extends OrganizationController {
               }
               case None =>
                 // TODO for now only admins can do
-                if (!isAdmin(orgId)) return Action {
+                if (!DataSet.dao.canAdministrate(connectedUser)) return Action {
                   implicit request => Forbidden("You are not allowed to create a DataSet.")
                 }
 

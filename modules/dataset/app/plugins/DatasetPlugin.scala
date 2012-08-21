@@ -297,14 +297,14 @@ class DataSetPlugin(app: Application) extends CultureHubPlugin(app) {
 object DataSetPlugin {
   val ROLE_DATASET_ADMIN = Role(
     key = "dataSetAdmin",
-    description = Map("en" -> "DataSet administration rights"),
+    description = Map("en" -> "Dataset administration rights"),
     isResourceAdmin = true,
     resourceType = Some(DataSet.RESOURCE_TYPE)
   )
 
   val ROLE_DATASET_EDITOR = Role(
     key = "dataSetEditor",
-    description = Map("en" -> "DataSet modification rights"),
+    description = Map("en" -> "Dataset modification rights"),
     isResourceAdmin = false,
     resourceType = Some(DataSet.RESOURCE_TYPE)
   )

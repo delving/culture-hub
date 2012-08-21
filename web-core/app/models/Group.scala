@@ -7,13 +7,18 @@ import HubMongoContext._
 import com.mongodb.casbah.Imports._
 import com.mongodb.casbah.WriteConcern
 import core.HubServices
+import play.api.i18n.Lang
 
 case class Group(_id: ObjectId = new ObjectId,
                  name: String,
                  orgId: String,
                  roleKey: String,
                  resources: Seq[PersistedResource] = Seq.empty,
-                 users: Seq[String] = Seq.empty[String])
+                 users: Seq[String] = Seq.empty[String]) {
+
+  def description(lang: String)(implicit configuration: DomainConfiguration) = Role.get(roleKey).getDescription(Lang(lang))
+
+}
 
 object Group extends MultiModel[Group, GroupDAO] {
 
@@ -37,6 +42,25 @@ class GroupDAO(collection: MongoCollection) extends SalatDAO[Group, ObjectId](co
   }
 
   def findDirectMemberships(userName: String, orgId: String) = find(MongoDBObject("orgId" -> orgId, "users" -> userName))
+
+  def findResourceAdministrators(orgId: String, resourceType: ResourceType): Seq[String] = {
+    Role.
+            allRoles(DomainConfigurationHandler.getByOrgId(orgId)).
+            filter(r => r.resourceType == Some(resourceType) && r.isResourceAdmin).
+            flatMap(role => find(MongoDBObject("orgId" -> orgId, "roleKey" -> role.key))).
+            flatMap(group => group.users).
+            toSeq
+  }
+
+  def findUsersWithAccess(orgId: String, roleKey: String, resource: Resource): Seq[String] = {
+    Role.
+            allRoles(DomainConfigurationHandler.getByOrgId(orgId)).
+            filter(_.key == roleKey).
+            flatMap(role => find(MongoDBObject("orgId" -> orgId, "roleKey" -> role.key))).
+            filter(group => group.resources.exists(p => p.getResourceKey == resource.getResourceKey && p.getResourceType == resource.getResourceType)).
+            flatMap(group => group.users).
+            toSeq
+  }
 
   def addUser(orgId: String, userName: String, groupId: ObjectId): Boolean = {
     // TODO FIXME make this operation safe
