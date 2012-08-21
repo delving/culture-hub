@@ -313,10 +313,10 @@ class ViewRenderer(val schema: String, viewName: String, configuration: DomainCo
                 val urlExpr = n.attribute("urlExpr").map(e => XPath.selectText(e.text, dataNode, namespaces.asJava))
                 val urlValue = n.attr("urlValue")
 
-                val url = evaluateParamExpression(urlValue, parameters) + urlExpr.getOrElse("")
+                val url: String = evaluateParamExpression(urlValue, parameters) + urlExpr.getOrElse("")
 
-                val text = if(n.attribute("textExpr").isDefined) {
-                  XPath.selectText(n.attr("textExpr"), dataNode, namespaces.asJava)
+                val text: String = if(n.attribute("textExpr").isDefined) {
+                  Option(XPath.selectText(n.attr("textExpr"), dataNode, namespaces.asJava)).getOrElse("")
                 } else if(n.attribute("textValue").isDefined) {
                   evaluateParamExpression(n.attr("textValue"), parameters)
                 } else {
@@ -466,7 +466,7 @@ class ViewRenderer(val schema: String, viewName: String, configuration: DomainCo
     }).flatten
   }
 
-  def evaluateParamExpression(value: String, parameters: Map[String, String]) = {
+  def evaluateParamExpression(value: String, parameters: Map[String, String]): String = {
     """\$\{(.*)\}""".r.replaceAllIn(value, m => parameters.get(m.group(1)).getOrElse {
       log.warn("Could not find value for parameter %s while rendering view %s".format(m.group(1), viewName))
       ""
