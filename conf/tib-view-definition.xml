@@ -25,8 +25,20 @@
             </column>
             <column proportion="1of3">
                 <container ifNot="/tib:record/delving:deepZoomUrl">
-                    <image path="/tib:record/europeana:object"/>
-                    <link textValue="search.viewInOriginalContext" urlExpr="/tib:record/europeana:isShownAt" type="external"/>
+                    <container ifNot="/tib:record/delving:thumbnail">
+                        <container ifNot="tib:record/europeana:isShownBy">
+                            <image path="/tib:record/europeana:object"/>
+                            <link textValue="search.viewInOriginalContext" urlExpr="/tib:record/europeana:isShownAt" type="external"/>
+                        </container>
+                        <container if="tib:record/europeana:isShownBy">
+                            <image path="/tib:record/europeana:isShownBy"/>
+                            <link textValue="search.viewInOriginalContext" urlExpr="/tib:record/europeana:isShownAt" type="external"/>
+                        </container>
+                    </container>
+                    <container if="/tib:record/delving:thumbnail">
+                        <image path="/tib:record/delving:thumbnail"/>
+                        <link textValue="search.viewInOriginalContext" urlExpr="/tib:record/europeana:isShownAt" type="external"/>
+                    </container>
                 </container>
                 <container id="zoom-viewer" if="/tib:record/delving:deepZoomUrl">
                     <link textValue="zoom" urlExpr="/tib:record/delving:deepZoomUrl" type="zoom"/>

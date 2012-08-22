@@ -72,11 +72,11 @@ switch (_view.nodeType) {
             <dt>&{_view.attr("label")}#{if _view.attr("role")}<span class="label">admin</span>#{/if}</dt><dd>${_view.text()}</dd>
         #{/if}
         #{elseif _view.parent.attr("type") == "list"}
-            <li>${_view.parent.attr("type")}${_view.text()}</li>
+            <li>${_view.text()}</li>
         #{/elseif}
         #{else}
             #{if _view.attr("label")}<h5>&{_view.attr("label")} #{if _view.attr("role")}<span class="label">admin</span>#{/if}</h5>#{/if}
-            <p>${_view.parent.attr("type")} ${_view.text()}</p>
+            <p>${_view.text()}</p>
         #{/else}
     %{ }
     break
