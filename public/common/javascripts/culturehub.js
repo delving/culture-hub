@@ -632,7 +632,7 @@ Delving.wysiwyg = function (params) {
         force_br_newlines: true,
         forced_root_block: 'p', // Needed for 3.x
         remove_linebreaks: false,
-        content_css : "/assets/common/stylesheets/bootstrap-delving.css",
+        content_css : "/assets/common/stylesheets/bootstrap.css",
         fix_content_duplication: false,
         fix_list_elements: true,
         cleanup_on_startup : true,

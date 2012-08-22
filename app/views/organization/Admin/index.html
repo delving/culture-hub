@@ -12,37 +12,32 @@
 
 #{organizationNavBar orgId: orgId, active:"administration", navigation: navigation /}
 
-<div class="row">
+<div class="org-admin">
 
-        <div class="span4">
-          <h3>&{'org.admin.index.admins'}</h3>
-
-          <div>
-            #{addRemoveTokenField
+    <div class="administrators">
+        <h3>&{'org.admin.index.admins'}</h3>
+        <div>
+        #{addRemoveTokenField
               id:"adminInput",
               name: "adminInput",
               searchUrl: "/users/search",
               prePopulate: admins,
               addUrl: "/organizations/"+orgId+"/admin/admin/add",
               removeUrl: "/organizations/"+orgId+"/admin/admin/remove" /}
-          </div>
-          <div>
-              <p>&{'org.admin.index.addAdmins'}</p>
-          </div>
-
         </div>
-
-        <div class="span4 offset2">
-            <h3>&{'org.admin.index.members'}</h3>
-
-            <div>
-                #{addRemoveTokenField id:"members", searchUrl: "/users/search", prePopulate: members, addUrl:"/organizations/"+orgId+"/admin/users/add", removeUrl: "/organizations/"+orgId+"/admin/users/remove", removeConfirmation: messages.get('org.admin.index.removeMemberConfirmation') /}
-            </div>
-            <div>
-                <p>&{'org.admin.index.addMembers'}</p>
-            </div>
-
+        <div>
+            <p>&{'org.admin.index.addAdmins'}</p>
         </div>
+    </div>
 
+    <div class="members">
+        <h3>&{'org.admin.index.members'}</h3>
+        <div>
+        #{addRemoveTokenField id:"members", searchUrl: "/users/search", prePopulate: members, addUrl:"/organizations/"+orgId+"/admin/users/add", removeUrl: "/organizations/"+orgId+"/admin/users/remove", removeConfirmation: messages.get('org.admin.index.removeMemberConfirmation') /}
+        </div>
+        <div>
+            <p>&{'org.admin.index.addMembers'}</p>
+        </div>
+    </div>
 
 </div>

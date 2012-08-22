@@ -9,16 +9,8 @@
 #{/if}
 
 
-<div class="row">
-    <div class="span4">
-        <h3>&{'thing.datasets'}</h3>
-        <ol>
-        #{list collections, as: 'c'}
-            <li><a href=${"/organizations/"+orgId+"/dataset/"+c.spec}>${c.spec}</a></li>
-        #{/list}
-        </ol>
-    </div>
-    <div class="span4">
+<div class="org-overview">
+    <div class="members">
         <h3>&{'organization.members'}</h3>
         <ol>
         #{list members, as: 'm'}
@@ -26,4 +18,13 @@
         #{/list}
         </ol>
     </div>
+    <div class="datasets">
+        <h3>&{'thing.datasets'}</h3>
+        <ol>
+        #{list collections, as: 'c'}
+            <li><a href=${"/organizations/"+orgId+"/dataset/"+ds.spec}>${ds.spec}</a></li>
+        #{/list}
+        </ol>
+    </div>
+
 </div>

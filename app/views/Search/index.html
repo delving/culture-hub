@@ -16,8 +16,8 @@
 
 #{if pagination.getNumFound() > 0}
 
-    <div class="row">
-        <div class="item-count span12">
+    <div class="item-count">
+        <div class="inner">
             <h4>&{'search.trail', pagination.getStart(), pagination.getLastViewableRecord(), pagination.getNumFound() }</h4>
         </div>
     </div>
@@ -26,22 +26,22 @@
         #{results.resultPagination pageLinks: pagination, pQuery: pagination.getPresentationQuery().getQueryForPresentation(), searchIn: params.searchIn ? params.searchIn.apply(0) : "all", lastPage: pagination.getNumFound(), extraClass:"pagination-top" /}
     #{/if}
 
-    <div class="row">
-        <div class="span9">
+    <div class="search-results">
+        <div class="results">
             #{results.resultGrid results: briefDocs,
-                colCount: themeInfo.get('resultsColumns'),
-                spanClass: themeInfo.get('resultsGridClass'),
-                clipHeight: themeInfo.get('resultsImageClipHeight') /}
+            colCount: themeInfo.get('resultsColumns'),
+            spanClass: themeInfo.get('resultsGridClass'),
+            clipHeight: themeInfo.get('resultsImageClipHeight') /}
         </div>
-        <div class="span3">
+        <div class="facets">
             <div class="facets-header">&{'search.refineYourSearch'}</div>
             #{list items: themeFacets, as: 'tf'}
                 #{facet facetMap: facets,
-                        type: tf.facetName()+'_facet',
-                        typeKey: messages.get(tf.facetInternationalisationCode()),
-                        qString: pagination.getPresentationQuery().getUserSubmittedQuery(),
-                        searchIn: params.searchIn ? params.searchIn.apply(0)  : "all",
-                        columns: tf.nrDisplayColumns/}
+                type: tf.facetName()+'_facet',
+                typeKey: messages.get(tf.facetInternationalisationCode()),
+                qString: pagination.getPresentationQuery().getUserSubmittedQuery(),
+                searchIn: params.searchIn ? params.searchIn.apply(0)  : "all",
+                columns: tf.nrDisplayColumns/}
             #{/list}
         </div>
     </div>
@@ -93,8 +93,8 @@
 #{/if}
 
 #{else}
-<div class="span12">
-&{'ui.message.nothingFound'}
+<div class="no-results">
+    &{'ui.message.nothingFound'}
 </div>
 #{/else}
 *{

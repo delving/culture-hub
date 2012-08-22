@@ -11,8 +11,9 @@
     <link rel="stylesheet" type="text/css" href="@{routes.Assets.at("common/stylesheets/media/media.css")}"/>
     <link rel="stylesheet" type="text/css" href="@{routes.Assets.at("common/stylesheets/plugins/token-input.css")}"/>
     *{<link rel="stylesheet" type="text/css" href="@{routes.Assets.at("common/stylesheets/plugins/token-input-facebook.css")}"/>}*
-    <link rel="stylesheet" type="text/css" href="@{routes.Assets.at("common/stylesheets/bootstrap.css")}"/>
+    *{<link rel="stylesheet" type="text/css" href="@{routes.Assets.at("common/stylesheets/bootstrap.css")}"/>}*
     *{<link rel="stylesheet" type="text/css" href="@{routes.Assets.at("common/stylesheets/bootstrap/bootstrap-responsive.css")}"/>}*
+    <link rel="stylesheet" type="text/css" href="@{routes.Assets.at("common/stylesheets/common.css")}"/>
     <link rel="stylesheet" type="text/css" href="@{routes.Assets.at("common/stylesheets/helpers.css")}"/>
     #{get 'moreCss' /}
     <link rel="stylesheet/less" type="text/css" href='${themeInfo.path("stylesheets/style.less")}'/>
@@ -41,7 +42,7 @@
     <script type="text/javascript" src="@{routes.Assets.at("common/javascripts/bootstrap.js")}"></script>
     <script type="text/javascript" src="@{routes.Assets.at("common/javascripts/bootbox.min.js")}"></script>
     <script type="text/javascript" src="@{routes.Assets.at("common/javascripts/culturehub.js")}"></script>
-    #{get 'moreScripts' /}
+#{get 'moreScripts' /}
     <script type="text/javascript">
       $(document).ready(function() {
         initializeElements();
