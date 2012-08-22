@@ -38,7 +38,6 @@ object Constants {
 
   // ~~~ housekeeping fields
   val SCHEMA = "delving_currentSchema"
-  val PUBLIC_SCHEMAS = "delving_publicSchemas"
   val ALL_SCHEMAS = "delving_allSchemas"
 
   val SYSTEM_TYPE = "delving_systemType"
@@ -46,10 +45,6 @@ object Constants {
   // ~~~ system types
   val INDEX_API_ITEM = "indexApiItem"
   val HUB_ITEM = "hubItem"
-
-
-  // ~~~ special indexing fields
-  val COLLECTIONS = "delving_userCollections"
 
   // ~~~ SystemFields
 
@@ -84,19 +79,8 @@ object Constants {
   val MDR = "mdr"
   val ITEM_TYPE_INDEX = INDEX_API_ITEM
 
-
-  // ~~~ link value fields
-  val USERCOLLECTION_ID = "userCollectionId" // mongo ID of a collection
-  val OBJECT_ID = "objectId"
-
   // ~~~~~ Solr Constants
   val MORE_LIKE_THIS = "moreLikeThis"
-
-  // ~~~ special cases
-  val MDR_LOCAL_ID: String = "localRecordKey"
-  val MDR_HUB_ID = "hubId"
-  val MDR_HUBCOLLECTION = "hubCollection"
-
 
   // TODO move to conf?
   val PAGE_SIZE: Int = 12

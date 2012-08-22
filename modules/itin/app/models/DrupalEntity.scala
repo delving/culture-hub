@@ -81,7 +81,7 @@ object DrupalEntity extends MultiModel[DrupalEntity, DrupalEntityDAO] {
 
   def initIndexes(collection: MongoCollection) {}
 
-  def initDAO(collection: MongoCollection, connection: MongoDB): DrupalEntityDAO = new DrupalEntityDAO(collection)
+  def initDAO(collection: MongoCollection, connection: MongoDB)(implicit configuration: DomainConfiguration): DrupalEntityDAO = new DrupalEntityDAO(collection)
 }
 
 

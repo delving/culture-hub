@@ -52,8 +52,8 @@ case class DataSetCreationViewModel(id: Option[ObjectId] = None,
                             errors: Map[String, String] = Map.empty) extends ViewModel
 
 case class SchemaProcessingConfiguration(prefix: String,
-                                         availableVersions: Seq[String] = Seq("1.0.0"),
-                                         version: String = "1.0.0",
+                                         availableVersions: Seq[String],
+                                         version: String,
                                          accessType: String = "none",
                                          accessKey: String = ""
 )
@@ -155,13 +155,10 @@ object DataSetControl extends OrganizationController {
     Action {
       implicit request =>
         val dataSet = if (spec == None) None else DataSet.dao.findBySpecAndOrgId(spec.get, orgId)
-        val allSchemas: Seq[String] = SchemaProvider.getSchemas.map(_.prefix)
-        val versions: Map[String, Seq[String]] = allSchemas.map { prefix =>
-          (prefix -> {
-            SchemaProvider.getSchemas.find(_.prefix == prefix).map { schema =>
-              schema.versions.asScala.map(_.number)
-            }.getOrElse(Seq.empty)
-          })
+        val schemas = SchemaProvider.getSchemas
+        val allSchemaPrefixes: Seq[String] = schemas.map(_.prefix)
+        val versions: Map[String, Seq[String]] = schemas.map { schema =>
+          (schema.prefix -> schema.versions.asScala.map(_.number))
         }.toMap
 
         if (dataSet != None && !DataSet.dao.canEdit(dataSet.get, connectedUser)) {
@@ -171,8 +168,8 @@ object DataSetControl extends OrganizationController {
         } else {
           val data = if (dataSet == None) {
           JJson.generate(DataSetCreationViewModel(
-            allAvailableSchemas = allSchemas,
-            schemaProcessingConfigurations = allSchemas.map { prefix =>
+            allAvailableSchemas = allSchemaPrefixes,
+            schemaProcessingConfigurations = allSchemaPrefixes.map { prefix =>
               SchemaProcessingConfiguration(
                 prefix = prefix,
                 availableVersions = versions(prefix),
@@ -192,8 +189,8 @@ object DataSetControl extends OrganizationController {
                 spec = dS.spec,
                 facts = HardcodedFacts.fromMap(dS.getFacts),
                 selectedSchemas = dS.recordDefinitions,
-                allAvailableSchemas = allSchemas,
-                schemaProcessingConfigurations = allSchemas.map { prefix =>
+                allAvailableSchemas = allSchemaPrefixes,
+                schemaProcessingConfigurations = allSchemaPrefixes.map { prefix =>
                   SchemaProcessingConfiguration(
                     prefix = prefix,
                     availableVersions = versions(prefix),

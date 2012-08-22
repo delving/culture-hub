@@ -40,7 +40,7 @@ class ConfigurationPlugin(app: Application) extends CultureHubPlugin(app) {
 
     // ~~~ bootstrap services
 
-    SchemaProvider.default ! SchemaProvider.Refresh
+    SchemaProvider.refresh()
     HubServices.init()
     MappingService.init()
 

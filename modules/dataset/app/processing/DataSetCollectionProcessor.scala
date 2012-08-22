@@ -47,7 +47,7 @@ object DataSetCollectionProcessor {
     val crosswalkSchemas: Seq[ProcessingSchema] = crosswalks flatMap {
       c =>
         val prefix = c._2.getPath.substring(c._2.getPath.indexOf(c._1.prefix + "-")).split("-")(0)
-        val recordDefinition = RecordDefinition.getRecordDefinition(prefix, "1.0.0")
+        val recordDefinition = RecordDefinition.getRecordDefinition(prefix, "1.0.0") // TODO versions for crosswalks
 
         if (recordDefinition.isDefined) {
           val schema = new ProcessingSchema {

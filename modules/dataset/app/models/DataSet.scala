@@ -36,6 +36,7 @@ import core.collection.{Indexable, OrganizationCollection, OrganizationCollectio
 import controllers.organization.DataSetEvent
 import plugins.DataSetPlugin
 import java.util.Date
+import core.schema.Schema
 
 /**
  * DataSet model
@@ -188,7 +189,7 @@ object DataSet extends MultiModel[DataSet, DataSetDAO] {
 
   protected def initIndexes(collection: MongoCollection) {}
 
-  protected def initDAO(collection: MongoCollection, connection: MongoDB): DataSetDAO = new DataSetDAO(collection)
+  protected def initDAO(collection: MongoCollection, connection: MongoDB)(implicit configuration: DomainConfiguration): DataSetDAO = new DataSetDAO(collection)
 
   lazy val factDefinitionList = parseFactDefinitionList
 
@@ -217,7 +218,7 @@ object DataSet extends MultiModel[DataSet, DataSetDAO] {
 
 }
 
-class DataSetDAO(collection: MongoCollection) extends SalatDAO[DataSet, ObjectId](collection) with Pager[DataSet] {
+class DataSetDAO(collection: MongoCollection)(implicit val configuration: DomainConfiguration) extends SalatDAO[DataSet, ObjectId](collection) with Pager[DataSet] {
 
   def getState(orgId: String, spec: String): DataSetState = {
 
@@ -249,7 +250,7 @@ class DataSetDAO(collection: MongoCollection) extends SalatDAO[DataSet, ObjectId
     find("state.name" $in (states.map(_.name)) ++ MongoDBObject("deleted" -> false))
   }
 
-  def findAll(orgId: String): List[DataSet] = find(MongoDBObject("deleted" -> false)).sort(MongoDBObject("name" -> 1)).toList
+  def findAll(): List[DataSet] = find(MongoDBObject()).sort(MongoDBObject("name" -> 1)).toList
 
   // ~~~ access control
 
@@ -338,14 +339,13 @@ class DataSetDAO(collection: MongoCollection) extends SalatDAO[DataSet, ObjectId
   }
 
   def updateMapping(dataSet: DataSet, mapping: RecMapping)(implicit configuration: DomainConfiguration): DataSet = {
-    val ns: Option[RecordDefinition] = RecordDefinition.getRecordDefinition(mapping.getPrefix, "1.0.0") // TODO version
-    if (ns == None) {
-      throw new MetaRepoSystemException(String.format("Namespace prefix %s not recognized", mapping.getPrefix))
+    val recordDefinition: Option[RecordDefinition] = RecordDefinition.getRecordDefinition(mapping.getPrefix, mapping.getSchemaVersion.getVersion)
+    if (recordDefinition == None) {
+      throw new MetaRepoSystemException(String.format("RecordDefinition with prefix %s and version %s not recognized", mapping.getPrefix, mapping.getSchemaVersion.getVersion))
     }
 
     // if we already have a mapping, update it but keep the format access control settings
-    // TODO version
-    val updatedMapping = dataSet.mappings.values.find(m => m.schemaPrefix == mapping.getPrefix && m.schemaVersion == "1.0.0") match {
+    val updatedMapping = dataSet.mappings.values.find(m => m.schemaPrefix == mapping.getPrefix && m.schemaVersion == mapping.getSchemaVersion.getVersion) match {
       case Some(existingMapping) =>
         existingMapping.copy(
           recordMapping = Some(mapping.toString)
@@ -353,8 +353,8 @@ class DataSetDAO(collection: MongoCollection) extends SalatDAO[DataSet, ObjectId
       case None =>
         Mapping(
           recordMapping = Some(mapping.toString),
-          schemaPrefix = ns.get.prefix,
-          schemaVersion = "1.0.0" // TODO
+          schemaPrefix = mapping.getSchemaVersion.getPrefix,
+          schemaVersion = mapping.getSchemaVersion.getVersion
         )
     }
     val updatedDataSet = dataSet.copy(mappings = dataSet.mappings.updated(mapping.getPrefix, updatedMapping))
@@ -423,7 +423,7 @@ class DataSetDAO(collection: MongoCollection) extends SalatDAO[DataSet, ObjectId
   // ~~~ OAI-PMH
 
   def getAllVisibleMetadataFormats(orgId: String, accessKey: Option[String]): List[RecordDefinition] = {
-    val metadataFormats = findAll(orgId).flatMap {
+    val metadataFormats = findAll().flatMap {
       ds => ds.getVisibleMetadataSchemas(accessKey)
     }
     metadataFormats.toList.distinct

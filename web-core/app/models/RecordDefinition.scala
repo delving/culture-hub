@@ -27,7 +27,7 @@ import eu.delving.schema.{SchemaType, SchemaRepository}
 import collection.mutable
 
 /**
- * Represents a RecordDefinition (aka schema)
+ * Wrapper for a RecordDefinition
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
@@ -54,16 +54,10 @@ case class FormatAccessControl(accessType: String = "none", accessKey: Option[St
 }
 
 /**
- * Deals with loading RecordDefinions, validation schemas and crosswalks
- *
- * TODO move methods related to schemas
+ * Deals with loading RecordDefinitions, validation schemas and crosswalks
  *
  */
 object RecordDefinition {
-
-  val RECORD_DEFINITION_SUFFIX = "-record-definition.xml"
-  val VALIDATION_SCHEMA_SUFFIX = "-validation.xsd"
-  val CROSSWALK_SUFFIX = "-crosswalk.xml"
 
   val rawRecordDefinition = RecordDefinition(
     prefix = "raw",

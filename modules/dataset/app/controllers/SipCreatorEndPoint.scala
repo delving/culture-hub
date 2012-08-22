@@ -383,19 +383,6 @@ object SipCreatorEndPoint extends ApplicationController {
         IOUtils.copy(new ByteArrayInputStream(dataSet.hints), out)
     }
 
-    for (prefix <- dataSet.mappings.keySet) {
-      val recordDefinition = prefix + RecordDefinition.RECORD_DEFINITION_SUFFIX
-      writeEntry(recordDefinition, zipOut) {
-        out =>
-          writeContent(MissingLibs.readContentAsString(Play.classloader.getResourceAsStream("definitions/%s/%s-record-definition.xml".format(prefix, prefix))), out)
-      }
-      val validationSchema = prefix + RecordDefinition.VALIDATION_SCHEMA_SUFFIX
-      writeEntry(validationSchema, zipOut) {
-        out =>
-          writeContent(MissingLibs.readContentAsString(Play.classloader.getResourceAsStream("definitions/%s/%s-validation.xsd".format(prefix, prefix))), out)
-      }
-    }
-
     val recordCount = basexStorage.count(dataSet)
 
     def buildNamespaces(attrs: Map[String, String]): String = {

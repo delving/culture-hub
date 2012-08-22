@@ -16,6 +16,7 @@ import akka.actor.SupervisorStrategy.Restart
 import controllers.{organization, ReceiveSource}
 import core.indexing.IndexingService
 import scala.collection.immutable.ListMap
+import scala.collection.JavaConverters._
 import scala.util.matching.Regex
 import play.api.mvc.Handler
 import core._
@@ -23,10 +24,13 @@ import access.{ResourceType, Resource, ResourceLookup}
 import collection.HarvestCollectionLookup
 import com.mongodb.casbah.commons.MongoDBObject
 import java.util.regex.Pattern
+import schema.SchemaProvider
 
 class DataSetPlugin(app: Application) extends CultureHubPlugin(app) {
 
   val pluginKey: String = "dataSet"
+
+  private val log = Logger("CultureHub")
 
   private val dataSetHarvestCollectionLookup = new DataSetLookup
 
@@ -168,6 +172,46 @@ class DataSetPlugin(app: Application) extends CultureHubPlugin(app) {
    * Runs globally on application start, for the whole Hub. Make sure that whatever you run here is multitenancy-aware
    */
   override def onStart() {
+
+    // check if we have access to all schemas that are used by the DataSets
+
+    val schemasInUse: Map[String, Seq[String]] = DataSet.all.flatMap { dao =>
+      dao.findAll().flatMap { set =>
+        set.mappings.values.map { mapping =>
+          (mapping.schemaPrefix -> mapping.schemaVersion)
+        }
+      }
+    }.foldLeft(Map.empty[String, Seq[String]]) { (acc, pair) =>
+      acc + (pair._1 -> Seq(pair._2))
+    }
+
+    val allSchemas = SchemaProvider.getAllSchemas
+
+    val missingVersions: Map[String, Seq[String]] = schemasInUse.map(inUse => {
+
+      val availableVersionNumbers = allSchemas.find(_.prefix == inUse._1).map { schema =>
+        schema.versions.asScala.map(_.number)
+      }.getOrElse(Seq.empty)
+
+      val intersection = availableVersionNumbers.intersect(inUse._2)
+
+      (inUse._1 -> inUse._2.filterNot(intersection.contains(_)))
+    })
+
+    if (missingVersions.exists(missing => !missing._2.isEmpty)) {
+      log.error(
+        """
+          |The SchemaRepository does not provide some of the versions in use by the stored DataSets. Fix this before starting the hub!
+          |
+          |Affected schemas / versions:
+          |
+          |%s
+        """.stripMargin.format(
+            missingVersions.map(missing => "%s -> %s".format(missing._1, missing._2.map("'%s'".format(_)).mkString(", "))).mkString("\n")
+        ))
+
+      throw new RuntimeException("Cannot start the hub due to missing schemas")
+    }
 
     // ~~~ jobs
 

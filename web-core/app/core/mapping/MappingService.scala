@@ -8,7 +8,7 @@ import eu.delving.metadata._
 import scala.collection.JavaConverters._
 import org.w3c.dom.Node
 import eu.delving.groovy.XmlSerializer
-import eu.delving.schema.SchemaType
+import eu.delving.schema.{SchemaVersion, SchemaType}
 import java.io.ByteArrayInputStream
 
 /**
@@ -27,11 +27,12 @@ object MappingService {
       Logger("CultureHub").info("Initializing MappingService")
 
       recDefModel = new RecDefModel {
-        def createRecDef(prefix: String): RecDefTree = {
+
+        def createRecDefTree(schemaVersion: SchemaVersion): RecDefTree = {
           // FIXME need to pass version when it will be available in the RecDefModel
-          val schema = SchemaProvider.getSchema(prefix, "1.0.0", SchemaType.RECORD_DEFINITION)
-          if(schema.isEmpty) {
-            throw new RuntimeException("Empty schema for prefix " + prefix)
+          val schema = SchemaProvider.getSchema(schemaVersion.getPrefix, schemaVersion.getVersion, SchemaType.RECORD_DEFINITION)
+          if (schema.isEmpty) {
+            throw new RuntimeException("Empty schema for prefix %s and version %s".format(schemaVersion.getPrefix, schemaVersion.getVersion))
           } else {
             RecDefTree.create(
               RecDef.read(new ByteArrayInputStream(schema.get.getBytes("utf-8")))
@@ -39,7 +40,6 @@ object MappingService {
           }
         }
       }
-
     } catch {
       case t: Throwable =>
         t.printStackTrace()
@@ -52,7 +52,7 @@ object MappingService {
     val serialized = serializer.toXml(node, fromMapping)
     // chop of the XML prefix. kindof a hack. this should be a regex instead, more robust
     val xmlPrefix = """<?xml version='1.0' encoding='UTF-8'?>"""
-    if(serialized.startsWith(xmlPrefix)) {
+    if (serialized.startsWith(xmlPrefix)) {
       serialized.substring(xmlPrefix.length)
     } else {
       serialized

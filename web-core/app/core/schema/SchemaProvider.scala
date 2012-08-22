@@ -21,30 +21,52 @@ import models.DomainConfiguration
  *
  * It is wrapped inside of an actor to keep refresh operations safe
  *
+ * TODO better error handling
+ *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
 object SchemaProvider {
 
-  val log = Logger("CultureHub")
+  private val log = Logger("CultureHub")
+  private lazy val repository = Akka.system.actorOf(Props[SchemaRepositoryWrapper])
+  private implicit val timeout = Timeout(1000 milliseconds)
 
-  lazy val default = {
-    Akka.system.actorOf(Props[SchemaProvider])
+  /**
+   * Refreshes the repository, i.e. fetches the latest version of schemas
+   */
+  def refresh() {
+    repository ! Refresh
   }
 
-  implicit val timeout = Timeout(1000 milliseconds)
+  /**
+   * Retrieves all Schemas that are active for the current configuration
+   * @param configuration the active DomainConfiguration
+   * @return a sequence of Schema
+   */
+  def getSchemas(implicit configuration: DomainConfiguration): Seq[eu.delving.schema.xml.Schema] = {
+    getAllSchemas.filter(s => configuration.schemas.contains(s.prefix))
+  }
 
-  def getSchemas(implicit configuration: DomainConfiguration): Seq[eu.delving.schema.xml.Schema] = (default ? GetSchemas).asPromise.map {
-    case Schemas(schemas) =>
-      schemas.filter(s => configuration.schemas.contains(s.prefix)).
-              filterNot(s => s.versions.isEmpty)
+  /**
+   * Retrieves all Schemas the repository knows about
+   * @return all schemas
+   */
+  def getAllSchemas: Seq[eu.delving.schema.xml.Schema] = (repository ? GetSchemas).asPromise.map {
+      case Schemas(schemas) => schemas.filterNot(s => s.versions.isEmpty)
+    }.await.fold(
+      { t => throw t },
+      { r => r }
+    )
 
-  }.await.fold(
-    { t => throw t },
-    { r => r }
-  )
-
-  def getSchema(prefix: String, version: String, schemaType: SchemaType): Option[String] = (default ? GetSchema(new SchemaVersion(prefix, version), schemaType)).asPromise.map {
+  /**
+   * Tries to retrieve the Schema content
+   * @param prefix the schema prefidx
+   * @param version the schema version
+   * @param schemaType the schema type
+   * @return an optional string with the schema contents
+   */
+  def getSchema(prefix: String, version: String, schemaType: SchemaType): Option[String] = (repository ? GetSchema(new SchemaVersion(prefix, version), schemaType)).asPromise.map {
     case SchemaContent(schemaContent) =>
       log.trace("Retrieved schema %s %s %s: ".format(prefix, version, schemaType.toString) + schemaContent)
       Option(schemaContent)
@@ -53,21 +75,22 @@ object SchemaProvider {
     { r => r }
   )
 
+  // ~~~ questions
+
   case object Refresh
-
   case object GetSchemas
-
   case class GetSchema(schemaVersion: SchemaVersion, schemaType: SchemaType)
 
   // ~~~ answers
 
   case class Schemas(schemas: Seq[eu.delving.schema.xml.Schema])
-
   case class SchemaContent(schemaContent: String)
 
 }
 
-class SchemaProvider extends Actor {
+class SchemaRepositoryWrapper extends Actor {
+
+  private val log = Logger("CultureHub")
 
   private var scheduler: Cancellable = null
   private var schemaRepository: SchemaRepository = null
@@ -87,7 +110,7 @@ class SchemaProvider extends Actor {
 
     case SchemaProvider.Refresh =>
       schemaRepository = new SchemaRepository(fetcher)
-      SchemaProvider.log.info("Refreshed SchemaRepository, available schemas are: " + prefixes(schemaRepository.getSchemas.asScala))
+      log.info("Refreshed SchemaRepository, available schemas are: " + prefixes(schemaRepository.getSchemas.asScala))
 
     case GetSchemas =>
       sender ! Schemas(schemaRepository.getSchemas.asScala)
