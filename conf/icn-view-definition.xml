@@ -58,13 +58,30 @@
 
             </column>
             <column proportion="1of3">
+
                 <container ifNot="/icn:record/delving:deepZoomUrl">
-                    <image path="/icn:record/europeana:object"/>
-                    <link textValue="search.viewInOriginalContext" urlExpr="/icn:record/europeana:isShownAt" type="external"/>
+                    <container ifNot="/icn:record/delving:thumbnail">
+                        <container ifNot="icn:record/europeana:isShownBy">
+                            <image path="/icn:record/europeana:object"/>
+                            <link textValue="search.viewInOriginalContext" urlExpr="/icn:record/europeana:isShownAt" type="external"/>
+                        </container>
+                        <container if="icn:record/europeana:isShownBy">
+                            <image path="/icn:record/europeana:isShownBy"/>
+                            <link textValue="search.viewInOriginalContext" urlExpr="/icn:record/europeana:isShownAt" type="external"/>
+                        </container>
+                    </container>
+                    <container if="/icn:record/delving:thumbnail">
+                        <image path="/icn:record/delving:thumbnail"/>
+                        <link textValue="search.viewInOriginalContext" urlExpr="/icn:record/europeana:isShownAt" type="external"/>
+                    </container>
+
                 </container>
                 <container id="zoom-viewer" if="/icn:record/delving:deepZoomUrl">
                     <link textValue="zoom" urlExpr="/icn:record/delving:deepZoomUrl" type="zoom"/>
                 </container>
+
+
+
             </column>
         </row>
     </view>
