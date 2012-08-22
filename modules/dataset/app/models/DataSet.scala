@@ -16,7 +16,6 @@
 
 package models
 
-import _root_.util.DomainConfigurationHandler
 import core.access.{ResourceType, Resource}
 import extensions.ConfigurationException
 import org.bson.types.ObjectId
@@ -37,10 +36,10 @@ import controllers.organization.DataSetEvent
 import plugins.DataSetPlugin
 import java.util.Date
 import core.schema.Schema
+import util.DomainConfigurationHandler
 
 /**
  * DataSet model
- * The unique ID for this model is the mongo _id. IF YOU WANT TO USE THE SPEC, ALWAYS ALSO USE THE ORG_ID. The spec alone does not provide for unicity accross organizations!
  *
  * @author Sjoerd Siebinga <sjoerd.siebinga@gmail.com>
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
@@ -48,7 +47,6 @@ import core.schema.Schema
  */
 
 case class DataSet(
-
                           // basics
                           _id: ObjectId = new ObjectId,
                           spec: String,

@@ -22,6 +22,7 @@ import models.DomainConfiguration
  * It is wrapped inside of an actor to keep refresh operations safe
  *
  * TODO better error handling
+ * TODO this should be an injected service so that we can mock it
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
@@ -30,7 +31,7 @@ object SchemaProvider {
 
   private val log = Logger("CultureHub")
   private lazy val repository = Akka.system.actorOf(Props[SchemaRepositoryWrapper])
-  private implicit val timeout = Timeout(1000 milliseconds)
+  private implicit val timeout = Timeout(2000 milliseconds)
 
   /**
    * Refreshes the repository, i.e. fetches the latest version of schemas
@@ -128,6 +129,8 @@ class RemoteFetcher extends Fetcher {
 
   val log = Logger("CultureHub")
 
+//  log.info("Initializing remote schema fetcher at " + SCHEMA_REPO)
+
   private val SCHEMA_REPO = "http://schemas.delving.eu"
 
 
@@ -155,6 +158,8 @@ class RemoteFetcher extends Fetcher {
 class LocalFetcher extends Fetcher {
 
   val log = Logger("CultureHub")
+
+//  log.info("Initializing local schema repository at " + localRepository)
 
   val DIR_NAME = "schemas.delving.eu"
 

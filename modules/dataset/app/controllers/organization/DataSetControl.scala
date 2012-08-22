@@ -256,6 +256,9 @@ object DataSetControl extends OrganizationController {
 
             val submittedSchemaConfigurations = dataSetForm.selectedSchemas.flatMap(prefix => dataSetForm.schemaProcessingConfigurations.find(p => p.prefix == prefix))
 
+            factsObject.append("schemaVersions", submittedSchemaConfigurations.map(c => "%s_%s".format(c.prefix, c.version)).mkString(", "))
+
+
             dataSetForm.id match {
               case Some(id) => {
                 val existing = DataSet.dao.findOneById(id).get
