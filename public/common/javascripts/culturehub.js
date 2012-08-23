@@ -883,7 +883,11 @@ var externalLinks = function(){
 };
 
 jQuery(document).ready(function() {
+    if ($.browser.msie && $.browser.version < 9) {
+        document.location.href="/browsers.html";
+    }
     externalLinks();
+
 });
 
 
