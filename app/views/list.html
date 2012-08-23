@@ -1,7 +1,7 @@
 #{extends themeInfo.get('themeLayout') /}
 #{set bodyId: 'list' /}
 #{set pageId:'ho'/}
-#{if count > views.Helpers.PAGE_SIZE()}
+#{if count > themeInfo.pageSize()}
 #{set 'moreScripts'}
 <script type="text/javascript" src="@{routes.Assets.at("common/javascripts/jquery.pagination.js")}"></script>
 <script>
@@ -11,7 +11,7 @@
     pageObject.link = '?page=__id__';
     pageObject.previous = "${messages.get('ui.label.previous')}";
     pageObject.next = "${messages.get('ui.label.next')}";
-    pageObject.itemsPerPage = ${views.Helpers.PAGE_SIZE()}
+    pageObject.itemsPerPage = ${themeInfo.pageSize()}
     pageObject.selector = ".pg"
 </script>
 <script type="text/javascript" language="javascript" src="/assets/common/javascripts/paginationInit.js"></script>
@@ -29,7 +29,7 @@
     <h2>&{'ui.label.browse'} ${messages.get("thing.${itemName.pluralize()}")} (${count})</h2>
 #{/else}
 
-#{if count > views.Helpers.PAGE_SIZE()}
+#{if count > themeInfo.pageSize()}
     <div class="pg"></div>
 #{/if}
 #{elseif items.length() == 0}
@@ -55,7 +55,7 @@
 #{/list}
 
 
-#{if count > views.Helpers.PAGE_SIZE()}
+#{if count > themeInfo.pageSize()}
     <div class="pg"></div>
 #{/if}
 

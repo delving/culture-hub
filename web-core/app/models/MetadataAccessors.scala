@@ -55,7 +55,6 @@ abstract class MetadataAccessors {
   def getOwner: String = assign(OWNER.tag)
   def getVisibility: String = assign(VISIBILITY.key)
 
-  // TODO add plugin mechanism
   def getUri(implicit configuration: DomainConfiguration): String = getItemType match {
     case ITEM_TYPE_MDR =>
       // TODO don't use heuristics
@@ -67,9 +66,12 @@ abstract class MetadataAccessors {
       } else {
         ""
       }
-
-    case _ => assign(HUB_URI)
+    // TODO add plugin mechanism
+    case "museum" | "collection" =>
+      "/" + getOrgId + "/thing/" + getSpec + "/" + getRecordId
+    case _ => ""
   }
+
   def getLandingPage = getItemType match {
     case ITEM_TYPE_MDR => assign(LANDING_PAGE.tag)
     case _ => ""
@@ -90,10 +92,7 @@ abstract class MetadataAccessors {
       case _ => thumbnailUrl(None, size)
     }
   }
-  def getMimeType: String = assign(MIMETYPE) match {
-    case t if t.trim().length() > 0 => t
-    case _ => "unknown/unknown"
-  }
+  def getMimeType: String = "unknown/unknown"
 
   def hasDigitalObject = assign(THUMBNAIL.tag) match {
     case url if url.trim().length() > 0 => true

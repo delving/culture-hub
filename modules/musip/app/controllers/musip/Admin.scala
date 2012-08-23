@@ -4,7 +4,6 @@ import controllers.OrganizationController
 import play.api.mvc.Action
 import play.api.Play.current
 import org.apache.solr.common.SolrInputDocument
-import core.Constants._
 import core.SystemField._
 import core.indexing.IndexingService
 import core.indexing.IndexField._
@@ -115,7 +114,6 @@ object Admin extends OrganizationController {
       doc += (HUB_ID -> hubId)
       doc += (ORG_ID -> orgId)
       doc += (RECORD_TYPE -> itemType)
-      doc.addField(HUB_URI, "/%s/%s/%s".format(orgId, itemType, localId))
 
       // facets
       extractFacetFields(i).foreach { facetField =>

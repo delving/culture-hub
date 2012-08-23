@@ -24,34 +24,12 @@ package core
 
 object Constants {
 
-  // ~~~ hub types, used in view as itemName and otherwise for links and search recordTypes
-  val DATASET = "dataSet"
-
-
-  // TODO cleanup
-  val MIMETYPE = "delving_mimeType"
-
-  // TODO remove, in view, use resolver mechanism using the hub_id and splitting it. adjust in Musip
-  val HUB_URI = "delving_hubUrl"
-
-  // TODO must become part of the recDef
-  val FULL_TEXT_OBJECT_URL = "delving_fullTextObjectUrl"
-
-
   // TODO turn into enum-like type
   val ITEM_TYPE_MDR = "mdr"
-
-  // ~~~~~ Solr Constants
-  val MORE_LIKE_THIS = "moreLikeThis"
-
-  // TODO move to conf?
-  val PAGE_SIZE: Int = 12
 
   // ~~~ ACCESS CONTROL
 
   val USERNAME = "userName"
-  val ORGANIZATIONS = "organizations"
-  val GROUPS = "groups"
 
 
   // ~~~ MetadataItem types
@@ -63,7 +41,5 @@ object Constants {
   val RETURN_TO_RESULTS = "returnToResults"
   val SEARCH_TERM = "searchTerm"
   val IN_ORGANIZATION = "inOrg"
-
-
 
 }

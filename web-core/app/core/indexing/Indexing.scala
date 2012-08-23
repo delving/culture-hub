@@ -133,12 +133,12 @@ object Indexing extends SolrServer {
     }
 
     // add full text from digital objects
-    val fullTextUrl = "%s_string".format(FULL_TEXT_OBJECT_URL)
+    val fullTextUrl = "%s_string".format(FULL_TEXT_OBJECT_URL.key)
     if (inputDoc.containsKey(fullTextUrl)) {
       val pdfUrl = inputDoc.get(fullTextUrl).getFirstValue.toString
       if (pdfUrl.endsWith(".pdf")) {
         val fullText = TikaIndexer.getFullTextFromRemoteURL(pdfUrl)
-        inputDoc.addField("delving_fullText_text", fullText)
+        inputDoc.addField("%s_text".format(FULL_TEXT.key), fullText)
       }
     }
     

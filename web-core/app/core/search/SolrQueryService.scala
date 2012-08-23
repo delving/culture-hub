@@ -79,11 +79,11 @@ object SolrQueryService extends SolrServer {
 
   def decodeUrl(text: String): String = URLDecoder.decode(text, "utf-8")
 
-  def getSolrQueryWithDefaults: SolrQuery = {
+  def getSolrQueryWithDefaults(implicit configuration: DomainConfiguration): SolrQuery = {
 
     val query = new SolrQuery("*:*")
     query set ("edismax")
-    query setRows PAGE_SIZE
+    query setRows configuration.searchService.pageSize
     query setStart 0
     query setFacet true
     query setFacetMinCount (1)
@@ -95,7 +95,7 @@ object SolrQueryService extends SolrServer {
     query addHighlightField ("*_snippet")
   }
 
-  def parseSolrQueryFromParams(params: Params, configuration: DomainConfiguration) : SolrQuery = {
+  def parseSolrQueryFromParams(params: Params)(implicit configuration: DomainConfiguration) : SolrQuery = {
     import scala.collection.JavaConversions._
 
     val queryParams = getSolrQueryWithDefaults
@@ -235,7 +235,7 @@ object SolrQueryService extends SolrServer {
     val filterQueries = createFilterQueryList(getAllFilterQueries("qf"))
     val hiddenQueryFilters = createFilterQueryList(if (!configuration.searchService.hiddenQueryFilter.isEmpty) getAllFilterQueries("hqf") ++ configuration.searchService.hiddenQueryFilter.split(",") else getAllFilterQueries("hqf"))
 
-    val query = parseSolrQueryFromParams(params, configuration)
+    val query = parseSolrQueryFromParams(params)
 
 
     addPrefixedFilterQueries (filterQueries ++ hiddenQueryFilters, query)
@@ -283,7 +283,7 @@ object SolrQueryService extends SolrServer {
       val publicFormats = if(first.containsKey(ALL_SCHEMAS.key)) first.getFieldValues(ALL_SCHEMAS.key).asScala.map(_.toString).toSeq else Seq.empty
 
       val relatedItems = if(findRelatedItems) {
-        val moreLikeThis = response.getResponse.get(MORE_LIKE_THIS).asInstanceOf[SimpleOrderedMap[Any]].asScala.head.getValue.asInstanceOf[SolrDocumentList]
+        val moreLikeThis = response.getResponse.get("moreLikeThis").asInstanceOf[SimpleOrderedMap[Any]].asScala.head.getValue.asInstanceOf[SolrDocumentList]
          if (moreLikeThis != null && !moreLikeThis.isEmpty) {
           SolrBindingService.getBriefDocsWithIndexFromSolrDocumentList(moreLikeThis)
         } else Seq.empty
@@ -379,7 +379,7 @@ object SolrQueryService extends SolrServer {
     }.mkString(" ")
   }
 
-  def createPager(chResponse: CHResponse): Pager = {
+  def createPager(chResponse: CHResponse)(implicit configuration: DomainConfiguration): Pager = {
     val solrStart = chResponse.chQuery.solrQuery.getStart
     Pager(
       numFound = chResponse.response.getResults.getNumFound.intValue,
@@ -545,11 +545,11 @@ case class BreadCrumb(href: String, display: String, field: String = "", localis
   override def toString: String = "<a href=\"" + href + "\">" + display + "</a>"
 }
 
-case class Pager(numFound: Int, start: Int = 1, rows: Int = core.Constants.PAGE_SIZE) {
+case class Pager(numFound: Int, start: Int = 1, rows: Int)(implicit configuration: DomainConfiguration) {
 
   private val MARGIN: Int = 5
   private val PAGE_NUMBER_THRESHOLD: Int = 7
-  val hardenedRows = if (rows == 0) core.Constants.PAGE_SIZE else rows
+  val hardenedRows = if (rows == 0) configuration.searchService.pageSize else rows
 
   val totalPages = if (numFound % hardenedRows != 0) numFound / hardenedRows + 1 else numFound / hardenedRows
   val currentPageNumber = start / hardenedRows + 1
@@ -572,7 +572,7 @@ case class Pager(numFound: Int, start: Int = 1, rows: Int = core.Constants.PAGE_
 
 case class ResultPagination (chResponse: CHResponse) {
 
-  lazy val pager = SolrQueryService.createPager(chResponse)
+  lazy val pager = SolrQueryService.createPager(chResponse)(chResponse.configuration)
 
   def isPrevious: Boolean = pager.hasPreviousPage
 
