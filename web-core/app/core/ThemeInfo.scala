@@ -43,4 +43,5 @@ class ThemeInfo(configuration: DomainConfiguration) {
   val showLogin = configuration.ui.showLogin
   val showRegistration = configuration.ui.showRegistration
 
+  val pageSize = configuration.searchService.pageSize
 }

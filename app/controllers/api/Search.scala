@@ -2,6 +2,7 @@ package controllers.api
 
 import play.api.mvc._
 import core.Constants._
+import core.indexing.IndexField._
 import core.search.SearchService
 import collection.mutable.ListBuffer
 import play.api.libs.concurrent.Promise
@@ -26,12 +27,12 @@ object Search extends Controller with DomainConfigurationAware {
               Logger("CultureHub").warn("Using deprecated API call " + request.uri)
             }
 
-            val hiddenQueryFilters = ListBuffer[String]("%s:%s".format(RECORD_TYPE, ITEM_TYPE_MDR))
+            val hiddenQueryFilters = List(
+              "%s:%s".format(RECORD_TYPE.key, ITEM_TYPE_MDR),
+              "%s:%s".format(ORG_ID.key, configuration.orgId)
+            )
 
-            if (!orgId.isEmpty)
-              hiddenQueryFilters += "%s:%s".format(ORG_ID, orgId)
-
-            SearchService.getApiResult(request, hiddenQueryFilters.toList)
+            SearchService.getApiResult(request, hiddenQueryFilters)
 
           } map {
             // CORS - see http://www.w3.org/TR/cors/

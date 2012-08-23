@@ -147,10 +147,6 @@ object DataSetControl extends OrganizationController {
 
   implicit def dSListToSdSList(dsl: List[DataSet]) = dsl map { ds => dataSetToShort(ds) }
 
-  implicit def dataSetToListItem(ds: DataSet) = ListItem(ds.spec, DATASET, ds.details.name, "", "", "unknown/unknown", ds.getCreator, false, "/nope")
-  implicit def dataSetListToListItemList(l: List[DataSet]) = l.map { dataSetToListItem(_) }
-
-
   def dataSet(orgId: String, spec: Option[String]): Action[AnyContent] = OrgMemberAction(orgId) {
     Action {
       implicit request =>

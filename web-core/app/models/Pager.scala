@@ -11,15 +11,13 @@ import salat.dao.{SalatMongoCursor, SalatDAO}
 
 trait Pager[A <: salat.CaseClass] { self: AnyRef with SalatDAO[A, ObjectId] =>
 
-  import core.Constants.PAGE_SIZE
-
   /**
    * Returns a page and the total object count
    * @param page the page number
    * @param pageSize optional size of the page, defaults to PAGE_SIZE
    */
   implicit def listWithPage(list: List[A]) = new {
-    def page(page: Int, pageSize: Int = PAGE_SIZE) = {
+    def page(page: Int, pageSize: Int) = {
       val p = if(page == 0) 1 else page
       val c = list.slice((p - 1) * pageSize, (p - 1) * pageSize + pageSize)
       (c, list.size)
@@ -33,7 +31,7 @@ trait Pager[A <: salat.CaseClass] { self: AnyRef with SalatDAO[A, ObjectId] =>
      * @param page the page number
      * @param pageSize optional size of the page, defaults to PAGE_SIZE
      */
-    def page(page: Int, pageSize: Int = PAGE_SIZE) = {
+    def page(page: Int, pageSize: Int) = {
       val p = if(page == 0) 1 else page
       val c = cursor.skip((p - 1) * pageSize).limit(pageSize)
       (c.toList, c.count)

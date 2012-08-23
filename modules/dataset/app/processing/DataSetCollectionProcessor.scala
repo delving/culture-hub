@@ -7,6 +7,8 @@ import io.Source
 import core.indexing.{IndexingService, Indexing}
 import org.apache.solr.client.solrj.SolrQuery
 import core.Constants._
+import core.indexing.IndexField._
+import core.SystemField._
 import org.joda.time.DateTime
 import core.HubServices
 import core.processing.{CollectionProcessor, ProcessingSchema}
@@ -118,11 +120,12 @@ object DataSetCollectionProcessor {
         log.error("Could not delete orphans records from SOLR. You may have to clean up by hand.")
       }
 
+      // TODO move someplace else...
       // workaround: it looks as though the first query targeting a specific set after it has been indexed blows up with a timeout
       // it does not matter how long we wait
       // hence, we just trigger it here, and ignore the exception.
       try {
-        IndexingService.runQuery(new SolrQuery("%s:%s %s:%s".format(SPEC, dataSet.spec, ORG_ID, dataSet.orgId)))
+        IndexingService.runQuery(new SolrQuery("%s:%s %s:%s".format(SPEC.tag, dataSet.spec, ORG_ID.key, dataSet.orgId)))
       } catch {
         case t: Throwable => // as described earlier on, just ignore this exception
       }

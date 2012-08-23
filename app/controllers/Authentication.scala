@@ -89,8 +89,6 @@ object Authentication extends ApplicationController {
           }).withSession(
             Constants.USERNAME -> user._1,
             "connectedUserId" -> u.get._id.toString,
-            Constants.ORGANIZATIONS -> u.get.organizations.mkString(","),
-            Constants.GROUPS -> u.get.groups.mkString(","),
             AT_KEY -> authenticityToken)
 
           if (user._3) {

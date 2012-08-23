@@ -1,7 +1,7 @@
 package models {
 
 import core.access.ResourceType
-import core.{CultureHubPlugin, Constants}
+import core.{SystemField, CultureHubPlugin, Constants}
 import org.apache.solr.client.solrj.SolrQuery
 import core.search.{SolrSortElement, SolrFacetElement}
 import play.api.{Configuration, Play, Logger}
@@ -138,12 +138,13 @@ case class SearchServiceConfiguration(
   sortFields:                  String, // dc_creator,dc_provider:desc
   moreLikeThis:                MoreLikeThis,
   searchIn:                    Map[String, String],
-  apiWsKey:                    Boolean = false
+  apiWsKey:                    Boolean = false,
+  pageSize:                    Int
 )
 
 /** See http://wiki.apache.org/solr/MoreLikeThis **/
 case class MoreLikeThis(
-  fieldList: Seq[String] = Seq(Constants.DESCRIPTION, "dc_creator_text"),
+  fieldList: Seq[String] = Seq(SystemField.DESCRIPTION.tag, "dc_creator_text"),
   minTermFrequency: Int = 1,
   minDocumentFrequency: Int = 2,
   minWordLength: Int = 0,
@@ -202,6 +203,7 @@ object DomainConfiguration {
   val SEARCH_APIWSKEY = "services.search.apiWsKey"
   val SEARCH_MORELIKETHIS = "services.search.moreLikeThis"
   val SEARCH_SEARCHIN = "services.search.searchIn"
+  val SEARCH_PAGE_SIZE = "services.search.pageSize"
 
   val OAI_REPO_NAME = "services.pmh.repositoryName"
   val OAI_ADMIN_EMAIL = "services.pmh.adminEmail"
@@ -347,7 +349,8 @@ object DomainConfiguration {
                         "dc_subject" -> "metadata.dc.subject"
                       )
                     }
-                  }
+                  },
+                  pageSize = getOptionalInt(configuration, SEARCH_PAGE_SIZE).getOrElse(12)
                 ),
                 plugins = configuration.underlying.getStringList(PLUGINS).asScala.toSeq,
                 schemas = configuration.underlying.getStringList(SCHEMAS).asScala.toList,
@@ -548,6 +551,9 @@ object DomainConfiguration {
 
   private def getInt(configuration: Configuration, key: String): Int =
     configuration.getInt(key).getOrElse(Play.configuration.getInt(key).get)
+
+  private def getOptionalInt(configuration: Configuration, key: String): Option[Int] =
+    configuration.getInt(key).orElse(Play.configuration.getInt(key))
 
   private def getBoolean(configuration: Configuration, key: String): Boolean =
     configuration.getBoolean(key).getOrElse(Play.configuration.getBoolean(key).get)
