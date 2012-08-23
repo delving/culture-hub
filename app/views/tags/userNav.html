@@ -10,7 +10,7 @@
 #{/if}
 #{else}
     <li class="user">
-        <a href="/${_userName}" rel="nofollow">
+        <a href="/${_userName}" rel="nofollow" class="gravatar">
             #{gravatar.img _email, size:21 /} ${messages.get('ui.label.loggedInAs')}: ${_userName}
         </a>
     </li>
