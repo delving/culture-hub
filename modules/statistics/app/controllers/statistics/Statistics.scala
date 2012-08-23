@@ -8,10 +8,11 @@ import models.statistics.DataSetStatistics
 import collection.immutable.ListMap
 import core.search.{SolrBindingService, SolrQueryService}
 import org.apache.solr.client.solrj.SolrQuery
-import core.{CultureHubPlugin, Constants}
+import core.{SystemField, CultureHubPlugin, Constants}
 import org.apache.solr.client.solrj.response.FacetField.Count
 import play.api.i18n.{Lang, Messages}
 import plugins.StatisticsPlugin
+import core.indexing.IndexField
 
 /**
  * Prototype statistics plugin based on the statistics provided by the Sip-Creator.
@@ -139,7 +140,7 @@ case class StatisticsHeader(name: String, label: String = "", entries: Seq[Combi
 
 class SolrFacetBasedStatistics(facets: Map[String, String], orgId: String)(implicit configuration: DomainConfiguration, lang: Lang) {
 
-    val orgIdFilter = "%s:%s".format(Constants.ORG_ID, orgId)
+    val orgIdFilter = "%s:%s".format(IndexField.ORG_ID.key, orgId)
 
     // create list of facets you want returned
     val query = new SolrQuery
@@ -156,13 +157,13 @@ class SolrFacetBasedStatistics(facets: Map[String, String], orgId: String)(impli
     val totalRecords = allRecordsResponse.getResults.getNumFound.toInt
 
     // query for with only digital objects
-    query setFilterQueries("%s:true".format(Constants.HAS_DIGITAL_OBJECT), orgIdFilter)
+    query setFilterQueries("%s:true".format(IndexField.HAS_DIGITAL_OBJECT.key), orgIdFilter)
     val digitalObjectsResponse = SolrQueryService.getSolrResponseFromServer(solrQuery = query)
     val digitalObjects = SolrBindingService.createFacetStatistics(digitalObjectsResponse.getFacetFields.asScala.toList)
     val totalDigitalObjects = digitalObjectsResponse.getResults.getNumFound
 
     // query with landing pages
-    query setFilterQueries("%s:[* TO *]".format(Constants.EXTERNAL_LANDING_PAGE), orgIdFilter)
+    query setFilterQueries("%s:[* TO *]".format(SystemField.LANDING_PAGE.tag), orgIdFilter)
     val landingPagesResponse = SolrQueryService.getSolrResponseFromServer(solrQuery = query)
     val landingPages = SolrBindingService.createFacetStatistics(landingPagesResponse.getFacetFields.asScala.toList)
     val totalLandingPages = landingPagesResponse.getResults.getNumFound

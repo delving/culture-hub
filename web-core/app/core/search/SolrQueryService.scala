@@ -16,13 +16,13 @@ package core.search
  * limitations under the License.
  */
 
-import core.Constants
+import core.indexing.IndexField
 import org.apache.solr.client.solrj.response.{QueryResponse, FacetField}
 import scala.collection.JavaConverters._
 import exceptions.SolrConnectionException
 import play.api.Logger
 import play.api.mvc.RequestHeader
-import core.Constants._
+import core.indexing.IndexField._
 import collection.immutable.{List, Map}
 import models.DomainConfiguration
 import scala.xml.XML
@@ -33,6 +33,8 @@ import org.apache.commons.lang.StringEscapeUtils
 import org.apache.solr.common.SolrDocumentList
 import org.apache.solr.client.solrj.SolrServerException
 import org.apache.solr.common.util.SimpleOrderedMap
+import core.indexing.IndexField._
+import core.Constants._
 
 /**
  *
@@ -77,11 +79,11 @@ object SolrQueryService extends SolrServer {
 
   def decodeUrl(text: String): String = URLDecoder.decode(text, "utf-8")
 
-  def getSolrQueryWithDefaults: SolrQuery = {
+  def getSolrQueryWithDefaults(implicit configuration: DomainConfiguration): SolrQuery = {
 
     val query = new SolrQuery("*:*")
     query set ("edismax")
-    query setRows PAGE_SIZE
+    query setRows configuration.searchService.pageSize
     query setStart 0
     query setFacet true
     query setFacetMinCount (1)
@@ -93,7 +95,7 @@ object SolrQueryService extends SolrServer {
     query addHighlightField ("*_snippet")
   }
 
-  def parseSolrQueryFromParams(params: Params, configuration: DomainConfiguration) : SolrQuery = {
+  def parseSolrQueryFromParams(params: Params)(implicit configuration: DomainConfiguration) : SolrQuery = {
     import scala.collection.JavaConversions._
 
     val queryParams = getSolrQueryWithDefaults
@@ -186,12 +188,12 @@ object SolrQueryService extends SolrServer {
       ).toList
   }
 
-  def createCHQuery(request: RequestHeader, connectedUser: Option[String] = None, additionalSystemHQFs: List[String] = List.empty[String])(implicit configuration: DomainConfiguration): CHQuery = {
+  def createCHQuery(request: RequestHeader, connectedUser: Option[String] = None, additionalSystemHQFs: Seq[String] = Seq.empty)(implicit configuration: DomainConfiguration): CHQuery = {
     val params = Params(request.queryString)
     createCHQuery(params, connectedUser, additionalSystemHQFs)
   }
 
-  def createCHQuery(params: Params, connectedUser: Option[String], additionalSystemHQFs: List[String])(implicit configuration: DomainConfiguration): CHQuery = {
+  def createCHQuery(params: Params, connectedUser: Option[String], additionalSystemHQFs: Seq[String])(implicit configuration: DomainConfiguration): CHQuery = {
 
     def getAllFilterQueries(fqKey: String): Array[String] = {
       params.all.filter(key => key._1.equalsIgnoreCase(fqKey) || key._1.equalsIgnoreCase("%s[]".format(fqKey))).flatMap(entry => entry._2).toArray
@@ -233,7 +235,7 @@ object SolrQueryService extends SolrServer {
     val filterQueries = createFilterQueryList(getAllFilterQueries("qf"))
     val hiddenQueryFilters = createFilterQueryList(if (!configuration.searchService.hiddenQueryFilter.isEmpty) getAllFilterQueries("hqf") ++ configuration.searchService.hiddenQueryFilter.split(",") else getAllFilterQueries("hqf"))
 
-    val query = parseSolrQueryFromParams(params, configuration)
+    val query = parseSolrQueryFromParams(params)
 
 
     addPrefixedFilterQueries (filterQueries ++ hiddenQueryFilters, query)
@@ -277,8 +279,8 @@ object SolrQueryService extends SolrServer {
       None
     } else {
       val first = response.getResults.get(0)
-      val currentFormat = if(first.containsKey(SCHEMA)) first.getFirstValue(SCHEMA).toString else ""
-      val publicFormats = if(first.containsKey(ALL_SCHEMAS)) first.getFieldValues("delving_allSchemas").asScala.map(_.toString).toSeq else Seq.empty
+      val currentFormat = if(first.containsKey(SCHEMA.key)) first.getFirstValue(SCHEMA.key).toString else ""
+      val publicFormats = if(first.containsKey(ALL_SCHEMAS.key)) first.getFieldValues(ALL_SCHEMAS.key).asScala.map(_.toString).toSeq else Seq.empty
 
       val relatedItems = if(findRelatedItems) {
         val moreLikeThis = response.getResponse.get("moreLikeThis").asInstanceOf[SimpleOrderedMap[Any]].asScala.head.getValue.asInstanceOf[SolrDocumentList]
@@ -291,7 +293,7 @@ object SolrQueryService extends SolrServer {
 
       Some(
         DocItemReference(
-          first.getFirstValue(HUB_ID).toString,
+          first.getFirstValue(HUB_ID.key).toString,
           currentFormat,
           publicFormats,
           relatedItems
@@ -323,9 +325,13 @@ object SolrQueryService extends SolrServer {
         Logger.error("Unable to connect to Solr Server", e)
         throw new SolrConnectionException("SOLR_UNREACHABLE", e)
       }
+      case e: SolrServerException if e.getMessage.contains("Timeout occured while waiting response from server") => {
+        Logger.error("Timeout while waiting for SOLR server to respond")
+        throw new SolrConnectionException("SOLR connection timeout", e)
+      }
       case e: Throwable => {
         Logger.error("unable to execute SolrQuery", e)
-        throw new SolrConnectionException("Malformed Query", e)
+        throw new SolrConnectionException("Unknown SOLR error", e)
       }
     }
   }
@@ -373,7 +379,7 @@ object SolrQueryService extends SolrServer {
     }.mkString(" ")
   }
 
-  def createPager(chResponse: CHResponse): Pager = {
+  def createPager(chResponse: CHResponse)(implicit configuration: DomainConfiguration): Pager = {
     val solrStart = chResponse.chQuery.solrQuery.getStart
     Pager(
       numFound = chResponse.response.getResults.getNumFound.intValue,
@@ -440,16 +446,16 @@ case class DelvingIdType(idType: String, resolution: String) {
 }
 
 object DelvingIdType {
-  val SOLR = DelvingIdType("solr", ID)
-  val PMH = DelvingIdType("pmh", PMH_ID)
+  val SOLR = DelvingIdType("solr", ID.key)
+  val PMH = DelvingIdType("pmh", PMH_ID.key)
   val DRUPAL = DelvingIdType("drupal", "id")
-  val HUB_ID = DelvingIdType("hubId", Constants.HUB_ID)
-  val INDEX_ITEM = DelvingIdType("indexItem", ID)
-  val LEGACY = DelvingIdType("legacy", EUROPEANA_URI)
+  val HUB = DelvingIdType("hubId", HUB_ID.key)
+  val INDEX_ITEM = DelvingIdType("indexItem", ID.key)
+  val LEGACY = DelvingIdType("legacy", EUROPEANA_URI.key)
 
-  val types = Seq(SOLR, PMH, DRUPAL, HUB_ID, INDEX_ITEM, LEGACY)
+  val types = Seq(SOLR, PMH, DRUPAL, HUB, INDEX_ITEM, LEGACY)
 
-  def apply(idType: String): DelvingIdType = types.find(_.idType == idType).getOrElse(DelvingIdType.HUB_ID)
+  def apply(idType: String): DelvingIdType = types.find(_.idType == idType).getOrElse(DelvingIdType.HUB)
 
 }
 
@@ -539,11 +545,11 @@ case class BreadCrumb(href: String, display: String, field: String = "", localis
   override def toString: String = "<a href=\"" + href + "\">" + display + "</a>"
 }
 
-case class Pager(numFound: Int, start: Int = 1, rows: Int = core.Constants.PAGE_SIZE) {
+case class Pager(numFound: Int, start: Int = 1, rows: Int)(implicit configuration: DomainConfiguration) {
 
   private val MARGIN: Int = 5
   private val PAGE_NUMBER_THRESHOLD: Int = 7
-  val hardenedRows = if (rows == 0) core.Constants.PAGE_SIZE else rows
+  val hardenedRows = if (rows == 0) configuration.searchService.pageSize else rows
 
   val totalPages = if (numFound % hardenedRows != 0) numFound / hardenedRows + 1 else numFound / hardenedRows
   val currentPageNumber = start / hardenedRows + 1
@@ -566,7 +572,7 @@ case class Pager(numFound: Int, start: Int = 1, rows: Int = core.Constants.PAGE_
 
 case class ResultPagination (chResponse: CHResponse) {
 
-  lazy val pager = SolrQueryService.createPager(chResponse)
+  lazy val pager = SolrQueryService.createPager(chResponse)(chResponse.configuration)
 
   def isPrevious: Boolean = pager.hasPreviousPage
 

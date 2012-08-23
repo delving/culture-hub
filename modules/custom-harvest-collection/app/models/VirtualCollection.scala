@@ -13,6 +13,7 @@ import core.collection.Harvestable
 import util.DomainConfigurationHandler
 import core.harvesting.AggregatingHarvestCollectionLookup
 import java.util.Date
+import core.SystemField
 
 /**
  * A VirtualCollection is a collection resulting from a search, with references to the search results being cached.
@@ -99,7 +100,7 @@ case class DataSetReference(spec: String, orgId: String)
 case class VirtualCollectionQuery(dataSets: Seq[String], freeFormQuery: String, excludeHubIds: List[String] = List.empty, domainConfiguration: String) {
 
   def toSolrQuery = {
-    val specCondition = dataSets.map(s => SPEC + ":" + s + " ").mkString(" ")
+    val specCondition = dataSets.map(s => SystemField.SPEC.tag + ":" + s + " ").mkString(" ")
     val excludedIdentifiersCondition = "NOT (" + excludeHubIds.map(s => "delving_hubId:\"" + s + "\"").mkString(" OR ") + ")"
     "delving_recordType:mdr " + specCondition + " " + freeFormQuery + (if (!excludeHubIds.isEmpty) " " + excludedIdentifiersCondition else "")
   }

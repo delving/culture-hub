@@ -6,7 +6,7 @@ import com.mongodb.casbah._
 import commons.MongoDBObject
 import org.apache.solr.common.SolrInputDocument
 import core.Constants._
-import core.search.SolrServer
+import core.indexing.IndexField._
 import java.util.Date
 import xml.NodeSeq
 import models.HubMongoContext._
@@ -42,19 +42,19 @@ case class DrupalEntity(_id: ObjectId = new ObjectId, rawXml: String, id: Drupal
   def toSolrDocument(implicit configuration: DomainConfiguration): SolrInputDocument = {
     import org.apache.solr.common.SolrInputDocument
     val doc = new SolrInputDocument
-    doc addField(ID, id.nodeId)
+    doc += (ID -> id.nodeId)
     doc addField("drup_id_string", id.id)
     doc addField("drup_entityType_string", id.nodeType)
     doc addField("drup_bundle_string", id.bundle)
-    doc addField(EUROPEANA_URI, id.nodeId)
+    doc += (EUROPEANA_URI -> id.nodeId)
     doc addField("europeana_collectionName_s", id.bundle)
     doc addField("europeana_provider_s", "ITIN")
-    doc addField(ORG_ID, "ifthenisnow")
-    doc addField(RECORD_TYPE, "drupal")
-    doc addField(PMH_ID, "drupal_%s".format(_id))
-    if (!doc.containsKey(VISIBILITY + "_string")) {
-      doc remove (VISIBILITY + "_string")
-      doc addField(VISIBILITY, "10") // set visibilty to true always if not set by Drupal
+    doc += (ORG_ID -> "ifthenisnow")
+    doc += (RECORD_TYPE -> "drupal")
+    doc += (PMH_ID -> "drupal_%s".format(_id))
+    if (!doc.containsKey(VISIBILITY.key + "_string")) {
+      doc remove (VISIBILITY.key + "_string")
+      doc += (VISIBILITY -> "10") // set visibilty to true always if not set by Drupal
     }
     val fields = XML.loadString(rawXml).nonEmptyChildren
     // store fields

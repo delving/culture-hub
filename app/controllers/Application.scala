@@ -6,6 +6,7 @@ import cms.CMSPage
 import com.mongodb.casbah.Imports._
 import core.ThemeInfo
 import core.Constants._
+import core.indexing.IndexField._
 
 object Application extends DelvingController {
 
@@ -17,7 +18,7 @@ object Application extends DelvingController {
         val recentMdrs: Seq[ListItem] = try {
           CommonSearch.search(
             None,
-            List("%s:%s AND %s:%s".format(RECORD_TYPE, MDR, HAS_DIGITAL_OBJECT, true))
+            List("%s:%s AND %s:%s".format(RECORD_TYPE.key, ITEM_TYPE_MDR, HAS_DIGITAL_OBJECT.key, true))
           ).
             _1.
             slice(0, themeInfo.themeProperty("recentMdrsCount", classOf[Int]))

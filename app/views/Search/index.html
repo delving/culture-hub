@@ -22,7 +22,7 @@
         </div>
     </div>
 
-    #{if pagination.getNumFound() > views.Helpers.PAGE_SIZE()}
+    #{if pagination.getNumFound() > themeInfo.pageSize()}
         #{results.resultPagination pageLinks: pagination, pQuery: pagination.getPresentationQuery().getQueryForPresentation(), searchIn: params.searchIn ? params.searchIn.apply(0) : "all", lastPage: pagination.getNumFound(), extraClass:"pagination-top" /}
     #{/if}
 
@@ -46,7 +46,7 @@
         </div>
     </div>
 
-    #{if pagination.getNumFound() > views.Helpers.PAGE_SIZE()}
+    #{if pagination.getNumFound() > themeInfo.pageSize()}
         #{results.resultPagination pageLinks: pagination, pQuery: pagination.getPresentationQuery().getQueryForPresentation(), searchIn: params.searchIn ? params.searchIn.apply(0)  : "all", lastPage: pagination.getNumFound(), extraClass:"pagination-bottom" /}
     #{/if}
 

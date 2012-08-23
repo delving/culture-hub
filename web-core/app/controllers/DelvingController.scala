@@ -250,10 +250,6 @@ trait DelvingController extends ApplicationController with CoreImplicits {
               //        renderArgs += ("authenticityToken", session.getAuthenticityToken)
               renderArgs +=("organizations" -> org)
               renderArgs +=("email" -> u.email)
-
-              // refresh session parameters
-              additionalSessionParams += (Constants.ORGANIZATIONS -> org.mkString(","))
-              additionalSessionParams += (Constants.GROUPS -> u.groups.mkString(","))
             }
           }
 
