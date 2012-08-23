@@ -2,7 +2,7 @@ package plugins
 
 import _root_.util.DomainConfigurationHandler
 import core.mapping.MappingService
-import core.schema.SchemaProvider
+import core.schema.{SchemaRepositoryWrapper, SchemaProvider}
 import core.{HubServices, CultureHubPlugin}
 import play.api.{Play, Application}
 import Play.current
@@ -10,6 +10,8 @@ import models.{Group, HubUser}
 import org.bson.types.ObjectId
 import com.mongodb.casbah.Imports._
 import models.UserProfile
+import play.api.libs.concurrent.Akka
+import akka.actor.Props
 
 /**
  *
@@ -39,6 +41,8 @@ class ConfigurationPlugin(app: Application) extends CultureHubPlugin(app) {
     }
 
     // ~~~ bootstrap services
+
+    Akka.system.actorOf(Props[SchemaRepositoryWrapper], name = "schemaRepository")
 
     SchemaProvider.refresh()
     HubServices.init()

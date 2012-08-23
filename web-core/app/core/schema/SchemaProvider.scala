@@ -30,7 +30,7 @@ import models.DomainConfiguration
 object SchemaProvider {
 
   private val log = Logger("CultureHub")
-  private lazy val repository = Akka.system.actorOf(Props[SchemaRepositoryWrapper])
+  private def repository = Akka.system.actorFor("akka://application/user/schemaRepository")
   private implicit val timeout = Timeout(2000 milliseconds)
 
   /**
