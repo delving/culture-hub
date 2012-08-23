@@ -3,7 +3,7 @@ package controllers.api
 import play.api.mvc.{Controller, Action}
 import core.harvesting.OaiPmhService
 import play.api.libs.concurrent.Promise
-import core.DomainConfigurationAware
+import controllers.DomainConfigurationAware
 import play.api.Logger
 
 /**

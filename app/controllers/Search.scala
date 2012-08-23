@@ -16,17 +16,6 @@ import com.mongodb.casbah.Imports._
 
 object  Search extends DelvingController {
 
-  // TODO move later
-  lazy val viewRenderers: Map[DomainConfiguration, Map[String, ViewRenderer]] = RecordDefinition.enabledDefinitions.map {
-    pair => {
-      (pair._1 -> {
-        pair._2.
-          flatMap(f => ViewRenderer.fromDefinition(f, "html")(pair._1)).
-          map(r => (r.schema -> r)).toMap[String, ViewRenderer]
-      })
-    }
-  }
-
   def index(query: String, page: Int) = search(query)
 
   def search(query: String = "*:*") = Root {
@@ -88,9 +77,9 @@ object  Search extends DelvingController {
                     Some("aff")
                   } else {
                     // use the indexing format as rendering format. if none is set try to find the first suitable one
-                    val inferredRenderingFormat = mdr.xml.keys.toList.intersect(RecordDefinition.enabledDefinitions(configuration).toList).headOption
+                    val inferredRenderingFormat = mdr.xml.keys.toList.intersect(configuration.schemas.toList).headOption
                     val renderingFormat = collection.idxMappings.headOption.orElse(inferredRenderingFormat)
-                    if (renderingFormat.isDefined && viewRenderers(configuration).contains(renderingFormat.get) && mdr.xml.contains(renderingFormat.get)) {
+                    if (renderingFormat.isDefined && mdr.xml.contains(renderingFormat.get)) {
                       renderingFormat
                     } else {
                       None
@@ -101,7 +90,18 @@ object  Search extends DelvingController {
                 if(renderingSchema.isEmpty) {
                   NotFound(Messages("rendering.notViewable", "This object cannot be displayed because no appropriate rendering schema could be found"))
                 } else {
-                  val renderResult = RecordRenderer.renderMetadataRecord(hubId, mdr.xml(renderingSchema.get), renderingSchema.get, renderingSchema.get, ViewType.HTML, getLang, false, Seq.empty, facts.toMap)
+                  val renderResult = RecordRenderer.renderMetadataRecord(
+                    hubId,
+                    mdr.xml(renderingSchema.get),
+                    renderingSchema.get,
+                    mdr.schemaVersions(renderingSchema.get),
+                    renderingSchema.get,
+                    ViewType.HTML,
+                    getLang,
+                    false,
+                    Seq.empty,
+                    facts.toMap
+                  )
 
                   if(renderResult.isRight) {
                     val navigateFromSearch = request.headers.get(REFERER) != None && request.headers.get(REFERER).get.contains("search")

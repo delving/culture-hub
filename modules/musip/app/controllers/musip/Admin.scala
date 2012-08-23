@@ -90,7 +90,16 @@ object Admin extends OrganizationController {
       // extract system fields
       val systemFields = extractSystemFields(i)
 
-      val metadataItem = MetadataItem(collection = "musip", itemId = localId, itemType = itemType, xml = Map("musip" -> xml), systemFields = systemFields, index = index)
+      val metadataItem = MetadataItem(
+        collection = "musip",
+        itemId = localId,
+        itemType = itemType,
+        xml = Map("musip" -> xml),
+        schemaVersions = Map("musip" -> "1.0.0"),
+        systemFields = systemFields,
+        index = index
+
+      )
       MetadataCache.get(orgId, "musip", itemType).saveOrUpdate(metadataItem)
 
       val doc = new SolrInputDocument()

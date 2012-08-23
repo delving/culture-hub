@@ -17,20 +17,24 @@
 package models
 
 import _root_.util.DomainConfigurationHandler
+import core.schema.{Schema, SchemaProvider}
 import xml.{Node, XML}
-import play.api.Play
+import play.api.{Logger, Play}
 import play.api.Play.current
 import java.net.URL
 import core.SystemField
+import eu.delving.schema.{SchemaType, SchemaRepository}
+import collection.mutable
 
 /**
- * Represents a RecordDefinition (aka schema)
+ * Wrapper for a RecordDefinition
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
 case class RecordDefinition(prefix: String,
                             schema: String,
+                            schemaVersion: String,
                             namespace: String,               // the namespace of the format
                             allNamespaces: List[Namespace],  // all the namespaces occurring in this format (prefix, schema)
                             isFlat: Boolean                  // is this a flat record definition, i.e. can it be flat?
@@ -40,16 +44,7 @@ case class RecordDefinition(prefix: String,
 
 }
 
-case class Namespace(prefix: String, uri: String, schema: String) {
-  override def hashCode(): Int = (prefix + uri + schema).hashCode
-
-  override def equals(other: Any): Boolean = canEqual(other) && {
-    val ns = other.asInstanceOf[Namespace]
-      ns.prefix == prefix && ns.uri == uri && ns.schema == schema
-  }
-
-  override def canEqual(that: Any): Boolean = that.isInstanceOf[Namespace]
-}
+case class Namespace(prefix: String, uri: String, schema: String)
 
 case class FormatAccessControl(accessType: String = "none", accessKey: Option[String] = None) {
   def hasAccess(key: Option[String]) = isPublicAccess || (isProtectedAccess && key != None && accessKey == key)
@@ -58,53 +53,42 @@ case class FormatAccessControl(accessType: String = "none", accessKey: Option[St
   def isNoAccess = accessType == "none"
 }
 
-case class SummaryField(name: String, xpath: String) {
-
-  def isValid = try {
-    SystemField.valueOf(name)
-    true
-  } catch {
-    case _ => false
-  }
-
-  def tag = "delving_" + SystemField.valueOf(name).tag
-}
-
 /**
- * Deals with loading RecordDefinions, validation schemas and crosswalks
+ * Deals with loading RecordDefinitions, validation schemas and crosswalks
+ *
  */
 object RecordDefinition {
-
-  val RECORD_DEFINITION_SUFFIX = "-record-definition.xml"
-  val VALIDATION_SCHEMA_SUFFIX = "-validation.xsd"
-  val CROSSWALK_SUFFIX = "-crosswalk.xml"
 
   val rawRecordDefinition = RecordDefinition(
     prefix = "raw",
     schema = "http://delving.eu/namespaces/raw",
+    schemaVersion = "1.0.0",
     namespace = "http://delving.eu/namespaces/raw/schema.xsd",
     allNamespaces = List(Namespace("raw", "http://delving.eu/namespaces/raw", "http://delving.eu/namespaces/raw/schema.xsd")),
     isFlat = true
   )
 
-  lazy val enabledDefinitions: Map[DomainConfiguration, Seq[String]] = DomainConfigurationHandler.domainConfigurations.
-    map(configuration => (configuration -> configuration.schemas)).toMap
+  private val parsedRecordDefinitionsCache = new mutable.HashMap[String, RecordDefinition]()
 
-  lazy val enabledCrosswalks: Map[DomainConfiguration, Seq[String]] = DomainConfigurationHandler.domainConfigurations.
-      map(configuration => (configuration -> configuration.crossWalks)).toMap
+  def getRecordDefinition(schema: Schema)(implicit configuration: DomainConfiguration): Option[RecordDefinition] = getRecordDefinition(schema.prefix, schema.version)
 
-  def getRecordDefinition(prefix: String)(implicit configuration: DomainConfiguration): Option[RecordDefinition] = parseRecordDefinitions.find(_.prefix == prefix)
-
-  def getRecordDefinitionResources(configuration: Option[DomainConfiguration]): Seq[URL] = {
-    val prefixes = configuration.map { conf =>
-      enabledDefinitions(conf)
-    }.getOrElse {
-      enabledDefinitions.values
+  def getRecordDefinition(prefix: String, version: String)(implicit configuration: DomainConfiguration): Option[RecordDefinition] = {
+    if (Play.isProd) {
+      parsedRecordDefinitionsCache.get(prefix + version).map { cached =>
+        Some(cached)
+      }.getOrElse {
+        val definition = fetchRecordDefinition(prefix, version)
+        if (definition.isDefined) {
+          parsedRecordDefinitionsCache.put(prefix + version, definition.get)
+        }
+        definition
+      }
+    } else {
+      fetchRecordDefinition(prefix, version)
     }
 
-    prefixes.flatMap(prefix => Play.resource("definitions/%s/%s-record-definition.xml".format(prefix, prefix))).toSeq
   }
-
+  // TODO version crosswalk lookups
   def getCrosswalkResources(sourcePrefix: String)(implicit configuration: DomainConfiguration): Seq[URL] = {
     enabledCrosswalks(configuration).
       filter(_.startsWith(sourcePrefix)).
@@ -112,17 +96,19 @@ object RecordDefinition {
       toSeq
   }
 
-  private def parseRecordDefinitions(implicit configuration: DomainConfiguration): List[RecordDefinition] = {
-    val definitionContent = getRecordDefinitionResources(Some(configuration)).map { r => XML.load(r) }
-    val definitions = definitionContent.flatMap(parseRecordDefinition(_)).toList
-    if(configuration.oaiPmhService.allowRawHarvesting) {
-      definitions ++ List(rawRecordDefinition)
-    } else {
-      definitions
+  private def fetchRecordDefinition(prefix: String, version: String)(implicit configuration: DomainConfiguration): Option[RecordDefinition] = {
+    SchemaProvider.getSchema(prefix, version, SchemaType.RECORD_DEFINITION).flatMap { definition =>
+      try {
+        parseRecordDefinition(XML.loadString(definition), version)
+      } catch {
+        case t: Throwable =>
+          Logger("CultureHub").error("Error while trying to parse recordDefintion %s %s".format(prefix, version), t)
+          None
+      }
     }
   }
 
-  private def parseRecordDefinition(node: Node): Option[RecordDefinition] = {
+  private def parseRecordDefinition(node: Node, version: String): Option[RecordDefinition] = {
     val prefix = (node \ "@prefix" ).text
     val isFlat = node.attribute("flat").isDefined && (node \ "@flat" text).length > 0 && (node \ "@flat" text).toBoolean
     val recordDefinitionNamespace: Node = node \ "namespaces" \ "namespace" find { _.attributes("prefix").exists(_.text == prefix) } getOrElse (return None)
@@ -138,11 +124,15 @@ object RecordDefinition {
       RecordDefinition(
         recordDefinitionNamespace \ "@prefix" text,
         recordDefinitionNamespace \ "@schema" text,
+        version,
         recordDefinitionNamespace \ "@uri" text,
         allNamespaces,
         isFlat
       )
     )
   }
+
+  private lazy val enabledCrosswalks: Map[DomainConfiguration, Seq[String]] = DomainConfigurationHandler.domainConfigurations.
+      map(configuration => (configuration -> configuration.crossWalks)).toMap
 
 }

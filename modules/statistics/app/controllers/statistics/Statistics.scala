@@ -29,7 +29,7 @@ object Statistics extends OrganizationController {
     Action {
       implicit request =>
 
-        val statistics = DataSet.dao.findAll(orgId).map {
+        val statistics = DataSet.dao.findAll().map {
           ds => {
 
             DataSetStatistics.dao.getMostRecent(ds.orgId, ds.spec, "icn").map {

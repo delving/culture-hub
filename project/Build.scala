@@ -11,7 +11,8 @@ object Build extends sbt.Build {
 
   val appName = "culture-hub"
   val cultureHubVersion = "12.08-SNAPSHOT"
-  val sipCreatorVersion = "1.0.8-SNAPSHOT"
+  val sipCreatorVersion = "1.0.10-SNAPSHOT"
+  val schemaRepoVersion = "1.0.10-SNAPSHOT"
   val playExtensionsVersion = "1.3.1"
 
   val dosVersion = "1.5"
@@ -43,8 +44,9 @@ object Build extends sbt.Build {
   val webCoreDependencies = Seq(
     "eu.delving"                %% "play2-extensions"                % playExtensionsVersion,
 
-    "eu.delving"                %  "definitions"                     % "1.0-SNAPSHOT"      changing(),
+    "eu.delving"                %  "definitions"                     % "1.0",
     "eu.delving"                %  "sip-core"                        % sipCreatorVersion,
+    "eu.delving"                %  "schema-repo"                     % schemaRepoVersion,
     "eu.delving"                %% "basex-scala-client"              % "0.1-SNAPSHOT",
 
     "org.apache.solr"           %  "solr-solrj"                      % "3.6.0",

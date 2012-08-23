@@ -1,4 +1,4 @@
-package core
+package controllers
 
 import models.DomainConfiguration
 import play.api.mvc._
@@ -13,7 +13,7 @@ trait DomainConfigurationAware {
 
   implicit def configuration(implicit request: RequestHeader): DomainConfiguration = {
     val c = domainConfigurations.get(request)
-    if(c == null) {
+    if (c == null) {
       Logger("CultureHub").error("Trying to get non-existing configuration for domain " + request.domain)
       null
     } else {

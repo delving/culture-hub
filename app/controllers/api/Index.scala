@@ -1,6 +1,6 @@
 package controllers.api
 
-import controllers.{RenderingExtensions, DelvingController}
+import controllers.{DomainConfigurationAware, RenderingExtensions, DelvingController}
 import play.api.mvc._
 import play.api.libs.concurrent.Promise
 import scala.xml._
@@ -12,7 +12,6 @@ import org.joda.time.format.ISODateTimeFormat
 import collection.mutable.{ArrayBuffer, ListBuffer}
 import com.mongodb.casbah.commons.MongoDBObject
 import play.api.Logger
-import core.DomainConfigurationAware
 
 /**
  *
@@ -99,7 +98,7 @@ object Index extends Controller with DomainConfigurationAware with RenderingExte
                 IndexingService.deleteByQuery("""id:%s_%s_%s""".format(item.orgId, item.itemType, item.itemId))
                 deleted += 1
               } else {
-                val cacheItem = MetadataItem(collection = CACHE_COLLECTION, itemType = item.itemType, itemId = item.itemId, xml = Map("raw" -> item.rawXml), index = index)
+                val cacheItem = MetadataItem(collection = CACHE_COLLECTION, itemType = item.itemType, itemId = item.itemId, xml = Map("raw" -> item.rawXml), schemaVersions = Map("raw" -> "1.0.0"), index = index)
                 cache.saveOrUpdate(cacheItem)
                 IndexingService.stageForIndexing(item.toSolrDocument)
                 indexed += 1

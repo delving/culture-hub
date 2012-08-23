@@ -1,8 +1,8 @@
 package controllers.api
 
-import controllers.RenderingExtensions
+import controllers.{DomainConfigurationAware, RenderingExtensions}
 import play.api.mvc.{Controller, Action}
-import core.{DomainConfigurationAware, HubServices}
+import core.HubServices
 import play.api.i18n.Messages
 import models.DomainConfiguration
 import core.collection.{OrganizationCollectionInformation, AggregatingOrganizationCollectionLookup}

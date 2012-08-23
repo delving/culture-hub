@@ -1,6 +1,6 @@
 package actors
 
-import akka.actor.Actor
+import akka.actor.{Cancellable, Actor}
 import play.api.mvc.RequestHeader
 import play.api.Logger
 import collection.mutable.Map
@@ -8,6 +8,9 @@ import collection.mutable.HashMap
 import collection.mutable.ArrayBuffer
 import models.{DomainConfiguration, RouteAccess}
 import util.DomainConfigurationHandler
+import akka.util.duration._
+import play.api.libs.concurrent.Akka
+import play.api.Play.current
 
 /**
  *
@@ -15,6 +18,23 @@ import util.DomainConfigurationHandler
  */
 
 class RouteLogger extends Actor {
+
+  private var scheduler: Cancellable = null
+
+
+  override def preStart() {
+    scheduler = Akka.system.scheduler.schedule(
+      0 seconds,
+      3 minutes, // TODO we may have to see what is the optimal value for this
+      self,
+      PersistRouteAccess
+    )
+  }
+
+
+  override def postStop() {
+    scheduler.cancel()
+  }
 
   val fileLog = Logger("routes")
 

@@ -34,6 +34,8 @@ import models.Details
 import models.FormatAccessControl
 import models.Mapping
 import controllers.ShortDataSet
+import core.schema.SchemaProvider
+import scala.collection.JavaConverters._
 
 /**
  *
@@ -43,13 +45,18 @@ import controllers.ShortDataSet
 case class DataSetCreationViewModel(id: Option[ObjectId] = None,
                             spec: String = "",
                             facts: HardcodedFacts = HardcodedFacts(),
-                            recordDefinitions: Seq[String] = Seq.empty,
-                            allRecordDefinitions: Seq[String],
-                            oaiPmhAccess: Seq[OaiPmhAccessViewModel],
+                            selectedSchemas: Seq[String] = Seq.empty,
+                            allAvailableSchemas: Seq[String],
+                            schemaProcessingConfigurations: Seq[SchemaProcessingConfiguration],
                             indexingMappingPrefix: Option[String] = None,
                             errors: Map[String, String] = Map.empty) extends ViewModel
 
-case class OaiPmhAccessViewModel(format: String, accessType: String = "none", accessKey: Option[String] = None)
+case class SchemaProcessingConfiguration(prefix: String,
+                                         availableVersions: Seq[String],
+                                         version: String,
+                                         accessType: String = "none",
+                                         accessKey: String = ""
+)
 
 case class HardcodedFacts(name: String = "",
                           language: String = "",
@@ -101,14 +108,16 @@ object DataSetCreationViewModel {
         "rights" -> nonEmptyText,
         "type" -> nonEmptyText
       )(HardcodedFacts.apply)(HardcodedFacts.unapply),
-      "recordDefinitions" -> seq(text),
-      "allRecordDefinitions" -> seq(text),
-      "oaiPmhAccess" -> seq(
+      "selectedSchemas" -> seq(text),
+      "allAvailableSchemas" -> seq(text),
+      "schemaProcessingConfigurations" -> seq(
         mapping(
-          "format" -> nonEmptyText,
+          "prefix" -> nonEmptyText,
+          "availableVersions" -> seq(text),
+          "version" -> nonEmptyText,
           "accessType" -> nonEmptyText,
-          "accessKey" -> optional(text)
-        )(OaiPmhAccessViewModel.apply)(OaiPmhAccessViewModel.unapply)
+          "accessKey" -> text
+        )(SchemaProcessingConfiguration.apply)(SchemaProcessingConfiguration.unapply)
       ),
       "indexingMappingPrefix" -> optional(text).verifying(notRaw),
       "errors" -> of[Map[String, String]]
@@ -146,7 +155,11 @@ object DataSetControl extends OrganizationController {
     Action {
       implicit request =>
         val dataSet = if (spec == None) None else DataSet.dao.findBySpecAndOrgId(spec.get, orgId)
-        val allRecordDefinitions: Seq[String] = RecordDefinition.enabledDefinitions(configuration)
+        val schemas = SchemaProvider.getSchemas
+        val allSchemaPrefixes: Seq[String] = schemas.map(_.prefix)
+        val versions: Map[String, Seq[String]] = schemas.map { schema =>
+          (schema.prefix -> schema.versions.asScala.map(_.number))
+        }.toMap
 
         if (dataSet != None && !DataSet.dao.canEdit(dataSet.get, connectedUser)) {
           Forbidden("You are not allowed to edit DataSet %s".format(spec.get))
@@ -154,36 +167,51 @@ object DataSetControl extends OrganizationController {
           Forbidden("You are not allowed to create DataSets")
         } else {
           val data = if (dataSet == None) {
-            JJson.generate(DataSetCreationViewModel(
-              allRecordDefinitions = allRecordDefinitions,
-              oaiPmhAccess = RecordDefinition.enabledDefinitions(configuration).map(prefix => OaiPmhAccessViewModel(prefix)),
-              indexingMappingPrefix = Some("None")
-            ))
-          } else {
-            val dS = dataSet.get
+          JJson.generate(DataSetCreationViewModel(
+            allAvailableSchemas = allSchemaPrefixes,
+            schemaProcessingConfigurations = allSchemaPrefixes.map { prefix =>
+              SchemaProcessingConfiguration(
+                prefix = prefix,
+                availableVersions = versions(prefix),
+                version = versions(prefix).sorted.head
+              )
+            },
+            indexingMappingPrefix = Some("None")
+          ))
+        } else {
+          val dS = dataSet.get
+
+            def acl(prefix: String) = dS.formatAccessControl.get(prefix).map(f => (f.accessType, f.accessKey)).getOrElse(("none", None))
+
             JJson.generate(
               DataSetCreationViewModel(
                 id = Some(dS._id),
                 spec = dS.spec,
                 facts = HardcodedFacts.fromMap(dS.getFacts),
-                recordDefinitions = dS.recordDefinitions,
-                allRecordDefinitions = allRecordDefinitions,
-                oaiPmhAccess = dS.formatAccessControl.map(e => OaiPmhAccessViewModel(e._1, e._2.accessType, e._2.accessKey)).toList,
+                selectedSchemas = dS.recordDefinitions,
+                allAvailableSchemas = allSchemaPrefixes,
+                schemaProcessingConfigurations = allSchemaPrefixes.map { prefix =>
+                  SchemaProcessingConfiguration(
+                    prefix = prefix,
+                    availableVersions = versions(prefix),
+                    version = dS.mappings.get(prefix).map(_.schemaVersion).getOrElse(versions(prefix).headOption.getOrElse("")),
+                    accessType = acl(prefix)._1,
+                    accessKey = acl(prefix)._2.getOrElse("")
+                  )
+                },
                 indexingMappingPrefix = if(dS.getIndexingMappingPrefix.isEmpty) Some("None") else dS.getIndexingMappingPrefix
               )
             )
-          }
-
-          Ok(Template(
-            'spec -> spec,
-            'data -> data,
-            'dataSetForm -> DataSetCreationViewModel.dataSetForm,
-            'factDefinitions -> DataSet.factDefinitionList.filterNot(factDef => factDef.automatic || factDef.name == "spec").toList,
-            'recordDefinitions -> RecordDefinition.enabledDefinitions(configuration)
-          ))
         }
-    }
 
+        Ok(Template(
+          'spec -> spec,
+          'data -> data,
+          'dataSetForm -> DataSetCreationViewModel.dataSetForm,
+          'factDefinitions -> DataSet.factDefinitionList.filterNot(factDef => factDef.automatic || factDef.name == "spec").toList
+        ))
+      }
+    }
   }
 
   def dataSetSubmit(orgId: String): Action[AnyContent] = OrgMemberAction(orgId) {
@@ -204,17 +232,17 @@ object DataSetControl extends OrganizationController {
             enrich("provider", "providerUri")
             enrich("dataProvider", "dataProviderUri")
 
-            def buildMappings(recordDefinitions: Seq[String]): Map[String, Mapping] = {
-              val mappings = recordDefinitions.map {
-                recordDef => (recordDef, Mapping(format = RecordDefinition.getRecordDefinition(recordDef).get))
+            def buildMappings(schemaProcessingConfigurations: Seq[SchemaProcessingConfiguration]): Map[String, Mapping] = {
+              val mappings = schemaProcessingConfigurations.map {
+                s => (s.prefix, Mapping(schemaPrefix = s.prefix, schemaVersion = s.version))
               }
               mappings.toMap[String, Mapping]
             }
 
-            def updateMappings(recordDefinitions: Seq[String], mappings: Map[String, Mapping]): Map[String, Mapping] = {
-              val existing = mappings.filter(m => recordDefinitions.contains(m._1))
+            def updateMappings(schemaProcessingConfigurations: Seq[SchemaProcessingConfiguration], mappings: Map[String, Mapping]): Map[String, Mapping] = {
+              val existing = mappings.filter(m => schemaProcessingConfigurations.exists(s => s.prefix == m._1))
               val keyList = mappings.keys.toList
-              val added = recordDefinitions.filter(prefix => !keyList.contains(prefix))
+              val added = schemaProcessingConfigurations.filter(s => !keyList.contains(s.prefix))
               existing ++ buildMappings(added)
             }
 
@@ -222,9 +250,13 @@ object DataSetControl extends OrganizationController {
             factsObject.append("spec", dataSetForm.spec)
             factsObject.append("orgId", orgId)
 
-            val formatAccessControl = dataSetForm.oaiPmhAccess.
-              filter(a => dataSetForm.recordDefinitions.contains(a.format)).
-              map(a => (a.format -> FormatAccessControl(a.accessType, a.accessKey))).toMap
+            val formatAccessControl = dataSetForm.schemaProcessingConfigurations.
+              filter(a => dataSetForm.selectedSchemas.contains(a.prefix)).
+              map(a => (a.prefix -> FormatAccessControl(a.accessType, if (a.accessKey.isEmpty) None else Some(a.accessKey)))).toMap
+
+            val submittedSchemaConfigurations = dataSetForm.selectedSchemas.flatMap(prefix => dataSetForm.schemaProcessingConfigurations.find(p => p.prefix == prefix))
+
+            factsObject.append("schemaVersions", submittedSchemaConfigurations.map(c => "%s_%s".format(c.prefix, c.version)).mkString(", "))
 
 
             dataSetForm.id match {
@@ -240,7 +272,7 @@ object DataSetControl extends OrganizationController {
                 val updated = existing.copy(
                     spec = dataSetForm.spec,
                     details = updatedDetails,
-                    mappings = updateMappings(dataSetForm.recordDefinitions, existing.mappings),
+                    mappings = updateMappings(submittedSchemaConfigurations, existing.mappings),
                     formatAccessControl = formatAccessControl,
                     idxMappings = dataSetForm.indexingMappingPrefix.map(List(_)).getOrElse(List.empty)
                   )
@@ -263,7 +295,7 @@ object DataSetControl extends OrganizationController {
                       name = dataSetForm.facts.name,
                       facts = factsObject
                     ),
-                    mappings = buildMappings(dataSetForm.recordDefinitions),
+                    mappings = buildMappings(submittedSchemaConfigurations),
                     formatAccessControl = formatAccessControl,
                     idxMappings = dataSetForm.indexingMappingPrefix.map(List(_)).getOrElse(List.empty)
                   )

@@ -1,13 +1,15 @@
 package core.mapping
 
+import core.schema.SchemaProvider
 import models.RecordDefinition
-import play.api.{Play, Logger}
+import play.api.Logger
 import play.api.Play.current
-import eu.delving.MappingEngine
 import eu.delving.metadata._
 import scala.collection.JavaConverters._
 import org.w3c.dom.Node
 import eu.delving.groovy.XmlSerializer
+import eu.delving.schema.{SchemaVersion, SchemaType}
+import java.io.ByteArrayInputStream
 
 /**
  * Initializes the MetadataModel used by the mapping engine
@@ -24,19 +26,20 @@ object MappingService {
     try {
       Logger("CultureHub").info("Initializing MappingService")
 
-      val recordDefinitions = RecordDefinition.getRecordDefinitionResources(None)
-      recordDefinitions.foreach {
-        definition => Logger("CultureHub").info("Loading record definition: " + definition.getPath)
-      }
-
       recDefModel = new RecDefModel {
-        def createRecDef(prefix: String): RecDefTree = {
-          RecDefTree.create(
-            RecDef.read(Play.classloader.getResourceAsStream("definitions/%s/%s-record-definition.xml".format(prefix, prefix)))
-          )
+
+        def createRecDefTree(schemaVersion: SchemaVersion): RecDefTree = {
+          // FIXME need to pass version when it will be available in the RecDefModel
+          val schema = SchemaProvider.getSchema(schemaVersion.getPrefix, schemaVersion.getVersion, SchemaType.RECORD_DEFINITION)
+          if (schema.isEmpty) {
+            throw new RuntimeException("Empty schema for prefix %s and version %s".format(schemaVersion.getPrefix, schemaVersion.getVersion))
+          } else {
+            RecDefTree.create(
+              RecDef.read(new ByteArrayInputStream(schema.get.getBytes("utf-8")))
+            )
+          }
         }
       }
-
     } catch {
       case t: Throwable =>
         t.printStackTrace()
@@ -49,7 +52,7 @@ object MappingService {
     val serialized = serializer.toXml(node, fromMapping)
     // chop of the XML prefix. kindof a hack. this should be a regex instead, more robust
     val xmlPrefix = """<?xml version='1.0' encoding='UTF-8'?>"""
-    if(serialized.startsWith(xmlPrefix)) {
+    if (serialized.startsWith(xmlPrefix)) {
       serialized.substring(xmlPrefix.length)
     } else {
       serialized

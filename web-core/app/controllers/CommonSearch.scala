@@ -35,7 +35,7 @@ object CommonSearch extends DelvingController {
         thumbnailUrl = bd.getThumbnailUri(220, configuration),
         userName = bd.getOrgId,
         isPrivate = bd.getVisibility.toInt == Visibility.PRIVATE.value,
-        url = bd.getUri(configuration),
+        url = bd.getUri,
         mimeType = bd.getMimeType)
   }
 

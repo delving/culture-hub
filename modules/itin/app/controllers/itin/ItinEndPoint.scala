@@ -18,7 +18,7 @@ package controllers.itin
 
 import core.search.SearchService
 import collection.JavaConverters._
-import core.DomainConfigurationAware
+import controllers.DomainConfigurationAware
 import play.api.Logger
 import models.{DrupalEntity, StoreResponse}
 import play.api.mvc.{Controller, Action}
