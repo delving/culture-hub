@@ -16,11 +16,13 @@
 
 package core.indexing
 
-import core.collection.{Indexable, Harvestable, OrganizationCollectionInformation}
+import core.collection.{Indexable, OrganizationCollectionInformation}
 import extensions.HTTPClient
 import org.apache.solr.common.SolrInputDocument
 import play.api.Logger
 import core.Constants._
+import core.SystemField._
+import core.indexing.IndexField._
 import org.apache.commons.httpclient.methods.GetMethod
 import java.io.{InputStream, FilenameFilter, File}
 import org.apache.tika.sax.BodyContentHandler
@@ -73,26 +75,25 @@ object Indexing extends SolrServer {
     import scala.collection.JavaConversions._
 
     // mandatory fields
-    inputDoc.addField(ORG_ID, dataSet.getOwner)
-    inputDoc.addField(VISIBILITY, Visibility.PUBLIC.value.toString)
-    inputDoc.addField(RECORD_TYPE, MDR)
-    inputDoc.addField(SYSTEM_TYPE, HUB_ITEM)
+    inputDoc += (ORG_ID -> dataSet.getOwner)
+    inputDoc += (HUB_ID -> URLEncoder.encode(record.itemId, "utf-8"))
+    inputDoc += (SCHEMA -> schemaPrefix)
+    inputDoc += (RECORD_TYPE -> ITEM_TYPE_MDR)
+    inputDoc += (VISIBILITY -> Visibility.PUBLIC.value.toString)
 
-    inputDoc.addField(HUB_ID, URLEncoder.encode(record.itemId, "utf-8"))
-    inputDoc.addField(SPEC, "%s".format(dataSet.spec))
-    inputDoc.addField(SCHEMA, schemaPrefix)
+    inputDoc.addField(SPEC.tag, "%s".format(dataSet.spec))
 
     // for backwards-compatibility
-    inputDoc.addField(PMH_ID, URLEncoder.encode(record.itemId, "utf-8"))
+    inputDoc += (PMH_ID -> URLEncoder.encode(record.itemId, "utf-8"))
 
     // force the provider and dataProvider configured in the DataSet
-    if(inputDoc.containsKey(PROVIDER)) {
-      inputDoc.remove(PROVIDER)
-      inputDoc.addField(PROVIDER, dataSet.getProvider)
+    if(inputDoc.containsKey(PROVIDER.tag)) {
+      inputDoc.remove(PROVIDER.tag)
+      inputDoc.addField(PROVIDER.tag, dataSet.getProvider)
     }
-    if(inputDoc.containsKey(OWNER)) {
-      inputDoc.remove(OWNER)
-      inputDoc.addField(OWNER, dataSet.getDataProvider)
+    if(inputDoc.containsKey(OWNER.tag)) {
+      inputDoc.remove(OWNER.tag)
+      inputDoc.addField(OWNER.tag, dataSet.getDataProvider)
     }
 
     // deepZoom hack
@@ -141,22 +142,23 @@ object Indexing extends SolrServer {
       }
     }
     
-    if (inputDoc.containsKey(ID)) inputDoc.remove(ID)
-    inputDoc.addField(ID, record.itemId)
+    if (inputDoc.containsKey(ID.key)) inputDoc.remove(ID.key)
+    inputDoc += (ID -> record.itemId)
 
-    val uriWithTypeSuffix = EUROPEANA_URI + "_string"
-    val uriWithTextSuffix = EUROPEANA_URI + "_text"
+    // TODO remove this hack
+    val uriWithTypeSuffix = EUROPEANA_URI.key + "_string"
+    val uriWithTextSuffix = EUROPEANA_URI.key + "_text"
     if (inputDoc.containsKey(uriWithTypeSuffix)) {
       val uriValue: String = inputDoc.get(uriWithTypeSuffix).getFirstValue.toString
       inputDoc.remove(uriWithTypeSuffix)
-      inputDoc.addField(EUROPEANA_URI, uriValue)
+      inputDoc.addField(EUROPEANA_URI.key, uriValue)
     } else if (inputDoc.contains(uriWithTextSuffix)) {
       val uriValue: String = inputDoc.get(uriWithTextSuffix).getFirstValue.toString
       inputDoc.remove(uriWithTextSuffix)
-      inputDoc.addField(EUROPEANA_URI, uriValue)
+      inputDoc.addField(EUROPEANA_URI.key, uriValue)
     }
 
-    dataSet.getIndexingMappingPrefix.foreach(prefix => inputDoc.addField(ALL_SCHEMAS, prefix))
+    dataSet.getIndexingMappingPrefix.foreach(prefix => inputDoc += (ALL_SCHEMAS -> prefix))
 
     val indexedKeys: Map[String, String] = inputDoc.keys.map(key => (SolrBindingService.stripDynamicFieldLabels(key), key)).toMap // to filter always index a facet with _facet .filter(!_.matches(".*_(s|string|link|single)$"))
 

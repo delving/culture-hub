@@ -16,13 +16,13 @@ package core.search
  * limitations under the License.
  */
 
-import core.Constants
+import core.indexing.IndexField
 import org.apache.solr.client.solrj.response.{QueryResponse, FacetField}
 import scala.collection.JavaConverters._
 import exceptions.SolrConnectionException
 import play.api.Logger
 import play.api.mvc.RequestHeader
-import core.Constants._
+import core.indexing.IndexField._
 import collection.immutable.{List, Map}
 import models.DomainConfiguration
 import scala.xml.XML
@@ -33,6 +33,8 @@ import org.apache.commons.lang.StringEscapeUtils
 import org.apache.solr.common.SolrDocumentList
 import org.apache.solr.client.solrj.SolrServerException
 import org.apache.solr.common.util.SimpleOrderedMap
+import core.indexing.IndexField._
+import core.Constants._
 
 /**
  *
@@ -186,12 +188,12 @@ object SolrQueryService extends SolrServer {
       ).toList
   }
 
-  def createCHQuery(request: RequestHeader, connectedUser: Option[String] = None, additionalSystemHQFs: List[String] = List.empty[String])(implicit configuration: DomainConfiguration): CHQuery = {
+  def createCHQuery(request: RequestHeader, connectedUser: Option[String] = None, additionalSystemHQFs: Seq[String] = Seq.empty)(implicit configuration: DomainConfiguration): CHQuery = {
     val params = Params(request.queryString)
     createCHQuery(params, connectedUser, additionalSystemHQFs)
   }
 
-  def createCHQuery(params: Params, connectedUser: Option[String], additionalSystemHQFs: List[String])(implicit configuration: DomainConfiguration): CHQuery = {
+  def createCHQuery(params: Params, connectedUser: Option[String], additionalSystemHQFs: Seq[String])(implicit configuration: DomainConfiguration): CHQuery = {
 
     def getAllFilterQueries(fqKey: String): Array[String] = {
       params.all.filter(key => key._1.equalsIgnoreCase(fqKey) || key._1.equalsIgnoreCase("%s[]".format(fqKey))).flatMap(entry => entry._2).toArray
@@ -277,11 +279,11 @@ object SolrQueryService extends SolrServer {
       None
     } else {
       val first = response.getResults.get(0)
-      val currentFormat = if(first.containsKey(SCHEMA)) first.getFirstValue(SCHEMA).toString else ""
-      val publicFormats = if(first.containsKey(ALL_SCHEMAS)) first.getFieldValues("delving_allSchemas").asScala.map(_.toString).toSeq else Seq.empty
+      val currentFormat = if(first.containsKey(SCHEMA.key)) first.getFirstValue(SCHEMA.key).toString else ""
+      val publicFormats = if(first.containsKey(ALL_SCHEMAS.key)) first.getFieldValues(ALL_SCHEMAS.key).asScala.map(_.toString).toSeq else Seq.empty
 
       val relatedItems = if(findRelatedItems) {
-        val moreLikeThis = response.getResponse.get("moreLikeThis").asInstanceOf[SimpleOrderedMap[Any]].asScala.head.getValue.asInstanceOf[SolrDocumentList]
+        val moreLikeThis = response.getResponse.get(MORE_LIKE_THIS).asInstanceOf[SimpleOrderedMap[Any]].asScala.head.getValue.asInstanceOf[SolrDocumentList]
          if (moreLikeThis != null && !moreLikeThis.isEmpty) {
           SolrBindingService.getBriefDocsWithIndexFromSolrDocumentList(moreLikeThis)
         } else Seq.empty
@@ -291,7 +293,7 @@ object SolrQueryService extends SolrServer {
 
       Some(
         DocItemReference(
-          first.getFirstValue(HUB_ID).toString,
+          first.getFirstValue(HUB_ID.key).toString,
           currentFormat,
           publicFormats,
           relatedItems
@@ -323,9 +325,13 @@ object SolrQueryService extends SolrServer {
         Logger.error("Unable to connect to Solr Server", e)
         throw new SolrConnectionException("SOLR_UNREACHABLE", e)
       }
+      case e: SolrServerException if e.getMessage.contains("Timeout occured while waiting response from server") => {
+        Logger.error("Timeout while waiting for SOLR server to respond")
+        throw new SolrConnectionException("SOLR connection timeout", e)
+      }
       case e: Throwable => {
         Logger.error("unable to execute SolrQuery", e)
-        throw new SolrConnectionException("Malformed Query", e)
+        throw new SolrConnectionException("Unknown SOLR error", e)
       }
     }
   }
@@ -440,16 +446,16 @@ case class DelvingIdType(idType: String, resolution: String) {
 }
 
 object DelvingIdType {
-  val SOLR = DelvingIdType("solr", ID)
-  val PMH = DelvingIdType("pmh", PMH_ID)
+  val SOLR = DelvingIdType("solr", ID.key)
+  val PMH = DelvingIdType("pmh", PMH_ID.key)
   val DRUPAL = DelvingIdType("drupal", "id")
-  val HUB_ID = DelvingIdType("hubId", Constants.HUB_ID)
-  val INDEX_ITEM = DelvingIdType("indexItem", ID)
-  val LEGACY = DelvingIdType("legacy", EUROPEANA_URI)
+  val HUB = DelvingIdType("hubId", HUB_ID.key)
+  val INDEX_ITEM = DelvingIdType("indexItem", ID.key)
+  val LEGACY = DelvingIdType("legacy", EUROPEANA_URI.key)
 
-  val types = Seq(SOLR, PMH, DRUPAL, HUB_ID, INDEX_ITEM, LEGACY)
+  val types = Seq(SOLR, PMH, DRUPAL, HUB, INDEX_ITEM, LEGACY)
 
-  def apply(idType: String): DelvingIdType = types.find(_.idType == idType).getOrElse(DelvingIdType.HUB_ID)
+  def apply(idType: String): DelvingIdType = types.find(_.idType == idType).getOrElse(DelvingIdType.HUB)
 
 }
 

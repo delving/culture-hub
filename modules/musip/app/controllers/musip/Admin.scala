@@ -5,7 +5,9 @@ import play.api.mvc.Action
 import play.api.Play.current
 import org.apache.solr.common.SolrInputDocument
 import core.Constants._
+import core.SystemField._
 import core.indexing.IndexingService
+import core.indexing.IndexField._
 import scala.xml._
 import models.{MetadataCache, MetadataItem}
 import play.api.libs.ws.WS
@@ -36,9 +38,9 @@ object Admin extends OrganizationController {
 
         val extractMuseumSystemFields: NodeSeq => MultiMap = { museum =>
             Map(
-                TITLE -> List((museum \ "name").text.trim),
-                DESCRIPTION -> List((museum \ "description").text.trim),
-                THUMBNAIL -> List((museum \ "image").text.trim)
+                TITLE.tag -> List((museum \ "name").text.trim),
+                DESCRIPTION.tag -> List((museum \ "description").text.trim),
+                THUMBNAIL.tag -> List((museum \ "image").text.trim)
                )
         }
 
@@ -59,9 +61,9 @@ object Admin extends OrganizationController {
 
         val extractCollectionSystemFields: NodeSeq => MultiMap = { collection =>
             Map(
-                TITLE -> List((collection \ "name").text.trim),
-                DESCRIPTION -> List((collection \ "description").text.trim),
-                THUMBNAIL -> (collection \ "images" \ "url").map(_.text.trim).toList
+                TITLE.tag -> List((collection \ "name").text.trim),
+                DESCRIPTION.tag -> List((collection \ "description").text.trim),
+                THUMBNAIL.tag -> (collection \ "images" \ "url").map(_.text.trim).toList
                )
         }
 
@@ -109,11 +111,10 @@ object Admin extends OrganizationController {
       }
 
       val hubId = "%s_%s_%s".format(orgId, itemType, localId)
-      doc.addField(ID, hubId)
-      doc.addField(HUB_ID, hubId)
-      doc.addField(ORG_ID, orgId)
-      doc.addField(RECORD_TYPE, itemType)
-      doc.addField(SYSTEM_TYPE, HUB_ITEM)
+      doc += (ID -> hubId)
+      doc += (HUB_ID -> hubId)
+      doc += (ORG_ID -> orgId)
+      doc += (RECORD_TYPE -> itemType)
       doc.addField(HUB_URI, "/%s/%s/%s".format(orgId, itemType, localId))
 
       // facets

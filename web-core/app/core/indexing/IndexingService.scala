@@ -2,12 +2,14 @@ package core.indexing
 
 import core.search.SolrServer
 import core.Constants._
+import core.SystemField._
+import core.indexing.IndexField._
 import play.api.Logger
 import org.apache.solr.common.SolrInputDocument
 import org.joda.time.DateTime
 import org.joda.time.format.DateTimeFormat
 import org.apache.solr.client.solrj.SolrQuery
-import models.DomainConfiguration
+import models.{Visibility, DomainConfiguration}
 
 /**
  * Indexing API
@@ -20,22 +22,22 @@ object IndexingService extends SolrServer {
   def stageForIndexing(doc: SolrInputDocument)(implicit configuration: DomainConfiguration) {
     import scala.collection.JavaConversions._
 
-    val hasDigitalObject: Boolean = !doc.entrySet().filter(entry => entry.getKey.startsWith(THUMBNAIL) && !entry.getValue.isEmpty).isEmpty
-    if (doc.containsKey(HAS_DIGITAL_OBJECT)) doc.remove(HAS_DIGITAL_OBJECT)
-    doc.addField(HAS_DIGITAL_OBJECT, hasDigitalObject)
+    val hasDigitalObject: Boolean = !doc.entrySet().filter(entry => entry.getKey.startsWith(THUMBNAIL.tag) && !entry.getValue.isEmpty).isEmpty
+    if (doc.containsKey(HAS_DIGITAL_OBJECT.key)) doc.remove(HAS_DIGITAL_OBJECT.key)
+    doc.addField(HAS_DIGITAL_OBJECT.key, hasDigitalObject)
 
     if (hasDigitalObject) doc.setDocumentBoost(1.4.toFloat)
 
-    if (!doc.containsKey(VISIBILITY)) {
-      doc addField(VISIBILITY, "10") // set to public by default
+    if (!doc.containsKey(VISIBILITY.key)) {
+      doc += (VISIBILITY -> Visibility.PUBLIC.value.toString)
     }
 
     // standard facets
-    if(!doc.containsKey(RECORD_TYPE + "_facet")) {
-      doc.addField(RECORD_TYPE + "_facet", doc.getField(RECORD_TYPE).getFirstValue)
+    if(!doc.containsKey(RECORD_TYPE.key + "_facet")) {
+      doc.addField(RECORD_TYPE.key + "_facet", doc.getField(RECORD_TYPE.key).getFirstValue)
     }
-    if(!doc.containsKey(HAS_DIGITAL_OBJECT + "_facet")) {
-      doc.addField(HAS_DIGITAL_OBJECT + "_facet", hasDigitalObject)
+    if(!doc.containsKey(HAS_DIGITAL_OBJECT.key + "_facet")) {
+      doc.addField(HAS_DIGITAL_OBJECT.key + "_facet", hasDigitalObject)
     }
 
     getStreamingUpdateServer(configuration).add(doc)
@@ -75,7 +77,7 @@ object IndexingService extends SolrServer {
    * Deletes from the index by collection spec
    */
   def deleteBySpec(orgId: String, spec: String)(implicit configuration: DomainConfiguration) {
-    val deleteQuery = SPEC + ":" + spec + " " + ORG_ID + ":" + orgId
+    val deleteQuery = SPEC.tag + ":" + spec + " " + ORG_ID.key + ":" + orgId
     Logger.info("Deleting dataset from Solr Index: %s".format(deleteQuery))
     val deleteResponse = getStreamingUpdateServer(configuration).deleteByQuery(deleteQuery)
     deleteResponse.getStatus
@@ -84,7 +86,7 @@ object IndexingService extends SolrServer {
 
   def deleteOrphansBySpec(orgId: String, spec: String, startIndexing: DateTime)(implicit configuration: DomainConfiguration) {
     val fmt = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
-    val deleteQuery = SPEC + ":" + spec + " AND " + ORG_ID + ":" + orgId + " AND timestamp:[* TO " + fmt.print(startIndexing.minusSeconds(15)) + "]"
+    val deleteQuery = SPEC.tag + ":" + spec + " AND " + ORG_ID.key + ":" + orgId + " AND timestamp:[* TO " + fmt.print(startIndexing.minusSeconds(15)) + "]"
     val orphans = getSolrServer(configuration).query(new SolrQuery(deleteQuery)).getResults.getNumFound
     if (orphans > 0) {
       try {

@@ -27,6 +27,8 @@ object SystemField {
   object DEEP_ZOOM_URL extends SystemField("deepZoomUrl")
   object OWNER extends SystemField("owner")  // dataProvider
   object PROVIDER extends SystemField("provider")
+
+  // TODO this is rather an Indexing Field
   object SPEC extends SystemField("spec")
 
 }

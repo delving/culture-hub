@@ -1,7 +1,7 @@
 package models {
 
 import core.access.ResourceType
-import core.{CultureHubPlugin, Constants}
+import core.{SystemField, CultureHubPlugin, Constants}
 import org.apache.solr.client.solrj.SolrQuery
 import core.search.{SolrSortElement, SolrFacetElement}
 import play.api.{Configuration, Play, Logger}
@@ -143,7 +143,7 @@ case class SearchServiceConfiguration(
 
 /** See http://wiki.apache.org/solr/MoreLikeThis **/
 case class MoreLikeThis(
-  fieldList: Seq[String] = Seq(Constants.DESCRIPTION, "dc_creator_text"),
+  fieldList: Seq[String] = Seq(SystemField.DESCRIPTION.tag, "dc_creator_text"),
   minTermFrequency: Int = 1,
   minDocumentFrequency: Int = 2,
   minWordLength: Int = 0,

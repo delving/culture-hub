@@ -25,59 +25,21 @@ package core
 object Constants {
 
   // ~~~ hub types, used in view as itemName and otherwise for links and search recordTypes
-  val USER = "user"
   val DATASET = "dataSet"
 
-  // ~~~ identifier fields
-  val ID = "id"
-  val HUB_ID = "delving_hubId"
-  val PMH_ID = "delving_pmhId"
-  val ORG_ID = "delving_orgId"
-  val EUROPEANA_URI = "europeana_uri"
 
-
-  // ~~~ housekeeping fields
-  val SCHEMA = "delving_currentSchema"
-  val ALL_SCHEMAS = "delving_allSchemas"
-
-  val SYSTEM_TYPE = "delving_systemType"
-
-  // ~~~ system types
-  val INDEX_API_ITEM = "indexApiItem"
-  val HUB_ITEM = "hubItem"
-
-  // ~~~ SystemFields
-
-  // This is the smallest set of fields that should be set for one
-  // displayable record in the CultureHub. Part of them is set at mapping time
-  // and the other part by the hub at processing time
-
-  // mapping-time SystemFields
-  val TITLE = SystemField.TITLE.tag
-  val DESCRIPTION = SystemField.DESCRIPTION.tag
-  val THUMBNAIL = SystemField.THUMBNAIL.tag
-  val EXTERNAL_LANDING_PAGE = SystemField.LANDING_PAGE.tag
-
-  val OWNER = SystemField.OWNER.tag // dataProvider
-  val DEEP_ZOOM_URL = SystemField.DEEP_ZOOM_URL.tag
-  val PROVIDER = SystemField.PROVIDER.tag
-
-  // processing-time SystemFields
-  val SPEC = SystemField.SPEC.tag
-  val VISIBILITY = "delving_visibility"
+  // TODO cleanup
   val MIMETYPE = "delving_mimeType"
-  val HAS_DIGITAL_OBJECT = "delving_hasDigitalObject"
 
+  // TODO remove, in view, use resolver mechanism using the hub_id and splitting it. adjust in Musip
   val HUB_URI = "delving_hubUrl"
 
+  // TODO must become part of the recDef
   val FULL_TEXT_OBJECT_URL = "delving_fullTextObjectUrl"
 
 
-  // TODO harmonize the following
-  val RECORD_TYPE = "delving_recordType"
+  // TODO turn into enum-like type
   val ITEM_TYPE_MDR = "mdr"
-  val MDR = "mdr"
-  val ITEM_TYPE_INDEX = INDEX_API_ITEM
 
   // ~~~~~ Solr Constants
   val MORE_LIKE_THIS = "moreLikeThis"
