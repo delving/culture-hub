@@ -129,8 +129,6 @@ class RemoteFetcher extends Fetcher {
 
   val log = Logger("CultureHub")
 
-//  log.info("Initializing remote schema fetcher at " + SCHEMA_REPO)
-
   private val SCHEMA_REPO = "http://schemas.delving.eu"
 
 
@@ -158,8 +156,6 @@ class RemoteFetcher extends Fetcher {
 class LocalFetcher extends Fetcher {
 
   val log = Logger("CultureHub")
-
-//  log.info("Initializing local schema repository at " + localRepository)
 
   val DIR_NAME = "schemas.delving.eu"
 
