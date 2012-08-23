@@ -15,18 +15,16 @@
 
 #{organizationNavBar orgId: orgId, active:"datasets", navigation: navigation /}
 
-<div class="row">
+<div class="dataset-filter">
+    <form id="filter-form" class="form-inline pull-left form-search">
+        <input type='text' name='filter' id='filter' maxlength="30" size="30" class="search-query" placeholder="&{'org.list.filter'}"/>
+        <input onclick="saveFilter()" class="btn" type="button" value="&{'ui.label.save'}"/>
+        <input onclick="resetFilter()" class="btn" type="reset" value="&{'ui.label.reset'}"/>
+        <a class="icon icon-question-sign extHelp" href="#" rel="tooltip" title="Type in any dataset value(s) to filter the table. Press 'Save' to save the filter."></a>
+    </form>
+</div>
 
-    <div class="span8">
-        <form id="filter-form" class="form-inline pull-left form-search">
-            <input type='text' name='filter' id='filter' maxlength="30" size="30" class="search-query" placeholder="&{'org.list.filter'}"/>
-            <input onclick="saveFilter()" class="btn" type="button" value="&{'ui.label.save'}"/>
-            <input onclick="resetFilter()" class="btn" type="reset" value="&{'ui.label.reset'}"/>
-            <a class="icon icon-question-sign extHelp" href="#" rel="tooltip" title="Type in any dataset value(s) to filter the table. Press 'Save' to save the filter."></a>
-        </form>
-    </div>
-
-<div class="span12">
+<div class="dataset-list">
     <table id="dataset-table" class="table table-striped sortable" data-bind="triggerUpdate: sets">
         <caption>${messages.get('thing.datasets')}</caption>
         <thead>
@@ -49,7 +47,6 @@
         </tr>
         </tfoot>
         <tbody data-bind="foreach: sets()">
-
             <tr>
                 <td><a data-bind="attr: { href: '/organizations/' + orgId() + '/dataset/' + spec() }" rel="nofollow" class="btn"><i class="icon icon-wrench"></i> <span data-bind="text: name"></span></a></td>
                 <td><span data-bind="text: nodeName"></span></td>
@@ -92,7 +89,7 @@
     </table>
 
 </div>
-</div>
+
 
 <script type="text/javascript" language="javascript">
     $(document).ready(function () {
