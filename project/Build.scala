@@ -44,7 +44,7 @@ object Build extends sbt.Build {
   val webCoreDependencies = Seq(
     "eu.delving"                %% "play2-extensions"                % playExtensionsVersion,
 
-    "eu.delving"                %  "definitions"                     % "1.0-SNAPSHOT"      changing(),
+    "eu.delving"                %  "definitions"                     % "1.0",
     "eu.delving"                %  "sip-core"                        % sipCreatorVersion,
     "eu.delving"                %  "schema-repo"                     % schemaRepoVersion,
     "eu.delving"                %% "basex-scala-client"              % "0.1-SNAPSHOT",
