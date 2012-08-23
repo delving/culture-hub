@@ -17,10 +17,10 @@
 package models
 
 import core.Constants._
+import core.indexing.IndexField._
+import core.SystemField._
 import org.bson.types.ObjectId
 import views.Helpers.thumbnailUrl
-import play.api.Play
-import play.api.Play.current
 import java.net.{URLEncoder, URLDecoder}
 
 /**
@@ -36,7 +36,7 @@ abstract class MetadataAccessors {
   // TODO cleanup, unify, decide, conquer
 
   // ~~~ identifiers
-  def getHubId : String = URLDecoder.decode(assign(HUB_ID), "utf-8")
+  def getHubId : String = URLDecoder.decode(assign(HUB_ID.key), "utf-8")
 
   def getSplitHubId = {
     val HubId(orgId, spec, localRecordKey) = getHubId
@@ -48,18 +48,17 @@ abstract class MetadataAccessors {
   def getRecordId : String = getSplitHubId._3
 
   // ~~~ well-known, always provided, meta-data fields
-  def getItemType: String = assign(RECORD_TYPE)
-  def getRecordSchema: String = assign(SCHEMA)
-  def getTitle : String = assign(TITLE)
-  def getDescription: String = assign(DESCRIPTION)
-  def getOwner: String = assign(OWNER)
-  def getVisibility: String = assign(VISIBILITY)
+  def getItemType: String = assign(RECORD_TYPE.key)
+  def getRecordSchema: String = assign(SCHEMA.key)
+  def getTitle : String = assign(TITLE.tag)
+  def getDescription: String = assign(DESCRIPTION.tag)
+  def getOwner: String = assign(OWNER.tag)
+  def getVisibility: String = assign(VISIBILITY.key)
 
-  // TODO add plugin mechanism
   def getUri(implicit configuration: DomainConfiguration): String = getItemType match {
-    case MDR =>
+    case ITEM_TYPE_MDR =>
       // TODO don't use heuristics
-      val allSchemas = values(ALL_SCHEMAS)
+      val allSchemas = values(ALL_SCHEMAS.key)
       val allSupportedFormats = configuration.schemas
       val renderFormat = allSupportedFormats.intersect(allSchemas).headOption
       if(renderFormat.isDefined) {
@@ -67,17 +66,20 @@ abstract class MetadataAccessors {
       } else {
         ""
       }
-
-    case _ => assign(HUB_URI)
+    // TODO add plugin mechanism
+    case "museum" | "collection" =>
+      "/" + getOrgId + "/thing/" + getSpec + "/" + getRecordId
+    case _ => ""
   }
+
   def getLandingPage = getItemType match {
-    case MDR => assign(EXTERNAL_LANDING_PAGE)
+    case ITEM_TYPE_MDR => assign(LANDING_PAGE.tag)
     case _ => ""
   }
   def getThumbnailUri(configuration: DomainConfiguration): String = getThumbnailUri(180, configuration)
 
   def getThumbnailUri(size: Int, configuration: DomainConfiguration): String = {
-    assign(THUMBNAIL) match {
+    assign(THUMBNAIL.tag) match {
       case id if ObjectId.isValid(id) && !id.trim.isEmpty =>
         val mongoId = Some(new ObjectId(id))
         thumbnailUrl(mongoId, size)
@@ -90,12 +92,9 @@ abstract class MetadataAccessors {
       case _ => thumbnailUrl(None, size)
     }
   }
-  def getMimeType: String = assign(MIMETYPE) match {
-    case t if t.trim().length() > 0 => t
-    case _ => "unknown/unknown"
-  }
+  def getMimeType: String = "unknown/unknown"
 
-  def hasDigitalObject = assign(THUMBNAIL) match {
+  def hasDigitalObject = assign(THUMBNAIL.tag) match {
     case url if url.trim().length() > 0 => true
     case _ => false
   }

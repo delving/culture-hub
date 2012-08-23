@@ -4,7 +4,6 @@ import play.api.mvc.Action
 import com.mongodb.casbah.Imports._
 import models.HubUser
 import java.util.regex.Pattern
-import views.Helpers.PAGE_SIZE
 
 /**
  *
@@ -29,10 +28,10 @@ object Users extends DelvingController {
           HubUser.dao.findAll
         }.toList
 
-        val pageEndIndex: Int = (page + 1) * PAGE_SIZE
+        val pageEndIndex: Int = (page + 1) * configuration.searchService.pageSize
         val listMax = queriedUsers.length
         val pageEnd = if (listMax < pageEndIndex) listMax else pageEndIndex
-        val usersPage = queriedUsers.slice((page - 1) * PAGE_SIZE, pageEnd)
+        val usersPage = queriedUsers.slice((page - 1) * configuration.searchService.pageSize, pageEnd)
 
         val items: List[HubUser] = usersPage.toList
         Ok(Template("/user/list.html", 'title -> listPageTitle("user"), 'items -> items, 'page -> page, 'count -> queriedUsers.length))

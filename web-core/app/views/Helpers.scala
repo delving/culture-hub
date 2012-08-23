@@ -13,7 +13,6 @@ import util.Validation
  */
 object Helpers {
 
-  val PAGE_SIZE = core.Constants.PAGE_SIZE
   val DEFAULT_THUMBNAIL = "/assets/images/dummy-object.png"
 
   // ~~~ url building

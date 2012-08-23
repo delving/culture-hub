@@ -1,10 +1,11 @@
 package controllers.api
 
-import controllers.{DomainConfigurationAware, RenderingExtensions, DelvingController}
+import controllers.{DomainConfigurationAware, RenderingExtensions}
 import play.api.mvc._
 import play.api.libs.concurrent.Promise
 import scala.xml._
 import core.Constants._
+import core.indexing.IndexField._
 import core.indexing.IndexingService
 import models.{MetadataItem, MetadataCache}
 import org.apache.solr.common.SolrInputDocument
@@ -140,39 +141,31 @@ object Index extends Controller with DomainConfigurationAware with RenderingExte
         val itemId = item.attribute("itemId").get.text
         val itemType = item.attribute("itemType").get.text
 
-        // TODO add more reserved values?
-        if(itemType == MDR) {
-          invalidItems += "Item uses reserved itemType value 'mdr'" -> item
-        } else {
-          val deleted = item.attribute("delete").map(_.text == "true").getOrElse(false)
+        val deleted = item.attribute("delete").map(_.text == "true").getOrElse(false)
 
-          // TODO check more field syntax
-          val invalidDates = item.nonEmptyChildren.filter(f => f.label == "field" && f.attribute("fieldType").isDefined && f.attribute("fieldType").get.head.text == "date") flatMap {
-            f =>
-              try {
-                ISODateTimeFormat.dateTime().parseDateTime(f.text)
-                None
-              } catch {
-                case t => Some(("Invalid date field '%s' with value '%s'".format((f \ "@name").text, f.text) -> item))
-              }
-          }
-
-          if(!invalidDates.isEmpty) {
-            invalidItems ++= invalidDates
-          } else {
-            val indexItem = IndexItem(
-              orgId = orgId,
-              itemId = itemId,
-              itemType = itemType,
-              rawXml = item.toString(),
-              deleted = deleted
-            )
-            validItems += indexItem
-          }
-
-
+        // TODO check more field syntax
+        val invalidDates = item.nonEmptyChildren.filter(f => f.label == "field" && f.attribute("fieldType").isDefined && f.attribute("fieldType").get.head.text == "date") flatMap {
+          f =>
+            try {
+              ISODateTimeFormat.dateTime().parseDateTime(f.text)
+              None
+            } catch {
+              case t: Throwable => Some(("Invalid date field '%s' with value '%s'".format((f \ "@name").text, f.text) -> item))
+            }
         }
 
+        if(!invalidDates.isEmpty) {
+          invalidItems ++= invalidDates
+        } else {
+          val indexItem = IndexItem(
+            orgId = orgId,
+            itemId = itemId,
+            itemType = itemType,
+            rawXml = item.toString(),
+            deleted = deleted
+          )
+          validItems += indexItem
+        }
       }
     }
     (validItems.toList, invalidItems.toList)
@@ -260,12 +253,10 @@ case class IndexItem(orgId: String,
 
     // mandatory fields
     val id = "%s_%s_%s".format(orgId, itemType, itemId)
-    doc.addField(ID, id)
-    doc.addField(HUB_ID, id)
-    doc.addField(ORG_ID, orgId)
-
-    doc.addField(SYSTEM_TYPE, INDEX_API_ITEM)
-    doc.addField(RECORD_TYPE, itemType)
+    doc += (ID -> id)
+    doc += (HUB_ID -> id)
+    doc += (ORG_ID -> orgId)
+    doc += (RECORD_TYPE -> itemType)
 
     doc
   }

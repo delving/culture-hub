@@ -18,12 +18,12 @@ package core.search
 
 import exceptions.AccessKeyException
 import core.Constants._
+import core.indexing.IndexField._
 import play.api.mvc.Results._
 import play.api.http.ContentTypes._
 import play.api.i18n.{Lang, Messages}
 import collection.JavaConverters._
 import play.api.Logger
-import collection.immutable.ListMap
 import play.api.mvc.{PlainResult, RequestHeader}
 import core.ExplainItem
 import java.lang.String
@@ -43,7 +43,7 @@ import scala.collection.immutable.ListMap
  */
 object SearchService {
 
-  def getApiResult(request: RequestHeader, hiddenQueryFilters: List[String] = List.empty)(implicit configuration: DomainConfiguration): PlainResult =
+  def getApiResult(request: RequestHeader, hiddenQueryFilters: Seq[String] = Seq.empty)(implicit configuration: DomainConfiguration): PlainResult =
     new SearchService(request, hiddenQueryFilters)(configuration).getApiResult
 
 
@@ -53,7 +53,7 @@ object SearchService {
   }
 }
 
-class SearchService(request: RequestHeader, hiddenQueryFilters: List[String] = List.empty)(implicit configuration: DomainConfiguration) {
+class SearchService(request: RequestHeader, hiddenQueryFilters: Seq[String] = Seq.empty)(implicit configuration: DomainConfiguration) {
 
   val log = Logger("CultureHub")
 
@@ -146,7 +146,7 @@ class SearchService(request: RequestHeader, hiddenQueryFilters: List[String] = L
   private def getRenderedFullView(viewName: String, schema: Option[String] = None, renderRelatedItems: Boolean) = {
     require(params._contains("id"))
     val id = params.getValue("id")
-    val idTypeParam = params.getValueOrElse("idType", HUB_ID)
+    val idTypeParam = params.getValueOrElse("idType", HUB_ID.key)
     RecordRenderer.getRenderedFullView(id, DelvingIdType(idTypeParam), apiLanguage, schema, renderRelatedItems)
   }
 
@@ -237,7 +237,7 @@ case class SearchSummary(result: BriefItemView, language: String = "en", chRespo
 
   private val pagination = result.getPagination
   private val searchTerms = pagination.getPresentationQuery.getUserSubmittedQuery
-  private val filteredFields = Seq(SYSTEM_TYPE, "delving_snippet", "delving_fullTextObjectUrl")
+  private val filteredFields = Seq("delving_snippet", "delving_fullTextObjectUrl")
 
   def minusAmp(link: String) = link.replaceAll("amp;", "").replaceAll(" ", "%20").replaceAll("qf=", "qf[]=")
 
