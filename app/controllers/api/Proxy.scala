@@ -5,7 +5,8 @@ import collection.immutable.Map
 import play.api.libs.ws.{Response, WS}
 import xml.{NodeSeq, TopScope, Elem}
 import play.api.mvc._
-import core.{DomainConfigurationAware, ExplainItem}
+import controllers.{DomainConfigurationAware, RenderingExtensions}
+import core.ExplainItem
 import play.api.{Logger, Play}
 import controllers.RenderingExtensions
 import java.net.URLDecoder

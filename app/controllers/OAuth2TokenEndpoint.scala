@@ -12,12 +12,11 @@ import org.apache.amber.oauth2.common.utils.OAuthUtils
 import org.apache.amber.oauth2.as.request.OAuthRequest
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import org.apache.amber.oauth2.as.validator._
-
 import play.api._
 import play.api.Play.current
 import play.api.mvc._
-import core.{DomainConfigurationAware, HubServices}
-import models.{DomainConfiguration, HubUser}
+import core.HubServices
+import models.HubUser
 
 /**
  * OAuth2 TokenEndPoint inspired by the Apache Amber examples and the RFC draft 10

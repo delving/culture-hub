@@ -122,7 +122,7 @@ object VirtualCollection extends MultiModel[VirtualCollection, VirtualCollection
 
   protected def initIndexes(collection: MongoCollection) {}
 
-  protected def initDAO(collection: MongoCollection, connection: MongoDB): VirtualCollectionDAO = new VirtualCollectionDAO(collection, connection)
+  protected def initDAO(collection: MongoCollection, connection: MongoDB)(implicit configuration: DomainConfiguration): VirtualCollectionDAO = new VirtualCollectionDAO(collection, connection)
 }
 
 class VirtualCollectionDAO(collection: MongoCollection, connection: MongoDB) extends SalatDAO[VirtualCollection, ObjectId](collection) {

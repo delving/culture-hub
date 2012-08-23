@@ -16,7 +16,6 @@
 
 package models
 
-import _root_.util.DomainConfigurationHandler
 import core.access.{ResourceType, Resource}
 import extensions.ConfigurationException
 import org.bson.types.ObjectId
@@ -36,10 +35,11 @@ import core.collection.{Indexable, OrganizationCollection, OrganizationCollectio
 import controllers.organization.DataSetEvent
 import plugins.DataSetPlugin
 import java.util.Date
+import core.schema.Schema
+import util.DomainConfigurationHandler
 
 /**
  * DataSet model
- * The unique ID for this model is the mongo _id. IF YOU WANT TO USE THE SPEC, ALWAYS ALSO USE THE ORG_ID. The spec alone does not provide for unicity accross organizations!
  *
  * @author Sjoerd Siebinga <sjoerd.siebinga@gmail.com>
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
@@ -47,7 +47,6 @@ import java.util.Date
  */
 
 case class DataSet(
-
                           // basics
                           _id: ObjectId = new ObjectId,
                           spec: String,
@@ -85,7 +84,7 @@ case class DataSet(
                           idxSortFields: List[String] = List.empty[String] // the sort fields selected for indexing, at the moment derived from configuration
                           ) extends OrganizationCollection with OrganizationCollectionInformation with Harvestable with Indexable with Resource {
 
-  val configuration = DomainConfigurationHandler.getByOrgId(orgId)
+  implicit val configuration = DomainConfigurationHandler.getByOrgId(orgId)
 
   // ~~~ accessors
 
@@ -105,18 +104,18 @@ case class DataSet(
     initialFacts ++ storedFacts
   }
 
-  def getAllMappingSchemas = mappings.map(mapping => mapping._2.format).toList
+  def getAllMappingSchemas: Seq[Schema] = mappings.map(mapping => Schema(mapping._2.schemaPrefix, mapping._2.schemaVersion)).toSeq.distinct
 
   def getPublishableMappingSchemas = getAllMappingSchemas.
-          filter(format => formatAccessControl.get(format.prefix).isDefined).
-          filter(format => formatAccessControl(format.prefix).isPublicAccess || formatAccessControl(format.prefix).isProtectedAccess).
-          toList
+    filter(schema => formatAccessControl.get(schema.prefix).isDefined).
+    filter(schema => formatAccessControl(schema.prefix).isPublicAccess || formatAccessControl(schema.prefix).isProtectedAccess).
+    toList
 
-  def getVisibleMetadataSchemas(accessKey: Option[String] = None): List[RecordDefinition] = {
+  def getVisibleMetadataSchemas(accessKey: Option[String] = None): Seq[RecordDefinition] = {
     getAllMappingSchemas.
-            filterNot(format => formatAccessControl.get(format.prefix).isEmpty).
-            filter(format => formatAccessControl(format.prefix).hasAccess(accessKey)
-    )
+      filterNot(schema => formatAccessControl.get(schema.prefix).isEmpty).
+      filter(schema => formatAccessControl(schema.prefix).hasAccess(accessKey)).
+      flatMap(schema => RecordDefinition.getRecordDefinition(schema))
   }
 
   def hasHash(hash: String): Boolean = hashes.values.filter(h => h == hash).nonEmpty
@@ -188,7 +187,7 @@ object DataSet extends MultiModel[DataSet, DataSetDAO] {
 
   protected def initIndexes(collection: MongoCollection) {}
 
-  protected def initDAO(collection: MongoCollection, connection: MongoDB): DataSetDAO = new DataSetDAO(collection)
+  protected def initDAO(collection: MongoCollection, connection: MongoDB)(implicit configuration: DomainConfiguration): DataSetDAO = new DataSetDAO(collection)
 
   lazy val factDefinitionList = parseFactDefinitionList
 
@@ -217,7 +216,7 @@ object DataSet extends MultiModel[DataSet, DataSetDAO] {
 
 }
 
-class DataSetDAO(collection: MongoCollection) extends SalatDAO[DataSet, ObjectId](collection) with Pager[DataSet] {
+class DataSetDAO(collection: MongoCollection)(implicit val configuration: DomainConfiguration) extends SalatDAO[DataSet, ObjectId](collection) with Pager[DataSet] {
 
   def getState(orgId: String, spec: String): DataSetState = {
 
@@ -249,7 +248,7 @@ class DataSetDAO(collection: MongoCollection) extends SalatDAO[DataSet, ObjectId
     find("state.name" $in (states.map(_.name)) ++ MongoDBObject("deleted" -> false))
   }
 
-  def findAll(orgId: String): List[DataSet] = find(MongoDBObject("deleted" -> false)).sort(MongoDBObject("name" -> 1)).toList
+  def findAll(): List[DataSet] = find(MongoDBObject()).sort(MongoDBObject("name" -> 1)).toList
 
   // ~~~ access control
 
@@ -338,13 +337,13 @@ class DataSetDAO(collection: MongoCollection) extends SalatDAO[DataSet, ObjectId
   }
 
   def updateMapping(dataSet: DataSet, mapping: RecMapping)(implicit configuration: DomainConfiguration): DataSet = {
-    val ns: Option[RecordDefinition] = RecordDefinition.getRecordDefinition(mapping.getPrefix)
-    if (ns == None) {
-      throw new MetaRepoSystemException(String.format("Namespace prefix %s not recognized", mapping.getPrefix))
+    val recordDefinition: Option[RecordDefinition] = RecordDefinition.getRecordDefinition(mapping.getPrefix, mapping.getSchemaVersion.getVersion)
+    if (recordDefinition == None) {
+      throw new MetaRepoSystemException(String.format("RecordDefinition with prefix %s and version %s not recognized", mapping.getPrefix, mapping.getSchemaVersion.getVersion))
     }
 
     // if we already have a mapping, update it but keep the format access control settings
-    val updatedMapping = dataSet.mappings.get(mapping.getPrefix) match {
+    val updatedMapping = dataSet.mappings.values.find(m => m.schemaPrefix == mapping.getPrefix && m.schemaVersion == mapping.getSchemaVersion.getVersion) match {
       case Some(existingMapping) =>
         existingMapping.copy(
           recordMapping = Some(mapping.toString)
@@ -352,13 +351,8 @@ class DataSetDAO(collection: MongoCollection) extends SalatDAO[DataSet, ObjectId
       case None =>
         Mapping(
           recordMapping = Some(mapping.toString),
-          format = RecordDefinition(
-            ns.get.prefix,
-            ns.get.schema,
-            ns.get.namespace,
-            ns.get.allNamespaces,
-            ns.get.isFlat
-          )
+          schemaPrefix = mapping.getSchemaVersion.getPrefix,
+          schemaVersion = mapping.getSchemaVersion.getVersion
         )
     }
     val updatedDataSet = dataSet.copy(mappings = dataSet.mappings.updated(mapping.getPrefix, updatedMapping))
@@ -427,13 +421,13 @@ class DataSetDAO(collection: MongoCollection) extends SalatDAO[DataSet, ObjectId
   // ~~~ OAI-PMH
 
   def getAllVisibleMetadataFormats(orgId: String, accessKey: Option[String]): List[RecordDefinition] = {
-    val metadataFormats = findAll(orgId).flatMap {
+    val metadataFormats = findAll().flatMap {
       ds => ds.getVisibleMetadataSchemas(accessKey)
     }
     metadataFormats.toList.distinct
   }
 
-  def getMetadataFormats(spec: String, orgId: String, accessKey: Option[String]): List[RecordDefinition] = {
+  def getMetadataFormats(spec: String, orgId: String, accessKey: Option[String]): Seq[RecordDefinition] = {
     findBySpecAndOrgId(spec, orgId) match {
       case Some(ds) => ds.getVisibleMetadataSchemas(accessKey)
       case None => List[RecordDefinition]()
@@ -454,14 +448,14 @@ case class FactDefinition(name: String, prompt: String, tooltip: String, automat
   val opts = options.map(opt => (opt, opt))
 }
 
-case class Mapping(recordMapping: Option[String] = None, format: RecordDefinition)
+case class Mapping(recordMapping: Option[String] = None, schemaPrefix: String, schemaVersion: String)
 
 case class Details(name: String, // TODO this is repeated with the fact "name"...one day, unify
                    total_records: Long = 0,
                    indexing_count: Long = 0,
                    invalidRecordCount: Map[String, Long] = Map.empty,
                    facts: BasicDBObject = new BasicDBObject()
-                          ) {
+                  ) {
 
   def getFactsAsText: String = {
     val builder = new StringBuilder

@@ -93,7 +93,7 @@ object DataSetStatistics extends MultiModel[DataSetStatistics, DataSetStatistics
     addIndexes(collection, dataSetStatisticsContextIndexes, dataSetStatisticsContextIndexNames)
   }
 
-  def initDAO(collection: MongoCollection, connection: MongoDB): DataSetStatisticsDAO = new DataSetStatisticsDAO(collection, connection)
+  def initDAO(collection: MongoCollection, connection: MongoDB)(implicit configuration: DomainConfiguration): DataSetStatisticsDAO = new DataSetStatisticsDAO(collection, connection)
 }
 
 class DataSetStatisticsDAO(collection: MongoCollection, connection: MongoDB) extends SalatDAO[DataSetStatistics, ObjectId](collection) {

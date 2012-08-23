@@ -5,7 +5,7 @@ import core.Constants._
 import core.search.SearchService
 import collection.mutable.ListBuffer
 import play.api.libs.concurrent.Promise
-import core.DomainConfigurationAware
+import controllers.DomainConfigurationAware
 import play.api.Logger
 
 /**

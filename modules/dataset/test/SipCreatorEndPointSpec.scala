@@ -255,7 +255,7 @@ F1D3FF8443297732862DF21DC4E57262__validation_icn.int"""
         fis.close()
 
         XML.loadString(downloadedSource).size must equalTo(1)
-        downloadedEntries.size must equalTo(6)
+        downloadedEntries.size must equalTo(4)
 
         val fis2 = new FileInputStream(sourceFile)
         val gis2 = new GZIPInputStream(fis2)

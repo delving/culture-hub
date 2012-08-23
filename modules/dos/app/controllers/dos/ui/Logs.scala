@@ -5,7 +5,7 @@ import com.mongodb.casbah.Imports._
 import play.api.mvc._
 import extensions.Extensions
 import com.novus.salat.dao.SalatMongoCursor
-import core.DomainConfigurationAware
+import controllers.DomainConfigurationAware
 
 /**
  *

@@ -11,7 +11,7 @@ import org.apache.amber.oauth2.as.response.OAuthASResponse
 import org.apache.amber.oauth2.common.message.OAuthResponse.OAuthErrorResponseBuilder
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import play.api.mvc._
-import core.{DomainConfigurationAware, HubServices}
+import core.HubServices
 
 /**
  *

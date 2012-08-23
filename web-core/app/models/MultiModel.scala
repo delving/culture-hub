@@ -22,7 +22,7 @@ trait MultiModel[A <: salat.CaseClass, B <: SalatDAO[A, ObjectId]] {
         val connection = mongoConnections(config)
         val collection = connection(connectionName)
         initIndexes(collection)
-        val dao = initDAO(collection, connection)
+        val dao = initDAO(collection, connection)(config)
         (config -> dao)
       }
     }.toMap
@@ -32,7 +32,7 @@ trait MultiModel[A <: salat.CaseClass, B <: SalatDAO[A, ObjectId]] {
 
   protected def initIndexes(collection: MongoCollection)
 
-  protected def initDAO(collection: MongoCollection, connection: MongoDB): B
+  protected def initDAO(collection: MongoCollection, connection: MongoDB)(implicit configuration: DomainConfiguration): B
 
   def dao(implicit configuration: DomainConfiguration): B = multiDAOs.get(configuration).getOrElse {
     Logger("CultureHub").error("No DAO for configuration " + configuration.name)

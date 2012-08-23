@@ -220,20 +220,21 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
     if (setName.isEmpty) throw new BadArgumentException("No set provided")
     val metadataFormat = pmhRequestEntry.getMetadataFormat
 
-    if(format.isDefined && metadataFormat != format.get) throw new MappingNotFoundException("Invalid format provided for this URL")
+    if (format.isDefined && metadataFormat != format.get) throw new MappingNotFoundException("Invalid format provided for this URL")
 
     val collection = AggregatingHarvestCollectionLookup.findBySpecAndOrgId(setName, orgId).getOrElse {
       throw new DataSetNotFoundException("unable to find set: " + setName)
     }
 
-    if(!collection.getVisibleMetadataSchemas(accessKey).exists(f => f.prefix == metadataFormat)) {
+    val schema: Option[RecordDefinition] = collection.getVisibleMetadataSchemas(accessKey).find(f => f.prefix == metadataFormat)
+    if(!schema.isDefined) {
       throw new MappingNotFoundException("Format %s unknown".format(metadataFormat))
     }
     val (records, totalValidRecords) = collection.getRecords(metadataFormat, pmhRequestEntry.getLastTransferIdx, pmhRequestEntry.recordsReturned, pmhRequestEntry.pmhRequestItem.from, pmhRequestEntry.pmhRequestItem.until)
 
     val recordList = records.toList
 
-    if(recordList.size == 0) throw new RecordNotFoundException(requestURL)
+    if (recordList.size == 0) throw new RecordNotFoundException(requestURL)
 
     val from = OaiPmhService.printDate(recordList.head.modified)
     val to = OaiPmhService.printDate(recordList.last.modified)
@@ -250,8 +251,7 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
           {pmhRequestEntry.renderResumptionToken(recordList, totalValidRecords)}
         </ListRecords>
       </OAI-PMH>
-    }
-    else {
+    } else {
       <OAI-PMH xmlns="http://www.openarchives.org/OAI/2.0/"
                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/ http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd">
@@ -272,9 +272,7 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
       </OAI-PMH>
     }
   
-      prependNamespaces(metadataFormat, collection, elem)
-
-
+    prependNamespaces(metadataFormat, schema.get.schemaVersion, collection, elem)
   }
 
   def processGetRecord(pmhRequestEntry: PmhRequestEntry) : Elem = {
@@ -322,7 +320,7 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
         </GetRecord>
       </OAI-PMH>
 
-    prependNamespaces(metadataFormat, collection, elem)
+    prependNamespaces(metadataFormat, record.schemaVersions.get(metadataFormat).getOrElse("1.0.0"), collection, elem)
   }
 
   // todo find a way to not show status namespace when not deleted
@@ -345,20 +343,18 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
         </metadata>
       </record>
     } catch {
-      case e: Exception =>
+      case e: Throwable =>
         log.error("Unable to render record %s with format %s because of %s".format(record.itemId, metadataPrefix, e.getMessage), e)
           <record/>
     }
     response
   }
   
-  private def prependNamespaces(metadataFormat: String, collection: Harvestable, elem: Elem): Elem = {
-
+  private def prependNamespaces(metadataFormat: String, schemaVersion: String, collection: Harvestable, elem: Elem): Elem = {
     var mutableElem = elem
 
-    val formatNamespaces = RecordDefinition.getRecordDefinition(metadataFormat).get.allNamespaces
+    val formatNamespaces = RecordDefinition.getRecordDefinition(metadataFormat, schemaVersion).get.allNamespaces
     val globalNamespaces = collection.getNamespaces.map(ns => Namespace(ns._1, ns._2, ""))
-
     val namespaces = (formatNamespaces ++ globalNamespaces).distinct.filterNot(_.prefix == "xsi")
 
     for (ns <- namespaces) {
@@ -371,7 +367,7 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
     }
     mutableElem
   }
-  
+
 
   def createPmhRequest(params: Params, verb: PmhVerb): PmhRequestEntry = {
 

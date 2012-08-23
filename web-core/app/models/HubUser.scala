@@ -39,7 +39,7 @@ object HubUser extends MultiModel[HubUser, HubUserDAO] {
     collection.ensureIndex(MongoDBObject("userName" -> 1, "isActive" -> 1))
   }
 
-  protected def initDAO(collection: MongoCollection, connection: MongoDB): HubUserDAO = new HubUserDAO(collection)
+  protected def initDAO(collection: MongoCollection, connection: MongoDB)(implicit configuration: DomainConfiguration): HubUserDAO = new HubUserDAO(collection)
 
 
   // ~~~ OAuth 2

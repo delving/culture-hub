@@ -16,7 +16,8 @@ case class MetadataItem(modified: Date = new Date(),
                         collection: String,
                         itemType: String,
                         itemId: String,
-                        xml: Map[String, String], // prefix -> raw XML string
+                        xml: Map[String, String], // schemaPrefix -> raw XML string
+                        schemaVersions: Map[String, String], // schemaPrefix -> schemaVersion
                         index: Int,
                         invalidTargetSchemas: Seq[String] = Seq.empty,
                         systemFields: Map[String, List[String]] = Map.empty
@@ -45,11 +46,20 @@ class MongoMetadataCache(orgId: String, col: String, itemType: String, mongoColl
 
   def saveOrUpdate(item: MetadataItem) {
     val mappings = item.xml.foldLeft(MongoDBObject()) { (r, c) => r + (c._1 -> c._2) }
+    val schemaVersions = item.schemaVersions.foldLeft(MongoDBObject()) { (r, c) => r + (c._1 -> c._2) }
     update(
-      MongoDBObject(
-        "collection" -> item.collection, "itemType" -> item.itemType, "itemId" -> item.itemId),
-        $set ("modified" -> new Date(), "collection" -> item.collection, "itemType" -> item.itemType, "itemId" -> item.itemId, "index" -> item.index, "systemFields" -> item.systemFields.asDBObject, "xml" -> mappings),
-        true
+        q = MongoDBObject("collection" -> item.collection, "itemType" -> item.itemType, "itemId" -> item.itemId),
+        o = $set (
+          "modified" -> new Date(),
+          "collection" -> item.collection,
+          "itemType" -> item.itemType,
+          "itemId" -> item.itemId,
+          "index" -> item.index,
+          "systemFields" -> item.systemFields.asDBObject,
+          "xml" -> mappings,
+          "schemaVersions" -> schemaVersions
+          ),
+        upsert = true
     )
   }
 

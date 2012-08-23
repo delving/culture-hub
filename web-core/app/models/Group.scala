@@ -26,7 +26,7 @@ object Group extends MultiModel[Group, GroupDAO] {
 
   def initIndexes(collection: MongoCollection) { }
 
-  def initDAO(collection: MongoCollection, connection: MongoDB): GroupDAO = new GroupDAO(collection)
+  def initDAO(collection: MongoCollection, connection: MongoDB)(implicit configuration: DomainConfiguration): GroupDAO = new GroupDAO(collection)
 
 }
 

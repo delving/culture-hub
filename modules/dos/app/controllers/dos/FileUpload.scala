@@ -24,7 +24,7 @@ import extensions.Extensions
 import java.io.File
 import play.api.libs.MimeTypes
 import models.DomainConfiguration
-import core.DomainConfigurationAware
+import controllers.DomainConfigurationAware
 
 /**
  *

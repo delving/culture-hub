@@ -27,7 +27,7 @@ import com.mongodb.casbah.gridfs.GridFS
 import java.util.Date
 import play.api.libs.iteratee.Enumerator
 import extensions.MissingLibs
-import core.DomainConfigurationAware
+import controllers.DomainConfigurationAware
 import models.DomainConfiguration
 
 

@@ -25,7 +25,7 @@ import play.api.Play
 import play.api.Logger
 import play.api.Play.current
 import eu.delving.templates.scala.GroovyTemplates
-import core.DomainConfigurationAware
+import controllers.DomainConfigurationAware
 
 /**
  *
