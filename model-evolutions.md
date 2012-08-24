@@ -203,8 +203,12 @@ May not be a problem but we need to check if there are any items live.
           print(key);
           var mapping = ds.mappings[key];
           ds.mappings[key].schemaPrefix = mapping.format.prefix;
-          ds.mappings[key].schemaVersion = "1.0.0";
-//          delete ds.mappings[key].format;
+          if(key == 'ese') {
+            ds.mappings[key].schemaVersion = "3.4.0";
+          } else {
+            ds.mappings[key].schemaVersion = "1.0.0";
+          }
+          delete ds.mappings[key].format;
         }
       }
       db.Datasets.save(ds);
