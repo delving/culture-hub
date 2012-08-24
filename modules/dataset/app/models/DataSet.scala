@@ -98,10 +98,8 @@ case class DataSet(
 
   def getLockedBy: Option[HubUser] = if (lockedBy == None) None else HubUser.dao(orgId).findByUsername(lockedBy.get)
 
-  def getFacts: Map[String, String] = {
-    val initialFacts = (DataSet.factDefinitionList.map(factDef => (factDef.name, ""))).toMap[String, String]
-    val storedFacts = (for (fact <- details.facts) yield (fact._1, fact._2.toString)).toMap[String, String]
-    initialFacts ++ storedFacts
+  def getStoredFacts: Map[String, String] = {
+    (for (fact <- details.facts) yield (fact._1, fact._2.toString)).toMap[String, String]
   }
 
   def getAllMappingSchemas: Seq[Schema] = mappings.map(mapping => Schema(mapping._2.schemaPrefix, mapping._2.schemaVersion)).toSeq.distinct
@@ -189,30 +187,7 @@ object DataSet extends MultiModel[DataSet, DataSetDAO] {
 
   protected def initDAO(collection: MongoCollection, connection: MongoDB)(implicit configuration: DomainConfiguration): DataSetDAO = new DataSetDAO(collection)
 
-  lazy val factDefinitionList = parseFactDefinitionList
-
   val RESOURCE_TYPE = ResourceType("dataSet")
-
-  def getFactDefinitionResource: URL = {
-    val r = Play.resource(("fact-definition-list_1.0.0.xml"))
-    if (!r.isDefined) throw ConfigurationException("Fact definition configuration file not found!")
-    r.get
-  }
-
-  private def parseFactDefinitionList: Seq[FactDefinition] = {
-    val xml = XML.load(getFactDefinitionResource)
-    for (e <- (xml \ "fact-definition")) yield parseFactDefinition(e)
-  }
-
-  private def parseFactDefinition(node: Node) = {
-    FactDefinition(
-      node \ "@name" text,
-      node \ "prompt" text,
-      node \ "toolTip" text,
-      (node \ "automatic" text).equalsIgnoreCase("true"),
-      for (option <- (node \ "options" \ "string")) yield (option text)
-    )
-  }
 
 }
 
