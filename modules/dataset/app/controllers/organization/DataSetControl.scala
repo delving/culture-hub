@@ -33,6 +33,8 @@ import models.FormatAccessControl
 import models.Mapping
 import controllers.ShortDataSet
 import scala.collection.JavaConverters._
+import xml.Node
+import eu.delving.schema.SchemaType
 
 /**
  *
@@ -130,6 +132,9 @@ trait DataSetControl extends OrganizationController { this: BoundController =>
 
   val schemaService = inject[SchemaService]
 
+  lazy val factDefinitionList = parseFactDefinitionList
+  lazy val initialFacts = factDefinitionList.map(factDef => (factDef.name, "")).toMap[String, String]
+
   // ~~~ implicit conversions
 
   implicit def dataSetToShort(ds: DataSet) = ShortDataSet(
@@ -138,7 +143,7 @@ trait DataSetControl extends OrganizationController { this: BoundController =>
     total_records = ds.details.total_records,
     state = ds.state,
     errorMessage = ds.errorMessage,
-    facts = ds.getFacts,
+    facts = (ds.getStoredFacts ++ initialFacts),
     recordDefinitions = ds.mappings.keySet.toList,
     indexingMappingPrefix = ds.getIndexingMappingPrefix.getOrElse("NONE"),
     orgId = ds.orgId,
@@ -183,7 +188,7 @@ trait DataSetControl extends OrganizationController { this: BoundController =>
               DataSetCreationViewModel(
                 id = Some(dS._id),
                 spec = dS.spec,
-                facts = HardcodedFacts.fromMap(dS.getFacts),
+                facts = HardcodedFacts.fromMap(dS.getStoredFacts ++ initialFacts),
                 selectedSchemas = dS.recordDefinitions,
                 allAvailableSchemas = allSchemaPrefixes,
                 schemaProcessingConfigurations = allSchemaPrefixes.map { prefix =>
@@ -204,7 +209,7 @@ trait DataSetControl extends OrganizationController { this: BoundController =>
           'spec -> spec,
           'data -> data,
           'dataSetForm -> DataSetCreationViewModel.dataSetForm,
-          'factDefinitions -> DataSet.factDefinitionList.filterNot(factDef => factDef.automatic || factDef.name == "spec").toList
+          'factDefinitions -> factDefinitionList.filterNot(factDef => factDef.automatic || factDef.name == "spec").toList
         ))
       }
     }
@@ -312,6 +317,28 @@ trait DataSetControl extends OrganizationController { this: BoundController =>
         Json(HubServices.directoryService(configuration).findOrganization(term).map(_.name))
     }
   }
+
+
+  // ~~~
+
+  private def parseFactDefinitionList: Seq[FactDefinition] = {
+    schemaService.getSchema("facts", "1.0.0", SchemaType.FACT_DEFINITIONS).map { source =>
+      val xml = scala.xml.XML.loadString(source)
+      for (e <- (xml \ "fact-definition")) yield parseFactDefinition(e)
+    }.getOrElse(Seq.empty)
+  }
+
+  private def parseFactDefinition(node: Node) = {
+    FactDefinition(
+      node \ "@name" text,
+      node \ "prompt" text,
+      node \ "toolTip" text,
+      (node \ "automatic" text).equalsIgnoreCase("true"),
+      for (option <- (node \ "options" \ "string")) yield (option text)
+    )
+  }
+
+
 
 }
 
