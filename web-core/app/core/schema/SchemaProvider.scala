@@ -3,11 +3,12 @@ package core.schema
 import akka.actor._
 import akka.util.duration._
 import akka.pattern.ask
-import core.schema.SchemaProvider.{SchemaContent, GetSchema, Schemas, GetSchemas}
+import core.schema.SchemaProvider._
+import core.SchemaService
 import play.api.Play.current
 import play.api.libs.concurrent._
 import eu.delving.schema._
-import play.api.libs.ws.{Response, WS}
+import play.api.libs.ws.WS
 import java.util.concurrent.TimeUnit
 import play.api.{Play, Logger}
 import java.io.File
@@ -15,6 +16,7 @@ import io.Source
 import scala.collection.JavaConverters._
 import akka.util.Timeout
 import models.DomainConfiguration
+import play.api.libs.ws.Response
 
 /**
  * This component provides schemas and schema versions through a SchemaRepository that is updated every 5 minutes.
@@ -22,52 +24,32 @@ import models.DomainConfiguration
  * It is wrapped inside of an actor to keep refresh operations safe
  *
  * TODO better error handling
- * TODO this should be an injected service so that we can mock it
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-object SchemaProvider {
+class SchemaProvider extends SchemaService {
 
   private val log = Logger("CultureHub")
   private def repository = Akka.system.actorFor("akka://application/user/schemaRepository")
   private implicit val timeout = Timeout(2000 milliseconds)
 
-  /**
-   * Refreshes the repository, i.e. fetches the latest version of schemas
-   */
-  def refresh() {
+  override def refresh() {
     repository ! Refresh
   }
 
-  /**
-   * Retrieves all Schemas that are active for the current configuration
-   * @param configuration the active DomainConfiguration
-   * @return a sequence of Schema
-   */
-  def getSchemas(implicit configuration: DomainConfiguration): Seq[eu.delving.schema.xml.Schema] = {
+  override def getSchemas(implicit configuration: DomainConfiguration): Seq[eu.delving.schema.xml.Schema] = {
     getAllSchemas.filter(s => configuration.schemas.contains(s.prefix))
   }
 
-  /**
-   * Retrieves all Schemas the repository knows about
-   * @return all schemas
-   */
-  def getAllSchemas: Seq[eu.delving.schema.xml.Schema] = (repository ? GetSchemas).asPromise.map {
-      case Schemas(schemas) => schemas.filterNot(s => s.versions.isEmpty)
-    }.await.fold(
-      { t => throw t },
-      { r => r }
-    )
+  override def getAllSchemas: Seq[eu.delving.schema.xml.Schema] = (repository ? GetSchemas).asPromise.map {
+    case Schemas(schemas) => schemas.filterNot(s => s.versions.isEmpty)
+  }.await.fold(
+    { t => throw t },
+    { r => r }
+  )
 
-  /**
-   * Tries to retrieve the Schema content
-   * @param prefix the schema prefidx
-   * @param version the schema version
-   * @param schemaType the schema type
-   * @return an optional string with the schema contents
-   */
-  def getSchema(prefix: String, version: String, schemaType: SchemaType): Option[String] = (repository ? GetSchema(new SchemaVersion(prefix, version), schemaType)).asPromise.map {
+  override def getSchema(prefix: String, version: String, schemaType: SchemaType): Option[String] = (repository ? GetSchema(new SchemaVersion(prefix, version), schemaType)).asPromise.map {
     case SchemaContent(schemaContent) =>
       log.trace("Retrieved schema %s %s %s: ".format(prefix, version, schemaType.toString) + schemaContent)
       Option(schemaContent)
@@ -75,6 +57,10 @@ object SchemaProvider {
     { t => throw t },
     { r => r }
   )
+
+}
+
+object SchemaProvider {
 
   // ~~~ questions
 

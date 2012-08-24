@@ -49,10 +49,11 @@ object Build extends sbt.Build {
     "eu.delving"                %  "schema-repo"                     % schemaRepoVersion,
     "eu.delving"                %% "basex-scala-client"              % "0.1-SNAPSHOT",
 
+    "org.scala-tools.subcut"    %% "subcut"                          % "1.0",
+
     "org.apache.solr"           %  "solr-solrj"                      % "3.6.0",
     "org.apache.httpcomponents" %  "httpclient"                      % "4.1.2",
     "org.apache.httpcomponents" %  "httpmime"                        % "4.1.2",
-
     "org.apache.tika"           %  "tika-parsers"                    % "1.0",
 
     "org.scalesxml"             %% "scales-xml"                      % "0.3-RC6",
