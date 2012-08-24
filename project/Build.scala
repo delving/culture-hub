@@ -55,7 +55,9 @@ object Build extends sbt.Build {
 
     "org.apache.tika"           %  "tika-parsers"                    % "1.0",
 
-    "org.scalesxml"             %% "scales-xml"                      % "0.3-RC6"
+    "org.scalesxml"             %% "scales-xml"                      % "0.3-RC6",
+
+    "org.scalatest"             %% "scalatest"                       % "2.0.M3"              % "test"
   )
 
   val webCore = PlayProject("web-core", webCoreVersion, webCoreDependencies, file("web-core/")).settings(
@@ -66,8 +68,8 @@ object Build extends sbt.Build {
     publishMavenStyle := true,
     resolvers ++= commonResolvers,
     resolvers += "BaseX Repository" at "http://files.basex.org/maven",
-    publish := { }
-
+    publish := { },
+    testOptions in Test := Nil // Required to use scalatest.
   )
 
   val dosDependencies = Seq(

@@ -384,7 +384,8 @@ object SolrQueryService extends SolrServer {
     Pager(
       numFound = chResponse.response.getResults.getNumFound.intValue,
       start = if (solrStart != null) solrStart.intValue() + 1 else 1,
-      rows = chResponse.chQuery.solrQuery.getRows.intValue()
+      rows = chResponse.chQuery.solrQuery.getRows.intValue(),
+      pageSize = configuration.searchService.pageSize
     )
   }
 
@@ -545,11 +546,11 @@ case class BreadCrumb(href: String, display: String, field: String = "", localis
   override def toString: String = "<a href=\"" + href + "\">" + display + "</a>"
 }
 
-case class Pager(numFound: Int, start: Int = 1, rows: Int)(implicit configuration: DomainConfiguration) {
+case class Pager(numFound: Int, start: Int = 1, rows: Int, pageSize: Int = 12) {
 
   private val MARGIN: Int = 5
   private val PAGE_NUMBER_THRESHOLD: Int = 7
-  val hardenedRows = if (rows == 0) configuration.searchService.pageSize else rows
+  val hardenedRows = if (rows == 0) pageSize else rows
 
   val totalPages = if (numFound % hardenedRows != 0) numFound / hardenedRows + 1 else numFound / hardenedRows
   val currentPageNumber = start / hardenedRows + 1

@@ -17,11 +17,11 @@ package search
  */
 
 import _root_.java.net.URLEncoder
-import _root_.org.scalatest.matchers.ShouldMatchers
 import _root_.org.apache.solr.client.solrj.SolrQuery
 import collection.immutable.List
-import controllers.search.{SolrQueryService, BreadCrumb, CHQuery}
-import play.test.UnitSpec
+import core.search._
+import org.scalatest.matchers.ShouldMatchers
+import org.scalatest.FunSpec
 
 /**
  *
@@ -29,7 +29,7 @@ import play.test.UnitSpec
  * @since Apr 2, 2010 12:44:15 AM
  */
 
-class BreadCrumbSpec extends UnitSpec with ShouldMatchers {
+class BreadCrumbSpec extends FunSpec with ShouldMatchers {
 
   val queryString = "single query"
   val encodedQueryString = URLEncoder.encode(queryString, "utf-8")
@@ -39,7 +39,6 @@ class BreadCrumbSpec extends UnitSpec with ShouldMatchers {
   describe("A List of BreadCrumbs") {
 
     describe("(when given a SolrQuery without FilterQueries)") {
-      import controllers.search.{SolrQueryService, BreadCrumb, CHQuery}
       val chQuery = CHQuery(new SolrQuery(queryString))
       val list: List[BreadCrumb] = SolrQueryService.createBreadCrumbList(chQuery)
 
@@ -55,7 +54,7 @@ class BreadCrumbSpec extends UnitSpec with ShouldMatchers {
       }
 
       it("should have the query flagged as last") {
-        breadcrumb.isLast should be (true)
+        breadcrumb.isLast should be(true)
       }
 
     }
@@ -63,7 +62,7 @@ class BreadCrumbSpec extends UnitSpec with ShouldMatchers {
     describe("(when given a SolrQuery with FilterQueries)") {
       val solrQuery = new SolrQuery(queryString)
       val rawFilterQueries: List[String] = List("YEAR:1900", "YEAR:1901", "LOCATION:Here")
-      rawFilterQueries foreach (solrQuery addFacetField  _)
+      rawFilterQueries foreach (solrQuery addFacetField _)
       val filterQueries = SolrQueryService.createFilterQueryList(rawFilterQueries.toArray)
       val list = SolrQueryService.createBreadCrumbList(CHQuery(solrQuery = solrQuery, filterQueries = filterQueries))
 
@@ -94,18 +93,18 @@ class BreadCrumbSpec extends UnitSpec with ShouldMatchers {
 
 
       it("should have all filterQueries marked as true for filterQueries and field + value should be non-empty") {
-        list.head.field.isEmpty should be (true)
-        list.tail.forall(_.field.isEmpty) should be (false)
+        list.head.field.isEmpty should be(true)
+        list.tail.forall(_.field.isEmpty) should be(false)
       }
     }
 
-//    describe("(when given an empty SolrQuery)") {
-//      val solrQuery = new SolrQuery
-//
-//      it("produces an EuropeanaQueryException") {
-//        evaluating {bcFactory.createList(solrQuery, Locale.CANADA)} should produce[EuropeanaQueryException]
-//      }
-//    }
+    //    describe("(when given an empty SolrQuery)") {
+    //      val solrQuery = new SolrQuery
+    //
+    //      it("produces an EuropeanaQueryException") {
+    //        evaluating {bcFactory.createList(solrQuery, Locale.CANADA)} should produce[EuropeanaQueryException]
+    //      }
+    //    }
 
     describe("(when given an illegal FilterQuery)") {
       val solrQuery: SolrQuery = new SolrQuery(queryString)
