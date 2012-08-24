@@ -186,7 +186,11 @@
                         <table class="table table-clean ">
                             <tbody>
                             <tr>
-                                <th>CultureHub search</th>
+                                <th>CultureHub portal search</th>
+                                <td><a data-bind="text: baseUri() + 'search?query=delving_spec%3A' + spec(), attr: {href: baseUri() + 'search?query=delving_spec%3A' + spec() }" rel="nofollow"></a></td>
+                            </tr>
+                            <tr>
+                                <th>CultureHub api search</th>
                                 <td><a data-bind="text: baseUri() + 'search?query=delving_spec%3A' + spec(), attr: {href: baseUri() + 'search?query=delving_spec%3A' + spec() }" rel="nofollow"></a></td>
                             </tr>
                             <!-- ko foreach: harvestingConfiguration -->

@@ -59,32 +59,32 @@
 
 #{organizationNavBar orgId: orgId, active:"datasets", navigation: navigation /}
 
+<div class="page-header">
+    <h2>${spec.isEmpty() ? messages.get('organization.dataset.create') : messages.get('organization.dataset.update') }</h2>
+</div>
+
+<form method="post" action="" id="collectionForm" class="form-delving">
     <div class="row">
-        <div class="span12">
-            <div class="page-header">
-            <h2>${spec.isEmpty() ? messages.get('organization.dataset.create') : messages.get('organization.dataset.update') }</h2>
-            </div>
-            <form method="post" action="" id="collectionForm" class="form-delving">
-                <div class="row">
-                    <div class="span6">
+        <div class="dataset-info">
 
-                        #{form.textField name:"spec", form: dataSetForm, label: messages.get('organization.dataset.label.identifier'), dataBind:"value: spec", help: messages.get('organization.dataset.help.identifier') /}
+            #{form.textField name:"spec", form: dataSetForm, label: messages.get('organization.dataset.label.identifier'), dataBind:"value: spec", help: messages.get('organization.dataset.help.identifier') /}
 
-                        %{for(i in 0..factDefinitions.size() - 1) {
-                            def factDef = factDefinitions.apply(i);
-                        }%
+            %{for(i in 0..factDefinitions.size() - 1) {
+                def factDef = factDefinitions.apply(i);
+            }%
 
-                        #{if factDef.hasOptions()}
-                            #{form.populatedSelectField name: "facts." + factDef.name, form: dataSetForm, label: factDef.prompt, options: factDef.opts, dataBind: "value: facts." + factDef.name, help: factDef.tooltip /}
-                        #{/if}
-                        #{else}
-                            #{form.textField  name: "facts." + factDef.name, form: dataSetForm, label: factDef.prompt, dataBind: "value: facts." + factDef.name, help: factDef.tooltip, isDisabled: factDef.automatic /}
-                        #{/else}
+            #{if factDef.hasOptions()}
+                #{form.populatedSelectField name: "facts." + factDef.name, form: dataSetForm, label: factDef.prompt, options: factDef.opts, dataBind: "value: facts." + factDef.name, help: factDef.tooltip /}
+            #{/if}
+            #{else}
+                #{form.textField  name: "facts." + factDef.name, form: dataSetForm, label: factDef.prompt, dataBind: "value: facts." + factDef.name, help: factDef.tooltip, isDisabled: factDef.automatic /}
+            #{/else}
 
-                        %{ }}%
+            %{ }}%
 
-                    </div>
-                    <div class="span6">
+        </div>
+        <div class="dataset-schemas">
+
                         <div class="control-group">
                             <label class="control-label">Target Schemas</label>
                             <div class="controls">
@@ -142,10 +142,7 @@
                     </div>
                 </div>
 
-            </form>
-        </div>
-    </div>
-
+</form>
 <script type="text/html" id="schemaProcessingConfiguration">
 
 </script>
