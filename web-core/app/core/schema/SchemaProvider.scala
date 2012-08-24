@@ -110,18 +110,28 @@ class SchemaRepositoryWrapper extends Actor {
   protected def receive = {
 
     case SchemaProvider.Refresh =>
-      schemaRepository = new SchemaRepository(fetcher)
-      log.info("Refreshed SchemaRepository, available schemas are: " + prefixes(schemaRepository.getSchemas.asScala))
+      refresh()
 
     case GetSchemas =>
+      if (schemaRepository == null) {
+        refresh()
+      }
       sender ! Schemas(schemaRepository.getSchemas.asScala)
 
     case GetSchema(version, schemaType) =>
+      if (schemaRepository == null) {
+        refresh()
+      }
       sender ! SchemaContent(schemaRepository.getSchema(version, schemaType))
 
   }
 
-  def prefixes(schemas: Seq[eu.delving.schema.xml.Schema]) = schemas.map(_.prefix).mkString(", ")
+  private def refresh() {
+    schemaRepository = new SchemaRepository(fetcher)
+    log.info("Refreshed SchemaRepository, available schemas are: " + prefixes(schemaRepository.getSchemas.asScala))
+  }
+
+  private def prefixes(schemas: Seq[eu.delving.schema.xml.Schema]) = schemas.map(_.prefix).mkString(", ")
 
 }
 
