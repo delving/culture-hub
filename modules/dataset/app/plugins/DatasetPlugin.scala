@@ -24,7 +24,6 @@ import access.{ResourceType, Resource, ResourceLookup}
 import collection.HarvestCollectionLookup
 import com.mongodb.casbah.commons.MongoDBObject
 import java.util.regex.Pattern
-import schema.SchemaProvider
 
 class DataSetPlugin(app: Application) extends CultureHubPlugin(app) {
 
@@ -33,6 +32,8 @@ class DataSetPlugin(app: Application) extends CultureHubPlugin(app) {
   private val log = Logger("CultureHub")
 
   private val dataSetHarvestCollectionLookup = new DataSetLookup
+
+  val schemaService: SchemaService = HubModule.inject[SchemaService](name = None)
 
   /**
 
@@ -185,7 +186,7 @@ class DataSetPlugin(app: Application) extends CultureHubPlugin(app) {
       acc + (pair._1 -> Seq(pair._2))
     }
 
-    val allSchemas = SchemaProvider.getAllSchemas
+    val allSchemas = schemaService.getAllSchemas
 
     val missingVersions: Map[String, Seq[String]] = schemasInUse.map(inUse => {
 

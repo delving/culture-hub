@@ -194,7 +194,7 @@ object DataSet extends MultiModel[DataSet, DataSetDAO] {
   val RESOURCE_TYPE = ResourceType("dataSet")
 
   def getFactDefinitionResource: URL = {
-    val r = Play.resource(("definitions/global/fact-definition-list.xml"))
+    val r = Play.resource(("fact-definition-list_1.0.0.xml"))
     if (!r.isDefined) throw ConfigurationException("Fact definition configuration file not found!")
     r.get
   }

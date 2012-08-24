@@ -17,13 +17,13 @@
 package models
 
 import _root_.util.DomainConfigurationHandler
-import core.schema.{Schema, SchemaProvider}
+import core.schema.Schema
 import xml.{Node, XML}
 import play.api.{Logger, Play}
 import play.api.Play.current
 import java.net.URL
-import core.SystemField
-import eu.delving.schema.{SchemaType, SchemaRepository}
+import core.{HubModule, SchemaService}
+import eu.delving.schema.SchemaType
 import collection.mutable
 
 /**
@@ -58,6 +58,9 @@ case class FormatAccessControl(accessType: String = "none", accessKey: Option[St
  *
  */
 object RecordDefinition {
+
+  // TODO turn the above into a component
+  val schemaService: SchemaService = HubModule.inject[SchemaService](name = None)
 
   val rawRecordDefinition = RecordDefinition(
     prefix = "raw",
@@ -97,7 +100,7 @@ object RecordDefinition {
   }
 
   private def fetchRecordDefinition(prefix: String, version: String)(implicit configuration: DomainConfiguration): Option[RecordDefinition] = {
-    SchemaProvider.getSchema(prefix, version, SchemaType.RECORD_DEFINITION).flatMap { definition =>
+    schemaService.getSchema(prefix, version, SchemaType.RECORD_DEFINITION).flatMap { definition =>
       try {
         parseRecordDefinition(XML.loadString(definition), version)
       } catch {

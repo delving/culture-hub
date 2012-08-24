@@ -26,15 +26,12 @@ import play.api.data.Form
 import play.api.data.Forms._
 import play.api.data.validation._
 import collection.immutable.List
-import core.HubServices
-import core.Constants._
-import controllers.ListItem
+import core.{SchemaService, HubModule, HubServices}
 import play.api.data.validation.ValidationError
 import models.Details
 import models.FormatAccessControl
 import models.Mapping
 import controllers.ShortDataSet
-import core.schema.SchemaProvider
 import scala.collection.JavaConverters._
 
 /**
@@ -127,8 +124,11 @@ object DataSetCreationViewModel {
 
 }
 
-object DataSetControl extends OrganizationController {
+object DataSetControl extends BoundController(HubModule) with DataSetControl
 
+trait DataSetControl extends OrganizationController { this: BoundController =>
+
+  val schemaService = inject[SchemaService]
 
   // ~~~ implicit conversions
 
@@ -151,7 +151,7 @@ object DataSetControl extends OrganizationController {
     Action {
       implicit request =>
         val dataSet = if (spec == None) None else DataSet.dao.findBySpecAndOrgId(spec.get, orgId)
-        val schemas = SchemaProvider.getSchemas
+        val schemas = schemaService.getSchemas
         val allSchemaPrefixes: Seq[String] = schemas.map(_.prefix)
         val versions: Map[String, Seq[String]] = schemas.map { schema =>
           (schema.prefix -> schema.versions.asScala.map(_.number))

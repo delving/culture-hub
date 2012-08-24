@@ -2,8 +2,8 @@ package plugins
 
 import _root_.util.DomainConfigurationHandler
 import core.mapping.MappingService
-import core.schema.{SchemaRepositoryWrapper, SchemaProvider}
-import core.{HubServices, CultureHubPlugin}
+import core.schema.SchemaRepositoryWrapper
+import core.{HubModule, SchemaService, HubServices, CultureHubPlugin}
 import play.api.{Play, Application}
 import Play.current
 import models.{Group, HubUser}
@@ -25,6 +25,8 @@ class ConfigurationPlugin(app: Application) extends CultureHubPlugin(app) {
 
   override def enabled: Boolean = true
 
+  val schemaService: SchemaService = HubModule.inject[SchemaService](name = None)
+
   override def onStart() {
 
     // ~~~ load configurations
@@ -44,7 +46,7 @@ class ConfigurationPlugin(app: Application) extends CultureHubPlugin(app) {
 
     Akka.system.actorOf(Props[SchemaRepositoryWrapper], name = "schemaRepository")
 
-    SchemaProvider.refresh()
+    schemaService.refresh()
     HubServices.init()
     MappingService.init()
 

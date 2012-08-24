@@ -6,14 +6,11 @@ import java.net.URL
 import io.Source
 import core.indexing.{IndexingService, Indexing}
 import org.apache.solr.client.solrj.SolrQuery
-import core.Constants._
 import core.indexing.IndexField._
 import core.SystemField._
 import org.joda.time.DateTime
 import core.HubServices
 import core.processing.{CollectionProcessor, ProcessingSchema}
-import core.schema.SchemaProvider
-import eu.delving.schema.SchemaType
 
 
 /**
