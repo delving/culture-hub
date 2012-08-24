@@ -1,11 +1,8 @@
 package core.mapping
 
-import core.schema.SchemaProvider
-import models.RecordDefinition
+import core.{HubModule, SchemaService}
 import play.api.Logger
-import play.api.Play.current
 import eu.delving.metadata._
-import scala.collection.JavaConverters._
 import org.w3c.dom.Node
 import eu.delving.groovy.XmlSerializer
 import eu.delving.schema.{SchemaVersion, SchemaType}
@@ -21,6 +18,7 @@ object MappingService {
 
   var recDefModel: RecDefModel = null
   val serializer = new XmlSerializer
+  val schemaService: SchemaService = HubModule.inject[SchemaService](name = None)
 
   def init() {
     try {
@@ -29,8 +27,7 @@ object MappingService {
       recDefModel = new RecDefModel {
 
         def createRecDefTree(schemaVersion: SchemaVersion): RecDefTree = {
-          // FIXME need to pass version when it will be available in the RecDefModel
-          val schema = SchemaProvider.getSchema(schemaVersion.getPrefix, schemaVersion.getVersion, SchemaType.RECORD_DEFINITION)
+          val schema = schemaService.getSchema(schemaVersion.getPrefix, schemaVersion.getVersion, SchemaType.RECORD_DEFINITION)
           if (schema.isEmpty) {
             throw new RuntimeException("Empty schema for prefix %s and version %s".format(schemaVersion.getPrefix, schemaVersion.getVersion))
           } else {
