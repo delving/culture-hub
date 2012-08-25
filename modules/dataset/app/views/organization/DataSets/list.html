@@ -15,16 +15,19 @@
 
 #{organizationNavBar orgId: orgId, active:"datasets", navigation: navigation /}
 
-<div class="dataset-filter">
+<div class="dataset-filter row">
+    <div class="dataset-filter-inner span12">
     <form id="filter-form" class="form-inline pull-left form-search">
         <input type='text' name='filter' id='filter' maxlength="30" size="30" class="search-query" placeholder="&{'org.list.filter'}"/>
         <input onclick="saveFilter()" class="btn" type="button" value="&{'ui.label.save'}"/>
         <input onclick="resetFilter()" class="btn" type="reset" value="&{'ui.label.reset'}"/>
         <a class="icon icon-question-sign extHelp" href="#" rel="tooltip" title="Type in any dataset value(s) to filter the table. Press 'Save' to save the filter."></a>
     </form>
+    </div>
 </div>
 
-<div class="dataset-list">
+<div class="dataset-list row">
+    <div class="dataset-list-inner span12">
     <table id="dataset-table" class="table table-striped sortable" data-bind="triggerUpdate: sets">
         <caption>${messages.get('thing.datasets')}</caption>
         <thead>
@@ -87,7 +90,7 @@
             </tr>
         </tbody>
     </table>
-
+    </div>
 </div>
 
 

@@ -1,6 +1,6 @@
 %{
     def counter = 1 as Integer
-    def span = _spanClass ?: 'span1of4'
+    def span = _spanClass ?: 'span3'
     def colCount = _colCount as Integer ?: 4 as Integer
     def clipHeight = _clipHeight ?: '120px'
 }%
@@ -10,7 +10,7 @@
     <ul class="thumbnails">
     #{/if}
     <li class="${span}">
-        <div class="thumbnail ${doc.getItemType()}">
+        <div class="thumbnail">
             #{results.thingSummaryView data:doc, iSize: 220, clipHeight: _clipHeight /}
             <input type="hidden" name="idUri" value="${doc.getUri()}"/>
             <input type="hidden" name="thumb" value="${doc.getThumbnailUri(100)}"/>

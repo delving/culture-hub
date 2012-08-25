@@ -16,8 +16,8 @@
 
 #{if pagination.getNumFound() > 0}
 
-    <div class="item-count">
-        <div class="inner">
+    <div class="item-count row">
+        <div class="span12">
             <h4>&{'search.trail', pagination.getStart(), pagination.getLastViewableRecord(), pagination.getNumFound() }</h4>
         </div>
     </div>
@@ -26,14 +26,14 @@
         #{results.resultPagination pageLinks: pagination, pQuery: pagination.getPresentationQuery().getQueryForPresentation(), searchIn: params.searchIn ? params.searchIn.apply(0) : "all", lastPage: pagination.getNumFound(), extraClass:"pagination-top" /}
     #{/if}
 
-    <div class="search-results">
-        <div class="results">
+    <div class="row">
+        <div class="span9">
             #{results.resultGrid results: briefDocs,
             colCount: themeInfo.get('resultsColumns'),
             spanClass: themeInfo.get('resultsGridClass'),
             clipHeight: themeInfo.get('resultsImageClipHeight') /}
         </div>
-        <div class="facets">
+        <div class="span3">
             <div class="facets-header">&{'search.refineYourSearch'}</div>
             #{list items: themeFacets, as: 'tf'}
                 #{facet facetMap: facets,

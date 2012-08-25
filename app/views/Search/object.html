@@ -66,14 +66,14 @@ break
 }*
 
 
-<div class="object-top">
-    <div class="return-navigation">
+<div class="object-top row">
+    <div class="return-navigation span4">
         #{if returnToResults.length() > 0}
         <a href="/search?${returnToResults}" rel="nofollow" class="return-to-results"><i class="icon icon-arrow-left"></i> &{'ui.label.returnToResults'}</a>
         #{/if}&#160;
     </div>
 
-    <div class="social-media">
+    <div class="social-media span8">
     #{if themeInfo.addThisTrackingCode().length() > 0}
         <div class="social-media-block pull-right">
             #{addThis lang:lang ?: 'en', pubId:themeInfo.addThisTrackingCode()/}
@@ -82,21 +82,21 @@ break
     </div>
 </div>
 
-<div class="object-extra">
+<div class="object-extra row">
 
-    <div class="object-title">
+    <div class="object-title span8">
         <header class="page-header">
             ${systemFields.apply("delving_title").get(0)}
         </header>
     </div>
-    <div class="object-rights">
+    <div class="object-rights span4">
     #{if rights}
         #{rightsIcon rights: rights/}
     #{/if}
     </div>
 </div>
 
-<div class="object-main">
+<div class="object-main row">
     #{view view: fullView /}
     <div class="related-items"></div>
 </div>

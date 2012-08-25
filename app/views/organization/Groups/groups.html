@@ -13,10 +13,10 @@
 <form action="" id="groupForm" class="form-delving">
 
 <div class="row">
-    <div class="groups-name">
+    <div class="groups-name span4">
         #{form.textField name:"name", form: groupForm, label:messages.get('thing.name'), dataBind:"value: name, enable: canChangeGrantType", required: true /}
     </div>
-    <div class="groups-grants">
+    <div class="groups-grants span4">
         <div class="control-group" data-bind="visible: canChangeGrantType">
             <label class="control-label" for="grantType">&{'thing.grantType'}<span class="label">&{'ui.label.required'}</span></label>
             <div class="controls">
@@ -32,7 +32,7 @@
 </div>
 
 <div class="row">
-    <div class="groups-members">
+    <div class="groups-members span4">
         <div class="control-group">
             <label class="control-label" for="users">&{'thing.users'}</label>
             <div class="controls">
@@ -41,7 +41,7 @@
             </div>
         </div>
     </div>
-    <div class="groups-resources" data-bind="visible: canChangeGrantType() && (rolesWithResources().indexOf(roleKey()) > -1)  && !(rolesWithResourceAdmin.indexOf(roleKey()) > -1)">
+    <div class="groups-resources span4" data-bind="visible: canChangeGrantType() && (rolesWithResources().indexOf(roleKey()) > -1)  && !(rolesWithResourceAdmin.indexOf(roleKey()) > -1)">
         <div class="control-group">
             <label class="control-label" for="resourceTokenInput">&{'thing.resources'}</label>
             <div class="controls">

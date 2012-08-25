@@ -12,9 +12,9 @@
 
 #{organizationNavBar orgId: orgId, active:"administration", navigation: navigation /}
 
-<div class="org-admin">
+<div class="org-admin row">
 
-    <div class="administrators">
+    <div class="administrators span4">
         <h3>&{'org.admin.index.admins'}</h3>
         <div>
         #{addRemoveTokenField
@@ -30,7 +30,7 @@
         </div>
     </div>
 
-    <div class="members">
+    <div class="members span4">
         <h3>&{'org.admin.index.members'}</h3>
         <div>
         #{addRemoveTokenField id:"members", searchUrl: "/users/search", prePopulate: members, addUrl:"/organizations/"+orgId+"/admin/users/add", removeUrl: "/organizations/"+orgId+"/admin/users/remove", removeConfirmation: messages.get('org.admin.index.removeMemberConfirmation') /}

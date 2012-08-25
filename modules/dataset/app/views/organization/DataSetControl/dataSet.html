@@ -65,7 +65,7 @@
 
 <form method="post" action="" id="collectionForm" class="form-delving">
     <div class="row">
-        <div class="dataset-info">
+        <div class="dataset-info span6">
 
             #{form.textField name:"spec", form: dataSetForm, label: messages.get('organization.dataset.label.identifier'), dataBind:"value: spec", help: messages.get('organization.dataset.help.identifier') /}
 
@@ -83,7 +83,7 @@
             %{ }}%
 
         </div>
-        <div class="dataset-schemas">
+        <div class="dataset-schemas span6">
 
                         <div class="control-group">
                             <label class="control-label">Target Schemas</label>
@@ -140,7 +140,7 @@
                             </div>
                         </div>
                     </div>
-                </div>
+     </div>
 
 </form>
 <script type="text/html" id="schemaProcessingConfiguration">

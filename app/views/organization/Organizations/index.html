@@ -9,8 +9,8 @@
 #{/if}
 
 
-<div class="org-overview">
-    <div class="members">
+<div class="org-overview row">
+    <div class="members span4">
         <h3>&{'organization.members'}</h3>
         <ol>
         #{list members, as: 'm'}
@@ -18,7 +18,7 @@
         #{/list}
         </ol>
     </div>
-    <div class="datasets">
+    <div class="datasets span4">
         <h3>&{'thing.datasets'}</h3>
         <ol>
         #{list collections, as: 'c'}

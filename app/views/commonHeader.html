@@ -11,6 +11,7 @@
     <link rel="stylesheet" type="text/css" href="@{routes.Assets.at("common/stylesheets/media/media.css")}"/>
     <link rel="stylesheet" type="text/css" href="@{routes.Assets.at("common/stylesheets/plugins/token-input.css")}"/>
     <link rel="stylesheet" type="text/css" href="@{routes.Assets.at("common/stylesheets/common.css")}"/>
+    *{<link rel="stylesheet" type="text/css" href="@{routes.Assets.at("common/stylesheets/bootstrap-responsive.css")}"/>}*
     #{get 'moreCss' /}
     *{<link rel="stylesheet/less" type="text/css" href='${themeInfo.path("stylesheets/style.less")}'/>}*
     <link rel="stylesheet" type="text/css" href='${themeInfo.path("stylesheets/theme.css")}'/>
@@ -37,6 +38,7 @@
     <script type="text/javascript" src="@{routes.Assets.at("common/javascripts/jquery.tokeninput.js")}"></script>
     <script type="text/javascript" src="@{routes.Assets.at("common/javascripts/jquery.capSlide.js")}"></script>
     <script type="text/javascript" src="@{routes.Assets.at("common/javascripts/bootstrap.js")}"></script>
+    *{<script type="text/javascript" src="@{routes.Assets.at("common/javascripts/bootstrap/bootstrap-dropdown.js")}"></script>}*
     <script type="text/javascript" src="@{routes.Assets.at("common/javascripts/bootbox.min.js")}"></script>
     <script type="text/javascript" src="@{routes.Assets.at("common/javascripts/culturehub.js")}"></script>
 #{get 'moreScripts' /}

@@ -9,8 +9,8 @@
 
 #{/set}
 
-<div class="messages-container">
-    <div class="messages">
+<div class="row">
+    <div class="messages span12">
         #{if flash.registrationSuccess}
         <p class="alert alert-success">
             ${messages.get("ui.message.registration.success", flash.registrationSuccess)}
@@ -48,19 +48,25 @@
         #{/}
     </div>
 </div>
-
-#{if homepageCmsContent && homepageCmsContent.published == true}
+*{<div class="row">}*
+    *{<div class="span12">}*
+    #{if homepageCmsContent && homepageCmsContent.published == true}
     ${homepageCmsContent.content.raw()}
-#{/if}
+    #{/if}
+    *{</div>}*
+*{</div>}*
 
-#{if themeInfo.get('homepageRecentMdrs') == "true" && recentMdrs.size() > 0 }
+<div class="row">
+    <div class="span12">
+    #{if themeInfo.get('homepageRecentMdrs') == "true" && recentMdrs.size() > 0 }
     #{results.resultGrid
         results: recentMdrs,
         colCount: themeInfo.get('homepageRecentMdrsColumns'),
         spanClass: themeInfo.get('homepageRecentMdrsGridClass'),
         clipHeight: themeInfo.get('homepageRecentMdrsImageClipHeight')/}
-#{/if}
-
+    #{/if}
+    </div>
+</div>
 
 
 
