@@ -30,7 +30,6 @@
 	STATE-label and badges
 -----------------------------------*/
 body {
-  margin-top: 10px;
   padding-top: 60px;
 }
 a {
@@ -41,23 +40,33 @@ a:hover {
   color: #007bcc;
   text-decoration: underline;
 }
-.site-logo {
-  float: left;
-  margin-left: 20px;
-  width: 60px;
+.search-bar {
+  background: #a5cbe4;
+  margin-bottom: 21px;
+  height: 42px;
 }
-.site-name {
-  float: left;
-  margin-left: 20px;
-  width: 860px;
+@media (max-width: 767px) {
+  body {
+    padding: 0;
+  }
+  .navbar-fixed-top {
+    margin-bottom: 0px;
+  }
+}
+@media (min-width: 768px) and (max-width: 979px) {
+  body {
+    padding: 0;
+  }
+  .container {
+    width: 96%;
+  }
+  .page-top .container {
+    width: 100%;
+  }
+  .navbar-fixed-top {
+    margin-bottom: 0px;
+  }
 }
 .navbar .brand img {
   margin-right: 8px;
-}
-.page-top .navbar-inner {
-  background: #007bcc;
-  background-image: none;
-  border-bottom: 8px solid #0061a1;
-  box-shadow: none;
-  padding-right: 0;
 }

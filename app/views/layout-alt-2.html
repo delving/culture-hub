@@ -43,7 +43,7 @@
                     #{searchIn searchIn: params.searchIn, fields: searchIn /}
                     <input class="search-query" placeholder="&{'ui.label.search'} ..." type="text" id="query" name="query" value='${params.get("query")? params.get("query").apply(0) : ""}'/>
                     <button type="submit" class="btn btn-primary submit" title="&{'ui.label.search'}"><i class="icon icon-search icon-white"></i></button>
-                    &#160;<a href="/search/advanced" rel="nofollow">&{'plugin.advancedsearch'}</a>
+                    &#160;<a href="/search/advanced" rel="nofollow" class="hidden-phone">&{'plugin.advancedsearch'}</a>
                 </form>
             </div>
         </div>

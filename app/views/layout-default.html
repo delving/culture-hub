@@ -9,7 +9,7 @@
                 <div class="container">
                     <a class="brand" href="/"><img src="/assets/common/images/delving-small.png"/>${themeInfo.siteName()}</a>
                     #{userNav userName: userName, email:email, organizations:organizations, showLang:themeInfo.get('userNavLangSelect'), showLogin:themeInfo.showLogin(), showRegistration:themeInfo.showRegistration(), /}
-                    <div class="nav-collapse">
+                    <div class="nav-collapse visible-desktop">
                         <form method="get" action="/search" class="navbar-search pull-right form-horizontal" id="simple-search" onsubmit="return checkSimpleSearchSubmit('query');">
                         #{searchIn searchIn: params.searchIn, fields: searchIn /}
                             <input class="" placeholder="&{'ui.label.search'} ..." type="text" id="query" name="query" value='${params.get("query")? params.get("query").apply(0) : ""}'/>
@@ -19,6 +19,20 @@
                 </div>
             </div>
         </div>
+    </div>
+</div>
+
+<div class="search-bar hidden-desktop">
+    <div class="container">
+    <div class="row">
+        <div class="span12">
+            <form method="get" action="/search" class="navbar-search form-horizontal" id="simple-search" onsubmit="return checkSimpleSearchSubmit('query');">
+            #{searchIn searchIn: params.searchIn, fields: searchIn /}
+                <input class="" placeholder="&{'ui.label.search'} ..." type="text" id="query" name="query" value='${params.get("query")? params.get("query").apply(0) : ""}'/>
+                <button type="submit" class="btn btn-primary submit" title="&{'ui.label.search'}"><i class="icon icon-search icon-white"></i></button>
+            </form>
+        </div>
+    </div>
     </div>
 </div>
 

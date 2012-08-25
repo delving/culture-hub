@@ -77,6 +77,8 @@
 }
 
 @media (max-width: 767px) {
+
+
   .hidden-desktop {
     display: inherit !important;
   }
@@ -775,10 +777,6 @@
 }
 
 @media (max-width: 767px) {
-  body {
-    padding-right: 20px;
-    padding-left: 20px;
-  }
   .navbar-fixed-top,
   .navbar-fixed-bottom {
     margin-right: -20px;
@@ -797,7 +795,7 @@
     margin-left: 0;
   }
   .container {
-    width: auto;
+    width: 96%;
   }
   .row-fluid {
     width: 100%;
@@ -1003,6 +1001,7 @@
   .nav-collapse .dropdown-menu .divider {
     display: none;
   }
+
   .nav-collapse .navbar-form,
   .nav-collapse .navbar-search {
     float: none;
