@@ -1,7 +1,3 @@
-/* DELVING */
-/*---------------------------------
-	STATE-label and badges
------------------------------------*/
 /*!
  * Bootstrap v2.1.0
  *
@@ -4803,6 +4799,12 @@ a.badge:hover {
   border-color: #bbbbb0;
   color: #666666;
 }
+.thumbnail {
+  background: #eaeaea;
+  -webkit-box-shadow: none;
+  -moz-box-shadow: none;
+  box-shadow: none;
+}
 /* facets **************************/
 .facet-toggle {
   border-bottom: 1px solid #eaeaea;
@@ -4888,22 +4890,6 @@ hr.editorRule {
   height: 1px;
   margin: 0;
   border: 0;
-}
-.no-results {
-  margin-right: auto;
-  margin-left: auto;
-  *zoom: 1;
-  text-align: center;
-  width: 50%;
-}
-.no-results:before,
-.no-results:after {
-  display: table;
-  content: "";
-  line-height: 0;
-}
-.no-results:after {
-  clear: both;
 }
 /*---------------------------------
     MEDIA BLOCKS

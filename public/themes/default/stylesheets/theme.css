@@ -25,10 +25,6 @@
   -moz-box-sizing: border-box;
   box-sizing: border-box;
 }
-/* DELVING */
-/*---------------------------------
-	STATE-label and badges
------------------------------------*/
 body {
   padding-top: 60px;
 }
@@ -44,6 +40,13 @@ a:hover {
   background: #a5cbe4;
   margin-bottom: 21px;
   height: 42px;
+}
+.nav-pills > li > a {
+  color: #ffffff;
+  background-color: #a5cbe4;
+}
+.nav-pills > li > a:hover {
+  background-color: #007bcc;
 }
 @media (max-width: 767px) {
   body {

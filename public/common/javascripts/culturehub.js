@@ -7,15 +7,16 @@ function initializeElements() {
       document.location = document.referrer;
     });
     $('.extHelp').tooltip();
-    $('input.search-query').tooltip({
-        placement: 'bottom'
-    });
     $.preloadImages (
         "/assets/common/images/spinner.gif"
     );
     String.prototype.trim = function () {
         return this.replace(/^\s*/, "").replace(/\s*$/, "");
+    };
+    if ($.browser.msie && $.browser.version < 9) {
+        document.location.href="/browsers.html";
     }
+    externalLinks();
 }
 
 /**
@@ -881,13 +882,5 @@ var externalLinks = function(){
         if(check(a[i])) set(a[i]);
     };
 };
-
-jQuery(document).ready(function() {
-    if ($.browser.msie && $.browser.version < 9) {
-        document.location.href="/browsers.html";
-    }
-    externalLinks();
-
-});
 
 
