@@ -21,7 +21,7 @@ import scala.util.matching.Regex
 import play.api.mvc.Handler
 import core._
 import access.{ResourceType, Resource, ResourceLookup}
-import collection.HarvestCollectionLookup
+import collection.{OrganizationCollectionLookup, HarvestCollectionLookup}
 import com.mongodb.casbah.commons.MongoDBObject
 import java.util.regex.Pattern
 
@@ -128,6 +128,9 @@ class DataSetPlugin(app: Application) extends CultureHubPlugin(app) {
   )
 
   override def harvestCollectionLookups: Seq[HarvestCollectionLookup] = Seq(dataSetHarvestCollectionLookup)
+
+
+  override def organizationCollectionLookups: Seq[OrganizationCollectionLookup] = Seq(dataSetHarvestCollectionLookup)
 
   /**
    * Override this to provide custom roles to the platform, that can be used in Groups
