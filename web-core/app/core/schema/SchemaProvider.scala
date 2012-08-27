@@ -142,7 +142,7 @@ class RemoteFetcher extends Fetcher {
     )
   }
 
-  def fetchSchema(version: SchemaVersion, schemaType: SchemaType): String = WS.url(version.getPath(schemaType)).get().await(5, TimeUnit.SECONDS).fold(
+  def fetchSchema(version: SchemaVersion, schemaType: SchemaType): String = WS.url(SCHEMA_REPO + version.getPath(schemaType)).get().await(5, TimeUnit.SECONDS).fold(
       { t: Throwable => log.error("Could not retrieve schema", t); "" },
       { r: Response => r.body }
     )
