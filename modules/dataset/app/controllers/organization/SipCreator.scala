@@ -78,9 +78,7 @@ object SipCreator extends OrganizationController {
             <jar href="asm-1.5.3.jar"/>
           </resources>
           <application-desc main-class="eu.delving.sip.Application">
-            <argument>
-              {user}
-            </argument> <!--Never add spaces between the user and the tags. This creates unwanted behaviour in creating the Sip-Creator workspaces-->
+            <argument>{user}</argument> <!--Never add spaces between the user and the tags. This creates unwanted behaviour in creating the Sip-Creator workspaces-->
           </application-desc>
         </jnlp>
 
