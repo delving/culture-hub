@@ -84,17 +84,6 @@ object Build extends sbt.Build {
     publish := { }
   ).dependsOn(webCore % "test->test;compile->compile")
 
-  // TODO move to its own source repo once we have something stable
-  val musip = PlayProject("musip", "1.0-SNAPSHOT", Seq.empty, path = file("modules/musip")).settings(
-    resolvers ++= commonResolvers,
-    publish := { }
-  ).dependsOn(webCore % "test->test;compile->compile")
-
-  val itin = PlayProject("itin", "1.0", Seq.empty, path = file("modules/itin")).settings(
-    resolvers ++= commonResolvers,
-    publish := { }
-  ).dependsOn(webCore % "test->test;compile->compile")
-
   val dataSet = PlayProject("dataset", "1.0-SNAPSHOT", Seq.empty, path = file("modules/dataset"), settings = Defaults.defaultSettings ++ buildInfoSettings).settings(
     resolvers ++= commonResolvers,
     sipCreator := sipCreatorVersion,
@@ -104,21 +93,10 @@ object Build extends sbt.Build {
     publish := { }
   ).dependsOn(webCore % "test->test;compile->compile")
 
-
-  val advancedSearch = PlayProject("advanced-search", "1.0-SNAPSHOT", Seq.empty, path = file("modules/advanced-search")).settings(
-    resolvers ++= commonResolvers,
-    publish := { }
-  ).dependsOn(webCore % "test->test;compile->compile")
-
   val statistics = PlayProject("statistics", "1.0-SNAPSHOT", Seq.empty, path = file("modules/statistics")).settings(
     resolvers ++= commonResolvers,
     publish := { }
-  ).dependsOn(webCore, dataSet) // FIXME
-
-  val customHarvestCollection = PlayProject("custom-harvest-collection", "1.0", Seq.empty, path = file("modules/custom-harvest-collection")).settings(
-    resolvers ++= commonResolvers,
-    publish := { }
-  ).dependsOn(webCore % "test->test;compile->compile")
+  ).dependsOn(webCore, dataSet)
 
   val main = PlayProject(appName, cultureHubVersion, appDependencies, mainLang = SCALA, settings = Defaults.defaultSettings ++ buildInfoSettings ++ groovyTemplatesSettings).settings(
 
@@ -135,13 +113,6 @@ object Build extends sbt.Build {
     buildInfoKeys := Seq[Scoped](name, version, scalaVersion, sbtVersion, sipCreator),
     buildInfoPackage := "eu.delving.culturehub",
 
-    watchSources <++= baseDirectory.map { path => ((path / "web-core"                               / "app") ** "*").get },
-    watchSources <++= baseDirectory.map { path => ((path / "modules"  / "custom-harvest-collection" / "app") ** "*").get },
-    watchSources <++= baseDirectory.map { path => ((path / "modules"  / "advanced-search"           / "app") ** "*").get },
-    watchSources <++= baseDirectory.map { path => ((path / "modules"  / "statistics"                / "app") ** "*").get },
-    watchSources <++= baseDirectory.map { path => ((path / "modules"  / "dos"                       / "app") ** "*").get },
-    watchSources <++= baseDirectory.map { path => ((path / "modules"  / "musip"                     / "app") ** "*").get },
-
     publishTo := Some(delvingRepository(cultureHubVersion)),
     credentials += Credentials(Path.userHome / ".ivy2" / ".credentials"),
 
@@ -157,20 +128,12 @@ object Build extends sbt.Build {
     webCore                 % "test->test;compile->compile",
     dataSet                 % "test->test;compile->compile",
     dos                     % "test->test;compile->compile",
-    statistics              % "test->test;compile->compile",
-    musip                   % "test->test;compile->compile",
-    customHarvestCollection % "test->test;compile->compile",
-    itin                    % "test->test;compile->compile",
-    advancedSearch          % "test->test;compile->compile"
+    statistics              % "test->test;compile->compile"
   ).aggregate(
     webCore,
     dataSet,
     dos,
-    statistics,
-    musip,
-    customHarvestCollection,
-    itin,
-    advancedSearch
+    statistics
   )
 
 
