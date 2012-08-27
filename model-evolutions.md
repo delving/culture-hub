@@ -217,15 +217,18 @@ May not be a problem but we need to check if there are any items live.
 17.08.2012 - MetadataItem also has the version of the schema mappings in use
 
 // MDRs
+var orgId = "delving";
+var cache = orgId + "_MetadataCache";
 db.Datasets.find().forEach(function(ds) {
+  print(ds.spec)
   var versions = {};
   for(var key in ds.mappings) {
     if(ds.mappings.hasOwnProperty(key)) {
       versions[key] = ds.mappings[key].schemaVersion;
     }
   }
-  db.getCollection(cache).update({collection: ds.spec, itemType: "mdr"}, {$set: {"schemaVersions": versions}}, true);
-}
+  db.getCollection(cache).update({collection: ds.spec, itemType: "mdr"}, {$set: {"schemaVersions": versions}}, false, true);
+})
 
 // others, set orgId below
 var orgId = "delving";
