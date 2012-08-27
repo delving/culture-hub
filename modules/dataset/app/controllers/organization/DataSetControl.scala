@@ -188,7 +188,7 @@ trait DataSetControl extends OrganizationController { this: BoundController =>
               DataSetCreationViewModel(
                 id = Some(dS._id),
                 spec = dS.spec,
-                facts = HardcodedFacts.fromMap(dS.getStoredFacts ++ initialFacts),
+                facts = HardcodedFacts.fromMap(dS.getStoredFacts),
                 selectedSchemas = dS.recordDefinitions,
                 allAvailableSchemas = allSchemaPrefixes,
                 schemaProcessingConfigurations = allSchemaPrefixes.map { prefix =>
