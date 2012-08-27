@@ -219,7 +219,7 @@ May not be a problem but we need to check if there are any items live.
 // MDRs
 var orgId = "delving";
 var cache = orgId + "_MetadataCache";
-db.Datasets.find().forEach(function(ds) {
+db.Datasets.find({spec: "joods-historisch"}).forEach(function(ds) {
   print(ds.spec)
   var versions = {};
   for(var key in ds.mappings) {
@@ -237,7 +237,11 @@ db.getCollection(cache).find({schemaVersions: {$exists: false}}).forEach(functio
   var versions = {};
   for(var key in item.xml) {
     if(item.xml.hasOwnProperty(key)) {
-      versions[key] = "1.0.0";
+      if(key == 'ese') {
+        versions[key] = "3.4.0";
+      } else {
+        versions[key] = "1.0.0";
+      }
     }
   }
   item.schemaVersions = versions;

@@ -387,7 +387,7 @@ object SipCreatorEndPoint extends ApplicationController {
 
     def buildNamespaces(attrs: Map[String, String]): String = {
       val attrBuilder = new StringBuilder
-      attrs.filterNot(_._1.isEmpty).foreach(ns => attrBuilder.append("""xmlns:%s="%s"""".format(ns._1, ns._2)).append(" "))
+      attrs.filterNot(_._1.isEmpty).toSeq.sortBy(_._1).foreach(ns => attrBuilder.append("""xmlns:%s="%s"""".format(ns._1, ns._2)).append(" "))
       attrBuilder.mkString.trim
     }
 
@@ -419,6 +419,7 @@ object SipCreatorEndPoint extends ApplicationController {
 
 
     val tagContentMatcher = """>([^<]+)<""".r
+    val inputTagMatcher = """<input (.*) id="(.*)">""".r
 
     if (recordCount > 0) {
       writeEntry("source.xml", zipOut) {
@@ -439,21 +440,23 @@ object SipCreatorEndPoint extends ApplicationController {
                 record =>
 
                   // the output coming from BaseX differs from the original source as follows:
-                  // - the <input> tags contain the XSI namespace declaration
+                  // - the <input> tags contain the namespace declarations
                   // - the formatted XML escapes all entities including UTF-8 characters
                   // the following lines fix this
-                  val noXsi = record.replaceAll(""" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"""", "")
+                  val noNamespaces = inputTagMatcher.replaceSomeIn(record, { m =>
+                    Some("""<input id="%s">""".format(m.group(2)))
+                  })
 
                   def cleanup: Match => String = { s =>
                     ">" + escapeXml(StringEscapeUtils.unescapeXml(s.group(1))) + "<"
                   }
 
-                  val escapeForRegex = Matcher.quoteReplacement(noXsi)
+                  val escapeForRegex = Matcher.quoteReplacement(noNamespaces)
                   try {
                     val cleaned = tagContentMatcher.replaceAllIn(escapeForRegex, cleanup)
                     pw.println(cleaned)
                   } catch {
-                    case t =>
+                    case t: Throwable =>
                       log.error("Error while trying to sanitize following record:\n\n" + escapeForRegex)
                       throw t
                   }
