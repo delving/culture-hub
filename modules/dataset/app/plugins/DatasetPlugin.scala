@@ -187,7 +187,7 @@ class DataSetPlugin(app: Application) extends CultureHubPlugin(app) {
       }
     }.foldLeft(Map.empty[String, Seq[String]]) { (acc, pair) =>
       acc + (pair._1 -> Seq(pair._2))
-    }
+    } - "raw" // boldly ignore the raw schema, which is fake.
 
     val allSchemas = schemaService.getAllSchemas
 

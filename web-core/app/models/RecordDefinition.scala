@@ -76,20 +76,23 @@ object RecordDefinition {
   def getRecordDefinition(schema: Schema)(implicit configuration: DomainConfiguration): Option[RecordDefinition] = getRecordDefinition(schema.prefix, schema.version)
 
   def getRecordDefinition(prefix: String, version: String)(implicit configuration: DomainConfiguration): Option[RecordDefinition] = {
-    if (Play.isProd) {
-      parsedRecordDefinitionsCache.get(prefix + version).map { cached =>
-        Some(cached)
-      }.getOrElse {
-        val definition = fetchRecordDefinition(prefix, version)
-        if (definition.isDefined) {
-          parsedRecordDefinitionsCache.put(prefix + version, definition.get)
-        }
-        definition
-      }
+    if(prefix == "raw") {
+      Some(rawRecordDefinition)
     } else {
-      fetchRecordDefinition(prefix, version)
+      if (Play.isProd) {
+        parsedRecordDefinitionsCache.get(prefix + version).map { cached =>
+          Some(cached)
+        }.getOrElse {
+          val definition = fetchRecordDefinition(prefix, version)
+          if (definition.isDefined) {
+            parsedRecordDefinitionsCache.put(prefix + version, definition.get)
+          }
+          definition
+        }
+      } else {
+        fetchRecordDefinition(prefix, version)
+      }
     }
-
   }
   // TODO version crosswalk lookups
   def getCrosswalkResources(sourcePrefix: String)(implicit configuration: DomainConfiguration): Seq[URL] = {
