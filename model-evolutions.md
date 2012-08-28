@@ -219,7 +219,7 @@ May not be a problem but we need to check if there are any items live.
 // MDRs
 var orgId = "delving";
 var cache = orgId + "_MetadataCache";
-db.Datasets.find({spec: "joods-historisch"}).forEach(function(ds) {
+db.Datasets.find().forEach(function(ds) {
   print(ds.spec)
   var versions = {};
   for(var key in ds.mappings) {
