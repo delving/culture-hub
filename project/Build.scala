@@ -13,7 +13,7 @@ object Build extends sbt.Build {
   val cultureHubVersion = "12.08-SNAPSHOT"
   val sipCreatorVersion = "1.0.10-SNAPSHOT"
   val schemaRepoVersion = "1.0.10-SNAPSHOT"
-  val playExtensionsVersion = "1.3.1"
+  val playExtensionsVersion = "1.3.2"
 
   val dosVersion = "1.5"
 
