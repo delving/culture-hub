@@ -1,5 +1,4 @@
-
-$(document).ready(function() {
+$(document).ready(function () {
 
     if ($('a[data-type=zoom]').size() > 0) {
         // Deepzoom image & viewer
@@ -16,25 +15,24 @@ $(document).ready(function() {
             "tileFormat":"jpg"});
     }
 
-    var mltEndpoint = '/organizations/'+Thing.orgId+'/api/search?id='+Thing.hubId+'&format=json&mlt=true';
+    var mltEndpoint = '/organizations/' + Thing.orgId + '/api/search?id=' + Thing.hubId + '&format=json&mlt=true';
 
-    $.get(mltEndpoint, function(data) {
-        var rItems = data.result.relatedItems.item, html ='', tmp, org, owner, id, uri;
-        if(rItems){
-            html = '<h5>'+jsLabels.relatedItems+'</h5><ul class="thumbnails">';
-            $.each(rItems, function(i, item){
-                tmp = item['delving_hubId'].split('_');
+    $.get(mltEndpoint, function (data) {
+        var rItems = data.result.relatedItems.item, html = '', tmp, org, owner, id, uri;
+        if (rItems) {
+            html = '<h5>' + jsLabels.relatedItems + '</h5><ul class="thumbnails">';
+            $.each(rItems, function (i, item) {
+                tmp = item.fields['delving_hubId'].split('_');
                 org = tmp[0];
                 owner = tmp[1];
                 id = tmp[2];
-                uri = "/"+org+"/thing/"+owner+"/"+id+"?mlt=true";
-                html += '<li class="thumbnail">'
-                html += '<a href="' + uri + '" rel="nofollow"><img class="mlt" src="' + item['delving_thumbnail'] + '" alt="' + item['delving_title'] +'" width="108" onerror="showDefaultImg(this)"/></a></li>';
+                uri = "/" + org + "/thing/" + owner + "/" + id + "?mlt=true";
+                html += '<li class="thumbnail">';
+                html += '<a href="' + uri + '" rel="nofollow"><img class="mlt" src="' + item.fields['delving_thumbnail'] + '" alt="' + item.fields['delving_title'] + '" width="108" onerror="showDefaultImg(this)"/></a></li>';
             });
             html += "</ul>";
             $('.related-items').html(html);
         }
     });
-
 
 });
