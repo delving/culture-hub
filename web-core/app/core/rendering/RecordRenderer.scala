@@ -134,9 +134,8 @@ object RecordRenderer {
             try {
               val cleanRawRecord = if(renderRelatedItems) {
                 // mix the related items to the record coming from mongo
-                // TODO only pass in delving:* fields
                 val record = scala.xml.XML.loadString(rawRecord)
-                val relatedItemsXml = <relatedItems>{relatedItems.map(_.toXml(filteredFields = Seq("delving_title", "delving_thumbnail", "delving_hubId"), include = true))}</relatedItems>
+                val relatedItemsXml = <relatedItems>{relatedItems.map(_.toXml())}</relatedItems>
                 var mergedRecord: Elem = addChild(record, relatedItemsXml).get // we know what we're doing here
 
                 // prepend the delving namespace if it ain't there
