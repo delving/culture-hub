@@ -657,6 +657,8 @@ locale.nb=Norwegian b�kmal (nb)
 
 ###### Plugin messages (TODO: move to plugin once that is available)
 
+accessControl.resourceType.dataSet=DataSets
+
 plugin.cms.adminRight=Site content administration rights
 
 
@@ -685,8 +687,10 @@ plugin.advancedsearch.allProviders=All data providers
 plugin.advancedsearch.selectProviders=Select data provider(s)
 plugin.advancedsearch.select=Select
 
+plugin.simpledocumentupload.documentUpload=Document upload
+plugin.simpledocumentupload.list=List uploaded documents
+plugin.simpledocumentupload.add=Upload new document
 
-accessControl.resourceType.dataSet=DataSets
 
 
 
