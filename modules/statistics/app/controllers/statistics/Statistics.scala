@@ -190,7 +190,7 @@ class SolrFacetBasedStatistics(facets: Map[String, String], orgId: String)(impli
       count => {
         CombinedStatisticEntry(
           name = count.getName,
-          total = totalRecords,
+          total = count.getCount.toInt,
           digitalObject = StatisticsCounter(name = count.getName, total = totalRecords, withNr = getCountForFacet(count.getName, digitalObjectFacet)),
           landingPage = StatisticsCounter(name = count.getName, total = totalRecords, withNr = getCountForFacet(count.getName, landingPageFacet))
         )
