@@ -688,8 +688,9 @@ plugin.advancedsearch.selectProviders=Select data provider(s)
 plugin.advancedsearch.select=Select
 
 plugin.simpledocumentupload.documentUpload=Document upload
-plugin.simpledocumentupload.list=List uploaded documents
-plugin.simpledocumentupload.add=Upload new document
+plugin.simpledocumentupload.list=List of uploaded documents
+plugin.simpledocumentupload.add=Upload document
+plugin.simpledocumentupload.deleteConfirmation=Are you sure you want to delete this item?
 
 
 

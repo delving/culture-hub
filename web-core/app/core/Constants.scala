@@ -43,3 +43,5 @@ object Constants {
   val IN_ORGANIZATION = "inOrg"
 
 }
+
+case class ItemType(itemType: String)
