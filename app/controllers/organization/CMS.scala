@@ -76,7 +76,6 @@ object CMS extends OrganizationController {
   def uploadSubmit(orgId: String, uid: String) = CMSAction(orgId) {
     Action {
       implicit request =>
-      // use the organization object ID to link the files. we later maybe more lax in the DoS and allow the orgId to be used
         controllers.dos.FileUpload.markFilesAttached(uid, orgId)
         Redirect("/organizations/%s/site/upload".format(orgId))
     }
