@@ -68,7 +68,7 @@ abstract class MetadataAccessors {
       }
     // TODO add plugin mechanism
     case "museum" | "collection" =>
-      "/" + getOrgId + "/thing/" + getSpec + "/" + getRecordId
+      "/" + getOrgId + "/" + getSpec + "/" + getRecordId
     case _ => ""
   }
 
