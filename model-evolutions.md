@@ -217,34 +217,34 @@ May not be a problem but we need to check if there are any items live.
 17.08.2012 - MetadataItem also has the version of the schema mappings in use
 
 // MDRs
-var orgId = "delving";
-var cache = orgId + "_MetadataCache";
-db.Datasets.find().forEach(function(ds) {
-  print(ds.spec)
-  var versions = {};
-  for(var key in ds.mappings) {
-    if(ds.mappings.hasOwnProperty(key)) {
-      versions[key] = ds.mappings[key].schemaVersion;
-    }
-  }
-  db.getCollection(cache).update({collection: ds.spec, itemType: "mdr"}, {$set: {"schemaVersions": versions}}, false, true);
-})
+    var orgId = "delving";
+    var cache = orgId + "_MetadataCache";
+    db.Datasets.find().forEach(function(ds) {
+      print(ds.spec)
+      var versions = {};
+      for(var key in ds.mappings) {
+        if(ds.mappings.hasOwnProperty(key)) {
+          versions[key] = ds.mappings[key].schemaVersion;
+        }
+      }
+      db.getCollection(cache).update({collection: ds.spec, itemType: "mdr"}, {$set: {"schemaVersions": versions}}, false, true);
+    })
 
 // others, set orgId below
-var orgId = "delving";
-var cache = orgId + "_MetadataCache";
-db.getCollection(cache).find({schemaVersions: {$exists: false}}).forEach(function(item) {
-  var versions = {};
-  for(var key in item.xml) {
-    if(item.xml.hasOwnProperty(key)) {
-      if(key == 'ese') {
-        versions[key] = "3.4.0";
-      } else {
-        versions[key] = "1.0.0";
+    var orgId = "delving";
+    var cache = orgId + "_MetadataCache";
+    db.getCollection(cache).find({schemaVersions: {$exists: false}}).forEach(function(item) {
+      var versions = {};
+      for(var key in item.xml) {
+        if(item.xml.hasOwnProperty(key)) {
+          if(key == 'ese') {
+            versions[key] = "3.4.0";
+          } else {
+            versions[key] = "1.0.0";
+          }
+        }
       }
-    }
-  }
-  item.schemaVersions = versions;
-  db.getCollection(cache).save(item);
-})
-
+      item.schemaVersions = versions;
+      db.getCollection(cache).save(item);
+    })
+    
