@@ -40,7 +40,7 @@ object SipCreator extends OrganizationController {
             <all-permissions/>
           </security>
           <resources>
-            <j2se version="1.6+" initial-heap-size="256m" max-heap-size="512m"/>
+            <j2se version="1.6+" initial-heap-size="256m" max-heap-size="512m" java-vm-args="-Dfile.encoding=UTF-8"/>
             <property name="jnlp.versionEnabled" value="false"/>
             <jar href={"sip-app-" + BuildInfo.sipCreator + ".jar"} main="true"/>
             <jar href={"sip-core-" + BuildInfo.sipCreator + ".jar"}/>
