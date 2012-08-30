@@ -1,4 +1,4 @@
-<select name="searchIn" class="input-small hidden-phone">
+<select name="searchIn" class="input-small">
     <option #{if _searchIn && _searchIn.contains("all")}selected="selected"#{/} value="all">&{'ui.label.all'}</option>
     #{list _fields, as: 'field'}
       <option #{if _searchIn && _searchIn.contains(field.key)}selected="selected"#{/} value="${field.key}">&{field.value}</option>
