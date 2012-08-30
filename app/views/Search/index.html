@@ -22,6 +22,10 @@
         </div>
     </div>
 
+*{#{if pagination.getNumFound() > themeInfo.pageSize()}}*
+      *{#{results.resultsPager pagination: pagination, pQuery: pagination.getPresentationQuery().getQueryForPresentation(), searchIn: params.searchIn ? params.searchIn.apply(0) : "all", lastPage: pagination.getNumFound() /}}*
+*{#{/if}}*
+
     #{if pagination.getNumFound() > themeInfo.pageSize()}
         #{results.resultPagination pageLinks: pagination, pQuery: pagination.getPresentationQuery().getQueryForPresentation(), searchIn: params.searchIn ? params.searchIn.apply(0) : "all", lastPage: pagination.getNumFound(), extraClass:"pagination-top" /}
     #{/if}
