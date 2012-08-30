@@ -102,6 +102,9 @@ ui.label.all=Alles
 ui.label.withoutDigitalObject=Heeft geen afbeelding
 ui.label.withDigitalObject=Heeft afbeelding
 
+ui.widget.upload.chooseFile=Bestand kiezen
+ui.widget.upload.start=Upload starten
+ui.widget.upload.cancel=Upload annuleren
 
 # General 'thing' like object, collection or story
 thing.label=Label
@@ -439,9 +442,6 @@ org.cms.list.deletePageConfirm=Weet u zeker dat u deze pagina en alle versies va
 org.cms.upload=Bestand uploaden
 org.cms.upload.image=Afbeelding uploaden
 org.cms.upload.image.explain=U kunt hier plaatjes van uw eigen computer uploaden om aan een CMS pagina toe te voegen. Deze plaatjes worden toegevoegd aan een lijst die terug te vinden is wanneer u nieuwe pagina aanmaakt of een bestaande pagina aanpast.
-org.cms.upload.chooseFile=Bestand kiezen
-org.cms.upload.start=Upload starten
-org.cms.upload.cancel=Upload annuleren
 
 org.cms.upload.help.toggle=Hulp met bestanden uploaden
 org.cms.upload.help.chooseImage=<ul><li>Kies eerst een bestand van uw eigen computer door op <span class="btn btn-success btn-mini"><i class="icon-plus icon-white"></i>Bestand kiezen</span> te klikken</li><li>Meerdere plaatjes mogen tegelijkertijd geselecteerd worden</li></ul>

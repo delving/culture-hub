@@ -41,9 +41,9 @@
         </div>
         <div id="collapseOne" class="accordion-body collapse">
             <div class="accordion-inner">
-            <h6>&{'org.cms.upload.chooseFile'}</h6>
+            <h6>&{'ui.widget.upload.chooseFile'}</h6>
             &{'org.cms.upload.help.chooseImage'}
-            <h6>&{'org.cms.upload.start'}</h6>
+            <h6>&{'ui.widget.upload.start'}</h6>
             &{'org.cms.upload.help.startUpload'}
             <h6>&{'org.cms.upload.help.ready'}</h6>
             &{'org.cms.upload.help.ready.info', orgId, lang}
@@ -59,16 +59,16 @@
                    <!-- The fileinput-button span is used to style the file input field as button -->
                    <span class="btn btn-success fileinput-button">
                        <i class="icon-plus icon-white"></i>
-                       <span>&{'org.cms.upload.chooseFile'}</span>
+                       <span>&{'ui.widget.upload.chooseFile'}</span>
                        <input type="file" name="files[]" multiple >
                    </span>
                    <button type="submit" class="btn btn-primary start">
                        <i class="icon-upload icon-white"></i>
-                       <span>&{'org.cms.upload.start'}</span>
+                       <span>&{'ui.widget.upload.start'}</span>
                    </button>
                    <button type="reset" class="btn btn-warning cancel">
                        <i class="icon-ban-circle icon-white"></i>
-                       <span>&{'org.cms.upload.cancel'}</span>
+                       <span>&{'ui.widget.upload.cancel'}</span>
                    </button>
                    <button type="button" class="btn btn-danger delete">
                        <i class="icon-trash icon-white"></i>
@@ -110,8 +110,7 @@
             uploadTemplate: _renderUploadTemplate,
             downloadTemplate: _renderDownloadTemplate,
             acceptFileTypes: /(\.|\/)(gif|jpe?g|png)$/i
-        })
-        .bind('fileuploaddone', function (e, data) {
+        }).bind('fileuploaddone', function (e, data) {
             $.post('/organizations/${orgId}/site/upload/${uid}');
         });
 
@@ -125,5 +124,4 @@
         $("table.files td.delete button").addClass("btn btn-danger");
 
     });
-
 </script>
