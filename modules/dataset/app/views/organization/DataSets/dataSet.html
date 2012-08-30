@@ -4,11 +4,11 @@
 #{set title: messages.get('thing.dataset') + ' ' + spec + ' - ' + messages.get('thing.organization') + ': ' + orgId /}
 
 #{set 'moreScripts'}
-<script type="text/javascript" src="@{routes.Assets.at("common/javascripts/bootstrap/bootstrap-collapse.js")}"></script>
 <script type="text/javascript" src="@{routes.Assets.at("common/javascripts/organizations/datasets.js")}"></script>
 #{/set}
 
 #{set bodyId: 'organization' /}
+
 #{breadcrumbs crumbs: breadcrumbs /}
 
 #{organizationNavBar orgId: orgId, active: "datasets", navigation: navigation /}
@@ -187,16 +187,16 @@
                             <tbody>
                             <tr>
                                 <th>CultureHub portal search</th>
-                                <td><a data-bind="text: baseUri() + 'search?query=delving_spec%3A' + spec(), attr: {href: baseUri() + 'search?query=delving_spec%3A' + spec() }" rel="nofollow"></a></td>
+                                <td><a data-bind="text: baseUri() + 'search?query=delving_spec%3A' + spec(), attr: {href: baseUri() + 'search?query=delving_spec%3A' + spec() }" rel="nofollow" target="_blank"></a></td>
                             </tr>
                             <tr>
                                 <th>CultureHub api search</th>
-                                <td><a data-bind="text: baseUri() + 'search?query=delving_spec%3A' + spec(), attr: {href: baseUri() + 'search?query=delving_spec%3A' + spec() }" rel="nofollow"></a></td>
+                                <td><a data-bind="text: baseUri() + 'organizations/' + orgId() + '/api/search?query=delving_spec%3A' + spec(), attr: {href: baseUri() + 'organizations/' + orgId() + '/api/search?query=*:*&delving_spec%3A' + spec() + 'format=json'}" rel="nofollow"  target="_blank"></a></td>
                             </tr>
                             <!-- ko foreach: harvestingConfiguration -->
                             <tr>
                                 <th>OAI-PMH harvesting for schema <span data-bind="text: schema"></span></th>
-                                <td><a data-bind="text: $parent.baseUri() + 'organizations/' + $parent.orgId() + '/api/oai-pmh?verb=ListRecords&set=' + $parent.spec() + '&metadataPrefix=' + schema(), attr: {href: $parent.baseUri() + 'organizations/' + $parent.orgId() + '/api/oai-pmh?verb=ListRecords&set=' + $parent.spec() + '&metadataPrefix=' + schema() }" rel="nofollow"></a></td>
+                                <td><a data-bind="text: $parent.baseUri() + 'organizations/' + $parent.orgId() + '/api/oai-pmh?verb=ListRecords&set=' + $parent.spec() + '&metadataPrefix=' + schema(), attr: {href: $parent.baseUri() + 'organizations/' + $parent.orgId() + '/api/oai-pmh?verb=ListRecords&set=' + $parent.spec() + '&metadataPrefix=' + schema() }" rel="nofollow"  target="_blank"></a></td>
                             </tr>
                             <!-- /ko -->
                             </tbody>
