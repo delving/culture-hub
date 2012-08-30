@@ -1,6 +1,6 @@
 package core.indexing
 
-import core.search.SolrServer
+import core.search.{SolrBindingService, SolrServer}
 import core.Constants._
 import core.SystemField._
 import core.indexing.IndexField._
@@ -13,6 +13,8 @@ import models.{Visibility, DomainConfiguration}
 
 /**
  * Indexing API
+ *
+ * TODO turn into a real service and inject via subcut
  */
 object IndexingService extends SolrServer {
 
@@ -32,7 +34,31 @@ object IndexingService extends SolrServer {
       doc += (VISIBILITY -> Visibility.PUBLIC.value.toString)
     }
 
-    // standard facets
+    // configured facets
+
+    // to filter always index a facet with _facet .filter(!_.matches(".*_(s|string|link|single)$"))
+    val indexedKeys: Map[String, String] = doc.keys.map(key => (SolrBindingService.stripDynamicFieldLabels(key), key)).toMap
+
+    // add facets at indexing time
+    configuration.getFacets.foreach {
+      facet =>
+        if (indexedKeys.contains(facet.facetName)) {
+          val facetContent = doc.get(indexedKeys.get(facet.facetName).get).getValues
+          doc.addField("%s_facet".format(facet.facetName), facetContent)
+          // enable case-insensitive autocomplete
+          doc.addField("%s_lowercase".format(facet.facetName), facetContent)
+        }
+    }
+
+    // adding sort fields at index time
+    configuration.getSortFields.foreach {
+      sort =>
+        if (indexedKeys.contains(sort.sortKey)) {
+          doc.addField("sort_all_%s".format(sort.sortKey), doc.get(indexedKeys.get(sort.sortKey).get))
+        }
+    }
+
+    // add standard facets
     if(!doc.containsKey(RECORD_TYPE.key + "_facet")) {
       doc.addField(RECORD_TYPE.key + "_facet", doc.getField(RECORD_TYPE.key).getFirstValue)
     }

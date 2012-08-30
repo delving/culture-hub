@@ -159,26 +159,6 @@ object Indexing extends SolrServer {
     }
 
     dataSet.getIndexingMappingPrefix.foreach(prefix => inputDoc += (ALL_SCHEMAS -> prefix))
-
-    val indexedKeys: Map[String, String] = inputDoc.keys.map(key => (SolrBindingService.stripDynamicFieldLabels(key), key)).toMap // to filter always index a facet with _facet .filter(!_.matches(".*_(s|string|link|single)$"))
-
-    // add facets at indexing time
-    configuration.getFacets.foreach {
-      facet =>
-        if (indexedKeys.contains(facet.facetName)) {
-          val facetContent = inputDoc.get(indexedKeys.get(facet.facetName).get).getValues
-          inputDoc addField("%s_facet".format(facet.facetName), facetContent)
-          // enable case-insensitive autocomplete
-          inputDoc addField ("%s_lowercase".format(facet.facetName), facetContent)
-        }
-    }
-    // adding sort fields at index time
-    configuration.getSortFields.foreach {
-      sort =>
-        if (indexedKeys.contains(sort.sortKey)) {
-          inputDoc addField("sort_all_%s".format(sort.sortKey), inputDoc.get(indexedKeys.get(sort.sortKey).get))
-        }
-    }
   }
 
 }
