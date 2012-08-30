@@ -5500,6 +5500,11 @@ a.badge:hover {
   float: right;
   margin-left: 10px;
 }
+.media.media-stack .bd {
+  display: block;
+  margin: 0 auto;
+  width: 90%;
+}
 .media.media-stack {
   margin-top: 0px;
 }
@@ -5680,6 +5685,46 @@ hr.editorRule {
   height: 1px;
   margin: 0;
   border: 0;
+}
+.results .result {
+  display: block;
+  float: left;
+  margin-right: 5px;
+  width: 165px;
+}
+.results .result .item {
+  height: 168px;
+  background: white;
+  border: 1px solid #D6D6D6;
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 4px;
+  padding: 9px;
+  z-index: 0;
+}
+.results .result .item a.img {
+  border-bottom: 1px dotted #CCC;
+  display: block;
+  float: none;
+  height: 109px;
+  text-align: center;
+  padding-bottom: 8px;
+  width: 100%;
+}
+.results .result .item a.img img {
+  max-height: 109px;
+}
+.results .result .item .title {
+  font-size: 12px;
+  font-weight: bold;
+  line-height: 14px;
+}
+.results .result .item .title a {
+  color: #333333;
+}
+.results .result .item .title a:hover {
+  color: #049cdb;
+  text-decoration: none;
 }
 /*---------------------------------
     MEDIA BLOCKS
