@@ -10,7 +10,7 @@ import play.api.test.Helpers._
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-class PlatformSpec extends TestContext {
+class PlatformSpec extends Specs2TestContext {
 
   val domainConfigurationHandler = DomainConfigurationHandler
 

@@ -13,7 +13,7 @@ import util.SimpleDataSetParser
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-class DataSetParserSpec extends TestContext {
+class DataSetParserSpec extends Specs2TestContext {
 
   step {
     loadStandalone()

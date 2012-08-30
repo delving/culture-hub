@@ -14,7 +14,7 @@ import play.api.test.Helpers._
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-class OAuth2TokenEndPointSpec extends TestContext {
+class OAuth2TokenEndPointSpec extends Specs2TestContext {
 
   step {
     loadStandalone()
