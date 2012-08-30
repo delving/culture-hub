@@ -1,4 +1,24 @@
 /**
+ * Utility class to check if href url is internal or external
+ */
+var externalLinks = function(){
+    var hostname = window.location.hostname;
+    hostname = hostname.replace("www.","").toLowerCase();
+    var a = document.getElementsByTagName("a");
+    this.check = function(obj){
+        var href = obj.href.toLowerCase();
+        return (href.indexOf("http://")!=-1 && href.indexOf(hostname)==-1) ? true : false;
+    };
+    this.set = function(obj){
+        obj.target = "_blank";
+        obj.className = "external";
+    };
+    for (var i=0;i<a.length;i++){
+        if(check(a[i])) set(a[i]);
+    }
+};
+
+/**
  * Initialize elements based on classes
  */
 function initializeElements() {
@@ -6,16 +26,21 @@ function initializeElements() {
       e.preventDefault();
       document.location = document.referrer;
     });
+
     $('.extHelp').tooltip();
+
     $.preloadImages (
         "/assets/common/images/spinner.gif"
     );
+
     String.prototype.trim = function () {
         return this.replace(/^\s*/, "").replace(/\s*$/, "");
     };
+
     if ($.browser.msie && $.browser.version < 9) {
         document.location.href="/browsers.html";
     }
+
     externalLinks();
 }
 
@@ -863,24 +888,6 @@ function showDefaultImg(obj){
 }
 
 
-/**
- * Utility class to check if href url is internal or external
- */
-var externalLinks = function(){
-    var hostname = window.location.hostname;
-    hostname = hostname.replace("www.","").toLowerCase();
-    var a = document.getElementsByTagName("a");
-    this.check = function(obj){
-        var href = obj.href.toLowerCase();
-        return (href.indexOf("http://")!=-1 && href.indexOf(hostname)==-1) ? true : false;
-    };
-    this.set = function(obj){
-        obj.target = "_blank";
-        obj.className = "external";
-    };
-    for (var i=0;i<a.length;i++){
-        if(check(a[i])) set(a[i]);
-    };
-};
+
 
 
