@@ -35,4 +35,9 @@ $(document).ready(function () {
         }
     });
 
+    // give the page a few milliseconds
+    setTimeout('$("div#context-link p a.external").addClass("pill pull-right");', 100);
+
+
+
 });
