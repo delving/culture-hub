@@ -63,16 +63,22 @@
                     <container ifNot="/icn:record/delving:thumbnail">
                         <container ifNot="icn:record/europeana:isShownBy">
                             <image path="/icn:record/europeana:object"/>
+                            <container id="context-link">
                             <link textValue="search.viewInOriginalContext" urlExpr="/icn:record/europeana:isShownAt" type="external"/>
+                            </container>
                         </container>
                         <container if="icn:record/europeana:isShownBy">
                             <image path="/icn:record/europeana:isShownBy"/>
+                            <container id="context-link">
                             <link textValue="search.viewInOriginalContext" urlExpr="/icn:record/europeana:isShownAt" type="external"/>
+                            </container>
                         </container>
                     </container>
                     <container if="/icn:record/delving:thumbnail">
                         <image path="/icn:record/delving:thumbnail"/>
+                        <container id="context-link">
                         <link textValue="search.viewInOriginalContext" urlExpr="/icn:record/europeana:isShownAt" type="external"/>
+                        </container>
                     </container>
 
                 </container>
