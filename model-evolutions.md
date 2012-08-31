@@ -216,7 +216,8 @@ May not be a problem but we need to check if there are any items live.
 
 17.08.2012 - MetadataItem also has the version of the schema mappings in use
 
-// MDRs
+    // migrate records
+
     var orgId = "delving";
     var cache = orgId + "_MetadataCache";
     db.Datasets.find().forEach(function(ds) {
@@ -229,10 +230,6 @@ May not be a problem but we need to check if there are any items live.
       }
       db.getCollection(cache).update({collection: ds.spec, itemType: "mdr"}, {$set: {"schemaVersions": versions}}, false, true);
     })
-
-// others, set orgId below
-    var orgId = "delving";
-    var cache = orgId + "_MetadataCache";
     db.getCollection(cache).find({schemaVersions: {$exists: false}}).forEach(function(item) {
       var versions = {};
       for(var key in item.xml) {
@@ -247,4 +244,27 @@ May not be a problem but we need to check if there are any items live.
       item.schemaVersions = versions;
       db.getCollection(cache).save(item);
     })
-    
+
+    // migrate facts to reflect versions
+
+    db.Datasets.find().forEach(function(ds) {
+      var versions = {};
+      for(var key in ds.mappings) {
+        if(ds.mappings.hasOwnProperty(key)) {
+          versions[key] = ds.mappings[key].schemaVersion;
+        }
+      }
+      var schemaVersions = "";
+      for(var key in versions) {
+        if(ds.mappings.hasOwnProperty(key)) {
+          if(schemaVersions.length > 0) {
+            schemaVersions = schemaVersions + ", " + key + "_" + versions[key];
+          } else {
+            schemaVersions = key + "_" + versions[key];
+          }
+        }
+      }
+      print(ds.spec + " --> " + schemaVersions);
+      ds.details.facts.schemaVersions = schemaVersions;
+      db.Datasets.save(ds);
+    })
