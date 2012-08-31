@@ -34,6 +34,17 @@ object IndexingService extends SolrServer {
       doc += (VISIBILITY -> Visibility.PUBLIC.value.toString)
     }
 
+    // add full text from digital objects
+    val fullTextUrl = "%s_string".format(FULL_TEXT_OBJECT_URL.key)
+    if (doc.containsKey(fullTextUrl)) {
+      val pdfUrl = doc.get(fullTextUrl).getFirstValue.toString
+      if (pdfUrl.endsWith(".pdf")) {
+        val fullText = TikaIndexer.getFullTextFromRemoteURL(pdfUrl)
+        doc.addField("%s_text".format(FULL_TEXT.key), fullText)
+      }
+    }
+
+
     // configured facets
 
     // to filter always index a facet with _facet .filter(!_.matches(".*_(s|string|link|single)$"))
