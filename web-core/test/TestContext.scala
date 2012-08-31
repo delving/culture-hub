@@ -50,6 +50,8 @@ trait TestContext {
       HubServices.init()
       implicit val configuration = DomainConfigurationHandler.getByOrgId("delving")
       createConnection(configuration.mongoDatabase).dropDatabase()
+      createConnection(configuration.objectService.fileStoreDatabaseName).dropDatabase()
+      createConnection(configuration.objectService.imageCacheDatabaseName).dropDatabase()
       try {
         AggregatingOrganizationCollectionLookup.findBySpecAndOrgId("PrincessehofSample", "delving").map {
           set =>
