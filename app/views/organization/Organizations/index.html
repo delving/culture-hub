@@ -9,20 +9,20 @@
 #{/if}
 
 
-<div class="org-overview row">
-    <div class="members span4">
+<div class="row">
+    <div class="span4">
+        <h3>&{'thing.datasets'}</h3>
+        <ol>
+        #{list collections, as: 'c'}
+            <li><a href=${"/organizations/"+orgId+"/dataset/"+c.spec}>${c.spec}</a></li>
+        #{/list}
+        </ol>
+    </div>
+    <div class="span4">
         <h3>&{'organization.members'}</h3>
         <ol>
         #{list members, as: 'm'}
             <li><a href="/${m.userName}">${m.userName}</a></li>
-        #{/list}
-        </ol>
-    </div>
-    <div class="datasets span4">
-        <h3>&{'thing.datasets'}</h3>
-        <ol>
-        #{list collections, as: 'c'}
-            <li><a href=${"/organizations/"+orgId+"/dataset/"+ds.spec}>${ds.spec}</a></li>
         #{/list}
         </ol>
     </div>

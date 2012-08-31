@@ -4626,7 +4626,6 @@ input[type="submit"].btn.btn-mini {
 .pager {
   margin: 20px 0;
   list-style: none;
-  text-align: center;
   *zoom: 1;
 }
 .pager:before,
@@ -5921,6 +5920,14 @@ div.token-input-dropdown ul li.token-input-selected-dropdown-item {
   color: #ffffff;
   font-weight: bold;
   width: auto;
+}
+@media (max-width: 480px) {
+  .results .result {
+    display: block;
+    float: none;
+    margin-right: 5px;
+    width: 100%;
+  }
 }
 .pull-right {
   float: right;

@@ -4,10 +4,6 @@
 
 #{set bodyId: 'results' /}
 
-#{set 'moreCss'}
-<link rel="stylesheet" type="text/css" href="@{routes.Assets.at("common/stylesheets/media/media.css")}"/>
-#{/set}
-
 #{set 'moreScripts'}
 <script type='text/javascript' src="@{routes.Assets.at('common/javascripts/results.js')}"></script>
 #{/set}
@@ -21,10 +17,6 @@
             <h4>&{'search.trail', pagination.getStart(), pagination.getLastViewableRecord(), pagination.getNumFound() }</h4>
         </div>
     </div>
-
-*{#{if pagination.getNumFound() > themeInfo.pageSize()}}*
-      *{#{results.resultsPager pagination: pagination, pQuery: pagination.getPresentationQuery().getQueryForPresentation(), searchIn: params.searchIn ? params.searchIn.apply(0) : "all", lastPage: pagination.getNumFound() /}}*
-*{#{/if}}*
 
     #{if pagination.getNumFound() > themeInfo.pageSize()}
         #{results.resultPagination pageLinks: pagination, pQuery: pagination.getPresentationQuery().getQueryForPresentation(), searchIn: params.searchIn ? params.searchIn.apply(0) : "all", lastPage: pagination.getNumFound(), extraClass:"pagination-top" /}

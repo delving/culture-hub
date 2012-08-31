@@ -1,4 +1,5 @@
-<ul class="pager" style="width:400px">
+<form name="form-page-jump" action="?${_pQuery}&amp;searchIn=${_searchIn}&amp;facetBoolType=OR" method="GET">
+<ul class="pager">
 #{if _pagination.previous}
     <li><a class="previous" rel="nofollow" href="?${_pQuery}&amp;searchIn=${_searchIn}&amp;start=1&facetBoolType=OR">${messages.get('ui.label.first')}</a></li>
     <li><a class="previous" rel="nofollow" href="?${_pQuery}&amp;searchIn=${_searchIn}&amp;start=${_pagination.previousPage}&facetBoolType=OR">&laquo;&#160;${messages.get('ui.label.previous')}</a></li>
@@ -8,9 +9,9 @@
     <li class="disabled"><a href="#" rel="nofollow">&laquo;&#160;${messages.get('ui.label.previous')}</a></li>
 #{/else}
     <li>
-        <form name="form-page-jump" action="?${_pQuery}&amp;searchIn=${_searchIn}&amp;facetBoolType=OR" method="GET">
+
             <input type="text" name="start" value="${_pagination.getPageNumber()}" class="span1"/>
-        </form>
+
     </li>
 #{if _pagination.next}
     <li class="next"><a href="?${_pQuery}&amp;searchIn=${_searchIn}&amp;start=${_pagination.nextPage}&facetBoolType=OR" rel="nofollow">${messages.get('ui.label.next')}&#160;&raquo;</a></li>
@@ -21,3 +22,4 @@
     <li class="disabled"><a href="#" rel="nofollow">${messages.get('ui.label.last')}</a></li>
 #{/else}
 </ul>
+</form>

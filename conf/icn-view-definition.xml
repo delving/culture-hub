@@ -35,11 +35,11 @@
             <column proportion="1of3">
 
                 <!--<field path="/icn:record/europeana:collectionName" label="metadata.europeana.collectionName"/>-->
-                <field path="/icn:record/europeana:collectionTitle" label="metadata.europeana.collectionTitle"/>
+                <field path="/icn:record/europeana:collectionTitle" label="metadata.icn.collection"/>
                 <field path="/icn:record/icn:collectionPart" label="metadata.icn.collectionPart" />
                 <field path="/icn:record/icn:collectionType" label="metadata.icn.collectionType" />
 
-                <link textValue="${provider}" urlValue="${resolvedProviderUri}" label="metadata.europeana.provider"/>
+                <!--<link textValue="${provider}" urlValue="${resolvedProviderUri}" label="metadata.europeana.provider"/>-->
                 <link textValue="${dataProvider}" urlValue="${resolvedDataProviderUri}" label="metadata.europeana.dataProvider"/>
 
                 <!--<field path="/icn:record/dc:source" label="metadata.dc.source"/>-->
