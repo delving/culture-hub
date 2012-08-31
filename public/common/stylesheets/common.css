@@ -5685,6 +5685,22 @@ hr.editorRule {
   margin: 0;
   border: 0;
 }
+.pill {
+  background: #007bcc;
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  border-radius: 5px;
+  color: #ffffff;
+  padding: 8px 12px;
+  margin: 2px 2px 2px;
+  line-height: 14px;
+  text-decoration: none;
+}
+.pill:hover {
+  background: #000000;
+  color: #ffffff;
+  text-decoration: none;
+}
 .results .result {
   display: block;
   float: left;
