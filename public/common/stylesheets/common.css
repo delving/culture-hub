@@ -5685,6 +5685,10 @@ hr.editorRule {
   margin: 0;
   border: 0;
 }
+.clip {
+  display: block;
+  overflow: hidden;
+}
 .pill {
   background: #007bcc;
   -webkit-border-radius: 5px;
@@ -5747,12 +5751,27 @@ hr.editorRule {
 .object-main .object-title {
   background: #222222;
   color: #ffffff;
-  font-family: Georgia, "Times New Roman", Times, serif;
   font-size: 100%;
   font-weight: normal;
   line-height: 20px;
   margin: 0;
   padding: 8px;
+}
+.object-main h5 {
+  color: #999999;
+  margin-bottom: 0px;
+}
+.object-main p {
+  margin-top: 0px;
+}
+.object-main .dl-horizontal dt {
+  float: left;
+  width: 120px;
+  clear: left;
+  text-align: right;
+  overflow: none;
+  text-overflow: none;
+  white-space: wrap;
 }
 #object-media {
   background: #333333;
@@ -5804,23 +5823,18 @@ hr.editorRule {
   padding: 0 8px;
 }
 .related-items .media {
-  font-size: 75%;
+  background: #ffffff;
+  border: 1px solid #eeeeee;
+  font-size: smaller;
+  padding: 4px;
 }
 .related-items .media .title {
   font-weight: bold;
 }
-/*---------------------------------
-    MEDIA BLOCKS
------------------------------------*/
-/*---------------------------------
-    BOOTSTRAP NAVBAR SEARCH OR
------------------------------------*/
-/*---------------------------------
-    BOOTSTRAP THUMBNAIL OVERRIDES
------------------------------------*/
-.clip {
+.related-items .media span {
+  color: #999999;
+  clear: both;
   display: block;
-  overflow: hidden;
 }
 /*---------------------------------
     BOOTSTRAP PAGINATION OVERRIDES

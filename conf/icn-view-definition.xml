@@ -33,7 +33,7 @@
         </row>
         <row>
             <column proportion="1of3">
-                <container>
+                <container type="labelled-list">
                     <field path="/icn:record/dc:title" label="metadata.dc.title"/>
                     <field path="/icn:record/dc:creator" label="metadata.dc.creator"/>
                     <field path="/icn:record/icn:creatorYearOfBirth" label="metadata.icn.creatorYearOfBirth"/>
@@ -62,7 +62,7 @@
 
             </column>
             <column proportion="1of3">
-
+                <container type="labelled-list">
                 <!--<field path="/icn:record/europeana:collectionName" label="metadata.europeana.collectionName"/>-->
                 <field path="/icn:record/europeana:collectionTitle" label="metadata.icn.collection"/>
                 <field path="/icn:record/icn:collectionPart" label="metadata.icn.collectionPart" />
@@ -84,7 +84,7 @@
                     <field path="/icn:record/icn:meansOfExpulsion" label="metadata.icn.meansOfExpulsion" role="museometrie"/>
                     <field path="/icn:record/icn:physicalState" label="metadata.icn.physicalState" role="museometrie"/>
                 </container>
-
+                </container>
             </column>
         </row>
     </view>
