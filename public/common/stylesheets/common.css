@@ -5741,6 +5741,74 @@ hr.editorRule {
   color: #049cdb;
   text-decoration: none;
 }
+.object-main {
+  margin-top: 21px;
+}
+.object-main .object-title {
+  background: #222222;
+  color: #ffffff;
+  font-family: Georgia, "Times New Roman", Times, serif;
+  font-size: 100%;
+  font-weight: normal;
+  line-height: 20px;
+  margin: 0;
+  padding: 8px;
+}
+#object-media {
+  background: #333333;
+}
+#object-media .img {
+  background: #555555 url(/assets/common/images/resize.png) bottom right no-repeat;
+  height: 300px;
+  margin-bottom: 8px;
+  padding: 8px;
+  resize: vertical;
+  overflow: auto;
+  text-align: center;
+}
+#object-media .img img {
+  max-height: 100%;
+  margin: auto;
+  float: none;
+}
+#context-link {
+  background: #333333;
+  clear: both;
+  display: block;
+  *zoom: 1;
+}
+#context-link:before,
+#context-link:after {
+  display: table;
+  content: "";
+  line-height: 0;
+}
+#context-link:after {
+  clear: both;
+}
+#context-link:before,
+#context-link:after {
+  display: table;
+  content: "";
+  line-height: 0;
+}
+#context-link:after {
+  clear: both;
+}
+#context-link p {
+  text-align: right;
+}
+#context-link a {
+  color: #ffffff;
+  font-size: smaller;
+  padding: 0 8px;
+}
+.related-items .media {
+  font-size: 75%;
+}
+.related-items .media .title {
+  font-weight: bold;
+}
 /*---------------------------------
     MEDIA BLOCKS
 -----------------------------------*/

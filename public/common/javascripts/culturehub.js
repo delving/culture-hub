@@ -37,6 +37,11 @@ function initializeElements() {
         return this.replace(/^\s*/, "").replace(/\s*$/, "");
     };
 
+    String.prototype.trunc =
+        function(n){
+            return this.substr(0,n-1)+(this.length>n?'&hellip;':'');
+        };
+
     if ($.browser.msie && $.browser.version < 9) {
         document.location.href="/browsers.html";
     }
