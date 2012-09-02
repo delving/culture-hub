@@ -1,6 +1,6 @@
 package core.collection
 
-import models.RecordDefinition
+import models.{DomainConfiguration, RecordDefinition}
 
 /**
  *
@@ -9,13 +9,13 @@ import models.RecordDefinition
 
 trait HarvestCollectionLookup {
 
-  def findAllNonEmpty(orgId: String, format: Option[String], accessKey: Option[String] = None): List[Harvestable]
+  def findAllNonEmpty(orgId: String, format: Option[String], accessKey: Option[String] = None)(implicit configuration: DomainConfiguration): Seq[Harvestable]
 
-  def findBySpecAndOrgId(spec: String, orgId: String): Option[Harvestable]
+  def findBySpecAndOrgId(spec: String, orgId: String)(implicit configuration: DomainConfiguration): Option[Harvestable]
 
   /**
    * Gets all publicly available formats out there, plus the ones available via the accessKey.
    */
-  def getAllMetadataFormats(orgId: String, accessKey: Option[String]): List[RecordDefinition]
+  def getAllMetadataFormats(orgId: String, accessKey: Option[String])(implicit configuration: DomainConfiguration): Seq[RecordDefinition]
 
 }

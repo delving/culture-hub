@@ -1,6 +1,6 @@
 package core.harvesting
 
-import core.collection.Harvestable
+import core.collection.{HarvestCollectionLookup, Harvestable}
 import models.{DomainConfiguration, RecordDefinition}
 import core.CultureHubPlugin
 import play.api.Play
@@ -12,7 +12,7 @@ import play.api.Play.current
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-object AggregatingHarvestCollectionLookup {
+object AggregatingHarvestCollectionLookup extends HarvestCollectionLookup {
 
 
   def harvestCollectionLookups(implicit configuration: DomainConfiguration) = CultureHubPlugin.getEnabledPlugins.flatMap(_.harvestCollectionLookups)

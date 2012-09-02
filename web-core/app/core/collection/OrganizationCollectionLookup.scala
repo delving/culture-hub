@@ -1,5 +1,7 @@
 package core.collection
 
+import models.DomainConfiguration
+
 /**
  * Lookup for organization collections
  *
@@ -8,8 +10,8 @@ package core.collection
 
 trait OrganizationCollectionLookup {
 
-  def findAll(orgId: String): Seq[OrganizationCollection]
+  def findAll(orgId: String)(implicit configuration: DomainConfiguration): Seq[OrganizationCollection]
 
-  def findBySpecAndOrgId(spec: String, orgId: String): Option[OrganizationCollection]
+  def findBySpecAndOrgId(spec: String, orgId: String)(implicit configuration: DomainConfiguration): Option[OrganizationCollection]
 
 }
