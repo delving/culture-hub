@@ -19,7 +19,7 @@ class CustomHarvestCollectionSpec extends TestContext {
 
     "allow to create custom harvest collections" in {
 
-      running(TestServer(3333), FIREFOX) {
+      running(TestServer(3333, FakeApplication(path = applicationPath)), FIREFOX) {
         browser =>
 
           browser.goTo("http://delving.localhost:3333/login")

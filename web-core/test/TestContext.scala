@@ -1,6 +1,8 @@
 import core.collection.AggregatingOrganizationCollectionLookup
 import core.HubServices
 import core.indexing.IndexingService
+import eu.delving.culturehub.BuildInfo
+import java.io.File
 import models.HubMongoContext._
 import org.specs2.mutable.Specification
 import play.api.mvc.{AsyncResult, Result}
@@ -23,8 +25,10 @@ trait TestContext extends Specification {
 
   def contentAsXML(response: Result) = XML.loadString(contentAsString(response))
 
+  def applicationPath = if(new File(".").getAbsolutePath.endsWith("culture-hub")) new File(".") else new File("culture-hub")
+
   def withTestConfig[T](block: => T) = {
-    running(FakeApplication()) {
+    running(FakeApplication(path = applicationPath)) {
       block
     }
   }
@@ -67,7 +71,7 @@ trait TestContext extends Specification {
   }
 
   def loadStandalone() {
-    running(FakeApplication()) {
+    running(FakeApplication(path = applicationPath)) {
       load()
     }
 
