@@ -5957,7 +5957,7 @@ form label.radio {
   text-overflow: ellipsis;
   -o-text-overflow: ellipsis;
   -webkit-text-overflow: ellipsis;
-  width: 160px;
+  width: inherit;
   white-space: pre-wrap;
   overflow: hidden;
 }

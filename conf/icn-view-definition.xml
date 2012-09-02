@@ -4,31 +4,27 @@
     <view name="html">
         <row>
             <column proportion="2of3">
-            <container id="object-media">
-                <container ifNot="/icn:record/delving:deepZoomUrl" id="image-viewer">
-                    <container ifNot="/icn:record/delving:thumbnail">
-                        <container ifNot="icn:record/europeana:isShownBy">
-                            <image path="/icn:record/europeana:object"/>
+                <container id="object-media">
+                    <container ifNot="/icn:record/delving:deepZoomUrl" id="image-viewer">
+                        <container ifNot="/icn:record/delving:thumbnail">
+                            <container ifNot="icn:record/europeana:isShownBy">
+                                <image path="/icn:record/europeana:object"/>
+                            </container>
+                            <container if="icn:record/europeana:isShownBy">
+                                <image path="/icn:record/europeana:isShownBy"/>
+                            </container>
                         </container>
-                        <container if="icn:record/europeana:isShownBy">
-                            <image path="/icn:record/europeana:isShownBy"/>
+                        <container if="/icn:record/delving:thumbnail">
+                            <image path="/icn:record/delving:thumbnail"/>
                         </container>
                     </container>
-                    <container if="/icn:record/delving:thumbnail">
-                        <image path="/icn:record/delving:thumbnail"/>
+                    <container id="zoom-viewer" if="/icn:record/delving:deepZoomUrl">
+                        <link textValue="zoom" urlExpr="/icn:record/delving:deepZoomUrl" type="zoom"/>
+                    </container>
+                    <container id="context-link" if="/icn:record/europeana:isShownAt">
+                        <link textValue="search.viewInOriginalContext" urlExpr="/icn:record/europeana:isShownAt" type="external"/>
                     </container>
                 </container>
-                <container id="zoom-viewer" if="/icn:record/delving:deepZoomUrl">
-                    <link textValue="zoom" urlExpr="/icn:record/delving:deepZoomUrl" type="zoom"/>
-                </container>
-                <container id="context-link" if="/icn:record/europeana:isShownAt">
-                    <link textValue="search.viewInOriginalContext" urlExpr="/icn:record/europeana:isShownAt" type="external"/>
-                </container>
-                <!--<container id="object-extras">-->
-                    <!--<image path="/assets/common/dummy-object.png"/>-->
-                <!--</container>-->
-            </container>
-
             </column>
         </row>
         <row>

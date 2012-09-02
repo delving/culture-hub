@@ -36,6 +36,9 @@ a:hover {
   color: #007bcc;
   text-decoration: underline;
 }
+.navbar-fixed-top .navbar-inner {
+  border-bottom: 4px solid #0061a1;
+}
 .search-bar {
   background: #a5cbe4;
   margin-bottom: 21px;
