@@ -22,7 +22,7 @@ trait TestContext {
 
   def contentAsXML(response: Result) = XML.loadString(contentAsString(response))
 
-  def applicationPath = if(new File(".").getAbsolutePath.endsWith("culture-hub")) new File(".") else new File("culture-hub")
+  def applicationPath = if (new File(".").listFiles().exists(f => f.isDirectory && f.getName == "conf")) new File(".") else new File("culture-hub")
 
   def withTestConfig[T](block: => T) = {
     running(FakeApplication(path = applicationPath)) {

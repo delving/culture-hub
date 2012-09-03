@@ -21,7 +21,7 @@ class SipCreatorEndPointSpec extends Specs2TestContext {
     loadStandalone()
   }
 
-  val location = if(new File(".").getAbsolutePath.endsWith("culture-hub")) "" else "culture-hub/"
+  val location = if (new File(".").listFiles().exists(f => f.isDirectory && f.getName == "conf")) "" else "culture-hub/"
 
 
   "SipCreatorEndPoint" should {
