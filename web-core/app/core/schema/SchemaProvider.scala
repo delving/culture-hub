@@ -17,6 +17,7 @@ import scala.collection.JavaConverters._
 import akka.util.Timeout
 import models.DomainConfiguration
 import play.api.libs.ws.Response
+import util.FileSystemFetcher
 
 /**
  * This component provides schemas and schema versions through a SchemaRepository that is updated every 5 minutes.
@@ -82,7 +83,7 @@ class SchemaRepositoryWrapper extends Actor {
   private var scheduler: Cancellable = null
   private var schemaRepository: SchemaRepository = null
 
-  private lazy val fetcher = if(Play.isDev || Play.isTest) new LocalFetcher else new RemoteFetcher
+  private lazy val fetcher = if(Play.isDev || Play.isTest) new FileSystemFetcher else new RemoteFetcher
 
   override def preStart() {
     scheduler = Akka.system.scheduler.schedule(5 minutes, 5 minutes, self, SchemaProvider.Refresh)
@@ -146,35 +147,6 @@ class RemoteFetcher extends Fetcher {
       { t: Throwable => log.error("Could not retrieve schema", t); "" },
       { r: Response => r.getAHCResponse.getResponseBody("UTF-8") }
     )
-
-}
-
-class LocalFetcher extends Fetcher {
-
-  val log = Logger("CultureHub")
-
-  val DIR_NAME = "schemas.delving.eu"
-
-  lazy val localRepository = Play.application.getExistingFile("../" + DIR_NAME)
-
-  def isValidating: java.lang.Boolean = false
-
-  def fetchList(): String = repositoryFileContents("schema-repository.xml")
-
-  def fetchFactDefinitions(definition: String): String = repositoryFileContents("fact-definition-list_1.0.0.xml")
-
-  def fetchSchema(version: SchemaVersion, schemaType: SchemaType): String = repositoryFileContents(version.getPath(schemaType))
-
-  private def repositoryFileContents(path: String): String = localRepository.map { repo =>
-    val f = new File(repo.getAbsoluteFile, path)
-    if (!f.exists()) {
-      throw new RuntimeException("LocalFetcher: Could not find file " + f.getAbsolutePath)
-    } else {
-      Source.fromFile(f).getLines().mkString("\n")
-    }
-  }.getOrElse {
-    throw new RuntimeException("LocalFetcher: Could not find local schema repository at ../" + DIR_NAME)
-  }
 
 }
 

@@ -1,1 +1,0 @@
-This plugin reproduces custom legacy functionality and is therefore not meant to be deployed generically.
