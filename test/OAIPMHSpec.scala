@@ -97,7 +97,7 @@ class OAIPMHSpec extends Specs2TestContext {
         error.length must equalTo(0)
 
         val records = xml \ "ListRecords" \ "record"
-        records.length must equalTo(6) // 6 valid records for ICN
+        records.length must equalTo(7) // 7 valid records for ICN
       }
 
     }
@@ -117,7 +117,7 @@ class OAIPMHSpec extends Specs2TestContext {
         error.length must equalTo(0)
 
         val records = xml \ "ListRecords" \ "record"
-        records.length must equalTo(6) // 6 valid records were inserted today
+        records.length must equalTo(7) // 7 valid records were inserted today
       }
     }
 
