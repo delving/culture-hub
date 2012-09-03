@@ -48,16 +48,16 @@
         #{/}
     </div>
 </div>
-*{<div class="row">}*
-    *{<div class="span12">}*
+<div class="row">
+    <div class="span12">
     #{if homepageCmsContent && homepageCmsContent.published == true}
     ${homepageCmsContent.content.raw()}
     #{/if}
-    *{</div>}*
-*{</div>}*
+    </div>
+</div>
 
 <div class="row">
-    <div class="span12">
+    <div class="results span12">
     #{if themeInfo.get('homepageRecentMdrs') == "true" && recentMdrs.size() > 0 }
     #{results.resultGrid
         results: recentMdrs,
