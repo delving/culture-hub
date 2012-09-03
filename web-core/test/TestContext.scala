@@ -1,7 +1,6 @@
 import core.collection.AggregatingOrganizationCollectionLookup
 import core.HubServices
 import core.indexing.IndexingService
-import eu.delving.culturehub.BuildInfo
 import java.io.File
 import models.HubMongoContext._
 import org.specs2.mutable.Specification
@@ -17,9 +16,7 @@ import xml.XML
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-trait TestContext extends Specification {
-
-  args(sequential = true)
+trait TestContext {
 
   def asyncToResult(response: Result) = response.asInstanceOf[AsyncResult].result.await.get
 
@@ -33,7 +30,7 @@ trait TestContext extends Specification {
     }
   }
 
-  def withTestData[T](block: => T) = {
+  def withTestData[T](block: => T): T = {
     withTestConfig {
       load()
       try {
@@ -53,6 +50,8 @@ trait TestContext extends Specification {
       HubServices.init()
       implicit val configuration = DomainConfigurationHandler.getByOrgId("delving")
       createConnection(configuration.mongoDatabase).dropDatabase()
+      createConnection(configuration.objectService.fileStoreDatabaseName).dropDatabase()
+      createConnection(configuration.objectService.imageCacheDatabaseName).dropDatabase()
       try {
         AggregatingOrganizationCollectionLookup.findBySpecAndOrgId("PrincessehofSample", "delving").map {
           set =>
@@ -64,7 +63,7 @@ trait TestContext extends Specification {
             }
         }
       } catch {
-        case _ => //ignore if not found
+        case t: Throwable => //ignore if not found
       }
       IndexingService.deleteByQuery("*:*")
     }
@@ -76,5 +75,11 @@ trait TestContext extends Specification {
     }
 
   }
+
+}
+
+trait Specs2TestContext extends Specification with TestContext {
+
+  args(sequential = true)
 
 }

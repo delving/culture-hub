@@ -46,10 +46,8 @@ abstract class CultureHubPlugin(app: Application) extends play.api.Plugin {
   /**
    * Called at configuration building time, giving the plugin the chance to build internal configuration
    *
-   * @param configuration the DomainConfiguration
-   * @param config the Play Configuration object
    */
-  def onBuildConfiguration(configuration: DomainConfiguration, config: Option[Configuration]) {}
+  def onBuildConfiguration(configurations: Map[DomainConfiguration, Option[Configuration]]) {}
 
   /**
    * Executed when test data is loaded (for development and testing)

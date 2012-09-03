@@ -13,7 +13,7 @@ import scala.xml.Utility.trim
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-class IndexApiSpec extends TestContext {
+class IndexApiSpec extends Specs2TestContext {
 
   val testItems = <indexRequest>
                       <indexItem itemId="123" itemType="book">

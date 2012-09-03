@@ -7,7 +7,9 @@ import org.apache.solr.common.SolrInputDocument
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
-case class IndexField(key: String)
+case class IndexField(key: String) {
+  val xmlKey = key.replaceFirst("_", ":")
+}
 
 case object IndexField {
 
@@ -25,6 +27,7 @@ case object IndexField {
   val FULL_TEXT_OBJECT_URL = IndexField("delving_fullTextObjectUrl")
   val FULL_TEXT = IndexField("delving_fullText")
 
+  val IMAGE_URL = IndexField("delving_imageUrl")
 
   // ~~ legacy
   val EUROPEANA_URI = IndexField("europeana_uri")

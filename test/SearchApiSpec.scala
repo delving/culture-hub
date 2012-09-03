@@ -13,7 +13,7 @@ import play.api.test.FakeRequest
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-class SearchApiSpec extends TestContext {
+class SearchApiSpec extends Specs2TestContext {
 
   step {
     loadStandalone()

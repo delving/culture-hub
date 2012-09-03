@@ -12,7 +12,7 @@ import play.api.test.Helpers._
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-class OAIPMHSpec extends TestContext {
+class OAIPMHSpec extends Specs2TestContext {
 
   step {
     loadStandalone()

@@ -57,6 +57,11 @@ trait Logging extends Secured { self: ApplicationController =>
     reportError(request, why)
     Results.InternalServerError(views.html.errors.error(None, Some(why)))
   }
+  def Error(why: String, t: Throwable)(implicit request: RequestHeader)                              = {
+    Logger.error(withContext(why), t)
+    reportError(request, t, why)
+    Results.InternalServerError(views.html.errors.error(None, Some(why)))
+  }
   def BadRequest(implicit request: RequestHeader)              = {
     warning("Bad request")
     Results.BadRequest

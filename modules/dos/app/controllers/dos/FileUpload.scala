@@ -149,27 +149,33 @@ object FileUpload extends Controller with Extensions with Thumbnail with DomainC
 
   private def uploadFileInternal(uid: String, uploads: Seq[Upload])(implicit configuration: DomainConfiguration): Seq[FileUploadResponse] = {
     val uploadedFiles = for (upload <- uploads) yield {
-      val f = fileStore(configuration).createFile(upload.file)
-      f.filename = upload.fileName
-      f.contentType = upload.contentType
-      f.put(UPLOAD_UID_FIELD, uid)
-      f.save
-
-      if (f._id == None) return Seq.empty
-
-      // if this is an image, create a thumbnail for it so we can display it on the fly
-      val thumbnailUrl: String = if (f.contentType.contains("image")) {
-        fileStore(configuration).findOne(f._id.get) match {
-          case Some(storedFile) =>
-            val thumbnails = createThumbnails(storedFile, fileStore(configuration))
-            if (thumbnails.size > 0) "/file/" + thumbnails.get(80).getOrElse(emptyThumbnailUrl) else emptyThumbnailUrl
-          case None => ""
-        }
-      } else ""
-
+      val (f, thumbnailUrl) = storeFile(upload.file, upload.fileName, upload.contentType, uid)
       FileUploadResponse(upload.fileName, upload.length, "/file/" + f._id.get, thumbnailUrl, "/file/" + f._id.get)
     }
     uploadedFiles
+  }
+
+  /**
+   * Stores a file
+   */
+  def storeFile(file: File, fileName: String, contentType: String, uid: String)(implicit configuration: DomainConfiguration) = {
+    val f = fileStore(configuration).createFile(file)
+    f.filename = fileName
+    f.contentType = contentType
+    f.put(UPLOAD_UID_FIELD, uid)
+    f.save
+
+    // if this is an image, create a thumbnail for it so we can display it on the fly in the upload widget
+    val thumbnailUrl: String = if (f.contentType.contains("image")) {
+      fileStore(configuration).findOne(f._id.get) match {
+        case Some(storedFile) =>
+          val thumbnails = createThumbnails(storedFile, fileStore(configuration))
+          if (thumbnails.size > 0) "/file/" + thumbnails.get(80).getOrElse(emptyThumbnailUrl) else emptyThumbnailUrl
+        case None => ""
+      }
+    } else ""
+
+    (f, thumbnailUrl)
   }
 
   /**

@@ -30,7 +30,7 @@ object Group extends MultiModel[Group, GroupDAO] {
 
 }
 
-class GroupDAO(collection: MongoCollection) extends SalatDAO[Group, ObjectId](collection) {
+class GroupDAO(collection: MongoCollection)(implicit configuration: DomainConfiguration) extends SalatDAO[Group, ObjectId](collection) {
 
   /** lists all groups a user has access to for a given organization **/
   def list(userName: String, orgId: String) = {
@@ -41,7 +41,7 @@ class GroupDAO(collection: MongoCollection) extends SalatDAO[Group, ObjectId](co
     }
   }
 
-  def findDirectMemberships(userName: String, orgId: String) = find(MongoDBObject("orgId" -> orgId, "users" -> userName))
+  def findDirectMemberships(userName: String) = find(MongoDBObject("orgId" -> configuration.orgId, "users" -> userName))
 
   def findResourceAdministrators(orgId: String, resourceType: ResourceType): Seq[String] = {
     Role.
@@ -60,6 +60,15 @@ class GroupDAO(collection: MongoCollection) extends SalatDAO[Group, ObjectId](co
             filter(group => group.resources.exists(p => p.getResourceKey == resource.getResourceKey && p.getResourceType == resource.getResourceType)).
             flatMap(group => group.users).
             toSeq
+  }
+
+  def hasAnyRole(userName: String, roles: Seq[Role]) = roles.foldLeft(false) { (c, r) => c || hasRole(userName, r) }
+
+  def hasRole(userName: String, role: Role): Boolean = hasRole(userName, role.key)
+
+  def hasRole(userName: String, roleKey: String): Boolean = {
+    findDirectMemberships(userName).toSeq.exists(_.roleKey == roleKey) ||
+      roleKey == Role.OWN.key && HubServices.organizationService(configuration).isAdmin(configuration.orgId, userName)
   }
 
   def addUser(orgId: String, userName: String, groupId: ObjectId): Boolean = {
