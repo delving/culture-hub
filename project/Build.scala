@@ -12,6 +12,7 @@ object Build extends sbt.Build {
   val appName = "culture-hub"
   val cultureHubVersion = "12.08-SNAPSHOT"
   val sipCreatorVersion = "1.0.11-SNAPSHOT"
+  val sipCoreVersion = "1.0.11-SNAPSHOT"
   val schemaRepoVersion = "1.0.11-SNAPSHOT"
   val playExtensionsVersion = "1.3.2"
 
@@ -45,7 +46,7 @@ object Build extends sbt.Build {
     "eu.delving"                %% "play2-extensions"                % playExtensionsVersion,
 
     "eu.delving"                %  "definitions"                     % "1.0",
-    "eu.delving"                %  "sip-core"                        % sipCreatorVersion,
+    "eu.delving"                %  "sip-core"                        % sipCoreVersion,
     "eu.delving"                %  "schema-repo"                     % schemaRepoVersion,
     "eu.delving"                %% "basex-scala-client"              % "0.1-SNAPSHOT",
 
