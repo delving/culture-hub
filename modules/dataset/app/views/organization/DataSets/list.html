@@ -6,7 +6,6 @@
 <script type="text/javascript" src="@{routes.Assets.at("common/javascripts/jquery.tablesorter.min.js")}"></script>
 <script type="text/javascript" src="@{routes.Assets.at("common/javascripts/jquery.uitablefilter.js")}"></script>
 <script type="text/javascript" src="@{routes.Assets.at("common/javascripts/smartupdater.4.0.js")}"></script>
-<script type="text/javascript" src="@{routes.Assets.at("common/javascripts/bootstrap/bootstrap-popover.js")}"></script>
 <script type="text/javascript" src="@{routes.Assets.at("common/javascripts/organizations/datasets.js")}"></script>
 #{/set}
 
@@ -16,18 +15,19 @@
 
 #{organizationNavBar orgId: orgId, active:"datasets", navigation: navigation /}
 
-<div class="row">
-
-    <div class="span8">
-        <form id="filter-form" class="form-inline pull-left form-search">
-            <input type='text' name='filter' id='filter' maxlength="30" size="30" class="search-query" placeholder="&{'org.list.filter'}"/>
-            <input onclick="saveFilter()" class="btn" type="button" value="&{'ui.label.save'}"/>
-            <input onclick="resetFilter()" class="btn" type="reset" value="&{'ui.label.reset'}"/>
-            <a class="icon icon-question-sign extHelp" href="#" rel="tooltip" title="Type in any dataset value(s) to filter the table. Press 'Save' to save the filter."></a>
-        </form>
+<div class="dataset-filter row">
+    <div class="dataset-filter-inner span12">
+    <form id="filter-form" class="form-inline pull-left form-search">
+        <input type='text' name='filter' id='filter' maxlength="30" size="30" class="search-query" placeholder="&{'org.list.filter'}"/>
+        <input onclick="saveFilter()" class="btn" type="button" value="&{'ui.label.save'}"/>
+        <input onclick="resetFilter()" class="btn" type="reset" value="&{'ui.label.reset'}"/>
+        <a class="icon icon-question-sign extHelp" href="#" rel="tooltip" title="Type in any dataset value(s) to filter the table. Press 'Save' to save the filter."></a>
+    </form>
     </div>
+</div>
 
-<div class="span12">
+<div class="dataset-list row">
+    <div class="dataset-list-inner span12">
     <table id="dataset-table" class="table table-striped sortable" data-bind="triggerUpdate: sets">
         <caption>${messages.get('thing.datasets')}</caption>
         <thead>
@@ -50,7 +50,6 @@
         </tr>
         </tfoot>
         <tbody data-bind="foreach: sets()">
-
             <tr>
                 <td><a data-bind="attr: { href: '/organizations/' + orgId() + '/dataset/' + spec() }" rel="nofollow" class="btn"><i class="icon icon-wrench"></i> <span data-bind="text: name"></span></a></td>
                 <td><span data-bind="text: nodeName"></span></td>
@@ -91,9 +90,9 @@
             </tr>
         </tbody>
     </table>
+    </div>
+</div>
 
-</div>
-</div>
 
 <script type="text/javascript" language="javascript">
     $(document).ready(function () {
@@ -110,6 +109,7 @@
             },
             applyPopover: function(element) {
                 $(element).parent().prev().popover({
+                    trigger: 'hover',
                     content: $(element).html()
                 });
             }

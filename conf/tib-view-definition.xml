@@ -1,8 +1,36 @@
+<?xml version ="1.0" encoding="UTF-8"?>
+
 <views>
     <view name="html">
         <row>
+            <column proportion="2of3">
+                <container id="object-media">
+                    <container ifNot="/tib:record/delving:deepZoomUrl" id="image-viewer">
+                        <container ifNot="/tib:record/delving:thumbnail">
+                            <container ifNot="tib:record/europeana:isShownBy">
+                                <image path="/tib:record/europeana:object"/>
+                            </container>
+                            <container if="tib:record/europeana:isShownBy">
+                                <image path="/tib:record/europeana:isShownBy"/>
+                            </container>
+                        </container>
+                        <container if="/tib:record/delving:thumbnail">
+                            <image path="/tib:record/delving:thumbnail"/>
+                        </container>
+                    </container>
+                    <container id="zoom-viewer" if="/tib:record/delving:deepZoomUrl">
+                        <link textValue="zoom" urlExpr="/tib:record/delving:deepZoomUrl" type="zoom"/>
+                    </container>
+                    <container id="context-link" if="/tib:record/europeana:isShownAt">
+                        <link textValue="search.viewInOriginalContext" urlExpr="/tib:record/europeana:isShownAt" type="external"/>
+                    </container>
+                </container>
+            </column>
+        </row>
+        <row>
             <column proportion="1of3">
-                <container>
+                <container type="labelled-list">
+                    <field path="/tib:record/delving:title" label="metadata.dc.title"/>
                     <field path="/tib:record/dc:title" label="metadata.dc.title"/>
                     <field path="/tib:record/dc:creator" label="metadata.dc.creator"/>
                     <field path="/tib:record/tib:creatorBirthYear" label="metadata.tib.creatorBirthYear"/>
@@ -12,7 +40,7 @@
                 </container>
            </column>
            <column proportion="1of3">
-               <container>
+               <container type="labelled-list">
                    <field path="/tib:record/europeana:collectionTitle" label="metadata.europeana.collectionTitle"/>
 
                    <link textValue="${provider}" urlValue="${resolvedProviderUri}" label="metadata.europeana.provider"/>
@@ -23,27 +51,7 @@
                    <field path="/tib:record/dc:rights" label="metadata.dc.rights"/>
                </container>
             </column>
-            <column proportion="1of3">
-                <container ifNot="/tib:record/delving:deepZoomUrl">
-                    <container ifNot="/tib:record/delving:thumbnail">
-                        <container ifNot="tib:record/europeana:isShownBy">
-                            <image path="/tib:record/europeana:object"/>
-                            <link textValue="search.viewInOriginalContext" urlExpr="/tib:record/europeana:isShownAt" type="external"/>
-                        </container>
-                        <container if="tib:record/europeana:isShownBy">
-                            <image path="/tib:record/europeana:isShownBy"/>
-                            <link textValue="search.viewInOriginalContext" urlExpr="/tib:record/europeana:isShownAt" type="external"/>
-                        </container>
-                    </container>
-                    <container if="/tib:record/delving:thumbnail">
-                        <image path="/tib:record/delving:thumbnail"/>
-                        <link textValue="search.viewInOriginalContext" urlExpr="/tib:record/europeana:isShownAt" type="external"/>
-                    </container>
-                </container>
-                <container id="zoom-viewer" if="/tib:record/delving:deepZoomUrl">
-                    <link textValue="zoom" urlExpr="/tib:record/delving:deepZoomUrl" type="zoom"/>
-                </container>
-            </column>
+
         </row>
     </view>
 </views>

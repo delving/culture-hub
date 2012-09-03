@@ -4,10 +4,6 @@
 
 #{set bodyId: 'results' /}
 
-#{set 'moreCss'}
-<link rel="stylesheet" type="text/css" href="@{routes.Assets.at("common/stylesheets/media/media.css")}"/>
-#{/set}
-
 #{set 'moreScripts'}
 <script type='text/javascript' src="@{routes.Assets.at('common/javascripts/results.js')}"></script>
 #{/set}
@@ -16,8 +12,8 @@
 
 #{if pagination.getNumFound() > 0}
 
-    <div class="row">
-        <div class="item-count span12">
+    <div class="item-count row">
+        <div class="span12">
             <h4>&{'search.trail', pagination.getStart(), pagination.getLastViewableRecord(), pagination.getNumFound() }</h4>
         </div>
     </div>
@@ -27,21 +23,18 @@
     #{/if}
 
     <div class="row">
-        <div class="span9">
-            #{results.resultGrid results: briefDocs,
-                colCount: themeInfo.get('resultsColumns'),
-                spanClass: themeInfo.get('resultsGridClass'),
-                clipHeight: themeInfo.get('resultsImageClipHeight') /}
+        <div class="results span9">
+            #{results.resultGrid results: briefDocs  /}
         </div>
         <div class="span3">
             <div class="facets-header">&{'search.refineYourSearch'}</div>
             #{list items: themeFacets, as: 'tf'}
                 #{facet facetMap: facets,
-                        type: tf.facetName()+'_facet',
-                        typeKey: messages.get(tf.facetInternationalisationCode()),
-                        qString: pagination.getPresentationQuery().getUserSubmittedQuery(),
-                        searchIn: params.searchIn ? params.searchIn.apply(0)  : "all",
-                        columns: tf.nrDisplayColumns/}
+                type: tf.facetName()+'_facet',
+                typeKey: messages.get(tf.facetInternationalisationCode()),
+                qString: pagination.getPresentationQuery().getUserSubmittedQuery(),
+                searchIn: params.searchIn ? params.searchIn.apply(0)  : "all",
+                columns: tf.nrDisplayColumns/}
             #{/list}
         </div>
     </div>
@@ -93,8 +86,8 @@
 #{/if}
 
 #{else}
-<div class="span12">
-&{'ui.message.nothingFound'}
+<div class="no-results">
+    &{'ui.message.nothingFound'}
 </div>
 #{/else}
 *{

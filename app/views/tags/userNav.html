@@ -10,26 +10,19 @@
 #{/if}
 #{else}
     <li class="user">
-        <a href="/${_userName}" rel="nofollow">
+        <a href="/${_userName}" rel="nofollow" class="gravatar">
             #{gravatar.img _email, size:21 /} ${messages.get('ui.label.loggedInAs')}: ${_userName}
         </a>
     </li>
     <li class="divider-vertical"></li>
     #{if _organizations.length() > 0}
-        <li class="dropdown" id="orgs">
-            <a class="dropdown-toggle" data-toggle="dropdown" href="#orgs" rel="nofollow">
-            ${messages.get('thing.organizations')}
-            <b class="caret"></b>
-            </a>
-            <ul class="dropdown-menu">
-                #{list _organizations, as: 'org'}
-                    <li><a href="/organizations/${org}" rel="nofollow">${org}</a></li>
-                #{/list}
-            </ul>
+        <li>
+            <a href="/organizations/${_organizations[0]}" rel="nofollow">
+                ${messages.get('ui.label.administration')}
+             </a>
         </li>
         <li class="divider-vertical"></li>
     #{/if}
-
     <li><a href="/logout" rel="nofollow">${messages.get('ui.label.logout')}</a></li>
 #{/else}
 </ul>

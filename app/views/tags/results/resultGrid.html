@@ -1,75 +1,9 @@
-%{
-    def counter = 1 as Integer
-    def span = _spanClass ?: 'span1of4'
-    def colCount = _colCount as Integer ?: 4 as Integer
-    def clipHeight = _clipHeight ?: '120px'
-}%
-
 #{list _results, as: 'doc'}
-    #{if counter == 1}
-    <ul class="thumbnails">
-    #{/if}
-    <li class="${span}">
-        <div class="thumbnail ${doc.getItemType()}">
-            #{results.thingSummaryView data:doc, iSize: 220, clipHeight: _clipHeight /}
-            <input type="hidden" name="idUri" value="${doc.getUri()}"/>
-            <input type="hidden" name="thumb" value="${doc.getThumbnailUri(100)}"/>
-            <input type="hidden" name="title" value="${doc.getTitle()}"/>
-        </div>
-    </li>
-        %{ counter++ }%
-    #{if counter > colCount || doc_isLast }
-    </ul>
-    %{ counter = 1 }%
-    #{/if}
+<div class="result">
+    #{results.thingSummaryView data:doc, iSize: 155/}
+    <input type="hidden" name="idUri" value="${doc.getUri()}"/>
+    <input type="hidden" name="thumb" value="${doc.getThumbnailUri(100)}"/>
+    <input type="hidden" name="title" value="${doc.getTitle()}"/>
+</div>
 #{/list}
-
-*{#{list _results, as: 'doc'}}*
-    *{#{if counter == 1}}*
-    *{<div class="row">}*
-    *{#{/if}}*
-    *{<div class="span1of4">}*
-    *{<div class=" draggable ${doc.getItemType()} ">}*
-        *{#{thingSummaryView data:doc, iSize: 180 /}}*
-        *{<input type="hidden" name="idUri" value="${doc.getUri()}"/>}*
-        *{<input type="hidden" name="thumb" value="${doc.getThumbnailUri(220)}"/>}*
-        *{<input type="hidden" name="title" value="${doc.getTitle()}"/>}*
-    *{</div>}*
-    *{</div>}*
-*{%{ counter++ }%}*
-    *{#{if counter > 4 || doc_isLast }}*
-        *{</div>}*
-    *{%{ counter = 1 }%}*
-    *{#{/if}}*
-*{#{/list}}*
-
-
-*{<ul class="thumbnails">}*
-*{#{list _results, as: 'doc'}}*
-    *{<li class="thumbnail span1of4">}*
-        *{<div class="${doc.getItemType()} ">}*
-            *{#{thingSummaryView data:doc, iSize: 220 /}}*
-            *{<input type="hidden" name="idUri" value="${doc.getUri()}"/>}*
-            *{<input type="hidden" name="thumb" value="${doc.getThumbnailUri(100)}"/>}*
-            *{<input type="hidden" name="title" value="${doc.getTitle()}"/>}*
-        *{</div>}*
-    *{</li>}*
-
-*{#{/list}}*
-*{</ul>}*
-
-
-*{<div class="grid-container">}*
-*{#{list _results, as: 'doc'}}*
-    *{<div class="grid-item span2">}*
-        *{<div class=" draggable ${doc.getItemType()} ">}*
-            *{#{thingSummaryView data:doc, iSize: 220 /}}*
-            *{<input type="hidden" name="idUri" value="${doc.getUri()}"/>}*
-            *{<input type="hidden" name="thumb" value="${doc.getThumbnailUri(100)}"/>}*
-            *{<input type="hidden" name="title" value="${doc.getTitle()}"/>}*
-        *{</div>}*
-    *{</div>}*
-
-*{#{/list}}*
-*{</div>}*
 

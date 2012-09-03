@@ -3,6 +3,31 @@
 <views>
     <view name="html">
         <row>
+            <column proportion="2of3">
+                <container id="object-media">
+                    <container ifNot="/abm:record/delving:deepZoomUrl" id="image-viewer">
+                        <container ifNot="/abm:record/delving:thumbnail">
+                            <container ifNot="abm:record/europeana:isShownBy">
+                                <image path="/abm:record/europeana:object"/>
+                            </container>
+                            <container if="abm:record/europeana:isShownBy">
+                                <image path="/abm:record/europeana:isShownBy"/>
+                            </container>
+                        </container>
+                        <container if="/abm:record/delving:thumbnail">
+                            <image path="/abm:record/delving:thumbnail"/>
+                        </container>
+                    </container>
+                    <container id="zoom-viewer" if="/abm:record/delving:deepZoomUrl">
+                        <link textValue="zoom" urlExpr="/abm:record/delving:deepZoomUrl" type="zoom"/>
+                    </container>
+                    <container id="context-link" if="/abm:record/europeana:isShownAt">
+                        <link textValue="search.viewInOriginalContext" urlExpr="/abm:record/europeana:isShownAt" type="external"/>
+                    </container>
+                </container>
+            </column>
+        </row>
+        <row>
             <column proportion="1of3">
                 <field label="metadata.dc.title" path="/abm:record/dc:title" />
                 <field label="metadata.dc.date" path="/abm:record/dc:date" />
@@ -32,28 +57,6 @@
                 <field label="metadata.dcterms.provinance" path="/abm:record/dcterms:provenance"/>
                 <field label="metadata.dc.relation" path="/abm:record/dc:relation"/>
                 <field label="metadata.dc.type" path="/abm:record/dc:type"/>
-            </column>
-            <column proportion="1of3">
-                <container ifNot="/abm:record/delving:deepZoomUrl">
-                    <container ifNot="/abm:record/delving:thumbnail">
-                        <container ifNot="abm:record/europeana:isShownBy">
-                            <image path="/abm:record/europeana:object"/>
-                            <link textValue="search.viewInOriginalContext" urlExpr="/abm:record/europeana:isShownAt" type="external"/>
-                        </container>
-                        <container if="abm:record/europeana:isShownBy">
-                            <image path="/abm:record/europeana:isShownBy"/>
-                            <link textValue="search.viewInOriginalContext" urlExpr="/abm:record/europeana:isShownAt" type="external"/>
-                        </container>
-                    </container>
-                    <container if="/abm:record/delving:thumbnail">
-                        <image path="/abm:record/delving:thumbnail"/>
-                        <link textValue="search.viewInOriginalContext" urlExpr="/abm:record/europeana:isShownAt" type="external"/>
-                    </container>
-
-                </container>
-                <container id="zoom-viewer" if="/abm:record/delving:deepZoomUrl">
-                    <link textValue="zoom" urlExpr="/abm:record/delving:deepZoomUrl" type="zoom"/>
-                </container>
             </column>
         </row>
     </view>

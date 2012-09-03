@@ -10,6 +10,8 @@ GET         /robots.txt                                                         
 # Home page
 GET     /                                                                          controllers.Application.index
 
+GET     /browsers.html                                                             controllers.Assets.at(path="/public", file="browsers.html")
+
 # Site page
 GET        /page/:key                                                              controllers.Application.page(key)
 

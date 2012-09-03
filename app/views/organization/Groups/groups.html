@@ -10,48 +10,53 @@
 #{organizationNavBar orgId: orgId, active:"groups", navigation: navigation /}
 
 <h3>&{'org.group.create'}</h3>
+<form action="" id="groupForm" class="form-delving">
 
 <div class="row">
-    <form action="" id="groupForm" class="form-delving">
-        <div class="span6">
-            #{form.textField name:"name", form: groupForm, label:messages.get('thing.name'), dataBind:"value: name, enable: canChangeGrantType", required: true /}
-            <div class="control-group" data-bind="visible: canChangeGrantType">
-                <label class="control-label" for="grantType">&{'thing.grantType'}<span class="label">&{'ui.label.required'}</span></label>
-                <div class="controls">
-                    <select id="grantType" name="grantType" data-bind="value: roleKey" class="span4">
-                    #{list roles, as: 'r'}
-                        <option value="${r.key}">&{r.value}</option>
-                    #{/list}
-                    </select>
-                    <span class="error">${views.Helpers.showError('roleKey', null)}</span>
-                </div>
+    <div class="groups-name span4">
+        #{form.textField name:"name", form: groupForm, label:messages.get('thing.name'), dataBind:"value: name, enable: canChangeGrantType", required: true /}
+    </div>
+    <div class="groups-grants span4">
+        <div class="control-group" data-bind="visible: canChangeGrantType">
+            <label class="control-label" for="grantType">&{'thing.grantType'}<span class="label">&{'ui.label.required'}</span></label>
+            <div class="controls">
+                <select id="grantType" name="grantType" data-bind="value: roleKey">
+                #{list roles, as: 'r'}
+                    <option value="${r.key}">&{r.value}</option>
+                #{/list}
+                </select>
+                <span class="error">${views.Helpers.showError('roleKey', null)}</span>
             </div>
         </div>
-        <div class="span6">
-            <div class="control-group">
-                <label class="control-label" for="users">&{'thing.users'}</label>
-                <div class="controls">
-                    #{boundAddRemoveTokenField id:"users", name:"users", searchUrl: "/users/search", dataBind:"tokens: users" /}
-                    <p>&{'org.admin.index.addMembers'}</p>
-                </div>
-            </div>
-
-            <div class="control-group" data-bind="visible: canChangeGrantType() && (rolesWithResources().indexOf(roleKey()) > -1)  && !(rolesWithResourceAdmin.indexOf(roleKey()) > -1)">
-              <div class="control-group">
-                <label class="control-label" for="resourceTokenInput">&{'thing.resources'}</label>
-                <div class="controls">
-                  <input type="text" id="resourceTokenInput" class="span4" data-bind="tokens: resources">
-                </div>
-              </div>
-            </div>
-            <div class="well">
-            #{btnButton label: messages.get('org.group.save'), extraClass:"btn-primary btn-promiment", id:"saveButton", type:"submit" /}
-            <div class="wait"></div>
-            </div>
-        </div>
-    </form>
+    </div>
 </div>
 
+<div class="row">
+    <div class="groups-members span4">
+        <div class="control-group">
+            <label class="control-label" for="users">&{'thing.users'}</label>
+            <div class="controls">
+            #{boundAddRemoveTokenField id:"users", name:"users", searchUrl: "/users/search", dataBind:"tokens: users" /}
+                <p>&{'org.admin.index.addMembers'}</p>
+            </div>
+        </div>
+    </div>
+    <div class="groups-resources span4" data-bind="visible: canChangeGrantType() && (rolesWithResources().indexOf(roleKey()) > -1)  && !(rolesWithResourceAdmin.indexOf(roleKey()) > -1)">
+        <div class="control-group">
+            <label class="control-label" for="resourceTokenInput">&{'thing.resources'}</label>
+            <div class="controls">
+                <input type="text" id="resourceTokenInput" data-bind="tokens: resources">
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="well">
+    #{btnButton label: messages.get('org.group.save'), extraClass:"btn-primary", id:"saveButton", type:"submit" /}
+    <div class="wait"></div>
+</div>
+
+</form>
 
 <script type="text/javascript">
     $(document).ready(function () {

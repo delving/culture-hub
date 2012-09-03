@@ -12,12 +12,10 @@
 <div class="row">
     <div class="span12">
         <h3 class="page-header">&{'plugin.statistics.statistics'}</h3>
-
         <div class="tabbable">
             <ul class="nav nav-pills" id="stats-tabs" data-bind="foreach: facets">
                 <li data-bind="css: { active: $root.selected() === $data.name()  }"><a href='#' data-bind="click: function() { $root.selected($data.name()) }, text: i18n"></a></li>
             </ul>
-
             <div class="tab-content" data-bind="foreach: facets">
                 <div class="tab-pane" data-bind="css: { active: $root.selected() === $data.name() }">
                     <table class="table">
@@ -43,6 +41,10 @@
         </div>
     </div>
 </div>
+
+
+
+
 <script>
     $(document).ready(function() {
 
