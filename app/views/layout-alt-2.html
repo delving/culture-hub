@@ -39,15 +39,14 @@
     <div class="container">
         <div class="row">
             <div class="span12">
-                                <form method="get" action="/search" class="form-horizontal" id="simple-search" onsubmit="return checkSimpleSearchSubmit('query');">
-                            #{searchIn searchIn: params.searchIn, fields: searchIn /}
-                                <div class="input-append">
-                                    <input class="" placeholder="&{'ui.label.search'} ..." type="text" id="query" name="query" value='${params.get("query")? params.get("query").apply(0) : ""}'/>
-                                    <button type="submit" class="btn" title="&{'ui.label.search'}">&{'ui.label.search'}</button>
-                                </div>
-                                &#160;<a href="/search/advanced" rel="nofollow" class="hidden-phone">&{'plugin.advancedsearch'}</a>
-                                </form>
-
+                <form method="get" action="/search" class="form-horizontal" id="simple-search" onsubmit="return checkSimpleSearchSubmit('query');">
+                #{searchIn searchIn: params.searchIn, fields: searchIn /}
+                    <div class="input-append">
+                        <input class="" placeholder="&{'ui.label.search'} ..." type="text" id="query" name="query" value='${params.get("query")? params.get("query").apply(0) : ""}'/>
+                        <button type="submit" class="btn" title="&{'ui.label.search'}">&{'ui.label.search'}</button>
+                    </div>
+                    &#160;<a href="/search/advanced" rel="nofollow" class="hidden-phone">&{'plugin.advancedsearch'}</a>
+                </form>
             </div>
         </div>
     </div>

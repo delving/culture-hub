@@ -51,6 +51,11 @@ a:hover {
 .nav-pills > li > a:hover {
   background-color: #007bcc;
 }
+.facets-header {
+  background: #007bcc;
+  color: #fff;
+  padding: 4px 8px;
+}
 @media (max-width: 767px) {
   body {
     padding: 0;

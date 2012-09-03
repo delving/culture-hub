@@ -59,11 +59,7 @@
 <div class="row">
     <div class="results span12">
     #{if themeInfo.get('homepageRecentMdrs') == "true" && recentMdrs.size() > 0 }
-    #{results.resultGrid
-        results: recentMdrs,
-        colCount: themeInfo.get('homepageRecentMdrsColumns'),
-        spanClass: themeInfo.get('homepageRecentMdrsGridClass'),
-        clipHeight: themeInfo.get('homepageRecentMdrsImageClipHeight')/}
+    #{results.resultGrid results: recentMdrs/}
     #{/if}
     </div>
 </div>

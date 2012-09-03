@@ -30,7 +30,6 @@
         <row>
             <column proportion="1of3">
                 <container type="labelled-list">
-                    <field path="/tib:record/delving:deepZoomUrl" label="metadata.dc.title"/>
                     <field path="/tib:record/delving:title" label="metadata.dc.title"/>
                     <field path="/tib:record/dc:title" label="metadata.dc.title"/>
                     <field path="/tib:record/dc:creator" label="metadata.dc.creator"/>
