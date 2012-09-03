@@ -9,6 +9,7 @@ package core
 case class SystemField(name: String) {
 
   val tag = "delving_" + name
+  val xmlKey = "delving:" + name
 
 }
 

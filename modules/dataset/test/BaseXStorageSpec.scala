@@ -9,7 +9,7 @@ import play.api.test.Helpers._
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-class BaseXStorageSpec extends TestContext {
+class BaseXStorageSpec extends Specs2TestContext {
 
   "the BaseX storage" should {
 

@@ -29,6 +29,11 @@ class ConfigurationPlugin(app: Application) extends CultureHubPlugin(app) {
 
   override def onStart() {
 
+    // initialize schema repository to be available for plugins at configuration time
+
+    Akka.system.actorOf(Props[SchemaRepositoryWrapper], name = "schemaRepository")
+    schemaService.refresh()
+
     // ~~~ load configurations
     try {
       DomainConfigurationHandler.startup(CultureHubPlugin.hubPlugins)
@@ -44,9 +49,6 @@ class ConfigurationPlugin(app: Application) extends CultureHubPlugin(app) {
 
     // ~~~ bootstrap services
 
-    Akka.system.actorOf(Props[SchemaRepositoryWrapper], name = "schemaRepository")
-
-    schemaService.refresh()
     HubServices.init()
     MappingService.init()
 

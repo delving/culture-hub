@@ -81,7 +81,7 @@ class HubUserDAO(collection: MongoCollection) extends SalatDAO[HubUser, ObjectId
       update(MongoDBObject("userName" -> userName), $pull ("organizations" -> orgId), false, false, WriteConcern.Safe)
 
       // remove from all groups
-      Group.dao.findDirectMemberships(userName, orgId).foreach {
+      Group.dao.findDirectMemberships(userName).foreach {
         group => Group.dao.removeUser(orgId, userName, group._id)
       }
     } catch {

@@ -25,33 +25,35 @@ class StatisticsPlugin(app: Application) extends CultureHubPlugin(app) {
   /**
    * Called at configuration building time, giving the plugin the chance to build internal configuration
    *
-   * @param configuration the DomainConfiguration
-   * @param config the Play Configuration object
    */
-  override def onBuildConfiguration(configuration: DomainConfiguration, config: Option[Configuration]) {
-    val facets = config.map {
-      c =>
-        c.underlying.getStringList("facets").asScala.map {
-          facet => {
+  override def onBuildConfiguration(configurations: Map[DomainConfiguration, Option[Configuration]]) {
+    statisticsFacets = configurations.map { config =>
+
+      val facets = config._2.map { c =>
+
+        c.underlying.getStringList("facets").asScala.map { facet =>
             val s: Array[String] = facet.split(':')
             if (s.length == 1) {
               (facet -> facet)
             } else if (s.length == 2) {
               (s(0) -> s(1))
             } else {
-              Logger("CultureHub").warn("Invalid configuration key for statistic facets in configuration %s: %s".format(configuration.name, facet))
+              Logger("CultureHub").warn("Invalid configuration key for statistic facets in configuration %s: %s".format(config._1.name, facet))
               (s(0) -> s(0))
             }
-          }
         }.toMap
-    }.getOrElse {
-      Map(
-        "delving_owner" -> "metadata.delving.owner",
-        "delving_provider" -> "metadata.delving.provider"
-      )
-    }
 
-    statisticsFacets = statisticsFacets + (configuration -> facets)
+       }.getOrElse {
+        Map(
+          "delving_owner" -> "metadata.delving.owner",
+          "delving_provider" -> "metadata.delving.provider"
+        )
+      }
+
+      (config._1 -> facets)
+    
+    }.toMap
+
   }
 
   override val routes: ListMap[(String, Regex), (List[String], Map[String, String]) => Handler] = ListMap(

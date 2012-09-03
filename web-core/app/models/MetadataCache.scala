@@ -2,10 +2,12 @@ package models
 
 import _root_.util.DomainConfigurationHandler
 import com.mongodb.casbah.Imports._
+import core.SystemField
 import org.bson.types.ObjectId
 import HubMongoContext._
 import com.novus.salat.dao.SalatDAO
 import java.util.Date
+import scala.collection.JavaConverters._
 
 /**
  *
@@ -21,7 +23,13 @@ case class MetadataItem(modified: Date = new Date(),
                         index: Int,
                         invalidTargetSchemas: Seq[String] = Seq.empty,
                         systemFields: Map[String, List[String]] = Map.empty
-                       )
+                       ) {
+
+  def getSystemFieldValues(field: SystemField): Seq[String] = {
+    systemFields.get(field.name).getOrElse(new BasicDBList).asInstanceOf[BasicDBList].asScala.map(_.toString).toSeq
+  }
+
+}
 
 object MetadataCache {
 
@@ -64,7 +72,7 @@ class MongoMetadataCache(orgId: String, col: String, itemType: String, mongoColl
   }
 
   def iterate(index: Int = 0, limit: Option[Int], from: Option[Date] = None, until: Option[Date] = None): Iterator[MetadataItem] = {
-    val query = MongoDBObject("collection" -> col, "itemType" -> itemType) ++ ("index" $gt index)
+    val query = MongoDBObject("collection" -> col, "itemType" -> itemType) ++ ("index" $gte index)
     val fromQuery = from.map { f => ("modified" $gte f) }
     val untilQuery = until.map { u => ("modified" $lte u) }
 

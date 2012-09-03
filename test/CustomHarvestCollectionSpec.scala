@@ -9,7 +9,7 @@ import util.DomainConfigurationHandler
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-class CustomHarvestCollectionSpec extends TestContext {
+class CustomHarvestCollectionSpec extends Specs2TestContext {
 
   step {
     loadStandalone()

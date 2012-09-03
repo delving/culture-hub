@@ -529,13 +529,22 @@ object DomainConfiguration {
     }
 
 
-    // when everything else is ready, do the plugin configuration
+    // when everything else is ready, do the plugin configuration, per plugin
 
-    configs.map { configuration =>
-      configuration.plugins.foreach { pluginKey =>
-        val conf = config.getConfig("%s.plugin.%s".format(configuration.name, pluginKey))
-        CultureHubPlugin.hubPlugins.find(_.pluginKey == pluginKey).map(_.onBuildConfiguration(configuration, conf))
+    val pluginConfigurations: Map[(String, DomainConfiguration), Option[Configuration]] = configs.flatMap { configuration =>
+      configuration.plugins.map { pluginKey =>
+        ((pluginKey -> configuration) -> config.getConfig("%s.plugin.%s".format(configuration.name, pluginKey)))
       }
+    }.toMap
+
+    val groupedPluginConfigurations: Map[String, Map[DomainConfiguration, Option[Configuration]]] = pluginConfigurations.groupBy(_._1._1).map { g =>
+      (g._1 -> {
+        g._2.map(group => (group._1._2 -> group._2))
+      })
+    }.toMap
+
+    groupedPluginConfigurations.foreach { pluginConfig =>
+      CultureHubPlugin.hubPlugins.find(_.pluginKey == pluginConfig._1).map(_.onBuildConfiguration(pluginConfig._2))
     }
 
     configs

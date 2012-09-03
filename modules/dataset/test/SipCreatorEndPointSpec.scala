@@ -15,7 +15,7 @@ import play.api.libs.Files.TemporaryFile
 import play.api.libs.Files
 import util.DomainConfigurationHandler
 import xml.XML
-class SipCreatorEndPointSpec extends TestContext {
+class SipCreatorEndPointSpec extends Specs2TestContext {
 
   step {
     loadStandalone()

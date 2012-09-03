@@ -132,16 +132,6 @@ object Indexing extends SolrServer {
       }
     }
 
-    // add full text from digital objects
-    val fullTextUrl = "%s_string".format(FULL_TEXT_OBJECT_URL.key)
-    if (inputDoc.containsKey(fullTextUrl)) {
-      val pdfUrl = inputDoc.get(fullTextUrl).getFirstValue.toString
-      if (pdfUrl.endsWith(".pdf")) {
-        val fullText = TikaIndexer.getFullTextFromRemoteURL(pdfUrl)
-        inputDoc.addField("%s_text".format(FULL_TEXT.key), fullText)
-      }
-    }
-    
     if (inputDoc.containsKey(ID.key)) inputDoc.remove(ID.key)
     inputDoc += (ID -> record.itemId)
 
@@ -159,26 +149,6 @@ object Indexing extends SolrServer {
     }
 
     dataSet.getIndexingMappingPrefix.foreach(prefix => inputDoc += (ALL_SCHEMAS -> prefix))
-
-    val indexedKeys: Map[String, String] = inputDoc.keys.map(key => (SolrBindingService.stripDynamicFieldLabels(key), key)).toMap // to filter always index a facet with _facet .filter(!_.matches(".*_(s|string|link|single)$"))
-
-    // add facets at indexing time
-    configuration.getFacets.foreach {
-      facet =>
-        if (indexedKeys.contains(facet.facetName)) {
-          val facetContent = inputDoc.get(indexedKeys.get(facet.facetName).get).getValues
-          inputDoc addField("%s_facet".format(facet.facetName), facetContent)
-          // enable case-insensitive autocomplete
-          inputDoc addField ("%s_lowercase".format(facet.facetName), facetContent)
-        }
-    }
-    // adding sort fields at index time
-    configuration.getSortFields.foreach {
-      sort =>
-        if (indexedKeys.contains(sort.sortKey)) {
-          inputDoc addField("sort_all_%s".format(sort.sortKey), inputDoc.get(indexedKeys.get(sort.sortKey).get))
-        }
-    }
   }
 
 }
