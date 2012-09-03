@@ -106,7 +106,7 @@ switch (_view.nodeType) {
     break
 
     case "image": if (_view.text()){ }%
-        <div class="image img"><img src="${_view.text()}"#{if _view.attr("class")} class="${_view.attr("class")}"#{/if} #{if _view.attr("title")} title="${_view.attr("title")}"#{/if} onerror="showDefaultImg(this)"/></div>
+        <div class="img"><img src="${_view.text()}"#{if _view.attr("class")} class="${_view.attr("class")}"#{/if} #{if _view.attr("title")} title="${_view.attr("title")}"#{/if} onerror="showDefaultImg(this)"/></div>
     %{ }
     break
 
@@ -127,6 +127,12 @@ switch (_view.nodeType) {
             #{if _view.parent.attr("type") == "list"}
                 #{list _view.content(), as: 'e'}<li>${e.text()}</li>#{/list}
             #{/if}
+            #{elseif _view.parent.attr("type") == "labelled-list"}
+                <dt>&{_view.attr("label")}</dt>
+                <dd>
+                    #{list _view.content(), as: 'e'}${e.text()}#{if !e_isLast}${separator.raw()}#{/if}#{/list}
+                </dd>
+            #{/elseif}
             #{else}
                 #{if _view.attr("label")}
                     <h5>&{_view.attr("label")}</h5>

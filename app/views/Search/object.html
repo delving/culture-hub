@@ -1,30 +1,3 @@
-%{
-def rightsImage
-switch (rights) {
-case 'http://creativecommons.org/publicdomain/mark/1.0/':
-rightsImage = 'cc_publicdomain_mark.png'
-break
-case 'http://creativecommons.org/publicdomain/zero/1.0/':
-rightsImage = 'cc_publicdomain_zero.png'
-break
-case 'http://creativecommons.org/licenses/by/3.0/':
-rightsImage = 'cc_by.png'
-break
-case 'http://www.europeana.eu/rights/rr-f/':
-rightsImage = 'eu_free_access.jpg'
-break
-case 'http://www.europeana.eu/rights/rr-p/':
-rightsImage = 'eu_paid_access.jpg'
-break
-case 'http://www.europeana.eu/rights/rr-r/':
-rightsImage = 'eu_restricted_access.jpg'
-break
-case 'http://www.europeana.eu/rights/unknown/':
-rightsImage = 'eu_unknown.jpg'
-break
-}
-}%
-
 #{extends themeInfo.get('themeLayout') /}
 
 #{set title: systemFields.contains("delving_owner") ? systemFields.apply("delving_owner").get(0) + " | " : "" + systemFields.apply("delving_title").get(0) /}
@@ -32,17 +5,20 @@ break
 #{set bodyId: 'object'/}
 
 #{set 'moreScripts'}
-    <script>
-        *{ Set dynamic values to use in object.js }*
-        // i18n messages
-        jsLabels.relatedItems = "${messages.get('thing.relatedItems')}";
-        // thing object
-        var Thing = new Object();
-        Thing.orgId = "${orgId}";
-        Thing.hubId = "${hubId}";
-    </script>
-    <script src="@{routes.Assets.at('common/javascripts/seadragon/seadragon-min.js')}"></script>
-    <script src="@{routes.Assets.at('common/javascripts/object.js')}"></script>
+<script>
+    *{ Set dynamic values to use in object.js }*
+    // i18n messages
+    jsLabels.relatedItems = "${messages.get('thing.relatedItems')}";
+    jsLabels.provider =  "${messages.get('thing.provider')}"
+    jsLabels.creator =  "${messages.get('thing.creator')}"
+    // thing object
+    var Thing = new Object();
+    Thing.orgId = "${orgId}";
+    Thing.hubId = "${hubId}";
+</script>
+<script src="@{routes.Assets.at('common/javascripts/seadragon/seadragon-min.js')}"></script>
+<script src="@{routes.Assets.at('common/javascripts/object.js')}"></script>
+
 #{/set}
 
 #{breadcrumbs crumbs: breadcrumbs /}
@@ -66,51 +42,35 @@ break
 }*
 
 
-<div class="row">
-
-    <div class="span8">
-        #{if returnToResults.length() > 0}
-        <a href="/search?${returnToResults}" rel="nofollow" class="return-to-results"><i class="icon icon-arrow-left"></i> &{'ui.label.returnToResults'}</a>
-        #{/if}&#160;
+<div class="object-top row">
+    <div class="return-navigation span4">
+    #{if returnToResults.length() > 0}
+        <a href="/search?${returnToResults}" rel="nofollow" class="return-to-results">
+            <i class="icon icon-arrow-left"></i> &{'ui.label.returnToResults'}</a>
+    #{/if}&#160;
     </div>
-
-    <div class="span4">
+    <div class="rights span4">
+        #{rightsIcon rights: rights/}
+    </div>
+    <div class="social-media span4">
     #{if themeInfo.addThisTrackingCode().length() > 0}
         <div class="social-media-block pull-right">
             #{addThis lang:lang ?: 'en', pubId:themeInfo.addThisTrackingCode()/}
         </div>
     #{/if}
     </div>
+
 </div>
 
-<div class="row">
-
-    <div class="span8">
-        <header class="page-header">
-            ${systemFields.apply("delving_title").get(0)}
-        </header>
-    </div>
-
-
-
-    <div class="span4">
-    #{if rights}
-        #{rightsIcon rights: rights/}
-    #{/if}
+<div class="object-main">
+    <div class="row">
+        <div class="span8">
+            <h3 class="object-title">${systemFields.apply("delving_title").get(0)}</h3>
+            #{view view: fullView /}
+            *{<div class="related-items"></div>}*
+        </div>
+        <div class="span4">
+            <div class="related-items"></div>
+        </div>
     </div>
 </div>
-
-<div class="object-view">
-    #{view view: fullView /}
-    <div class="related-items"></div>
-</div>
-
-
-*{<!-- overlayed element -->}*
-*{<div id="overlay" class="modal hide" style="padding: 20px;width:auto">}*
-*{<div class="contentWrap">}*
-    *{<img src="${systemFields.apply("delving_thumbnail").get(0)}" alt="${systemFields.apply("delving_title").get(0)}" width="500" />}*
-    *{<div class="title"> ${systemFields.apply("delving_title").get(0)}</div>}*
-*{</div>}*
-*{</div>}*
-
