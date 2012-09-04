@@ -2,6 +2,7 @@ package core
 
 import eu.delving.schema.SchemaVersion
 import xml.NodeSeq
+import models.DomainConfiguration
 
 /**
   *
@@ -15,8 +16,8 @@ trait RecordResolverService {
    * @param hubId the ID of the record
    * @param schemaVersion the (optional) version of the schema to be fetched
    */
-  def getRecord(hubId: String, schemaVersion: Option[SchemaVersion] = None): Option[ViewableRecord]
+  def getRecord(hubId: String, schemaVersion: Option[SchemaVersion] = None)(implicit configuration: DomainConfiguration): Option[ViewableRecord]
 
 }
 
-case class ViewableRecord(recordXml: String, schemaVersion: SchemaVersion, relatedItems: Seq[NodeSeq], parameters: Map[String, String] = Map.empty)
+case class ViewableRecord(recordXml: String, schemaVersion: SchemaVersion, parameters: Map[String, String] = Map.empty)
