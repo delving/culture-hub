@@ -1,8 +1,9 @@
 package core.rendering
 
 import core.Constants._
+import core.HubId
 import core.search.{DelvingIdType, BriefDocItem, DocItemReference, SolrQueryService}
-import models.{RecordDefinition, MetadataCache, DomainConfiguration}
+import models.{Role, RecordDefinition, MetadataCache, DomainConfiguration}
 import java.net.{URLDecoder, URLEncoder}
 import play.api.Logger
 import xml._
@@ -58,9 +59,9 @@ object RecordRenderer {
     if(id.split("_").length < 3) {
       Left("Invalid hubId")
     } else {
-      val HubId(orgId, itemType, itemId) = id
-      val cache = MetadataCache.get(orgId, "indexApiItems", itemType)
-      val indexItem = cache.findOne(itemId).getOrElse(return Left("Could not find IndexItem with id '%s".format(id)))
+      val hubId = HubId(id)
+      val cache = MetadataCache.get(hubId.orgId, "indexApiItems", hubId.spec)
+      val indexItem = cache.findOne(hubId.localId).getOrElse(return Left("Could not find IndexItem with id '%s".format(id)))
       Right(new RenderedView {
         def toXmlString: String = indexItem.xml("raw")
         def toJson: String = "JSON rendering not supported"
@@ -72,8 +73,8 @@ object RecordRenderer {
 
   private def renderMetadataRecord(prefix: String, hubId: String, viewType: ViewType, lang: Lang, renderRelatedItems: Boolean, relatedItems: Seq[BriefDocItem])(implicit configuration: DomainConfiguration): Either[String, RenderedView] = {
     if(hubId.split("_").length < 3) return Left("Invalid hubId " + hubId)
-    val HubId(orgId, collection, itemId) = hubId
-    val cache = MetadataCache.get(orgId, collection, ITEM_TYPE_MDR)
+    val id = HubId(hubId)
+    val cache = MetadataCache.get(id.orgId, id.spec, ITEM_TYPE_MDR)
     val record = cache.findOne(hubId)
     val rawRecord: Option[String] = record.flatMap(_.xml.get(prefix))
     if (rawRecord.isEmpty) {
@@ -116,8 +117,9 @@ object RecordRenderer {
                            viewDefinitionFormatName: String,
                            viewType: ViewType,
                            lang: Lang,
-                           renderRelatedItems: Boolean,
-                           relatedItems: Seq[NodeSeq],
+                           renderRelatedItems: Boolean = false,
+                           relatedItems: Seq[NodeSeq] = Seq.empty,
+                           roles: Seq[Role] = Seq.empty,
                            parameters: Map[String, String] = Map.empty)(implicit configuration: DomainConfiguration): Either[String, RenderedView]  = {
 
       // let's do some rendering
@@ -148,7 +150,7 @@ object RecordRenderer {
               log.debug(cleanRawRecord)
 
               // TODO see what to do with roles
-              val rendered: RenderedView = viewRenderer.get.renderRecord(cleanRawRecord, List.empty, definition.getNamespaces + ("delving" -> "http://schemas.delving.eu"), lang, parameters)
+              val rendered: RenderedView = viewRenderer.get.renderRecord(cleanRawRecord, roles, definition.getNamespaces + ("delving" -> "http://schemas.delving.eu"), lang, parameters)
               Right(rendered)
             } catch {
               case t: Throwable =>

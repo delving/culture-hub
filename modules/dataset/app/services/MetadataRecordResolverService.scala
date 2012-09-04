@@ -1,9 +1,11 @@
 package services
 
-import core.{ViewableRecord, RecordResolverService}
+import core.{HubId, RenderableRecord, RecordResolverService}
 import eu.delving.schema.SchemaVersion
 import core.Constants._
 import models.{DomainConfiguration, DataSet, MetadataCache}
+import com.mongodb.casbah.Imports._
+import core.rendering.ViewType
 
 /**
  * 
@@ -17,15 +19,13 @@ class MetadataRecordResolverService extends RecordResolverService {
    * @param hubId the ID of the record
    * @param schemaVersion the (optional) version of the schema to be fetched
    */
-  def getRecord(hubId: String, schemaVersion: Option[SchemaVersion])(implicit configuration: DomainConfiguration): Option[ViewableRecord] = {
+  def getRecord(hubId: HubId, schemaVersion: Option[SchemaVersion])(implicit configuration: DomainConfiguration): Option[RenderableRecord] = {
 
-    val HubId(orgId, spec, localId) = hubId
+    MetadataCache.get(hubId.orgId, hubId.spec, ITEM_TYPE_MDR).findOne(hubId.id).flatMap { record =>
 
-    MetadataCache.get(orgId, spec, ITEM_TYPE_MDR).findOne(hubId).flatMap { record =>
+      DataSet.dao.findBySpecAndOrgId(hubId.spec, hubId.orgId).map { collection =>
 
-      DataSet.dao.findBySpecAndOrgId(spec, orgId).map { collection =>
-
-        val facts = collection.details.facts.asDBObject.map(kv => (kv._1.toString -> kv._2.toString))
+        val facts = collection.details.facts.map(kv => (kv._1.toString -> kv._2.toString))
 
         // TODO this is a workaround for not yet having a resolver for directory entries
         if (facts.contains("providerUri")) {
@@ -53,7 +53,7 @@ class MetadataRecordResolverService extends RecordResolverService {
 
         renderingSchema.flatMap { s =>
           record.xml.get(s.getPrefix).map { recordXml =>
-            ViewableRecord(recordXml, s, facts.toMap)
+            RenderableRecord(recordXml, record.systemFields, s, ViewType.HTML, facts.toMap)
           }
         }
       }

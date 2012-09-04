@@ -74,15 +74,15 @@ class ViewRenderer(val schema: String, viewType: ViewType, configuration: Domain
   dbFactory.setNamespaceAware(true)
   val dBuilder = dbFactory.newDocumentBuilder
 
-  def renderRecord(record: String, userGrantTypes: List[Role], namespaces: Map[String, String], lang: Lang, parameters: Map[String, String] = Map.empty): RenderedView = {
+  def renderRecord(record: String, userRoles: Seq[Role], namespaces: Map[String, String], lang: Lang, parameters: Map[String, String] = Map.empty): RenderedView = {
     viewDef match {
       case Some(viewDefinition) =>
-        renderRecordWithView(schema, viewType, viewDefinition, record, userGrantTypes, namespaces, lang, parameters)
+        renderRecordWithView(schema, viewType, viewDefinition, record, userRoles, namespaces, lang, parameters)
       case None => throw new RuntimeException("Could not find view definition '%s' for schema '%s'".format(viewType.name, schema))
     }
   }
 
-  def renderRecordWithView(prefix: String, viewType: ViewType, viewDefinition: Node, rawRecord: String, userGrantTypes: List[Role], namespaces: Map[String, String], lang: Lang, parameters: Map[String, String]): RenderedView = {
+  def renderRecordWithView(prefix: String, viewType: ViewType, viewDefinition: Node, rawRecord: String, userRoles: Seq[Role], namespaces: Map[String, String], lang: Lang, parameters: Map[String, String]): RenderedView = {
 
     val record = dBuilder.parse(new ByteArrayInputStream(rawRecord.getBytes("utf-8")))
 
@@ -419,10 +419,10 @@ class ViewRenderer(val schema: String, viewType: ViewType, configuration: Domain
     def withAccessControl(roles: List[String])(block: Option[Role] => Unit) {
       if(roles.isEmpty) {
         block(None)
-      } else if(userGrantTypes.contains(Role.OWN)) {
+      } else if(userRoles.contains(Role.OWN)) {
         block(Some(Role.OWN))
-      } else if(userGrantTypes.exists(gt => roles.contains(gt.key))) {
-        block(userGrantTypes.find(gt => roles.contains(gt.key)).headOption)
+      } else if(userRoles.exists(gt => roles.contains(gt.key))) {
+        block(userRoles.find(gt => roles.contains(gt.key)).headOption)
       } else {
         // though luck, man
       }

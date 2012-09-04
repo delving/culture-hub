@@ -28,14 +28,7 @@ object Constants {
   val ITEM_TYPE_MDR = "mdr"
 
   // ~~~ ACCESS CONTROL
-
   val USERNAME = "userName"
-
-
-  // ~~~ MetadataItem types
-
-  val HubId = """^(.*?)_(.*?)_(.*)$""".r
-
 
   // ~~~ Search UI
   val RETURN_TO_RESULTS = "returnToResults"
@@ -45,3 +38,21 @@ object Constants {
 }
 
 case class ItemType(itemType: String)
+
+case class HubId(orgId: String, spec: String, localId: String) {
+
+  val id = "%s_%s_%s".format(orgId, spec, localId)
+
+  override def toString: String = id
+}
+
+object HubId {
+
+  val HubIdExtractor = """^(.*?)_(.*?)_(.*)$""".r
+
+  def apply(id: String): HubId = {
+    val HubIdExtractor(orgId, spec, localId) = id
+    HubId(orgId, spec, localId)
+  }
+
+}

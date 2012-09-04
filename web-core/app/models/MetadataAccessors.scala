@@ -17,6 +17,7 @@
 package models
 
 import core.Constants._
+import core.HubId
 import core.indexing.IndexField._
 import core.SystemField._
 import org.bson.types.ObjectId
@@ -38,14 +39,11 @@ abstract class MetadataAccessors {
   // ~~~ identifiers
   def getHubId : String = URLDecoder.decode(assign(HUB_ID.key), "utf-8")
 
-  def getSplitHubId = {
-    val HubId(orgId, spec, localRecordKey) = getHubId
-    (orgId, spec, localRecordKey)
-  }
+  def getSplitHubId = HubId(getHubId)
 
-  def getOrgId : String =  getSplitHubId._1
-  def getSpec : String = getSplitHubId._2
-  def getRecordId : String = getSplitHubId._3
+  def getOrgId : String =  getSplitHubId.orgId
+  def getSpec : String = getSplitHubId.spec
+  def getRecordId : String = getSplitHubId.localId
 
   // ~~~ well-known, always provided, meta-data fields
   def getItemType: String = assign(RECORD_TYPE.key)
@@ -55,21 +53,16 @@ abstract class MetadataAccessors {
   def getOwner: String = assign(OWNER.tag)
   def getVisibility: String = assign(VISIBILITY.key)
 
-  def getUri(implicit configuration: DomainConfiguration): String = getItemType match {
-    case ITEM_TYPE_MDR =>
-      // TODO don't use heuristics
-      val allSchemas = values(ALL_SCHEMAS.key)
-      val allSupportedFormats = configuration.schemas
-      val renderFormat = allSupportedFormats.intersect(allSchemas).headOption
-      if(renderFormat.isDefined) {
-        "/" + getOrgId + "/thing/" + getSpec + "/" + getRecordId
-      } else {
-        ""
-      }
-    // TODO add plugin mechanism
-    case "museum" | "collection" =>
+  def getUri(implicit configuration: DomainConfiguration): String = {
+    // TODO don't use heuristics
+    val allSchemas = values(ALL_SCHEMAS.key)
+    val allSupportedFormats = configuration.schemas
+    val renderFormat = allSupportedFormats.intersect(allSchemas).headOption
+    if(renderFormat.isDefined) {
       "/" + getOrgId + "/" + getSpec + "/" + getRecordId
-    case _ => ""
+    } else {
+      ""
+    }
   }
 
   def getLandingPage = getItemType match {

@@ -6,7 +6,7 @@ import core.mapping.MappingService
 import akka.util.Duration
 import java.util.concurrent.TimeUnit
 import eu.delving.MappingResult
-import core.SystemField
+import core.{HubId, SystemField}
 import core.SystemField._
 import core.Constants._
 import core.indexing.IndexField._
@@ -244,9 +244,9 @@ class CollectionProcessor(collection: Collection,
   }
 
   private def enrichSystemFields(systemFields: MultiMap, hubId: String, currentFormatPrefix: String): MultiMap = {
-    val HubId(orgId, spec, localRecordKey) = hubId
+    val id = HubId(hubId)
     systemFields ++ Map(
-      SPEC.tag -> spec,
+      SPEC.tag -> id.spec,
       HAS_DIGITAL_OBJECT.key -> (systemFields.contains(SystemField.THUMBNAIL.tag) && systemFields.get(SystemField.THUMBNAIL.tag).size > 0).toString
     ).map(v => (v._1, List(v._2))).toMap
   }

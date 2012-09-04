@@ -1,13 +1,14 @@
 package core
 
+import core.rendering.ViewType
 import eu.delving.schema.SchemaVersion
 import xml.NodeSeq
 import models.DomainConfiguration
 
 /**
-  *
-  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
-  */
+ *
+ * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
+ */
 trait RecordResolverService {
 
   /**
@@ -16,8 +17,12 @@ trait RecordResolverService {
    * @param hubId the ID of the record
    * @param schemaVersion the (optional) version of the schema to be fetched
    */
-  def getRecord(hubId: String, schemaVersion: Option[SchemaVersion] = None)(implicit configuration: DomainConfiguration): Option[ViewableRecord]
+  def getRecord(hubId: HubId, schemaVersion: Option[SchemaVersion] = None)(implicit configuration: DomainConfiguration): Option[RenderableRecord]
 
 }
 
-case class ViewableRecord(recordXml: String, schemaVersion: SchemaVersion, parameters: Map[String, String] = Map.empty)
+case class RenderableRecord(recordXml: String,
+                            systemFields: Map[String, List[String]],
+                            schemaVersion: SchemaVersion,
+                            viewType: ViewType = ViewType.HTML,
+                            parameters: Map[String, String] = Map.empty)

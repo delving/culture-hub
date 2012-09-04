@@ -62,22 +62,6 @@ trait Logging extends Secured { self: ApplicationController =>
     reportError(request, t, why)
     Results.InternalServerError(views.html.errors.error(None, Some(why)))
   }
-  def BadRequest(implicit request: RequestHeader)              = {
-    warning("Bad request")
-    Results.BadRequest
-  }
-  def BadRequest(why: String)(implicit request: RequestHeader) = {
-    warning(why)
-    Results.BadRequest
-  }
-  def TextError(why: String, status: Int = 500)(implicit request: RequestHeader) = {
-    Logger.error(why)
-    Results.Status(status)(why)
-  }
-  def TextNotFound(why: String)(implicit request: RequestHeader) = {
-    Logger.warn(why)
-    Results.NotFound(why)
-  }
 
 
   // ~~~ Logger wrappers, with more context
@@ -86,14 +70,8 @@ trait Logging extends Secured { self: ApplicationController =>
   def info(message: String, args: String*)(implicit request: RequestHeader) {
     Logger(CH).info(withContext(m(message, args)))
   }
-  def info(e: Throwable, message: String, args: String*)(implicit request: RequestHeader) {
-    Logger(CH).info(withContext(m(message, args)), e)
-  }
   def warning(message: String, args: String*)(implicit request: RequestHeader) {
     Logger(CH).warn(withContext(m(message, args)))
-  }
-  def warning(e: Throwable, message: String, args: String*)(implicit request: RequestHeader) {
-    Logger(CH).warn(withContext(m(message, args)), e)
   }
   def logError(message: String, args: String*)(implicit request: RequestHeader, configuration: DomainConfiguration) {
     Logger(CH).error(withContext(m(message, args)))

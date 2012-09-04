@@ -106,7 +106,7 @@ GET          /search                                                          co
 
 GET          /:user                                                           controllers.Profile.profile(user)
 
-GET          /:orgId/:spec/:recordId                                          controllers.Search.record(orgId, spec, recordId, overlay: Boolean = false)
+GET          /:orgId/:spec/:recordId                                          controllers.FullView.render(orgId, spec, recordId, format: Option[String])
 
 GET          /:user/admin/profile/update                                      controllers.user.Admin.profile(user)
 POST         /:user/admin/profile                                             controllers.user.Admin.profileSubmit(user)

@@ -16,7 +16,7 @@ import eu.delving.schema.SchemaVersion
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-object  Search extends DelvingController {
+object Search extends DelvingController {
 
   def index(query: String, page: Int) = search(query)
 
@@ -51,107 +51,5 @@ object  Search extends DelvingController {
       }
 
     }
-
-
-  def record(orgId: String, spec: String, recordId: String, overlay: Boolean = false) = Root {
-    Action {
-      implicit request =>
-        DataSet.dao.findBySpecAndOrgId(spec, orgId).map {
-          collection =>
-            val hubId = "%s_%s_%s".format(orgId, spec, recordId)
-
-            MetadataCache.get(orgId, spec, ITEM_TYPE_MDR).findOne(hubId) match {
-              case Some(mdr) =>
-
-                val facts = collection.details.facts.asDBObject.map(kv => (kv._1.toString -> kv._2.toString))
-
-                // TODO this is a workaround for not yet having a resolver for directory entries
-                if (facts.contains("providerUri")) {
-                  facts.put("resolvedProviderUri", configuration.directoryService.providerDirectoryUrl +  facts("providerUri").split("/").reverse.head)
-                }
-                if (facts.contains("dataProviderUri")) {
-                  facts.put("resolvedDataProviderUri", configuration.directoryService.providerDirectoryUrl + facts("dataProviderUri").split("/").reverse.head)
-                }
-
-                val renderingSchema: Option[String] = {
-                  // AFF takes precedence over anything else
-                  if (mdr.xml.get("aff").isDefined) {
-                    Some("aff")
-                  } else {
-                    // use the indexing format as rendering format. if none is set try to find the first suitable one
-                    val inferredRenderingFormat = mdr.xml.keys.toList.intersect(configuration.schemas.toList).headOption
-                    val renderingFormat = collection.idxMappings.headOption.orElse(inferredRenderingFormat)
-                    if (renderingFormat.isDefined && mdr.xml.contains(renderingFormat.get)) {
-                      renderingFormat
-                    } else {
-                      None
-                    }
-                  }
-                }
-
-                if(renderingSchema.isEmpty) {
-                  NotFound(Messages("rendering.notViewable", "This object cannot be displayed because no appropriate rendering schema could be found"))
-                } else {
-                  val renderResult = RecordRenderer.renderMetadataRecord(
-                    hubId,
-                    mdr.xml(renderingSchema.get),
-                    new SchemaVersion(renderingSchema.get, mdr.schemaVersions(renderingSchema.get)),
-                    renderingSchema.get,
-                    ViewType.HTML,
-                    lang,
-                    false,
-                    Seq.empty,
-                    facts.toMap
-                  )
-
-                  if(renderResult.isRight) {
-                    val navigateFromSearch = request.headers.get(REFERER) != None && request.headers.get(REFERER).get.contains("search")
-                    val navigateFromRelatedItem = request.queryString.getFirst("mlt").getOrElse("false").toBoolean
-                    val updatedSession = if (!navigateFromSearch && !navigateFromRelatedItem) {
-                      // we're coming from someplace else then a search, remove the return to results cookie
-                      request.session - (RETURN_TO_RESULTS)
-                    } else {
-                      request.session
-                    }
-
-                    val returnToResults = updatedSession.get(RETURN_TO_RESULTS).getOrElse("")
-                    val searchTerm = updatedSession.get(SEARCH_TERM).getOrElse("")
-
-                    val fields = mdr.systemFields.get("delving_title").getOrElse(new BasicDBList).asInstanceOf[BasicDBList]
-
-                    renderArgs += ("breadcrumbs" -> Breadcrumbs.crumble(
-                      Map(
-                        "search" -> Map("searchTerm" -> searchTerm, "returnToResults" -> returnToResults),
-                        "title" -> Map("url" -> "", "label" -> Option(fields.get(0)).getOrElse("").toString),
-                        "inOrg" -> Map("inOrg" -> "yes")
-                      )
-                    ))
-
-                    Ok(
-                      Template(
-                        "Search/object.html",
-                        'systemFields -> mdr.systemFields,
-                        'fullView -> renderResult.right.get.toViewTree,
-                        'returnToResults -> returnToResults,
-                        'orgId -> orgId,
-                        'hubId -> hubId,
-                        'rights -> collection.getRights
-                      )
-                    ).withSession(updatedSession)
-
-                  } else {
-                    NotFound(Messages("rendering.notViewable", "Error during rendering: " + renderResult.left.get))
-                  }
-
-
-                }
-
-              case None => NotFound("Record was not found")
-            }
-        }.getOrElse {
-          NotFound("Collection was not found")
-        }
-    }
-  }
 
 }
