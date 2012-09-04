@@ -26,7 +26,6 @@
 <script type="text/javascript" src="@{routes.Assets.at("common/javascripts/fileupload/jquery.fileupload-fp.js")}"></script>
 <script type="text/javascript" src="@{routes.Assets.at("common/javascripts/fileupload/jquery.fileupload-ui.js")}"></script>
 <script type="text/javascript" src="@{routes.Assets.at("common/javascripts/fileupload/upload.js")}"></script>
-<script type="text/javascript" src="@{routes.Assets.at("common/javascripts/bootstrap/bootstrap-collapse.js")}"></script>
 #{/set}
 
 #{breadcrumbs crumbs: breadcrumbs /}
@@ -53,53 +52,53 @@
 </div>
 
 <form id="fileupload" action="#" method="POST" enctype="multipart/form-data">
-           <!-- The fileupload-buttonbar contains buttons to add/delete files and start/cancel the upload -->
-           <div class="row fileupload-buttonbar">
-               <div class="span7">
-                   <!-- The fileinput-button span is used to style the file input field as button -->
-                   <span class="btn btn-success fileinput-button">
-                       <i class="icon-plus icon-white"></i>
-                       <span>&{'ui.widget.upload.chooseFile'}</span>
-                       <input type="file" name="files[]" multiple >
-                   </span>
-                   <button type="submit" class="btn btn-primary start">
-                       <i class="icon-upload icon-white"></i>
-                       <span>&{'ui.widget.upload.start'}</span>
-                   </button>
-                   <button type="reset" class="btn btn-warning cancel">
-                       <i class="icon-ban-circle icon-white"></i>
-                       <span>&{'ui.widget.upload.cancel'}</span>
-                   </button>
-                   <button type="button" class="btn btn-danger delete">
-                       <i class="icon-trash icon-white"></i>
-                       <span>&{'ui.label.delete'}</span>
-                   </button>
-                   <input type="checkbox" class="toggle">
-               </div>
-               <div class="span5">
-                   <!-- The global progress bar -->
-                   <div class="progress progress-success progress-striped active fade">
-                       <div class="bar" style="width:0%;"></div>
-                   </div>
-               </div>
+   <!-- The fileupload-buttonbar contains buttons to add/delete files and start/cancel the upload -->
+   <div class="row fileupload-buttonbar">
+       <div class="span7">
+           <!-- The fileinput-button span is used to style the file input field as button -->
+           <span class="btn btn-success fileinput-button">
+               <i class="icon-plus icon-white"></i>
+               <span>&{'ui.widget.upload.chooseFile'}</span>
+               <input type="file" name="files[]" multiple >
+           </span>
+           <button type="submit" class="btn btn-primary start">
+               <i class="icon-upload icon-white"></i>
+               <span>&{'ui.widget.upload.start'}</span>
+           </button>
+           <button type="reset" class="btn btn-warning cancel">
+               <i class="icon-ban-circle icon-white"></i>
+               <span>&{'ui.widget.upload.cancel'}</span>
+           </button>
+           <button type="button" class="btn btn-danger delete">
+               <i class="icon-trash icon-white"></i>
+               <span>&{'ui.label.delete'}</span>
+           </button>
+           <input type="checkbox" class="toggle">
+       </div>
+       <div class="span5">
+           <!-- The global progress bar -->
+           <div class="progress progress-success progress-striped active fade">
+               <div class="bar" style="width:0%;"></div>
            </div>
-           <!-- The loading indicator is shown during file processing -->
-           <div class="fileupload-loading"></div>
-    <div class="row">
-        <div class="span12">
-           <!-- The table listing the files available for upload/download -->
-           <table class="table table-striped" style="margin-top: 21px;">
-               <caption>Uploaded files</caption>
-               <thead>
-               <th>Thumbnail</th>
-               <th>File name</th>
-               <th>File size</th>
-               <th colspan="2"></th>
-               <th>Actions</th>
-               </thead>
-               <tbody class="files" data-toggle="modal-gallery" data-target="#modal-gallery"></tbody></table>
-        </div>
-</div>
+       </div>
+   </div>
+
+   <!-- The loading indicator is shown during file processing -->
+   <div class="fileupload-loading"></div>
+
+   <!-- The table listing the files available for upload/download -->
+   <table class="table table-striped" style="margin-top: 21px;">
+       <caption>Uploaded files</caption>
+       <thead>
+       <th>Thumbnail</th>
+       <th>File name</th>
+       <th>File size</th>
+       <th colspan="2"></th>
+       <th>Actions</th>
+       </thead>
+       <tbody class="files" data-toggle="modal-gallery" data-target="#modal-gallery"></tbody>
+   </table>
+
 </form>
 <script type="text/javascript">
     $(document).ready(function () {

@@ -18,28 +18,22 @@ switch (recordType) {
 }
 }%
 
-*{<div class="thing-container ${_data.getItemType()} media media-stack">}*
-<div class="${_data.getItemType()} media media-stack">
-    *{<div class="category">${recordType}</div>}*
-        <div class="clip" style="height:${_clipHeight}">
-        <a class="img" href="${_data.getUri()}" title="${_data.getTitle()}"  rel="nofollow">
-            #{if _data.getMimeType().contains('image/') }
-                <img src='${_data.getThumbnailUri(_iSize)}' alt="${_data.getTitle()}" onerror="showDefaultImg(this)" style="max-width: 100%;"/>
-            #{/if}
-            #{elseif _data.getMimeType().contains('video/') }
-                <img src="@{routes.Assets.at('common/images/icon_video.png')}" width="80" alt="${_data.getTitle()}"/>
-            #{/elseif}
-            #{elseif _data.getMimeType().contains('audio/') }
-                <img src="@{routes.Assets.at('common/images/icon_audio.png')}" width="80" alt="${_data.getTitle()}"/>
-            #{/elseif}
-            #{elseif _data.getMimeType().contains('unknown/') }
-                <img src='${_data.getThumbnailUri(_iSize)}' width="${_iSize}" alt="${_data.getTitle()}" onerror="showDefaultImg(this)"/>
-            #{/elseif}
-        </a>
-        </div>
-        <div class="bd">
-            <div class="title"><a href="${_data.getUri()}" title="${_data.getTitle()}" rel="tooltip nofollow">${views.Helpers.shorten(_data.getTitle(), 40)}</a></div>
-            *{#{if _data.getOwner()}<div class="owner">${views.Helpers.shorten(_data.getOwner(), 80)}</div>#{/if}}*
-            #{if _data.getDescription()}<div class="description">${views.Helpers.shorten(_data.getDescription(), 80)}</div>#{/if}
-        </div>
+<div class="${_data.getItemType()} item">
+    <a class="img" href="${_data.getUri()}" title="${_data.getTitle()}"  rel="nofollow">
+    #{if _data.getMimeType().contains('image/') }
+        <img src='${_data.getThumbnailUri(_iSize)}' alt="${_data.getTitle()}" onerror="showDefaultImg(this)" style="max-width: 100%;"/>
+    #{/if}
+    #{elseif _data.getMimeType().contains('video/') }
+        <img src="@{routes.Assets.at('common/images/icon_video.png')}" width="80" alt="${_data.getTitle()}"/>
+    #{/elseif}
+    #{elseif _data.getMimeType().contains('audio/') }
+        <img src="@{routes.Assets.at('common/images/icon_audio.png')}" width="80" alt="${_data.getTitle()}"/>
+    #{/elseif}
+    #{elseif _data.getMimeType().contains('unknown/') }
+        <img src='${_data.getThumbnailUri(_iSize)}' alt="${_data.getTitle()}" onerror="showDefaultImg(this)"/>
+    #{/elseif}
+    </a>
+    <div class="bd">
+        <h3 class="title"><a href="${_data.getUri()}" title="${_data.getTitle()}" rel="tooltip nofollow">${views.Helpers.shorten(_data.getTitle(), 40)}</a></h3>
     </div>
+</div>
