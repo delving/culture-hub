@@ -105,7 +105,7 @@ abstract class CultureHubPlugin(app: Application) extends play.api.Plugin {
   // ~~~ API
 
   /** whether this plugin is enabled for the current domain **/
-  def isEnabled(configuration: DomainConfiguration): Boolean = configuration.plugins.exists(_ == pluginKey)
+  def isEnabled(configuration: DomainConfiguration): Boolean = configuration.plugins.exists(_ == pluginKey) || pluginKey == "configuration"
 
   /**
    * Retrieves the navigation for the organization section of the Hub
