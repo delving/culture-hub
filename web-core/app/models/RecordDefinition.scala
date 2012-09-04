@@ -17,13 +17,12 @@
 package models
 
 import _root_.util.DomainConfigurationHandler
-import core.schema.Schema
 import xml.{Node, XML}
 import play.api.{Logger, Play}
 import play.api.Play.current
 import java.net.URL
 import core.{HubModule, SchemaService}
-import eu.delving.schema.SchemaType
+import eu.delving.schema.{SchemaVersion, SchemaType}
 import collection.mutable
 
 /**
@@ -73,7 +72,7 @@ object RecordDefinition {
 
   private val parsedRecordDefinitionsCache = new mutable.HashMap[String, RecordDefinition]()
 
-  def getRecordDefinition(schema: Schema)(implicit configuration: DomainConfiguration): Option[RecordDefinition] = getRecordDefinition(schema.prefix, schema.version)
+  def getRecordDefinition(schema: SchemaVersion)(implicit configuration: DomainConfiguration): Option[RecordDefinition] = getRecordDefinition(schema.getPrefix, schema.getVersion)
 
   def getRecordDefinition(prefix: String, version: String)(implicit configuration: DomainConfiguration): Option[RecordDefinition] = {
     if(prefix == "raw") {

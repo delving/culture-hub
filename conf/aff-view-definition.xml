@@ -11,7 +11,7 @@
             </column>
         </row>
     </view>
-    <view name="full">
+    <view name="api">
         <verbatim/>
     </view>
 </views>

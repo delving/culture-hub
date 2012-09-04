@@ -35,8 +35,8 @@ import core.collection.{Indexable, OrganizationCollection, OrganizationCollectio
 import controllers.organization.DataSetEvent
 import plugins.DataSetPlugin
 import java.util.Date
-import core.schema.Schema
 import util.DomainConfigurationHandler
+import eu.delving.schema.SchemaVersion
 
 /**
  * DataSet model
@@ -102,17 +102,17 @@ case class DataSet(
     (for (fact <- details.facts) yield (fact._1, fact._2.toString)).toMap[String, String]
   }
 
-  def getAllMappingSchemas: Seq[Schema] = mappings.map(mapping => Schema(mapping._2.schemaPrefix, mapping._2.schemaVersion)).toSeq.distinct
+  def getAllMappingSchemas: Seq[SchemaVersion] = mappings.map(mapping => new SchemaVersion(mapping._2.schemaPrefix, mapping._2.schemaVersion)).toSeq.distinct
 
   def getPublishableMappingSchemas = getAllMappingSchemas.
-    filter(schema => formatAccessControl.get(schema.prefix).isDefined).
-    filter(schema => formatAccessControl(schema.prefix).isPublicAccess || formatAccessControl(schema.prefix).isProtectedAccess).
+    filter(schema => formatAccessControl.get(schema.getPrefix).isDefined).
+    filter(schema => formatAccessControl(schema.getPrefix).isPublicAccess || formatAccessControl(schema.getPrefix).isProtectedAccess).
     toList
 
   def getVisibleMetadataSchemas(accessKey: Option[String] = None): Seq[RecordDefinition] = {
     getAllMappingSchemas.
-      filterNot(schema => formatAccessControl.get(schema.prefix).isEmpty).
-      filter(schema => formatAccessControl(schema.prefix).hasAccess(accessKey)).
+      filterNot(schema => formatAccessControl.get(schema.getPrefix).isEmpty).
+      filter(schema => formatAccessControl(schema.getPrefix).hasAccess(accessKey)).
       flatMap(schema => RecordDefinition.getRecordDefinition(schema))
   }
 

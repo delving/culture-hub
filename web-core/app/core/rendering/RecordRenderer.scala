@@ -7,9 +7,7 @@ import java.net.{URLDecoder, URLEncoder}
 import play.api.Logger
 import xml._
 import play.api.i18n.Lang
-import scala.Left
-import scala.Some
-import scala.Right
+import eu.delving.schema.SchemaVersion
 
 /**
  * Renders a single record, with or without related items. Makes use of the search engine to retrieve related records and IDs.
@@ -29,7 +27,7 @@ object RecordRenderer {
    */
   def getRenderedFullView(id: String,
                           idType: DelvingIdType,
-                          language: String,
+                          lang: Lang,
                           schema: Option[String] = None,
                           renderRelatedItems: Boolean)(implicit configuration: DomainConfiguration): Either[String, RenderedView] = {
 
@@ -49,7 +47,7 @@ object RecordRenderer {
         if(idType == "indexItem") {
           renderIndexItem(id)
         } else {
-          renderMetadataRecord(prefix, URLDecoder.decode(hubId, "utf-8"), ViewType.API, language, renderRelatedItems, relatedItems)
+          renderMetadataRecord(prefix, URLDecoder.decode(hubId, "utf-8"), ViewType.API, lang, renderRelatedItems, relatedItems)
         }
       case None =>
         Left("Could not resolve identifier for hubId '%s' and idType '%s'".format(id, idType.idType))
@@ -72,7 +70,7 @@ object RecordRenderer {
     }
   }
 
-  private def renderMetadataRecord(prefix: String, hubId: String, viewType: ViewType, language: String, renderRelatedItems: Boolean, relatedItems: Seq[BriefDocItem])(implicit configuration: DomainConfiguration): Either[String, RenderedView] = {
+  private def renderMetadataRecord(prefix: String, hubId: String, viewType: ViewType, lang: Lang, renderRelatedItems: Boolean, relatedItems: Seq[BriefDocItem])(implicit configuration: DomainConfiguration): Either[String, RenderedView] = {
     if(hubId.split("_").length < 3) return Left("Invalid hubId " + hubId)
     val HubId(orgId, collection, itemId) = hubId
     val cache = MetadataCache.get(orgId, collection, ITEM_TYPE_MDR)
@@ -94,7 +92,7 @@ object RecordRenderer {
 
       val schemaVersion = record.get.schemaVersions(prefix)
 
-      renderMetadataRecord(hubId, rawRecord.get, prefix, schemaVersion, viewDefinitionFormatName, viewType, language, renderRelatedItems, relatedItems)
+      renderMetadataRecord(hubId, rawRecord.get, new SchemaVersion(prefix, schemaVersion), viewDefinitionFormatName, viewType, lang, renderRelatedItems, relatedItems.map(_.toXml()))
     }
   }
 
@@ -102,31 +100,30 @@ object RecordRenderer {
    * Renders a metadata record
    *
    * @param hubId the hubId
-   * @param rawRecord the raw record (XML string)
-   * @param schemaPrefix prefix of the schema the record is in
+   * @param recordXml the raw record (XML string)
+   * @param schema the schema being rendered
    * @param viewDefinitionFormatName prefix of the view rendering schema. in principle the same as the one of the record, but there may be exceptions (e.g. "legacy")
    * @param viewType viewType (API / HTML)
-   * @param language rendering languages
+   * @param lang rendering languages
    * @param renderRelatedItems whether to render related items
    * @param relatedItems the related items
    * @param configuration DomainConfiguration
    * @return a rendered view if successful, or an error message
    */
   def renderMetadataRecord(hubId: String,
-                           rawRecord: String,
-                           schemaPrefix: String,
-                           schemaVersion: String,
+                           recordXml: String,
+                           schema: SchemaVersion,
                            viewDefinitionFormatName: String,
                            viewType: ViewType,
-                           language: String,
+                           lang: Lang,
                            renderRelatedItems: Boolean,
-                           relatedItems: Seq[BriefDocItem],
+                           relatedItems: Seq[NodeSeq],
                            parameters: Map[String, String] = Map.empty)(implicit configuration: DomainConfiguration): Either[String, RenderedView]  = {
 
       // let's do some rendering
-      RecordDefinition.getRecordDefinition(schemaPrefix, schemaVersion) match {
+      RecordDefinition.getRecordDefinition(schema) match {
         case Some(definition) =>
-          val viewRenderer = ViewRenderer.fromDefinition(viewDefinitionFormatName, viewType.name)
+          val viewRenderer = ViewRenderer.fromDefinition(viewDefinitionFormatName, viewType)
           if (viewRenderer.isEmpty) {
             log.warn("Tried rendering full record with id '%s' for non-existing view type '%s'".format(hubId, viewType.name))
             Left("Could not render full record with hubId '%s' for view type '%s': view type does not exist".format(hubId, viewType.name))
@@ -134,33 +131,33 @@ object RecordRenderer {
             try {
               val cleanRawRecord = if(renderRelatedItems) {
                 // mix the related items to the record coming from mongo
-                val record = scala.xml.XML.loadString(rawRecord)
-                val relatedItemsXml = <relatedItems>{relatedItems.map(_.toXml())}</relatedItems>
+                val record = scala.xml.XML.loadString(recordXml)
+                val relatedItemsXml = <relatedItems>{relatedItems}</relatedItems>
                 var mergedRecord: Elem = addChild(record, relatedItemsXml).get // we know what we're doing here
 
                 // prepend the delving namespace if it ain't there
                 // and yes this check is ugly but Scala's XML <-> namespace support ain't pretty to say the least
-                if(!rawRecord.contains("xmlns:delving")) {
+                if(!recordXml.contains("xmlns:delving")) {
                   mergedRecord = mergedRecord % new UnprefixedAttribute("xmlns:delving", "http://schemas.delving.eu", Null)
                 }
 
                 mergedRecord.toString().replaceFirst("<\\?xml.*?>", "")
               } else {
-                rawRecord.replaceFirst("<\\?xml.*?>", "")
+                recordXml.replaceFirst("<\\?xml.*?>", "")
               }
               log.debug(cleanRawRecord)
 
               // TODO see what to do with roles
-              val rendered: RenderedView = viewRenderer.get.renderRecord(cleanRawRecord, List.empty, definition.getNamespaces + ("delving" -> "http://schemas.delving.eu"), Lang(language), parameters)
+              val rendered: RenderedView = viewRenderer.get.renderRecord(cleanRawRecord, List.empty, definition.getNamespaces + ("delving" -> "http://schemas.delving.eu"), lang, parameters)
               Right(rendered)
             } catch {
               case t: Throwable =>
-                log.error("Exception while rendering view %s for record %s".format(schemaPrefix, hubId), t)
-                Left("Error while rendering view '%s' for record with hubId '%s'".format(schemaPrefix, hubId))
+                log.error("Exception while rendering view %s for record %s".format(schema, hubId), t)
+                Left("Error while rendering view '%s' for record with hubId '%s'".format(schema, hubId))
             }
           }
         case None =>
-          val m = "Error while rendering view '%s' for record with hubId '%s': could not find record definition with prefix '%s'".format(schemaPrefix, hubId, schemaPrefix)
+          val m = "Error while rendering view '%s' for record with hubId '%s': could not find record definition with prefix '%s'".format(schema, hubId, schema)
           log.error(m)
           Left(m)
       }

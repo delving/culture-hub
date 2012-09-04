@@ -63,7 +63,6 @@ abstract class CultureHubPlugin(app: Application) extends play.api.Plugin {
    */
   def mainMenuEntries(implicit configuration: DomainConfiguration, lang: String): Seq[MainMenuEntry] = Seq.empty
 
-
   /**
    * Override this to add menu entries to the organization menu
    * @param orgId the organization ID
@@ -73,20 +72,6 @@ abstract class CultureHubPlugin(app: Application) extends play.api.Plugin {
    */
   def organizationMenuEntries(orgId: String, lang: String, roles: Seq[String]): Seq[MainMenuEntry] = Seq.empty
 
-
-  /**
-   * Override this to provide organization collections via this plugin
-   *
-   * @return a sequence of [[core.collection.OrganizationCollectionLookup]] instances
-   */
-  def organizationCollectionLookups: Seq[OrganizationCollectionLookup] = Seq.empty
-
-  /**
-   * Override this to provide harvest collections via this plugin
-   *
-   * @return a sequence of [[core.collection.HarvestCollectionLookup]] instances
-   */
-  def harvestCollectionLookups: Seq[HarvestCollectionLookup] = Seq.empty
 
   /**
    * Override this to provide custom roles to the platform, that can be used in Groups
@@ -101,6 +86,26 @@ abstract class CultureHubPlugin(app: Application) extends play.api.Plugin {
   def resourceLookups: Seq[ResourceLookup] = Seq.empty
 
 
+  /**
+   * Service instances this plugin provides
+   */
+  def services: Seq[Any] = Seq.empty
+
+  // TODO replace the above by services
+
+  /**
+   * Override this to provide organization collections via this plugin
+   *
+   * @return a sequence of [[core.collection.OrganizationCollectionLookup]] instances
+   */
+  def organizationCollectionLookups: Seq[OrganizationCollectionLookup] = Seq.empty
+
+  /**
+   * Override this to provide harvest collections via this plugin
+   *
+   * @return a sequence of [[core.collection.HarvestCollectionLookup]] instances
+   */
+  def harvestCollectionLookups: Seq[HarvestCollectionLookup] = Seq.empty
 
   // ~~~ API
 
@@ -122,6 +127,12 @@ abstract class CultureHubPlugin(app: Application) extends play.api.Plugin {
     Seq.empty
   }
 
+  /**
+   * Gets all service implementations of a certain type
+   */
+  def getServices[T <: Any](serviceClass: Class[T]): Seq[T] = {
+    services.filter(s => serviceClass.isAssignableFrom(s.getClass)).map(_.asInstanceOf[T])
+  }
 
   // ~~~ Play Plugin lifecycle integration
 
@@ -167,6 +178,16 @@ object CultureHubPlugin {
       .filter(_.isEnabled(configuration))
       .toList
       .distinct
+
+  /**
+   * Gets all service implementations of a certain type provided by all plugins
+   */
+  def getServices[T <: Any](serviceClass: Class[T])(implicit configuration: DomainConfiguration): Seq[T] = {
+    getEnabledPlugins.flatMap { p =>
+      p.getServices(serviceClass)
+    }
+  }
+
 
 }
 
