@@ -4,8 +4,10 @@ import org.bson.types.ObjectId
 import com.mongodb.casbah.gridfs.{GridFS, GridFSDBFile}
 import java.awt.image.BufferedImage
 import javax.imageio.ImageIO
-import java.io.{ByteArrayInputStream, ByteArrayOutputStream, InputStream}
-import com.thebuzzmedia.imgscalr.Scalr
+import java.io._
+import org.imgscalr.Scalr
+import play.api.libs.Files.TemporaryFile
+import io.Source
 
 /**
  *
@@ -22,7 +24,7 @@ trait Thumbnail {
 
   protected def createThumbnailFromStream(imageStream: InputStream, filename: String, contentType: String, width: Int, store: GridFS, params: Map[String, AnyRef] = Map.empty[String, AnyRef]): (Int, ObjectId) = {
     val resizedStream = createThumbnail(imageStream, contentType, width)
-    storeThumbnail(resizedStream, filename, contentType, width, store, params)
+    storeThumbnail(resizedStream, filename, "png", width, store, params)
   }
 
   protected def storeThumbnail(thumbnailStream: InputStream, filename: String, contentType: String, width: Int, store: GridFS, params: Map[String, AnyRef] = Map.empty[String, AnyRef]): (Int, ObjectId) = {
@@ -30,7 +32,7 @@ trait Thumbnail {
     thumbnail.filename = filename
     thumbnail.contentType = contentType
     thumbnail.put (THUMBNAIL_WIDTH_FIELD, width.asInstanceOf[AnyRef])
-    params foreach { p => thumbnail.put(p._1, p._2)}
+    params.foreach { p => thumbnail.put(p._1, p._2) }
     thumbnail.save
     (width, thumbnail._id.get)
   }
@@ -38,7 +40,7 @@ trait Thumbnail {
   private def createThumbnail(sourceStream: InputStream, contentType: String, thumbnailWidth: Int, boundingBox: Boolean = true): InputStream = {
     val thumbnail: BufferedImage = resizeImage(sourceStream, thumbnailWidth, boundingBox)
     val os: ByteArrayOutputStream = new ByteArrayOutputStream()
-    ImageIO.write(thumbnail, contentType, os)
+    ImageIO.write(thumbnail, "png", os) // we write out the thumbnail as PNG which is a lossless format
     new ByteArrayInputStream(os.toByteArray)
   }
 
