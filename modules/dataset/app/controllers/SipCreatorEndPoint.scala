@@ -39,9 +39,7 @@ object SipCreatorEndPoint extends ApplicationController {
 
     val DOT_PLACEHOLDER = "--"
 
-    val log: Logger = Logger(SipCreatorEndPoint.getClass)
-
-    private def basexStorage(implicit configuration: DomainConfiguration) = HubServices.basexStorage(configuration)
+  private def basexStorage(implicit configuration: DomainConfiguration) = HubServices.basexStorage(configuration)
 
     // HASH__type[_prefix].extension
     private val FileName = """([^_]*)__([^._]*)_?([^.]*).(.*)""".r
@@ -227,10 +225,6 @@ object SipCreatorEndPoint extends ApplicationController {
                                 new FileInputStream(request.body.file)
 
                             val actionResult: Either[String, String] = kind match {
-
-                                case "mapping" if extension == "xml" =>
-                                    receiveMapping(dataSet.get, inputStream, spec, hash)
-
                                 case "hints" if extension == "txt" =>
                                     receiveHints(dataSet.get, inputStream)
 
@@ -262,10 +256,8 @@ object SipCreatorEndPoint extends ApplicationController {
 
                             actionResult match {
                                 case Right(ok) => {
-                                    DataSet.dao.addHash(
-                                        dataSet.get, fileName.split("__")(1).replaceAll("\\.", DOT_PLACEHOLDER), hash
-                                    )
-                                    info("Successfully accepted file %s for DataSet %s".format(fileName, spec))
+                                    DataSet.dao.addHash(dataSet.get, fileName.split("__")(1).replaceAll("\\.", DOT_PLACEHOLDER), hash)
+                                    log.info("Successfully accepted file %s for DataSet %s".format(fileName, spec))
                                     Ok
                                 }
                                 case Left(houston) => {

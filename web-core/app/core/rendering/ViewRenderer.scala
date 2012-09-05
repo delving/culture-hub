@@ -43,46 +43,46 @@ import collection.mutable.{HashMap, ArrayBuffer, Stack}
 
 object ViewRenderer {
 
-  def fromDefinition(schema: String, viewName: String)(implicit configuration: DomainConfiguration) = {
-    val definition = getViewDefinition(schema, viewName)
+  def fromDefinition(schema: String, viewType: ViewType)(implicit configuration: DomainConfiguration) = {
+    val definition = getViewDefinition(schema, viewType)
     if(definition.isDefined) {
-      Some(new ViewRenderer(schema, viewName, configuration))
+      Some(new ViewRenderer(schema, viewType, configuration))
     } else {
       None
     }
   }
 
-  def getViewDefinition(schema: String, viewName: String): Option[Node] = {
+  def getViewDefinition(schema: String, viewType: ViewType): Option[Node] = {
     val definitionResource = Play.application.resource("/%s-view-definition.xml".format(schema))
     if(!definitionResource.isDefined) {
       None
     } else {
       val xml = XML.load(definitionResource.get)
-      (xml \ "view").filter(v => (v \ "@name").text == viewName).headOption
+      (xml \ "view").filter(v => (v \ "@name").text == viewType.name).headOption
     }
   }
 
 }
 
-class ViewRenderer(val schema: String, viewName: String, configuration: DomainConfiguration) {
+class ViewRenderer(val schema: String, viewType: ViewType, configuration: DomainConfiguration) {
   
   val log = Logger("CultureHub")
 
-  val viewDef: Option[Node] = ViewRenderer.getViewDefinition(schema, viewName)
+  val viewDef: Option[Node] = ViewRenderer.getViewDefinition(schema, viewType)
 
   val dbFactory = DocumentBuilderFactory.newInstance
   dbFactory.setNamespaceAware(true)
   val dBuilder = dbFactory.newDocumentBuilder
 
-  def renderRecord(record: String, userGrantTypes: List[Role], namespaces: Map[String, String], lang: Lang, parameters: Map[String, String] = Map.empty): RenderedView = {
+  def renderRecord(record: String, userRoles: Seq[Role], namespaces: Map[String, String], lang: Lang, parameters: Map[String, String] = Map.empty): RenderedView = {
     viewDef match {
       case Some(viewDefinition) =>
-        renderRecordWithView(schema, viewName, viewDefinition, record, userGrantTypes, namespaces, lang, parameters)
-      case None => throw new RuntimeException("Could not find view definition '%s' for schema '%s'".format(viewName, schema))
+        renderRecordWithView(schema, viewType, viewDefinition, record, userRoles, namespaces, lang, parameters)
+      case None => throw new RuntimeException("Could not find view definition '%s' for schema '%s'".format(viewType.name, schema))
     }
   }
 
-  def renderRecordWithView(prefix: String, viewName: String, viewDefinition: Node, rawRecord: String, userGrantTypes: List[Role], namespaces: Map[String, String], lang: Lang, parameters: Map[String, String]): RenderedView = {
+  def renderRecordWithView(prefix: String, viewType: ViewType, viewDefinition: Node, rawRecord: String, userRoles: Seq[Role], namespaces: Map[String, String], lang: Lang, parameters: Map[String, String]): RenderedView = {
 
     val record = dBuilder.parse(new ByteArrayInputStream(rawRecord.getBytes("utf-8")))
 
@@ -419,10 +419,10 @@ class ViewRenderer(val schema: String, viewName: String, configuration: DomainCo
     def withAccessControl(roles: List[String])(block: Option[Role] => Unit) {
       if(roles.isEmpty) {
         block(None)
-      } else if(userGrantTypes.contains(Role.OWN)) {
+      } else if(userRoles.contains(Role.OWN)) {
         block(Some(Role.OWN))
-      } else if(userGrantTypes.exists(gt => roles.contains(gt.key))) {
-        block(userGrantTypes.find(gt => roles.contains(gt.key)).headOption)
+      } else if(userRoles.exists(gt => roles.contains(gt.key))) {
+        block(userRoles.find(gt => roles.contains(gt.key)).headOption)
       } else {
         // though luck, man
       }
@@ -431,7 +431,7 @@ class ViewRenderer(val schema: String, viewName: String, configuration: DomainCo
     if(shortcutResult.isDefined) {
       shortcutResult.get
     } else {
-      NodeRenderedView(viewName, prefix, result.content.head, arrays.toList)
+      NodeRenderedView(viewType, prefix, result.content.head, arrays.toList)
     }
 
   }
@@ -468,7 +468,7 @@ class ViewRenderer(val schema: String, viewName: String, configuration: DomainCo
 
   def evaluateParamExpression(value: String, parameters: Map[String, String]): String = {
     """\$\{(.*)\}""".r.replaceAllIn(value, m => parameters.get(m.group(1)).getOrElse {
-      log.warn("Could not find value for parameter %s while rendering view %s".format(m.group(1), viewName))
+      log.warn("Could not find value for parameter %s while rendering view %s".format(m.group(1), viewType.name))
       ""
     })
   }
@@ -482,7 +482,7 @@ abstract class RenderedView {
   def toViewTree: RenderNode
 }
 
-case class NodeRenderedView(viewName: String, formatName: String, viewTree: RenderNode, sequences: Seq[List[String]]) extends RenderedView {
+case class NodeRenderedView(viewType: ViewType, schemaPrefix: String, viewTree: RenderNode, sequences: Seq[List[String]]) extends RenderedView {
 
   def toXml = XML.loadString(toXmlString)
   

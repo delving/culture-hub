@@ -177,7 +177,7 @@ object Registration extends ApplicationController {
             implicit request =>
                 val indexAction = Redirect(controllers.routes.Application.index)
                 if (Option(activationToken).isEmpty) {
-                    warning("Empty activation token received")
+                    log.warn("Empty activation token received")
                     indexAction.flashing(("activation", "false"))
                 }
                 else {

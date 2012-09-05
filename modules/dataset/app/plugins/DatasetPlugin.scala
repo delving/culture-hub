@@ -1,5 +1,6 @@
 package plugins
 
+import _root_.services.MetadataRecordResolverService
 import jobs._
 import play.api.{Logger, Play, Application}
 import Play.current
@@ -141,7 +142,12 @@ class DataSetPlugin(app: Application) extends CultureHubPlugin(app) {
 
     )
 
-    override def harvestCollectionLookups: Seq[HarvestCollectionLookup] = Seq(dataSetHarvestCollectionLookup)
+  )
+
+
+  override def services: Seq[Any] = Seq(
+    new MetadataRecordResolverService
+  )
 
     override def organizationCollectionLookups: Seq[OrganizationCollectionLookup] = Seq(dataSetHarvestCollectionLookup)
 

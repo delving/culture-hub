@@ -16,6 +16,7 @@
 
 package core.harvesting
 
+import core.HubId
 import java.text.SimpleDateFormat
 import java.util.Date
 import exceptions._
@@ -286,17 +287,17 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
 
     if(format.isDefined && metadataFormat != format.get) throw new MappingNotFoundException("Invalid format provided for this URL")
 
-    val HubId(orgId, set, itemId) = pmhRequest.identifier
+    val hubId = HubId(pmhRequest.identifier)
 
     // check access rights
-    val c = AggregatingHarvestCollectionLookup.findBySpecAndOrgId(set, orgId)
+    val c = AggregatingHarvestCollectionLookup.findBySpecAndOrgId(hubId.spec, orgId)
     if (c == None) return createErrorResponse("noRecordsMatch")
     if (!c.get.getVisibleMetadataSchemas(accessKey).contains(metadataFormat)) {
       return createErrorResponse("idDoesNotExist")
     }
 
     val record: MetadataItem = {
-      val cache = MetadataCache.get(orgId, set, ITEM_TYPE_MDR)
+      val cache = MetadataCache.get(orgId, hubId.spec, ITEM_TYPE_MDR)
       val mdRecord = cache.findOne(pmhRequest.identifier)
       if (mdRecord == None) return createErrorResponse("noRecordsMatch")
       else mdRecord.get

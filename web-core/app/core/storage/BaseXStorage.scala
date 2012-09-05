@@ -111,7 +111,7 @@ class BaseXStorage(configuration: BaseXConfiguration) {
 
   def buildRecord(record: Record, version: Int, namespaces: Map[String, String], index: Int) = {
 
-    val ns = namespaces.map(ns => if(ns._1.isEmpty) """xmlns="%s"""".format(ns._2) else """xmlns:%s="%s"""".format(ns._1, ns._2)).mkString(" ")
+    val ns = util.XMLUtils.namespacesToString(namespaces)
 
     new ByteArrayInputStream("""<record id="%s" version="%s" %s>
       <system>
