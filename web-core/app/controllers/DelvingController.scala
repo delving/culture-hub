@@ -28,6 +28,8 @@ trait ApplicationController extends Controller with GroovyTemplates with DomainC
 
   private val LANG_COOKIE = "CH_LANG"
 
+  protected val log = Logger("CultureHub")
+
   implicit def getLang(implicit request: RequestHeader) = request.cookies.get(LANG_COOKIE).map(_.value).getOrElse(configuration.ui.defaultLanguage)
 
   override implicit def lang(implicit request: RequestHeader): Lang = Lang(getLang)
@@ -142,17 +144,17 @@ trait ApplicationController extends Controller with GroovyTemplates with DomainC
 
   // ~~~ Access control
 
-  def getUserGrantTypes(orgId: String)(implicit request: RequestHeader, configuration: DomainConfiguration) = request.session.get(Constants.USERNAME).map {
+  def getUserGrantTypes(orgId: String)(implicit request: RequestHeader, configuration: DomainConfiguration): Seq[Role] = request.session.get(Constants.USERNAME).map {
     userName =>
       val isAdmin = HubServices.organizationService(configuration).isAdmin(orgId, userName)
-      val groups: List[Role] = Group.dao.findDirectMemberships(userName).map(_.roleKey).toList.distinct.map(Role.get(_))
+      val groups: Seq[Role] = Group.dao.findDirectMemberships(userName).map(_.roleKey).toSeq.distinct.map(Role.get(_))
       // TODO make this cleaner
       if(isAdmin) {
-        groups ++ List(Role.get("own"))
+        groups ++ Seq(Role.get("own"))
       } else {
         groups
       }
-  }.getOrElse(List.empty)
+  }.getOrElse(Seq.empty)
 
 
 }

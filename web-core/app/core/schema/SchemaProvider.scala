@@ -149,5 +149,3 @@ class RemoteFetcher extends Fetcher {
     )
 
 }
-
-case class Schema(prefix: String, version: String)

@@ -115,7 +115,7 @@ class ViewRenderSpec extends Specs2TestContext {
 
         val namespaces = Map("delving" -> "http://www.delving.eu/schemas/delving-1.0.xsd", "dc" -> "http://dublincore.org/schemas/xmls/qdc/dc.xsd", "icn" -> "http://www.icn.nl/schemas/ICN-V3.2.xsd")
 
-        val view = ViewRenderer.fromDefinition("aff", "full").get.renderRecordWithView("aff", "full", testXmlViewDefinition, testRecord(), List.empty, namespaces, Lang("en"), Map.empty)
+        val view = ViewRenderer.fromDefinition("aff", ViewType.API).get.renderRecordWithView("aff", ViewType.API, testXmlViewDefinition, testRecord(), List.empty, namespaces, Lang("en"), Map.empty)
 
         val xml = view.toXmlString
 

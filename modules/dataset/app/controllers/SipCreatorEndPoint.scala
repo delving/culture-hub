@@ -43,8 +43,6 @@ object SipCreatorEndPoint extends ApplicationController {
 
   val DOT_PLACEHOLDER = "--"
 
-  val log: Logger = Logger(SipCreatorEndPoint.getClass)
-
   private def basexStorage(implicit configuration: DomainConfiguration) = HubServices.basexStorage(configuration)
 
   // HASH__type[_prefix].extension
@@ -233,7 +231,7 @@ object SipCreatorEndPoint extends ApplicationController {
             actionResult match {
               case Right(ok) => {
                 DataSet.dao.addHash(dataSet.get, fileName.split("__")(1).replaceAll("\\.", DOT_PLACEHOLDER), hash)
-                info("Successfully accepted file %s for DataSet %s".format(fileName, spec))
+                log.info("Successfully accepted file %s for DataSet %s".format(fileName, spec))
                 Ok
               }
               case Left(houston) => {

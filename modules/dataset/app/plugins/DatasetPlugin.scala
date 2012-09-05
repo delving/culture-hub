@@ -1,5 +1,6 @@
 package plugins
 
+import _root_.services.MetadataRecordResolverService
 import jobs._
 import play.api.{Logger, Play, Application}
 import Play.current
@@ -125,6 +126,11 @@ class DataSetPlugin(app: Application) extends CultureHubPlugin(app) {
       mainEntry = Some(MenuElement("/organizations/%s/sip-creator".format(orgId), "ui.label.sipcreator"))
     )
 
+  )
+
+
+  override def services: Seq[Any] = Seq(
+    new MetadataRecordResolverService
   )
 
   override def harvestCollectionLookups: Seq[HarvestCollectionLookup] = Seq(dataSetHarvestCollectionLookup)
