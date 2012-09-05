@@ -53,17 +53,7 @@ abstract class MetadataAccessors {
   def getOwner: String = assign(OWNER.tag)
   def getVisibility: String = assign(VISIBILITY.key)
 
-  def getUri(implicit configuration: DomainConfiguration): String = {
-    // TODO don't use heuristics
-    val allSchemas = values(ALL_SCHEMAS.key)
-    val allSupportedFormats = configuration.schemas
-    val renderFormat = allSupportedFormats.intersect(allSchemas).headOption
-    if(renderFormat.isDefined) {
-      "/" + getOrgId + "/" + getSpec + "/" + getRecordId
-    } else {
-      ""
-    }
-  }
+  def getUri(implicit configuration: DomainConfiguration): String = "/" + getOrgId + "/" + getSpec + "/" + getRecordId
 
   def getLandingPage = getItemType match {
     case ITEM_TYPE_MDR => assign(LANDING_PAGE.tag)

@@ -20,8 +20,6 @@ object FullView extends BoundController(HubModule) with FullView
 trait FullView extends DelvingController {
   this: BoundController =>
 
-  val schemaService = inject[SchemaService]
-
   def render(orgId: String, spec: String, localId: String, format: Option[String]) = Root {
     Action {
       implicit request =>
@@ -48,39 +46,49 @@ trait FullView extends DelvingController {
               parameters = r.parameters
             )
 
-            val navigateFromSearch = request.headers.get(REFERER) != None && request.headers.get(REFERER).get.contains("search")
-            val navigateFromRelatedItem = request.queryString.getFirst("mlt").getOrElse("false").toBoolean
-            val updatedSession = if (!navigateFromSearch && !navigateFromRelatedItem) {
-              // we're coming from someplace else then a search, remove the return to results cookie
-              request.session - (RETURN_TO_RESULTS)
+            if(renderedRecord.isRight) {
+
+              val navigateFromSearch = request.headers.get(REFERER) != None && request.headers.get(REFERER).get.contains("search")
+              val navigateFromRelatedItem = request.queryString.getFirst("mlt").getOrElse("false").toBoolean
+              val updatedSession = if (!navigateFromSearch && !navigateFromRelatedItem) {
+                // we're coming from someplace else then a search, remove the return to results cookie
+                request.session - (RETURN_TO_RESULTS)
+              } else {
+                request.session
+              }
+
+              val returnToResults = updatedSession.get(RETURN_TO_RESULTS).getOrElse("")
+              val searchTerm = updatedSession.get(SEARCH_TERM).getOrElse("")
+
+              val fields = r.systemFields.get("delving_title").getOrElse(new BasicDBList).asInstanceOf[BasicDBList]
+
+              val title = if (fields.size() > 0) fields.get(0).toString else ""
+
+              renderArgs += ("breadcrumbs" -> Breadcrumbs.crumble(
+                Map(
+                  "search" -> Map("searchTerm" -> searchTerm, "returnToResults" -> returnToResults),
+                  "title" -> Map("url" -> "", "label" -> title),
+                  "inOrg" -> Map("inOrg" -> "yes")
+                )
+              ))
+
+              Ok(
+                Template(
+                  "Search/object.html",
+                  'systemFields -> r.systemFields,
+                  'fullView -> renderedRecord.right.get.toViewTree,
+                  'returnToResults -> returnToResults,
+                  'orgId -> orgId,
+                  'hubId -> hubId,
+                  'rights -> r.parameters.get("rights").getOrElse("")
+                )
+              ).withSession(updatedSession)
+
+
             } else {
-              request.session
+              NotFound("Record with ID %s could not be displayed: ".format(hubId) + renderedRecord.left.get)
             }
 
-            val returnToResults = updatedSession.get(RETURN_TO_RESULTS).getOrElse("")
-            val searchTerm = updatedSession.get(SEARCH_TERM).getOrElse("")
-
-            val fields = r.systemFields.get("delving_title").getOrElse(new BasicDBList).asInstanceOf[BasicDBList]
-
-            renderArgs += ("breadcrumbs" -> Breadcrumbs.crumble(
-              Map(
-                "search" -> Map("searchTerm" -> searchTerm, "returnToResults" -> returnToResults),
-                "title" -> Map("url" -> "", "label" -> Option(fields.get(0)).getOrElse("").toString),
-                "inOrg" -> Map("inOrg" -> "yes")
-              )
-            ))
-
-            Ok(
-              Template(
-                "Search/object.html",
-                'systemFields -> r.systemFields,
-                'fullView -> renderedRecord.right.get.toViewTree,
-                'returnToResults -> returnToResults,
-                'orgId -> orgId,
-                'hubId -> hubId,
-                'rights -> r.parameters.get("rights").getOrElse("")
-              )
-            ).withSession(updatedSession)
 
 
         }.getOrElse {

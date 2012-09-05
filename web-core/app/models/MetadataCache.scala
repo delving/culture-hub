@@ -26,7 +26,7 @@ case class MetadataItem(modified: Date = new Date(),
                        ) {
 
   def getSystemFieldValues(field: SystemField): Seq[String] = {
-    systemFields.get(field.name).getOrElse(new BasicDBList).asInstanceOf[BasicDBList].asScala.map(_.toString).toSeq
+    systemFields.get(field.tag).getOrElse(new BasicDBList).asInstanceOf[BasicDBList].asScala.map(_.toString).toSeq
   }
 
 }
