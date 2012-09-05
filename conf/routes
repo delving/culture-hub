@@ -5,6 +5,9 @@
 GET         /favicon.ico                                                           controllers.Application.notFound(what = "favicon.ico")
 GET         /assets/themes/:theme/info.conf                                        controllers.Application.notFound(theme)
 
+# Map static resources from the /public folder to the /assets URL path
+GET         /assets/*file                                                          controllers.Assets.at(path="/public", file)
+
 GET         /robots.txt                                                            controllers.Assets.at(path="/public", file="robots.txt")
 
 # Home page
@@ -62,8 +65,8 @@ GET        /file/thumbnail/*id                               controllers.dos.Ima
 GET        /image/:id                                        controllers.dos.ImageDisplay.displayImage(id, fileId: Boolean = false)
 GET        /thumbnail/:orgId/:collectionId/:id/:width        controllers.dos.ImageDisplay.displayThumbnail(id, orgId, collectionId, width: Option[String], browse: Boolean = false, fileId: Boolean = false)
 GET        /thumbnail/:orgId/:collectionId/*id               controllers.dos.ImageDisplay.displayThumbnail(id, orgId, collectionId, width: Option[String], browse: Boolean = false, fileId: Boolean = false)
-GET        /thumbnail/:id/:width                             controllers.dos.ImageDisplay.displayThumbnail(id, orgId = "", collectionId = "", width: Option[String], browse: Boolean = true, fileId: Boolean = false)
-GET        /thumbnail/*id                                    controllers.dos.ImageDisplay.displayThumbnail(id, orgId = "", collectionId = "", width: Option[String], browse: Boolean = true, fileId: Boolean = false)
+GET        /thumbnail/:id/:width                             controllers.dos.ImageDisplay.displayThumbnail(id, orgId = "", collectionId = "", width: Option[String], browse: Boolean = false, fileId: Boolean = true)
+GET        /thumbnail/*id                                    controllers.dos.ImageDisplay.displayThumbnail(id, orgId = "", collectionId = "", width: Option[String] = None, browse: Boolean = false, fileId: Boolean = true)
 
 
 # UI
@@ -80,6 +83,10 @@ GET     /@dos/task/status/:id                   controllers.dos.ui.Tasks.status(
 
 GET     /@dos/log/list/:taskId                 controllers.dos.ui.Logs.list(taskId: org.bson.types.ObjectId, lastCount: Option[Int])
 GET     /@dos/log/view/:taskId                 controllers.dos.ui.Logs.view(taskId: org.bson.types.ObjectId)
+
+GET     /@dos/thumbnail/:id/:width             controllers.dos.ImageDisplay.displayThumbnail(id, orgId = "", collectionId = "", width: Option[String], browse: Boolean = false, fileId: Boolean = false)
+GET     /@dos/thumbnail/*id                    controllers.dos.ImageDisplay.displayThumbnail(id, orgId = "", collectionId = "", width: Option[String], browse: Boolean = false, fileId: Boolean = false)
+
 
 # User registration
 GET        /registration                                                           controllers.Registration.index
@@ -178,7 +185,3 @@ DELETE      /organizations/:orgId/site/:language/page/:key                    co
 GET         /organizations/:orgId/site/:language/page/preview/:key            controllers.organization.CMS.pagePreview(orgId, language, key)
 
 GET         /organizations/:orgId/directory/organizationLookup                controllers.organization.DataSetControl.organizationLookup(orgId, term)
-
-
-# Map static resources from the /public folder to the /assets URL path
-GET         /assets/*file                                                     controllers.Assets.at(path="/public", file)
