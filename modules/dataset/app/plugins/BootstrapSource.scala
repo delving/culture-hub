@@ -11,19 +11,21 @@ import org.apache.commons.io.FileUtils
  * @author Gerald de Jong <gerald@delving.eu>
  */
 
-class BootstrapSource(dataDirectory : File) {
+class BootstrapSource(dataDirectory: File) {
 
+    val org = "delving"
+    val spec = dataDirectory.getName
     val targetRoot = new File(dataDirectory.getParentFile.getParentFile, "target")
     val targetDirectory = new File(targetRoot, dataDirectory.getName)
 
-    def copyAndHash() {
+    init()
+
+    def init() {
         FileUtils.deleteQuietly(targetDirectory)
         Files.createDirectory(targetDirectory)
         dataDirectory.listFiles().foreach(file => Files.copyFile(file, new File(targetDirectory, file.getName)))
         targetDirectory.listFiles().foreach(file => Hasher.ensureFileHashed(file))
     }
-
-    def dataSetName = dataDirectory.getName
 
     def fileList() = targetDirectory.listFiles()
 
@@ -31,7 +33,7 @@ class BootstrapSource(dataDirectory : File) {
 
     def file(name: String): File =
         fileList().filter(file => file.getName.endsWith(name))
-        .headOption.getOrElse(throw new RuntimeException)
+        .headOption.getOrElse(throw new RuntimeException("Could not find " + name))
 }
 
 object BootstrapSource {

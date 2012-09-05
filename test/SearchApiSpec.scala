@@ -19,13 +19,15 @@ class SearchApiSpec extends Specs2TestContext {
     loadStandalone()
   }
 
+    val specToFix = "sample-a"
+
   "the Search API" should {
 
     "find all records" in {
 
       withTestConfig {
 
-        val response = query("*:*&delving_spec:PrincessehofSample")
+        val response = query("*:*&delving_spec:"+specToFix)
         status(response) must equalTo(OK)
         val results = contentAsXML(response)
 
@@ -40,7 +42,7 @@ class SearchApiSpec extends Specs2TestContext {
 
     withTestConfig {
 
-      val response = id("delving_PrincessehofSample_8")
+      val response = id("delving_"+specToFix+"_8")
       status(response) must equalTo(OK)
       val result = contentAsXML(response)
 

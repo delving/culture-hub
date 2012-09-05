@@ -318,42 +318,17 @@ class DataSetPlugin(app: Application) extends CultureHubPlugin(app) {
      * Executed when test data is loaded (for development and testing)
      */
     override def onLoadTestData() {
-        val bootstrapSource = BootstrapSource.sources.head
-        bootstrapSource.copyAndHash()
-        val sourceFile = bootstrapSource.file("source.xml.gz")
-        if (DataSet.dao("delving").count(MongoDBObject("spec" -> bootstrapSource.dataSetName)) == 0) {
-            bootstrapDatasets(bootstrapSource)
-        }
-        implicit val configuration = DomainConfigurationHandler.getByOrgId(("delving"))
-        val dataSet = DataSet.dao.findBySpecAndOrgId(bootstrapSource.dataSetName, "delving").get
-
-        // provision records, but only if necessary
-        if (HubServices.basexStorage(configuration).openCollection(dataSet).isEmpty) {
-            _root_.controllers.SipCreatorEndPoint.loadSourceData(
-                dataSet,
-                new GZIPInputStream(new FileInputStream(sourceFile))
-            )
-            Thread.sleep(2000)
-        }
-
-        // index them if in test mode
-        if (Play.isTest) {
-            DataSet.dao.updateState(dataSet, DataSetState.QUEUED)
-            DataSetCollectionProcessor.process(dataSet)
-
-            while (DataSet.dao.getState(dataSet.orgId, dataSet.spec) == DataSetState.PROCESSING) {
-                Thread.sleep(1000)
-            }
-        }
-
+        BootstrapSource.sources.foreach(boot => bootstrapDataset(boot))
     }
 
-    def bootstrapDatasets(bootstrapSource : BootstrapSource) {
+    def bootstrapDataset(boot: BootstrapSource) {
+        if (DataSet.dao(boot.org).count(MongoDBObject("spec" -> boot.spec)) > 0) return
+
         implicit val configuration = DomainConfigurationHandler.getByOrgId(("delving"))
 
         val factMap = new BasicDBObject()
-        factMap.put("spec", bootstrapSource.dataSetName)
-        factMap.put("name", bootstrapSource.dataSetName)
+        factMap.put("spec", boot.spec)
+        factMap.put("name", boot.spec)
         factMap.put("collectionType", "all")
         factMap.put("namespacePrefix", "raw")
         factMap.put("language", "nl")
@@ -363,16 +338,18 @@ class DataSetPlugin(app: Application) extends CultureHubPlugin(app) {
         factMap.put("rights", "http://creativecommons.org/publicdomain/mark/1.0/")
         factMap.put("type", "IMAGE")
 
-        val mappingFile = bootstrapSource.file("mapping_icn.xml")
+        log.info("bootstrapping " + boot.spec)
+
+        val mappingFile = boot.file("mapping_icn.xml")
 
         DataSet.dao("delving").insert(DataSet(
-            spec = "PrincessehofSample",
+            spec = boot.spec,
             userName = "bob",
             orgId = "delving",
             state = DataSetState.ENABLED,
             deleted = false,
             details = Details(
-                name = "Princessehof Sample Dataset",
+                name = boot.spec,
                 facts = factMap
             ),
             idxMappings = List("icn"),
@@ -384,6 +361,27 @@ class DataSetPlugin(app: Application) extends CultureHubPlugin(app) {
             )),
             formatAccessControl = Map("icn" -> FormatAccessControl(accessType = "public"))
         ))
+
+        val dataSet = DataSet.dao.findBySpecAndOrgId(boot.spec, boot.org).get
+
+        // provision records, but only if necessary
+        if (HubServices.basexStorage(configuration).openCollection(dataSet).isEmpty) {
+            val sourceFile = boot.file("source.xml.gz")
+            _root_.controllers.SipCreatorEndPoint.loadSourceData(
+                dataSet,
+                new GZIPInputStream(new FileInputStream(sourceFile))
+            )
+            Thread.sleep(2000)
+        }
+
+        if (Play.isTest) {
+            val dataSet = DataSet.dao.findBySpecAndOrgId(boot.spec, boot.org).get
+            DataSet.dao.updateState(dataSet, DataSetState.QUEUED)
+            DataSetCollectionProcessor.process(dataSet)
+            while (DataSet.dao.getState(dataSet.orgId, dataSet.spec) == DataSetState.PROCESSING) Thread.sleep(1000)
+        }
+
+        boot.init()
     }
 }
 
