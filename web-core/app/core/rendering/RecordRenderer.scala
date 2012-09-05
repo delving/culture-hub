@@ -140,7 +140,7 @@ object RecordRenderer {
                 // prepend the delving namespace if it ain't there
                 // and yes this check is ugly but Scala's XML <-> namespace support ain't pretty to say the least
                 if(!recordXml.contains("xmlns:delving")) {
-                  mergedRecord = mergedRecord % new UnprefixedAttribute("xmlns:delving", "http://schemas.delving.eu", Null)
+                  mergedRecord = mergedRecord % new UnprefixedAttribute("xmlns:delving", "http://schemas.delving.eu/", Null)
                 }
 
                 mergedRecord.toString().replaceFirst("<\\?xml.*?>", "")
@@ -150,7 +150,7 @@ object RecordRenderer {
               log.debug(cleanRawRecord)
 
               // TODO see what to do with roles
-              val rendered: RenderedView = viewRenderer.get.renderRecord(cleanRawRecord, roles, definition.getNamespaces + ("delving" -> "http://schemas.delving.eu"), lang, parameters)
+              val rendered: RenderedView = viewRenderer.get.renderRecord(cleanRawRecord, roles, definition.getNamespaces + ("delving" -> "http://schemas.delving.eu/"), lang, parameters)
               Right(rendered)
             } catch {
               case t: Throwable =>
