@@ -76,11 +76,10 @@ object Build extends sbt.Build {
 
   val dosDependencies = Seq(
     "eu.delving"                %% "play2-extensions"                 % playExtensionsVersion,
-    "com.thebuzzmedia"          %  "imgscalr-lib"                     % "3.2"
+    "org.imgscalr"               %  "imgscalr-lib"                    % "4.2"
   )
 
   val dos = PlayProject("dos", dosVersion, dosDependencies, path = file("modules/dos")).settings(
-    resolvers += "buzzmedia" at "http://maven.thebuzzmedia.com",
     resolvers ++= commonResolvers,
     publish := { }
   ).dependsOn(webCore % "test->test;compile->compile")

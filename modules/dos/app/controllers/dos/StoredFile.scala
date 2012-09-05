@@ -33,4 +33,4 @@ case class StoredFile(id: ObjectId, name: String, contentType: String, length: L
 
 }
 
-case class FileUploadResponse(name: String, size: Long, url: String = "", thumbnail_url: String = "", delete_url: String = "", delete_type: String = "DELETE", error: String = null, selected: Boolean = false, id: String = "")
+case class FileUploadResponse(name: String, size: Long, url: String = "", thumbnail_url: String = "", delete_url: String = "", delete_type: String = "DELETE", error: String = "", selected: Boolean = false, id: String = "")
