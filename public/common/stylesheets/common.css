@@ -5755,13 +5755,13 @@ hr.editorRule {
   margin-top: 21px;
 }
 .object-main #object-title-big {
-    background: #222222;
-    color: #ffffff;
-    font-size: 100%;
-    font-weight: normal;
-    line-height: 20px;
-    margin: 0;
-    padding: 8px;
+  background: #222222;
+  color: #ffffff;
+  font-size: 100%;
+  font-weight: normal;
+  line-height: 20px;
+  margin: 0;
+  padding: 8px;
 }
 .object-main h5 {
   color: #999999;
