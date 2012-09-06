@@ -4,6 +4,7 @@
     <view name="html">
         <row>
             <column proportion="2of3">
+                <container type="placeholder" id="object-title-big"></container>
                 <container id="object-media">
                     <container ifNot="/tib:record/delving:deepZoomUrl" id="image-viewer">
                         <container ifNot="/tib:record/delving:thumbnail">

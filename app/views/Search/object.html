@@ -9,8 +9,10 @@
     *{ Set dynamic values to use in object.js }*
     // i18n messages
     jsLabels.relatedItems = "${messages.get('thing.relatedItems')}";
-    jsLabels.provider =  "${messages.get('thing.provider')}"
-    jsLabels.creator =  "${messages.get('thing.creator')}"
+    jsLabels.provider =  "${messages.get('thing.provider')}";
+    jsLabels.creator =  "${messages.get('thing.creator')}";
+    jsLabels.objTitle = "${systemFields.apply("delving_title").get(0)}";
+
     // thing object
     var Thing = new Object();
     Thing.orgId = "${orgId}";
@@ -59,18 +61,10 @@
         </div>
     #{/if}
     </div>
-
 </div>
 
 <div class="object-main">
-    <div class="row">
-        *{ this div has no span class - it is added by object.js when  }*
-        <div class="object-data span8">
-            <h3 class="object-title hide">${systemFields.apply("delving_title").get(0)}</h3>
-            #{view view: fullView /}
-        </div>
-        <div class="object-related span4">
-            <div class="related-items"></div>
-        </div>
+    <div class="object-data">
+        #{view view: fullView /}
     </div>
 </div>

@@ -19,6 +19,10 @@ $(document).ready(function () {
     // Endpoint to retrieve related items for this object
     var mltEndpoint = '/organizations/' + Thing.orgId + '/api/search?id=' + Thing.hubId + '&format=json&mlt=true';
 
+    if(jsLabels.objTitle.length && $('#object-title-big').length) {
+        $('#object-title-big').html(jsLabels.objTitle);
+    }
+
     // Make the request for the related objects. If this is a Collection or a Museum, then this request will fail.
     // Use the bad request to change the layout to accomodate a Museum or Collection view definition
     $.ajax({
@@ -43,11 +47,11 @@ $(document).ready(function () {
                     html += '</div></div>';
                 });
                 html += "</ul>";
-                $('.related-items').addClass('span4').html(html);
+                $('#related-items').html(html);
             }
         },
         error: function(){
-            $('.object-data').removeClass('span8');
+//            $('.object-data').removeClass('span8');
         }
     });
 });

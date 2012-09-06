@@ -33,7 +33,7 @@ switch (_view.nodeType) {
 
     case "container":}%
 
-    #{if !_view.isLeaf() && !(_view.content().length() == 1 && _view.content().apply(0).nodeType() == "list" && _view.content().apply(0).content().length() == 0)}
+    #{if (!_view.isLeaf() && !(_view.content().length() == 1 && _view.content().apply(0).nodeType() == "list" && _view.content().apply(0).content().length() == 0)) || _view.attr("type") == "placeholder"}
         <div #{if _view.attr("id")}id="${_view.attr("id")}"#{/if}>
 
             #{if _view.attr("label")}
