@@ -17,18 +17,13 @@
 package models
 
 import core.access.{ResourceType, Resource}
-import extensions.ConfigurationException
 import org.bson.types.ObjectId
 import models.HubMongoContext._
 import com.mongodb.casbah.Imports._
 import com.novus.salat.dao._
-import xml.{Node, XML}
 import exceptions.MetaRepoSystemException
 import core.HubServices
 import eu.delving.metadata.RecMapping
-import play.api.Play
-import play.api.Play.current
-import java.net.URL
 import core.Constants._
 import models.statistics.DataSetStatistics
 import core.collection.{Indexable, OrganizationCollection, OrganizationCollectionInformation, Harvestable}
@@ -37,6 +32,8 @@ import plugins.DataSetPlugin
 import java.util.Date
 import util.DomainConfigurationHandler
 import eu.delving.schema.SchemaVersion
+import java.io.StringReader
+import core.mapping.MappingService
 
 /**
  * DataSet model
@@ -47,42 +44,54 @@ import eu.delving.schema.SchemaVersion
  */
 
 case class DataSet(
-                          // basics
-                          _id: ObjectId = new ObjectId,
-                          spec: String,
-                          orgId: String,
-                          userName: String, // creator
+  // basics
+  _id: ObjectId = new ObjectId,
+  spec: String,
+  orgId: String,
+  userName: String, // creator
 
-                          // state
-                          state: DataSetState,
-                          errorMessage: Option[String] = None,
+  // state
+  state: DataSetState,
+  errorMessage: Option[String] = None,
 
-                          // not used
-                          visibility: Visibility = Visibility.PUBLIC, // fixed to public. We'll see in the future whether this is still necessary to have or should be removed.
-                          deleted: Boolean = false, // fixed to false, not used. We simply delete a set. TODO decide whether we remove this.
+  // not used
+  // fixed to public. We'll see in the future whether this is still necessary to have or should be removed.
+  visibility: Visibility = Visibility.PUBLIC,
+  // fixed to false, not used. We simply delete a set. TODO decide whether we remove this.
+  deleted: Boolean = false,
 
-                          details: Details,
+  details: Details,
 
-                          // sip-creator integration
-                          lockedBy: Option[String] = None,
-                          hashes: Map[String, String] = Map.empty[String, String],
-                          hints: Array[Byte] = Array.empty[Byte],
+  // sip-creator integration
+  lockedBy: Option[String] = None,
+  hashes: Map[String, String] = Map.empty[String, String],
+  hints: Array[Byte] = Array.empty[Byte],
 
-                          // mapping
-                          namespaces: Map[String, String] = Map.empty[String, String], // this map contains all namespaces of the source format, and is necessary for mapping
-                          mappings: Map[String, Mapping] = Map.empty[String, Mapping],
-                          invalidRecords: Map[String, List[Int]] = Map.empty[String, List[Int]], // for each prefix, indexes of the records that are not valid for that schema
+  // mapping
+  // this map contains all namespaces of the source format, and is necessary for mapping
+  namespaces: Map[String, String] = Map.empty[String, String],
+  mappings: Map[String, Mapping] = Map.empty[String, Mapping],
+  // for each prefix, indexes of the records that are not valid for that schema
+  invalidRecords: Map[String, List[Int]] = Map.empty[String, List[Int]],
 
-                          // harvesting
-                          formatAccessControl: Map[String, FormatAccessControl], // access control for each format of this DataSet (for OAI-PMH)
+  // harvesting
+  formatAccessControl: Map[String, FormatAccessControl], // access control for each format of this DataSet (for OAI-PMH)
 
-                          // indexing
-                          idxMappings: List[String] = List.empty[String], // the mapping(s) used at indexing time (for the moment, use only one)
+  // indexing
+  // the mapping(s) used at indexing time (for the moment, use only one)
+  idxMappings: List[String] = List.empty[String],
 
-                          // TODO not in use anymore, we read the configuration directly. revive if necessary.
-                          idxFacets: List[String] = List.empty[String], // the facet fields selected for indexing, at the moment derived from configuration
-                          idxSortFields: List[String] = List.empty[String] // the sort fields selected for indexing, at the moment derived from configuration
-                          ) extends OrganizationCollection with OrganizationCollectionInformation with Harvestable with Indexable with Resource {
+  // TODO not in use anymore, we read the configuration directly. revive if necessary.
+  // the facet fields selected for indexing, at the moment derived from configuration
+  idxFacets: List[String] = List.empty[String],
+  // the sort fields selected for indexing, at the moment derived from configuration
+  idxSortFields: List[String] = List.empty[String]
+  )
+  extends OrganizationCollection
+  with OrganizationCollectionInformation
+  with Harvestable
+  with Indexable
+  with Resource {
 
   implicit val configuration = DomainConfigurationHandler.getByOrgId(orgId)
 
@@ -102,18 +111,22 @@ case class DataSet(
     (for (fact <- details.facts) yield (fact._1, fact._2.toString)).toMap[String, String]
   }
 
-  def getAllMappingSchemas: Seq[SchemaVersion] = mappings.map(mapping => new SchemaVersion(mapping._2.schemaPrefix, mapping._2.schemaVersion)).toSeq.distinct
+  def getAllMappingSchemas: Seq[SchemaVersion] = mappings.map( mapping =>
+      new SchemaVersion(mapping._2.schemaPrefix, mapping._2.schemaVersion)
+  ).toSeq.distinct
 
-  def getPublishableMappingSchemas = getAllMappingSchemas.
-    filter(schema => formatAccessControl.get(schema.getPrefix).isDefined).
-    filter(schema => formatAccessControl(schema.getPrefix).isPublicAccess || formatAccessControl(schema.getPrefix).isProtectedAccess).
-    toList
+  def getPublishableMappingSchemas = getAllMappingSchemas.filter( schema =>
+      formatAccessControl.get(schema.getPrefix).isDefined
+  ).filter(schema =>
+    formatAccessControl(schema.getPrefix).isPublicAccess
+      || formatAccessControl(schema.getPrefix).isProtectedAccess
+  ).toList
 
   def getVisibleMetadataSchemas(accessKey: Option[String] = None): Seq[RecordDefinition] = {
     getAllMappingSchemas.
-      filterNot(schema => formatAccessControl.get(schema.getPrefix).isEmpty).
-      filter(schema => formatAccessControl(schema.getPrefix).hasAccess(accessKey)).
-      flatMap(schema => RecordDefinition.getRecordDefinition(schema))
+    filterNot(schema => formatAccessControl.get(schema.getPrefix).isEmpty).
+    filter(schema => formatAccessControl(schema.getPrefix).hasAccess(accessKey)).
+    flatMap(schema => RecordDefinition.getRecordDefinition(schema))
   }
 
   def hasHash(hash: String): Boolean = hashes.values.filter(h => h == hash).nonEmpty
@@ -121,7 +134,8 @@ case class DataSet(
   def hasDetails: Boolean = details != null
 
   def hasRecords: Boolean = {
-    HubServices.basexStorage(configuration).openCollection(this).isDefined && DataSet.dao(orgId).getSourceRecordCount(this) != 0
+    HubServices.basexStorage(configuration).openCollection(this)
+    .isDefined && DataSet.dao(orgId).getSourceRecordCount(this) != 0
   }
 
   // ~~~ access rights
@@ -130,14 +144,20 @@ case class DataSet(
 
   def getResourceType = DataSet.RESOURCE_TYPE
 
-  def editors: Seq[String] = Group.dao(configuration).findUsersWithAccess(orgId, DataSetPlugin.ROLE_DATASET_EDITOR.key, this)
+  def editors: Seq[String] = Group.dao(configuration).findUsersWithAccess(
+    orgId, DataSetPlugin.ROLE_DATASET_EDITOR.key, this
+  )
 
-  val administrators: Seq[String] = (Group.dao(configuration).findResourceAdministrators(orgId, DataSet.RESOURCE_TYPE) ++
-          HubServices.organizationService(configuration).listAdmins(orgId)).distinct
+  val administrators: Seq[String] = (Group.dao(configuration).findResourceAdministrators(
+    orgId, DataSet.RESOURCE_TYPE
+  ) ++
+    HubServices.organizationService(configuration).listAdmins(orgId)).distinct
 
   // ~~~ harvesting
 
-  def getRecords(metadataFormat: String, position: Int, limit: Int, from: Option[Date], until: Option[Date]): (List[MetadataItem], Long) = {
+  def getRecords(
+    metadataFormat: String, position: Int, limit: Int, from: Option[Date], until: Option[Date]
+    ): (List[MetadataItem], Long) = {
     val cache = MetadataCache.get(orgId, spec, ITEM_TYPE_MDR)
     val records = cache.list(position, Some(limit), from, until).filter(_.xml.contains(metadataFormat))
     val totalSize = cache.count()
@@ -149,7 +169,6 @@ case class DataSet(
   // ~~~ indexing
 
   def getIndexingMappingPrefix = idxMappings.headOption
-
 
   // ~~~ collection information
 
@@ -185,13 +204,16 @@ object DataSet extends MultiModel[DataSet, DataSetDAO] {
 
   protected def initIndexes(collection: MongoCollection) {}
 
-  protected def initDAO(collection: MongoCollection, connection: MongoDB)(implicit configuration: DomainConfiguration): DataSetDAO = new DataSetDAO(collection)
+  protected def initDAO(collection: MongoCollection, connection: MongoDB)
+    (implicit configuration: DomainConfiguration): DataSetDAO = new DataSetDAO(collection)
 
   val RESOURCE_TYPE = ResourceType("dataSet")
 
 }
 
-class DataSetDAO(collection: MongoCollection)(implicit val configuration: DomainConfiguration) extends SalatDAO[DataSet, ObjectId](collection) with Pager[DataSet] {
+class DataSetDAO(collection: MongoCollection)
+  (implicit val configuration: DomainConfiguration) extends SalatDAO[DataSet, ObjectId](collection)
+with Pager[DataSet] {
 
   def getState(orgId: String, spec: String): DataSetState = {
 
@@ -210,14 +232,17 @@ class DataSetDAO(collection: MongoCollection)(implicit val configuration: Domain
     if (allDataSets.length < 3) {
       val queuedIndexing = findByState(DataSetState.QUEUED).sort(MongoDBObject("name" -> 1)).toList
       queuedIndexing.headOption
-    } else {
+    }
+    else {
       None
     }
   }
 
   // ~~~ finders
 
-  def findBySpecAndOrgId(spec: String, orgId: String): Option[DataSet] = findOne(MongoDBObject("spec" -> spec, "orgId" -> orgId, "deleted" -> false))
+  def findBySpecAndOrgId(
+    spec: String, orgId: String
+    ): Option[DataSet] = findOne(MongoDBObject("spec" -> spec, "orgId" -> orgId, "deleted" -> false))
 
   def findByState(states: DataSetState*) = {
     find("state.name" $in (states.map(_.name)) ++ MongoDBObject("deleted" -> false))
@@ -227,22 +252,25 @@ class DataSetDAO(collection: MongoCollection)(implicit val configuration: Domain
 
   // ~~~ access control
 
-
   // TODO generify, move to Group
-  def findAllForUser(userName: String, orgId: String, role: Role)(implicit configuration: DomainConfiguration): Seq[DataSet] = {
+  def findAllForUser(userName: String, orgId: String, role: Role)
+    (implicit configuration: DomainConfiguration): Seq[DataSet] = {
 
     val userGroups: Seq[Group] = Group.dao.find(MongoDBObject("users" -> userName)).toSeq
     val userRoles: Seq[Role] = userGroups.map(group => Role.get(group.roleKey))
 
-    val isResourceAdmin = userRoles.exists(userRole => role.resourceType.isDefined && role.resourceType == userRole.resourceType && userRole.isResourceAdmin)
+    val isResourceAdmin = userRoles.exists(
+      userRole => role.resourceType.isDefined && role.resourceType == userRole.resourceType && userRole
+                                                                                               .isResourceAdmin)
     val isAdmin = HubServices.organizationService(configuration).isAdmin(orgId, userName)
 
-    val groupDataSets: Seq[DataSet] = userGroups.
-            filter(group => group.roleKey == role.key).
-            flatMap(g => g.resources).
-            filter(resource => resource.getResourceType == DataSet.RESOURCE_TYPE).
-            flatMap(dataSetResources => findBySpecAndOrgId(dataSetResources.getResourceKey, orgId)).
-            toSeq
+    val groupDataSets: Seq[DataSet] = userGroups.filter(
+      group => group.roleKey == role.key
+    ).flatMap(g => g.resources).filter(
+      resource => resource.getResourceType == DataSet.RESOURCE_TYPE
+    ).flatMap(
+      dataSetResources => findBySpecAndOrgId(dataSetResources.getResourceKey, orgId)
+    ).toSeq
 
     val adminDataSets: Seq[DataSet] = if (isResourceAdmin || isAdmin) findAllByOrgId(orgId).toSeq else Seq.empty
 
@@ -255,14 +283,15 @@ class DataSetDAO(collection: MongoCollection)(implicit val configuration: Domain
 
     if (HubServices.organizationService(configuration).isAdmin(orgId, userName)) {
       findAllByOrgId(orgId).toList
-    } else {
+    }
+    else {
       // lookup by Group membership
       Group.dao.
-              find(MongoDBObject("orgId" -> orgId, "users" -> userName)).
-              flatMap(_.resources).
-              filter(r => r.getResourceType == DataSet.RESOURCE_TYPE).
-              flatMap(dataSetResource => findBySpecAndOrgId(dataSetResource.getResourceKey, orgId)).
-              toList
+      find(MongoDBObject("orgId" -> orgId, "users" -> userName)).
+      flatMap(_.resources).
+      filter(r => r.getResourceType == DataSet.RESOURCE_TYPE).
+      flatMap(dataSetResource => findBySpecAndOrgId(dataSetResource.getResourceKey, orgId)).
+      toList
     }
   }
 
@@ -274,7 +303,7 @@ class DataSetDAO(collection: MongoCollection)(implicit val configuration: Domain
 
   def canAdministrate(userName: String)(implicit configuration: DomainConfiguration) = {
     Group.dao.findResourceAdministrators(configuration.orgId, DataSet.RESOURCE_TYPE).contains(userName) ||
-    HubServices.organizationService(configuration).isAdmin(configuration.orgId, userName)
+      HubServices.organizationService(configuration).isAdmin(configuration.orgId, userName)
   }
 
   // workaround for salat not working as it should
@@ -285,10 +314,14 @@ class DataSetDAO(collection: MongoCollection)(implicit val configuration: Domain
         val map = ds.getAs[DBObject]("invalidRecords").get
         map.map(valid => {
           val key = valid._1.toString
-          val value: Set[Int] = valid._2.asInstanceOf[com.mongodb.BasicDBList].asScala.map(index => index match {
-            case int if int.isInstanceOf[Int] => int.asInstanceOf[Int]
-            case double if double.isInstanceOf[java.lang.Double] => double.asInstanceOf[java.lang.Double].intValue()
-          }).toSet
+          val value: Set[Int] = valid._2.asInstanceOf[com.mongodb.BasicDBList].asScala.map(
+            index =>
+              index match {
+                case int if int.isInstanceOf[Int] => int.asInstanceOf[Int]
+                case double if double.isInstanceOf[java.lang.Double] =>
+                  double.asInstanceOf[java.lang.Double].intValue()
+              }
+          ).toSet
           (key, value)
         }).toMap[String, Set[Int]]
       }
@@ -297,7 +330,6 @@ class DataSetDAO(collection: MongoCollection)(implicit val configuration: Domain
     }
   }
 
-
   // ~~~ update. make sure you always work with the latest version from mongo after an update - operations are not atomic
 
   def updateById(id: ObjectId, dataSet: DataSet) {
@@ -305,27 +337,40 @@ class DataSetDAO(collection: MongoCollection)(implicit val configuration: Domain
   }
 
   def updateInvalidRecords(dataSet: DataSet, prefix: String, invalidIndexes: List[Int]) {
-    val updatedDetails = dataSet.details.copy(invalidRecordCount = (dataSet.details.invalidRecordCount + (prefix -> invalidIndexes.size)))
-    val updatedDataSet = dataSet.copy(invalidRecords = dataSet.invalidRecords.updated(prefix, invalidIndexes), details = updatedDetails)
+    val updatedDetails = dataSet.details.copy(
+      invalidRecordCount = (dataSet.details.invalidRecordCount + (prefix -> invalidIndexes.size))
+    )
+    val updatedDataSet = dataSet.copy(
+      invalidRecords = dataSet.invalidRecords.updated(prefix, invalidIndexes),
+      details = updatedDetails
+    )
     save(updatedDataSet)
     // TODO fire off appropriate state change event
   }
 
-  def updateMapping(dataSet: DataSet, mapping: RecMapping)(implicit configuration: DomainConfiguration): DataSet = {
-    val recordDefinition: Option[RecordDefinition] = RecordDefinition.getRecordDefinition(mapping.getPrefix, mapping.getSchemaVersion.getVersion)
+  def updateMapping(dataSet: DataSet, mappingString: String)(implicit configuration: DomainConfiguration): DataSet = {
+    val mapping = RecMapping.read(new StringReader(mappingString), MappingService.recDefModel)
+    val recordDefinition: Option[RecordDefinition] = RecordDefinition.getRecordDefinition(
+      mapping.getPrefix,
+      mapping.getSchemaVersion.getVersion
+    )
     if (recordDefinition == None) {
-      throw new MetaRepoSystemException(String.format("RecordDefinition with prefix %s and version %s not recognized", mapping.getPrefix, mapping.getSchemaVersion.getVersion))
+      throw new MetaRepoSystemException(
+        "RecordDefinition with prefix %s and version %s not recognized".format(
+          mapping.getPrefix, mapping.getSchemaVersion.getVersion
+        )
+      )
     }
 
     // if we already have a mapping, update it but keep the format access control settings
-    val updatedMapping = dataSet.mappings.values.find(m => m.schemaPrefix == mapping.getPrefix && m.schemaVersion == mapping.getSchemaVersion.getVersion) match {
+    val updatedMapping = dataSet.mappings.values.find(
+      m => m.schemaPrefix == mapping.getPrefix && m.schemaVersion == mapping.getSchemaVersion.getVersion
+    ) match {
       case Some(existingMapping) =>
-        existingMapping.copy(
-          recordMapping = Some(mapping.toString)
-        )
+        existingMapping.copy(recordMapping = Some(mappingString))
       case None =>
         Mapping(
-          recordMapping = Some(mapping.toString),
+          recordMapping = Some(mappingString),
           schemaPrefix = mapping.getSchemaVersion.getPrefix,
           schemaVersion = mapping.getSchemaVersion.getVersion
         )
@@ -361,12 +406,17 @@ class DataSetDAO(collection: MongoCollection)(implicit val configuration: Domain
 
   // ~~~ dataSet control
 
-  def updateState(dataSet: DataSet, state: DataSetState, userName: Option[String] = None, errorMessage: Option[String] = None) {
+  def updateState(
+    dataSet: DataSet, state: DataSetState, userName: Option[String] = None, errorMessage: Option[String] = None
+    ) {
     if (errorMessage.isDefined) {
-      update(MongoDBObject("_id" -> dataSet._id), $set("state.name" -> state.name, "errorMessage" -> errorMessage.get))
+      update(MongoDBObject("_id" -> dataSet._id), $set(
+        "state.name" -> state.name, "errorMessage" -> errorMessage.get
+      ))
       DataSetEvent ! DataSetEvent.StateChanged(dataSet.orgId, dataSet.spec, state, userName)
       DataSetEvent ! DataSetEvent.Error(dataSet.orgId, dataSet.spec, errorMessage.get, userName)
-    } else {
+    }
+    else {
       update(MongoDBObject("_id" -> dataSet._id), $set("state.name" -> state.name) ++ $unset("errorMessage"))
       DataSetEvent ! DataSetEvent.StateChanged(dataSet.orgId, dataSet.spec, state, userName)
     }
@@ -375,16 +425,28 @@ class DataSetDAO(collection: MongoCollection)(implicit val configuration: Domain
   // TODO we don't use those actually anymore, they're taking now directly from the configuration at indexing time
   // we may want to introduce collection-lavel facets and other things later on, when generifying the search / indexing component
   def updateIndexingControlState(dataSet: DataSet, mapping: String, facets: List[String], sortFields: List[String]) {
-    update(MongoDBObject("_id" -> dataSet._id), $addToSet("idxMappings" -> mapping) ++ $set("idxFacets" -> facets, "idxSortFields" -> sortFields))
+    update(
+      MongoDBObject("_id" -> dataSet._id),
+      $addToSet("idxMappings" -> mapping) ++ $set(
+        "idxFacets" -> facets,
+        "idxSortFields" -> sortFields
+      )
+    )
   }
 
   def updateIndexingCount(dataSet: DataSet, count: Long) {
-    update(MongoDBObject("_id" -> dataSet._id), MongoDBObject("$set" -> MongoDBObject("details.indexing_count" -> count)))
+    update(
+      MongoDBObject("_id" -> dataSet._id),
+      MongoDBObject("$set" -> MongoDBObject("details.indexing_count" -> count))
+    )
     DataSetEvent ! DataSetEvent.ProcessedRecordCountChanged(dataSet.orgId, dataSet.spec, count)
   }
 
   def updateRecordCount(dataSet: DataSet, count: Long) {
-    update(MongoDBObject("_id" -> dataSet._id), MongoDBObject("$set" -> MongoDBObject("details.total_records" -> count)))
+    update(
+      MongoDBObject("_id" -> dataSet._id),
+      MongoDBObject("$set" -> MongoDBObject("details.total_records" -> count))
+    )
     DataSetEvent ! DataSetEvent.SourceRecordCountChanged(dataSet.orgId, dataSet.spec, count)
   }
 
@@ -417,7 +479,9 @@ class DataSetDAO(collection: MongoCollection)(implicit val configuration: Domain
 
 }
 
-case class FactDefinition(name: String, prompt: String, tooltip: String, automatic: Boolean = false, options: Seq[String]) {
+case class FactDefinition(
+  name: String, prompt: String, tooltip: String, automatic: Boolean = false, options: Seq[String]
+  ) {
   def hasOptions = !options.isEmpty
 
   val opts = options.map(opt => (opt, opt))
@@ -425,12 +489,13 @@ case class FactDefinition(name: String, prompt: String, tooltip: String, automat
 
 case class Mapping(recordMapping: Option[String] = None, schemaPrefix: String, schemaVersion: String)
 
-case class Details(name: String, // TODO this is repeated with the fact "name"...one day, unify
-                   total_records: Long = 0,
-                   indexing_count: Long = 0,
-                   invalidRecordCount: Map[String, Long] = Map.empty,
-                   facts: BasicDBObject = new BasicDBObject()
-                  ) {
+case class Details(
+  name: String, // TODO this is repeated with the fact "name"...one day, unify
+  total_records: Long = 0,
+  indexing_count: Long = 0,
+  invalidRecordCount: Map[String, Long] = Map.empty,
+  facts: BasicDBObject = new BasicDBObject()
+  ) {
 
   def getFactsAsText: String = {
     val builder = new StringBuilder

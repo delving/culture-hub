@@ -24,7 +24,7 @@ class OAuth2TokenEndPointSpec extends Specs2TestContext {
 
     "accept a password grant request" in {
 
-      withTestData {
+      withTestData(SAMPLE_A) {
 
         val endPoint = "http://delving.localhost:9000/token"
 
@@ -60,7 +60,7 @@ class OAuth2TokenEndPointSpec extends Specs2TestContext {
 
     "reject a password grant request" in {
 
-         withTestData {
+         withTestData(SAMPLE_A) {
 
            val endPoint = "http://delving.localhost:9000/token"
 
