@@ -50,9 +50,6 @@ trait TestContext {
     withTestConfig {
       HubServices.init()
       implicit val configuration = DomainConfigurationHandler.getByOrgId("delving")
-      createConnection(configuration.mongoDatabase).dropDatabase()
-      createConnection(configuration.objectService.fileStoreDatabaseName).dropDatabase()
-      createConnection(configuration.objectService.imageCacheDatabaseName).dropDatabase()
       try {
         val specsToFix = List("sample-a", "sample-b")
         specsToFix.foreach(spec =>
@@ -69,6 +66,9 @@ trait TestContext {
       } catch {
         case t: Throwable => //ignore if not found
       }
+      createConnection(configuration.mongoDatabase).dropDatabase()
+      createConnection(configuration.objectService.fileStoreDatabaseName).dropDatabase()
+      createConnection(configuration.objectService.imageCacheDatabaseName).dropDatabase()
       IndexingService.deleteByQuery("*:*")
     }
   }
