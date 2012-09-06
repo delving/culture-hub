@@ -16,98 +16,98 @@ import util.SimpleDataSetParser
 
 class DataSetParserSpec extends Specs2TestContext {
 
-    step {
-        loadStandalone()
-    }
+  step {
+    loadStandalone()
+  }
 
-    val spec = BootstrapSource.sources.head.spec
+  val spec = BootstrapSource.sources.head.spec
 
-    "The DataSetParser" should {
+  "The DataSetParser" should {
 
-        "parse an input stream" in {
+    "parse an input stream" in {
 
-            withTestConfig {
-                val buffer = parseStream()
-                buffer.length must be equalTo (2)
-            }
-
-        }
-
-        "properly assign invalid metadata formats" in {
-
-            withTestConfig {
-                val ds = DataSet.dao("delving").findBySpecAndOrgId(spec, "delving").get
-                DataSet.dao("delving").getInvalidRecords(ds)("icn").contains(1) must equalTo(true)
-            }
-
-        }
-
-        "preserve cdata" in {
-            withTestConfig {
-                val buffer = parseStream()
-                buffer(0).document must contain("<![CDATA[")
-            }
-        }
-
-        "preserve &amp; in elements" in {
-            withTestConfig {
-                val buffer = parseStream()
-
-                val parsed = buffer(0).document
-                parsed must contain("<urlWithAmp>http://www.inghist.nl/retroboeken/nnbw?source=10&amp;page_number=1</urlWithAmp>")
-            }
-        }
-
-        "preserve &amp; in attributes" in {
-            withTestConfig {
-                val buffer = parseStream()
-
-                val parsed = buffer(0).document
-                parsed must contain("<attrWithAmp some=\"http://www.inghist.nl/retroboeken/nnbw?source=10&amp;page_number=1\">Value</attrWithAmp>")
-            }
-        }
-
-        "propertly escape identifiers with non-valid XML characters in them" in {
-            withTestConfig {
-                val buffer = parseStream(sampleSourceWithWeirdId)
-
-                val parsed = buffer(0)
-                buffer.size must equalTo(1)
-                parsed.id must equalTo("http://digitaltmuseum.no/artifactView.do?idOwner=KFS&amp;idIdentifier")
-            }
-        }
+      withTestConfig {
+        val buffer = parseStream()
+        buffer.length must be equalTo (2)
+      }
 
     }
 
-    step(cleanup())
+    "properly assign invalid metadata formats" in {
 
-    def parseStream(): mutable.Buffer[Record] = parseStream(sampleSource)
-
-    def parseStream(sampleSource: String): mutable.Buffer[Record] = {
+      withTestConfig {
         val ds = DataSet.dao("delving").findBySpecAndOrgId(spec, "delving").get
-        val bis = new ByteArrayInputStream(sampleSource.getBytes)
-        val parser = new SimpleDataSetParser(bis, ds)
+        DataSet.dao("delving").getInvalidRecords(ds)("icn").contains(1) must equalTo(true)
+      }
 
-        val buffer = ListBuffer[Record]()
-
-        try {
-
-            while (parser.hasNext) {
-                val record = parser.next()
-                buffer.append(record)
-            }
-
-        } catch {
-            case t =>
-                t.printStackTrace()
-                Error(t)
-        }
-
-        buffer
     }
 
-    val sampleSource =
-        """<?xml version='1.0' encoding='UTF-8'?>
+    "preserve cdata" in {
+      withTestConfig {
+        val buffer = parseStream()
+        buffer(0).document must contain("<![CDATA[")
+      }
+    }
+
+    "preserve &amp; in elements" in {
+      withTestConfig {
+        val buffer = parseStream()
+
+        val parsed = buffer(0).document
+        parsed must contain("<urlWithAmp>http://www.inghist.nl/retroboeken/nnbw?source=10&amp;page_number=1</urlWithAmp>")
+      }
+    }
+
+    "preserve &amp; in attributes" in {
+      withTestConfig {
+        val buffer = parseStream()
+
+        val parsed = buffer(0).document
+        parsed must contain("<attrWithAmp some=\"http://www.inghist.nl/retroboeken/nnbw?source=10&amp;page_number=1\">Value</attrWithAmp>")
+      }
+    }
+
+    "propertly escape identifiers with non-valid XML characters in them" in {
+      withTestConfig {
+        val buffer = parseStream(sampleSourceWithWeirdId)
+
+        val parsed = buffer(0)
+        buffer.size must equalTo(1)
+        parsed.id must equalTo("http://digitaltmuseum.no/artifactView.do?idOwner=KFS&amp;idIdentifier")
+      }
+    }
+
+  }
+
+  step(cleanup())
+
+  def parseStream(): mutable.Buffer[Record] = parseStream(sampleSource)
+
+  def parseStream(sampleSource: String): mutable.Buffer[Record] = {
+    val ds = DataSet.dao("delving").findBySpecAndOrgId(spec, "delving").get
+    val bis = new ByteArrayInputStream(sampleSource.getBytes)
+    val parser = new SimpleDataSetParser(bis, ds)
+
+    val buffer = ListBuffer[Record]()
+
+    try {
+
+      while (parser.hasNext) {
+        val record = parser.next()
+        buffer.append(record)
+      }
+
+    } catch {
+      case t =>
+        t.printStackTrace()
+        Error(t)
+    }
+
+    buffer
+  }
+
+  val sampleSource =
+    """<?xml version='1.0' encoding='UTF-8'?>
 <delving-sip-source xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" >
 <input id="1">
 <priref>1</priref>
@@ -282,7 +282,7 @@ class DataSetParserSpec extends Specs2TestContext {
 </input>
 </delving-sip-source>"""
 
-    val sampleSourceWithWeirdId = """<?xml version='1.0' encoding='UTF-8'?>
+  val sampleSourceWithWeirdId = """<?xml version='1.0' encoding='UTF-8'?>
 <delving-sip-source xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" >
 <input id="http://digitaltmuseum.no/artifactView.do?idOwner=KFS&amp;idIdentifier">
 <priref>1</priref>

@@ -12,20 +12,20 @@ import play.api.test.Helpers._
 
 class BaseXStorageSpec extends Specs2TestContext {
 
-    "the BaseX storage" should {
+  "the BaseX storage" should {
 
-        "properly insert documents with &amp;" in {
+    "properly insert documents with &amp;" in {
 
-            withTestData {
-                // data is loaded at bootstrap time of the DataSet plugin
-                implicit val configuration = DomainConfigurationHandler.getByOrgId("delving")
+      withTestData {
+        // data is loaded at bootstrap time of the DataSet plugin
+        implicit val configuration = DomainConfigurationHandler.getByOrgId("delving")
 
-                val spec = BootstrapSource.sources.head.spec
-                val dataSet = DataSet.dao.findBySpecAndOrgId(spec, "delving").get
-                DataSet.dao.getSourceRecordCount(dataSet) must equalTo(8)
-            }
+        val spec = BootstrapSource.sources.head.spec
+        val dataSet = DataSet.dao.findBySpecAndOrgId(spec, "delving").get
+        DataSet.dao.getSourceRecordCount(dataSet) must equalTo(8)
+      }
 
-        }
     }
+  }
 
 }

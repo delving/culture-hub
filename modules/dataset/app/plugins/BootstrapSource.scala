@@ -13,40 +13,40 @@ import org.apache.commons.io.FileUtils
 
 class BootstrapSource(dataDirectory: File) {
 
-    val org = "delving"
-    val spec = dataDirectory.getName
-    val targetRoot = new File(dataDirectory.getParentFile.getParentFile, "target")
-    val targetDirectory = new File(targetRoot, dataDirectory.getName)
+  val org = "delving"
+  val spec = dataDirectory.getName
+  val targetRoot = new File(dataDirectory.getParentFile.getParentFile, "target")
+  val targetDirectory = new File(targetRoot, dataDirectory.getName)
 
-    init()
+  init()
 
-    def init() {
-        FileUtils.deleteQuietly(targetDirectory)
-        Files.createDirectory(targetDirectory)
-        dataDirectory.listFiles().foreach(file => Files.copyFile(file, new File(targetDirectory, file.getName)))
-        targetDirectory.listFiles().foreach(file => Hasher.ensureFileHashed(file))
-    }
+  def init() {
+    FileUtils.deleteQuietly(targetDirectory)
+    Files.createDirectory(targetDirectory)
+    dataDirectory.listFiles().foreach(file => Files.copyFile(file, new File(targetDirectory, file.getName)))
+    targetDirectory.listFiles().foreach(file => Hasher.ensureFileHashed(file))
+  }
 
-    def fileList() = targetDirectory.listFiles()
+  def fileList() = targetDirectory.listFiles()
 
-    def fileNamesString() = fileList().map(file => file.getName).reduceLeft(_ + "\n" + _)
+  def fileNamesString() = fileList().map(file => file.getName).reduceLeft(_ + "\n" + _)
 
-    def file(name: String): File =
-        fileList().filter(file => file.getName.endsWith(name))
-        .headOption.getOrElse(throw new RuntimeException("Could not find " + name))
+  def file(name: String): File =
+    fileList().filter(file => file.getName.endsWith(name))
+    .headOption.getOrElse(throw new RuntimeException("Could not find " + name))
 }
 
 object BootstrapSource {
-    val here = new File(".")
+  val here = new File(".")
 
-    val baseDirectory = if (here.listFiles().exists(f => f.isDirectory && f.getName == "modules"))
-        here
-    else
-        new File(here, "culture-hub")
+  val baseDirectory = if (here.listFiles().exists(f => f.isDirectory && f.getName == "modules"))
+    here
+  else
+    new File(here, "culture-hub")
 
-    val bootstrapDirectory = new File(baseDirectory, "modules/dataset/conf/bootstrap")
+  val bootstrapDirectory = new File(baseDirectory, "modules/dataset/conf/bootstrap")
 
-    val files = bootstrapDirectory.listFiles()
+  val files = bootstrapDirectory.listFiles()
 
-    val sources = files.map(file => new BootstrapSource(file))
+  val sources = files.map(file => new BootstrapSource(file))
 }
