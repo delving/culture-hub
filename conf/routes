@@ -113,8 +113,6 @@ GET          /search                                                          co
 
 GET          /:user                                                           controllers.Profile.profile(user)
 
-GET          /:orgId/:spec/:recordId                                          controllers.FullView.render(orgId, spec, recordId, format: Option[String])
-
 GET          /:user/admin/profile/update                                      controllers.user.Admin.profile(user)
 POST         /:user/admin/profile                                             controllers.user.Admin.profileSubmit(user)
 
@@ -185,3 +183,6 @@ DELETE      /organizations/:orgId/site/:language/page/:key                    co
 GET         /organizations/:orgId/site/:language/page/preview/:key            controllers.organization.CMS.pagePreview(orgId, language, key)
 
 GET         /organizations/:orgId/directory/organizationLookup                controllers.organization.DataSetControl.organizationLookup(orgId, term)
+
+
+GET          /:orgId/:spec/:recordId                                          controllers.FullView.render(orgId, spec, recordId, format: Option[String])

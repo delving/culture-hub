@@ -44,8 +44,8 @@ class ViewRenderSpec extends Specs2TestContext {
 
         val namespaces = Map("delving" -> "http://www.delving.eu/schemas/delving-1.0.xsd", "dc" -> "http://dublincore.org/schemas/xmls/qdc/dc.xsd", "icn" -> "http://www.icn.nl/schemas/ICN-V3.2.xsd")
 
-        val renderer = new ViewRenderer("icn", "full", configuration)
-        val view = renderer.renderRecordWithView("icn", "full", testHtmlViewDefinition, testRecord(), List(Role("administrator", Map("en" -> "blabla"))), namespaces, Lang("en"), Map.empty)
+        val renderer = new ViewRenderer("icn", ViewType.HTML, configuration)
+        val view = renderer.renderRecordWithView("icn", ViewType.HTML, testHtmlViewDefinition, testRecord(), List(Role("administrator", Map("en" -> "blabla"))), namespaces, Lang("en"), Map.empty)
 
         val template = GenericTemplateLoader.load(Play2VirtualFile.fromFile(Play.getFile("test/view.html")))
         val args: java.util.Map[String, Object] = new java.util.HashMap[String, Object]()
@@ -95,7 +95,7 @@ class ViewRenderSpec extends Specs2TestContext {
 
         val affTestRecord = Source.fromFile(new File(Play.application.path, "test/resource/aff-example.xml")).getLines().mkString("\n")
 
-        val renderer = new ViewRenderer("aff", "html", configuration)
+        val renderer = new ViewRenderer("aff", ViewType.HTML, configuration)
         val view = renderer.renderRecord(affTestRecord, List.empty[Role], namespaces, Lang("en"))
 
         val template = GenericTemplateLoader.load(Play2VirtualFile.fromFile(Play.getFile("test/view.html")))
@@ -149,8 +149,8 @@ class ViewRenderSpec extends Specs2TestContext {
         val configuration = DomainConfigurationHandler.getByOrgId("delving")
 
         val namespaces = Map("delving" -> "http://www.delving.eu/schemas/delving-1.0.xsd", "dc" -> "http://dublincore.org/schemas/xmls/qdc/dc.xsd", "icn" -> "http://www.icn.nl/schemas/ICN-V3.2.xsd")
-        val renderer = new ViewRenderer("aff", "xml", configuration)
-        val view = renderer.renderRecordWithView("aff", "xml", testXmlViewDefinition, testRecord(), List.empty, namespaces, Lang("en"), Map.empty)
+        val renderer = new ViewRenderer("aff", ViewType("api"), configuration)
+        val view = renderer.renderRecordWithView("aff", ViewType("api"), testXmlViewDefinition, testRecord(), List.empty, namespaces, Lang("en"), Map.empty)
         val json = view.toJson
 
         val expected = """{"record":{"item":{"id":"42","dc_title":"A test hierarchical record","delving_description":"This is a test record","places":{"place":[{"country":"France","name":"Paris"},{"country":"Germany","name":"Berlin"},{"country":"Netherlands","name":"Amsterdam"}]}}}}"""
@@ -174,7 +174,7 @@ class ViewRenderSpec extends Specs2TestContext {
         val configuration = DomainConfigurationHandler.getByOrgId("delving")
 
         val testRecord = legacyRecord()
-        val renderer = new ViewRenderer("legacy", "api", configuration)
+        val renderer = new ViewRenderer("legacy", ViewType("api"), configuration)
         val view = renderer.renderRecord(testRecord, List.empty, legacyNamespaces, Lang("en"))
 
         val json = view.toJson
@@ -192,7 +192,7 @@ class ViewRenderSpec extends Specs2TestContext {
         val configuration = DomainConfigurationHandler.getByOrgId("delving")
 
         val testRecord = legacyRecord()
-        val renderer = new ViewRenderer("legacy", "api", configuration)
+        val renderer = new ViewRenderer("legacy", ViewType.API, configuration)
         val view = renderer.renderRecord(testRecord, List.empty, legacyNamespaces, Lang("en"))
 
         (view.toXml \ "layout" \ "fields" \ "field").filter(c => (c \ "name").text == "tib_objectSoort").size must equalTo(1)
