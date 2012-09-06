@@ -321,74 +321,83 @@ class DataSetPlugin(app: Application) extends CultureHubPlugin(app) {
   /**
    * Executed when test data is loaded (for development and testing)
    */
-  override def onLoadTestData() {
-    BootstrapSource.sources.headOption.foreach(boot => bootstrapDataset(boot))
+  override def onLoadTestData(parameters: Map[String, Seq[String]]) {
+    val samples = parameters.get("samples").getOrElse(Seq.empty)
+    val now = System.currentTimeMillis()
+
+    BootstrapSource.sources.
+      filter(s => samples.contains(s.spec)).
+      foreach(boot => bootstrapDataset(boot))
+
+    println()
+    println("** Loaded DataSet plugin test data for sample(s) %s in %s ms **".format(
+      samples.mkString(", "), System.currentTimeMillis() - now)
+    )
+    println()
   }
 
   def bootstrapDataset(boot: BootstrapSource) {
-    if (DataSet.dao(boot.org).count(MongoDBObject("spec" -> boot.spec)) > 0) return
+    if (DataSet.dao(boot.org).count(MongoDBObject("spec" -> boot.spec)) == 0) {
 
-    implicit val configuration = DomainConfigurationHandler.getByOrgId(("delving"))
+      implicit val configuration = DomainConfigurationHandler.getByOrgId(("delving"))
 
-    val factMap = new BasicDBObject()
-    factMap.put("spec", boot.spec)
-    factMap.put("name", boot.spec)
-    factMap.put("collectionType", "all")
-    factMap.put("namespacePrefix", "raw")
-    factMap.put("language", "nl")
-    factMap.put("country", "netherlands")
-    factMap.put("provider", "Sample Man")
-    factMap.put("dataProvider", "Sample Man")
-    factMap.put("rights", "http://creativecommons.org/publicdomain/mark/1.0/")
-    factMap.put("type", "IMAGE")
+      val factMap = new BasicDBObject()
+      factMap.put("spec", boot.spec)
+      factMap.put("name", boot.spec)
+      factMap.put("collectionType", "all")
+      factMap.put("namespacePrefix", "raw")
+      factMap.put("language", "nl")
+      factMap.put("country", "netherlands")
+      factMap.put("provider", "Sample Man")
+      factMap.put("dataProvider", "Sample Man")
+      factMap.put("rights", "http://creativecommons.org/publicdomain/mark/1.0/")
+      factMap.put("type", "IMAGE")
 
-    log.info("bootstrapping " + boot.spec)
+      val mappingFile = boot.file("mapping_icn.xml")
 
-    val mappingFile = boot.file("mapping_icn.xml")
+      DataSet.dao("delving").insert(DataSet(
+        spec = boot.spec,
+        userName = "bob",
+        orgId = "delving",
+        state = DataSetState.ENABLED,
+        deleted = false,
+        details = Details(
+          name = boot.spec,
+          facts = factMap
+        ),
+        idxMappings = List("icn"),
+        invalidRecords = Map("icn" -> List(1)),
+        mappings = Map("icn" -> Mapping(
+          schemaPrefix = "icn",
+          schemaVersion = "1.0.0", // TODO
+          recordMapping = Some(Source.fromInputStream(new FileInputStream(mappingFile)).getLines().mkString("\n"))
+        )),
+        formatAccessControl = Map("icn" -> FormatAccessControl(accessType = "public"))
+      ))
 
-    DataSet.dao("delving").insert(DataSet(
-      spec = boot.spec,
-      userName = "bob",
-      orgId = "delving",
-      state = DataSetState.ENABLED,
-      deleted = false,
-      details = Details(
-        name = boot.spec,
-        facts = factMap
-      ),
-      idxMappings = List("icn"),
-      invalidRecords = Map("icn" -> List(1)),
-      mappings = Map("icn" -> Mapping(
-        schemaPrefix = "icn",
-        schemaVersion = "1.0.0", // TODO
-        recordMapping = Some(Source.fromInputStream(new FileInputStream(mappingFile)).getLines().mkString("\n"))
-      )),
-      formatAccessControl = Map("icn" -> FormatAccessControl(accessType = "public"))
-    ))
-
-    val dataSet = DataSet.dao.findBySpecAndOrgId(boot.spec, boot.org).get
-
-    // provision records, but only if necessary
-    if (HubServices.basexStorage(configuration).openCollection(dataSet).isEmpty) {
-      log.info("loading source for "+boot.spec)
-      val sourceFile = boot.file("source.xml.gz")
-      _root_.controllers.SipCreatorEndPoint.loadSourceData(
-        dataSet,
-        new GZIPInputStream(new FileInputStream(sourceFile))
-      )
-      Thread.sleep(2000)
-    }
-
-    if (Play.isTest) {
-      log.info("indexing for "+boot.spec)
       val dataSet = DataSet.dao.findBySpecAndOrgId(boot.spec, boot.org).get
-      DataSet.dao.updateState(dataSet, DataSetState.QUEUED)
-      DataSetCollectionProcessor.process(dataSet)
-      while (DataSet.dao.getState(dataSet.orgId, dataSet.spec) == DataSetState.PROCESSING) Thread.sleep(1000)
+
+      // provision records, but only if necessary
+      if (HubServices.basexStorage(configuration).openCollection(dataSet).isEmpty) {
+        val sourceFile = boot.file("source.xml.gz")
+        _root_.controllers.SipCreatorEndPoint.loadSourceData(
+          dataSet,
+          new GZIPInputStream(new FileInputStream(sourceFile))
+        )
+        while (DataSet.dao.getState(dataSet.orgId, dataSet.spec) == DataSetState.PARSING) Thread.sleep(100)
+      }
+
+      if (Play.isTest) {
+        val dataSet = DataSet.dao.findBySpecAndOrgId(boot.spec, boot.org).get
+        DataSet.dao.updateState(dataSet, DataSetState.QUEUED)
+        DataSetCollectionProcessor.process(dataSet)
+        while (DataSet.dao.getState(dataSet.orgId, dataSet.spec) == DataSetState.PROCESSING) Thread.sleep(500)
+      }
+
+      boot.init()
     }
 
-    boot.init()
-  }
+    }
 }
 
 object DataSetPlugin {

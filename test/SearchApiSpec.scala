@@ -1,4 +1,3 @@
-import org.specs2.mutable.Specification
 import play.api.test.Helpers._
 import play.api.test.FakeRequest
 
@@ -16,7 +15,7 @@ import play.api.test.FakeRequest
 class SearchApiSpec extends Specs2TestContext {
 
   step {
-    loadStandalone()
+    loadStandalone(SAMPLE_A, SAMPLE_B)
   }
 
   "the Search API" should {

@@ -15,7 +15,7 @@ class BaseXStorageSpec extends BootstrapAwareSpec {
 
     "properly insert documents with &amp;" in {
 
-      withTestData {
+      withTestData(SAMPLE_A) {
         // data is loaded at bootstrap time of the DataSet plugin
         implicit val configuration = DomainConfigurationHandler.getByOrgId("delving")
 

@@ -16,7 +16,7 @@ import org.apache.commons.io.FileUtils
 class SipCreatorEndPointSpec extends BootstrapAwareSpec {
 
   step {
-    loadStandalone()
+    loadStandalone(SAMPLE_A, SAMPLE_B)
   }
 
   "SipCreatorEndPoint" should {
@@ -174,8 +174,8 @@ class SipCreatorEndPointSpec extends BootstrapAwareSpec {
 
         val dataSet = DataSet.dao(bootstrap.org).findBySpecAndOrgId(bootstrap.spec, bootstrap.org).get
 
-        // now we wait since the parsing is asynchronous. We wait a long time since our CI server is rather slow.
-        Thread.sleep(10000)
+        implicit val configuration = DomainConfigurationHandler.getByOrgId("delving")
+        while (DataSet.dao.getState(dataSet.orgId, dataSet.spec) == DataSetState.PARSING) Thread.sleep(100)
 
         DataSet.dao(bootstrap.org).getSourceRecordCount(dataSet) must equalTo(8)
       }

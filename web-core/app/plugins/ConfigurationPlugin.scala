@@ -66,7 +66,7 @@ class ConfigurationPlugin(app: Application) extends CultureHubPlugin(app) {
   /**
    * Executed when test data is loaded (for development and testing)
    */
-  override def onLoadTestData() {
+  override def onLoadTestData(parameters: Map[String, Seq[String]]) {
     if (HubUser.dao("delving").count() == 0) bootstrapUser()
     if (Group.dao("delving").count() == 0) bootstrapAccessControl()
 

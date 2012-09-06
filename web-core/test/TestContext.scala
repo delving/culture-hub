@@ -17,6 +17,9 @@ import xml.XML
 
 trait TestContext {
 
+  val SAMPLE_A = "sample-a"
+  val SAMPLE_B = "sample-b"
+
   def asyncToResult(response: Result) = response.asInstanceOf[AsyncResult].result.await.get
 
   def contentAsXML(response: Result) = XML.loadString(contentAsString(response))
@@ -26,14 +29,14 @@ trait TestContext {
   else new File("culture-hub")
 
   def withTestConfig[T](block: => T) = {
-    running(FakeApplication(path = applicationPath)) {
+    running(FakeApplication(path = applicationPath, withoutPlugins = Seq("play.api.db.BoneCPPlugin", "play.db.ebean.EbeanPlugin", "play.db.jpa.JPAPlugin", "play.api.db.evolutions.EvolutionsPlugin"))) {
       block
     }
   }
 
-  def withTestData[T](block: => T): T = {
+  def withTestData[T](samples: String*)(block: => T): T = {
     withTestConfig {
-      load()
+      load(Map("samples" -> samples))
       try {
         block
       } finally {
@@ -42,8 +45,8 @@ trait TestContext {
     }
   }
 
-  def load() {
-    TestDataLoader.load()
+  def load(parameters: Map[String, Seq[String]]) {
+    TestDataLoader.load(parameters)
   }
 
   def cleanup() {
@@ -51,7 +54,7 @@ trait TestContext {
       HubServices.init()
       implicit val configuration = DomainConfigurationHandler.getByOrgId("delving")
       try {
-        val specsToFix = List("sample-a", "sample-b")
+        val specsToFix = List(SAMPLE_A, SAMPLE_B)
         specsToFix.foreach(spec =>
           AggregatingOrganizationCollectionLookup.findBySpecAndOrgId(spec, "delving").map {
             set =>
@@ -64,7 +67,7 @@ trait TestContext {
           }
         )
       } catch {
-        case t: Throwable => //ignore if not found
+        case t: Throwable => // ignore if not found
       }
       createConnection(configuration.mongoDatabase).dropDatabase()
       createConnection(configuration.objectService.fileStoreDatabaseName).dropDatabase()
@@ -73,9 +76,9 @@ trait TestContext {
     }
   }
 
-  def loadStandalone() {
-    running(FakeApplication(path = applicationPath)) {
-      load()
+  def loadStandalone(samples: String*) {
+    withTestConfig {
+      load(Map("samples" -> samples))
     }
   }
 

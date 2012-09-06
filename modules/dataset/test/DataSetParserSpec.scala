@@ -16,7 +16,7 @@ import util.SimpleDataSetParser
 class DataSetParserSpec extends BootstrapAwareSpec {
 
   step {
-    loadStandalone()
+    loadStandalone(SAMPLE_A)
   }
 
   "The DataSetParser" should {
@@ -33,7 +33,7 @@ class DataSetParserSpec extends BootstrapAwareSpec {
     "properly assign invalid metadata formats" in {
 
       withTestConfig {
-        val ds = DataSet.dao("delving").findBySpecAndOrgId(spec, "delving").get
+        val ds = DataSet.dao("delving").findBySpecAndOrgId(SAMPLE_A, "delving").get
         DataSet.dao("delving").getInvalidRecords(ds)("icn").contains(1) must equalTo(true)
       }
 
@@ -81,7 +81,7 @@ class DataSetParserSpec extends BootstrapAwareSpec {
   def parseStream(): mutable.Buffer[Record] = parseStream(sampleSource)
 
   def parseStream(sampleSource: String): mutable.Buffer[Record] = {
-    val ds = DataSet.dao("delving").findBySpecAndOrgId(spec, "delving").get
+    val ds = DataSet.dao("delving").findBySpecAndOrgId(SAMPLE_A, "delving").get
     val bis = new ByteArrayInputStream(sampleSource.getBytes)
     val parser = new SimpleDataSetParser(bis, ds)
 
