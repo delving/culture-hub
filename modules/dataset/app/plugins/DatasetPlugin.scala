@@ -368,6 +368,7 @@ class DataSetPlugin(app: Application) extends CultureHubPlugin(app) {
 
     // provision records, but only if necessary
     if (HubServices.basexStorage(configuration).openCollection(dataSet).isEmpty) {
+      log.info("loading source for "+boot.spec)
       val sourceFile = boot.file("source.xml.gz")
       _root_.controllers.SipCreatorEndPoint.loadSourceData(
         dataSet,
@@ -377,6 +378,7 @@ class DataSetPlugin(app: Application) extends CultureHubPlugin(app) {
     }
 
     if (Play.isTest) {
+      log.info("indexing for "+boot.spec)
       val dataSet = DataSet.dao.findBySpecAndOrgId(boot.spec, boot.org).get
       DataSet.dao.updateState(dataSet, DataSetState.QUEUED)
       DataSetCollectionProcessor.process(dataSet)

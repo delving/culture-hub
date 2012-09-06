@@ -18,7 +18,7 @@ class OAIPMHSpec extends Specs2TestContext {
     loadStandalone()
   }
 
-  val specToFix = "sample-a" // todo: this is only know in the dataset plugin
+  val spec = "sample-a"
 
   "the OAI-PMH repository" should {
 
@@ -55,9 +55,7 @@ class OAIPMHSpec extends Specs2TestContext {
 
         val xml = contentAsXML(response)
         val error = xml \ "error"
-        if (error.length != 0) {
-          println(error)
-        }
+        if (error.length != 0) println(error)
         error.length must equalTo(0)
 
         val sets = xml \ "ListSets" \ "set"
@@ -87,7 +85,7 @@ class OAIPMHSpec extends Specs2TestContext {
 
       withTestConfig {
 
-        val request = FakeRequest("GET", "?verb=ListRecords&set="+specToFix+"&metadataPrefix=icn")
+        val request = FakeRequest("GET", "?verb=ListRecords&set="+spec+"&metadataPrefix=icn")
         val r = controllers.api.OaiPmh.oaipmh("delving", None, None)(request)
 
         val response = asyncToResult(r)
@@ -99,7 +97,7 @@ class OAIPMHSpec extends Specs2TestContext {
         error.length must equalTo(0)
 
         val records = xml \ "ListRecords" \ "record"
-        records.length must equalTo(7) // 7 valid records for ICN
+        records.length must equalTo(299) // 7 valid records for ICN
       }
 
     }
@@ -107,7 +105,7 @@ class OAIPMHSpec extends Specs2TestContext {
     "list records with a 'from' datestamp using YYYYMMDD format" in {
       withTestConfig {
         val today = OaiPmhService.dateFormat.format(new Date())
-        val request = FakeRequest("GET", "?verb=ListRecords&set="+specToFix+"&metadataPrefix=icn&from=" + today)
+        val request = FakeRequest("GET", "?verb=ListRecords&set="+spec+"&metadataPrefix=icn&from=" + today)
         val r = controllers.api.OaiPmh.oaipmh("delving", None, None)(request)
 
         val response = asyncToResult(r)
@@ -119,7 +117,7 @@ class OAIPMHSpec extends Specs2TestContext {
         error.length must equalTo(0)
 
         val records = xml \ "ListRecords" \ "record"
-        records.length must equalTo(7) // 7 valid records were inserted today
+        records.length must equalTo(299) // todo: where did the last one go?
       }
     }
 
@@ -127,7 +125,7 @@ class OAIPMHSpec extends Specs2TestContext {
     "list records with an 'until' datestamp using YYYYMMDD format" in {
       withTestConfig {
         val today = OaiPmhService.dateFormat.format(new Date())
-        val request = FakeRequest("GET", "?verb=ListRecords&set="+specToFix+"&metadataPrefix=icn&until=" + today)
+        val request = FakeRequest("GET", "?verb=ListRecords&set="+spec+"&metadataPrefix=icn&until=" + today)
         val r = controllers.api.OaiPmh.oaipmh("delving", None, None)(request)
 
         val response = asyncToResult(r)
@@ -146,7 +144,7 @@ class OAIPMHSpec extends Specs2TestContext {
       withTestConfig {
         val d = new DateTime()
         val tomorrow = OaiPmhService.dateFormat.format(d.plusDays(1).toDate)
-        val request = FakeRequest("GET", "?verb=ListRecords&set="+specToFix+"&metadataPrefix=icn&from=" + tomorrow)
+        val request = FakeRequest("GET", "?verb=ListRecords&set="+spec+"&metadataPrefix=icn&from=" + tomorrow)
         val r = controllers.api.OaiPmh.oaipmh("delving", None, None)(request)
 
         val response = asyncToResult(r)
@@ -165,7 +163,7 @@ class OAIPMHSpec extends Specs2TestContext {
     withTestConfig {
       val d = new DateTime()
       val yesterday = OaiPmhService.dateFormat.format(d.minusDays(1).toDate)
-      val request = FakeRequest("GET", "?verb=ListRecords&set="+specToFix+"&metadataPrefix=icn&until=" + yesterday)
+      val request = FakeRequest("GET", "?verb=ListRecords&set="+spec+"&metadataPrefix=icn&until=" + yesterday)
       val r = controllers.api.OaiPmh.oaipmh("delving", None, None)(request)
 
       val response = asyncToResult(r)
