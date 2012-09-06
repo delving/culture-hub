@@ -50,7 +50,7 @@
     #{/if}&#160;
     </div>
     <div class="rights span4">
-        #{rightsIcon rights: rights/}
+        #{if rights}#{rightsIcon rights: rights/}#{/if}
     </div>
     <div class="social-media span4">
     #{if themeInfo.addThisTrackingCode().length() > 0}
@@ -64,12 +64,12 @@
 
 <div class="object-main">
     <div class="row">
-        <div class="span8">
-            <h3 class="object-title">${systemFields.apply("delving_title").get(0)}</h3>
+        *{ this div has no span class - it is added by object.js when  }*
+        <div class="object-data span8">
+            <h3 class="object-title hide">${systemFields.apply("delving_title").get(0)}</h3>
             #{view view: fullView /}
-            *{<div class="related-items"></div>}*
         </div>
-        <div class="span4">
+        <div class="object-related span4">
             <div class="related-items"></div>
         </div>
     </div>
