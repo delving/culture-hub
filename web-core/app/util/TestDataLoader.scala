@@ -10,9 +10,9 @@ import core.CultureHubPlugin
 
 object TestDataLoader {
 
-  def load() {
+  def load(parameters: Map[String, Seq[String]]) {
     CultureHubPlugin.hubPlugins.foreach { plugin =>
-      plugin.onLoadTestData()
+      plugin.onLoadTestData(parameters)
     }
   }
 

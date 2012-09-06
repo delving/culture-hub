@@ -2,17 +2,13 @@ package controllers
 
 import exceptions.{StorageInsertionException, AccessKeyException}
 import play.api.mvc._
-import core.mapping.MappingService
 import java.util.zip.{ZipEntry, ZipOutputStream, GZIPInputStream}
 import java.io._
 import org.apache.commons.io.IOUtils
 import play.api.libs.iteratee.Enumerator
-import extensions.MissingLibs
 import play.libs.Akka
 import akka.actor.Actor
-import eu.delving.metadata.RecMapping
-import play.api.{Play, Logger}
-import play.api.Play.current
+import play.api.Logger
 import core.HubServices
 import scala.{Either, Option}
 import util.SimpleDataSetParser
@@ -55,9 +51,11 @@ object SipCreatorEndPoint extends ApplicationController {
       implicit request => {
         if (accessToken.isEmpty) {
           Unauthorized("No access token provided")
-        } else if (!HubUser.isValidToken(accessToken.get)) {
+        }
+        else if (!HubUser.isValidToken(accessToken.get)) {
           Unauthorized("Access Key %s not accepted".format(accessToken.get))
-        } else {
+        }
+        else {
           connectedUserObject = HubUser.getUserByToken(accessToken.get)
           action(request)
         }
@@ -65,15 +63,18 @@ object SipCreatorEndPoint extends ApplicationController {
     }
   }
 
-  def OrganizationAction[A](orgId: String, accessToken: Option[String])(action: Action[A]): Action[A] = AuthenticatedAction(accessToken) {
+  def OrganizationAction[A](orgId: String, accessToken: Option[String])
+    (action: Action[A]): Action[A] = AuthenticatedAction(accessToken) {
     Action(action.parser) {
       implicit request =>
         if (orgId == null || orgId.isEmpty) {
           BadRequest("No orgId provided")
-        } else {
+        }
+        else {
           if (!HubServices.organizationService(configuration).exists(orgId)) {
             NotFound("Unknown organization " + orgId)
-          } else {
+          }
+          else {
             action(request)
           }
         }
@@ -87,67 +88,72 @@ object SipCreatorEndPoint extends ApplicationController {
 
   def connectedUser = getConnectedUser.userName
 
-
   def listAll(accessToken: Option[String]) = AuthenticatedAction(accessToken) {
     Action {
       implicit request =>
-        val dataSets = DataSet.dao.findAllForUser(connectedUserObject.get.userName, configuration.orgId, DataSetPlugin.ROLE_DATASET_EDITOR)
+        val dataSets = DataSet.dao.findAllForUser(
+          connectedUserObject.get.userName,
+          configuration.orgId,
+          DataSetPlugin.ROLE_DATASET_EDITOR
+        )
 
-        val dataSetsXml = <data-set-list>
-          {dataSets.map {
-          ds =>
-            val creator = HubUser.dao.findByUsername(ds.getCreator)
-            val lockedBy = ds.getLockedBy
-            <data-set>
-              <spec>{ds.spec}</spec>
-              <name>{ds.details.name}</name>
-              <orgId>{ds.orgId}</orgId>
-              {if(creator.isDefined) {
-              <createdBy>
-                <username>{creator.get.userName}</username>
-                <fullname>{creator.get.fullname}</fullname>
-                <email>{creator.get.email}</email>
-              </createdBy>} else {
-              <createdBy>
-                <username>{ds.getCreator}</username>
-              </createdBy>}}{if (lockedBy != None) {
-              <lockedBy>
-                <username>{lockedBy.get.userName}</username>
-                <fullname>{lockedBy.get.fullname}</fullname>
-                <email>{lockedBy.get.email}</email>
-              </lockedBy>}}
-              <state>{ds.state.name}</state>
-              <recordCount>{ds.details.total_records}</recordCount>
-            </data-set>
-          }
-        }
-        </data-set-list>
-
-
+        val dataSetsXml = <data-set-list>{
+                    dataSets.map {
+                      ds =>
+                        val creator = HubUser.dao.findByUsername(ds.getCreator)
+                        val lockedBy = ds.getLockedBy
+                            <data-set>
+                              <spec>{ds.spec}</spec>
+                              <name>{ds.details.name}</name>
+                              <orgId>{ds.orgId}</orgId>
+                              {if (creator.isDefined) {
+                              <createdBy>
+                                <username>{creator.get.userName}</username>
+                                <fullname>{creator.get.fullname}</fullname>
+                                <email>{creator.get.email}</email>
+                              </createdBy>}
+                            else {
+                              <createdBy>
+                                <username>{ds.getCreator}</username>
+                              </createdBy>}}{if (lockedBy != None) {
+                              <lockedBy>
+                                <username>{lockedBy.get.userName}</username>
+                                <fullname>{lockedBy.get.fullname}</fullname>
+                                <email>{lockedBy.get.email}</email>
+                              </lockedBy>}}
+                              <state>{ds.state.name}</state>
+                              <recordCount>{ds.details.total_records}</recordCount>
+                            </data-set>
+                    }
+                }</data-set-list>
         Ok(dataSetsXml)
     }
   }
 
-  def unlock(orgId: String, spec: String, accessToken: Option[String]): Action[AnyContent] = OrganizationAction(orgId, accessToken) {
-    Action {
-      implicit request =>
-        val dataSet = DataSet.dao.findBySpecAndOrgId(spec, orgId)
-        if (dataSet.isEmpty) {
-          val msg = "Unknown spec %s".format(spec)
-          NotFound(msg)
-        } else {
-          if (dataSet.get.lockedBy == None) {
-            Ok
-          } else if (dataSet.get.lockedBy.get == connectedUser) {
-            val updated = dataSet.get.copy(lockedBy = None)
-            DataSet.dao.save(updated)
-            Ok
-          } else {
-            Error("You cannot unlock a DataSet locked by someone else")
+  def unlock(orgId: String, spec: String, accessToken: Option[String]): Action[AnyContent] =
+    OrganizationAction(orgId, accessToken) {
+      Action {
+        implicit request =>
+          val dataSet = DataSet.dao.findBySpecAndOrgId(spec, orgId)
+          if (dataSet.isEmpty) {
+            val msg = "Unknown spec %s".format(spec)
+            NotFound(msg)
           }
-        }
+          else {
+            if (dataSet.get.lockedBy == None) {
+              Ok
+            }
+            else if (dataSet.get.lockedBy.get == connectedUser) {
+              val updated = dataSet.get.copy(lockedBy = None)
+              DataSet.dao.save(updated)
+              Ok
+            }
+            else {
+              Error("You cannot unlock a DataSet locked by someone else")
+            }
+          }
+      }
     }
-  }
 
   /**
    * Takes a request of filenames and replies with the ones it is missing:
@@ -157,92 +163,114 @@ object SipCreatorEndPoint extends ApplicationController {
    * 45109F902FCE191BBBFC176287B9B2A4__source.xml.gz
    * 19EE613335AFBFFAD3F8BA271FBC4E96__valid_icn.bit
    */
-  def acceptFileList(orgId: String, spec: String, accessToken: Option[String]): Action[AnyContent] = OrganizationAction(orgId, accessToken) {
-    Action {
-      implicit request =>
+  def acceptFileList(orgId: String, spec: String, accessToken: Option[String]): Action[AnyContent] =
+    OrganizationAction(orgId, accessToken) {
+      Action {
+        implicit request =>
 
-        val dataSet = DataSet.dao.findBySpecAndOrgId(spec, orgId)
-        if (dataSet.isEmpty) {
-          val msg = "DataSet with spec %s not found".format(spec)
-          NotFound(msg)
-        } else {
-          val fileList: String = request.body.asText.getOrElse("")
-
-          log.debug("Receiving file upload request, possible files to receive are: \n" + fileList)
-
-          val lines = fileList.split('\n').map(_.trim).toList
-
-          def fileRequired(fileName: String): Option[String] = {
-            val Array(hash, name) = fileName split ("__")
-            val maybeHash = dataSet.get.hashes.get(name.replaceAll("\\.", DOT_PLACEHOLDER))
-            maybeHash match {
-              case Some(storedHash) if hash != storedHash => Some(fileName)
-              case Some(storedHash) if hash == storedHash => None
-              case None => Some(fileName)
-            }
+          val dataSet = DataSet.dao.findBySpecAndOrgId(spec, orgId)
+          if (dataSet.isEmpty) {
+            val msg = "DataSet with spec %s not found".format(spec)
+            NotFound(msg)
           }
-          val requiredFiles = (lines flatMap fileRequired).map(_.trim).mkString("\n")
-          Ok(requiredFiles)
-        }
+          else {
+            val fileList: String = request.body.asText.getOrElse("")
+
+            log.debug("Receiving file upload request, possible files to receive are: \n" + fileList)
+
+            val lines = fileList.split('\n').map(_.trim).toList
+
+            def fileRequired(fileName: String): Option[String] = {
+              val Array(hash, name) = fileName split ("__")
+              val maybeHash = dataSet.get.hashes.get(name.replaceAll("\\.", DOT_PLACEHOLDER))
+              maybeHash match {
+                case Some(storedHash) if hash != storedHash => Some(fileName)
+                case Some(storedHash) if hash == storedHash => None
+                case None => Some(fileName)
+              }
+            }
+            val requiredFiles = (lines flatMap fileRequired).map(_.trim).mkString("\n")
+            Ok(requiredFiles)
+          }
+      }
     }
-  }
 
-  def acceptFile(orgId: String, spec: String, fileName: String, accessToken: Option[String]) = OrganizationAction(orgId, accessToken) {
-    Action(parse.temporaryFile) {
-      implicit request =>
-        val dataSet = DataSet.dao.findBySpecAndOrgId(spec, orgId)
-        if (dataSet.isEmpty) {
-          val msg = "DataSet with spec %s not found".format(spec)
-          NotFound(msg)
-        } else {
-          val FileName(hash, kind, prefix, extension) = fileName
-          if (hash.isEmpty) {
-            val msg = "No hash available for file name " + fileName
-            Error(msg)
-          } else if(request.contentType == None) {
-            BadRequest("Request has no content type")
-          } else if(!DataSet.dao.canEdit(dataSet.get, connectedUser)) {
-            log.warn("User %s tried to edit dataSet %s without the necessary rights".format(connectedUser, dataSet.get.spec))
-            Forbidden("You are not allowed to modify this DataSet")
-          } else {
-            val inputStream = if (request.contentType == Some("application/x-gzip")) new GZIPInputStream(new FileInputStream(request.body.file)) else new FileInputStream(request.body.file)
+  def acceptFile(orgId: String, spec: String, fileName: String, accessToken: Option[String]) =
+    OrganizationAction(orgId, accessToken) {
+      Action(parse.temporaryFile) {
+        implicit request =>
+          val dataSet = DataSet.dao.findBySpecAndOrgId(spec, orgId)
+          if (dataSet.isEmpty) {
+            val msg = "DataSet with spec %s not found".format(spec)
+            NotFound(msg)
+          }
+          else {
+            val FileName(hash, kind, prefix, extension) = fileName
+            if (hash.isEmpty) {
+              val msg = "No hash available for file name " + fileName
+              Error(msg)
+            }
+            else if (request.contentType == None) {
+              BadRequest("Request has no content type")
+            }
+            else if (!DataSet.dao.canEdit(dataSet.get, connectedUser)) {
+              log.warn("User %s tried to edit dataSet %s without the necessary rights"
+                       .format(connectedUser, dataSet.get.spec))
+              Forbidden("You are not allowed to modify this DataSet")
+            }
+            else {
+              val inputStream = if (request.contentType == Some("application/x-gzip"))
+                new GZIPInputStream(new FileInputStream(request.body.file))
+              else
+                new FileInputStream(request.body.file)
 
-            val actionResult: Either[String, String] = kind match {
-              case "mapping" if extension == "xml" => receiveMapping(dataSet.get, RecMapping.read(inputStream, MappingService.recDefModel), spec, hash)
-              case "hints" if extension == "txt" => receiveHints(dataSet.get, inputStream)
-              case "source" if extension == "xml.gz" => {
-                if(dataSet.get.state == DataSetState.PROCESSING) {
-                  Left("%s: Cannot upload source while the set is being processed".format(spec))
-                } else {
-                  val receiveActor = Akka.system.actorFor("akka://application/user/dataSetParser")
-                  receiveActor ! SourceStream(dataSet.get, connectedUser, inputStream, request.body, configuration)
-                  DataSet.dao.updateState(dataSet.get, DataSetState.PARSING)
-                  Right("Received it")
+              val actionResult: Either[String, String] = kind match {
+                case "hints" if extension == "txt" =>
+                  receiveHints(dataSet.get, inputStream)
+
+                case "mapping" if extension == "xml" =>
+                  receiveMapping(dataSet.get, inputStream, spec, hash)
+
+                case "source" if extension == "xml.gz" => {
+                  if (dataSet.get.state == DataSetState.PROCESSING) {
+                    Left("%s: Cannot upload source while the set is being processed".format(spec))
+                  }
+                  else {
+                    val receiveActor = Akka.system.actorFor("akka://application/user/dataSetParser")
+                    receiveActor ! SourceStream(
+                      dataSet.get, connectedUser, inputStream, request.body, configuration
+                    )
+                    DataSet.dao.updateState(dataSet.get, DataSetState.PARSING)
+                    Right("Received it")
+                  }
+                }
+
+                case "validation" if extension == "int" =>
+                  receiveInvalidRecords(dataSet.get, prefix, inputStream)
+
+                case x if x.startsWith("stats-") =>
+                  receiveSourceStats(dataSet.get, inputStream, prefix, fileName, request.body.file)
+
+                case _ => {
+                  val msg = "Unknown file type %s".format(kind)
+                  Left(msg)
                 }
               }
-              case "validation" if extension == "int" => receiveInvalidRecords(dataSet.get, prefix, inputStream)
-              case x if x.startsWith("stats-") => receiveSourceStats(dataSet.get, inputStream, prefix, fileName, request.body.file)
-              case _ => {
-                val msg = "Unknown file type %s".format(kind)
-                Left(msg)
-              }
-            }
 
-            actionResult match {
-              case Right(ok) => {
-                DataSet.dao.addHash(dataSet.get, fileName.split("__")(1).replaceAll("\\.", DOT_PLACEHOLDER), hash)
-                log.info("Successfully accepted file %s for DataSet %s".format(fileName, spec))
-                Ok
-              }
-              case Left(houston) => {
-                Error("Error accepting file %s for DataSet %s: %s".format(fileName, spec, houston))
+              actionResult match {
+                case Right(ok) => {
+                  DataSet.dao.addHash(dataSet.get, fileName.split("__")(1).replaceAll("\\.", DOT_PLACEHOLDER), hash)
+                  log.info("Successfully accepted file %s for DataSet %s".format(fileName, spec))
+                  Ok
+                }
+                case Left(houston) => {
+                  Error("Error accepting file %s for DataSet %s: %s".format(fileName, spec, houston))
+                }
               }
             }
           }
-        }
+      }
     }
-  }
-
 
   private def receiveInvalidRecords(dataSet: DataSet, prefix: String, inputStream: InputStream) = {
     val dis = new DataInputStream(inputStream)
@@ -254,25 +282,37 @@ object SipCreatorEndPoint extends ApplicationController {
     Right("All clear")
   }
 
-  private def receiveMapping(dataSet: DataSet, recordMapping: RecMapping, spec: String, hash: String)(implicit configuration: DomainConfiguration): Either[String, String] = {
-    DataSet.dao(dataSet.orgId).updateMapping(dataSet, recordMapping)
+  private def receiveMapping(dataSet: DataSet, inputStream: InputStream, spec: String, hash: String)
+    (implicit configuration: DomainConfiguration): Either[String, String] = {
+    val mappingString = IOUtils.toString(inputStream, "UTF-8")
+    DataSet.dao(dataSet.orgId).updateMapping(dataSet, mappingString)
     Right("Good news everybody")
   }
 
-  private def receiveSourceStats(dataSet: DataSet, inputStream: InputStream, schemaPrefix: String, fileName: String, file: File)(implicit configuration: DomainConfiguration): Either[String, String] = {
+  private def receiveSourceStats(
+    dataSet: DataSet, inputStream: InputStream, schemaPrefix: String, fileName: String, file: File
+    )(implicit configuration: DomainConfiguration): Either[String, String] = {
     try {
       val f = hubFileStore(configuration).createFile(file)
 
       val stats = Stats.read(inputStream)
 
-      val context = DataSetStatisticsContext(dataSet.orgId,
-                                             dataSet.spec,
-                                             schemaPrefix,
-                                             dataSet.details.facts.get("provider").toString,
-                                             dataSet.details.facts.get("dataProvider").toString,
-                                             if(dataSet.details.facts.containsField("providerUri")) dataSet.details.facts.get("providerUri").toString else "",
-                                             if(dataSet.details.facts.containsField("dataProviderUri")) dataSet.details.facts.get("dataProviderUri").toString else "",
-                                             new Date())
+      val context = DataSetStatisticsContext(
+        dataSet.orgId,
+        dataSet.spec,
+        schemaPrefix,
+        dataSet.details.facts.get("provider").toString,
+        dataSet.details.facts.get("dataProvider").toString,
+        if (dataSet.details.facts.containsField("providerUri"))
+          dataSet.details.facts.get("providerUri").toString
+        else
+          "",
+        if (dataSet.details.facts.containsField("dataProviderUri"))
+          dataSet.details.facts.get("dataProviderUri").toString
+        else
+          "",
+        new Date()
+      )
 
       f.put("contentType", "application/x-gzip")
       f.put("orgId", dataSet.orgId)
@@ -295,22 +335,22 @@ object SipCreatorEndPoint extends ApplicationController {
           stats.fieldValueMap.asScala.foreach {
             fv =>
               val fieldValues = FieldValues(
-                    parentId = dssId,
-                    context = context,
-                    path = fv._1.toString,
-                    valueStats = ValueStats(fv._2)
-                  )
+                parentId = dssId,
+                context = context,
+                path = fv._1.toString,
+                valueStats = ValueStats(fv._2)
+              )
               DataSetStatistics.dao.values.insert(fieldValues)
           }
 
           stats.recordStats.frequencies.asScala.foreach {
             ff =>
               val frequencies = FieldFrequencies(
-                    parentId = dssId,
-                    context = context,
-                    path = ff._1.toString,
-                    histogram = Histogram(ff._2)
-                  )
+                parentId = dssId,
+                context = context,
+                path = ff._1.toString,
+                histogram = Histogram(ff._2)
+              )
               DataSetStatistics.dao.frequencies.insert(frequencies)
           }
 
@@ -328,7 +368,8 @@ object SipCreatorEndPoint extends ApplicationController {
   }
 
   private def receiveHints(dataSet: DataSet, inputStream: InputStream) = {
-    val updatedDataSet = dataSet.copy(hints = Stream.continually(inputStream.read).takeWhile(-1 !=).map(_.toByte).toArray)
+    val freshHints = Stream.continually(inputStream.read).takeWhile(-1 != _).map(_.toByte).toArray
+    val updatedDataSet = dataSet.copy(hints = freshHints)
     DataSet.dao(dataSet.orgId).save(updatedDataSet)
     Right("Allright")
   }
@@ -341,9 +382,12 @@ object SipCreatorEndPoint extends ApplicationController {
             val maybeDataSet = DataSet.dao.findBySpecAndOrgId(spec, orgId)
             if (maybeDataSet.isEmpty) {
               Left(NotFound("Unknown spec %s".format(spec)))
-            } else if(maybeDataSet.isDefined && maybeDataSet.get.state == DataSetState.PARSING) {
-              Left(Error("DataSet %s is being uploaded at the moment, so you cannot download it at the same time".format(spec)))
-            } else {
+            }
+            else if (maybeDataSet.isDefined && maybeDataSet.get.state == DataSetState.PARSING) {
+              Left(Error("DataSet %s is being uploaded at the moment, so you cannot download it at the same time"
+                         .format(spec)))
+            }
+            else {
               val dataSet = maybeDataSet.get
 
               // lock it right away
@@ -355,9 +399,10 @@ object SipCreatorEndPoint extends ApplicationController {
             }
           }.map {
             result =>
-              if(result.isLeft) {
+              if (result.isLeft) {
                 result.left.get
-              } else {
+              }
+              else {
                 Ok.stream(result.right.get)
               }
           }
@@ -365,42 +410,53 @@ object SipCreatorEndPoint extends ApplicationController {
     }
   }
 
-
   def getSipStream(dataSet: DataSet)(implicit configuration: DomainConfiguration) = {
     val temp = TemporaryFile(dataSet.spec)
     val fos = new FileOutputStream(temp.file)
     val zipOut = new ZipOutputStream(fos)
 
     writeEntry("dataset_facts.txt", zipOut) {
-      out =>
-        IOUtils.write(dataSet.details.getFactsAsText, out)
+      out => IOUtils.write(dataSet.details.getFactsAsText, out)
     }
 
     writeEntry("hints.txt", zipOut) {
-      out =>
-        IOUtils.copy(new ByteArrayInputStream(dataSet.hints), out)
+      out => IOUtils.copy(new ByteArrayInputStream(dataSet.hints), out)
     }
 
     val recordCount = basexStorage.count(dataSet)
 
     def buildNamespaces(attrs: Map[String, String]): String = {
       val attrBuilder = new StringBuilder
-      attrs.filterNot(_._1.isEmpty).toSeq.sortBy(_._1).foreach(ns => attrBuilder.append("""xmlns:%s="%s"""".format(ns._1, ns._2)).append(" "))
+      attrs.filterNot(_._1.isEmpty).toSeq.sortBy(_._1).foreach(
+        ns => attrBuilder.append( """xmlns:%s="%s"""".format(ns._1, ns._2)).append(" ")
+      )
       attrBuilder.mkString.trim
     }
 
     def buildAttributes(attrs: Map[String, String]): String = {
-      attrs.map(a => (a._1 -> a._2)).toList.sortBy(_._1).map(a => """%s="%s"""".format(a._1, escapeXml(a._2))).mkString(" ")
+      attrs.map(a => (a._1 -> a._2)).toList.sortBy(_._1).map(
+        a => """%s="%s"""".format(a._1, escapeXml(a._2))
+      ).mkString(" ")
     }
 
     def serializeElement(n: Node): String = {
       n match {
-        case e if !e.child.filterNot(e => e.isInstanceOf[scala.xml.Text] || e.isInstanceOf[scala.xml.PCData]).isEmpty =>
+        case e if !e.child.filterNot(
+          e => e.isInstanceOf[scala.xml.Text] || e.isInstanceOf[scala.xml.PCData]
+        ).isEmpty =>
           val content = e.child.filterNot(_.label == "#PCDATA").map(serializeElement(_)).mkString("\n")
-          """<%s %s>%s</%s>""".format(e.label, buildAttributes(e.attributes.asAttrMap), content + "\n", e.label)
+          """<%s %s>%s</%s>""".format(
+            e.label, buildAttributes(e.attributes.asAttrMap), content + "\n", e.label
+          )
+
         case e if e.child.isEmpty => """<%s/>""".format(e.label)
-        case e if !e.attributes.isEmpty => """<%s %s>%s</%s>""".format(e.label, buildAttributes(e.attributes.asAttrMap), escapeXml(e.text), e.label)
+
+        case e if !e.attributes.isEmpty => """<%s %s>%s</%s>""".format(
+          e.label, buildAttributes(e.attributes.asAttrMap), escapeXml(e.text), e.label
+        )
+
         case e if e.attributes.isEmpty => """<%s>%s</%s>""".format(e.label, escapeXml(e.text), e.label)
+
         case _ => "" // nope
       }
     }
@@ -408,11 +464,11 @@ object SipCreatorEndPoint extends ApplicationController {
     // do not use StringEscapeUtils.escapeXml because it also escapes UTF-8 characters, which are however valid and would break source identity
     def escapeXml(s: String): String = {
       s.
-        replaceAll("&", "&amp;").
-        replaceAll("<", "&lt;").
-        replaceAll("&gt;", ">").
-        replaceAll("\"", "&quot;").
-        replaceAll("'", "&apos;")
+      replaceAll("&", "&amp;").
+      replaceAll("<", "&lt;").
+      replaceAll("&gt;", ">").
+      replaceAll("\"", "&quot;").
+      replaceAll("'", "&apos;")
     }
 
 
@@ -437,16 +493,16 @@ object SipCreatorEndPoint extends ApplicationController {
               basexStorage.findAllCurrentDocuments foreach {
                 record =>
 
-                  // the output coming from BaseX differs from the original source as follows:
-                  // - the <input> tags contain the namespace declarations
-                  // - the formatted XML escapes all entities including UTF-8 characters
-                  // the following lines fix this
-                  val noNamespaces = inputTagMatcher.replaceSomeIn(record, { m =>
-                    Some("""<input id="%s">""".format(m.group(2)))
+                // the output coming from BaseX differs from the original source as follows:
+                // - the <input> tags contain the namespace declarations
+                // - the formatted XML escapes all entities including UTF-8 characters
+                // the following lines fix this
+                  val noNamespaces = inputTagMatcher.replaceSomeIn(record, {
+                    m => Some( """<input id="%s">""".format(m.group(2)))
                   })
 
-                  def cleanup: Match => String = { s =>
-                    ">" + escapeXml(StringEscapeUtils.unescapeXml(s.group(1))) + "<"
+                  def cleanup: Match => String = {
+                    s => ">" + escapeXml(StringEscapeUtils.unescapeXml(s.group(1))) + "<"
                   }
 
                   val escapeForRegex = Matcher.quoteReplacement(noNamespaces)
@@ -455,21 +511,22 @@ object SipCreatorEndPoint extends ApplicationController {
                     pw.println(cleaned)
                   } catch {
                     case t: Throwable =>
-                      log.error("Error while trying to sanitize following record:\n\n" + escapeForRegex)
+                      log.error(
+                        "Error while trying to sanitize following record:\n\n" + escapeForRegex
+                      )
                       throw t
                   }
 
+                  if (count % 10000 == 0) pw.flush()
                   if (count % 10000 == 0) {
-                    pw.flush()
-                  }
-                  if (count % 10000 == 0) {
-                    log.info("%s: Prepared %s of %s records for download".format(dataSet.spec, count, total))
+                    log.info("%s: Prepared %s of %s records for download".format(dataSet
+                                                                                 .spec, count, total))
                   }
                   count += 1
               }
-            pw.print("</delving-sip-source>")
-            log.info("Done preparing DataSet %s for download".format(dataSet.spec))
-            pw.flush()
+              pw.print("</delving-sip-source>")
+              log.info("Done preparing DataSet %s for download".format(dataSet.spec))
+              pw.flush()
           }
       }
     }
@@ -478,8 +535,7 @@ object SipCreatorEndPoint extends ApplicationController {
     for (mapping <- dataSet.mappings) {
       if (mapping._2.recordMapping != None) {
         writeEntry("mapping_%s.xml".format(mapping._1), zipOut) {
-          out =>
-            writeContent(mapping._2.recordMapping.get, out)
+          out => writeContent(mapping._2.recordMapping.get, out)
         }
       }
     }
@@ -510,10 +566,11 @@ object SipCreatorEndPoint extends ApplicationController {
 
     // until we have a better concept on how to deal with per-collection versions, do not make use of them here, but drop the data instead
     val mayCollection = basexStorage.openCollection(dataSet)
-    val collection = if(mayCollection.isDefined) {
+    val collection = if (mayCollection.isDefined) {
       basexStorage.deleteCollection(mayCollection.get)
       basexStorage.createCollection(dataSet)
-    } else {
+    }
+    else {
       basexStorage.createCollection(dataSet)
     }
 
@@ -521,13 +578,13 @@ object SipCreatorEndPoint extends ApplicationController {
 
     // use the uploaded statistics to know how many records we expect. For that purpose, use the mappings to know what prefixes we have...
     // TODO we should have a more direct route to know what to expect here.
-    val totalRecords = dataSet.mappings.keySet.headOption.flatMap { schema =>
-      DataSetStatistics.dao.getMostRecent(dataSet.orgId, dataSet.spec, schema).map(_.recordCount)
+    val totalRecords = dataSet.mappings.keySet.headOption.flatMap {
+      schema => DataSetStatistics.dao.getMostRecent(dataSet.orgId, dataSet.spec, schema).map(_.recordCount)
     }
-    val modulo = if(totalRecords.isDefined) math.round(totalRecords.get / 100) else 100
+    val modulo = if (totalRecords.isDefined) math.round(totalRecords.get / 100) else 100
 
     def onRecordInserted(count: Long) {
-      if(count % (if(modulo == 0) 100 else modulo) == 0) DataSet.dao.updateRecordCount(dataSet, count)
+      if (count % (if (modulo == 0) 100 else modulo) == 0) DataSet.dao.updateRecordCount(dataSet, count)
     }
 
     basexStorage.store(collection, parser, parser.namespaces, onRecordInserted)
@@ -551,38 +608,65 @@ class ReceiveSource extends Actor {
         receiveSource(dataSet, userName, inputStream) match {
           case Left(t) =>
             DataSet.dao(configuration).invalidateHashes(dataSet)
-            val message = if(t.isInstanceOf[StorageInsertionException]) {
-              Some("""Error while inserting record:
+            val message = if (t.isInstanceOf[StorageInsertionException]) {
+              Some( """Error while inserting record:
                       |
                       |%s
                       |
                       |Cause:
                       |
                       |%s
-                      |""".stripMargin.format(t.getMessage, t.getCause.getMessage))
-            } else {
+                      | """.stripMargin.format(t.getMessage, t.getCause.getMessage)
+              )
+            }
+            else {
               Some(t.getMessage)
             }
             DataSet.dao(configuration).updateState(dataSet, DataSetState.ERROR, Some(userName), message)
-            Logger("CultureHub").error("Error while parsing records for spec %s of org %s".format(dataSet.spec, dataSet.orgId), t)
-            ErrorReporter.reportError("DataSet Source Parser", t, "Error occured while parsing records for spec %s of org %s".format(dataSet.spec, dataSet.orgId))
+            Logger("CultureHub").error(
+              "Error while parsing records for spec %s of org %s".format(
+                dataSet.spec, dataSet.orgId
+              ),
+              t
+            )
+            ErrorReporter.reportError(
+              "DataSet Source Parser", t,
+              "Error occured while parsing records for spec %s of org %s".format(
+                dataSet.spec, dataSet.orgId
+              )
+            )
+
           case Right(inserted) =>
             val duration = Duration(System.currentTimeMillis() - now, TimeUnit.MILLISECONDS)
-            Logger("CultureHub").info("Finished parsing source for DataSet %s of organization %s. %s records inserted in %s seconds.".format(dataSet.spec, dataSet.orgId, inserted, duration.toSeconds))
+            Logger("CultureHub").info(
+              "Finished parsing source for DataSet %s of organization %s. %s records inserted in %s seconds."
+              .format(
+                dataSet.spec, dataSet.orgId, inserted, duration.toSeconds
+              )
+            )
         }
 
       } catch {
         case t: Throwable =>
-          Logger("CultureHub").error("Exception while processing uploaded source %s for DataSet %s".format(tempFile.file.getAbsolutePath, dataSet.spec), t)
+          Logger("CultureHub").error(
+            "Exception while processing uploaded source %s for DataSet %s".format(
+              tempFile.file.getAbsolutePath, dataSet.spec
+            ),
+            t
+          )
           DataSet.dao(configuration).invalidateHashes(dataSet)
-          DataSet.dao(configuration).updateState(dataSet, DataSetState.ERROR, Some(userName), Some("Error while parsing uploaded source: " + t.getMessage))
+          DataSet.dao(configuration).updateState(
+            dataSet, DataSetState.ERROR, Some(userName),
+            Some("Error while parsing uploaded source: " + t.getMessage)
+          )
 
       } finally {
         tempFileRef = null
       }
   }
 
-  private def receiveSource(dataSet: DataSet, userName: String, inputStream: InputStream)(implicit configuration: DomainConfiguration): Either[Throwable, Long] = {
+  private def receiveSource(dataSet: DataSet, userName: String, inputStream: InputStream)
+    (implicit configuration: DomainConfiguration): Either[Throwable, Long] = {
 
     try {
       val uploadedRecords = SipCreatorEndPoint.loadSourceData(dataSet, inputStream)
@@ -590,11 +674,16 @@ class ReceiveSource extends Actor {
       DataSet.dao.updateState(dataSet, DataSetState.UPLOADED, Some(userName))
       Right(uploadedRecords)
     } catch {
-      case t => return Left(t)
+      case t: Exception => return Left(t)
     }
   }
 
-
 }
 
-case class SourceStream(dataSet: DataSet, userName: String, stream: InputStream, temporaryFile: TemporaryFile, configuration: DomainConfiguration)
+case class SourceStream(
+  dataSet: DataSet,
+  userName: String,
+  stream: InputStream,
+  temporaryFile: TemporaryFile,
+  configuration: DomainConfiguration
+  )
