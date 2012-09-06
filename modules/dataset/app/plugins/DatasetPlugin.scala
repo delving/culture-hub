@@ -147,6 +147,8 @@ class DataSetPlugin(app: Application) extends CultureHubPlugin(app) {
 
   override def organizationCollectionLookups: Seq[OrganizationCollectionLookup] = Seq(dataSetHarvestCollectionLookup)
 
+  override def harvestCollectionLookups: Seq[HarvestCollectionLookup] = Seq(dataSetHarvestCollectionLookup)
+
   /**
    * Override this to provide custom roles to the platform, that can be used in Groups
    * @return a sequence of [[models.Role]] instances
