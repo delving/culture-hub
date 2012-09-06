@@ -9,18 +9,15 @@ import play.api.test.Helpers._
 import models._
 import play.api.mvc._
 import play.api.libs.Files.TemporaryFile
-import plugins.BootstrapSource
 import util.DomainConfigurationHandler
 import xml.XML
 import org.apache.commons.io.FileUtils
 
-class SipCreatorEndPointSpec extends Specs2TestContext {
+class SipCreatorEndPointSpec extends BootstrapAwareSpec {
 
   step {
     loadStandalone()
   }
-
-  val boot = BootstrapSource.sources.head
 
   "SipCreatorEndPoint" should {
 
@@ -39,26 +36,26 @@ class SipCreatorEndPointSpec extends Specs2TestContext {
     "unlock a DataSet" in {
 
       import com.mongodb.casbah.Imports._
-      DataSet.dao(boot.org).update(MongoDBObject("spec" -> boot.spec), $set("lockedBy" -> "bob"))
+      DataSet.dao(bootstrap.org).update(MongoDBObject("spec" -> bootstrap.spec), $set("lockedBy" -> "bob"))
 
       withTestConfig {
         val result = controllers.SipCreatorEndPoint.unlock(
-          boot.org,
-          boot.spec,
+          bootstrap.org,
+          bootstrap.spec,
           Some("TEST")
         )(FakeRequest())
         status(result) must equalTo(OK)
-        DataSet.dao(boot.org).findBySpecAndOrgId(boot.spec, boot.org).get.lockedBy must be(None)
+        DataSet.dao(bootstrap.org).findBySpecAndOrgId(bootstrap.spec, bootstrap.org).get.lockedBy must be(None)
       }
 
     }
 
     "accept a list of files" in {
       withTestConfig {
-        val lines = boot.fileNamesString()
+        val lines = bootstrap.fileNamesString()
         val result = controllers.SipCreatorEndPoint.acceptFileList(
-          boot.org,
-          boot.spec,
+          bootstrap.org,
+          bootstrap.spec,
           Some("TEST")
         )(
           FakeRequest(
@@ -76,10 +73,10 @@ class SipCreatorEndPointSpec extends Specs2TestContext {
 
     "accept a hints file" in {
       withTestConfig {
-        val hintsFile = boot.file("hints.txt")
+        val hintsFile = bootstrap.file("hints.txt")
         val result = controllers.SipCreatorEndPoint.acceptFile(
-          boot.org,
-          boot.spec,
+          bootstrap.org,
+          bootstrap.spec,
           hintsFile.getName,
           Some("TEST")
         )(
@@ -92,7 +89,7 @@ class SipCreatorEndPointSpec extends Specs2TestContext {
         )
         status(result) must equalTo(OK)
 
-        val stored = DataSet.dao(boot.org).findBySpecAndOrgId(boot.spec, boot.org).get.hints
+        val stored = DataSet.dao(bootstrap.org).findBySpecAndOrgId(bootstrap.spec, bootstrap.org).get.hints
 
         val original = FileUtils.readFileToByteArray(hintsFile)
 
@@ -102,10 +99,10 @@ class SipCreatorEndPointSpec extends Specs2TestContext {
 
     "accept a mappings file" in {
       withTestConfig {
-        val mappingFile = boot.file("mapping_icn.xml")
+        val mappingFile = bootstrap.file("mapping_icn.xml")
         val result = controllers.SipCreatorEndPoint.acceptFile(
-          boot.org,
-          boot.spec,
+          bootstrap.org,
+          bootstrap.spec,
           mappingFile.getName,
           Some("TEST")
         )(
@@ -118,7 +115,7 @@ class SipCreatorEndPointSpec extends Specs2TestContext {
         )
         status(result) must equalTo(OK)
 
-        val mapping: String = DataSet.dao(boot.org).findBySpecAndOrgId(boot.spec, boot.org)
+        val mapping: String = DataSet.dao(bootstrap.org).findBySpecAndOrgId(bootstrap.spec, bootstrap.org)
                               .get.mappings("icn").recordMapping.getOrElse(throw new RuntimeException)
         val original = FileUtils.readFileToString(mappingFile)
 
@@ -128,11 +125,11 @@ class SipCreatorEndPointSpec extends Specs2TestContext {
 
     "accept a int file" in {
       withTestConfig {
-        val intFile = boot.file("validation_icn.int")
+        val intFile = bootstrap.file("validation_icn.int")
 
         val result = controllers.SipCreatorEndPoint.acceptFile(
-          boot.org,
-          boot.spec,
+          bootstrap.org,
+          bootstrap.spec,
           intFile.getName,
           Some("TEST")
         )(
@@ -147,7 +144,7 @@ class SipCreatorEndPointSpec extends Specs2TestContext {
 
         val original = readIntFile(intFile)
 
-        val uploaded = DataSet.dao(boot.org).findBySpecAndOrgId(boot.spec, boot.org)
+        val uploaded = DataSet.dao(bootstrap.org).findBySpecAndOrgId(bootstrap.spec, bootstrap.org)
                        .get.invalidRecords
 
         val invalidRecords = readInvalidIndexes(uploaded)
@@ -158,11 +155,11 @@ class SipCreatorEndPointSpec extends Specs2TestContext {
 
     "accept a source file" in {
       withTestConfig {
-        val sourceFile = boot.file("source.xml.gz")
+        val sourceFile = bootstrap.file("source.xml.gz")
 
         val result = controllers.SipCreatorEndPoint.acceptFile(
-          boot.org,
-          boot.spec,
+          bootstrap.org,
+          bootstrap.spec,
           sourceFile.getName,
           Some("TEST")
         )(
@@ -175,22 +172,22 @@ class SipCreatorEndPointSpec extends Specs2TestContext {
         )
         status(result) must equalTo(OK)
 
-        val dataSet = DataSet.dao(boot.org).findBySpecAndOrgId(boot.spec, boot.org).get
+        val dataSet = DataSet.dao(bootstrap.org).findBySpecAndOrgId(bootstrap.spec, bootstrap.org).get
 
         // now we wait since the parsing is asynchronous. We wait a long time since our CI server is rather slow.
         Thread.sleep(10000)
 
-        DataSet.dao(boot.org).getSourceRecordCount(dataSet) must equalTo(8)
+        DataSet.dao(bootstrap.org).getSourceRecordCount(dataSet) must equalTo(8)
       }
     }
 
     "have marked all file hashes and not accept them again" in {
       withTestConfig {
-        boot.init()
-        val lines = boot.fileNamesString()
+        bootstrap.init()
+        val lines = bootstrap.fileNamesString()
         val result = controllers.SipCreatorEndPoint.acceptFileList(
-          boot.org,
-          boot.spec,
+          bootstrap.org,
+          bootstrap.spec,
           Some("TEST")
         )(
           FakeRequest(
@@ -206,11 +203,11 @@ class SipCreatorEndPointSpec extends Specs2TestContext {
 
     "update an int file" in {
       withTestConfig {
-        boot.init()
-        val intFile = boot.file("validation_icn.int")
+        bootstrap.init()
+        val intFile = bootstrap.file("validation_icn.int")
         val result = controllers.SipCreatorEndPoint.acceptFile(
-          boot.org,
-          boot.spec,
+          bootstrap.org,
+          bootstrap.spec,
           intFile.getName,
           Some("TEST")
         )(
@@ -225,7 +222,7 @@ class SipCreatorEndPointSpec extends Specs2TestContext {
 
         val original = readIntFile(intFile)
 
-        val uploaded = DataSet.dao(boot.org).findBySpecAndOrgId(boot.spec, boot.org)
+        val uploaded = DataSet.dao(bootstrap.org).findBySpecAndOrgId(bootstrap.spec, bootstrap.org)
                        .get.invalidRecords
 
         val invalidRecords = readInvalidIndexes(uploaded)
@@ -240,12 +237,12 @@ class SipCreatorEndPointSpec extends Specs2TestContext {
 
       withTestConfig {
 
-        implicit val configuration = DomainConfigurationHandler.getByOrgId(boot.org)
+        implicit val configuration = DomainConfigurationHandler.getByOrgId(bootstrap.org)
 
-        boot.init()
+        bootstrap.init()
 
-        val dataSet = DataSet.dao(boot.org).findBySpecAndOrgId(boot.spec, boot.org).get
-        val sourceFile = boot.file("source.xml.gz")
+        val dataSet = DataSet.dao(bootstrap.org).findBySpecAndOrgId(bootstrap.spec, bootstrap.org).get
+        val sourceFile = bootstrap.file("source.xml.gz")
 
         // first, ingest all sorts of things
         val gis = new GZIPInputStream(new FileInputStream(sourceFile))
@@ -253,8 +250,8 @@ class SipCreatorEndPointSpec extends Specs2TestContext {
         gis.close()
 
         val result = asyncToResult(controllers.SipCreatorEndPoint.fetchSIP(
-          boot.org,
-          boot.spec,
+          bootstrap.org,
+          bootstrap.spec,
           Some("TEST")
         )(
           FakeRequest()
@@ -262,7 +259,7 @@ class SipCreatorEndPointSpec extends Specs2TestContext {
         status(result) must equalTo(OK)
 
         // check locking
-        val lockedDataSet = DataSet.dao(boot.org).findBySpecAndOrgId(boot.spec, boot.org).get
+        val lockedDataSet = DataSet.dao(bootstrap.org).findBySpecAndOrgId(bootstrap.spec, bootstrap.org).get
         lockedDataSet.lockedBy must equalTo(Some("bob")) // TEST user
 
         // check the resulting set, indirectly

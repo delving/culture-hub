@@ -1,6 +1,5 @@
 import models.DataSet
 import org.specs2.mutable.Specification
-import plugins.BootstrapSource
 import util.DomainConfigurationHandler
 import play.api.test._
 import play.api.test.Helpers._
@@ -10,7 +9,7 @@ import play.api.test.Helpers._
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-class BaseXStorageSpec extends Specs2TestContext {
+class BaseXStorageSpec extends BootstrapAwareSpec {
 
   "the BaseX storage" should {
 
@@ -20,7 +19,6 @@ class BaseXStorageSpec extends Specs2TestContext {
         // data is loaded at bootstrap time of the DataSet plugin
         implicit val configuration = DomainConfigurationHandler.getByOrgId("delving")
 
-        val spec = BootstrapSource.sources.head.spec
         val dataSet = DataSet.dao.findBySpecAndOrgId(spec, "delving").get
         DataSet.dao.getSourceRecordCount(dataSet) must equalTo(8)
       }

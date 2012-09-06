@@ -37,16 +37,28 @@ class BootstrapSource(dataDirectory: File) {
 }
 
 object BootstrapSource {
+
   val here = new File(".")
 
-  val baseDirectory = if (here.listFiles().exists(f => f.isDirectory && f.getName == "modules"))
+  val baseDirectory = if (here.listFiles().exists(f => f.isDirectory && f.getName == "conf")) {
     here
-  else
+  }
+  else {
     new File(here, "culture-hub")
+  }
 
   val bootstrapDirectory = new File(baseDirectory, "modules/dataset/conf/bootstrap")
 
-  val files = bootstrapDirectory.listFiles()
+  val files = {
+    println
+    println
+    println
+    println(bootstrapDirectory)
+    println
+    println
+    println
+    bootstrapDirectory.listFiles().filter(_.isDirectory)
+  }
 
   val sources = files.map(file => new BootstrapSource(file))
 }

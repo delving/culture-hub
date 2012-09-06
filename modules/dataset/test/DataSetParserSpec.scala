@@ -6,7 +6,6 @@ import models.DataSet
 import org.specs2.execute.Error
 import play.api.test._
 import play.api.test.Helpers._
-import plugins.BootstrapSource
 import util.SimpleDataSetParser
 
 /**
@@ -14,13 +13,11 @@ import util.SimpleDataSetParser
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-class DataSetParserSpec extends Specs2TestContext {
+class DataSetParserSpec extends BootstrapAwareSpec {
 
   step {
     loadStandalone()
   }
-
-  val spec = BootstrapSource.sources.head.spec
 
   "The DataSetParser" should {
 

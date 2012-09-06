@@ -17,6 +17,8 @@ import xml.XML
 
 trait TestContext {
 
+  def boot = BootstrapSource
+
   def asyncToResult(response: Result) = response.asInstanceOf[AsyncResult].result.await.get
 
   def contentAsXML(response: Result) = XML.loadString(contentAsString(response))
@@ -81,9 +83,7 @@ trait TestContext {
 
 }
 
-trait Specs2TestContext extends
-Specification
-with TestContext {
+trait Specs2TestContext extends Specification with TestContext {
 
   args(sequential = true)
 
