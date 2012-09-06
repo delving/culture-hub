@@ -322,7 +322,7 @@ class DataSetPlugin(app: Application) extends CultureHubPlugin(app) {
    * Executed when test data is loaded (for development and testing)
    */
   override def onLoadTestData() {
-    BootstrapSource.sources.foreach(boot => bootstrapDataset(boot))
+    BootstrapSource.sources.headOption.foreach(boot => bootstrapDataset(boot))
   }
 
   def bootstrapDataset(boot: BootstrapSource) {

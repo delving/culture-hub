@@ -50,13 +50,6 @@ object BootstrapSource {
   val bootstrapDirectory = new File(baseDirectory, "modules/dataset/conf/bootstrap")
 
   val files = {
-    println
-    println
-    println
-    println(bootstrapDirectory)
-    println
-    println
-    println
     bootstrapDirectory.listFiles().filter(_.isDirectory)
   }
 

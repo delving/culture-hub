@@ -17,8 +17,6 @@ import xml.XML
 
 trait TestContext {
 
-  def boot = BootstrapSource
-
   def asyncToResult(response: Result) = response.asInstanceOf[AsyncResult].result.await.get
 
   def contentAsXML(response: Result) = XML.loadString(contentAsString(response))
