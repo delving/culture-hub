@@ -228,6 +228,9 @@ object SipCreatorEndPoint extends ApplicationController {
                 case "hints" if extension == "txt" =>
                   receiveHints(dataSet.get, inputStream)
 
+                case "mapping" if extension == "xml" =>
+                  receiveMapping(dataSet.get, inputStream, spec, hash)
+
                 case "source" if extension == "xml.gz" => {
                   if (dataSet.get.state == DataSetState.PROCESSING) {
                     Left("%s: Cannot upload source while the set is being processed".format(spec))
