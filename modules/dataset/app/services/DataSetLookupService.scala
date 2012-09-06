@@ -1,17 +1,19 @@
-package models
+package services
 
-import core.collection.{OrganizationCollection, OrganizationCollectionLookup, Harvestable, HarvestCollectionLookup}
+import core.{HarvestCollectionLookupService, OrganizationCollectionLookupService}
+import core.collection.{OrganizationCollection, Harvestable}
+import models.{RecordDefinition, DataSetState, DataSet}
 
 /**
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-class DataSetLookup extends HarvestCollectionLookup with OrganizationCollectionLookup {
+class DataSetLookupService extends HarvestCollectionLookupService with OrganizationCollectionLookupService {
 
   def findAllNonEmpty(orgId: String, format: Option[String], accessKey: Option[String])(implicit configuration: DomainConfiguration): List[Harvestable] = {
     val sets = DataSet.dao(orgId).findAll().filterNot(_.state != DataSetState.ENABLED)
-    if(format.isDefined) {
+    if (format.isDefined) {
       sets.filter(ds => ds.getVisibleMetadataSchemas(accessKey).exists(_.prefix == format.get))
     } else {
       sets

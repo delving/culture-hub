@@ -1,4 +1,4 @@
-package core.collection
+package core
 
 import models.{DomainConfiguration, RecordDefinition}
 
@@ -7,7 +7,7 @@ import models.{DomainConfiguration, RecordDefinition}
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-trait HarvestCollectionLookup {
+trait HarvestCollectionLookupService {
 
   def findAllNonEmpty(orgId: String, format: Option[String], accessKey: Option[String] = None)(implicit configuration: DomainConfiguration): Seq[Harvestable]
 

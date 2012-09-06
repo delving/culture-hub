@@ -1,4 +1,6 @@
-package core.collection
+package core
+
+import core.collection.OrganizationCollection
 
 import models.DomainConfiguration
 
@@ -8,7 +10,7 @@ import models.DomainConfiguration
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-trait OrganizationCollectionLookup {
+trait OrganizationCollectionLookupService {
 
   def findAll(orgId: String)(implicit configuration: DomainConfiguration): Seq[OrganizationCollection]
 

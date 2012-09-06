@@ -1,6 +1,6 @@
 package core.collection
 
-import core.CultureHubPlugin
+import core.{OrganizationCollectionLookupService, CultureHubPlugin}
 import models.DomainConfiguration
 
 /**
@@ -10,7 +10,7 @@ import models.DomainConfiguration
 
 object AggregatingOrganizationCollectionLookup {
 
-  def organizationCollectionLookups(implicit configuration: DomainConfiguration) = CultureHubPlugin.getEnabledPlugins.flatMap(_.organizationCollectionLookups)
+  def organizationCollectionLookups(implicit configuration: DomainConfiguration): Seq[OrganizationCollectionLookupService] = CultureHubPlugin.getServices(classOf[OrganizationCollectionLookupService])
 
   def findAll(implicit configuration: DomainConfiguration): Seq[OrganizationCollection] = organizationCollectionLookups.flatMap(lookup => lookup.findAll(configuration.orgId))
 

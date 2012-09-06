@@ -1,17 +1,17 @@
 package plugins
 
-import _root_.services.MetadataRecordResolverService
+import _root_.services.{DataSetLookupService, MetadataRecordResolverService}
 import jobs._
 import play.api.{Logger, Play, Application}
 import Play.current
 import models._
-import processing.DataSetCollectionProcessor
+import _root_.processing.DataSetCollectionProcessor
 import util.DomainConfigurationHandler
 import java.util.zip.GZIPInputStream
 import com.mongodb.BasicDBObject
 import io.Source
 import play.api.libs.concurrent.Akka
-import akka.actor.{OneForOneStrategy, Props}
+import akka.actor.Props
 import akka.routing.RoundRobinRouter
 import akka.actor.SupervisorStrategy.Restart
 import controllers.{organization, ReceiveSource}
@@ -21,8 +21,8 @@ import scala.collection.JavaConverters._
 import scala.util.matching.Regex
 import play.api.mvc.Handler
 import core._
-import access.{ResourceType, Resource, ResourceLookup}
-import collection.{OrganizationCollectionLookup, HarvestCollectionLookup}
+import core.access.{ResourceType, Resource, ResourceLookup}
+import akka.actor.OneForOneStrategy
 import com.mongodb.casbah.commons.MongoDBObject
 import java.util.regex.Pattern
 import java.io.FileInputStream
@@ -33,13 +33,13 @@ class DataSetPlugin(app: Application) extends CultureHubPlugin(app) {
 
   private val log = Logger("CultureHub")
 
-  private val dataSetHarvestCollectionLookup = new DataSetLookup
+  private val dataSetHarvestCollectionLookup = new DataSetLookupService
 
   val schemaService: SchemaService = HubModule.inject[SchemaService](name = None)
 
   /**
 
-  GET         /:user/sip-creator.jnlp                                           controllers.organization.SipCreator.jnlp(user)
+        GET         /:user/sip-creator.jnlp                                           controllers.organization.SipCreator.jnlp(user)
 
         GET         /organizations/:orgId/dataset                                     controllers.organization.DataSets.list(orgId)
         GET         /organizations/:orgId/dataset/feed                                controllers.organization.DataSets.feed(orgId, clientId: String, spec: Option[String])
@@ -142,12 +142,9 @@ class DataSetPlugin(app: Application) extends CultureHubPlugin(app) {
   )
 
   override def services: Seq[Any] = Seq(
-    new MetadataRecordResolverService
+    new MetadataRecordResolverService,
+    dataSetHarvestCollectionLookup
   )
-
-  override def organizationCollectionLookups: Seq[OrganizationCollectionLookup] = Seq(dataSetHarvestCollectionLookup)
-
-  override def harvestCollectionLookups: Seq[HarvestCollectionLookup] = Seq(dataSetHarvestCollectionLookup)
 
   /**
    * Override this to provide custom roles to the platform, that can be used in Groups
@@ -197,23 +194,22 @@ class DataSetPlugin(app: Application) extends CultureHubPlugin(app) {
 
     // check if we have access to all schemas that are used by the DataSets
 
-    val schemasInUse: Map[String, Seq[String]] = DataSet.all.flatMap {
-      dao =>
-        dao.findAll().flatMap {
-          set => set.mappings.values.map {
-            mapping => (mapping.schemaPrefix -> mapping.schemaVersion)
-          }
+    val schemasInUse: Map[String, Seq[String]] = DataSet.all.flatMap { dao =>
+      dao.findAll().flatMap { set =>
+        set.mappings.values.map { mapping =>
+          (mapping.schemaPrefix -> mapping.schemaVersion)
         }
-    }.foldLeft(Map.empty[String, Seq[String]]) {
-      (acc, pair) => acc + (pair._1 -> Seq(pair._2))
+      }
+    }.foldLeft(Map.empty[String, Seq[String]]) { (acc, pair) =>
+      acc + (pair._1 -> Seq(pair._2))
     } - "raw" // boldly ignore the raw schema, which is fake.
 
     val allSchemas = schemaService.getAllSchemas
 
     val missingVersions: Map[String, Seq[String]] = schemasInUse.map(inUse => {
 
-      val availableVersionNumbers = allSchemas.find(_.prefix == inUse._1).map {
-        schema => schema.versions.asScala.map(_.number)
+      val availableVersionNumbers = allSchemas.find(_.prefix == inUse._1).map { schema =>
+        schema.versions.asScala.map(_.number)
       }.getOrElse(Seq.empty)
 
       val intersection = availableVersionNumbers.intersect(inUse._2)
@@ -230,8 +226,8 @@ class DataSetPlugin(app: Application) extends CultureHubPlugin(app) {
           |
           |%s
         """.stripMargin.format(
-          missingVersions.map(
-            missing => "%s -> %s".format(
+          missingVersions.map( missing =>
+            "%s -> %s".format(
               missing._1, missing._2.map("'%s'".format(_)).mkString(", ")
             )
           ).mkString("\n")
@@ -285,9 +281,8 @@ class DataSetPlugin(app: Application) extends CultureHubPlugin(app) {
             set =>
               dataSetDAO.updateState(set, DataSetState.CANCELLED)
               try {
-                IndexingService.deleteBySpec(set.orgId, set.spec)(
-                  DomainConfigurationHandler.getByOrgId(set.orgId)
-                )
+                implicit val configuration = DomainConfigurationHandler.getByOrgId(set.orgId)
+                IndexingService.deleteBySpec(set.orgId, set.spec)
               } catch {
                 case t: Throwable => Logger("CultureHub").error(
                   "Couldn't delete SOLR index for cancelled set %s:%s at startup".format(
@@ -310,8 +305,8 @@ class DataSetPlugin(app: Application) extends CultureHubPlugin(app) {
       // cleanly cancel all active processing
       DataSet.all.foreach {
         dataSetDAO =>
-          dataSetDAO.findByState(DataSetState.PROCESSING).foreach {
-            set => dataSetDAO.updateState(set, DataSetState.CANCELLED)
+          dataSetDAO.findByState(DataSetState.PROCESSING).foreach { set =>
+            dataSetDAO.updateState(set, DataSetState.CANCELLED)
           }
       }
       Thread.sleep(2000)

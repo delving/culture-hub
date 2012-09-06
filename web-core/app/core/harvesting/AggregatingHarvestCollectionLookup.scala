@@ -2,7 +2,7 @@ package core.harvesting
 
 import core.collection.{HarvestCollectionLookup, Harvestable}
 import models.{DomainConfiguration, RecordDefinition}
-import core.CultureHubPlugin
+import core.{HarvestCollectionLookupService, CultureHubPlugin}
 import play.api.Play
 import play.api.Play.current
 
@@ -15,7 +15,7 @@ import play.api.Play.current
 object AggregatingHarvestCollectionLookup extends HarvestCollectionLookup {
 
 
-  def harvestCollectionLookups(implicit configuration: DomainConfiguration) = CultureHubPlugin.getEnabledPlugins.flatMap(_.harvestCollectionLookups)
+  def harvestCollectionLookups(implicit configuration: DomainConfiguration) = CultureHubPlugin.getServices(classOf[HarvestCollectionLookupService])
 
   def findAllNonEmpty(orgId: String, format: Option[String], accessKey: Option[String] = None)(implicit configuration: DomainConfiguration): Seq[Harvestable] = {
     harvestCollectionLookups.flatMap(lookup => lookup.findAllNonEmpty(orgId, format, accessKey))

@@ -2,7 +2,6 @@ package core
 
 import core.rendering.ViewType
 import eu.delving.schema.SchemaVersion
-import xml.NodeSeq
 import models.DomainConfiguration
 
 /**
@@ -25,4 +24,5 @@ case class RenderableRecord(recordXml: String,
                             systemFields: Map[String, List[String]],
                             schemaVersion: SchemaVersion,
                             viewType: ViewType = ViewType.HTML,
-                            parameters: Map[String, String] = Map.empty)
+                            parameters: Map[String, String] = Map.empty,
+                            hasRelatedItems: Boolean = false)
