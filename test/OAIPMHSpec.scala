@@ -60,7 +60,7 @@ class OAIPMHSpec extends Specs2TestContext {
 
         val sets = xml \ "ListSets" \ "set"
         sets.size must equalTo(2)
-        (sets \ "setSpec").text must equalTo()
+        (sets \ "setSpec").map(_.text).toSeq must equalTo(Seq("sample-a", "sample-b"))
       }
     }
 
