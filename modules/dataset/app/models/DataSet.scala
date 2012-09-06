@@ -32,6 +32,8 @@ import plugins.DataSetPlugin
 import java.util.Date
 import util.DomainConfigurationHandler
 import eu.delving.schema.SchemaVersion
+import java.io.StringReader
+import core.mapping.MappingService
 
 /**
  * DataSet model
@@ -415,7 +417,8 @@ class DataSetDAO(collection: MongoCollection)(implicit val configuration: Domain
         update(
             MongoDBObject("_id" -> dataSet._id),
             $addToSet("idxMappings" -> mapping) ++ $set(
-                "idxFacets" -> facets, "idxSortFields" -> sortFields
+                "idxFacets" -> facets,
+                "idxSortFields" -> sortFields
             )
         )
     }

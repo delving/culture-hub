@@ -139,15 +139,11 @@ class DataSetPlugin(app: Application) extends CultureHubPlugin(app) {
             titleKey = "ui.label.sipcreator",
             mainEntry = Some(MenuElement("/organizations/%s/sip-creator".format(orgId), "ui.label.sipcreator"))
         )
-
     )
 
-  )
-
-
-  override def services: Seq[Any] = Seq(
-    new MetadataRecordResolverService
-  )
+    override def services: Seq[Any] = Seq(
+        new MetadataRecordResolverService
+    )
 
     override def organizationCollectionLookups: Seq[OrganizationCollectionLookup] = Seq(dataSetHarvestCollectionLookup)
 
