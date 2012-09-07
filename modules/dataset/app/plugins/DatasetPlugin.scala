@@ -1,17 +1,17 @@
 package plugins
 
-import _root_.services.MetadataRecordResolverService
+import _root_.services.{DataSetLookupService, MetadataRecordResolverService}
 import jobs._
 import play.api.{Logger, Play, Application}
 import Play.current
 import models._
-import processing.DataSetCollectionProcessor
+import _root_.processing.DataSetCollectionProcessor
 import util.DomainConfigurationHandler
 import java.util.zip.GZIPInputStream
 import com.mongodb.BasicDBObject
 import io.Source
 import play.api.libs.concurrent.Akka
-import akka.actor.{OneForOneStrategy, Props}
+import akka.actor.Props
 import akka.routing.RoundRobinRouter
 import akka.actor.SupervisorStrategy.Restart
 import controllers.{organization, ReceiveSource}
@@ -21,10 +21,11 @@ import scala.collection.JavaConverters._
 import scala.util.matching.Regex
 import play.api.mvc.Handler
 import core._
-import access.{ResourceType, Resource, ResourceLookup}
-import collection.{OrganizationCollectionLookup, HarvestCollectionLookup}
+import core.access.{ResourceType, Resource, ResourceLookup}
+import akka.actor.OneForOneStrategy
 import com.mongodb.casbah.commons.MongoDBObject
 import java.util.regex.Pattern
+import java.io.FileInputStream
 
 class DataSetPlugin(app: Application) extends CultureHubPlugin(app) {
 
@@ -32,28 +33,28 @@ class DataSetPlugin(app: Application) extends CultureHubPlugin(app) {
 
   private val log = Logger("CultureHub")
 
-  private val dataSetHarvestCollectionLookup = new DataSetLookup
+  private val dataSetHarvestCollectionLookup = new DataSetLookupService
 
   val schemaService: SchemaService = HubModule.inject[SchemaService](name = None)
 
   /**
 
-  GET         /:user/sip-creator.jnlp                                           controllers.organization.SipCreator.jnlp(user)
+        GET         /:user/sip-creator.jnlp                                           controllers.organization.SipCreator.jnlp(user)
 
-  GET         /organizations/:orgId/dataset                                     controllers.organization.DataSets.list(orgId)
-  GET         /organizations/:orgId/dataset/feed                                controllers.organization.DataSets.feed(orgId, clientId: String, spec: Option[String])
-  GET         /organizations/:orgId/dataset/add                                 controllers.organization.DataSetControl.dataSet(orgId, spec: Option[String] = None)
-  GET         /organizations/:orgId/dataset/:spec/update                        controllers.organization.DataSetControl.dataSet(orgId, spec: Option[String])
-  POST        /organizations/:orgId/dataset/submit                              controllers.organization.DataSetControl.dataSetSubmit(orgId)
-  GET         /organizations/:orgId/dataset/:spec                               controllers.organization.DataSets.dataSet(orgId, spec)
+        GET         /organizations/:orgId/dataset                                     controllers.organization.DataSets.list(orgId)
+        GET         /organizations/:orgId/dataset/feed                                controllers.organization.DataSets.feed(orgId, clientId: String, spec: Option[String])
+        GET         /organizations/:orgId/dataset/add                                 controllers.organization.DataSetControl.dataSet(orgId, spec: Option[String] = None)
+        GET         /organizations/:orgId/dataset/:spec/update                        controllers.organization.DataSetControl.dataSet(orgId, spec: Option[String])
+        POST        /organizations/:orgId/dataset/submit                              controllers.organization.DataSetControl.dataSetSubmit(orgId)
+        GET         /organizations/:orgId/dataset/:spec                               controllers.organization.DataSets.dataSet(orgId, spec)
 
-  GET         /organizations/:orgId/sip-creator                                 controllers.organization.SipCreator.index(orgId)
+        GET         /organizations/:orgId/sip-creator                                 controllers.organization.SipCreator.index(orgId)
 
-  GET         /api/sip-creator/list                                             controllers.SipCreatorEndPoint.listAll(accessKey: Option[String] ?= None)
-  GET         /api/sip-creator/unlock/:orgId/:spec                              controllers.SipCreatorEndPoint.unlock(orgId, spec, accessKey: Option[String] ?= None)
-  POST        /api/sip-creator/submit/:orgId/:spec                              controllers.SipCreatorEndPoint.acceptFileList(orgId, spec, accessKey: Option[String] ?= None)
-  POST        /api/sip-creator/submit/:orgId/:spec/:fileName                    controllers.SipCreatorEndPoint.acceptFile(orgId, spec, fileName, accessKey: Option[String] ?= None)
-  GET         /api/sip-creator/fetch/:orgId/:spec-sip.zip                       controllers.SipCreatorEndPoint.fetchSIP(orgId, spec, accessKey: Option[String] ?= None)
+        GET         /api/sip-creator/list                                             controllers.SipCreatorEndPoint.listAll(accessKey: Option[String] ?= None)
+        GET         /api/sip-creator/unlock/:orgId/:spec                              controllers.SipCreatorEndPoint.unlock(orgId, spec, accessKey: Option[String] ?= None)
+        POST        /api/sip-creator/submit/:orgId/:spec                              controllers.SipCreatorEndPoint.acceptFileList(orgId, spec, accessKey: Option[String] ?= None)
+        POST        /api/sip-creator/submit/:orgId/:spec/:fileName                    controllers.SipCreatorEndPoint.acceptFile(orgId, spec, fileName, accessKey: Option[String] ?= None)
+        GET         /api/sip-creator/fetch/:orgId/:spec-sip.zip                       controllers.SipCreatorEndPoint.fetchSIP(orgId, spec, accessKey: Option[String] ?= None)
 
    */
 
@@ -64,22 +65,28 @@ class DataSetPlugin(app: Application) extends CultureHubPlugin(app) {
     },
 
     ("GET", """^/organizations/([A-Za-z0-9-]+)/dataset""".r) -> {
-      (pathArgs: List[String], queryString: Map[String, String]) => controllers.organization.DataSets.list(pathArgs(0))
+      (pathArgs: List[String], queryString: Map[String, String]) =>
+        controllers.organization.DataSets.list(pathArgs(0))
     },
     ("GET", """^/organizations/([A-Za-z0-9-]+)/dataset/feed""".r) -> {
-      (pathArgs: List[String], queryString: Map[String, String]) => controllers.organization.DataSets.feed(pathArgs(0), queryString("clientId"), queryString.get("spec"))
+      (pathArgs: List[String], queryString: Map[String, String]) =>
+        controllers.organization.DataSets.feed(pathArgs(0), queryString("clientId"), queryString.get("spec"))
     },
     ("GET", """^/organizations/([A-Za-z0-9-]+)/dataset/add""".r) -> {
-      (pathArgs: List[String], queryString: Map[String, String]) => controllers.organization.DataSetControl.dataSet(pathArgs(0), None)
+      (pathArgs: List[String], queryString: Map[String, String]) =>
+        controllers.organization.DataSetControl.dataSet(pathArgs(0), None)
     },
     ("GET", """^/organizations/([A-Za-z0-9-]+)/dataset/([A-Za-z0-9-]+)/update""".r) -> {
-      (pathArgs: List[String], queryString: Map[String, String]) => controllers.organization.DataSetControl.dataSet(pathArgs(0), Some(pathArgs(1)))
+      (pathArgs: List[String], queryString: Map[String, String]) =>
+        controllers.organization.DataSetControl.dataSet(pathArgs(0), Some(pathArgs(1)))
     },
     ("POST", """^/organizations/([A-Za-z0-9-]+)/dataset/submit""".r) -> {
-      (pathArgs: List[String], queryString: Map[String, String]) => controllers.organization.DataSetControl.dataSetSubmit(pathArgs(0))
+      (pathArgs: List[String], queryString: Map[String, String]) =>
+        controllers.organization.DataSetControl.dataSetSubmit(pathArgs(0))
     },
     ("GET", """^/organizations/([A-Za-z0-9-]+)/dataset/([A-Za-z0-9-]+)""".r) -> {
-      (pathArgs: List[String], queryString: Map[String, String]) => controllers.organization.DataSets.dataSet(pathArgs(0), pathArgs(1))
+      (pathArgs: List[String], queryString: Map[String, String]) =>
+        controllers.organization.DataSets.dataSet(pathArgs(0), pathArgs(1))
     },
 
     ("GET", """^/organizations/([A-Za-z0-9-]+)/sip-creator""".r) -> {
@@ -87,19 +94,26 @@ class DataSetPlugin(app: Application) extends CultureHubPlugin(app) {
     },
 
     ("GET", """^/api/sip-creator/list""".r) -> {
-      (pathArgs: List[String], queryString: Map[String, String]) => controllers.SipCreatorEndPoint.listAll(queryString.get("accessKey"))
+      (pathArgs: List[String], queryString: Map[String, String]) =>
+        controllers.SipCreatorEndPoint.listAll(queryString.get("accessKey"))
     },
     ("GET", """^/api/sip-creator/unlock/([A-Za-z0-9-]+)/([A-Za-z0-9-]+)""".r) -> {
-      (pathArgs: List[String], queryString: Map[String, String]) => controllers.SipCreatorEndPoint.unlock(pathArgs(0), pathArgs(1), queryString.get("accessKey"))
+      (pathArgs: List[String], queryString: Map[String, String]) =>
+        controllers.SipCreatorEndPoint.unlock(pathArgs(0), pathArgs(1), queryString.get("accessKey"))
     },
     ("POST", """^/api/sip-creator/submit/([A-Za-z0-9-]+)/([A-Za-z0-9-]+)/(.*)""".r) -> {
-      (pathArgs: List[String], queryString: Map[String, String]) => controllers.SipCreatorEndPoint.acceptFile(pathArgs(0), pathArgs(1), pathArgs(2), queryString.get("accessKey"))
+      (pathArgs: List[String], queryString: Map[String, String]) =>
+        controllers.SipCreatorEndPoint.acceptFile(
+          pathArgs(0), pathArgs(1), pathArgs(2), queryString.get("accessKey")
+        )
     },
     ("POST", """^/api/sip-creator/submit/([A-Za-z0-9-]+)/(.*)""".r) -> {
-      (pathArgs: List[String], queryString: Map[String, String]) => controllers.SipCreatorEndPoint.acceptFileList(pathArgs(0), pathArgs(1), queryString.get("accessKey"))
+      (pathArgs: List[String], queryString: Map[String, String]) =>
+        controllers.SipCreatorEndPoint.acceptFileList(pathArgs(0), pathArgs(1), queryString.get("accessKey"))
     },
     ("GET", """^/api/sip-creator/fetch/([A-Za-z0-9-]+)/([A-Za-z0-9-]+)-sip.zip""".r) -> {
-      (pathArgs: List[String], queryString: Map[String, String]) => controllers.SipCreatorEndPoint.fetchSIP(pathArgs(0), pathArgs(1), queryString.get("accessKey"))
+      (pathArgs: List[String], queryString: Map[String, String]) =>
+        controllers.SipCreatorEndPoint.fetchSIP(pathArgs(0), pathArgs(1), queryString.get("accessKey"))
     }
 
   )
@@ -125,18 +139,12 @@ class DataSetPlugin(app: Application) extends CultureHubPlugin(app) {
       titleKey = "ui.label.sipcreator",
       mainEntry = Some(MenuElement("/organizations/%s/sip-creator".format(orgId), "ui.label.sipcreator"))
     )
-
   )
-
 
   override def services: Seq[Any] = Seq(
-    new MetadataRecordResolverService
+    new MetadataRecordResolverService,
+    dataSetHarvestCollectionLookup
   )
-
-  override def harvestCollectionLookups: Seq[HarvestCollectionLookup] = Seq(dataSetHarvestCollectionLookup)
-
-
-  override def organizationCollectionLookups: Seq[OrganizationCollectionLookup] = Seq(dataSetHarvestCollectionLookup)
 
   /**
    * Override this to provide custom roles to the platform, that can be used in Groups
@@ -160,7 +168,10 @@ class DataSetPlugin(app: Application) extends CultureHubPlugin(app) {
        */
       def findResources(orgId: String, query: String): Seq[Resource] = {
         implicit val configuration = DomainConfigurationHandler.getByOrgId(orgId)
-        DataSet.dao.find(MongoDBObject("orgId" -> orgId, "spec" -> Pattern.compile(query, Pattern.CASE_INSENSITIVE))).toSeq
+        DataSet.dao.find(MongoDBObject(
+          "orgId" -> orgId,
+          "spec" -> Pattern.compile(query, Pattern.CASE_INSENSITIVE))
+        ).toSeq
       }
 
       /**
@@ -175,8 +186,6 @@ class DataSetPlugin(app: Application) extends CultureHubPlugin(app) {
       }
     }
   )
-
-
 
   /**
    * Runs globally on application start, for the whole Hub. Make sure that whatever you run here is multitenancy-aware
@@ -217,7 +226,11 @@ class DataSetPlugin(app: Application) extends CultureHubPlugin(app) {
           |
           |%s
         """.stripMargin.format(
-            missingVersions.map(missing => "%s -> %s".format(missing._1, missing._2.map("'%s'".format(_)).mkString(", "))).mkString("\n")
+          missingVersions.map( missing =>
+            "%s -> %s".format(
+              missing._1, missing._2.map("'%s'".format(_)).mkString(", ")
+            )
+          ).mkString("\n")
         ))
 
       throw new RuntimeException("Cannot start the hub due to missing schemas")
@@ -226,22 +239,31 @@ class DataSetPlugin(app: Application) extends CultureHubPlugin(app) {
     // ~~~ jobs
 
     // DataSet source parsing
-    Akka.system.actorOf(Props[ReceiveSource].withRouter(
-      RoundRobinRouter(Runtime.getRuntime.availableProcessors(), supervisorStrategy = OneForOneStrategy() {
-        case _ => Restart
-      })
-    ), name = "dataSetParser")
+    Akka.system.actorOf(
+      Props[ReceiveSource].withRouter(
+        RoundRobinRouter(Runtime.getRuntime.availableProcessors(), supervisorStrategy = OneForOneStrategy() {
+          case _ => Restart
+        })
+      ), name = "dataSetParser"
+    )
 
     // DataSet processing
     // Play can't do multi-threading in DEV mode...
     if (Play.isDev) {
       Akka.system.actorOf(Props[Processor], name = "dataSetProcessor")
-    } else {
-      Akka.system.actorOf(Props[Processor].withRouter(
-        RoundRobinRouter(Runtime.getRuntime.availableProcessors(), supervisorStrategy = OneForOneStrategy() {
-          case _ => Restart
-        })
-      ), name = "dataSetProcessor")
+    }
+    else {
+      Akka.system.actorOf(
+        Props[Processor].withRouter(
+          RoundRobinRouter(
+            Runtime.getRuntime.availableProcessors(),
+            supervisorStrategy = OneForOneStrategy() {
+              case _ => Restart
+            }
+          )
+        ),
+        name = "dataSetProcessor"
+      )
     }
 
     // Processing queue watcher
@@ -259,9 +281,16 @@ class DataSetPlugin(app: Application) extends CultureHubPlugin(app) {
             set =>
               dataSetDAO.updateState(set, DataSetState.CANCELLED)
               try {
-                IndexingService.deleteBySpec(set.orgId, set.spec)(DomainConfigurationHandler.getByOrgId(set.orgId))
+                implicit val configuration = DomainConfigurationHandler.getByOrgId(set.orgId)
+                IndexingService.deleteBySpec(set.orgId, set.spec)
               } catch {
-                case t: Throwable => Logger("CultureHub").error("Couldn't delete SOLR index for cancelled set %s:%s at startup".format(set.orgId, set.spec), t)
+                case t: Throwable => Logger("CultureHub").error(
+                  "Couldn't delete SOLR index for cancelled set %s:%s at startup".format(
+                    set.orgId,
+                    set.spec
+                  ),
+                  t
+                )
               } finally {
                 dataSetDAO.updateState(set, DataSetState.UPLOADED)
               }
@@ -271,17 +300,14 @@ class DataSetPlugin(app: Application) extends CultureHubPlugin(app) {
     }
   }
 
-
   override def onStop() {
     if (!Play.isTest) {
       // cleanly cancel all active processing
       DataSet.all.foreach {
         dataSetDAO =>
-          dataSetDAO.findByState(DataSetState.PROCESSING).foreach {
-            set =>
-              dataSetDAO.updateState(set, DataSetState.CANCELLED)
+          dataSetDAO.findByState(DataSetState.PROCESSING).foreach { set =>
+            dataSetDAO.updateState(set, DataSetState.CANCELLED)
           }
-
       }
       Thread.sleep(2000)
     }
@@ -290,65 +316,83 @@ class DataSetPlugin(app: Application) extends CultureHubPlugin(app) {
   /**
    * Executed when test data is loaded (for development and testing)
    */
-  override def onLoadTestData() {
-    if (DataSet.dao("delving").count(MongoDBObject("spec" -> "PrincessehofSample")) == 0) bootstrapDatasets()
+  override def onLoadTestData(parameters: Map[String, Seq[String]]) {
+    val samples = parameters.get("samples").getOrElse(Seq.empty)
+    val now = System.currentTimeMillis()
 
-    implicit val configuration = DomainConfigurationHandler.getByOrgId(("delving"))
-    val dataSet = DataSet.dao.findBySpecAndOrgId("PrincessehofSample", "delving").get
+    BootstrapSource.sources.
+      filter(s => samples.contains(s.spec)).
+      foreach(boot => bootstrapDataset(boot))
 
-    // provision records, but only if necessary
-    if (HubServices.basexStorage(configuration).openCollection(dataSet).isEmpty) {
-      _root_.controllers.SipCreatorEndPoint.loadSourceData(dataSet, new GZIPInputStream(Play.application.resourceAsStream("/bootstrap/EA525DF3C26F760A1D744B7A63C67247__source.xml.gz").get))
-      Thread.sleep(2000)
-    }
+    println()
+    println("** Loaded DataSet plugin test data for sample(s) %s in %s ms **".format(
+      samples.mkString(", "), System.currentTimeMillis() - now)
+    )
+    println()
+  }
 
-    // index them if in test mode
-    if(Play.isTest) {
-      DataSet.dao.updateState(dataSet, DataSetState.QUEUED)
-      DataSetCollectionProcessor.process(dataSet)
+  def bootstrapDataset(boot: BootstrapSource) {
+    if (DataSet.dao(boot.org).count(MongoDBObject("spec" -> boot.spec)) == 0) {
 
-      while (DataSet.dao.getState(dataSet.orgId, dataSet.spec) == DataSetState.PROCESSING) {
-        Thread.sleep(1000)
+      implicit val configuration = DomainConfigurationHandler.getByOrgId(("delving"))
+
+      val factMap = new BasicDBObject()
+      factMap.put("spec", boot.spec)
+      factMap.put("name", boot.spec)
+      factMap.put("collectionType", "all")
+      factMap.put("namespacePrefix", "raw")
+      factMap.put("language", "nl")
+      factMap.put("country", "netherlands")
+      factMap.put("provider", "Sample Man")
+      factMap.put("dataProvider", "Sample Man")
+      factMap.put("rights", "http://creativecommons.org/publicdomain/mark/1.0/")
+      factMap.put("type", "IMAGE")
+
+      val mappingFile = boot.file("mapping_icn.xml")
+
+      DataSet.dao("delving").insert(DataSet(
+        spec = boot.spec,
+        userName = "bob",
+        orgId = "delving",
+        state = DataSetState.ENABLED,
+        deleted = false,
+        details = Details(
+          name = boot.spec,
+          facts = factMap
+        ),
+        idxMappings = List("icn"),
+        invalidRecords = Map("icn" -> List(1)),
+        mappings = Map("icn" -> Mapping(
+          schemaPrefix = "icn",
+          schemaVersion = "1.0.0", // TODO
+          recordMapping = Some(Source.fromInputStream(new FileInputStream(mappingFile)).getLines().mkString("\n"))
+        )),
+        formatAccessControl = Map("icn" -> FormatAccessControl(accessType = "public"))
+      ))
+
+      val dataSet = DataSet.dao.findBySpecAndOrgId(boot.spec, boot.org).get
+
+      // provision records, but only if necessary
+      if (HubServices.basexStorage(configuration).openCollection(dataSet).isEmpty) {
+        val sourceFile = boot.file("source.xml.gz")
+        _root_.controllers.SipCreatorEndPoint.loadSourceData(
+          dataSet,
+          new GZIPInputStream(new FileInputStream(sourceFile))
+        )
+        while (DataSet.dao.getState(dataSet.orgId, dataSet.spec) == DataSetState.PARSING) Thread.sleep(100)
       }
+
+      if (Play.isTest) {
+        val dataSet = DataSet.dao.findBySpecAndOrgId(boot.spec, boot.org).get
+        DataSet.dao.updateState(dataSet, DataSetState.QUEUED)
+        DataSetCollectionProcessor.process(dataSet)
+        while (DataSet.dao.getState(dataSet.orgId, dataSet.spec) == DataSetState.PROCESSING) Thread.sleep(500)
+      }
+
+      boot.init()
     }
 
-  }
-
-  def bootstrapDatasets() {
-    implicit val configuration = DomainConfigurationHandler.getByOrgId(("delving"))
-
-    val factMap = new BasicDBObject()
-    factMap.put("spec", "PrincesseofSample")
-    factMap.put("name", "Princessehof Sample Dataset")
-    factMap.put("collectionType", "all")
-    factMap.put("namespacePrefix", "raw")
-    factMap.put("language", "nl")
-    factMap.put("country", "netherlands")
-    factMap.put("provider", "Sample Man")
-    factMap.put("dataProvider", "Sample Man")
-    factMap.put("rights", "http://creativecommons.org/publicdomain/mark/1.0/")
-    factMap.put("type", "IMAGE")
-
-    DataSet.dao("delving").insert(DataSet(
-      spec = "PrincessehofSample",
-      userName = "bob",
-      orgId = "delving",
-      state = DataSetState.ENABLED,
-      deleted = false,
-      details = Details(
-        name = "Princessehof Sample Dataset",
-        facts = factMap
-      ),
-      idxMappings = List("icn"),
-      invalidRecords = Map("icn" -> List(1)),
-      mappings = Map("icn" -> Mapping(
-        schemaPrefix = "icn",
-        schemaVersion = "1.0.0", // TODO
-        recordMapping = Some(Source.fromInputStream(Play.application.resource("/bootstrap/A2098A0036EAC14E798CA3B653B96DD5__mapping_icn.xml").get.openStream()).getLines().mkString("\n"))
-      )),
-      formatAccessControl = Map("icn" -> FormatAccessControl(accessType = "public"))
-    ))
-  }
+    }
 }
 
 object DataSetPlugin {

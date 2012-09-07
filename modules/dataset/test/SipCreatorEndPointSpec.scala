@@ -1,28 +1,23 @@
 import collection.mutable.{Buffer, ListBuffer}
 import controllers.SipCreatorEndPoint
-import core.mapping.MappingService
-import eu.delving.metadata.RecMapping
 import java.io._
 import java.util.zip.{ZipInputStream, GZIPInputStream}
 import org.apache.commons.io.IOUtils
-import org.specs2.mutable._
 import collection.JavaConverters._
 import play.api.test._
 import play.api.test.Helpers._
 import models._
 import play.api.mvc._
 import play.api.libs.Files.TemporaryFile
-import play.api.libs.Files
 import util.DomainConfigurationHandler
 import xml.XML
-class SipCreatorEndPointSpec extends Specs2TestContext {
+import org.apache.commons.io.FileUtils
+
+class SipCreatorEndPointSpec extends BootstrapAwareSpec {
 
   step {
-    loadStandalone()
+    loadStandalone(SAMPLE_A, SAMPLE_B)
   }
-
-  val location = if (new File(".").listFiles().exists(f => f.isDirectory && f.getName == "conf")) "" else "culture-hub/"
-
 
   "SipCreatorEndPoint" should {
 
@@ -31,7 +26,9 @@ class SipCreatorEndPointSpec extends Specs2TestContext {
       withTestConfig {
         val result = controllers.SipCreatorEndPoint.listAll(Some("TEST"))(FakeRequest())
         status(result) must equalTo(OK)
-        contentAsString(result) must contain("<spec>PrincessehofSample</spec>")
+        val stringResult: String = contentAsString(result)
+        stringResult must contain("<spec>sample-a</spec>")
+        stringResult must contain("<spec>sample-b</spec>")
       }
 
     }
@@ -39,25 +36,28 @@ class SipCreatorEndPointSpec extends Specs2TestContext {
     "unlock a DataSet" in {
 
       import com.mongodb.casbah.Imports._
-      DataSet.dao("delving").update(MongoDBObject("spec" -> "PrincessehofSample"), $set("lockedBy" -> "bob"))
+      DataSet.dao(bootstrap.org).update(MongoDBObject("spec" -> bootstrap.spec), $set("lockedBy" -> "bob"))
 
       withTestConfig {
-        val result = controllers.SipCreatorEndPoint.unlock("delving", "PrincessehofSample", Some("TEST"))(FakeRequest())
+        val result = controllers.SipCreatorEndPoint.unlock(
+          bootstrap.org,
+          bootstrap.spec,
+          Some("TEST")
+        )(FakeRequest())
         status(result) must equalTo(OK)
-        DataSet.dao("delving").findBySpecAndOrgId("PrincessehofSample", "delving").get.lockedBy must be(None)
+        DataSet.dao(bootstrap.org).findBySpecAndOrgId(bootstrap.spec, bootstrap.org).get.lockedBy must be(None)
       }
 
     }
 
     "accept a list of files" in {
       withTestConfig {
-
-        val lines = """E6D086CAC8F6316F70050BC577EB3920__hints.txt
-A2098A0036EAC14E798CA3B653B96DD5__mapping_icn.xml
-EA525DF3C26F760A1D744B7A63C67247__source.xml.gz
-F1D3FF8443297732862DF21DC4E57262__validation_icn.int"""
-
-        val result = controllers.SipCreatorEndPoint.acceptFileList("delving", "PrincessehofSample", Some("TEST"))(
+        val lines = bootstrap.fileNamesString()
+        val result = controllers.SipCreatorEndPoint.acceptFileList(
+          bootstrap.org,
+          bootstrap.spec,
+          Some("TEST")
+        )(
           FakeRequest(
             method = "POST",
             body = new AnyContentAsText(lines.stripMargin),
@@ -73,71 +73,81 @@ F1D3FF8443297732862DF21DC4E57262__validation_icn.int"""
 
     "accept a hints file" in {
       withTestConfig {
-        val hintsSource: String = location +"modules/dataset/conf/bootstrap/E6D086CAC8F6316F70050BC577EB3920__hints.txt"
-        val hintsTarget = location + "modules/dataset/target/E6D086CAC8F6316F70050BC577EB3920__hints.txt"
-        Files.copyFile(new File(hintsSource), new File(hintsTarget))
-
-        val result = controllers.SipCreatorEndPoint.acceptFile("delving", "PrincessehofSample", "E6D086CAC8F6316F70050BC577EB3920__hints.txt", Some("TEST"))(FakeRequest(
-          method = "POST",
-          uri = "",
-          headers = FakeHeaders(Map(CONTENT_TYPE -> Seq("text/plain"))),
-          body = TemporaryFile(new File(hintsTarget))
-        ))
+        val hintsFile = bootstrap.file("hints.txt")
+        val result = controllers.SipCreatorEndPoint.acceptFile(
+          bootstrap.org,
+          bootstrap.spec,
+          hintsFile.getName,
+          Some("TEST")
+        )(
+          FakeRequest(
+            method = "POST",
+            uri = "",
+            headers = FakeHeaders(Map(CONTENT_TYPE -> Seq("text/plain"))),
+            body = TemporaryFile(hintsFile)
+          )
+        )
         status(result) must equalTo(OK)
-        val stream = new FileInputStream(new File(hintsSource))
-        val data = Stream.continually(stream.read).takeWhile(-1 !=).map(_.toByte).toArray
-        DataSet.dao("delving").findBySpecAndOrgId("PrincessehofSample", "delving").get.hints must equalTo(data)
+
+        val stored = DataSet.dao(bootstrap.org).findBySpecAndOrgId(bootstrap.spec, bootstrap.org).get.hints
+
+        val original = FileUtils.readFileToByteArray(hintsFile)
+
+        stored must equalTo(original)
       }
     }
 
-
     "accept a mappings file" in {
       withTestConfig {
-        val mappingSource: String = location + "modules/dataset/conf/bootstrap/A2098A0036EAC14E798CA3B653B96DD5__mapping_icn.xml"
-        val mappingTarget = location + "modules/dataset/target/A2098A0036EAC14E798CA3B653B96DD5__mapping_icn.xml"
-        Files.copyFile(new File(mappingSource), new File(mappingTarget))
-
-        val result = controllers.SipCreatorEndPoint.acceptFile("delving", "PrincessehofSample", "A2098A0036EAC14E798CA3B653B96DD5__mapping_icn.xml", Some("TEST"))(FakeRequest(
-          method = "POST",
-          uri = "",
-          headers = FakeHeaders(Map(CONTENT_TYPE -> Seq("text/plain"))),
-          body = TemporaryFile(new File(mappingTarget))
-        ))
+        val mappingFile = bootstrap.file("mapping_icn.xml")
+        val result = controllers.SipCreatorEndPoint.acceptFile(
+          bootstrap.org,
+          bootstrap.spec,
+          mappingFile.getName,
+          Some("TEST")
+        )(
+          FakeRequest(
+            method = "POST",
+            uri = "",
+            headers = FakeHeaders(Map(CONTENT_TYPE -> Seq("text/plain"))),
+            body = TemporaryFile(mappingFile)
+          )
+        )
         status(result) must equalTo(OK)
-        val originalStream = new FileInputStream(new File(mappingSource))
-        val uploaded = new ByteArrayInputStream(DataSet.dao("delving").findBySpecAndOrgId("PrincessehofSample", "delving").get.mappings("icn").recordMapping.get.getBytes("utf-8"))
 
-        val originalRecordMapping = RecMapping.read(originalStream, MappingService.recDefModel)
-        val uploadedRecordMapping = RecMapping.read(uploaded, MappingService.recDefModel)
+        val mapping: String = DataSet.dao(bootstrap.org).findBySpecAndOrgId(bootstrap.spec, bootstrap.org)
+                              .get.mappings("icn").recordMapping.getOrElse(throw new RuntimeException)
+        val original = FileUtils.readFileToString(mappingFile)
 
-
-        // FIXME what is wrong with this!?
-        //        trim(XML.loadString(originalRecordMapping.toString)) must equalTo(trim(XML.loadString(uploadedRecordMapping.toString)))
-
-        1 must equalTo(1)
+        mapping.trim must equalTo(original.trim)
       }
     }
 
     "accept a int file" in {
       withTestConfig {
-        val intSource: String = location + "modules/dataset/conf/bootstrap/F1D3FF8443297732862DF21DC4E57262__validation_icn.int"
-        val intTarget = location + "modules/dataset/target/F1D3FF8443297732862DF21DC4E57262__validation_icn.int"
-        Files.copyFile(new File(intSource), new File(intTarget))
+        val intFile = bootstrap.file("validation_icn.int")
 
-        val result = controllers.SipCreatorEndPoint.acceptFile("delving", "PrincessehofSample", "F1D3FF8443297732862DF21DC4E57262__validation_icn.int", Some("TEST"))(FakeRequest(
-          method = "POST",
-          uri = "",
-          headers = FakeHeaders(Map(CONTENT_TYPE -> Seq("text/plain"))), // ????
-          body = TemporaryFile(new File(intTarget))
-        ))
+        val result = controllers.SipCreatorEndPoint.acceptFile(
+          bootstrap.org,
+          bootstrap.spec,
+          intFile.getName,
+          Some("TEST")
+        )(
+          FakeRequest(
+            method = "POST",
+            uri = "",
+            headers = FakeHeaders(Map(CONTENT_TYPE -> Seq("application/octet-stream"))),
+            body = TemporaryFile(intFile)
+          )
+        )
         status(result) must equalTo(OK)
 
-        val original = readIntFile(intTarget)
+        val original = readIntFile(intFile)
 
-        val uploaded = DataSet.dao("delving").findBySpecAndOrgId("PrincessehofSample", "delving").get.invalidRecords
+        val uploaded = DataSet.dao(bootstrap.org).findBySpecAndOrgId(bootstrap.spec, bootstrap.org)
+                       .get.invalidRecords
 
         val invalidRecords = readInvalidIndexes(uploaded)
-
 
         original must equalTo(invalidRecords("icn"))
       }
@@ -145,39 +155,44 @@ F1D3FF8443297732862DF21DC4E57262__validation_icn.int"""
 
     "accept a source file" in {
       withTestConfig {
-        val sourceSource: String = location + "modules/dataset/conf/bootstrap/EA525DF3C26F760A1D744B7A63C67247__source.xml.gz"
-        val sourceTarget = location + "modules/dataset/target/EA525DF3C26F760A1D744B7A63C67247__source.xml.gz"
-        Files.copyFile(new File(sourceSource), new File(sourceTarget))
+        val sourceFile = bootstrap.file("source.xml.gz")
 
-        val result = controllers.SipCreatorEndPoint.acceptFile("delving", "PrincessehofSample", "EA525DF3C26F760A1D744B7A63C67247__source.xml.gz", Some("TEST"))(FakeRequest(
-          method = "POST",
-          uri = "",
-          headers = FakeHeaders(Map(CONTENT_TYPE -> Seq("application/x-gzip"))),
-          body = TemporaryFile(new File(sourceTarget))
-        ))
+        val result = controllers.SipCreatorEndPoint.acceptFile(
+          bootstrap.org,
+          bootstrap.spec,
+          sourceFile.getName,
+          Some("TEST")
+        )(
+          FakeRequest(
+            method = "POST",
+            uri = "",
+            headers = FakeHeaders(Map(CONTENT_TYPE -> Seq("application/x-gzip"))),
+            body = TemporaryFile(sourceFile)
+          )
+        )
         status(result) must equalTo(OK)
 
-        val dataSet = DataSet.dao("delving").findBySpecAndOrgId("PrincessehofSample", "delving").get
+        val dataSet = DataSet.dao(bootstrap.org).findBySpecAndOrgId(bootstrap.spec, bootstrap.org).get
 
-        // now we wait since the parsing is asynchronous. We wait a long time since our CI server is rather slow.
-        Thread.sleep(10000)
+        implicit val configuration = DomainConfigurationHandler.getByOrgId("delving")
+        while (DataSet.dao.getState(dataSet.orgId, dataSet.spec) == DataSetState.PARSING) Thread.sleep(100)
 
-        DataSet.dao("delving").getSourceRecordCount(dataSet) must equalTo(8)
+        DataSet.dao(bootstrap.org).getSourceRecordCount(dataSet) must equalTo(8)
       }
     }
 
     "have marked all file hashes and not accept them again" in {
       withTestConfig {
-
-        val lines = """E6D086CAC8F6316F70050BC577EB3920__hints.txt
-A2098A0036EAC14E798CA3B653B96DD5__mapping_icn.xml
-EA525DF3C26F760A1D744B7A63C67247__source.xml.gz
-F1D3FF8443297732862DF21DC4E57262__validation_icn.int"""
-
-        val result = controllers.SipCreatorEndPoint.acceptFileList("delving", "PrincessehofSample", Some("TEST"))(
+        bootstrap.init()
+        val lines = bootstrap.fileNamesString()
+        val result = controllers.SipCreatorEndPoint.acceptFileList(
+          bootstrap.org,
+          bootstrap.spec,
+          Some("TEST")
+        )(
           FakeRequest(
             method = "POST",
-            body = new AnyContentAsText(lines.stripMargin),
+            body = new AnyContentAsText(lines),
             uri = "",
             headers = FakeHeaders(Map(CONTENT_TYPE -> Seq("text/plain")))
           ))
@@ -188,21 +203,27 @@ F1D3FF8443297732862DF21DC4E57262__validation_icn.int"""
 
     "update an int file" in {
       withTestConfig {
-        val intSource: String = location + "modules/dataset/conf/bootstrap/F1D3FF8443297732862DF21EC4E57262__validation_icn.int"
-        val intTarget = location + "modules/dataset/target/F1D3FF8443297732862DF21EC4E57262__validation_icn.int"
-        Files.copyFile(new File(intSource), new File(intTarget))
-
-        val result = controllers.SipCreatorEndPoint.acceptFile("delving", "PrincessehofSample", "F1D3FF8443297732862DF21EC4E57262__validation_icn.int", Some("TEST"))(FakeRequest(
-          method = "POST",
-          uri = "",
-          headers = FakeHeaders(Map(CONTENT_TYPE -> Seq("text/plain"))), // ????
-          body = TemporaryFile(new File(intTarget))
-        ))
+        bootstrap.init()
+        val intFile = bootstrap.file("validation_icn.int")
+        val result = controllers.SipCreatorEndPoint.acceptFile(
+          bootstrap.org,
+          bootstrap.spec,
+          intFile.getName,
+          Some("TEST")
+        )(
+          FakeRequest(
+            method = "POST",
+            uri = "",
+            headers = FakeHeaders(Map(CONTENT_TYPE -> Seq("text/plain"))), // ????
+            body = TemporaryFile(intFile)
+          )
+        )
         status(result) must equalTo(OK)
 
-        val original = readIntFile(intTarget)
+        val original = readIntFile(intFile)
 
-        val uploaded = DataSet.dao("delving").findBySpecAndOrgId("PrincessehofSample", "delving").get.invalidRecords
+        val uploaded = DataSet.dao(bootstrap.org).findBySpecAndOrgId(bootstrap.spec, bootstrap.org)
+                       .get.invalidRecords
 
         val invalidRecords = readInvalidIndexes(uploaded)
 
@@ -210,30 +231,35 @@ F1D3FF8443297732862DF21DC4E57262__validation_icn.int"""
       }
     }
 
-
     "download a source file" in {
 
       case class ZipEntry(name: String)
 
       withTestConfig {
 
-        implicit val configuration = DomainConfigurationHandler.getByOrgId("delving")
+        implicit val configuration = DomainConfigurationHandler.getByOrgId(bootstrap.org)
 
-        val dataSet = DataSet.dao("delving").findBySpecAndOrgId("PrincessehofSample", "delving").get
+        bootstrap.init()
+
+        val dataSet = DataSet.dao(bootstrap.org).findBySpecAndOrgId(bootstrap.spec, bootstrap.org).get
+        val sourceFile = bootstrap.file("source.xml.gz")
 
         // first, ingest all sorts of things
-        val sourceFile = new File(location + "modules/dataset/conf/bootstrap/EA525DF3C26F760A1D744B7A63C67247__source.xml.gz")
-        val fis = new FileInputStream(sourceFile)
-        val gis = new GZIPInputStream(fis)
+        val gis = new GZIPInputStream(new FileInputStream(sourceFile))
         SipCreatorEndPoint.loadSourceData(dataSet, gis)
         gis.close()
-        fis.close()
 
-        val result = asyncToResult(controllers.SipCreatorEndPoint.fetchSIP("delving", "PrincessehofSample", Some("TEST"))(FakeRequest()))
+        val result = asyncToResult(controllers.SipCreatorEndPoint.fetchSIP(
+          bootstrap.org,
+          bootstrap.spec,
+          Some("TEST")
+        )(
+          FakeRequest()
+        ))
         status(result) must equalTo(OK)
 
         // check locking
-        val lockedDataSet = DataSet.dao("delving").findBySpecAndOrgId("PrincessehofSample", "delving").get
+        val lockedDataSet = DataSet.dao(bootstrap.org).findBySpecAndOrgId(bootstrap.spec, bootstrap.org).get
         lockedDataSet.lockedBy must equalTo(Some("bob")) // TEST user
 
         // check the resulting set, indirectly
@@ -253,7 +279,6 @@ F1D3FF8443297732862DF21DC4E57262__validation_icn.int"""
           entry = zis.getNextEntry
         }
         zis.close()
-        fis.close()
 
         XML.loadString(downloadedSource).size must equalTo(1)
         downloadedEntries.size must equalTo(4)
@@ -281,15 +306,15 @@ F1D3FF8443297732862DF21DC4E57262__validation_icn.int"""
     cleanup()
   }
 
-
-  def readIntFile(file: String) = {
-    val originalStream = new DataInputStream(new FileInputStream(new File(file)))
+  def readIntFile(file: File) = {
+    val originalStream = new DataInputStream(new FileInputStream(file))
     val length = originalStream.readInt()
     val b = new ListBuffer[Int]()
     var counter = 0
     if (length == 0) {
       List()
-    } else {
+    }
+    else {
       while (counter < length) {
         counter += 1
         b += originalStream.readInt()
@@ -308,7 +333,6 @@ F1D3FF8443297732862DF21DC4E57262__validation_icn.int"""
       (key, value)
     }).toMap[String, List[Int]]
   }
-
 
 }
 
