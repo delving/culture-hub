@@ -39,6 +39,7 @@
                     <field path="/tib:record/dc:type" label="metadata.dc.type"/>
                     <enumeration label="metadata.dc.format" separator="lf" path="/tib:record/dc:format,/tib:record/dcterms:extent"/>
                     <link path="/tib:record/delving:fullTextObjectUrl" textExpr="/tib:record/delving:fullTextObjectUrl" urlExpr="/tib:record/delving:fullTextObjectUrl" label="metadata.tib.fullTextObjectUrl"/>
+
                 </container>
            </column>
            <column proportion="1of3">
