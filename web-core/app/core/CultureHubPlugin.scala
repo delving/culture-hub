@@ -1,6 +1,5 @@
 package core
 
-import core.collection.{OrganizationCollectionLookup, HarvestCollectionLookup}
 import core.access.ResourceLookup
 import scala.collection.immutable.ListMap
 import scala.util.matching.Regex
@@ -72,7 +71,6 @@ abstract class CultureHubPlugin(app: Application) extends play.api.Plugin {
    */
   def organizationMenuEntries(orgId: String, lang: String, roles: Seq[String]): Seq[MainMenuEntry] = Seq.empty
 
-
   /**
    * Override this to provide custom roles to the platform, that can be used in Groups
    * @return a sequence of [[models.Role]] instances
@@ -90,22 +88,6 @@ abstract class CultureHubPlugin(app: Application) extends play.api.Plugin {
    * Service instances this plugin provides
    */
   def services: Seq[Any] = Seq.empty
-
-  // TODO replace the above by services
-
-  /**
-   * Override this to provide organization collections via this plugin
-   *
-   * @return a sequence of [[core.collection.OrganizationCollectionLookup]] instances
-   */
-  def organizationCollectionLookups: Seq[OrganizationCollectionLookup] = Seq.empty
-
-  /**
-   * Override this to provide harvest collections via this plugin
-   *
-   * @return a sequence of [[core.collection.HarvestCollectionLookup]] instances
-   */
-  def harvestCollectionLookups: Seq[HarvestCollectionLookup] = Seq.empty
 
   // ~~~ API
 

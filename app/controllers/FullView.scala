@@ -80,7 +80,8 @@ trait FullView extends DelvingController {
                   'returnToResults -> returnToResults,
                   'orgId -> orgId,
                   'hubId -> hubId,
-                  'rights -> r.parameters.get("rights").getOrElse("")
+                  'rights -> r.parameters.get("rights").getOrElse(""),
+                  'hasRelatedRecords -> r.hasRelatedItems
                 )
               ).withSession(updatedSession)
 

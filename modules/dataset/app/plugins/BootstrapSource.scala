@@ -15,7 +15,7 @@ class BootstrapSource(dataDirectory: File) {
 
   val org = "delving"
   val spec = dataDirectory.getName
-  val targetRoot = new File(dataDirectory.getParentFile.getParentFile, "target")
+  val targetRoot = new File(System.getProperty("java.io.tmpdir"), "sample")
   val targetDirectory = new File(targetRoot, dataDirectory.getName)
 
   init()
