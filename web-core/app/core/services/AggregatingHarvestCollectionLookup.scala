@@ -1,10 +1,8 @@
-package core.harvesting
+package core.services
 
-import core.collection.{HarvestCollectionLookup, Harvestable}
+import core.collection.Harvestable
 import models.{DomainConfiguration, RecordDefinition}
 import core.{HarvestCollectionLookupService, CultureHubPlugin}
-import play.api.Play
-import play.api.Play.current
 
 /**
  * Aggregated lookup mechanism for Harvest Collections.
@@ -12,7 +10,7 @@ import play.api.Play.current
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-object AggregatingHarvestCollectionLookup extends HarvestCollectionLookup {
+class AggregatingHarvestCollectionLookup extends HarvestCollectionLookupService {
 
 
   def harvestCollectionLookups(implicit configuration: DomainConfiguration) = CultureHubPlugin.getServices(classOf[HarvestCollectionLookupService])

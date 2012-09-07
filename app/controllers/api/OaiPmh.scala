@@ -5,6 +5,7 @@ import core.harvesting.OaiPmhService
 import play.api.libs.concurrent.Promise
 import controllers.DomainConfigurationAware
 import play.api.Logger
+import core.HubModule
 
 /**
  *
@@ -19,6 +20,7 @@ object OaiPmh extends Controller with DomainConfigurationAware {
     Action {
       implicit request =>
         Async {
+          implicit val bindingModule = HubModule
           val oaiPmhService = new OaiPmhService(request.queryString, request.uri, orgId, format, accessKey)
           Promise.pure(oaiPmhService.parseRequest).map { response =>
 
