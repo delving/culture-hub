@@ -49,6 +49,19 @@ abstract class CultureHubPlugin(app: Application) extends play.api.Plugin {
   def onBuildConfiguration(configurations: Map[DomainConfiguration, Option[Configuration]]) {}
 
   /**
+   * Helper method for configuration building
+   * @param field the configuration field path that is missing
+   * @return
+   */
+  def missingConfigurationField(field: String, domainConfigurationName: String) = {
+    new RuntimeException(
+      "Missing field %s for configuration of plugin %s for DomainConfiguration %s".format(
+        field, pluginKey, domainConfigurationName
+      )
+    )
+  }
+
+  /**
    * Executed when test data is loaded (for development and testing)
    */
   def onLoadTestData(parameters: Map[String, Seq[String]]) {}
