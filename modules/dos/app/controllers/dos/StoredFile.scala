@@ -25,11 +25,11 @@ import org.bson.types.ObjectId
  */
 case class StoredFile(id: ObjectId, name: String, contentType: String, length: Long, thumbnail: Option[ObjectId]) {
   def thumbnailUrl = thumbnail match {
-    case Some(fid) => "/file/" + fid
+    case Some(fid) => "/thumbnail/" + id.toString
     case None => ""
   }
 
-  def asFileUploadResponse(isSelected: ObjectId => Boolean) = FileUploadResponse(name = name, size = length, url = "/file/" + id, thumbnail_url = thumbnailUrl, delete_url = "/file/" + id, selected = isSelected(id), id = id.toString)
+  def asFileUploadResponse(isSelected: ObjectId => Boolean) = FileUploadResponse(name = name, size = length, url = "/file/" + id, thumbnail_url = thumbnailUrl + "/80", delete_url = "/file/" + id, selected = isSelected(id), id = id.toString)
 
 }
 

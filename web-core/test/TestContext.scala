@@ -1,6 +1,6 @@
-import core.collection.AggregatingOrganizationCollectionLookup
 import core.HubServices
 import core.indexing.IndexingService
+import core.services.AggregatingOrganizationCollectionLookupService
 import java.io.File
 import models.HubMongoContext._
 import org.specs2.mutable.Specification
@@ -56,7 +56,7 @@ trait TestContext {
       try {
         val specsToFix = List(SAMPLE_A, SAMPLE_B)
         specsToFix.foreach(spec =>
-          AggregatingOrganizationCollectionLookup.findBySpecAndOrgId(spec, "delving").map {
+          (new AggregatingOrganizationCollectionLookupService()).findBySpecAndOrgId(spec, "delving").map {
             set =>
               HubServices.basexStorage(configuration).withSession(set) {
                 session => {
