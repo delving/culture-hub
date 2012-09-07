@@ -1,7 +1,7 @@
 package core
 
 import core.schema.SchemaProvider
-import core.services.AggregatingHarvestCollectionLookup
+import core.services.{AggregatingOrganizationCollectionLookupService, AggregatingHarvestCollectionLookup}
 import org.scala_tools.subcut.inject.NewBindingModule
 
 /**
@@ -14,5 +14,7 @@ object HubModule extends NewBindingModule({ module =>
   bind [SchemaService].toSingle ( new SchemaProvider )
 
   bind [HarvestCollectionLookupService].toSingle ( new AggregatingHarvestCollectionLookup )
+
+  bind [OrganizationCollectionLookupService].toSingle ( new AggregatingOrganizationCollectionLookupService )
 
 })

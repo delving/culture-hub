@@ -24,6 +24,6 @@ class DataSetLookupService extends HarvestCollectionLookupService with Organizat
 
   def getAllMetadataFormats(orgId: String, accessKey: Option[String])(implicit configuration: DomainConfiguration): List[RecordDefinition] = DataSet.dao.getAllVisibleMetadataFormats(orgId, accessKey).distinct
 
-  def findAll(orgId: String)(implicit configuration: DomainConfiguration): Seq[OrganizationCollection] = DataSet.dao.findAll()
+  def findAll(implicit configuration: DomainConfiguration): Seq[OrganizationCollection] = DataSet.dao.findAll()
 
 }

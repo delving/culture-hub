@@ -2,10 +2,10 @@ package controllers.api
 
 import controllers.{DomainConfigurationAware, RenderingExtensions}
 import play.api.mvc.{Controller, Action}
-import core.HubServices
+import core.{OrganizationCollectionLookupService, HubModule, HubServices}
 import play.api.i18n.Messages
 import models.DomainConfiguration
-import core.collection.{OrganizationCollectionInformation, AggregatingOrganizationCollectionLookup}
+import core.collection.OrganizationCollectionInformation
 
 /**
  * Organization API
@@ -14,6 +14,8 @@ import core.collection.{OrganizationCollectionInformation, AggregatingOrganizati
  */
 
 object Organization extends Controller with DomainConfigurationAware with RenderingExtensions {
+  
+  val organizationCollectionLookupService = HubModule.inject[OrganizationCollectionLookupService](name = None)
 
   def providers(orgId: String) = DomainConfigured {
     Action {
@@ -67,7 +69,7 @@ object Organization extends Controller with DomainConfigurationAware with Render
     Action {
       implicit request =>
         if (HubServices.organizationService(configuration).exists(orgId)) {
-          val collections = AggregatingOrganizationCollectionLookup.findAll
+          val collections = organizationCollectionLookupService.findAll
 
           val xmlResponse =
             <collections>
@@ -86,7 +88,7 @@ object Organization extends Controller with DomainConfigurationAware with Render
     }
   }
 
-  private def getAllOrganiztationCollectionInformation(implicit configuration: DomainConfiguration) = AggregatingOrganizationCollectionLookup.findAll.flatMap { collection =>
+  private def getAllOrganiztationCollectionInformation(implicit configuration: DomainConfiguration) = organizationCollectionLookupService.findAll.flatMap { collection =>
     if(collection.isInstanceOf[OrganizationCollectionInformation]) {
       Some(collection.asInstanceOf[OrganizationCollectionInformation])
     } else {
