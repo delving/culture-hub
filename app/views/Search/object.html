@@ -9,8 +9,10 @@
     *{ Set dynamic values to use in object.js }*
     // i18n messages
     jsLabels.relatedItems = "${messages.get('thing.relatedItems')}";
-    jsLabels.provider =  "${messages.get('thing.provider')}"
-    jsLabels.creator =  "${messages.get('thing.creator')}"
+    jsLabels.provider =  "${messages.get('thing.provider')}";
+    jsLabels.creator =  "${messages.get('thing.creator')}";
+    jsLabels.objTitle = "${systemFields.apply("delving_title").get(0)}";
+
     // thing object
     var Thing = new Object();
     Thing.orgId = "${orgId}";
@@ -50,7 +52,7 @@
     #{/if}&#160;
     </div>
     <div class="rights span4">
-        #{rightsIcon rights: rights/}
+        #{if rights}#{rightsIcon rights: rights/}#{/if}
     </div>
     <div class="social-media span4">
     #{if themeInfo.addThisTrackingCode().length() > 0}
@@ -59,18 +61,10 @@
         </div>
     #{/if}
     </div>
-
 </div>
 
 <div class="object-main">
-    <div class="row">
-        <div class="span8">
-            <h3 class="object-title">${systemFields.apply("delving_title").get(0)}</h3>
-            #{view view: fullView /}
-            *{<div class="related-items"></div>}*
-        </div>
-        <div class="span4">
-            <div class="related-items"></div>
-        </div>
+    <div class="object-data">
+        #{view view: fullView /}
     </div>
 </div>

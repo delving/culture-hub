@@ -17,6 +17,7 @@ import play.api.mvc.Results._
 object Global extends GlobalSettings {
 
   override def onStart(app: Application) {
+
     if (!Play.isTest) {
       println("""
                 ____       __      _
@@ -40,23 +41,26 @@ object Global extends GlobalSettings {
     }
 
     // ~~~ bootstrap jobs
+    if (!Play.isTest) {
 
-    // token expiration
-    Akka.system.actorOf(Props[TokenExpiration])
+      // token expiration
+      Akka.system.actorOf(Props[TokenExpiration])
 
-    // DoS
-    Akka.system.actorOf(Props[TaskQueueActor])
+      // DoS
+      Akka.system.actorOf(Props[TaskQueueActor])
 
-    // SOLR
-    Akka.system.actorOf(Props[SolrCache])
+      // SOLR
+      Akka.system.actorOf(Props[SolrCache])
 
-    // routes access logger
-    Akka.system.actorOf(Props[RouteLogger], name = "routeLogger")
+      // routes access logger
+      Akka.system.actorOf(Props[RouteLogger], name = "routeLogger")
+
+    }
 
     // ~~~ load test data
 
-    if (Play.isDev || Play.isTest) {
-      util.TestDataLoader.load()
+    if (Play.isDev) {
+      util.TestDataLoader.load(Map("samples" -> Seq("sample1", "sample2")))
     }
 
   }

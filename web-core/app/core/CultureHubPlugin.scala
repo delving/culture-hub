@@ -52,7 +52,7 @@ abstract class CultureHubPlugin(app: Application) extends play.api.Plugin {
   /**
    * Executed when test data is loaded (for development and testing)
    */
-  def onLoadTestData() {}
+  def onLoadTestData(parameters: Map[String, Seq[String]]) {}
 
   /**
    * Override this to add menu entries to the main menu
