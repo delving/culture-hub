@@ -5754,7 +5754,7 @@ hr.editorRule {
 .object-main {
   margin-top: 21px;
 }
-.object-main .object-title {
+.object-main #object-title-big {
   background: #222222;
   color: #ffffff;
   font-size: 100%;
