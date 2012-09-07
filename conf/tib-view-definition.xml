@@ -7,7 +7,7 @@
                 <container type="placeholder" id="object-title-big"></container>
                 <container id="object-media">
                     <container ifNot="/tib:record/delving:deepZoomUrl" id="image-viewer">
-                        <container ifNot="/tib:record/delving:thumbnail">
+                        <container ifNot="/tib:record/delving:imageUrl">
                             <container ifNot="tib:record/europeana:isShownBy">
                                 <image path="/tib:record/europeana:object"/>
                             </container>
@@ -15,8 +15,8 @@
                                 <image path="/tib:record/europeana:isShownBy"/>
                             </container>
                         </container>
-                        <container if="/tib:record/delving:thumbnail">
-                            <image path="/tib:record/delving:thumbnail"/>
+                        <container if="/tib:record/delving:imageUrl">
+                            <image path="/tib:record/delving:imageUrl"/>
                         </container>
                     </container>
                     <container id="zoom-viewer" if="/tib:record/delving:deepZoomUrl">
@@ -38,6 +38,7 @@
                     <enumeration label="metadata.dc.date" separator=", " path="/tib:record/dc:date,/tib:record/dcterms:created,/tib:record/dcterms:temporal,/tib:record/dcterms:issued"/>
                     <field path="/tib:record/dc:type" label="metadata.dc.type"/>
                     <enumeration label="metadata.dc.format" separator="lf" path="/tib:record/dc:format,/tib:record/dcterms:extent"/>
+                    <link path="/tib:record/delving:fullTextObjectUrl" textExpr="/tib:record/delving:fullTextObjectUrl" urlExpr="/tib:record/delving:fullTextObjectUrl" label="metadata.tib.fullTextObjectUrl"/>
                 </container>
            </column>
            <column proportion="1of3">
