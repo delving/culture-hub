@@ -2,7 +2,7 @@ package services
 
 import core.{HarvestCollectionLookupService, OrganizationCollectionLookupService}
 import core.collection.{OrganizationCollection, Harvestable}
-import models.{RecordDefinition, DataSetState, DataSet}
+import models.{DomainConfiguration, RecordDefinition, DataSetState, DataSet}
 
 /**
  *

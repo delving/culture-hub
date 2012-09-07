@@ -1,5 +1,6 @@
 package core
 
+import core.collection.Harvestable
 import models.{DomainConfiguration, RecordDefinition}
 
 /**
