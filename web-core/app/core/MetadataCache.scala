@@ -21,6 +21,8 @@ trait MetadataCache {
 
   def findOne(itemId: String): Option[MetadataItem]
 
+  def findMany(itemIds: Seq[String]): Seq[MetadataItem]
+
   def count(): Long
 
   def remove(itemId: String)
