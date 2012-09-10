@@ -141,22 +141,6 @@ trait ApplicationController extends Controller with GroovyTemplates with DomainC
       )(Token.apply)(Token.unapply)
     )
 
-
-  // ~~~ Access control
-
-  def getUserGrantTypes(orgId: String)(implicit request: RequestHeader, configuration: DomainConfiguration): Seq[Role] = request.session.get(Constants.USERNAME).map {
-    userName =>
-      val isAdmin = HubServices.organizationService(configuration).isAdmin(orgId, userName)
-      val groups: Seq[Role] = Group.dao.findDirectMemberships(userName).map(_.roleKey).toSeq.distinct.map(Role.get(_))
-      // TODO make this cleaner
-      if(isAdmin) {
-        groups ++ Seq(Role.get("own"))
-      } else {
-        groups
-      }
-  }.getOrElse(Seq.empty)
-
-
 }
 
 
@@ -178,7 +162,7 @@ case class RichBody[A <: AnyContent](body: A) {
  */
 trait OrganizationController extends DelvingController with Secured {
 
-  def isAdmin(orgId: String)(implicit request: RequestHeader): Boolean = HubServices.organizationService(configuration).isAdmin(orgId, connectedUser)
+  def isAdmin(orgId: String)(implicit request: RequestHeader): Boolean = organizationServiceLocator.byDomain.isAdmin(orgId, connectedUser)
 
   def OrgOwnerAction[A](orgId: String)(action: Action[A]): Action[A] = {
     OrgMemberAction(orgId) {
@@ -215,6 +199,8 @@ trait OrganizationController extends DelvingController with Secured {
 }
 
 trait DelvingController extends ApplicationController with CoreImplicits {
+
+  val organizationServiceLocator = HubModule.inject[DomainServiceLocator[OrganizationService]](name = None)
 
   def userName(implicit request: RequestHeader) = request.session.get(Constants.USERNAME).getOrElse(null)
 
@@ -330,8 +316,8 @@ trait DelvingController extends ApplicationController with CoreImplicits {
     Root {
       Action(action.parser) {
         implicit request =>
-          val orgName = HubServices.organizationService(configuration).getName(orgId, "en")
-          val isAdmin = HubServices.organizationService(configuration).isAdmin(orgId, userName)
+          val orgName = organizationServiceLocator.byDomain.getName(orgId, "en")
+          val isAdmin = organizationServiceLocator.byDomain.isAdmin(orgId, userName)
           renderArgs += ("orgId" -> orgId)
           renderArgs += ("browsedOrgName" -> orgName)
           renderArgs += ("currentLanguage" -> getLang)
@@ -377,5 +363,18 @@ trait DelvingController extends ApplicationController with CoreImplicits {
 
   def listPageTitle(itemName: String)(implicit request: RequestHeader) = if (browsingUser) Messages("listPageTitle.%s.user".format(itemName), browsedFullName) else Messages("listPageTitle.%s.all".format(itemName))
 
+  // ~~~ Access control
+
+  def getUserGrantTypes(orgId: String)(implicit request: RequestHeader, configuration: DomainConfiguration): Seq[Role] = request.session.get(Constants.USERNAME).map {
+    userName =>
+      val isAdmin = organizationServiceLocator.byDomain.isAdmin(orgId, userName)
+      val groups: Seq[Role] = Group.dao.findDirectMemberships(userName).map(_.roleKey).toSeq.distinct.map(Role.get(_))
+      // TODO make this cleaner
+      if(isAdmin) {
+        groups ++ Seq(Role.get("own"))
+      } else {
+        groups
+      }
+  }.getOrElse(Seq.empty)
 
 }

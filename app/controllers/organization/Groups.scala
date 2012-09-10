@@ -6,23 +6,24 @@ import com.mongodb.casbah.Imports._
 import models._
 import models.HubMongoContext._
 import play.api.i18n.Messages
-import controllers.{OrganizationController, ViewModel}
+import controllers.{BoundController, OrganizationController, ViewModel, Token}
 import play.api.mvc.{Results, AnyContent, RequestHeader, Action}
 import play.api.data.Forms._
 import extensions.Formatters._
 import play.api.data.Form
-import core.{CultureHubPlugin, HubServices}
+import core.{HubModule, CultureHubPlugin, HubServices}
 import core.access.Resource
 import collection.JavaConverters._
 import play.api.Logger
-import controllers.Token
 import scala.Some
 
 /**
  *
  * @author Gerald de Jong <gerald@delving.eu>
  */
-object Groups extends OrganizationController {
+object Groups extends BoundController(HubModule) with Groups
+
+trait Groups extends OrganizationController { this: BoundController =>
 
   def list(orgId: String) = OrgMemberAction(orgId) {
     Action {
@@ -215,10 +216,11 @@ object Groups extends OrganizationController {
   }
 
   private def canUpdateGroup(orgId: String, groupId: ObjectId)(implicit request: RequestHeader): Boolean = {
-    groupId != null && HubServices.organizationService(configuration).isAdmin(orgId, userName)
+    groupId != null && organizationServiceLocator.byDomain.isAdmin(orgId, userName)
   }
 
-  private def canCreateGroup(orgId: String)(implicit request: RequestHeader): Boolean = HubServices.organizationService(configuration).isAdmin(orgId, userName)
+  private def canCreateGroup(orgId: String)(implicit request: RequestHeader): Boolean =
+    organizationServiceLocator.byDomain.isAdmin(orgId, userName)
 }
 
 case class GroupViewModel(id: Option[ObjectId] = None,

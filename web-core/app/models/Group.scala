@@ -6,8 +6,9 @@ import com.novus.salat.dao.SalatDAO
 import HubMongoContext._
 import com.mongodb.casbah.Imports._
 import com.mongodb.casbah.WriteConcern
-import core.HubServices
+import core.{OrganizationService, DomainServiceLocator, HubModule}
 import play.api.i18n.Lang
+import org.scala_tools.subcut.inject.{Injectable, BindingModule}
 
 case class Group(_id: ObjectId = new ObjectId,
                  name: String,
@@ -26,15 +27,20 @@ object Group extends MultiModel[Group, GroupDAO] {
 
   def initIndexes(collection: MongoCollection) { }
 
-  def initDAO(collection: MongoCollection, connection: MongoDB)(implicit configuration: DomainConfiguration): GroupDAO = new GroupDAO(collection)
+  def initDAO(collection: MongoCollection, connection: MongoDB)(implicit configuration: DomainConfiguration): GroupDAO =
+    new GroupDAO(collection)(configuration, HubModule)
 
 }
 
-class GroupDAO(collection: MongoCollection)(implicit configuration: DomainConfiguration) extends SalatDAO[Group, ObjectId](collection) {
+class GroupDAO(collection: MongoCollection)(implicit configuration: DomainConfiguration, val bindingModule: BindingModule)
+  extends SalatDAO[Group, ObjectId](collection) with Injectable {
+
+  val organizationServiceLocator = inject [ DomainServiceLocator[OrganizationService] ]
+
 
   /** lists all groups a user has access to for a given organization **/
   def list(userName: String, orgId: String) = {
-    if(HubServices.organizationService(DomainConfigurationHandler.getByOrgId(orgId)).isAdmin(orgId, userName)) {
+    if(organizationServiceLocator.byDomain.isAdmin(orgId, userName)) {
       find(MongoDBObject("orgId" -> orgId))
     } else {
       find(MongoDBObject("users" -> userName, "orgId" -> orgId))
@@ -68,7 +74,7 @@ class GroupDAO(collection: MongoCollection)(implicit configuration: DomainConfig
 
   def hasRole(userName: String, roleKey: String): Boolean = {
     findDirectMemberships(userName).toSeq.exists(_.roleKey == roleKey) ||
-      roleKey == Role.OWN.key && HubServices.organizationService(configuration).isAdmin(configuration.orgId, userName)
+      roleKey == Role.OWN.key && organizationServiceLocator.byDomain.isAdmin(configuration.orgId, userName)
   }
 
   def addUser(orgId: String, userName: String, groupId: ObjectId): Boolean = {

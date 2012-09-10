@@ -9,26 +9,38 @@ import play.api.Play.current
 import storage.BaseXStorage
 
 /**
- * Global Services used by the Hub, initialized at startup time (see Global)
+ * Global Services used by the Hub, initialized at startup time (see ConfigurationPlugin)
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
 object HubServices {
 
-  // ~~~ service references
+  // ~~~ service locators
 
-  val authenticationService = new HashMap[DomainConfiguration, AuthenticationService]
-  val registrationService = new HashMap[DomainConfiguration, RegistrationService]
-  val userProfileService = new HashMap[DomainConfiguration, UserProfileService]
-  val organizationService = new HashMap[DomainConfiguration, OrganizationService]
-  val directoryService = new HashMap[DomainConfiguration, DirectoryService]
+  lazy val authenticationServiceLocator = new DomainServiceLocator[AuthenticationService] {
+    def byDomain(implicit configuration: DomainConfiguration): AuthenticationService = baseServices(configuration)
+  }
+  lazy val registrationServiceLocator = new DomainServiceLocator[RegistrationService] {
+    def byDomain(implicit configuration: DomainConfiguration): RegistrationService = baseServices(configuration)
+  }
+  lazy val userProfileServiceLocator = new DomainServiceLocator[UserProfileService] {
+    def byDomain(implicit configuration: DomainConfiguration): UserProfileService = baseServices(configuration)
+  }
+  lazy val organizationServiceLocator = new DomainServiceLocator[OrganizationService] {
+    def byDomain(implicit configuration: DomainConfiguration): OrganizationService = baseServices(configuration)
+  }
+  lazy val directoryServiceLocator = new DomainServiceLocator[DirectoryService] {
+    def byDomain(implicit configuration: DomainConfiguration): DirectoryService = baseServices(configuration)
+  }
 
   val basexStorage =  new HashMap[DomainConfiguration, BaseXStorage]
 
+  var baseServices: Map[DomainConfiguration, AuthenticationService with RegistrationService with UserProfileService with OrganizationService with DirectoryService] = Map.empty
+
   def init() {
 
-    DomainConfigurationHandler.domainConfigurations.foreach { configuration =>
+    baseServices = DomainConfigurationHandler.domainConfigurations.map { configuration =>
 
       val services = configuration.commonsService.commonsHost match {
 
@@ -73,11 +85,16 @@ object HubServices {
         }
 
 
-        case _ => throw new RuntimeException("The remote services are not configured. You need to specify 'cultureCommons.host' and 'cultureCommons.apiToken")
+        case _ => throw new RuntimeException("The remote services are not configured. You need to specify 'services.commons.host' and 'services.commons.apiToken")
       }
 
-      Seq(authenticationService, registrationService, userProfileService, organizationService, directoryService).foreach(_ += (configuration -> services))
       basexStorage += (configuration -> new BaseXStorage(configuration.baseXConfiguration))
-    }
+
+      (configuration -> services)
+
+    }.toMap
+
   }
+
+
 }

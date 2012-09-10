@@ -22,7 +22,7 @@ import models.HubMongoContext._
 import com.mongodb.casbah.Imports._
 import com.novus.salat.dao._
 import exceptions.MetaRepoSystemException
-import core.HubServices
+import core.{OrganizationService, DomainServiceLocator, HubModule, HubServices}
 import eu.delving.metadata.RecMapping
 import core.Constants._
 import models.statistics.DataSetStatistics
@@ -34,6 +34,7 @@ import util.DomainConfigurationHandler
 import eu.delving.schema.SchemaVersion
 import java.io.StringReader
 import core.mapping.MappingService
+import org.scala_tools.subcut.inject.{BindingModule, Injectable}
 
 /**
  * DataSet model
@@ -78,6 +79,7 @@ case class DataSet(
   formatAccessControl: Map[String, FormatAccessControl], // access control for each format of this DataSet (for OAI-PMH)
 
   // indexing
+
   // the mapping(s) used at indexing time (for the moment, use only one)
   idxMappings: List[String] = List.empty[String],
 
@@ -94,6 +96,7 @@ case class DataSet(
   with Resource {
 
   implicit val configuration = DomainConfigurationHandler.getByOrgId(orgId)
+  val organizationServiceLocator = HubModule.inject[DomainServiceLocator[OrganizationService]](name = None)
 
   // ~~~ accessors
 
@@ -148,10 +151,9 @@ case class DataSet(
     orgId, DataSetPlugin.ROLE_DATASET_EDITOR.key, this
   )
 
-  val administrators: Seq[String] = (Group.dao(configuration).findResourceAdministrators(
-    orgId, DataSet.RESOURCE_TYPE
-  ) ++
-    HubServices.organizationService(configuration).listAdmins(orgId)).distinct
+  val administrators: Seq[String] = (Group.dao(configuration).findResourceAdministrators(orgId, DataSet.RESOURCE_TYPE)
+      ++ organizationServiceLocator.byDomain.listAdmins(orgId)
+    ).distinct
 
   // ~~~ harvesting
 
@@ -205,15 +207,16 @@ object DataSet extends MultiModel[DataSet, DataSetDAO] {
   protected def initIndexes(collection: MongoCollection) {}
 
   protected def initDAO(collection: MongoCollection, connection: MongoDB)
-    (implicit configuration: DomainConfiguration): DataSetDAO = new DataSetDAO(collection)
+                       (implicit configuration: DomainConfiguration): DataSetDAO = new DataSetDAO(collection)(configuration, HubModule)
 
   val RESOURCE_TYPE = ResourceType("dataSet")
 
 }
 
-class DataSetDAO(collection: MongoCollection)
-  (implicit val configuration: DomainConfiguration) extends SalatDAO[DataSet, ObjectId](collection)
-with Pager[DataSet] {
+class DataSetDAO(collection: MongoCollection)(implicit val configuration: DomainConfiguration, val bindingModule: BindingModule)
+  extends SalatDAO[DataSet, ObjectId](collection) with Pager[DataSet] with Injectable {
+
+  val organizationServiceLocator = inject [ DomainServiceLocator[OrganizationService] ]
 
   def getState(orgId: String, spec: String): DataSetState = {
 
@@ -254,22 +257,22 @@ with Pager[DataSet] {
 
   // TODO generify, move to Group
   def findAllForUser(userName: String, orgId: String, role: Role)
-    (implicit configuration: DomainConfiguration): Seq[DataSet] = {
+                    (implicit configuration: DomainConfiguration): Seq[DataSet] = {
 
     val userGroups: Seq[Group] = Group.dao.find(MongoDBObject("users" -> userName)).toSeq
     val userRoles: Seq[Role] = userGroups.map(group => Role.get(group.roleKey))
 
-    val isResourceAdmin = userRoles.exists(
-      userRole => role.resourceType.isDefined && role.resourceType == userRole.resourceType && userRole
-                                                                                               .isResourceAdmin)
-    val isAdmin = HubServices.organizationService(configuration).isAdmin(orgId, userName)
+    val isResourceAdmin = userRoles.exists { userRole =>
+      role.resourceType.isDefined && role.resourceType == userRole.resourceType && userRole.isResourceAdmin
+    }
+    val isAdmin = organizationServiceLocator.byDomain.isAdmin(orgId, userName)
 
     val groupDataSets: Seq[DataSet] = userGroups.filter(
       group => group.roleKey == role.key
-    ).flatMap(g => g.resources).filter(
-      resource => resource.getResourceType == DataSet.RESOURCE_TYPE
-    ).flatMap(
-      dataSetResources => findBySpecAndOrgId(dataSetResources.getResourceKey, orgId)
+    ).flatMap(g => g.resources).filter(resource =>
+      resource.getResourceType == DataSet.RESOURCE_TYPE
+    ).flatMap(dataSetResources =>
+      findBySpecAndOrgId(dataSetResources.getResourceKey, orgId)
     ).toSeq
 
     val adminDataSets: Seq[DataSet] = if (isResourceAdmin || isAdmin) findAllByOrgId(orgId).toSeq else Seq.empty
@@ -281,7 +284,7 @@ with Pager[DataSet] {
   // FIXME TODO use view rights. no rights are used at all here...
   def findAllCanSee(orgId: String, userName: String)(implicit configuration: DomainConfiguration): List[DataSet] = {
 
-    if (HubServices.organizationService(configuration).isAdmin(orgId, userName)) {
+    if (organizationServiceLocator.byDomain.isAdmin(orgId, userName)) {
       findAllByOrgId(orgId).toList
     }
     else {
@@ -303,7 +306,7 @@ with Pager[DataSet] {
 
   def canAdministrate(userName: String)(implicit configuration: DomainConfiguration) = {
     Group.dao.findResourceAdministrators(configuration.orgId, DataSet.RESOURCE_TYPE).contains(userName) ||
-      HubServices.organizationService(configuration).isAdmin(configuration.orgId, userName)
+      organizationServiceLocator.byDomain.isAdmin(configuration.orgId, userName)
   }
 
   // workaround for salat not working as it should
@@ -479,9 +482,7 @@ with Pager[DataSet] {
 
 }
 
-case class FactDefinition(
-  name: String, prompt: String, tooltip: String, automatic: Boolean = false, options: Seq[String]
-  ) {
+case class FactDefinition(name: String, prompt: String, tooltip: String, automatic: Boolean = false, options: Seq[String]) {
   def hasOptions = !options.isEmpty
 
   val opts = options.map(opt => (opt, opt))

@@ -32,14 +32,19 @@ import play.api.i18n.Messages
 import validation.{ValidationError, Valid, Invalid, Constraint}
 import play.libs.Time
 import play.libs.Images.Captcha
-import core.{ThemeInfo, HubServices}
+import core.{RegistrationService, DomainServiceLocator, HubModule, ThemeInfo, OrganizationService}
 
 /**
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-object Registration extends ApplicationController {
+object Registration extends BoundController(HubModule) with Registration
+
+trait Registration extends ApplicationController { this: BoundController =>
+
+  val registrationServiceLocator = inject [ DomainServiceLocator[RegistrationService] ]
+  val organizationServiceLocator = inject [ DomainServiceLocator[OrganizationService] ]
 
     case class RegistrationInfo(
         firstName: String,
@@ -63,17 +68,17 @@ object Registration extends ApplicationController {
     }
 
     def emailTaken(implicit configuration: DomainConfiguration) = Constraint[RegistrationInfo]("registration.duplicateEmail") {
-        case r if !HubServices.registrationService(configuration).isEmailTaken(r.email) => Valid
+        case r if !registrationServiceLocator.byDomain.isEmailTaken(r.email) => Valid
         case _ => Invalid(ValidationError(Messages("registration.duplicateEmail")))
     }
 
     def userNameTaken(implicit configuration: DomainConfiguration) = Constraint[RegistrationInfo]("registration.duplicateDisplayName") {
-        case r if !HubServices.registrationService(configuration).isUserNameTaken(r.userName) => Valid
+        case r if !registrationServiceLocator.byDomain.isUserNameTaken(r.userName) => Valid
         case _ => Invalid(ValidationError(Messages("registration.duplicateDisplayName")))
     }
 
     def orgIdTaken(implicit configuration: DomainConfiguration) = Constraint[RegistrationInfo]("registration.duplicateDisplayName") {
-        case r if !HubServices.organizationService(configuration).exists(r.userName) => Valid
+        case r if organizationServiceLocator.byDomain.exists(r.userName) => Valid
         case _ => Invalid(ValidationError(Messages("registration.duplicateDisplayName")))
     }
 
@@ -121,7 +126,7 @@ object Registration extends ApplicationController {
                         val r = registration
                         Cache.set(r.randomId, null)
 
-                        val activationToken = HubServices.registrationService(configuration).registerUser(
+                        val activationToken = registrationServiceLocator.byDomain.registerUser(
                             r.userName,
                             configuration.commonsService.nodeName,
                             r.firstName,
@@ -181,7 +186,7 @@ object Registration extends ApplicationController {
                     indexAction.flashing(("activation", "false"))
                 }
                 else {
-                    val activated = HubServices.registrationService(configuration).activateUser(activationToken)
+                    val activated = registrationServiceLocator.byDomain.activateUser(activationToken)
                     if (activated.isDefined) {
                         try {
                             Mails.newUser(
@@ -213,14 +218,14 @@ object Registration extends ApplicationController {
     def accountNotFound(
         implicit configuration: DomainConfiguration
         ) = Constraint[String]("registration.accountNotFoundWithEmail") {
-        case r if HubServices.registrationService(configuration).isEmailTaken(r) => Valid
+        case r if registrationServiceLocator.byDomain.isEmailTaken(r) => Valid
         case _ => Invalid(ValidationError(Messages("registration.accountNotFoundWithEmail")))
     }
 
     def accountNotActive(
         implicit configuration: DomainConfiguration
         ) = Constraint[String]("registration.accountNotActive") {
-        case r if HubServices.registrationService(configuration).isAccountActive(r) => Valid
+        case r if registrationServiceLocator.byDomain.isAccountActive(r) => Valid
         case _ => Invalid(ValidationError(Messages("registration.accountNotActive")))
     }
 
@@ -238,7 +243,7 @@ object Registration extends ApplicationController {
                 resetPasswordForm.bindFromRequest().fold(
                     formWithErrors => BadRequest(Template("Registration/lostPassword.html", 'resetPasswordForm -> formWithErrors)),
                     resetPassword => {
-                        HubServices.registrationService(configuration).preparePasswordReset(resetPassword.email) match {
+                      registrationServiceLocator.byDomain.preparePasswordReset(resetPassword.email) match {
                             case Some(resetPasswordToken) =>
                                 Mails.resetPassword(
                                     resetPassword.email,
@@ -297,7 +302,7 @@ object Registration extends ApplicationController {
                     newPasswordForm.bindFromRequest().fold(
                         formWithErrors => BadRequest(Template("Registration/resetPassword.html", 'newPasswordForm -> formWithErrors)),
                         newPassword => {
-                            val passwordChanged = HubServices.registrationService(configuration).resetPassword(
+                            val passwordChanged = registrationServiceLocator.byDomain.resetPassword(
                                 resetPasswordToken,
                                 newPassword.password1
                             )

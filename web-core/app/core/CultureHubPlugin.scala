@@ -129,6 +129,13 @@ abstract class CultureHubPlugin(app: Application) extends play.api.Plugin {
     services.filter(s => serviceClass.isAssignableFrom(s.getClass)).map(_.asInstanceOf[T])
   }
 
+  /**
+   * Gets a single service of a certain type, for services that should be provided only once accross the platform
+   */
+  def getSingleService[T <: Any](serviceClass: Class[T]): Option[T] = {
+    services.find(s => serviceClass.isAssignableFrom(s.getClass)).map(_.asInstanceOf[T])
+  }
+
   // ~~~ Play Plugin lifecycle integration
 
   /** finds out whether this plugin is enabled at all, for the whole hub **/
