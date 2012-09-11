@@ -7,12 +7,12 @@ import play.api.data.Forms._
 import play.api.data.format.Formats._
 import play.api.data.validation.Constraints._
 import extensions.Formatters._
-import controllers.{ViewModel, OrganizationController}
+import controllers.{BoundController, ViewModel, OrganizationController}
 import extensions.{MissingLibs, JJson}
 import models._
 import cms.{MenuEntry, CMSPage}
 import com.mongodb.casbah.Imports._
-import core.HubServices
+import core.HubModule
 import plugins.CMSPlugin
 
 
@@ -21,7 +21,9 @@ import plugins.CMSPlugin
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-object CMS extends OrganizationController {
+object CMS extends BoundController(HubModule) with CMS
+
+trait CMS extends OrganizationController { this: BoundController =>
 
   val MAIN_MENU = "mainMenu"
   val NO_MENU = "none"
@@ -30,7 +32,7 @@ object CMS extends OrganizationController {
     OrgMemberAction(orgId) {
       Action(action.parser) {
         implicit request => {
-          if (HubServices.organizationService(configuration).isAdmin(orgId, connectedUser) || Group.dao.count(MongoDBObject("users" -> connectedUser, "grantType" -> CMSPlugin.ROLE_CMS_ADMIN.key)) > 0) {
+          if (organizationServiceLocator.byDomain.isAdmin(orgId, connectedUser) || Group.dao.count(MongoDBObject("users" -> connectedUser, "grantType" -> CMSPlugin.ROLE_CMS_ADMIN.key)) > 0) {
             action(request)
           } else {
             Forbidden(Messages("user.secured.noAccess"))

@@ -9,7 +9,7 @@ import play.api.libs.iteratee.Enumerator
 import play.libs.Akka
 import akka.actor.Actor
 import play.api.Logger
-import core.HubServices
+import core._
 import scala.{Either, Option}
 import util.SimpleDataSetParser
 import akka.util.Duration
@@ -27,6 +27,9 @@ import org.apache.commons.lang.StringEscapeUtils
 import scala.util.matching.Regex.Match
 import java.util.regex.Matcher
 import plugins.DataSetPlugin
+import models.statistics.DataSetStatisticsContext
+import models.statistics.FieldFrequencies
+import models.statistics.FieldValues
 
 /**
  * This Controller is responsible for all the interaction with the SIP-Creator.
@@ -35,7 +38,14 @@ import plugins.DataSetPlugin
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-object SipCreatorEndPoint extends ApplicationController {
+object SipCreatorEndPoint extends BoundController(HubModule) with SipCreatorEndPoint
+
+trait SipCreatorEndPoint extends Controller with DomainConfigurationAware with Logging {
+  this: BoundController with Controller with DomainConfigurationAware with Logging =>
+
+  protected val log = Logger("CultureHub")
+
+  val organizationServiceLocator = HubModule.inject[DomainServiceLocator[OrganizationService]](name = None)
 
   val DOT_PLACEHOLDER = "--"
 
@@ -71,7 +81,7 @@ object SipCreatorEndPoint extends ApplicationController {
           BadRequest("No orgId provided")
         }
         else {
-          if (!HubServices.organizationService(configuration).exists(orgId)) {
+          if (!organizationServiceLocator.byDomain.exists(orgId)) {
             NotFound("Unknown organization " + orgId)
           }
           else {

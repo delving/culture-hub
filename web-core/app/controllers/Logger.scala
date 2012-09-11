@@ -19,7 +19,7 @@ package controllers
 import java.io.{PrintWriter, StringWriter}
 import play.api.Logger
 import play.api.Play.current
-import play.api.mvc.{RequestHeader, Results, Result}
+import play.api.mvc.{Controller, RequestHeader, Results, Result}
 import models.DomainConfiguration
 import extensions.Email
 import core.ThemeInfo
@@ -31,7 +31,7 @@ import util.Quotes
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-trait Logging extends Secured { self: ApplicationController =>
+trait Logging extends Secured { self: Controller with DomainConfigurationAware =>
 
   import ErrorReporter._
 

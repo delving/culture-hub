@@ -11,14 +11,18 @@ import org.apache.amber.oauth2.as.response.OAuthASResponse
 import org.apache.amber.oauth2.common.message.OAuthResponse.OAuthErrorResponseBuilder
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import play.api.mvc._
-import core.HubServices
+import core.{AuthenticationService, DomainServiceLocator, HubModule}
 
 /**
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-object OAuth2Authenticator extends Controller with DomainConfigurationAware {
+object OAuth2Authenticator extends BoundController(HubModule) with OAuth2Authenticator
+
+trait OAuth2Authenticator extends Controller with DomainConfigurationAware { this: BoundController with Controller with DomainConfigurationAware =>
+
+  val authenticationServiceLocator = inject [ DomainServiceLocator[AuthenticationService] ]
 
   def authenticate = DomainConfigured {
     Action {
@@ -26,7 +30,7 @@ object OAuth2Authenticator extends Controller with DomainConfigurationAware {
 
         val oauthRequest = new PlayOAuthAuthzRequest(request)
         val responseType = oauthRequest.getParam(OAuth.OAUTH_RESPONSE_TYPE)
-        val authenticated: Boolean = HubServices.authenticationService(configuration).connect(oauthRequest.getClientId, oauthRequest.getClientSecret)
+        val authenticated: Boolean = authenticationServiceLocator.byDomain.connect(oauthRequest.getClientId, oauthRequest.getClientSecret)
 
         if(authenticated) {
           val oauthIssuerImpl = new OAuthIssuerImpl(new MD5Generator)
