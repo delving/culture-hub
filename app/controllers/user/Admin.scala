@@ -10,14 +10,19 @@ import play.api.data.format.Formats._
 import extensions.Formatters._
 import play.api.i18n._
 import extensions.JJson
-import core.HubServices
+import core.{UserProfileService, DomainServiceLocator, HubModule}
 
 /**
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-object Admin extends DelvingController {
+object Admin extends BoundController(HubModule) with Admin
+
+trait Admin extends DelvingController { this: BoundController =>
+
+  val userProfileServiceLocator = inject [ DomainServiceLocator[UserProfileService] ]
+
 
   def profile(user: String) = SecuredUserAction(user) {
     Action {
@@ -48,7 +53,7 @@ object Admin extends DelvingController {
             )))
 
             // update remote
-            val updated = HubServices.userProfileService(configuration).updateUserProfile(connectedUser, core.UserProfile(
+            val updated = userProfileServiceLocator.byDomain.updateUserProfile(connectedUser, core.UserProfile(
               isPublic = profileModel.isPublic,
               firstName = profileModel.firstName,
               lastName = profileModel.lastName,

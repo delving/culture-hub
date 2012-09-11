@@ -1,8 +1,8 @@
 package controllers.api
 
-import controllers.{DomainConfigurationAware, RenderingExtensions}
+import controllers.{RenderingExtensions, DomainConfigurationAware, BoundController}
 import play.api.mvc.{Controller, Action}
-import core.{OrganizationCollectionLookupService, HubModule, HubServices}
+import core._
 import play.api.i18n.Messages
 import models.DomainConfiguration
 import core.collection.OrganizationCollectionInformation
@@ -13,14 +13,19 @@ import core.collection.OrganizationCollectionInformation
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-object Organization extends Controller with DomainConfigurationAware with RenderingExtensions {
+object Organization extends BoundController(HubModule) with Organization
+
+trait Organization extends Controller with DomainConfigurationAware with RenderingExtensions {
+  this: BoundController with Controller with DomainConfigurationAware with RenderingExtensions =>
   
-  val organizationCollectionLookupService = HubModule.inject[OrganizationCollectionLookupService](name = None)
+  val organizationCollectionLookupService = inject [OrganizationCollectionLookupService]
+  val organizationServiceLocator = inject [ DomainServiceLocator[OrganizationService] ]
+
 
   def providers(orgId: String) = DomainConfigured {
     Action {
       implicit request =>
-        if (HubServices.organizationService(configuration).exists(orgId)) {
+        if (organizationServiceLocator.byDomain.exists(orgId)) {
 
           val providers = getAllOrganiztationCollectionInformation.map(_.getProvider)
 
@@ -44,7 +49,7 @@ object Organization extends Controller with DomainConfigurationAware with Render
   def dataProviders(orgId: String) = DomainConfigured {
     Action {
       implicit request =>
-        if (HubServices.organizationService(configuration).exists(orgId)) {
+        if (organizationServiceLocator.byDomain.exists(orgId)) {
 
           val dataProviders = getAllOrganiztationCollectionInformation.map(_.getDataProvider)
 
@@ -68,7 +73,7 @@ object Organization extends Controller with DomainConfigurationAware with Render
   def collections(orgId: String) = DomainConfigured {
     Action {
       implicit request =>
-        if (HubServices.organizationService(configuration).exists(orgId)) {
+        if (organizationServiceLocator.byDomain.exists(orgId)) {
           val collections = organizationCollectionLookupService.findAll
 
           val xmlResponse =

@@ -8,14 +8,20 @@ import play.libs.Time
 import play.api.i18n.Messages
 import extensions.MissingLibs
 import models.{DomainConfiguration, HubUser}
-import core.{Constants, HubServices}
+import core._
+import play.api.mvc.Cookie
 
 /**
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-object Authentication extends ApplicationController {
+object Authentication extends BoundController(HubModule) with Authentication
+
+trait Authentication extends ApplicationController { this: BoundController =>
+
+  val authenticationServiceLocator = inject [ DomainServiceLocator[AuthenticationService] ]
+  val userProfileServiceLocator = inject [ DomainServiceLocator[UserProfileService] ]
 
   val REMEMBER_COOKIE = "rememberme"
   val AT_KEY = "___AT" // authenticity token
@@ -28,7 +34,7 @@ object Authentication extends ApplicationController {
       "password" -> nonEmptyText,
       "remember" -> boolean
     ) verifying(Messages("authentication.error"), result => result match {
-      case (u, p, r) => HubServices.authenticationService(configuration).connect(u, p)
+      case (u, p, r) => authenticationServiceLocator.byDomain.connect(u, p)
     }))
 
   def login = ApplicationAction {
@@ -59,7 +65,7 @@ object Authentication extends ApplicationController {
           // first check if the user exists in this hub
           val u: Option[HubUser] = HubUser.dao.findByUsername(user._1).orElse {
             // create a local user
-            HubServices.userProfileService(configuration).getUserProfile(user._1).map {
+            userProfileServiceLocator.byDomain.getUserProfile(user._1).map {
               p => {
                 val newHubUser = HubUser(userName = user._1,
                                          firstName = p.firstName,

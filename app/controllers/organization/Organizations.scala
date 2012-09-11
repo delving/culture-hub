@@ -4,7 +4,7 @@ import play.api.i18n.Messages
 import controllers._
 import play.api.mvc.Action
 import models.HubUser
-import core.{OrganizationCollectionLookupService, HubModule, HubServices}
+import core.{OrganizationCollectionLookupService, HubModule}
 import core.collection.OrganizationCollection
 
 /**
@@ -15,20 +15,20 @@ import core.collection.OrganizationCollection
 
 object Organizations extends BoundController(HubModule) with Organizations
 
-trait Organizations extends DelvingController { self: BoundController =>
+trait Organizations extends DelvingController { this: BoundController =>
 
   val organizationCollectionLookupService = inject[OrganizationCollectionLookupService]
 
   def index(orgId: String, language: Option[String]) = OrgBrowsingAction(orgId) {
     Action {
       implicit request =>
-        if (HubServices.organizationService(configuration).exists(orgId)) {
+        if (organizationServiceLocator.byDomain.exists(orgId)) {
           val members: List[HubUser] = HubUser.dao.listOrganizationMembers(orgId).flatMap(HubUser.dao.findByUsername(_))
           val collections: Seq[OrganizationCollection] = organizationCollectionLookupService.findAll
           val lang = language.getOrElse(getLang)
           Ok(Template(
             'orgId -> orgId,
-            'orgName -> HubServices.organizationService(configuration).getName(orgId, "en").getOrElse(orgId),
+            'orgName -> organizationServiceLocator.byDomain.getName(orgId, "en").getOrElse(orgId),
             'isMember -> HubUser.dao.findByUsername(connectedUser).map(u => u.organizations.contains(orgId)).getOrElse(false),
             'members -> members,
             'collections -> collections,
