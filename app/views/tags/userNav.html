@@ -15,9 +15,9 @@
         </a>
     </li>
     <li class="divider-vertical"></li>
-    #{if _organizations.length() > 0}
+    #{if _organization}
         <li>
-            <a href="/organizations/${_organizations[0]}" rel="nofollow">
+            <a href="/organizations/${_organization}" rel="nofollow">
                 ${messages.get('ui.label.administration')}
              </a>
         </li>

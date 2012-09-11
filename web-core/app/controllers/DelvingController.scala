@@ -240,19 +240,13 @@ trait DelvingController extends ApplicationController with CoreImplicits {
 //          }
 
           // Connected user
-          HubUser.dao.findByUsername(userName).map {
-            u => {
-
-              // TODO this is a sequence because earlier on it was possible to switch to multiple orgs. not so anymore.
-              val org = u.organizations.filter(orgId => orgId == configuration.orgId)
-
-              renderArgs +=("fullName" -> u.fullname)
-              renderArgs +=("userName" -> u.userName)
-              renderArgs +=("userId" -> u._id)
-              //        renderArgs += ("authenticityToken", session.getAuthenticityToken)
-              renderArgs +=("organizations" -> org)
-              renderArgs +=("email" -> u.email)
-            }
+          HubUser.dao.findByUsername(userName).foreach { u =>
+            renderArgs +=("fullName" -> u.fullname)
+            renderArgs +=("userName" -> u.userName)
+            renderArgs +=("userId" -> u._id)
+            //        renderArgs += ("authenticityToken", session.getAuthenticityToken)
+            renderArgs +=("organization" -> u.organizations.headOption.getOrElse(""))
+            renderArgs +=("email" -> u.email)
           }
 
           // Search in
