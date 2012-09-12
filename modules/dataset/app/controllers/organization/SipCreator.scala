@@ -42,9 +42,9 @@ object SipCreator extends OrganizationController {
           <resources>
             <j2se version="1.6+" initial-heap-size="512m" max-heap-size="1024m" java-vm-args="-Dfile.encoding=UTF-8"/>
             <property name="jnlp.versionEnabled" value="false"/>
-            <jar href={"sip-app-" + BuildInfo.sipCreator + ".jar"} main="true"/>
-            <jar href={"sip-core-" + BuildInfo.sipCreator + ".jar"}/>
-            <jar href={"schema-repo-" + BuildInfo.sipCreator + ".jar"}/>
+            <jar href={"sip-app-" + BuildInfo.sipApp + ".jar"} main="true"/>
+            <jar href={"sip-core-" + BuildInfo.sipCore + ".jar"}/>
+            <jar href={"schema-repo-" + BuildInfo.schemaRepo + ".jar"}/>
             <jar href="oauth2-client-0.2-SNAPSHOT.jar"/>
             <jar href="oauth2-common-0.2-SNAPSHOT.jar"/>
             <jar href="jettison-1.2.jar"/>
