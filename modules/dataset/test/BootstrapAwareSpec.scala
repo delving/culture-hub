@@ -6,8 +6,8 @@ import plugins.BootstrapSource
  */
 trait BootstrapAwareSpec extends Specs2TestContext {
 
-  def bootstrap = BootstrapSource.sources.headOption.getOrElse {
-    throw new RuntimeException("Couldn't locate any sets to bootstrap!")
+  def bootstrap = BootstrapSource.sources.find(_.spec == SAMPLE_A).getOrElse {
+    throw new RuntimeException("Couldn't locate the correct sample set   to bootstrap!")
   }
 
   def spec = bootstrap.spec

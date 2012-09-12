@@ -144,8 +144,7 @@ class SipCreatorEndPointSpec extends BootstrapAwareSpec {
 
         val original = readIntFile(intFile)
 
-        val uploaded = DataSet.dao(bootstrap.org).findBySpecAndOrgId(bootstrap.spec, bootstrap.org)
-                       .get.invalidRecords
+        val uploaded = DataSet.dao(bootstrap.org).findBySpecAndOrgId(bootstrap.spec, bootstrap.org).get.invalidRecords
 
         val invalidRecords = readInvalidIndexes(uploaded)
 
@@ -222,8 +221,7 @@ class SipCreatorEndPointSpec extends BootstrapAwareSpec {
 
         val original = readIntFile(intFile)
 
-        val uploaded = DataSet.dao(bootstrap.org).findBySpecAndOrgId(bootstrap.spec, bootstrap.org)
-                       .get.invalidRecords
+        val uploaded = DataSet.dao(bootstrap.org).findBySpecAndOrgId(bootstrap.spec, bootstrap.org).get.invalidRecords
 
         val invalidRecords = readInvalidIndexes(uploaded)
 
