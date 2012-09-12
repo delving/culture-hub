@@ -7,11 +7,13 @@ import eu.delving.templates.Plugin._
 
 object Build extends sbt.Build {
 
-  val sipCreator = SettingKey[String]("sip-creator", "Version of the Sip-Creator")
+  val sipApp     = SettingKey[String]("sip-app", "Version of the SIP-App")
+  val sipCore    = SettingKey[String]("sip-core", "Version of the SIP-Core")
+  val schemaRepo = SettingKey[String]("schema-repo", "Version of the Schema Repository")
 
   val appName = "culture-hub"
   val cultureHubVersion = "12.08-SNAPSHOT"
-  val sipCreatorVersion = "1.0.11-SNAPSHOT"
+  val sipAppVersion = "1.0.10-SNAPSHOT"
   val sipCoreVersion = "1.0.11-SNAPSHOT"
   val schemaRepoVersion = "1.0.11-SNAPSHOT"
   val playExtensionsVersion = "1.3.2"
@@ -86,9 +88,11 @@ object Build extends sbt.Build {
 
   val dataSet = PlayProject("dataset", "1.0-SNAPSHOT", Seq.empty, path = file("modules/dataset"), settings = Defaults.defaultSettings ++ buildInfoSettings).settings(
     resolvers ++= commonResolvers,
-    sipCreator := sipCreatorVersion,
+    sipApp := sipAppVersion,
+    sipCore := sipCoreVersion,
+    schemaRepo := schemaRepoVersion,
     sourceGenerators in Compile <+= buildInfo,
-    buildInfoKeys := Seq[Scoped](name, version, scalaVersion, sbtVersion, sipCreator),
+    buildInfoKeys := Seq[Scoped](name, version, scalaVersion, sbtVersion, sipApp, sipCore, schemaRepo),
     buildInfoPackage := "eu.delving.culturehub",
     publish := { }
   ).dependsOn(webCore % "test->test;compile->compile")
@@ -108,9 +112,11 @@ object Build extends sbt.Build {
 
     sourceGenerators in Compile <+= groovyTemplatesList,
 
-    sipCreator := sipCreatorVersion,
+    sipApp := sipAppVersion,
+    sipCore := sipCoreVersion,
+    schemaRepo := schemaRepoVersion,
     sourceGenerators in Compile <+= buildInfo,
-    buildInfoKeys := Seq[Scoped](name, version, scalaVersion, sbtVersion, sipCreator),
+    buildInfoKeys := Seq[Scoped](name, version, scalaVersion, sbtVersion, sipApp, sipCore, schemaRepo),
     buildInfoPackage := "eu.delving.culturehub",
 
     publishTo := Some(delvingRepository(cultureHubVersion)),

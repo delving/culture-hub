@@ -25,16 +25,18 @@ import play.api.mvc.{AnyContent, Action}
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.data.validation._
-import collection.immutable.List
-import core.{SchemaService, HubModule, HubServices}
+import scala.collection.immutable.List
+import core._
+import scala.collection.JavaConverters._
+import xml.Node
+import eu.delving.schema.SchemaType
+import play.api.data.Forms.mapping
 import play.api.data.validation.ValidationError
 import models.Details
 import models.FormatAccessControl
 import models.Mapping
+import models.FactDefinition
 import controllers.ShortDataSet
-import scala.collection.JavaConverters._
-import xml.Node
-import eu.delving.schema.SchemaType
 
 /**
  *
@@ -131,6 +133,7 @@ object DataSetControl extends BoundController(HubModule) with DataSetControl
 trait DataSetControl extends OrganizationController { this: BoundController =>
 
   val schemaService = inject[SchemaService]
+  val directoryServiceLocator = inject [ DomainServiceLocator[DirectoryService] ]
 
   lazy val factDefinitionList = parseFactDefinitionList
   lazy val initialFacts = factDefinitionList.map(factDef => (factDef.name, "")).toMap[String, String]
@@ -225,7 +228,7 @@ trait DataSetControl extends OrganizationController { this: BoundController =>
             factsObject.putAll(dataSetForm.facts.asMap)
 
             // try to enrich with provider and dataProvider uris
-            def enrich(input: String, output: String) = HubServices.directoryService(configuration).findOrganizationByName(factsObject.get(input).toString) match {
+            def enrich(input: String, output: String) = directoryServiceLocator.byDomain.findOrganizationByName(factsObject.get(input).toString) match {
               case Some(p) => factsObject.put(output, p.uri)
               case None => factsObject.remove(output)
             }
@@ -314,7 +317,7 @@ trait DataSetControl extends OrganizationController { this: BoundController =>
   def organizationLookup(orgId: String, term: String) = OrgMemberAction(orgId) {
     Action {
       implicit request =>
-        Json(HubServices.directoryService(configuration).findOrganization(term).map(_.name))
+        Json(directoryServiceLocator.byDomain.findOrganization(term).map(_.name))
     }
   }
 

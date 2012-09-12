@@ -1,11 +1,11 @@
 package controllers.organization
 
-import controllers.OrganizationController
+import controllers.{BoundController, OrganizationController}
 import extensions.JJson
 import play.api.i18n.Messages
 import play.api.mvc.Action
 import models._
-import core.HubServices
+import core.{OrganizationService, DomainServiceLocator, HubModule}
 import play.api.libs.ws.WS
 
 /**
@@ -13,16 +13,18 @@ import play.api.libs.ws.WS
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-object Admin extends OrganizationController {
+object Admin extends BoundController(HubModule) with Admin
+
+trait Admin extends OrganizationController { this: BoundController =>
 
   def index(orgId: String) = OrgOwnerAction(orgId) {
     Action {
       implicit request =>
-        if (!HubServices.organizationService(configuration).exists(orgId)) {
+        if (!organizationServiceLocator.byDomain.exists(orgId)) {
           NotFound(Messages("organizations.organization.orgNotFound").format(orgId))
         } else {
           val membersAsTokens = JJson.generate(HubUser.dao.listOrganizationMembers(orgId).map(m => Map("id" -> m, "name" -> m)))
-          val adminsAsTokens = JJson.generate(HubServices.organizationService(configuration).listAdmins(orgId).map(a => Map("id" -> a, "name" -> a)))
+          val adminsAsTokens = JJson.generate(organizationServiceLocator.byDomain.listAdmins(orgId).map(a => Map("id" -> a, "name" -> a)))
           Ok(Template(
             'members -> membersAsTokens,
             'admins -> adminsAsTokens
@@ -70,7 +72,7 @@ object Admin extends OrganizationController {
       implicit request =>
         val id = request.body.getFirstAsString("id").get
         HubUser.dao.findByUsername(id).map { user =>
-          val success = HubServices.organizationService(configuration).addAdmin(orgId, id)
+          val success = organizationServiceLocator.byDomain.addAdmin(orgId, id)
           // TODO logging
           if (success) Ok else Error
         }.getOrElse {
@@ -84,7 +86,7 @@ object Admin extends OrganizationController {
       implicit request =>
         val id = request.body.getFirstAsString("id").get
         HubUser.dao.findByUsername(id).map { user =>
-          val success = HubServices.organizationService(configuration).removeAdmin(orgId, id)
+          val success = organizationServiceLocator.byDomain.removeAdmin(orgId, id)
           // TODO logging
           if (success) Ok else Error
         }.getOrElse {

@@ -14,9 +14,11 @@ import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import org.apache.amber.oauth2.as.validator._
 import play.api._
 import play.api.Play.current
-import play.api.mvc._
-import core.HubServices
+import mvc._
+import core.{AuthenticationService, DomainServiceLocator, HubModule}
 import models.HubUser
+import scala.Left
+import scala.Right
 
 /**
  * OAuth2 TokenEndPoint inspired by the Apache Amber examples and the RFC draft 10
@@ -28,7 +30,11 @@ import models.HubUser
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
-object OAuth2TokenEndpoint extends Controller with DomainConfigurationAware {
+object OAuth2TokenEndpoint extends BoundController(HubModule) with OAuth2TokenEndpoint
+
+trait OAuth2TokenEndpoint extends Controller with DomainConfigurationAware { this: BoundController with Controller with DomainConfigurationAware =>
+
+  val authenticationServiceLocator = inject [ DomainServiceLocator[AuthenticationService] ]
 
   def token: Action[AnyContent] = DomainConfigured {
     Action {
@@ -47,7 +53,7 @@ object OAuth2TokenEndpoint extends Controller with DomainConfigurationAware {
               val mayUser = grantType match {
                 // TODO use real node from URL
                 case GrantType.PASSWORD =>
-                  if (!HubServices.authenticationService(configuration).connect(oauthRequest.getUsername, oauthRequest.getPassword)) {
+                  if (!authenticationServiceLocator.byDomain.connect(oauthRequest.getUsername, oauthRequest.getPassword)) {
                     Left(errorResponse(OAuthError.TokenResponse.INVALID_GRANT, "invalid username or password"))
                   } else {
                     Right(HubUser.dao.findByUsername(oauthRequest.getUsername).get)
