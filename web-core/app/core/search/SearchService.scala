@@ -265,7 +265,7 @@ case class SearchSummary(result: BriefItemView, language: String = "en", chRespo
                xmlns:raw="http://delving.eu/namespaces/raw" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:ese="http://www.europeana.eu/schemas/ese/"
                xmlns:abm="http://to_be_decided/abm/" xmlns:abc="http://www.ab-c.nl/" xmlns:drup="http://www.itin.nl/drupal"
                xmlns:itin="http://www.itin.nl/namespace" xmlns:tib="http://www.thuisinbrabant.nl/namespace"
-               xmlns:custom="http://www.delving.eu/namespaces/custom">
+               xmlns:musip="http://www.musip.nl/" xmlns:custom="http://www.delving.eu/namespaces/custom">
         <query numFound={pagination.getNumFound.toString} firstYear="0" lastYear="0">
           <terms>{searchTerms}</terms>
           <breadCrumbs>
