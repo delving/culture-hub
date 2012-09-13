@@ -166,7 +166,7 @@ object FileUpload extends Controller with Extensions with Thumbnail with DomainC
     f.save
 
     // if this is an image, create a thumbnail for it so we can display it on the fly in the upload widget
-    val thumbnailUrl: String = if (f.contentType.contains("image")) {
+    val thumbnailUrl: String = if (f.contentType.contains("image") || f.contentType.contains("pdf")) {
       fileStore(configuration).findOne(f._id.get) match {
         case Some(storedFile) =>
           val thumbnails = createThumbnails(storedFile, fileStore(configuration))
