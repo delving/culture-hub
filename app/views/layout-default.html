@@ -7,7 +7,7 @@
         <div class="navbar navbar-fixed-top">
             <div class="navbar-inner">
                 <div class="container">
-                    <a class="brand" href="/"><img src="/assets/common/images/delving-small.png" style="height:32px"/>${themeInfo.siteName()}</a>
+                    <a class="brand" href="/" title="${themeInfo.siteSlogan()}"><img src="${themeInfo.path("images/logo-small.png")}" alt=""/><span>${themeInfo.siteName()}</span></a>
                     #{userNav userName: userName, email:email, organization:organization, showLang:themeInfo.get('userNavLangSelect'), showLogin:themeInfo.showLogin(), showRegistration:themeInfo.showRegistration(), /}
                     <div class="visible-desktop">
                         <form method="get" action="/search" class="navbar-form form-horizontal pull-right" id="simple-search" onsubmit="return checkSimpleSearchSubmit('query');">
