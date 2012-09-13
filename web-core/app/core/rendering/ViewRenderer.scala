@@ -16,7 +16,7 @@
 
 package core.rendering
 
-import models.GrantType
+import models.{DomainConfiguration, Role}
 import play.libs.XPath
 import collection.JavaConverters._
 import javax.xml.parsers.DocumentBuilderFactory
@@ -43,46 +43,46 @@ import collection.mutable.{HashMap, ArrayBuffer, Stack}
 
 object ViewRenderer {
 
-  def fromDefinition(schema: String, viewName: String) = {
-    val definition = getViewDefinition(schema, viewName)
+  def fromDefinition(schema: String, viewType: ViewType)(implicit configuration: DomainConfiguration) = {
+    val definition = getViewDefinition(schema, viewType)
     if(definition.isDefined) {
-      Some(new ViewRenderer(schema, viewName))
+      Some(new ViewRenderer(schema, viewType, configuration))
     } else {
       None
     }
   }
 
-  def getViewDefinition(schema: String, viewName: String): Option[Node] = {
+  def getViewDefinition(schema: String, viewType: ViewType): Option[Node] = {
     val definitionResource = Play.application.resource("/%s-view-definition.xml".format(schema))
     if(!definitionResource.isDefined) {
       None
     } else {
       val xml = XML.load(definitionResource.get)
-      (xml \ "view").filter(v => (v \ "@name").text == viewName).headOption
+      (xml \ "view").filter(v => (v \ "@name").text == viewType.name).headOption
     }
   }
 
 }
 
-class ViewRenderer(val schema: String, viewName: String) {
+class ViewRenderer(val schema: String, viewType: ViewType, configuration: DomainConfiguration) {
   
   val log = Logger("CultureHub")
 
-  val viewDef: Option[Node] = ViewRenderer.getViewDefinition(schema, viewName)
+  val viewDef: Option[Node] = ViewRenderer.getViewDefinition(schema, viewType)
 
   val dbFactory = DocumentBuilderFactory.newInstance
   dbFactory.setNamespaceAware(true)
   val dBuilder = dbFactory.newDocumentBuilder
 
-  def renderRecord(record: String, userGrantTypes: List[GrantType], namespaces: Map[String, String], lang: Lang, parameters: Map[String, String] = Map.empty): RenderedView = {
+  def renderRecord(record: String, userRoles: Seq[Role], namespaces: Map[String, String], lang: Lang, parameters: Map[String, String] = Map.empty): RenderedView = {
     viewDef match {
       case Some(viewDefinition) =>
-        renderRecordWithView(schema, viewName, viewDefinition, record, userGrantTypes, namespaces, lang, parameters)
-      case None => throw new RuntimeException("Could not find view definition '%s' for schema '%s'".format(viewName, schema))
+        renderRecordWithView(schema, viewType, viewDefinition, record, userRoles, namespaces, lang, parameters)
+      case None => throw new RuntimeException("Could not find view definition '%s' for schema '%s'".format(viewType.name, schema))
     }
   }
 
-  def renderRecordWithView(prefix: String, viewName: String, viewDefinition: Node, rawRecord: String, userGrantTypes: List[GrantType], namespaces: Map[String, String], lang: Lang, parameters: Map[String, String]): RenderedView = {
+  def renderRecordWithView(prefix: String, viewType: ViewType, viewDefinition: Node, rawRecord: String, userRoles: Seq[Role], namespaces: Map[String, String], lang: Lang, parameters: Map[String, String]): RenderedView = {
 
     val record = dBuilder.parse(new ByteArrayInputStream(rawRecord.getBytes("utf-8")))
 
@@ -119,7 +119,7 @@ class ViewRenderer(val schema: String, viewName: String) {
 
       viewDefinitionNode.foreach {
         n =>
-          log.debug("Node " + n)
+          log.trace("Node " + n)
           val ifExpr = n.attr("if")
           val ifNotExpr = n.attr("ifNot")
 
@@ -271,19 +271,19 @@ class ViewRenderer(val schema: String, viewName: String) {
               case "column" => enterAndAppendOne(n, dataNode, "column", true, 'proportion -> n.attr("proportion"))
               case "container" => withAccessControl(roleList) {
                 role =>
-                  enterAndAppendOne(n, dataNode, "container", true, 'id -> n.attr("id"), 'title -> n.attr("title"), 'label -> n.attr("label"), 'type -> n.attr("type"), 'role -> role.map(_.description).getOrElse(""))
+                  enterAndAppendOne(n, dataNode, "container", true, 'id -> n.attr("id"), 'title -> n.attr("title"), 'label -> n.attr("label"), 'type -> n.attr("type"), 'role -> role.map(_.getDescription(lang)).getOrElse(""))
               }
               case "image" => withAccessControl(roleList) {
                 role =>
                   val value = fetchPaths(dataNode, path.split(",").map(_.trim).toList, namespaces).headOption.map {
                     url =>
-                      if(Play.configuration.getBoolean("dos.imageCache.enabled").getOrElse(false)) {
+                      if(configuration.objectService.imageCacheEnabled) {
                         "/image/cache?id=%s".format(URLEncoder.encode(url, "utf-8"))
                       } else {
                         url
                       }
                   }
-                  append("image", value, 'title -> n.attr("title"), 'type -> n.attr("type"), 'role -> role.map(_.description).getOrElse("")) { renderNode => }
+                  append("image", value, 'title -> n.attr("title"), 'type -> n.attr("type"), 'role -> role.map(_.getDescription(lang)).getOrElse("")) { renderNode => }
                 }
               case "field" => withAccessControl(roleList) {
                 role =>
@@ -292,11 +292,11 @@ class ViewRenderer(val schema: String, viewName: String) {
                   else
                     fetchPaths(dataNode, path.split(",").map(_.trim).toList, namespaces).headOption
 
-                  append("field", v, 'label -> label, 'queryLink -> queryLink, 'role -> role.map(_.description).getOrElse("")) { renderNode => }
+                  append("field", v, 'label -> label, 'queryLink -> queryLink, 'role -> role.map(_.getDescription(lang)).getOrElse("")) { renderNode => }
                 }
               case "enumeration" => withAccessControl(roleList) {
                 role =>
-                  appendSimple("enumeration", 'label -> label, 'queryLink -> queryLink, 'separator -> n.attr("separator"), 'role -> role.map(_.description).getOrElse("")) {
+                  appendSimple("enumeration", 'label -> label, 'queryLink -> queryLink, 'separator -> n.attr("separator"), 'role -> role.map(_.getDescription(lang)).getOrElse("")) {
                     list =>
 
                       if (!n.child.isEmpty) {
@@ -313,10 +313,10 @@ class ViewRenderer(val schema: String, viewName: String) {
                 val urlExpr = n.attribute("urlExpr").map(e => XPath.selectText(e.text, dataNode, namespaces.asJava))
                 val urlValue = n.attr("urlValue")
 
-                val url = evaluateParamExpression(urlValue, parameters) + urlExpr.getOrElse("")
+                val url: String = evaluateParamExpression(urlValue, parameters) + urlExpr.getOrElse("")
 
-                val text = if(n.attribute("textExpr").isDefined) {
-                  XPath.selectText(n.attr("textExpr"), dataNode, namespaces.asJava)
+                val text: String = if(n.attribute("textExpr").isDefined) {
+                  Option(XPath.selectText(n.attr("textExpr"), dataNode, namespaces.asJava)).getOrElse("")
                 } else if(n.attribute("textValue").isDefined) {
                   evaluateParamExpression(n.attr("textValue"), parameters)
                 } else {
@@ -367,14 +367,14 @@ class ViewRenderer(val schema: String, viewName: String) {
     }
 
     def enterAndAppendNode(viewDefinitionNode: Node, dataNode: WNode, renderNode: RenderNode) {
-      log.debug("Entered " + viewDefinitionNode.label)
+      log.trace("Entered " + viewDefinitionNode.label)
       renderNode.parent = defaultParent
 
       treeStack.head += renderNode
       push(renderNode)
       viewDefinitionNode.child foreach {
         n =>
-          log.debug("Node " + n)
+          log.trace("Node " + n)
           walk(n, dataNode)
       }
       pop
@@ -382,10 +382,10 @@ class ViewRenderer(val schema: String, viewName: String) {
 
     /** enters a view definition node, but without appending a new node on the the current tree **/
     def enterNode(viewDefinitionNode: Node, dataNode: WNode) {
-      log.debug("Entered " + viewDefinitionNode.label)
+      log.trace("Entered " + viewDefinitionNode.label)
       viewDefinitionNode.child foreach {
         n =>
-          log.debug("Node " + n)
+          log.trace("Node " + n)
           walk(n, dataNode)
       }
 
@@ -416,13 +416,13 @@ class ViewRenderer(val schema: String, viewName: String) {
       treeStack.head += node
     }
 
-    def withAccessControl(roles: List[String])(block: Option[GrantType] => Unit) {
+    def withAccessControl(roles: List[String])(block: Option[Role] => Unit) {
       if(roles.isEmpty) {
         block(None)
-      } else if(userGrantTypes.exists(gt => gt.key == "own" && gt.origin == "System")) {
-        block(Some(GrantType.OWN))
-      } else if(userGrantTypes.exists(gt => roles.contains(gt.key) && gt.origin == prefix)) {
-        block(userGrantTypes.find(gt => roles.contains(gt.key) && gt.origin == prefix).headOption)
+      } else if(userRoles.contains(Role.OWN)) {
+        block(Some(Role.OWN))
+      } else if(userRoles.exists(gt => roles.contains(gt.key))) {
+        block(userRoles.find(gt => roles.contains(gt.key)).headOption)
       } else {
         // though luck, man
       }
@@ -431,7 +431,7 @@ class ViewRenderer(val schema: String, viewName: String) {
     if(shortcutResult.isDefined) {
       shortcutResult.get
     } else {
-      NodeRenderedView(viewName, prefix, result.content.head, arrays.toList)
+      NodeRenderedView(viewType, prefix, result.content.head, arrays.toList)
     }
 
   }
@@ -466,9 +466,9 @@ class ViewRenderer(val schema: String, viewName: String) {
     }).flatten
   }
 
-  def evaluateParamExpression(value: String, parameters: Map[String, String]) = {
+  def evaluateParamExpression(value: String, parameters: Map[String, String]): String = {
     """\$\{(.*)\}""".r.replaceAllIn(value, m => parameters.get(m.group(1)).getOrElse {
-      log.warn("Could not find value for parameter %s while rendering view %s".format(m.group(1), viewName))
+      log.warn("Could not find value for parameter %s while rendering view %s".format(m.group(1), viewType.name))
       ""
     })
   }
@@ -482,7 +482,7 @@ abstract class RenderedView {
   def toViewTree: RenderNode
 }
 
-case class NodeRenderedView(viewName: String, formatName: String, viewTree: RenderNode, sequences: Seq[List[String]]) extends RenderedView {
+case class NodeRenderedView(viewType: ViewType, schemaPrefix: String, viewTree: RenderNode, sequences: Seq[List[String]]) extends RenderedView {
 
   def toXml = XML.loadString(toXmlString)
   

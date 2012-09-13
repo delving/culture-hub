@@ -3,8 +3,9 @@ package controllers.organization
 import play.api.i18n.Messages
 import controllers._
 import play.api.mvc.Action
-import models.{DataSet, HubUser}
-import core.{Constants, HubServices}
+import models.HubUser
+import core.{OrganizationCollectionLookupService, HubModule}
+import core.collection.OrganizationCollection
 
 /**
  *
@@ -12,21 +13,25 @@ import core.{Constants, HubServices}
  * @author Manuel Bernhardt <manuel@delving.eu>
  */
 
-object Organizations extends DelvingController {
+object Organizations extends BoundController(HubModule) with Organizations
+
+trait Organizations extends DelvingController { this: BoundController =>
+
+  val organizationCollectionLookupService = inject[OrganizationCollectionLookupService]
 
   def index(orgId: String, language: Option[String]) = OrgBrowsingAction(orgId) {
     Action {
       implicit request =>
-        if (HubServices.organizationService.exists(orgId)) {
-          val members: List[HubUser] = HubUser.listOrganizationMembers(orgId).flatMap(HubUser.findByUsername(_))
-          val dataSets: List[ShortDataSet] = DataSet.findAllCanSee(orgId, connectedUser)
+        if (organizationServiceLocator.byDomain.exists(orgId)) {
+          val members: List[HubUser] = HubUser.dao.listOrganizationMembers(orgId).flatMap(HubUser.dao.findByUsername(_))
+          val collections: Seq[OrganizationCollection] = organizationCollectionLookupService.findAll
           val lang = language.getOrElse(getLang)
           Ok(Template(
             'orgId -> orgId,
-            'orgName -> HubServices.organizationService.getName(orgId, "en").getOrElse(orgId),
-            'isMember -> HubUser.findByUsername(connectedUser).map(u => u.organizations.contains(orgId)).getOrElse(false),
+            'orgName -> organizationServiceLocator.byDomain.getName(orgId, "en").getOrElse(orgId),
+            'isMember -> HubUser.dao.findByUsername(connectedUser).map(u => u.organizations.contains(orgId)).getOrElse(false),
             'members -> members,
-            'dataSets -> dataSets,
+            'collections -> collections,
             'currentLanguage -> lang
 
           ))

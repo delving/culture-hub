@@ -1,0 +1,60 @@
+%{ def pageId = get 'pageId' }%
+
+#{include 'commonHeader.html' /}
+
+<div class="page-top">
+    <div class="container">
+        <div class="navbar navbar-fixed-top">
+            <div class="navbar-inner">
+                <div class="container">
+                    <a class="brand" href="/"><img src="/assets/common/images/delving-small.png" style="height:32px"/>${themeInfo.siteName()}</a>
+                    #{userNav userName: userName, email:email, organization:organization, showLang:themeInfo.get('userNavLangSelect'), showLogin:themeInfo.showLogin(), showRegistration:themeInfo.showRegistration(), /}
+                    <div class="visible-desktop">
+                        <form method="get" action="/search" class="navbar-form form-horizontal pull-right" id="simple-search" onsubmit="return checkSimpleSearchSubmit('query');">
+                        #{searchIn searchIn: params.searchIn, fields: searchIn /}
+                            <div class="input-append">
+                                <input class="" placeholder="&{'ui.label.search'} ..." type="text" id="query" name="query" value='${params.get("query")? params.get("query").apply(0) : ""}'/>
+                                <button type="submit" class="btn" title="&{'ui.label.search'}"><i class="icon icon-search"></i></button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="search-bar hidden-desktop">
+    <div class="container">
+    <div class="row">
+        <div class="span12">
+            <form method="get" action="/search" class="navbar-form form-horizontal pull-right" id="simple-search" onsubmit="return checkSimpleSearchSubmit('query');">
+            #{searchIn searchIn: params.searchIn, fields: searchIn /}
+                <div class="input-append">
+                    <input class="" placeholder="&{'ui.label.search'} ..." type="text" id="query" name="query" value='${params.get("query")? params.get("query").apply(0) : ""}'/>
+                    <button type="submit" class="btn" title="&{'ui.label.search'}"><i class="icon icon-search"></i></button>
+                </div>
+            </form>
+        </div>
+    </div>
+    </div>
+</div>
+
+<div class="site-navigation">
+    <div class="container">
+        <div class="row">
+            <div class="span12">
+                #{mainMenu menu:menu, extraClass: "nav-pills" /}
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div id="content" role="main">
+    <div class="container">
+        #{doLayout /}
+    </div>
+</div>
+
+#{include 'commonFooter.html' /}

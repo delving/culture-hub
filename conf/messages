@@ -32,6 +32,7 @@ ui.label.browse=Browse
 ui.label.cancel=Cancel
 ui.label.disable=Disable
 ui.label.captcha=Enter the code you see here
+ui.label.cancel=Cancel
 ui.label.collectionSelect=Select a collection
 ui.label.create=Create
 ui.label.content=Content
@@ -60,6 +61,7 @@ ui.label.lastname=Last name
 ui.label.less=Less
 ui.label.load=Load
 ui.label.location=Location
+ui.label.loggedInAs=Logged in as
 ui.label.login=Login
 ui.label.logout=Logout
 ui.label.memberSince=Member since
@@ -81,6 +83,7 @@ ui.label.remove=Remove
 ui.label.required=Required
 ui.label.reset=Reset
 ui.label.returnToResults=Return to results
+ui.label.save=Save
 ui.label.scope=Scope
 ui.label.scope.public=Public
 ui.label.scope.notpublic=Not public
@@ -101,6 +104,13 @@ ui.label.website=Website
 ui.label.welcome=Welcome
 ui.label.theme=Site theme
 ui.label.identifier=Identifier
+ui.label.all=All
+ui.label.withoutDigitalObject=Without digital object
+ui.label.withDigitalObject=With digital object
+
+ui.widget.upload.chooseFile=Choose file
+ui.widget.upload.start=Start upload
+ui.widget.upload.cancel=Cancel upload
 
 # General 'thing' like object, collection or story
 thing.label=Label
@@ -121,8 +131,8 @@ thing.collection=Collection
 thing.collections=Collections
 thing.museum=Museum
 thing.museums=Museums
-thing.virtualCollection=Virtual Collection
-thing.virtualCollections=Virtual Collections
+thing.virtualCollection=Virtual collection
+thing.virtualCollections=Virtual collections
 thing.bookmarksCollection=My bookmarks
 thing.bookmarksCollectionDescription=This is your bookmarks collection, visible only to you.
 thing.story=Story
@@ -180,7 +190,8 @@ thing.startYear=Start year
 thing.endYear=End year
 thing.keyword=Keyword
 thing.keywords=Keywords
-
+thing.relatedItems=Related items
+thing.resources=Resources
 
 
 # Account registration and activation messages
@@ -249,8 +260,8 @@ registration.registerFor=Register for {0}
 search.facets=Facets
 search.nrfound= Found {0} results
 search.resultsfor=Search results for
-search.sortby= Sort by
-search.refineYourSearchBy=Refine your search by
+search.sortby=Sort by
+search.refineYourSearch=Refine your search
 search.facet.byYear=Year
 search.facet.byProvider=Provider
 search.facet.byObjectType=Object type
@@ -303,11 +314,18 @@ metadata.dcterms.temporal=Temporal coverage
 metadata.dcterms.rightsHolder=Rights holder
 metadata.dcterms.extent=Extent
 
-metadata.delving.dimensions=Dimensions
+### Delving NS
+
 metadata.delving.owner=Owner
 metadata.delving.creator=Creator
+metadata.delving.provider=Provider
+metadata.delving.owner=Data Provider
 metadata.delving.recordType=Record type
 metadata.delving.hasDigitalObject=Record has a digital object
+
+## TODO remove
+metadata.delving.dimensions=Dimensions
+
 
 metadata.europeana.country=Country
 metadata.europeana.dataProvider=Data Provider
@@ -395,7 +413,7 @@ metadata.museum.type=Museum type
 metadata.is.about=Is about
 metadata.searchfield.recordType=Object type
 metadata.searchfield.contributor=Contributor
-metadata.searchfield.dataprovider=Provider
+metadata.searchfield.dataprovider=Data Provider
 metadata.searchfield.creator=Creator
 metadata.searchfield.hasDigitalObject=Has digital object
 metadata.type.all=All
@@ -436,10 +454,10 @@ org.list.grantType.view=with rights to view
 org.list.grantType.modify=with rights to modify
 org.list.grantType.own=with full access to everything
 org.list.dataSetCount={0} Dataset(s)
+org.list.filter=Type here to narrow down the list
 
 org.group.grantType.view=Dataset view rights
 org.group.grantType.modify=Dataset modification rights
-org.group.grantType.cms=Site content administration rights
 org.group.grantType.own=Administrator rights
 org.group.save=Save group
 org.group.create=Create group
@@ -465,9 +483,6 @@ org.cms.list.deletePageConfirm=Are you sure you want to delete this page and all
 org.cms.upload=Upload file
 org.cms.upload.image=Upload image
 org.cms.upload.save=Save files
-org.cms.upload.chooseFile=Choose file
-org.cms.upload.start=Start upload
-org.cms.upload.cancel=Cancel upload
 org.cms.upload.help.toggle=Help with uploading images
 org.cms.upload.help.chooseImage=<ul><li>Begin by choosing an image from your own computer by pressing <span class="btn btn-success btn-mini"><i class="icon-plus icon-white"></i>Choose an image</span></li><li>Multiple images may be selected at once</li></ul>
 org.cms.upload.help.startUpload=<p>The images are then added to the list and are ready to be uploaded to the CultureHub.</p><ul><li>Press the <span class="btn btn-primary btn-mini"><i class="icon-upload icon-white"></i>Start upload</span> button to upload all images at once</li><li>Press the <span class="btn btn-primary btn-mini"><i class="icon-upload icon-white"></i>Start</span> button of the individual image in the image list for uploading one image at a time</li></ul>
@@ -500,9 +515,9 @@ org.cms.page.keyauto.error=Title mandatory for page key generation.
 
 
 org.vc.list=Virtual collection list
-org.vc.new=New Virtual Collection
-org.vc.update=Edit virtual Collection
-org.vc.deleteCollection=Delete Virtual Collection
+org.vc.new=New Virtual collection
+org.vc.update=Edit virtual collection
+org.vc.deleteCollection=Delete Virtual collection
 org.vc.deleteCollectionConfirm=Are you sure you want to delete this virtual collection?
 org.vc.save=Save
 org.vc.query=Query
@@ -535,11 +550,10 @@ org.vc.keyauto.error=Name field mandatory for identifier generation.
 
 org.admin.index.title=Organization administration
 org.admin.index.removeMemberConfirmation=Removing a member will also remove them from all groups they are in. Are you sure you want to proceed?
-org.admin.index.editOwners=You can edit the owners of the organization at the
-org.admin.index.editOwnersLink=owners group page
 org.admin.index.addMembers=Add a new member by typing the user-name into the blank area above and then press the ENTER key
 org.admin.index.members=Members
-org.admin.index.owners=Owners
+org.admin.index.admins=Administrators
+org.admin.index.addAdmins=Add an administrator by typing the user-name into the blank area above and then press the ENTER key.
 
 organization.dataset.title.create=Create new dataset for user {0}
 organization.dataset.title.update=Update dataset for user {0}
@@ -633,6 +647,8 @@ organization.datasets.cannotBeInvalidated=Dataset hashes cannot be reset in the 
 
 search.backendConnectionError=Cannot connect to the search backend
 
+rendering.notViewable=The item cannot be displayed - {0}
+
 
 
 locale.en=English (en)
@@ -641,14 +657,19 @@ locale.no=Norwegian (no)
 locale.nb=Norwegian b�kmal (nb)
 
 
-
-
 ###### Plugin messages (TODO: move to plugin once that is available)
+
+accessControl.resourceType.dataSet=DataSets
+
+plugin.cms.adminRight=Site content administration rights
+
 
 plugin.musip.museum=Museum
 plugin.musip.museums=Museums
 plugin.musip.collection=Collection
 plugin.musip.collections=Collections
+plugin.musip.province=Province
+plugin.musip.municipality=Municipality
 
 plugin.statistics.statistics=Statistics
 plugin.statistics.dataset=DataSet
@@ -657,6 +678,22 @@ plugin.statistics.withObjects=With objects
 plugin.statistics.withoutObjects=Without objects
 plugin.statistics.nrRecords=Number of records
 plugin.statistics.landingPages=With landing-pages
+
+plugin.advancedsearch=Advanced search
+plugin.advancedsearch.searchIn=Search in
+plugin.advancedsearch.searchInAll=All
+plugin.advancedsearch.booleanAnd=AND
+plugin.advancedsearch.booleanOr=OR
+plugin.advancedsearch.booleanNot=NOT
+plugin.advancedsearch.allProviders=All data providers
+plugin.advancedsearch.selectProviders=Select data provider(s)
+plugin.advancedsearch.select=Select
+
+plugin.simpledocumentupload.documentUpload=Document upload
+plugin.simpledocumentupload.list=List of uploaded documents
+plugin.simpledocumentupload.add=Upload document
+plugin.simpledocumentupload.deleteConfirmation=Are you sure you want to delete this item?
+
 
 
 

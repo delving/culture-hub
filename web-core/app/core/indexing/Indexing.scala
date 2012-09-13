@@ -16,10 +16,13 @@
 
 package core.indexing
 
+import core.collection.{Indexable, OrganizationCollectionInformation}
 import extensions.HTTPClient
 import org.apache.solr.common.SolrInputDocument
 import play.api.Logger
 import core.Constants._
+import core.SystemField._
+import core.indexing.IndexField._
 import org.apache.commons.httpclient.methods.GetMethod
 import java.io.{InputStream, FilenameFilter, File}
 import org.apache.tika.sax.BodyContentHandler
@@ -29,8 +32,8 @@ import core.search.{SolrBindingService, SolrServer}
 import org.apache.tika.parser.ParseContext
 import org.apache.tika.metadata.Metadata
 import java.net.URLEncoder
-import models.{Visibility, MetadataItem, DataSet}
-import org.apache.commons.lang.{StringEscapeUtils, StringUtils}
+import models.{DomainConfiguration, Visibility, MetadataItem}
+import org.apache.commons.lang.StringEscapeUtils
 
 
 /**
@@ -40,7 +43,9 @@ import org.apache.commons.lang.{StringEscapeUtils, StringUtils}
 
 object Indexing extends SolrServer {
 
-  def indexOne(dataSet: DataSet, mdr: MetadataItem, mapped: Map[String, List[Any]], metadataFormatForIndexing: String): Either[Throwable, String] = {
+  type IndexableCollection = Indexable with OrganizationCollectionInformation
+
+  def indexOne(dataSet: IndexableCollection, mdr: MetadataItem, mapped: Map[String, List[Any]], metadataFormatForIndexing: String)(implicit configuration: DomainConfiguration): Either[Throwable, String] = {
     val doc = createSolrInputDocument(mapped)
     addDelvingHouseKeepingFields(doc, dataSet, mdr, metadataFormatForIndexing)
     try {
@@ -49,10 +54,6 @@ object Indexing extends SolrServer {
       case t: Throwable => Left(new SolrConnectionException("Unable to add document to Solr", t))
     }
     Right("ok")
-  }
-
-  def commit() {
-    IndexingService.commit
   }
 
   private def createSolrInputDocument(indexDoc: Map[String, List[Any]]): SolrInputDocument = {
@@ -70,21 +71,30 @@ object Indexing extends SolrServer {
     doc
   }
 
-  def addDelvingHouseKeepingFields(inputDoc: SolrInputDocument, dataSet: DataSet, record: MetadataItem, schemaPrefix: String) {
+  def addDelvingHouseKeepingFields(inputDoc: SolrInputDocument, dataSet: IndexableCollection, record: MetadataItem, schemaPrefix: String)(implicit configuration: DomainConfiguration) {
     import scala.collection.JavaConversions._
 
     // mandatory fields
-    inputDoc.addField(ORG_ID, dataSet.orgId)
-    inputDoc.addField(VISIBILITY, Visibility.PUBLIC.value.toString)
-    inputDoc.addField(RECORD_TYPE, MDR)
-    inputDoc.addField(SYSTEM_TYPE, HUB_ITEM)
+    inputDoc += (ORG_ID -> dataSet.getOwner)
+    inputDoc += (HUB_ID -> URLEncoder.encode(record.itemId, "utf-8"))
+    inputDoc += (SCHEMA -> schemaPrefix)
+    inputDoc += (RECORD_TYPE -> ITEM_TYPE_MDR)
+    inputDoc += (VISIBILITY -> Visibility.PUBLIC.value.toString)
 
-    inputDoc.addField(HUB_ID, URLEncoder.encode(record.itemId, "utf-8"))
-    inputDoc.addField(SPEC, "%s".format(dataSet.spec))
-    inputDoc.addField(SCHEMA, schemaPrefix)
+    inputDoc.addField(SPEC.tag, "%s".format(dataSet.spec))
 
     // for backwards-compatibility
-    inputDoc.addField(PMH_ID, URLEncoder.encode(record.itemId, "utf-8"))
+    inputDoc += (PMH_ID -> URLEncoder.encode(record.itemId, "utf-8"))
+
+    // force the provider and dataProvider configured in the DataSet
+    if(inputDoc.containsKey(PROVIDER.tag)) {
+      inputDoc.remove(PROVIDER.tag)
+      inputDoc.addField(PROVIDER.tag, dataSet.getProvider)
+    }
+    if(inputDoc.containsKey(OWNER.tag)) {
+      inputDoc.remove(OWNER.tag)
+      inputDoc.addField(OWNER.tag, dataSet.getDataProvider)
+    }
 
     // deepZoom hack
     val DEEPZOOMURL: String = "delving_deepZoomUrl_string"
@@ -115,60 +125,30 @@ object Indexing extends SolrServer {
           }
         }
       } catch {
-        case t =>
+        case t: Throwable =>
           Logger("CultureHub").error("Error during deepZoomUrl check, deepZoomURL " + inputDoc.get(DEEPZOOMURL).getFirstValue, t)
           // in doubt, remove
           inputDoc.remove(DEEPZOOMURL)
       }
     }
 
-    // add full text from digital objects
-    val fullTextUrl = "%s_string".format(FULL_TEXT_OBJECT_URL)
-    if (inputDoc.containsKey(fullTextUrl)) {
-      val pdfUrl = inputDoc.get(fullTextUrl).getFirstValue.toString
-      if (pdfUrl.endsWith(".pdf")) {
-        val fullText = TikaIndexer.getFullTextFromRemoteURL(pdfUrl)
-        inputDoc.addField("delving_fullText_text", fullText)
-      }
-    }
-    
-    if (inputDoc.containsKey(ID)) inputDoc.remove(ID)
-    inputDoc.addField(ID, record.itemId)
+    if (inputDoc.containsKey(ID.key)) inputDoc.remove(ID.key)
+    inputDoc += (ID -> record.itemId)
 
-    val uriWithTypeSuffix = EUROPEANA_URI + "_string"
-    val uriWithTextSuffix = EUROPEANA_URI + "_text"
+    // TODO remove this hack
+    val uriWithTypeSuffix = EUROPEANA_URI.key + "_string"
+    val uriWithTextSuffix = EUROPEANA_URI.key + "_text"
     if (inputDoc.containsKey(uriWithTypeSuffix)) {
       val uriValue: String = inputDoc.get(uriWithTypeSuffix).getFirstValue.toString
       inputDoc.remove(uriWithTypeSuffix)
-      inputDoc.addField(EUROPEANA_URI, uriValue)
-    }
-    else if (inputDoc.contains(uriWithTextSuffix)) {
+      inputDoc.addField(EUROPEANA_URI.key, uriValue)
+    } else if (inputDoc.contains(uriWithTextSuffix)) {
       val uriValue: String = inputDoc.get(uriWithTextSuffix).getFirstValue.toString
       inputDoc.remove(uriWithTextSuffix)
-      inputDoc.addField(EUROPEANA_URI, uriValue)
+      inputDoc.addField(EUROPEANA_URI.key, uriValue)
     }
 
-    dataSet.getAllMappingSchemas.foreach(schema => inputDoc.addField(ALL_SCHEMAS, schema.prefix))
-
-    val indexedKeys = inputDoc.keys.map(key => (SolrBindingService.stripDynamicFieldLabels(key), key)).toMap // to filter always index a facet with _facet .filter(!_.matches(".*_(s|string|link|single)$"))
-
-    // add facets at indexing time
-    dataSet.idxFacets.foreach {
-      facet =>
-        if (indexedKeys.contains(facet)) {
-          val facetContent = inputDoc.get(indexedKeys.get(facet).get).getValues
-          inputDoc addField("%s_facet".format(facet), facetContent)
-          // enable case-insensitive autocomplete
-          inputDoc addField ("%s_lowercase".format(facet), facetContent)
-        }
-    }
-    // adding sort fields at index time
-    dataSet.idxSortFields.foreach {
-      sort =>
-        if (indexedKeys.contains(sort)) {
-          inputDoc addField("sort_all_%s".format(sort), inputDoc.get(indexedKeys.get(sort).get))
-        }
-    }
+    dataSet.getIndexingMappingPrefix.foreach(prefix => inputDoc += (ALL_SCHEMAS -> prefix))
   }
 
 }

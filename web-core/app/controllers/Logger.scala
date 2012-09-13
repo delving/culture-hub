@@ -19,7 +19,7 @@ package controllers
 import java.io.{PrintWriter, StringWriter}
 import play.api.Logger
 import play.api.Play.current
-import play.api.mvc.{RequestHeader, Results, Result}
+import play.api.mvc.{Controller, RequestHeader, Results, Result}
 import models.DomainConfiguration
 import extensions.Email
 import core.ThemeInfo
@@ -31,7 +31,7 @@ import util.Quotes
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-trait Logging extends Secured { self: ApplicationController =>
+trait Logging extends Secured { self: Controller with DomainConfigurationAware =>
 
   import ErrorReporter._
 
@@ -49,29 +49,18 @@ trait Logging extends Secured { self: ApplicationController =>
   }
   def Error(implicit request: RequestHeader)        = {
     Logger.error(withContext("Internal server error"))
-    reportError(request, "Internal server error", configuration)
-    Results.InternalServerError(views.html.errors.error(None))
+    reportError(request, "Internal server error")
+    Results.InternalServerError(views.html.errors.error(None, None))
   }
   def Error(why: String)(implicit request: RequestHeader)                              = {
     Logger.error(withContext(why))
-    reportError(request, why, configuration)
-    Results.InternalServerError(why)
+    reportError(request, why)
+    Results.InternalServerError(views.html.errors.error(None, Some(why)))
   }
-  def BadRequest(implicit request: RequestHeader)              = {
-    warning("Bad request")
-    Results.BadRequest
-  }
-  def BadRequest(why: String)(implicit request: RequestHeader) = {
-    warning(why)
-    Results.BadRequest
-  }
-  def TextError(why: String, status: Int = 500)(implicit request: RequestHeader) = {
-    Logger.error(why)
-    Results.Status(status)(why)
-  }
-  def TextNotFound(why: String)(implicit request: RequestHeader) = {
-    Logger.warn(why)
-    Results.NotFound(why)
+  def Error(why: String, t: Throwable)(implicit request: RequestHeader)                              = {
+    Logger.error(withContext(why), t)
+    reportError(request, t, why)
+    Results.InternalServerError(views.html.errors.error(None, Some(why)))
   }
 
 
@@ -81,28 +70,22 @@ trait Logging extends Secured { self: ApplicationController =>
   def info(message: String, args: String*)(implicit request: RequestHeader) {
     Logger(CH).info(withContext(m(message, args)))
   }
-  def info(e: Throwable, message: String, args: String*)(implicit request: RequestHeader) {
-    Logger(CH).info(withContext(m(message, args)), e)
-  }
   def warning(message: String, args: String*)(implicit request: RequestHeader) {
     Logger(CH).warn(withContext(m(message, args)))
   }
-  def warning(e: Throwable, message: String, args: String*)(implicit request: RequestHeader) {
-    Logger(CH).warn(withContext(m(message, args)), e)
-  }
   def logError(message: String, args: String*)(implicit request: RequestHeader, configuration: DomainConfiguration) {
     Logger(CH).error(withContext(m(message, args)))
-    reportError(request, if(message != null) message.format(args) else "", configuration)
+    reportError(request, if(message != null) message.format(args) else "")
   }
 
   def logError(e: Throwable, message: String, args: String*)(implicit request: RequestHeader, configuration: DomainConfiguration) {
     Logger(CH).error(withContext(m(message, args)), e)
-    reportError(request, if(message != null) message.format(args) else "", configuration)
+    reportError(request, if(message != null) message.format(args) else "")
   }
 
   def reportSecurity(message: String)(implicit request: RequestHeader)  {
     Logger(CH).error("Attempted security breach: " + message)
-    ErrorReporter.reportError(securitySubject, toReport(message, request), configuration)
+    ErrorReporter.reportError(securitySubject, toReport(message, request))
   }
   
   private def m(message: String, args: Seq[String]) = {
@@ -122,18 +105,18 @@ trait Logging extends Secured { self: ApplicationController =>
 
 object ErrorReporter {
 
-  def reportError(request: RequestHeader, message: String, configuration: DomainConfiguration) {
-    reportError(subject(request), toReport(message, request), configuration)
+  def reportError(request: RequestHeader, message: String)(implicit configuration: DomainConfiguration) {
+    reportError(subject(request), toReport(message, request))
   }
-  def reportError(request: RequestHeader, e: Throwable, message: String, configuration: DomainConfiguration) {
-    reportError(subject(request), toReport(message, e, request), configuration)
-  }
-
-  def reportError(job: String, t: Throwable, message: String, configuration: DomainConfiguration) {
-    reportError("[CultureHub] An error occured on node %s".format(current.configuration.getString("culturehub.nodeName")), toReport(job, message, t), configuration)
+  def reportError(request: RequestHeader, e: Throwable, message: String)(implicit configuration: DomainConfiguration) {
+    reportError(subject(request), toReport(message, e, request))
   }
 
-  def reportError(subject: String, report: String, configuration: DomainConfiguration) {
+  def reportError(job: String, t: Throwable, message: String)(implicit configuration: DomainConfiguration) {
+    reportError("[CultureHub] An error occured on node %s".format(configuration.commonsService.nodeName), toReport(job, message, t))
+  }
+
+  def reportError(subject: String, report: String)(implicit configuration: DomainConfiguration) {
     Email(configuration.emailTarget.systemFrom, subject).to(configuration.emailTarget.exceptionTo).withTemplate("Mails/reportError.txt", "en", 'report -> report, 'quote -> Quotes.randomQuote(), 'themeInfo -> new ThemeInfo(configuration)).send()
   }
 

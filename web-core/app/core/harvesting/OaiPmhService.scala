@@ -16,6 +16,7 @@
 
 package core.harvesting
 
+import core.{HarvestCollectionLookupService, HubId}
 import java.text.SimpleDateFormat
 import java.util.Date
 import exceptions._
@@ -26,7 +27,8 @@ import xml.{Elem, PrettyPrinter, XML}
 import java.net.URLEncoder
 import core.Constants._
 import models._
-import core.collection.Harvestable
+import core.collection.{OrganizationCollectionInformation, Harvestable}
+import org.scala_tools.subcut.inject.{Injectable, BindingModule}
 
 /**
  *  This class is used to parse an OAI-PMH instruction from an HttpServletRequest and return the proper XML response
@@ -34,26 +36,16 @@ import core.collection.Harvestable
  *  This implementation is based on the v.2.0 specification that can be found here: http://www.openarchives.org/OAI/openarchivesprotocol.html
  *
  * @author Sjoerd Siebinga <sjoerd.siebinga@gmail.com>
+ * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  * @since Jun 16, 2010 12:06:56 AM
  */
-
-object OaiPmhService {
-
-  val utcFormat: SimpleDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'")
-  val dateFormat = new SimpleDateFormat("yyyy-MM-dd")
-
-  def toUtcDateTime(date: Date): String = utcFormat.format(date)
-
-  def currentDate = toUtcDateTime(new Date())
-
-  def printDate(date: Date): String = if (date != null) toUtcDateTime(date) else ""
-
-}
-
-class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, orgId: String, format: Option[String], accessKey: Option[String]) extends MetaConfig {
+class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, orgId: String, format: Option[String], accessKey: Option[String])
+                   (implicit configuration: DomainConfiguration, val bindingModule: BindingModule) extends Injectable {
 
   private val log = Logger("CultureHub")
   val prettyPrinter = new PrettyPrinter(300, 5)
+
+  val harvestCollectionLookupService = inject [HarvestCollectionLookupService]
 
   private val VERB = "verb"
   private val legalParameterKeys = List("verb", "identifier", "metadataPrefix", "set", "from", "until", "resumptionToken", "accessKey", "body")
@@ -83,7 +75,7 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
     catch {
       case ace  : AccessKeyException => createErrorResponse("cannotDisseminateFormat", ace)
       case bae  : BadArgumentException => createErrorResponse("badArgument", bae)
-      case dsnf : DataSetNotFoundException => createErrorResponse("cannotDisseminateFormat", dsnf)
+      case dsnf : DataSetNotFoundException => createErrorResponse("noRecordsMatch", dsnf)
       case mnf  : MappingNotFoundException => createErrorResponse("cannotDisseminateFormat", mnf)
       case rpe  : RecordParseException => createErrorResponse("cannotDisseminateFormat", rpe)
       case rtnf : ResumptionTokenNotFoundException => createErrorResponse("badResumptionToken", rtnf)
@@ -106,30 +98,37 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
     // check for illegal queryParameter keys
     if (!(params.keys filterNot (legalParameterKeys contains)).isEmpty) return false
 
+    // check for validity of dates
+    Seq(params.getFirst("from"), params.getFirst("until")).filterNot(_.isEmpty).foreach { date =>
+      try {
+        OaiPmhService.dateFormat.parse(date.get)
+      } catch {
+        case t: Throwable => {
+          try {
+            OaiPmhService.utcFormat.parse(date.get)
+          } catch {
+            case t: Throwable => return false
+          }
+        }
+      }
+    }
+
     true
   }
-
-  val utcFormat: SimpleDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'")
-  private def toUtcDateTime(date: Date) : String = utcFormat.format(date)
-  private def currentDate = toUtcDateTime (new Date())
-  private def printDate(date: Date) : String = if (date != null) toUtcDateTime(date) else ""
-
-  /**
-   */
 
   def processIdentify(pmhRequestEntry: PmhRequestEntry) : Elem = {
     <OAI-PMH xmlns="http://www.openarchives.org/OAI/2.0/"
              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
              xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/ http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd">
-      <responseDate>{currentDate}</responseDate>
+      <responseDate>{OaiPmhService.currentDate}</responseDate>
       <request verb="Identify">{requestURL}</request>
       <Identify>
-        <repositoryName>{repositoryName}</repositoryName>
+        <repositoryName>{configuration.oaiPmhService.repositoryName}</repositoryName>
         <baseURL>{requestURL}</baseURL>
         <protocolVersion>2.0</protocolVersion>
-        <adminEmail>{adminEmail}</adminEmail>
-        <earliestDatestamp>{earliestDateStamp}</earliestDatestamp>
-        <deletedRecord>persistent</deletedRecord>
+        <adminEmail>{configuration.oaiPmhService.adminEmail}</adminEmail>
+        <earliestDatestamp>{configuration.oaiPmhService.earliestDateStamp}</earliestDatestamp>
+        <deletedRecord>no</deletedRecord>
         <granularity>YYYY-MM-DDThh:mm:ssZ</granularity>
         <compression>deflate</compression>
         <description>
@@ -139,9 +138,9 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
           xsi:schemaLocation=
           "http://www.openarchives.org/OAI/2.0/oai-identifier http://www.openarchives.org/OAI/2.0/oai-identifier.xsd">
             <scheme>oai</scheme>
-            <repositoryIdentifier>{repositoryIdentifier}</repositoryIdentifier>
+            <repositoryIdentifier>{configuration.oaiPmhService.repositoryIdentifier}</repositoryIdentifier>
             <delimiter>:</delimiter>
-            <sampleIdentifier>{sampleIdentifier}</sampleIdentifier>
+            <sampleIdentifier>{configuration.oaiPmhService.sampleIdentifier}</sampleIdentifier>
           </oai-identifier>
         </description>
       </Identify>
@@ -150,7 +149,7 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
 
   def processListSets(pmhRequestEntry: PmhRequestEntry) : Elem = {
 
-    val collections = AggregatingHarvestCollectionLookup.findAllNonEmpty(orgId, format, accessKey)
+    val collections = harvestCollectionLookupService.findAllNonEmpty(orgId, format, accessKey)
 
     // when there are no collections throw "noSetHierarchy" ErrorResponse
     if (collections.size == 0) return createErrorResponse("noSetHierarchy")
@@ -158,13 +157,18 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
     <OAI-PMH xmlns="http://www.openarchives.org/OAI/2.0/"
              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
              xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/ http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd">
-      <responseDate>{currentDate}</responseDate>
+      <responseDate>{OaiPmhService.currentDate}</responseDate>
       <request verb="ListSets">{requestURL}</request>
       <ListSets>
         { for (set <- collections) yield
         <set>
           <setSpec>{set.spec}</setSpec>
           <setName>{set.getName}</setName>
+          <setDescription>
+            <totalRecords>{set.getTotalRecords}</totalRecords>{if (set.isInstanceOf[OrganizationCollectionInformation]) {
+            val organizationCollectionInformation = set.asInstanceOf[OrganizationCollectionInformation]
+            <dataProvider>{organizationCollectionInformation.getDataProvider}</dataProvider>}}
+          </setDescription>
         </set>
         }
       </ListSets>
@@ -183,10 +187,10 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
     // if no identifier present list all formats
     // otherwise only list the formats available for the identifier
     val allMetadataFormats = if (identifier.isEmpty) {
-      AggregatingHarvestCollectionLookup.getAllMetadataFormats(orgId, accessKey)
+      harvestCollectionLookupService.getAllMetadataFormats(orgId, accessKey)
     } else {
-      AggregatingHarvestCollectionLookup.findBySpecAndOrgId(identifierSpec, orgId).map {
-        c => c.getVisibleMetadataFormats(accessKey)
+      harvestCollectionLookupService.findBySpecAndOrgId(identifierSpec, orgId).map {
+        c => c.getVisibleMetadataSchemas(accessKey)
       }.getOrElse(List.empty)
     }
 
@@ -200,7 +204,7 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
       <OAI-PMH xmlns="http://www.openarchives.org/OAI/2.0/"
                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/ http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd">
-        <responseDate>{currentDate}</responseDate>
+        <responseDate>{OaiPmhService.currentDate}</responseDate>
         {formatRequest}
         <ListMetadataFormats>
           {for (format <- metadataFormats) yield
@@ -218,29 +222,33 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
   def processListRecords(pmhRequestEntry: PmhRequestEntry, idsOnly: Boolean = false) : Elem = {
 
     val setName = pmhRequestEntry.getSet
-    if(setName.isEmpty) throw new BadArgumentException("No set provided")
+    if (setName.isEmpty) throw new BadArgumentException("No set provided")
     val metadataFormat = pmhRequestEntry.getMetadataFormat
 
-    if(format.isDefined && metadataFormat != format.get) throw new MappingNotFoundException("Invalid format provided for this URL")
+    if (format.isDefined && metadataFormat != format.get) throw new MappingNotFoundException("Invalid format provided for this URL")
 
-    val collection = AggregatingHarvestCollectionLookup.findBySpecAndOrgId(setName, orgId).getOrElse(throw new DataSetNotFoundException("unable to find set: " + setName))
-    if(!collection.getVisibleMetadataFormats(accessKey).exists(f => f.prefix == metadataFormat)) {
+    val collection = harvestCollectionLookupService.findBySpecAndOrgId(setName, orgId).getOrElse {
+      throw new DataSetNotFoundException("unable to find set: " + setName)
+    }
+
+    val schema: Option[RecordDefinition] = collection.getVisibleMetadataSchemas(accessKey).find(f => f.prefix == metadataFormat)
+    if(!schema.isDefined) {
       throw new MappingNotFoundException("Format %s unknown".format(metadataFormat))
     }
-    val (records, totalValidRecords) = collection.getRecords(metadataFormat, pmhRequestEntry.getLastTransferIdx, pmhRequestEntry.recordsReturned)
+    val (records, totalValidRecords) = collection.getRecords(metadataFormat, pmhRequestEntry.getLastTransferIdx, pmhRequestEntry.recordsReturned, pmhRequestEntry.pmhRequestItem.from, pmhRequestEntry.pmhRequestItem.until)
 
     val recordList = records.toList
 
-    if(recordList.size == 0) throw new RecordNotFoundException(requestURL)
+    if (recordList.size == 0) throw new RecordNotFoundException(requestURL)
 
-    val from = printDate(recordList.head.modified)
-    val to = printDate(recordList.last.modified)
+    val from = OaiPmhService.printDate(recordList.head.modified)
+    val to = OaiPmhService.printDate(recordList.last.modified)
 
     val elem: Elem = if (!idsOnly) {
       <OAI-PMH xmlns="http://www.openarchives.org/OAI/2.0/"
                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/ http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd">
-        <responseDate>{currentDate}</responseDate>
+        <responseDate>{OaiPmhService.currentDate}</responseDate>
         <request verb="ListRecords" from={from} until={to} metadataPrefix={metadataFormat}>{requestURL}</request>
         <ListRecords>
           {for (record <- recordList) yield
@@ -248,12 +256,11 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
           {pmhRequestEntry.renderResumptionToken(recordList, totalValidRecords)}
         </ListRecords>
       </OAI-PMH>
-    }
-    else {
+    } else {
       <OAI-PMH xmlns="http://www.openarchives.org/OAI/2.0/"
                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/ http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd">
-        <responseDate>{currentDate}</responseDate>
+        <responseDate>{OaiPmhService.currentDate}</responseDate>
         <request verb="ListIdentifiers" from={from} until={to}
                  metadataPrefix={metadataFormat}
                  set={setName}>{requestURL}</request>
@@ -270,9 +277,7 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
       </OAI-PMH>
     }
   
-      prependNamespaces(metadataFormat, collection, elem)
-
-
+    prependNamespaces(metadataFormat, schema.get.schemaVersion, collection, elem)
   }
 
   def processGetRecord(pmhRequestEntry: PmhRequestEntry) : Elem = {
@@ -286,30 +291,30 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
 
     if(format.isDefined && metadataFormat != format.get) throw new MappingNotFoundException("Invalid format provided for this URL")
 
-    val HubId(orgId, set, itemId) = pmhRequest.identifier
+    val hubId = HubId(pmhRequest.identifier)
 
     // check access rights
-    val c = AggregatingHarvestCollectionLookup.findBySpecAndOrgId(set, orgId)
+    val c = harvestCollectionLookupService.findBySpecAndOrgId(hubId.spec, orgId)
     if (c == None) return createErrorResponse("noRecordsMatch")
-    if (!c.get.getVisibleMetadataFormats(accessKey).contains(metadataFormat)) {
+    if (!c.get.getVisibleMetadataSchemas(accessKey).contains(metadataFormat)) {
       return createErrorResponse("idDoesNotExist")
     }
 
     val record: MetadataItem = {
-      val cache = MetadataCache.get(orgId, set, ITEM_TYPE_MDR)
+      val cache = MetadataCache.get(orgId, hubId.spec, ITEM_TYPE_MDR)
       val mdRecord = cache.findOne(pmhRequest.identifier)
       if (mdRecord == None) return createErrorResponse("noRecordsMatch")
       else mdRecord.get
     }
 
-    val collection = AggregatingHarvestCollectionLookup.findBySpecAndOrgId(identifier.split("_")(1), identifier.split("_")(0)).get
+    val collection = harvestCollectionLookupService.findBySpecAndOrgId(identifier.split("_")(1), identifier.split("_")(0)).get
 
     val elem: Elem =
       <OAI-PMH xmlns="http://www.openarchives.org/OAI/2.0/"
                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/ http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd">
         <responseDate>
-          {currentDate}
+          {OaiPmhService.currentDate}
         </responseDate>
         <request verb="GetRecord" identifier={identifier}
                  metadataPrefix={metadataFormat}>
@@ -320,7 +325,7 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
         </GetRecord>
       </OAI-PMH>
 
-    prependNamespaces(metadataFormat, collection, elem)
+    prependNamespaces(metadataFormat, record.schemaVersions.get(metadataFormat).getOrElse("1.0.0"), collection, elem)
   }
 
   // todo find a way to not show status namespace when not deleted
@@ -335,7 +340,7 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
       <record>
         <header>
           <identifier>{URLEncoder.encode(record.itemId, "utf-8")}</identifier>
-          <datestamp>{printDate(record.modified)}</datestamp>
+          <datestamp>{OaiPmhService.printDate(record.modified)}</datestamp>
           <setSpec>{set}</setSpec>
         </header>
         <metadata>
@@ -343,20 +348,18 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
         </metadata>
       </record>
     } catch {
-      case e: Exception =>
+      case e: Throwable =>
         log.error("Unable to render record %s with format %s because of %s".format(record.itemId, metadataPrefix, e.getMessage), e)
           <record/>
     }
     response
   }
   
-  private def prependNamespaces(metadataFormat: String, collection: Harvestable, elem: Elem): Elem = {
-
+  private def prependNamespaces(metadataFormat: String, schemaVersion: String, collection: Harvestable, elem: Elem): Elem = {
     var mutableElem = elem
 
-    val formatNamespaces = RecordDefinition.recordDefinitions.find(r => r.prefix == metadataFormat).get.allNamespaces
+    val formatNamespaces = RecordDefinition.getRecordDefinition(metadataFormat, schemaVersion).get.allNamespaces
     val globalNamespaces = collection.getNamespaces.map(ns => Namespace(ns._1, ns._2, ""))
-
     val namespaces = (formatNamespaces ++ globalNamespaces).distinct.filterNot(_.prefix == "xsi")
 
     for (ns <- namespaces) {
@@ -369,16 +372,31 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
     }
     mutableElem
   }
-  
+
 
   def createPmhRequest(params: Params, verb: PmhVerb): PmhRequestEntry = {
+
     def getParam(key: String) = params.getValueOrElse(key, "")
+
+    def parseDate(date: String) = try {
+      OaiPmhService.dateFormat.parse(date)
+    } catch {
+      case t: Throwable => {
+        try {
+          OaiPmhService.utcFormat.parse(date)
+        } catch {
+          case t: Throwable =>
+            log.warn("Trying to parse invalid date " + date)
+            new Date()
+        }
+      }
+    }
 
     val pmh = PmhRequestItem(
       verb,
       getParam("set"),
-      getParam("from"),
-      getParam("until"),
+      params.getFirst("from").map(parseDate(_)),
+      params.getFirst("until").map(parseDate(_)),
       getParam("metadataPrefix"),
       getParam("identifier")
     )
@@ -398,7 +416,7 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
     <OAI-PMH xmlns="http://www.openarchives.org/OAI/2.0/"
              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
              xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/ http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd">
-      <responseDate>{currentDate}</responseDate>
+      <responseDate>{OaiPmhService.currentDate}</responseDate>
       <request>{requestURL}</request>
       {errorCode match {
       case "badArgument" => <error code="badArgument">The request includes illegal arguments, is missing required arguments, includes a repeated argument, or values for arguments have an illegal syntax.</error>
@@ -414,11 +432,11 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
     </OAI-PMH>
   }
 
-  case class PmhRequestItem(verb: PmhVerb, set: String, from: String, until: String, metadataPrefix: String, identifier: String)
+  case class PmhRequestItem(verb: PmhVerb, set: String, from: Option[Date], until: Option[Date], metadataPrefix: String, identifier: String)
 
   case class PmhRequestEntry(pmhRequestItem: PmhRequestItem, resumptionToken: String) {
 
-    val recordsReturned = responseListSize
+    val recordsReturned = configuration.oaiPmhService.responseListSize
 
     private val ResumptionTokenExtractor = """(.+?):(.+?):(.+?):(.+?):(.+)""".r
 
@@ -442,7 +460,7 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
 
       val cursor = currentPageNr * recordsReturned
       if (cursor < originalListSize) {
-        <resumptionToken expirationDate={printDate(new Date())} completeListSize={(originalListSize).toString}
+        <resumptionToken expirationDate={OaiPmhService.printDate(new Date())} completeListSize={(originalListSize).toString}
                          cursor={cursor.toString}>{nextResumptionToken}</resumptionToken>
       }
       else
@@ -450,6 +468,17 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
     }
 
   }
+
+}
+
+object OaiPmhService {
+  val utcFormat: SimpleDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'")
+  val dateFormat = new SimpleDateFormat("yyyy-MM-dd")
+  utcFormat.setLenient(false)
+  dateFormat.setLenient(false)
+  private def toUtcDateTime(date: Date) : String = utcFormat.format(date)
+  private def currentDate = toUtcDateTime (new Date())
+  private def printDate(date: Date) : String = if (date != null) toUtcDateTime(date) else ""
 
 }
 
@@ -463,18 +492,4 @@ object PmhVerbType extends Enumeration {
   val LIST_RECORDS = PmhVerb("ListRecords")
   val GET_RECORD = PmhVerb("GetRecord")
   val IDENTIFY = PmhVerb("Identify")
-}
-
-trait MetaConfig {
-
-  import play.api.Play
-  import play.api.Play.current
-  def conf(key: String) = Play.configuration.getString(key).getOrElse("").trim
-
-  val repositoryName: String = conf("services.pmh.repositoryName")
-  val adminEmail: String = conf("services.pmh.adminEmail")
-  val earliestDateStamp: String = conf("services.pmh.earliestDateStamp")
-  val repositoryIdentifier: String = conf("services.pmh.repositoryIdentifier")
-  val sampleIdentifier: String = conf("services.pmh.sampleIdentifier")
-  val responseListSize: Int = Play.configuration.getInt("services.pmh.responseListSize").getOrElse(250)
 }

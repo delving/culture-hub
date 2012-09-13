@@ -5,23 +5,19 @@
 #{set 'moreScripts'}
 <script type="text/javascript" src="@{routes.Assets.at("common/javascripts/bootstrap/bootstrap-tooltip.js")}"></script>
 #{/set}
-#{breadcrumbs /}
+#{breadcrumbs crumbs: breadcrumbs /}
 
 #{organizationNavBar orgId: orgId, active:"statistics", navigation: navigation /}
 
 <div class="row">
     <div class="span12">
-        <h3 class="page-header">
-        &{'plugin.statistics.statistics'}
-        </h3>
+        <h3 class="page-header">&{'plugin.statistics.statistics'}</h3>
         <div class="tabbable">
-
-            <ul class="nav nav-pills" id="stats-tabs">
-                <li class="active"><a href="#datasets-pane" data-toggle="tab">&{'thing.datasets'}</a></li>
+            <ul class="nav nav-pills" id="stats-tabs" data-bind="foreach: facets">
+                <li data-bind="css: { active: $root.selected() === $data.name()  }"><a href='#' data-bind="click: function() { $root.selected($data.name()) }, text: i18n"></a></li>
             </ul>
-
-            <div class="tab-content">
-                <div class="tab-pane active" id="datasets-pane">
+            <div class="tab-content" data-bind="foreach: facets">
+                <div class="tab-pane" data-bind="css: { active: $root.selected() === $data.name() }">
                     <table class="table">
                         <thead>
                         <tr>
@@ -31,16 +27,13 @@
                             <th>&{'plugin.statistics.landingPages'}</th>
                         </tr>
                         </thead>
-                        <tbody>
-
-                        #{list dataSetStatistics, as: 'dss'}
+                        <tbody data-bind="foreach: entries">
                         <tr>
-                            <td>${dss.spec}</td>
-                            <td>${dss.total}</td>
-                            <td><span class="badge badge-info" rel="tooltip" title="${dss.hasDigitalObjectCount} records">${dss.hasDigitalObjectPercentage}%</span></td>
-                            <td><span class="badge badge-info" rel="tooltip" title="${dss.hasLandingPageCount} records">${dss.hasLandingPagePercentage}%</span></td>
+                            <td><span data-bind="text: name"></span></td>
+                            <td><span data-bind="text: total"></span></td>
+                            <td><span class="badge badge-info" rel="tooltip" data-bind="text: digitalObjectsPercentage() + ' %', attr: { title: digitalObjects() + ' records' }"></span></td>
+                            <td><span class="badge badge-info" rel="tooltip" data-bind="text: landingPagesPercentage() + ' %', attr: { title: landingPages() + ' records' }"></span></td>
                         </tr>
-                        #{/list}
                         </tbody>
                     </table>
                 </div>
@@ -48,8 +41,25 @@
         </div>
     </div>
 </div>
+
+
+
+
 <script>
-    $(document).ready(function(){
-        $('span[rel=tooltip]').tooltip();
+    $(document).ready(function() {
+
+      var viewModel = {
+        selected: ko.observable("")
+      };
+
+      $.get('/organizations/${orgId}/api/statistics', function(data) {
+        load(data.statistics, viewModel, null, function() {
+          var name = viewModel.facets()[0].name()
+          viewModel.selected(name);
+          $('span[rel=tooltip]').tooltip();
+        });
+
+      });
+
     })
 </script>

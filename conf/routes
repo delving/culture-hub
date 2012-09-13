@@ -5,10 +5,15 @@
 GET         /favicon.ico                                                           controllers.Application.notFound(what = "favicon.ico")
 GET         /assets/themes/:theme/info.conf                                        controllers.Application.notFound(theme)
 
+# Map static resources from the /public folder to the /assets URL path
+GET         /assets/*file                                                          controllers.Assets.at(path="/public", file)
+
 GET         /robots.txt                                                            controllers.Assets.at(path="/public", file="robots.txt")
 
 # Home page
 GET     /                                                                          controllers.Application.index
+
+GET     /browsers.html                                                             controllers.Assets.at(path="/public", file="browsers.html")
 
 # Site page
 GET        /page/:key                                                              controllers.Application.page(key)
@@ -57,11 +62,11 @@ GET        /file/thumbnail/:id/:width                        controllers.dos.Ima
 GET        /file/thumbnail/*id                               controllers.dos.ImageDisplay.displayThumbnail(id, orgId = "", collectionId = "", width: Option[String] = None, browse: Boolean = false, fileId: Boolean = true)
 
 ## Lookup by item ID or other form of IDs
-GET        /image/:id                                        controllers.dos.ImageDisplay.displayImage(id, fileId: Boolean = false)
+GET        /image/:id                                        controllers.dos.ImageDisplay.displayImage(id, fileId: Boolean = true)
 GET        /thumbnail/:orgId/:collectionId/:id/:width        controllers.dos.ImageDisplay.displayThumbnail(id, orgId, collectionId, width: Option[String], browse: Boolean = false, fileId: Boolean = false)
 GET        /thumbnail/:orgId/:collectionId/*id               controllers.dos.ImageDisplay.displayThumbnail(id, orgId, collectionId, width: Option[String], browse: Boolean = false, fileId: Boolean = false)
-GET        /thumbnail/:id/:width                             controllers.dos.ImageDisplay.displayThumbnail(id, orgId = "", collectionId = "", width: Option[String], browse: Boolean = true, fileId: Boolean = false)
-GET        /thumbnail/*id                                    controllers.dos.ImageDisplay.displayThumbnail(id, orgId = "", collectionId = "", width: Option[String], browse: Boolean = true, fileId: Boolean = false)
+GET        /thumbnail/:id/:width                             controllers.dos.ImageDisplay.displayThumbnail(id, orgId = "", collectionId = "", width: Option[String], browse: Boolean = false, fileId: Boolean = true)
+GET        /thumbnail/*id                                    controllers.dos.ImageDisplay.displayThumbnail(id, orgId = "", collectionId = "", width: Option[String] = None, browse: Boolean = false, fileId: Boolean = true)
 
 
 # UI
@@ -79,9 +84,8 @@ GET     /@dos/task/status/:id                   controllers.dos.ui.Tasks.status(
 GET     /@dos/log/list/:taskId                 controllers.dos.ui.Logs.list(taskId: org.bson.types.ObjectId, lastCount: Option[Int])
 GET     /@dos/log/view/:taskId                 controllers.dos.ui.Logs.view(taskId: org.bson.types.ObjectId)
 
-# Custom Controllers and Functionality for customers
-GET         /services/api/itin                                               controllers.custom.ItinEndPoint.search
-POST        /services/api/itin                                               controllers.custom.ItinEndPoint.store
+GET     /@dos/thumbnail/:id/:width             controllers.dos.ImageDisplay.displayThumbnail(id, orgId = "", collectionId = "", width: Option[String], browse: Boolean = false, fileId: Boolean = false)
+GET     /@dos/thumbnail/*id                    controllers.dos.ImageDisplay.displayThumbnail(id, orgId = "", collectionId = "", width: Option[String], browse: Boolean = false, fileId: Boolean = false)
 
 
 # User registration
@@ -108,11 +112,6 @@ GET          /users/search                                                    co
 GET          /search                                                          controllers.Search.index(query ?= "*:*", page: Int ?= 1)
 
 GET          /:user                                                           controllers.Profile.profile(user)
-
-GET          /:orgId/thing/:spec/:recordId/overlay                            controllers.Search.record(orgId, spec, recordId, overlay: Boolean = true)
-GET          /:orgId/thing/:spec/:recordId                                    controllers.Search.record(orgId, spec, recordId, overlay: Boolean = false)
-
-GET          /:user/sip-creator.jnlp                                          controllers.organization.SipCreator.jnlp(user)
 
 GET          /:user/admin/profile/update                                      controllers.user.Admin.profile(user)
 POST         /:user/admin/profile                                             controllers.user.Admin.profileSubmit(user)
@@ -157,25 +156,20 @@ GET         /organizations/:orgId                                             co
 GET         /organizations/:orgId/admin                                       controllers.organization.Admin.index(orgId)
 POST        /organizations/:orgId/admin/users/add                             controllers.organization.Admin.addUser(orgId)
 DELETE      /organizations/:orgId/admin/users/remove                          controllers.organization.Admin.removeUser(orgId)
-GET         /organizations/:orgId/admin/indexDataSets                         controllers.organization.Admin.indexDataSets(orgId)
+POST        /organizations/:orgId/admin/admin/add                             controllers.organization.Admin.addAdmin(orgId)
+DELETE      /organizations/:orgId/admin/admin/remove                          controllers.organization.Admin.removeAdmin(orgId)
 
 GET         /organizations/:orgId/admin/solrSearchProxy                       controllers.organization.Admin.solrSearchProxy(orgId)
 
-GET         /organizations/:orgId/datasets/search                             controllers.organization.DataSets.listAsTokens(orgId: String, q: String ?= "")
-GET         /organizations/:orgId/datasets/searchBySpec                       controllers.organization.DataSets.listAsTokensBySpec(orgId: String, q: String ?= "")
 GET         /organizations/:orgId/users/search                                controllers.Users.listAsTokens(orgId: Option[String], q: String ?= "")
+
+GET         /organizations/:orgId/groups/resources/:resourceType/search       controllers.organization.Groups.searchResourceTokens(orgId, resourceType, q: String ?= "")
 
 GET         /organizations/:orgId/groups                                      controllers.organization.Groups.list(orgId)
 GET         /organizations/:orgId/groups/create                               controllers.organization.Groups.groups(orgId, groupId: Option[org.bson.types.ObjectId] = None)
 GET         /organizations/:orgId/groups/update/:groupId                      controllers.organization.Groups.groups(orgId, groupId: Option[org.bson.types.ObjectId])
-POST        /organizations/:orgId/groups/create                               controllers.organization.Groups.update(orgId, groupId: Option[org.bson.types.ObjectId] = None)
 DELETE      /organizations/:orgId/groups/remove/:groupId                      controllers.organization.Groups.remove(orgId, groupId: Option[org.bson.types.ObjectId])
-POST        /organizations/:orgId/groups/update/                              controllers.organization.Groups.update(orgId, groupId: Option[org.bson.types.ObjectId] = None)
-POST        /organizations/:orgId/groups/update/:groupId                      controllers.organization.Groups.update(orgId, groupId: Option[org.bson.types.ObjectId])
-POST        /organizations/:orgId/groups/:groupId/addUser                     controllers.organization.Groups.addUser(orgId, groupId: org.bson.types.ObjectId)
-DELETE      /organizations/:orgId/groups/:groupId/removeUser                  controllers.organization.Groups.removeUser(orgId, groupId: org.bson.types.ObjectId)
-POST        /organizations/:orgId/groups/:groupId/addDataset                  controllers.organization.Groups.addDataset(orgId, groupId: org.bson.types.ObjectId)
-DELETE      /organizations/:orgId/groups/:groupId/removeDataset               controllers.organization.Groups.removeDataset(orgId, groupId: org.bson.types.ObjectId)
+POST        /organizations/:orgId/groups/submit                               controllers.organization.Groups.submit(orgId)
 
 GET         /organizations/:orgId/site/upload                                 controllers.organization.CMS.upload(orgId)
 POST        /organizations/:orgId/site/upload/:uid                            controllers.organization.CMS.uploadSubmit(orgId, uid)
@@ -188,22 +182,7 @@ POST        /organizations/:orgId/site/page                                   co
 DELETE      /organizations/:orgId/site/:language/page/:key                    controllers.organization.CMS.pageDelete(orgId, key, language)
 GET         /organizations/:orgId/site/:language/page/preview/:key            controllers.organization.CMS.pagePreview(orgId, language, key)
 
-GET         /organizations/:orgId/dataset                                     controllers.organization.DataSets.list(orgId)
-GET         /organizations/:orgId/dataset/feed                                controllers.organization.DataSets.feed(orgId, clientId: String, spec: Option[String])
-GET         /organizations/:orgId/dataset/add                                 controllers.organization.DataSetControl.dataSet(orgId, spec: Option[String] = None)
-GET         /organizations/:orgId/dataset/:spec/update                        controllers.organization.DataSetControl.dataSet(orgId, spec: Option[String])
-POST        /organizations/:orgId/dataset/submit                              controllers.organization.DataSetControl.dataSetSubmit(orgId)
-GET         /organizations/:orgId/dataset/:spec                               controllers.organization.DataSets.dataSet(orgId, spec)
-
 GET         /organizations/:orgId/directory/organizationLookup                controllers.organization.DataSetControl.organizationLookup(orgId, term)
 
-GET         /organizations/:orgId/sip-creator                                 controllers.organization.SipCreator.index(orgId)
 
-GET         /api/sip-creator/list                                             controllers.SipCreatorEndPoint.listAll(accessKey: Option[String] ?= None)
-GET         /api/sip-creator/unlock/:orgId/:spec                              controllers.SipCreatorEndPoint.unlock(orgId, spec, accessKey: Option[String] ?= None)
-POST        /api/sip-creator/submit/:orgId/:spec                              controllers.SipCreatorEndPoint.acceptFileList(orgId, spec, accessKey: Option[String] ?= None)
-POST        /api/sip-creator/submit/:orgId/:spec/:fileName                    controllers.SipCreatorEndPoint.acceptFile(orgId, spec, fileName, accessKey: Option[String] ?= None)
-GET         /api/sip-creator/fetch/:orgId/:spec-sip.zip                       controllers.SipCreatorEndPoint.fetchSIP(orgId, spec, accessKey: Option[String] ?= None)
-
-# Map static resources from the /public folder to the /assets URL path
-GET         /assets/*file                                                     controllers.Assets.at(path="/public", file)
+GET          /:orgId/:spec/:recordId                                          controllers.FullView.render(orgId, spec, recordId, format: Option[String])

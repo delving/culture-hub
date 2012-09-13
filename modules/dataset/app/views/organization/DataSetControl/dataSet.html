@@ -1,0 +1,180 @@
+#{set 'visibility'}hidden#{/}
+#{extends themeInfo.get('themeLayout') /}
+#{set title: messages.get('organization.dataset.create') /}
+#{set bodyId: 'organization' /}
+
+<style>
+    .ui-autocomplete {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      z-index: 1000;
+      float: left;
+      display: none;
+      min-width: 160px;
+      _width: 160px;
+      padding: 4px 0;
+      margin: 2px 0 0 0;
+      list-style: none;
+      background-color: #ffffff;
+      border-color: #ccc;
+      border-color: rgba(0, 0, 0, 0.2);
+      border-style: solid;
+      border-width: 1px;
+      -webkit-border-radius: 5px;
+      -moz-border-radius: 5px;
+      border-radius: 5px;
+      -webkit-box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+      -moz-box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+      box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+      -webkit-background-clip: padding-box;
+      -moz-background-clip: padding;
+      background-clip: padding-box;
+      *border-right-width: 2px;
+      *border-bottom-width: 2px;
+
+      .ui-menu-item > a.ui-corner-all {
+        display: block;
+        padding: 3px 15px;
+        clear: both;
+        font-weight: normal;
+        line-height: 18px;
+        color: #555555;
+        white-space: nowrap;
+
+        &.ui-state-hover, &.ui-state-active {
+          color: #ffffff;
+          text-decoration: none;
+          background-color: #0088cc;
+          border-radius: 0px;
+          -webkit-border-radius: 0px;
+          -moz-border-radius: 0px;
+          background-image: none;
+        }
+      }
+    }
+</style>
+
+#{breadcrumbs crumbs: breadcrumbs /}
+
+#{organizationNavBar orgId: orgId, active:"datasets", navigation: navigation /}
+
+<div class="page-header">
+    <h2>${spec.isEmpty() ? messages.get('organization.dataset.create') : messages.get('organization.dataset.update') }</h2>
+</div>
+
+<form method="post" action="" id="collectionForm" class="form-delving">
+    <div class="row">
+        <div class="dataset-info span6">
+
+            #{form.textField name:"spec", form: dataSetForm, label: messages.get('organization.dataset.label.identifier'), dataBind:"value: spec", help: messages.get('organization.dataset.help.identifier') /}
+
+            %{for(i in 0..factDefinitions.size() - 1) {
+                def factDef = factDefinitions.apply(i);
+            }%
+
+            #{if factDef.hasOptions()}
+                #{form.populatedSelectField name: "facts." + factDef.name, form: dataSetForm, label: factDef.prompt, options: factDef.opts, dataBind: "value: facts." + factDef.name, help: factDef.tooltip /}
+            #{/if}
+            #{else}
+                #{form.textField  name: "facts." + factDef.name, form: dataSetForm, label: factDef.prompt, dataBind: "value: facts." + factDef.name, help: factDef.tooltip, isDisabled: factDef.automatic /}
+            #{/else}
+
+            %{ }}%
+
+        </div>
+        <div class="dataset-schemas span6">
+
+                        <div class="control-group">
+                            <label class="control-label">Target Schemas</label>
+                            <div class="controls">
+                                <table class="table">
+                                <thead><th width="150">Schema</th><th>Version</th><th>OAI-PMH Access</th></thead>
+                                <tbody data-bind="foreach: schemaProcessingConfigurations">
+                                    <tr>
+                                        <td align="left">
+                                          <div class="control-group">
+                                            <span data-bind="text: prefix"></span>
+                                            <div class="controls">
+                                              <input type="checkbox" data-bind="attr: { value: prefix }, checked: $root.selectedSchemas">
+                                            </div>
+                                          </div>
+                                        </td>
+                                        <td align="left">
+                                          <span data-bind="visible: $root.selectedSchemas().indexOf(prefix()) > -1">
+                                            <select data-bind="options: availableVersions, value: version"></select>
+                                          </span>
+                                        </td>
+                                        <td align="left">
+                                          <span data-bind="visible: $root.selectedSchemas().indexOf(prefix()) > -1">
+                                              <select data-bind="value: accessType">
+                                                  <option value="none">No access</option>
+                                                  <option value="public">Public access</option>
+                                                  <option value="protected">Protected access</option>
+                                              </select>
+                                              <span data-bind="visible: accessType() == 'protected'">
+                                                  <span>Access key</span>
+                                                  <input type="text" data-bind="value: accessKey">
+                                              </span>
+                                          </span>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="control-group">
+                            <label class="control-label">Indexing and Rendering Schema</label>
+                            <div class="controls">
+                                <select id="mapping-prefix" name="mapping-prefix" data-bind="options: selectedSchemas, optionsCaption: 'None', value: indexingMappingPrefix"></select>
+                                <span class="help-inline">Select a schema for indexing so that this set can be searchable and displayable in the hub</span>
+                                <span class="error" data-bind="text: errors().indexingMappingPrefix"></span>
+                            </div>
+                        </div>
+
+                        <hr/>
+                        <div class="well">
+                            <div class="row">
+                                #{btnHref id:"saveButton", name:"saveButton", label:messages.get('organization.dataset.save'), extraClass:"btn-success btn-large span4", iconClass:"icon-ok-circle icon-white", rel:"nofollow"/}
+                                <button type="reset" class="btn btn-large pull-right">Reset</button>
+                            </div>
+                        </div>
+                    </div>
+     </div>
+
+</form>
+<script type="text/html" id="schemaProcessingConfiguration">
+
+</script>
+
+<script type="text/javascript">
+    $(document).ready(function() {
+        var dataSetModel = {};
+
+        $('#saveButton').click(function(event) {
+            event.preventDefault();
+            handleSubmit('/organizations/${orgId}/dataset/submit', dataSetModel, '#collectionForm', null, function() {
+                window.location.href = '/organizations/${orgId}/dataset/' + dataSetModel.spec.call();
+            });
+        });
+
+        load(${data.raw()}, dataSetModel, null, function() {
+
+            $("[id='facts.provider']").autocomplete({
+                source: '/organizations/${orgId}/directory/organizationLookup',
+                select: function(event, ui) {
+                   dataSetModel.facts.provider(ui.item.value);
+                }
+            });
+
+            $("[id='facts.dataProvider']").autocomplete({
+                source: '/organizations/${orgId}/directory/organizationLookup',
+                select: function(event, ui) {
+                   dataSetModel.facts.dataProvider(ui.item.value);
+                }
+            });
+
+            $("body").css('visibility', 'visible');
+        });
+    });
+</script>

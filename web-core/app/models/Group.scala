@@ -1,92 +1,137 @@
 package models
 
-import org.bson.types.ObjectId
+import _root_.util.DomainConfigurationHandler
+import core.access.{ResourceType, Resource}
 import com.novus.salat.dao.SalatDAO
-import mongoContext._
+import HubMongoContext._
 import com.mongodb.casbah.Imports._
 import com.mongodb.casbah.WriteConcern
-import play.api.Play
-import play.api.Play.current
-import core.HubServices
+import core.{OrganizationService, DomainServiceLocator, HubModule}
+import play.api.i18n.Lang
+import org.scala_tools.subcut.inject.{Injectable, BindingModule}
 
 case class Group(_id: ObjectId = new ObjectId,
-                 node: String,
                  name: String,
                  orgId: String,
-                 grantType: String,
-                 dataSets: List[ObjectId] = List.empty[ObjectId],
-                 users: List[String] = List.empty[String])
+                 roleKey: String,
+                 resources: Seq[PersistedResource] = Seq.empty,
+                 users: Seq[String] = Seq.empty[String]) {
 
-object Group extends SalatDAO[Group, ObjectId](groupCollection) {
+  def description(lang: String)(implicit configuration: DomainConfiguration) = Role.get(roleKey).getDescription(Lang(lang))
+
+}
+
+object Group extends MultiModel[Group, GroupDAO] {
+
+  def connectionName: String = "Groups"
+
+  def initIndexes(collection: MongoCollection) { }
+
+  def initDAO(collection: MongoCollection, connection: MongoDB)(implicit configuration: DomainConfiguration): GroupDAO =
+    new GroupDAO(collection)(configuration, HubModule)
+
+}
+
+class GroupDAO(collection: MongoCollection)(implicit configuration: DomainConfiguration, val bindingModule: BindingModule)
+  extends SalatDAO[Group, ObjectId](collection) with Injectable {
+
+  val organizationServiceLocator = inject [ DomainServiceLocator[OrganizationService] ]
+
 
   /** lists all groups a user has access to for a given organization **/
   def list(userName: String, orgId: String) = {
-    if(HubServices.organizationService.isAdmin(orgId, userName)) {
-      Group.find(MongoDBObject("orgId" -> orgId))
+    if(organizationServiceLocator.byDomain.isAdmin(orgId, userName)) {
+      find(MongoDBObject("orgId" -> orgId))
     } else {
-      Group.find(MongoDBObject("users" -> userName, "orgId" -> orgId))
+      find(MongoDBObject("users" -> userName, "orgId" -> orgId))
     }
   }
 
-  def findDirectMemberships(userName: String, orgId: String) = Group.find(MongoDBObject("orgId" -> orgId, "users" -> userName))
+  def findDirectMemberships(userName: String) = find(MongoDBObject("orgId" -> configuration.orgId, "users" -> userName))
 
-  def addUser(userName: String, groupId: ObjectId): Boolean = {
+  def findResourceAdministrators(orgId: String, resourceType: ResourceType): Seq[String] = {
+    Role.
+            allRoles(DomainConfigurationHandler.getByOrgId(orgId)).
+            filter(r => r.resourceType == Some(resourceType) && r.isResourceAdmin).
+            flatMap(role => find(MongoDBObject("orgId" -> orgId, "roleKey" -> role.key))).
+            flatMap(group => group.users).
+            toSeq
+  }
+
+  def findUsersWithAccess(orgId: String, roleKey: String, resource: Resource): Seq[String] = {
+    Role.
+            allRoles(DomainConfigurationHandler.getByOrgId(orgId)).
+            filter(_.key == roleKey).
+            flatMap(role => find(MongoDBObject("orgId" -> orgId, "roleKey" -> role.key))).
+            filter(group => group.resources.exists(p => p.getResourceKey == resource.getResourceKey && p.getResourceType == resource.getResourceType)).
+            flatMap(group => group.users).
+            toSeq
+  }
+
+  def hasAnyRole(userName: String, roles: Seq[Role]) = roles.foldLeft(false) { (c, r) => c || hasRole(userName, r) }
+
+  def hasRole(userName: String, role: Role): Boolean = hasRole(userName, role.key)
+
+  def hasRole(userName: String, roleKey: String): Boolean = {
+    findDirectMemberships(userName).toSeq.exists(_.roleKey == roleKey) ||
+      roleKey == Role.OWN.key && organizationServiceLocator.byDomain.isAdmin(configuration.orgId, userName)
+  }
+
+  def addUser(orgId: String, userName: String, groupId: ObjectId): Boolean = {
     // TODO FIXME make this operation safe
-    HubUser.update(MongoDBObject("userName" -> userName), $addToSet ("groups" -> groupId), false, false, WriteConcern.Safe)
-    Group.update(MongoDBObject("_id" -> groupId), $addToSet ("users" -> userName), false, false, WriteConcern.Safe)
+    HubUser.dao(orgId).update(MongoDBObject("userName" -> userName), $addToSet ("groups" -> groupId), false, false, WriteConcern.Safe)
+    update(MongoDBObject("_id" -> groupId), $addToSet ("users" -> userName), false, false, WriteConcern.Safe)
     true
   }
 
-  def removeUser(userName: String, groupId: ObjectId): Boolean = {
+  def removeUser(orgId: String, userName: String, groupId: ObjectId): Boolean = {
     // TODO FIXME make this operation safe
-    HubUser.update(MongoDBObject("userName" -> userName), $pull ("groups" -> groupId), false, false, WriteConcern.Safe)
-    Group.update(MongoDBObject("_id" -> groupId), $pull ("users" -> userName), false, false, WriteConcern.Safe)
+    HubUser.dao(orgId).update(MongoDBObject("userName" -> userName), $pull ("groups" -> groupId), false, false, WriteConcern.Safe)
+    update(MongoDBObject("_id" -> groupId), $pull ("users" -> userName), false, false, WriteConcern.Safe)
     true
   }
 
-  def addDataSet(id: ObjectId, groupId: ObjectId): Boolean = {
-    // TODO FIXME make this operation safe
-    Group.update(MongoDBObject("_id" -> groupId), $addToSet ("dataSets" -> id), false, false, WriteConcern.Safe)
-    true
+  def addResource(orgId: String, resourceKey: String, resourceType: ResourceType, groupId: ObjectId): Boolean = {
+    findOneById(groupId).map { group =>
+      val updated = group.copy(resources = group.resources ++ Seq(PersistedResource(resourceType.resourceType, resourceKey)))
+      save(updated)
+      true
+    }.getOrElse(false)
   }
 
-  def removeDataSet(id: ObjectId, groupId: ObjectId): Boolean = {
-    // TODO FIXME make this operation safe
-    Group.update(MongoDBObject("_id" -> groupId), $pull ("dataSets" -> id), false, false, WriteConcern.Safe)
-    true
+  def removeResource(orgId: String, resourceKey: String, resourceType: ResourceType, groupId: ObjectId): Boolean = {
+    findOneById(groupId).map { group =>
+      val updated = group.copy(resources = group.resources.filterNot(r => r.getResourceType == resourceType && r.getResourceKey == resourceKey))
+      save(updated)
+      true
+    }.getOrElse(false)
   }
 
-  def updateGroupInfo(groupId: ObjectId, name: String, grantType: GrantType): Boolean = {
-    Group.update(MongoDBObject("_id" -> groupId), $set("name" -> name, "grantType" -> grantType.key))
-    true
+  def updateGroupInfo(groupId: ObjectId, name: String, grantType: Role, users: Seq[String], resources: Seq[PersistedResource]): Boolean = {
+    findOneById(groupId).map { group =>
+      val updated = group.copy(
+        name = name,
+        roleKey = grantType.key,
+        users = users,
+        resources = resources)
+      save(updated)
+      true
+    }.getOrElse(false)
   }
 
 }
 
-case class GrantType(key: String, description: String, origin: String = "System")
-object GrantType {
+case class PersistedResource(resourceType: String, resourceKey: String) extends Resource {
 
-  def illegal(key: String) = throw new IllegalArgumentException("Illegal key %s for GrantType".format(key))
+  /** Kind of resource **/
+  def getResourceType: ResourceType = ResourceType(resourceType)
 
-  def description(key: String) = play.api.i18n.Messages("org.group.grantType." + key)
+  /** unique identifier of the resource **/
+  def getResourceKey: String = resourceKey
 
-  val VIEW = GrantType("view", description("view"))
-  val MODIFY = GrantType("modify", description("modify"))
-  val CMS = GrantType("cms", description("cms"))
-  val OWN = GrantType("own", description("own"))
+}
 
-  val systemGrantTypes = List(VIEW, MODIFY, CMS, OWN)
+object PersistedResource {
 
-  def dynamicGrantTypes = Role.getAllRoles
-
-  val cachedGrantTypes = (systemGrantTypes ++ dynamicGrantTypes.map(r => GrantType(r.key, r.description, "Config")))
-
-  def allGrantTypes = if(Play.isDev) {
-    (systemGrantTypes ++ dynamicGrantTypes.map(r => GrantType(r.key, r.description, "Config")))
-  } else {
-    cachedGrantTypes
-  }
-
-  def get(grantType: String) = allGrantTypes.find(_.key == grantType).getOrElse(illegal(grantType))
-
+  def apply(r: Resource): PersistedResource = PersistedResource(r.getResourceType.resourceType, r.getResourceKey)
 }

@@ -10,19 +10,24 @@ import play.api.data.format.Formats._
 import extensions.Formatters._
 import play.api.i18n._
 import extensions.JJson
-import core.HubServices
+import core.{UserProfileService, DomainServiceLocator, HubModule}
 
 /**
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-object Admin extends DelvingController {
+object Admin extends BoundController(HubModule) with Admin
+
+trait Admin extends DelvingController { this: BoundController =>
+
+  val userProfileServiceLocator = inject [ DomainServiceLocator[UserProfileService] ]
+
 
   def profile(user: String) = SecuredUserAction(user) {
     Action {
       implicit request =>
-        val u = HubUser.findByUsername(connectedUser).get
+        val u = HubUser.dao.findByUsername(connectedUser).get
         val p = u.userProfile
         val profile = ProfileViewModel(p.isPublic, u.firstName, u.lastName, u.email, p.description.getOrElse(""), p.funFact.getOrElse(""), p.websites, p.twitter.getOrElse(""), p.linkedIn.getOrElse(""))
         Ok(Template('data -> JJson.generate(profile), 'profileForm -> ProfileViewModel.profileForm))
@@ -38,7 +43,7 @@ object Admin extends DelvingController {
             def StrictOption(s: String) = Option(s).filter(_.trim.nonEmpty)
 
             // update local
-            HubUser.updateProfile(connectedUser, profileModel.firstName, profileModel.lastName, profileModel.email, UserProfile(
+            HubUser.dao.updateProfile(connectedUser, profileModel.firstName, profileModel.lastName, profileModel.email, UserProfile(
               isPublic = profileModel.isPublic,
               description = StrictOption(profileModel.description),
               funFact = StrictOption(profileModel.funFact),
@@ -48,7 +53,7 @@ object Admin extends DelvingController {
             )))
 
             // update remote
-            val updated = HubServices.userProfileService.updateUserProfile(connectedUser, core.UserProfile(
+            val updated = userProfileServiceLocator.byDomain.updateUserProfile(connectedUser, core.UserProfile(
               isPublic = profileModel.isPublic,
               firstName = profileModel.firstName,
               lastName = profileModel.lastName,

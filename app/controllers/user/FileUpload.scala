@@ -19,8 +19,6 @@ package controllers.user
 import play.api.mvc._
 import org.bson.types.ObjectId
 import controllers.DelvingController
-import play.api.Play
-import play.api.Play.current
 
 /**
  * Router for the FileUpload service that either directly invokes the module API when running locally or invokes the remote
@@ -30,8 +28,6 @@ import play.api.Play.current
  */
 
 object FileUpload extends DelvingController {
-
-  val mode = Play.configuration.getString("DoS.mode").getOrElse("local")
 
   def uploadFile(uid: String) = ConnectedUserAction {
     controllers.dos.FileUpload.uploadFile(uid)
@@ -43,13 +39,8 @@ object FileUpload extends DelvingController {
         if(!ObjectId.isValid(id)) {
           BadRequest("Invalid id " + id)
         } else {
-          mode match {
-            case "local" => {
-              controllers.dos.FileUpload.deleteFileById(new ObjectId(id))
-              Ok
-            }
-            case "remote" => InternalServerError("Not implemented")
-          }
+          controllers.dos.FileUpload.deleteFileById(new ObjectId(id))
+          Ok
         }
     }
   }

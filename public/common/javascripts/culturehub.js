@@ -1,4 +1,24 @@
 /**
+ * Utility class to check if href url is internal or external
+ */
+var externalLinks = function(){
+    var hostname = window.location.hostname;
+    hostname = hostname.replace("www.","").toLowerCase();
+    var a = document.getElementsByTagName("a");
+    this.check = function(obj){
+        var href = obj.href.toLowerCase();
+        return (href.indexOf("http://")!=-1 && href.indexOf(hostname)==-1) ? true : false;
+    };
+    this.set = function(obj){
+        obj.target = "_blank";
+        obj.className = "external";
+    };
+    for (var i=0;i<a.length;i++){
+        if(check(a[i])) set(a[i]);
+    }
+};
+
+/**
  * Initialize elements based on classes
  */
 function initializeElements() {
@@ -6,16 +26,27 @@ function initializeElements() {
       e.preventDefault();
       document.location = document.referrer;
     });
+
     $('.extHelp').tooltip();
-    $('input.search-query').tooltip({
-        placement: 'bottom'
-    });
+
     $.preloadImages (
         "/assets/common/images/spinner.gif"
     );
+
     String.prototype.trim = function () {
         return this.replace(/^\s*/, "").replace(/\s*$/, "");
+    };
+
+    String.prototype.trunc =
+        function(n){
+            return this.substr(0,n-1)+(this.length>n?'&hellip;':'');
+        };
+
+    if ($.browser.msie && $.browser.version < 9) {
+        document.location.href="/browsers.html";
     }
+
+    externalLinks();
 }
 
 /**
@@ -120,7 +151,7 @@ function handleSubmit(url, viewModel, formSelector, redirectUrl, onSuccess, onEr
             $(".wait").spinner("hide");
             updateViewModel(data, viewModel);
             if (onSuccess) onSuccess.call();
-            if (redirectUrl) window.location.href = redirectUrl + viewModel.id();
+            if (redirectUrl) window.location.href = redirectUrl;
         }, function(jqXHR, textStatus, errorThrown) {
             $(".wait").spinner("hide");
             updateViewModel($.parseJSON(jqXHR.responseText), viewModel);
@@ -155,10 +186,10 @@ $.postKOJson = function (url, viewModel, onSuccess, onFailure, additionalData) {
  * @param data the data to load (as JSON object)
  * @param viewModel the view model to update
  * @param scope the scope for the view model binding
+ * @param onApplyBindings callback executed right before applying bindings
  */
-function load(data, viewModel, scope, callback) {
-    updateViewModel(data, viewModel, scope);
-    if (typeof callback !== 'undefined' && typeof callback === 'function') callback.call();
+function load(data, viewModel, scope, callback, onApplyBindings) {
+    updateViewModel(data, viewModel, scope, callback, onApplyBindings);
 }
 
 /**
@@ -166,8 +197,9 @@ function load(data, viewModel, scope, callback) {
  * @param data the data object
  * @param viewModel the knockoutJS viewModel
  * @param scope the scope of the model binding
+ * @param onApplyBindings callback executed right before applying bindings
  */
-function updateViewModel(data, viewModel, scope) {
+function updateViewModel(data, viewModel, scope, callback, onApplyBindings) {
 
     var mapping = {
         'errors': {
@@ -181,6 +213,7 @@ function updateViewModel(data, viewModel, scope) {
         ko.mapping.fromJS(data, viewModel)
     } else {
         $.extend(viewModel, ko.mapping.fromJS(data, mapping));
+        if(typeof onApplyBindings === 'function') onApplyBindings.call();
         if (typeof scope !== 'undefined') {
             ko.applyBindings(viewModel, scope);
         } else {
@@ -191,6 +224,9 @@ function updateViewModel(data, viewModel, scope) {
     if (data.errors) {
         viewModel.errors(ko.mapping.fromJS(data.errors));
     }
+
+    if (typeof callback !== 'undefined' && typeof callback === 'function') callback.call();
+
 }
 
 //function remove(buttonId, dialogId, removeUrl, redirectUrl) {
@@ -627,7 +663,7 @@ Delving.wysiwyg = function (params) {
         force_br_newlines: true,
         forced_root_block: 'p', // Needed for 3.x
         remove_linebreaks: false,
-        content_css : "/assets/common/stylesheets/bootstrap-delving.css",
+        content_css : "/assets/common/stylesheets/bootstrap.css",
         fix_content_duplication: false,
         fix_list_elements: true,
         cleanup_on_startup : true,
@@ -855,3 +891,8 @@ function setScrollablePageHeight(target, index){
 function showDefaultImg(obj){
     obj.src = "/assets/common/images/dummy-object.png";
 }
+
+
+
+
+

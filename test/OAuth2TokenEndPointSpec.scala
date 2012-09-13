@@ -14,7 +14,7 @@ import play.api.test.Helpers._
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-class OAuth2TokenEndPointSpec extends Specification with TestContext {
+class OAuth2TokenEndPointSpec extends Specs2TestContext {
 
   step {
     loadStandalone()
@@ -24,9 +24,9 @@ class OAuth2TokenEndPointSpec extends Specification with TestContext {
 
     "accept a password grant request" in {
 
-      withTestData {
+      withTestData(SAMPLE_A) {
 
-        val endPoint = "http://localhost:9000/token"
+        val endPoint = "http://delving.localhost:9000/token"
 
         val request: OAuthClientRequest = OAuthClientRequest.
           tokenLocation(endPoint).
@@ -60,9 +60,9 @@ class OAuth2TokenEndPointSpec extends Specification with TestContext {
 
     "reject a password grant request" in {
 
-         withTestData {
+         withTestData(SAMPLE_A) {
 
-           val endPoint = "http://localhost:9000/token"
+           val endPoint = "http://delving.localhost:9000/token"
 
            val request: OAuthClientRequest = OAuthClientRequest.
              tokenLocation(endPoint).
@@ -92,5 +92,6 @@ class OAuth2TokenEndPointSpec extends Specification with TestContext {
        }
   }
 
+  step(cleanup())
 
 }

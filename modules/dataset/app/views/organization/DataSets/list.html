@@ -1,0 +1,201 @@
+#{extends themeInfo.get('themeLayout') /}
+
+#{set title: messages.get('thing.browse.of', messages.get('thing.datasets')) + ': ' + orgId /}
+
+#{set 'moreScripts'}
+<script type="text/javascript" src="@{routes.Assets.at("common/javascripts/jquery.tablesorter.min.js")}"></script>
+<script type="text/javascript" src="@{routes.Assets.at("common/javascripts/jquery.uitablefilter.js")}"></script>
+<script type="text/javascript" src="@{routes.Assets.at("common/javascripts/smartupdater.4.0.js")}"></script>
+<script type="text/javascript" src="@{routes.Assets.at("common/javascripts/organizations/datasets.js")}"></script>
+#{/set}
+
+#{set bodyId: 'organization' /}
+
+#{breadcrumbs crumbs: breadcrumbs /}
+
+#{organizationNavBar orgId: orgId, active:"datasets", navigation: navigation /}
+
+<div class="dataset-filter row">
+    <div class="dataset-filter-inner span12">
+    <form id="filter-form" class="form-inline pull-left form-search">
+        <input type='text' name='filter' id='filter' maxlength="30" size="30" class="search-query" placeholder="&{'org.list.filter'}"/>
+        <input onclick="saveFilter()" class="btn" type="button" value="&{'ui.label.save'}"/>
+        <input onclick="resetFilter()" class="btn" type="reset" value="&{'ui.label.reset'}"/>
+        <a class="icon icon-question-sign extHelp" href="#" rel="tooltip" title="Type in any dataset value(s) to filter the table. Press 'Save' to save the filter."></a>
+    </form>
+    </div>
+</div>
+
+<div class="dataset-list row">
+    <div class="dataset-list-inner span12">
+    <table id="dataset-table" class="table table-striped sortable" data-bind="triggerUpdate: sets">
+        <caption>${messages.get('thing.datasets')}</caption>
+        <thead>
+        <tr>
+            <th class="sort">&{'thing.name'}</th>
+            <th class="sort">&{'thing.organization'}</th>
+            <th class="sort">&{'ui.label.nritems'}</th>
+            <th class="sort">&{'ui.label.state'}</th>
+            <th class="sort">&{'ui.label.availability'}</th>
+            <th>&{'ui.label.options'}</th>
+        </tr>
+        </thead>
+        <tfoot>
+        <tr>
+            #{if canAdministrate}
+            <td colspan="6">
+                <a href="/organizations/${orgId}/dataset/add" class="btn pull-right"><i class="icon icon-plus-sign"></i> Create new dataset</a>
+            </td>
+            #{/if}
+        </tr>
+        </tfoot>
+        <tbody data-bind="foreach: sets()">
+            <tr>
+                <td><a data-bind="attr: { href: '/organizations/' + orgId() + '/dataset/' + spec() }" rel="nofollow" class="btn"><i class="icon icon-wrench"></i> <span data-bind="text: name"></span></a></td>
+                <td><span data-bind="text: nodeName"></span></td>
+                <td>
+                    <a data-bind="text: totalRecords, attr: { href: '/search?query%3Ddelving_spec%3A' + spec() }" class="rCount" rel="nofollow"></a>
+                    <!-- ko if: validRecords().length > 0 -->
+                    <div data-bind="template: {name: 'validRecordCountTemplate', afterRender: $parent.applyPopover }" style="display: none;"></div>
+                    <!-- /ko -->
+                </td>
+                <td width="120">
+
+                    <!-- ko if: dataSetState == "error" -->
+                    <span class="badge badge-important badge-error" data-bind="attr: { 'data-original-title': dataSetState()}" rel="popover"></span>
+                    <!-- /ko -->
+                    <!-- ko ifnot: dataSetState == "error" -->
+                    <span data-bind="text: dataSetState, attr: { class: 'badge badge-' + $parent.stateToClass(dataSetState()) } "></span>
+                    <!-- /ko -->
+                </td>
+                <td>
+                    <!-- ko if: lockState() == 'locked' -->
+                    <span class="badge">&{'organization.dataset.lockedBy'} <span data-bind="text: lockedBy"></span></span>
+                    <!-- /ko -->
+                    <!-- ko if: lockState() == 'unlocked' -->
+                    <span class="badge badge-info">&{'organization.dataset.unlocked'}</span>
+                    <!-- /ko -->
+                </td>
+                <td>
+                  <!-- ko if: canEdit().indexOf('${userName}') > -1 -->
+                    <a data-bind="attr: { href: '/organizations/' + orgId() + '/dataset/' + spec() + '/update' }" rel="nofollow">
+                        <i class="icon icon-edit"></i> ${messages.get('ui.label.edit')}
+                    </a>
+                  <!-- /ko -->
+                  <!-- ko ifnot: canEdit().indexOf('${userName}') > -1 -->
+                    - - -
+                  <!-- /ko -->
+                </td>
+
+            </tr>
+        </tbody>
+    </table>
+    </div>
+</div>
+
+
+<script type="text/javascript" language="javascript">
+    $(document).ready(function () {
+
+        var viewModel = {
+            sets: ko.observableArray(),
+            stateToClass: function(state) { return stateToClass(state) },
+            updateSet: function(spec, updateCallback) {
+                var maybeSet = $.grep(viewModel.sets(), function(item, index) { return item.spec() == spec });
+                if(maybeSet.length > 0) {
+                    var toUpdate = maybeSet[0];
+                    updateCallback(toUpdate);
+                }
+            },
+            applyPopover: function(element) {
+                $(element).parent().prev().popover({
+                    trigger: 'hover',
+                    content: $(element).html()
+                });
+            }
+        };
+
+        var clientId = Math.floor(1 + 10001 * Math.random());
+        var ws = new WebSocket("ws://" + location.host + "/organizations/${orgId}/dataset/feed?clientId=" + clientId);
+
+        ws.onopen = function() {
+            ws.send(JSON.stringify({
+                eventType: "sendList",
+                clientId: clientId
+            }));
+        };
+
+        ws.onmessage = function(evt) {
+            var data = $.parseJSON(evt.data);
+            console.log(data)
+            switch(data.eventType) {
+                case "loadList":
+                    $.each(data.payload, function(index, item) {
+                        viewModel.sets.push(ko.mapping.fromJS(item));
+                    });
+                    if ($.cookie("ds-filter")) {
+                        $.uiTableFilter($('#dataset-table'), $.cookie("ds-filter"));
+                        $('input#filter').val($.cookie("ds-filter"));
+                    }
+                    break;
+                case "created":
+                    viewModel.sets.push(ko.mapping.fromJS(data.payload));
+                    break;
+                case "updated":
+                    // TODO maybe be a bit more subtle here
+                    viewModel.sets.remove(function(item) { return item.spec() === data.spec && item.orgId() === data.orgId});
+                    viewModel.sets.push(ko.mapping.fromJS(data.payload));
+                    break;
+                case "removed":
+                    viewModel.sets.remove(function(item) { return item.spec() === data.spec && item.orgId() === data.orgId});
+                    break;
+                case "sourceRecordCountChanged":
+                    viewModel.updateSet(data.spec, function(toUpdate) {
+                        toUpdate.totalRecords(data.payload);
+                    });
+                    break;
+                case "stateChanged":
+                    viewModel.updateSet(data.spec, function(toUpdate) {
+                        toUpdate.dataSetState(data.payload);
+                    });
+                    break;
+                case "locked":
+                    viewModel.updateSet(data.spec, function(toUpdate) {
+                        toUpdate.lockState("locked");
+                        toUpdate.lockedBy(data.payload);
+                    });
+                    break;
+                case "unlocked":
+                    viewModel.updateSet(data.spec, function(toUpdate) {
+                        toUpdate.lockState("unlocked");
+                        toUpdate.lockedBy("");
+                    });
+                    break;
+            }
+        };
+
+        ko.applyBindings(viewModel);
+    });
+
+</script>
+<script type="text/javascript" src="@{routes.Assets.at("common/javascripts/organizations/datasets-list.js")}"></script>
+<script type="text/html" id="validRecordCountTemplate">
+    <div>
+        <table class="table table-condensed">
+            <thead>
+                <tr>
+                    <th>Schema</th>
+                    <th>Valid records</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{each validRecords()}}
+                <tr>
+                    <td><span class="label" data-bind="text: schema"></span></td>
+                    <td><span data-bind="text: valid"></span></td>
+                </tr>
+                {{/each}}
+            </tbody>
+        </table>
+    </div>
+</script>

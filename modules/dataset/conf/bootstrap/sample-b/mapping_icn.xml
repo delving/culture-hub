@@ -1,0 +1,124 @@
+<rec-mapping prefix="icn" schemaVersion="1.0.0" locked="false">
+  <facts>
+    <entry>
+      <string>spec</string>
+      <string>sample-b</string>
+    </entry>
+    <entry>
+      <string>orgId</string>
+      <string>delving</string>
+    </entry>
+    <entry>
+      <string>dataProvider</string>
+      <string>Sample Man</string>
+    </entry>
+    <entry>
+      <string>name</string>
+      <string>Sample B</string>
+    </entry>
+    <entry>
+      <string>rights</string>
+      <string>http://creativecommons.org/publicdomain/mark/1.0/</string>
+    </entry>
+    <entry>
+      <string>provider</string>
+      <string>Sample Man</string>
+    </entry>
+    <entry>
+      <string>language</string>
+      <string>nl</string>
+    </entry>
+    <entry>
+      <string>type</string>
+      <string>IMAGE</string>
+    </entry>
+    <entry>
+      <string>country</string>
+      <string>netherlands</string>
+    </entry>
+  </facts>
+  <functions>
+    <mapping-function name="convertToLocalId">
+      <sample-input>
+        <string>123</string>
+      </sample-input>
+      <documentation>
+        <string></string>
+      </documentation>
+      <groovy-code>
+        <string>&quot;${spec}/${it}&quot;</string>
+      </groovy-code>
+    </mapping-function>
+    <mapping-function name="firstIdentifier">
+      <sample-input>
+        <string>120012</string>
+      </sample-input>
+      <groovy-code>
+        <string>if (it.size() &gt; 2) {</string>
+        <string>String part = it[0..2]</string>
+        <string>&quot;http://www.jhm.nl/collectiebeeld/d${part}/${it}.jpg&quot;</string>
+        <string>}</string>
+      </groovy-code>
+    </mapping-function>
+    <mapping-function name="landingPage">
+      <sample-input>
+        <string>123</string>
+      </sample-input>
+      <documentation>
+        <string></string>
+      </documentation>
+      <groovy-code>
+        <string>if (it.size() &gt; 2) {</string>
+        <string>String part = it[0..2]</string>
+        <string>&quot;http://www.jhm.nl/collectiebeeld/d${part}/${it}.jpg&quot;</string>
+        <string>}</string>
+      </groovy-code>
+    </mapping-function>
+  </functions>
+  <node-mappings>
+    <node-mapping inputPath="/constant" outputPath="/icn:record/icn:creatorYearOfBirth">
+      <groovy-code>
+        <string>&apos;CONSTANT birth&apos;</string>
+      </groovy-code>
+    </node-mapping>
+    <node-mapping inputPath="/constant" outputPath="/icn:record/icn:province">
+      <groovy-code>
+        <string>&apos;provincy&apos;</string>
+      </groovy-code>
+    </node-mapping>
+    <node-mapping inputPath="/input/metadata/oai_dc:dc/dc:title" outputPath="/icn:record/dc:title"/>
+    <node-mapping inputPath="/input/metadata/oai_dc:dc/dc:creator" outputPath="/icn:record/dc:creator"/>
+    <node-mapping inputPath="/input/metadata/oai_dc:dc/dc:subject" outputPath="/icn:record/dc:subject"/>
+    <node-mapping inputPath="/input/metadata/oai_dc:dc/dc:publisher" outputPath="/icn:record/dc:publisher"/>
+    <node-mapping inputPath="/input/metadata/oai_dc:dc/dc:date" outputPath="/icn:record/dc:date"/>
+    <node-mapping inputPath="/input/metadata/oai_dc:dc/dc:coverage" outputPath="/icn:record/dc:coverage"/>
+    <node-mapping inputPath="/input/metadata/oai_dc:dc/image" outputPath="/icn:record/europeana:isShownBy" operator="FIRST">
+      <groovy-code>
+        <string>&quot;${firstIdentifier(_image)}&quot;</string>
+      </groovy-code>
+    </node-mapping>
+    <node-mapping inputPath="/facts/rights" outputPath="/icn:record/europeana:rights"/>
+    <node-mapping inputPath="/input/metadata/oai_dc:dc/dc:identifier" outputPath="/icn:record/europeana:isShownAt">
+      <groovy-code>
+        <string>&quot;http://www.jhm.nl/collectie/museumstukken/${_dcidentifier}&quot;</string>
+      </groovy-code>
+    </node-mapping>
+    <node-mapping inputPath="/input/metadata/oai_dc:dc/image" outputPath="/icn:record/europeana:object" operator="FIRST">
+      <groovy-code>
+        <string>&quot;${firstIdentifier(_image)}&quot;</string>
+      </groovy-code>
+    </node-mapping>
+    <node-mapping inputPath="/facts/provider" outputPath="/icn:record/europeana:provider"/>
+    <node-mapping inputPath="/facts/dataProvider" outputPath="/icn:record/europeana:dataProvider"/>
+    <node-mapping inputPath="/facts/type" outputPath="/icn:record/europeana:type"/>
+    <node-mapping inputPath="/input/header/identifier" outputPath="/icn:record/europeana:uri">
+      <groovy-code>
+        <string>&quot;${convertToLocalId(_identifier)}&quot;</string>
+      </groovy-code>
+    </node-mapping>
+    <node-mapping inputPath="/facts/language" outputPath="/icn:record/europeana:language"/>
+    <node-mapping inputPath="/facts/country" outputPath="/icn:record/europeana:country"/>
+    <node-mapping inputPath="/facts/spec" outputPath="/icn:record/europeana:collectionName"/>
+    <node-mapping inputPath="/facts/name" outputPath="/icn:record/europeana:collectionTitle"/>
+  </node-mappings>
+</rec-mapping>

@@ -2,12 +2,12 @@
 
 #{set title: title /}
 
-#{breadcrumbs /}
+#{breadcrumbs crumbs: breadcrumbs /}
 
 <h1>&{'user.list.browse'} (${count})</h1>
 
 <div class="span12">
-#{if items.length() > views.Helpers.PAGE_SIZE()}
+#{if items.length() > themeInfo.pageSize()}
     #{pagination selector: ".pager", count: count, start: page /}
 #{/if}
 #{elseif items.length() == 0}
@@ -62,7 +62,7 @@
 
 #{/list}
 
-#{if items.length() > views.Helpers.PAGE_SIZE()}
+#{if items.length() > themeInfo.pageSize()}
 <div class="row">
     <div class="span12">
         #{pagination selector: ".pager", count: count, start: page /}

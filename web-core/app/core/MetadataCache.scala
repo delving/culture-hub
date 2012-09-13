@@ -1,6 +1,7 @@
 package core
 
 import models.{MongoMetadataCache, MetadataItem}
+import java.util.Date
 
 
 /**
@@ -14,11 +15,13 @@ trait MetadataCache {
 
   def saveOrUpdate(item: MetadataItem)
 
-  def iterate(index: Int = 0, limit: Option[Int] = None): Iterator[MetadataItem]
+  def iterate(index: Int = 0, limit: Option[Int] = None, from: Option[Date] = None, until: Option[Date] = None): Iterator[MetadataItem]
 
-  def list(index: Int = 0, limit: Option[Int] = None): List[MetadataItem]
+  def list(index: Int = 0, limit: Option[Int] = None, from: Option[Date] = None, until: Option[Date] = None): List[MetadataItem]
 
   def findOne(itemId: String): Option[MetadataItem]
+
+  def findMany(itemIds: Seq[String]): Seq[MetadataItem]
 
   def count(): Long
 

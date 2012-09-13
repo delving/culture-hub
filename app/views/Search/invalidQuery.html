@@ -10,7 +10,7 @@
 <script src="@{routes.Assets.at('common/javascripts/results.js')}" type='text/javascript'></script>
 #{/set}
 
-#{breadcrumbs /}
+#{breadcrumbs crumbs: breadcrumbs /}
 
 <div class="g-12of12 grid_12 centered pam">
     &{'search.invalidQuery', query}

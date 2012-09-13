@@ -3,68 +3,88 @@
 <views>
     <view name="html">
         <row>
-            <column proportion="1of3">
-                <container>
-                    <field path="/icn:record/dc:title" label="metadata.dc.title"/>
-                    <field path="/icn:record/dc:creator" label="metadata.dc.creator"/>
-                    <field path="/icn:record/icn:creatorYearOfBirth" label="metadata.icn.creatorYearOfBirth"/>
-                    <enumeration label="metadata.dc.date" separator=", " path="/icn:record/dc:date,/icn:record/dcterms:created,/icn:record/dcterms:temportal,/icn:record/dcterms:issued"/>
-                    <field path="/icn:record/dc:type" label="metadata.dc.type"/>
-                    <enumeration label="metadata.dc.format" separator="lf" path="/icn:record/dc:format,/icn:record/dcterms:extent"/>
-                    <field path="/icn:record/icn:material" label="metadata.icn.material"/>
-                    <enumeration path="/icn:record/icn:technique" label="metadata.icn.technique" separator=", "/>
-                    <enumeration label="metadata.dc.subject" separator=", " path="/icn:record/dc:subject/icn:record/dcterms:temporal,/icn:record/dcterms:spatial,/icn:record/dc:coverage"/>
-                    <!--<field path="/icn:record/dc:coverage" label="metadata.dc.coverage"/>-->
-                    <enumeration label="metadata.dc.relation"
-                                 separator=", " path="/icn:record/dc:relation,/icn:record/dcterms:references,/icn:record/dcterms:isReferencedBy,/icn:record/dcterms:isReplacedBy,
+            <column proportion="2of3">
+                <container id="object-media">
+                    <container type="placeholder" id="object-title-big"></container>
+                    <container ifNot="/icn:record/delving:deepZoomUrl" id="image-viewer">
+                        <container ifNot="/icn:record/delving:thumbnail">
+                            <container ifNot="icn:record/europeana:isShownBy">
+                                <image path="/icn:record/europeana:object"/>
+                            </container>
+                            <container if="icn:record/europeana:isShownBy">
+                                <image path="/icn:record/europeana:isShownBy"/>
+                            </container>
+                        </container>
+                        <container if="/icn:record/delving:thumbnail">
+                            <image path="/icn:record/delving:thumbnail"/>
+                        </container>
+                    </container>
+                    <container id="zoom-viewer" if="/icn:record/delving:deepZoomUrl">
+                        <link textValue="zoom" urlExpr="/icn:record/delving:deepZoomUrl" type="zoom"/>
+                    </container>
+                    <container id="context-link" if="/icn:record/europeana:isShownAt">
+                        <link textValue="search.viewInOriginalContext" urlExpr="/icn:record/europeana:isShownAt" type="external"/>
+                    </container>
+                </container>
+                <row>
+                    <column proportion="1of3">
+                        <container type="labelled-list">
+                            <field path="/icn:record/dc:title" label="metadata.dc.title"/>
+                            <field path="/icn:record/dc:creator" label="metadata.dc.creator"/>
+                            <field path="/icn:record/icn:creatorYearOfBirth" label="metadata.icn.creatorYearOfBirth"/>
+                            <enumeration label="metadata.dc.date" separator=", " path="/icn:record/dc:date,/icn:record/dcterms:created,/icn:record/dcterms:temportal,/icn:record/dcterms:issued"/>
+                            <field path="/icn:record/dc:type" label="metadata.dc.type"/>
+                            <enumeration label="metadata.dc.format" separator="lf" path="/icn:record/dc:format,/icn:record/dcterms:extent"/>
+                            <field path="/icn:record/icn:material" label="metadata.icn.material"/>
+                            <enumeration path="/icn:record/icn:technique" label="metadata.icn.technique" separator=", "/>
+                            <enumeration label="metadata.dc.subject" separator=", " path="/icn:record/dc:subject/icn:record/dcterms:temporal,/icn:record/dcterms:spatial,/icn:record/dc:coverage"/>
+                            <!--<field path="/icn:record/dc:coverage" label="metadata.dc.coverage"/>-->
+                            <enumeration label="metadata.dc.relation"
+                                         separator=", " path="/icn:record/dc:relation,/icn:record/dcterms:references,/icn:record/dcterms:isReferencedBy,/icn:record/dcterms:isReplacedBy,
                                  /icn:record/dcterms:isRequiredBy,/icn:record/dcterms:isPartOf,/icn:record/dcterms:hasPart,/icn:record/dcterms:replaces,/icn:record/dcterms:requires,
                                  /icn:record/dcterms:isVersionOf,/icn:record/dcterms:hasVersion,/icn:record/dcterms:conformsTo,/icn:record/dcterms:hasFormat"/>
-                    <field path="/icn:record/dcterms:provenance" label="metadata.dcterms.provenance"/>
-                </container>
-                <!-- MUSEOMETRIE FIELDS -->
-                <container id="admin" role="icn">
-                        <field path="/icn:record/icn:currentLocation" label="metadata.icn.currentLocation" role="icn"/>
-                        <field path="/icn:record/icn:previousLocation" label="metadata.icn.previousLocation" role="icn"/>
-                        <field path="/icn:record/icn:acquisitionMeans" label="metadata.icn.acquisitionMeans" role="icn"/>
-                        <field path="/icn:record/icn:acquisitionYear" label="metadata.icn.acquisitionYear" role="icn"/>
-                        <field path="/icn:record/icn:acquiredWithHelpFrom" label="metadata.icn.acquiredWithHelpFrom" role="icn"/>
-                        <field path="/icn:record/icn:purchasePrice" label="metadata.icn.purchasePrice" role="icn"/>
-                </container>
+                            <field path="/icn:record/dcterms:provenance" label="metadata.dcterms.provenance"/>
+                        </container>
+                        <!-- MUSEOMETRIE FIELDS -->
+                        <container id="admin" role="museometrie" type="labelled-list">
+                            <field path="/icn:record/icn:currentLocation" label="metadata.icn.currentLocation" role="museometrie"/>
+                            <field path="/icn:record/icn:previousLocation" label="metadata.icn.previousLocation" role="museometrie"/>
+                            <field path="/icn:record/icn:acquisitionMeans" label="metadata.icn.acquisitionMeans" role="museometrie"/>
+                            <field path="/icn:record/icn:acquisitionYear" label="metadata.icn.acquisitionYear" role="museometrie"/>
+                            <field path="/icn:record/icn:acquiredWithHelpFrom" label="metadata.icn.acquiredWithHelpFrom" role="museometrie"/>
+                            <field path="/icn:record/icn:purchasePrice" label="metadata.icn.purchasePrice" role="museometrie"/>
+                        </container>
 
+                    </column>
+                    <column proportion="1of3">
+                        <container type="labelled-list">
+                            <!--<field path="/icn:record/europeana:collectionName" label="metadata.europeana.collectionName"/>-->
+                            <field path="/icn:record/europeana:collectionTitle" label="metadata.icn.collection"/>
+                            <field path="/icn:record/icn:collectionPart" label="metadata.icn.collectionPart" />
+                            <field path="/icn:record/icn:collectionType" label="metadata.icn.collectionType" />
+
+                            <!--<link textValue="${provider}" urlValue="${resolvedProviderUri}" label="metadata.europeana.provider"/>-->
+                            <link textValue="${dataProvider}" urlValue="${resolvedDataProviderUri}" label="metadata.europeana.dataProvider"/>
+
+                            <!--<field path="/icn:record/dc:source" label="metadata.dc.source"/>-->
+                            <field path="/icn:record/dc:contributor" label="searchfield.contributor"/>
+                            <field path="/icn:record/icn:province" label="metadata.icn.province"/>
+                            <field path="/icn:record/europeana:country" label="metadata.europeana.country"/>
+                            <field path="/icn:record/dc:rights" label="metadata.dc.rights"/>
+                            <!-- MUSEOMETRIE FIELDS -->
+                            <container role="museometrie" type="labelled-list">
+                                <field path="/icn:record/icn:legalStatus" label="metadata.icn.legalStatus" role="museometrie"/>
+                                <field path="/icn:record/icn:stateAcceptsCharges" label="metadata.icn.stateAcceptsCharges" role="museometrie"/>
+                                <field path="/icn:record/icn:expulsionFromStateYear" label="metadata.icn.expulsionFromStateYear" role="museometrie"/>
+                                <field path="/icn:record/icn:meansOfExpulsion" label="metadata.icn.meansOfExpulsion" role="museometrie"/>
+                                <field path="/icn:record/icn:physicalState" label="metadata.icn.physicalState" role="museometrie"/>
+                            </container>
+                        </container>
+                    </column>
+                </row>
             </column>
             <column proportion="1of3">
-
-                <!--<field path="/icn:record/europeana:collectionName" label="metadata.europeana.collectionName"/>-->
-                <field path="/icn:record/europeana:collectionTitle" label="metadata.europeana.collectionTitle"/>
-                <field path="/icn:record/icn:collectionPart" label="metadata.icn.collectionPart" />
-                <field path="/icn:record/icn:collectionType" label="metadata.icn.collectionType" />
-
-                <link textValue="${provider}" urlValue="${resolvedProviderUri}" label="metadata.europeana.provider"/>
-                <link textValue="${dataProvider}" urlValue="${resolvedDataProviderUri}" label="metadata.europeana.dataProvider"/>
-
-                <!--<field path="/icn:record/dc:source" label="metadata.dc.source"/>-->
-                <field path="/icn:record/dc:contributor" label="searchfield.contributor"/>
-                <field path="/icn:record/icn:province" label="metadata.icn.province"/>
-                <field path="/icn:record/europeana:country" label="metadata.europeana.country"/>
-                <field path="/icn:record/dc:rights" label="metadata.dc.rights"/>
-                <!-- MUSEOMETRIE FIELDS -->
-                <container role="icn">
-                    <field path="/icn:record/icn:legalStatus" label="metadata.icn.legalStatus" role="icn"/>
-                    <field path="/icn:record/icn:stateAcceptsCharges" label="metadata.icn.stateAcceptsCharges" role="icn"/>
-                    <field path="/icn:record/icn:expulsionFromStateYear" label="metadata.icn.expulsionFromStateYear" role="icn"/>
-                    <field path="/icn:record/icn:meansOfExpulsion" label="metadata.icn.meansOfExpulsion" role="icn"/>
-                    <field path="/icn:record/icn:physicalState" label="metadata.icn.physicalState" role="icn"/>
-                </container>
-
-            </column>
-            <column proportion="1of3">
-                <container ifNot="/icn:record/delving:deepZoomUrl">
-                    <image path="/icn:record/europeana:object"/>
-                    <link textValue="search.viewInOriginalContext" urlExpr="/icn:record/europeana:isShownAt" type="external"/>
-                </container>
-                <container id="zoom-viewer" if="/icn:record/delving:deepZoomUrl">
-                    <link textValue="zoom" urlExpr="/icn:record/delving:deepZoomUrl" type="zoom"/>
-                </container>
+                <container type="placeholder" id="related-items"></container>
             </column>
         </row>
         <row>
@@ -83,15 +103,22 @@
                 <attr prefix="xmlns" name="icn" value="http://www.icn.nl/"/>
             </attrs>
             <elem name="layout">
-                <list name="fields" path="/icn:record/*[fn:not(fn:contains('currentLocation previousLocation acquisitionMeans acquiredWithHelpFrom purchasePrice legalStatus stateAcceptsCharges expulsionFromStateYear meansOfExpulsion physicalState', local-name()))]" distinct="name">
+                <list name="fields" path="/icn:record/*[fn:not(fn:contains('relatedItems currentLocation previousLocation acquisitionMeans acquiredWithHelpFrom purchasePrice legalStatus stateAcceptsCharges expulsionFromStateYear meansOfExpulsion physicalState', local-name()))]" distinct="name">
                     <auto-layout-field/>
                 </list>
             </elem>
             <elem name="item">
-                <list name="fields" path="/icn:record/*[fn:not(fn:contains('currentLocation previousLocation acquisitionMeans acquiredWithHelpFrom purchasePrice legalStatus stateAcceptsCharges expulsionFromStateYear meansOfExpulsion physicalState', local-name()))]">
+                <list name="fields" path="/icn:record/*[fn:not(fn:contains('relatedItems currentLocation previousLocation acquisitionMeans acquiredWithHelpFrom purchasePrice legalStatus stateAcceptsCharges expulsionFromStateYear meansOfExpulsion physicalState', local-name()))]">
                     <auto-field/>
                 </list>
             </elem>
+            <list name="relatedItems" path="//*[local-name()='record']/*[fn:contains('relatedItems', local-name())]/*">
+                <elem name="item">
+                    <list name="fields" path="fields/*[fn:not(fn:contains('relatedItems currentLocation previousLocation acquisitionMeans acquiredWithHelpFrom purchasePrice legalStatus stateAcceptsCharges expulsionFromStateYear meansOfExpulsion physicalState', local-name()))]">
+                        <auto-field/>
+                    </list>
+                </elem>
+            </list>
         </elem>
     </view>
 </views>

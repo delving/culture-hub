@@ -23,13 +23,15 @@ import org.bson.types.ObjectId
 import extensions.Extensions
 import java.io.File
 import play.api.libs.MimeTypes
+import models.DomainConfiguration
+import controllers.DomainConfigurationAware
 
 /**
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-object FileUpload extends Controller with Extensions with Thumbnail {
+object FileUpload extends Controller with Extensions with Thumbnail with DomainConfigurationAware {
 
   // ~~ public HTTP API
 
@@ -38,21 +40,23 @@ object FileUpload extends Controller with Extensions with Thumbnail {
    * If the uploaded file is an image, thumbnails are created for it.
    * The response contains a JSON-Encoded array of objects representing the uploaded file.
    */
-  def uploadFile(uid: String) = Action(parse.multipartFormData) {
-    implicit request =>
-      val uploaded = uploadFileInternal(uid, request.body.file("files[]").map {
-        file => {
-          Seq(Upload(file.ref.file, file.contentType.getOrElse(MimeTypes.forFileName(file.filename).getOrElse("unknown/unknown")), file.filename, file.ref.file.length()))
+  def uploadFile(uid: String) = DomainConfigured {
+    Action(parse.multipartFormData) {
+      implicit request =>
+        val uploaded = uploadFileInternal(uid, request.body.file("files[]").map {
+          file => {
+            Seq(Upload(file.ref.file, file.contentType.getOrElse(MimeTypes.forFileName(file.filename).getOrElse("unknown/unknown")), file.filename, file.ref.file.length()))
+          }
+        }.getOrElse(Seq()))
+
+        if (uploaded.isEmpty) {
+          // assume the worst
+          InternalServerError("Error uploading file to the server")
+        } else {
+          Json(uploaded)
         }
-      }.getOrElse(Seq()))
-      
-      if(uploaded.isEmpty) {
-        // assume the worst
-        InternalServerError("Error uploading file to the server")
-      } else {
-        Json(uploaded)
-      }
-      
+    }
+
   }
 
   /**
@@ -72,11 +76,11 @@ object FileUpload extends Controller with Extensions with Thumbnail {
 
   // ~~ public Scala API
 
-  def getFilesForUID(uid: String): Seq[StoredFile] = fileStore.find(MongoDBObject(UPLOAD_UID_FIELD -> uid)) map {
+  def getFilesForUID(uid: String)(implicit configuration: DomainConfiguration): Seq[StoredFile] = fileStore(configuration).find(MongoDBObject(UPLOAD_UID_FIELD -> uid)) map {
     f => {
       val id = f.getId.asInstanceOf[ObjectId]
       val thumbnail = if (isImage(f)) {
-        fileStore.findOne(MongoDBObject(FILE_POINTER_FIELD -> id)) match {
+        fileStore(configuration).findOne(MongoDBObject(FILE_POINTER_FIELD -> id)) match {
           case Some(t) => Some(t.id.asInstanceOf[ObjectId])
           case None => None
         }
@@ -90,8 +94,8 @@ object FileUpload extends Controller with Extensions with Thumbnail {
   /**
    * Attaches all files to an object, given the upload UID
    */
-  def markFilesAttached(uid: String, objectIdentifier: String) {
-    fileStore.find(MongoDBObject(UPLOAD_UID_FIELD -> uid)) map {
+  def markFilesAttached(uid: String, objectIdentifier: String)(implicit configuration: DomainConfiguration) {
+    fileStore(configuration).find(MongoDBObject(UPLOAD_UID_FIELD -> uid)) map {
       f =>
       // yo listen up, this ain't implemented in the mongo driver and throws an UnsupportedOperationException
       // f.removeField("uid")
@@ -105,11 +109,11 @@ object FileUpload extends Controller with Extensions with Thumbnail {
    * For all thumbnails and images of a particular file, sets their pointer to a given item, thus enabling direct lookup
    * using the item id.
    */
-  def activateThumbnails(fileId: ObjectId, itemId: ObjectId) {
-    val thumbnails = fileStore.find(MongoDBObject(FILE_POINTER_FIELD -> fileId))
+  def activateThumbnails(fileId: ObjectId, itemId: ObjectId)(implicit configuration: DomainConfiguration) {
+    val thumbnails = fileStore(configuration).find(MongoDBObject(FILE_POINTER_FIELD -> fileId))
 
     // deactive old thumbnails
-    fileStore.find(MongoDBObject(THUMBNAIL_ITEM_POINTER_FIELD -> itemId)) foreach {
+    fileStore(configuration).find(MongoDBObject(THUMBNAIL_ITEM_POINTER_FIELD -> itemId)) foreach {
       theOldOne =>
         theOldOne.put(THUMBNAIL_ITEM_POINTER_FIELD, "")
         theOldOne.save()
@@ -123,14 +127,14 @@ object FileUpload extends Controller with Extensions with Thumbnail {
     }
 
     // deactivate old image
-    fileStore.findOne(MongoDBObject(IMAGE_ITEM_POINTER_FIELD -> itemId)) foreach {
+    fileStore(configuration).findOne(MongoDBObject(IMAGE_ITEM_POINTER_FIELD -> itemId)) foreach {
       theOldOne =>
         theOldOne.put(IMAGE_ITEM_POINTER_FIELD, "")
         theOldOne.save
     }
 
     // activate new default image
-    fileStore.findOne(fileId) foreach {
+    fileStore(configuration).findOne(fileId) foreach {
       theNewOne =>
         theNewOne.put(IMAGE_ITEM_POINTER_FIELD, itemId)
         theNewOne.save
@@ -143,45 +147,51 @@ object FileUpload extends Controller with Extensions with Thumbnail {
   // ~~~ PRIVATE
 
 
-  private def uploadFileInternal(uid: String, uploads: Seq[Upload]): Seq[FileUploadResponse] = {
+  private def uploadFileInternal(uid: String, uploads: Seq[Upload])(implicit configuration: DomainConfiguration): Seq[FileUploadResponse] = {
     val uploadedFiles = for (upload <- uploads) yield {
-      val f = fileStore.createFile(upload.file)
-      f.filename = upload.fileName
-      f.contentType = upload.contentType
-      f.put(UPLOAD_UID_FIELD, uid)
-      f.save
-
-      if (f._id == None) return Seq.empty
-
-      // if this is an image, create a thumbnail for it so we can display it on the fly
-      val thumbnailUrl: String = if (f.contentType.contains("image")) {
-        fileStore.findOne(f._id.get) match {
-          case Some(storedFile) =>
-            val thumbnails = createThumbnails(storedFile, fileStore)
-            if (thumbnails.size > 0) "/file/" + thumbnails.get(80).getOrElse(emptyThumbnailUrl) else emptyThumbnailUrl
-          case None => ""
-        }
-      } else ""
-
+      val (f, thumbnailUrl) = storeFile(upload.file, upload.fileName, upload.contentType, uid)
       FileUploadResponse(upload.fileName, upload.length, "/file/" + f._id.get, thumbnailUrl, "/file/" + f._id.get)
     }
     uploadedFiles
   }
 
   /**
+   * Stores a file
+   */
+  def storeFile(file: File, fileName: String, contentType: String, uid: String)(implicit configuration: DomainConfiguration) = {
+    val f = fileStore(configuration).createFile(file)
+    f.filename = fileName
+    f.contentType = contentType
+    f.put(UPLOAD_UID_FIELD, uid)
+    f.save
+
+    // if this is an image, create a thumbnail for it so we can display it on the fly in the upload widget
+    val thumbnailUrl: String = if (f.contentType.contains("image")) {
+      fileStore(configuration).findOne(f._id.get) match {
+        case Some(storedFile) =>
+          val thumbnails = createThumbnails(storedFile, fileStore(configuration))
+          if (thumbnails.size > 0) "/file/" + thumbnails.get(80).getOrElse(emptyThumbnailUrl) else emptyThumbnailUrl
+        case None => ""
+      }
+    } else ""
+
+    (f, thumbnailUrl)
+  }
+
+  /**
    * Deletes a file
    * @param id the mongo id of the
    */
-  def deleteFileById(id: ObjectId) {
-    fileStore.find(id) foreach {
+  def deleteFileById(id: ObjectId)(implicit configuration: DomainConfiguration) {
+    fileStore(configuration).find(id) foreach {
       toDelete =>
       // remove thumbnails
-        fileStore.find(MongoDBObject(FILE_POINTER_FIELD -> id)) foreach {
+        fileStore(configuration).find(MongoDBObject(FILE_POINTER_FIELD -> id)) foreach {
           t =>
-            fileStore.remove(t.getId.asInstanceOf[ObjectId])
+            fileStore(configuration).remove(t.getId.asInstanceOf[ObjectId])
         }
         // remove the file itself
-        fileStore.remove(id)
+        fileStore(configuration).remove(id)
     }
   }
 

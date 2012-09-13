@@ -1,13 +1,15 @@
 package controllers.api
 
-import controllers.DelvingController
 import play.api.libs.concurrent.Promise
 import collection.immutable.Map
 import play.api.libs.ws.{Response, WS}
 import xml.{NodeSeq, TopScope, Elem}
 import play.api.mvc._
+import controllers.{DomainConfigurationAware, RenderingExtensions}
 import core.ExplainItem
-import play.api.Play
+import play.api.{Logger, Play}
+import controllers.RenderingExtensions
+import java.net.URLDecoder
 
 /**
  * FIXME adjust namespace rendering in proxy responses. Also support JSON.
@@ -15,9 +17,11 @@ import play.api.Play
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-object Proxy extends DelvingController {
+object Proxy extends Controller with DomainConfigurationAware with RenderingExtensions {
 
-  val proxies = List[ProxyConfiguration](europeana, wikipediaEn, wikipediaNl, wikipediaNo, wikipediaNn)
+  val proxies = List[ProxyConfiguration](europeana, wikipediaEn, wikipediaNl, wikipediaNo, wikipediaNn, amsterdamMetadataCollection)
+
+  val log = Logger("ProxyApi")
 
   def explain(path: List[String]) = path match {
     case Nil =>
@@ -35,12 +39,12 @@ object Proxy extends DelvingController {
     case _ => None
   }
 
-  def list(orgId: String) = Root {
+  def list(orgId: String) = DomainConfigured {
     Action {
       implicit request =>
 
         if(!request.path.contains("api")) {
-          warning("Using deprecated API call " + request.uri)
+          log.warn("Using deprecated API call " + request.uri)
         }
 
         val list =
@@ -63,14 +67,17 @@ object Proxy extends DelvingController {
       Async {
 
         if(!request.path.contains("api")) {
-          warning("Using deprecated API call " + request.uri)
+          log.warn("Using deprecated API call " + request.uri)
         }
 
         proxies.find(_.key == proxyKey).map {
           proxy =>
+            val queryString = getWSQueryString(request, proxy)
+            log.debug("Search queryString: " + queryString)
+
             WS.
               url(proxy.searchUrl).
-              withQueryString(getWSQueryString(request, proxy): _*).
+              withQueryString(queryString: _*).
               get().map(r => DOk(proxy.handleSearchResponse(r), List("explain")))
 
         }.getOrElse {
@@ -85,15 +92,18 @@ object Proxy extends DelvingController {
       Async {
 
         if(!request.path.contains("api")) {
-          warning("Using deprecated API call " + request.uri)
+          log.warn("Using deprecated API call " + request.uri)
         }
 
         proxies.find(_.key == proxyKey).map {
           proxy =>
 
+            val queryString = getWSQueryString(request, proxy)
+            log.debug("Item queryString " + queryString)
+
             WS.
               url(proxy.itemUrl + itemKey).
-              withQueryString(getWSQueryString(request, proxy): _*).
+              withQueryString(queryString : _*).
               get().map(r => DOk(proxy.handleItemResponse(r)))
 
         }.getOrElse {
@@ -139,6 +149,23 @@ object Proxy extends DelvingController {
     })
   )
 
+  lazy val amsterdamMetadataCollection = new ProxyConfiguration(
+    key = "amdata",
+    searchUrl = "http://amdata.adlibsoft.com/wwwopac.ashx",
+    itemUrl = "http://amdata.adlibsoft.com/wwwopac.ashx?search=priref=",
+    queryRemapping = Map("query" -> "search"),
+    constantQueryString = Map("database" -> Seq("AMcollect"), "xmltype" -> Seq("grouped")),
+    idExtractor = Some({
+      record =>
+        (record \ "@priref").text
+    })
+  ) {
+
+    override def getItems(xml: Elem): NodeSeq = xml \\ "record"
+
+    override def handleItemResponse(response: Response): NodeSeq = response.xml \\ "record"
+  }
+
   lazy val wikipediaEn = new MediaWikiProxyConfiguration(
     key = "wikipedia.en",
     searchUrl = "http://en.wikipedia.org/w/api.php",
@@ -177,8 +204,8 @@ object Proxy extends DelvingController {
 class ProxyConfiguration(val key: String,
                          val searchUrl: String,
                          val itemUrl: String,
-                         val constantQueryString: Map[String, Seq[String]],
-                         val queryRemapping: Map[String, String],
+                         val constantQueryString: Map[String, Seq[String]] = Map.empty,
+                         val queryRemapping: Map[String, String] = Map.empty,
                          val paginationRemapping: Option[Elem => ProxyPager] = None,
                          val idExtractor: Option[NodeSeq => String] = None) {
 
@@ -187,7 +214,7 @@ class ProxyConfiguration(val key: String,
   def handleSearchResponse(response: play.api.libs.ws.Response): NodeSeq = {
     val xml = response.xml
 
-    val maybeId = idExtractor.map(f => f(response.xml)).map { id =>
+    val maybeIdExtractor = idExtractor.map(f => f(response.xml)).map { id =>
       <id>{id}</id>
     }
 
@@ -210,7 +237,7 @@ class ProxyConfiguration(val key: String,
         <items>
           {getItems(xml).map(item => {
           <item>
-            {if(maybeId.isDefined) {
+            {if(maybeIdExtractor.isDefined) {
               val itemId = idExtractor.map(f => f(item)).getOrElse("unknown")
             <id>{itemId}</id>
             }}

@@ -14,7 +14,7 @@ object Profile extends DelvingController {
   def profile(user: String): Action[AnyContent] = UserAction(user) {
     Action {
       implicit request =>
-        val u: HubUser = HubUser.findByUsername(user) match {
+        val u: HubUser = HubUser.dao.findByUsername(user) match {
           case Some(aUser) => aUser
           case None => return Action { implicit request => NotFound(Messages("delvingcontroller.userNotFound", user)) }
         }
