@@ -8,7 +8,28 @@ This is the changelog of the CultureHub. It documents changes of the main platfo
 
 - manu: multi-tenancy support
 - manu, eric: advanced search plugin with auto-completion
-- manu, sjoerd: reviving related items feature
+- manu, sjoerd, eric: reviving related items feature
+- manu: making it possible to harvest raw source data
+- manu: making it possible to add administrators via the interface
+- manu: selective harvesting for OAI-PMH
+- manu: using schemas.delving.eu for schemas
+- eric: responsive layouts
+- manu: generic view resolution mechanism for full view rendering
+- gerald: refactoring tests and test data provisioning
+
+
+### Fixes and refactoring
+- manu: refactoring role management to be generic via Roles and ResourceTypes (#630)
+- manu: DataSets are now an own module
+- manu: better error reporting for SOLR search failures
+- manu: constant typification
+- manu: starting to use subcut
+- manu: adding ScalaTest support
+- manu: restructuring project
+- manu: refactoring core services and other services, using subcut whenever possible
+- gerald: fixing issue with sip-creator, sip-core and schema-repository versions
+- manu: #423, #617, #622, #625, #628, #634, #639, #640, #642, #644, #662
+- eric: #491, #475, #638
 
 # 12.07
 
