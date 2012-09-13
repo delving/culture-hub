@@ -22,21 +22,32 @@ import models.DomainConfiguration
  */
 
 object ImageCache extends Controller with RespondWithDefaultImage with DomainConfigurationAware {
+
   val imageCacheService = new ImageCacheService
 
   def image(id: String, withDefaultFromUrl: Boolean) = DomainConfigured {
     Action {
     implicit request =>
-      val result = imageCacheService.retrieveImageFromCache(request, URLDecoder.decode(id, "utf-8"), false)
-      if (withDefaultFromUrl) withDefaultFromRequest(result, false, None) else result
+      val url = URLDecoder.decode(id, "utf-8")
+      if (url.contains(request.domain)) {
+        Redirect(url)
+      } else {
+        val result = imageCacheService.retrieveImageFromCache(request, url, false)
+        if (withDefaultFromUrl) withDefaultFromRequest(result, false, None) else result
+      }
     }
   }
 
   def thumbnail(id: String, width: Option[String], withDefaultFromUrl: Boolean) = DomainConfigured {
     Action {
       implicit request =>
-        val result = imageCacheService.retrieveImageFromCache(request, URLDecoder.decode(id, "utf-8"), true, width)
-        if (withDefaultFromUrl) withDefaultFromRequest(result, true, width) else result
+        val url = URLDecoder.decode(id, "utf-8")
+        if (url.contains(request.domain)) {
+          Redirect(url)
+        } else {
+          val result = imageCacheService.retrieveImageFromCache(request, url, true, width)
+          if (withDefaultFromUrl) withDefaultFromRequest(result, true, width) else result
+        }
     }
   }
 }

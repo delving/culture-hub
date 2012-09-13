@@ -78,7 +78,7 @@ object Indexing extends SolrServer {
     inputDoc += (ORG_ID -> dataSet.getOwner)
     inputDoc += (HUB_ID -> URLEncoder.encode(record.itemId, "utf-8"))
     inputDoc += (SCHEMA -> schemaPrefix)
-    inputDoc += (RECORD_TYPE -> ITEM_TYPE_MDR)
+    inputDoc += (RECORD_TYPE -> dataSet.itemType.itemType)
     inputDoc += (VISIBILITY -> Visibility.PUBLIC.value.toString)
 
     inputDoc.addField(SPEC.tag, "%s".format(dataSet.spec))

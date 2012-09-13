@@ -16,7 +16,7 @@
 
 package models
 
-import core.access.{ResourceType, Resource}
+import core.access.{Resource, ResourceType}
 import org.bson.types.ObjectId
 import models.HubMongoContext._
 import com.mongodb.casbah.Imports._
@@ -24,8 +24,8 @@ import com.novus.salat.dao._
 import exceptions.MetaRepoSystemException
 import core.{OrganizationService, DomainServiceLocator, HubModule, HubServices}
 import eu.delving.metadata.RecMapping
-import core.Constants._
 import models.statistics.DataSetStatistics
+import core.ItemType
 import core.collection.{Indexable, OrganizationCollection, OrganizationCollectionInformation, Harvestable}
 import controllers.organization.DataSetEvent
 import plugins.DataSetPlugin
@@ -45,6 +45,7 @@ import org.scala_tools.subcut.inject.{BindingModule, Injectable}
  */
 
 case class DataSet(
+
   // basics
   _id: ObjectId = new ObjectId,
   spec: String,
@@ -55,48 +56,53 @@ case class DataSet(
   state: DataSetState,
   errorMessage: Option[String] = None,
 
-  // not used
-  // fixed to public. We'll see in the future whether this is still necessary to have or should be removed.
+  // not used, fixed to public. We'll see in the future whether this is still necessary to have or should be removed.
   visibility: Visibility = Visibility.PUBLIC,
+
   // fixed to false, not used. We simply delete a set. TODO decide whether we remove this.
   deleted: Boolean = false,
 
   details: Details,
 
-  // sip-creator integration
+  // ~~~ sip-creator integration
   lockedBy: Option[String] = None,
   hashes: Map[String, String] = Map.empty[String, String],
   hints: Array[Byte] = Array.empty[Byte],
 
-  // mapping
+  // ~~~ mapping
+
   // this map contains all namespaces of the source format, and is necessary for mapping
   namespaces: Map[String, String] = Map.empty[String, String],
+
   mappings: Map[String, Mapping] = Map.empty[String, Mapping],
+
   // for each prefix, indexes of the records that are not valid for that schema
   invalidRecords: Map[String, List[Int]] = Map.empty[String, List[Int]],
 
-  // harvesting
+  // ~~~ harvesting
   formatAccessControl: Map[String, FormatAccessControl], // access control for each format of this DataSet (for OAI-PMH)
 
-  // indexing
+  // ~~~ indexing
 
   // the mapping(s) used at indexing time (for the moment, use only one)
   idxMappings: List[String] = List.empty[String],
 
+
+
   // TODO not in use anymore, we read the configuration directly. revive if necessary.
+
   // the facet fields selected for indexing, at the moment derived from configuration
   idxFacets: List[String] = List.empty[String],
+
   // the sort fields selected for indexing, at the moment derived from configuration
   idxSortFields: List[String] = List.empty[String]
-  )
-  extends OrganizationCollection
-  with OrganizationCollectionInformation
-  with Harvestable
-  with Indexable
-  with Resource {
+
+  ) extends OrganizationCollection with OrganizationCollectionInformation with Harvestable with Indexable with Resource {
 
   implicit val configuration = DomainConfigurationHandler.getByOrgId(orgId)
   val organizationServiceLocator = HubModule.inject[DomainServiceLocator[OrganizationService]](name = None)
+
+  val itemType: ItemType = DataSetPlugin.ITEM_TYPE
 
   // ~~~ accessors
 
@@ -160,7 +166,7 @@ case class DataSet(
   def getRecords(
     metadataFormat: String, position: Int, limit: Int, from: Option[Date], until: Option[Date]
     ): (List[MetadataItem], Long) = {
-    val cache = MetadataCache.get(orgId, spec, ITEM_TYPE_MDR)
+    val cache = MetadataCache.get(orgId, spec, DataSetPlugin.ITEM_TYPE)
     val records = cache.list(position, Some(limit), from, until).filter(_.xml.contains(metadataFormat))
     val totalSize = cache.count()
     (records, totalSize)
@@ -398,7 +404,7 @@ class DataSetDAO(collection: MongoCollection)(implicit val configuration: Domain
   }
 
   def delete(dataSet: DataSet) {
-    MetadataCache.get(dataSet.orgId, dataSet.spec, ITEM_TYPE_MDR).removeAll()
+    MetadataCache.get(dataSet.orgId, dataSet.spec, DataSetPlugin.ITEM_TYPE).removeAll()
     HubServices.basexStorage(dataSet.configuration).deleteCollection(dataSet)
     remove(MongoDBObject("_id" -> dataSet._id))
   }
