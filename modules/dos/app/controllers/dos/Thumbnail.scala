@@ -7,7 +7,10 @@ import javax.imageio.ImageIO
 import java.io._
 import org.imgscalr.Scalr
 import play.api.libs.Files.TemporaryFile
-import io.Source
+import org.apache.commons.io.IOUtils
+import org.im4java.core.{IMOperation, ImageCommand}
+import play.api.Play
+import java.util.UUID
 
 /**
  *
@@ -38,10 +41,40 @@ trait Thumbnail {
   }
 
   private def createThumbnail(sourceStream: InputStream, contentType: String, thumbnailWidth: Int, boundingBox: Boolean = true): InputStream = {
-    val thumbnail: BufferedImage = resizeImage(sourceStream, thumbnailWidth, boundingBox)
-    val os: ByteArrayOutputStream = new ByteArrayOutputStream()
-    ImageIO.write(thumbnail, "png", os) // we write out the thumbnail as PNG which is a lossless format
-    new ByteArrayInputStream(os.toByteArray)
+
+    if (contentType.contains("pdf")) {
+
+      val sourceFile = TemporaryFile(UUID.randomUUID().toString, ".pdf")
+      val os = new FileOutputStream(sourceFile.file)
+      try {
+        IOUtils.copy(sourceStream, os)
+        os.flush()
+      } finally {
+        os.close()
+      }
+
+      val thumbnailFile = TemporaryFile(UUID.randomUUID().toString, ".png")
+
+      // TODO consolidate all places using GM
+      val gmCommand = Play.configuration.getString("dos.graphicsmagic.cmd").getOrElse("")
+
+      val cmd = new ImageCommand(gmCommand, "convert")
+      val op = new IMOperation()
+      op.thumbnail(thumbnailWidth) // TODO check if that's the width indeed
+      op.addImage(sourceFile.file.getAbsolutePath + "[0]") // first page
+      op.addImage(thumbnailFile.file.getAbsolutePath)
+      op.units("PixelsPerInch")
+      op.resample(72)
+      cmd.run(op)
+
+      new FileInputStream(thumbnailFile.file)
+    } else {
+      val thumbnail: BufferedImage = resizeImage(sourceStream, thumbnailWidth, boundingBox)
+      val os: ByteArrayOutputStream = new ByteArrayOutputStream()
+      ImageIO.write(thumbnail, "png", os) // we write out the thumbnail as PNG which is a lossless format
+      new ByteArrayInputStream(os.toByteArray)
+    }
+
   }
 
   private def resizeImage(imageStream: InputStream, width: Int, boundingBox: Boolean): BufferedImage = {
