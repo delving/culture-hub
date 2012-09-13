@@ -171,19 +171,19 @@ trait DataSetControl extends OrganizationController { this: BoundController =>
           Forbidden("You are not allowed to create DataSets")
         } else {
           val data = if (dataSet == None) {
-          JJson.generate(DataSetCreationViewModel(
-            allAvailableSchemas = allSchemaPrefixes,
-            schemaProcessingConfigurations = allSchemaPrefixes.map { prefix =>
-              SchemaProcessingConfiguration(
-                prefix = prefix,
-                availableVersions = versions(prefix),
-                version = versions(prefix).sorted.head
-              )
-            },
-            indexingMappingPrefix = Some("None")
-          ))
-        } else {
-          val dS = dataSet.get
+            JJson.generate(DataSetCreationViewModel(
+              allAvailableSchemas = allSchemaPrefixes,
+              schemaProcessingConfigurations = allSchemaPrefixes.map { prefix =>
+                SchemaProcessingConfiguration(
+                  prefix = prefix,
+                  availableVersions = versions(prefix),
+                  version = versions(prefix).sorted.head
+                )
+              },
+              indexingMappingPrefix = Some("None")
+            ))
+          } else {
+            val dS = dataSet.get
 
             def acl(prefix: String) = dS.formatAccessControl.get(prefix).map(f => (f.accessType, f.accessKey)).getOrElse(("none", None))
 
@@ -206,7 +206,7 @@ trait DataSetControl extends OrganizationController { this: BoundController =>
                 indexingMappingPrefix = if(dS.getIndexingMappingPrefix.isEmpty) Some("None") else dS.getIndexingMappingPrefix
               )
             )
-        }
+          }
 
         Ok(Template(
           'spec -> spec,
