@@ -1,0 +1,5 @@
+#SIPCreator - facts
+maxUniqueValueLength=42
+recordCount=3000
+recordRootPath=/harvest/OAI-PMH/ListRecords/record
+uniqueElementPath=/harvest/OAI-PMH/ListRecords/record/header/identifier

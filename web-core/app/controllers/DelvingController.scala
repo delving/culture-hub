@@ -7,12 +7,11 @@ import play.api.data.Form
 import play.api.i18n.{Lang, Messages}
 import play.libs.Time
 import eu.delving.templates.scala.GroovyTemplates
-import extensions.{Extensions, ConfigurationException}
+import extensions.Extensions
 import collection.JavaConverters._
 import org.bson.types.ObjectId
-import xml.NodeSeq
 import core._
-import models.{GrantType, Group, HubUser}
+import models.{DomainConfiguration, Role, Group, HubUser}
 import play.api.data.Forms._
 
 /**
@@ -21,11 +20,7 @@ import play.api.data.Forms._
  */
 
 
-trait ApplicationController extends Controller with GroovyTemplates with DomainConfigurationAware with Logging with Extensions {
-
-  protected val hubPlugins = current.plugins.filter(_.isInstanceOf[CultureHubPlugin]).map(_.asInstanceOf[CultureHubPlugin])
-
-  private val onApplicationRequestHandlers: Seq[RequestContext => Unit] = hubPlugins.map(_.onApplicationRequest)
+trait ApplicationController extends Controller with GroovyTemplates with DomainConfigurationAware with Logging with Extensions with RenderingExtensions {
 
   // ~~~ i18n
 
@@ -33,7 +28,9 @@ trait ApplicationController extends Controller with GroovyTemplates with DomainC
 
   private val LANG_COOKIE = "CH_LANG"
 
-  implicit def getLang(implicit request: RequestHeader) = request.cookies.get(LANG_COOKIE).map(_.value).getOrElse(configuration.defaultLanguage)
+  protected val log = Logger("CultureHub")
+
+  implicit def getLang(implicit request: RequestHeader) = request.cookies.get(LANG_COOKIE).map(_.value).getOrElse(configuration.ui.defaultLanguage)
 
   override implicit def lang(implicit request: RequestHeader): Lang = Lang(getLang)
 
@@ -44,6 +41,8 @@ trait ApplicationController extends Controller with GroovyTemplates with DomainC
       Action(action.parser) {
         implicit request: Request[A] => {
 
+          renderArgs += ("themeInfo" -> new ThemeInfo(configuration))
+
           val langParam = request.queryString.get(LANG)
 
           val requestLanguage = if (langParam.isDefined) {
@@ -51,8 +50,8 @@ trait ApplicationController extends Controller with GroovyTemplates with DomainC
             langParam.get(0)
           } else if (request.cookies.get(LANG_COOKIE).isEmpty) {
             // if there is no language for this cookie / user set, set the default one from the configuration
-            Logger("CultureHub").trace("Setting language from domain configuration to " + configuration.defaultLanguage)
-            configuration.defaultLanguage
+            Logger("CultureHub").trace("Setting language from domain configuration to " + configuration.ui.defaultLanguage)
+            configuration.ui.defaultLanguage
           } else {
             Logger("CultureHub").trace("Setting language from cookie to " + request.cookies.get(LANG_COOKIE).get.value)
             request.cookies.get(LANG_COOKIE).get.value
@@ -64,11 +63,8 @@ trait ApplicationController extends Controller with GroovyTemplates with DomainC
           // action composition being applied after the template has been rendered, we need to pass it in this way
           renderArgs += (__LANG -> requestLanguage)
 
-          // apply plugin handlers
-          onApplicationRequestHandlers.foreach(handler => handler(RequestContext(request, configuration, renderArgs, getLang)))
-
           // main navigation
-          val menu = hubPlugins.map(
+          val menu = CultureHubPlugin.getEnabledPlugins.map(
             plugin => plugin.mainMenuEntries(configuration, getLang).map(_.asJavaMap)
           ).flatten.asJava
 
@@ -133,29 +129,10 @@ trait ApplicationController extends Controller with GroovyTemplates with DomainC
     Json(Map("errors" -> (fieldErrors ++ globalErrors)), BAD_REQUEST)
   }
 
-  // ~~~ API rendering helpers
-
-  def wantsJson(implicit request: RequestHeader) = request.queryString.get("format").isDefined && request.queryString("format").contains("json") ||
-    request.queryString.get("format").isEmpty && request.headers.get(ACCEPT).isDefined && request.headers(ACCEPT).contains("application/json")
-
-  def wantsHtml(implicit request: RequestHeader) = request.headers.get(ACCEPT).isDefined && request.headers(ACCEPT).contains("html")
-
-  def wantsXml(implicit request: RequestHeader) = request.queryString.get("format").isDefined && request.queryString("format").contains("xml") ||
-    request.queryString.get("format").isEmpty && request.headers.get(ACCEPT).isDefined && request.headers(ACCEPT).contains("application/xml")
-
-  def DOk(xml: NodeSeq, sequences: List[String]*)(implicit request: RequestHeader): Result = {
-    if(wantsJson) {
-      Ok(util.Json.toJson(xml, false, sequences)).as(JSON)
-    } else {
-      Ok(xml)
-    }
-  }
-
-
   // ~~~ Form utilities
   import extensions.Formatters._
 
-  val tokenListMapping = list(
+  val tokenListMapping = seq(
     play.api.data.Forms.mapping(
       "id" -> text,
       "name" -> text,
@@ -163,22 +140,6 @@ trait ApplicationController extends Controller with GroovyTemplates with DomainC
       "data" -> optional(of[Map[String, String]])
       )(Token.apply)(Token.unapply)
     )
-
-
-  // ~~~ Access control
-
-  def getUserGrantTypes(orgId: String)(implicit request: RequestHeader) = request.session.get(Constants.USERNAME).map {
-    userName =>
-      val isAdmin = HubServices.organizationService.isAdmin(orgId, userName)
-      val groups: List[GrantType] = Group.findDirectMemberships(userName, orgId).map(_.grantType).toList.distinct.map(GrantType.get(_))
-      // TODO make this cleaner
-      if(isAdmin) {
-        groups ++ List(GrantType.get("own"))
-      } else {
-        groups
-      }
-  }.getOrElse(List.empty)
-
 
 }
 
@@ -201,7 +162,7 @@ case class RichBody[A <: AnyContent](body: A) {
  */
 trait OrganizationController extends DelvingController with Secured {
 
-  def isAdmin(orgId: String)(implicit request: RequestHeader): Boolean = HubServices.organizationService.isAdmin(orgId, connectedUser)
+  def isAdmin(orgId: String)(implicit request: RequestHeader): Boolean = organizationServiceLocator.byDomain.isAdmin(orgId, connectedUser)
 
   def OrgOwnerAction[A](orgId: String)(action: Action[A]): Action[A] = {
     OrgMemberAction(orgId) {
@@ -225,7 +186,7 @@ trait OrganizationController extends DelvingController with Secured {
             if (orgId == null || orgId.isEmpty) {
               Error("How did you even get here?")
             }
-            if (!HubUser.findByUsername(connectedUser).map(_.organizations.contains(orgId)).getOrElse(false)) {
+            if (!HubUser.dao.findByUsername(connectedUser).map(_.organizations.contains(orgId)).getOrElse(false)) {
               Forbidden(Messages("user.secured.noAccess"))
             } else {
               action(request)
@@ -239,7 +200,7 @@ trait OrganizationController extends DelvingController with Secured {
 
 trait DelvingController extends ApplicationController with CoreImplicits {
 
-  def getNode = current.configuration.getString("cultureHub.nodeName").getOrElse(throw ConfigurationException("No cultureHub.nodeName provided - this is terribly wrong."))
+  val organizationServiceLocator = HubModule.inject[DomainServiceLocator[OrganizationService]](name = None)
 
   def userName(implicit request: RequestHeader) = request.session.get(Constants.USERNAME).getOrElse(null)
 
@@ -265,20 +226,21 @@ trait DelvingController extends ApplicationController with CoreImplicits {
 //          }
 
           // Connected user
-          HubUser.findByUsername(userName).map {
-            u => {
-              renderArgs +=("fullName" -> u.fullname)
-              renderArgs +=("userName" -> u.userName)
-              renderArgs +=("userId" -> u._id)
-              //        renderArgs += ("authenticityToken", session.getAuthenticityToken)
-              renderArgs +=("organizations" -> u.organizations)
-              renderArgs +=("email" -> u.email)
-
-              // refresh session parameters
-              additionalSessionParams += (Constants.ORGANIZATIONS -> u.organizations.mkString(","))
-              additionalSessionParams += (Constants.GROUPS -> u.groups.mkString(","))
-            }
+          HubUser.dao.findByUsername(userName).foreach { u =>
+            renderArgs +=("fullName" -> u.fullname)
+            renderArgs +=("userName" -> u.userName)
+            renderArgs +=("userId" -> u._id)
+            //        renderArgs += ("authenticityToken", session.getAuthenticityToken)
+            renderArgs +=("organization" -> u.organizations.headOption.getOrElse(""))
+            renderArgs +=("email" -> u.email)
           }
+
+          // Search in
+          // TODO move to search plugin, one day
+          renderArgs += ("searchIn" -> configuration.searchService.searchIn.asJava)
+
+          // breadcrumbs
+          renderArgs += ("breadcrumbs" -> Breadcrumbs.crumble())
 
           // ignore AsyncResults for these things for the moment
           val res = action(request)
@@ -301,7 +263,7 @@ trait DelvingController extends ApplicationController with CoreImplicits {
     Root {
       Action(action.parser) {
         implicit request =>
-          val maybeUser = HubUser.findByUsername(user)
+          val maybeUser = HubUser.dao.findByUsername(user)
           maybeUser match {
             case Some(u) =>
               renderArgs +=("browsedFullName" -> u.fullname)
@@ -348,28 +310,33 @@ trait DelvingController extends ApplicationController with CoreImplicits {
     Root {
       Action(action.parser) {
         implicit request =>
-          val orgName = HubServices.organizationService.getName(orgId, "en")
-          val isAdmin = HubServices.organizationService.isAdmin(orgId, userName)
+          val orgName = organizationServiceLocator.byDomain.getName(orgId, "en")
+          val isAdmin = organizationServiceLocator.byDomain.isAdmin(orgId, userName)
           renderArgs += ("orgId" -> orgId)
           renderArgs += ("browsedOrgName" -> orgName)
           renderArgs += ("currentLanguage" -> getLang)
           renderArgs += ("isAdmin" -> isAdmin.asInstanceOf[AnyRef])
 
           val roles: Seq[String] = (session.get("userName").map {
-            u => Group.findDirectMemberships(userName, orgId).map(g => g.grantType).toSeq
+            u => Group.dao.findDirectMemberships(userName).map(g => g.roleKey).toSeq
           }.getOrElse {
             List.empty
-          }) ++ (if(isAdmin) Seq(GrantType.OWN.key) else Seq.empty)
+          }) ++ (if(isAdmin) Seq(Role.OWN.key) else Seq.empty)
 
 
           renderArgs += ("roles" -> roles.asJava)
 
-          val navigation = hubPlugins.map(
-            plugin => plugin.getOrganizationNavigation(Map("orgId" -> orgId, "currentLanguage" -> getLang), roles, HubUser.findByUsername(connectedUser).map(u => u.organizations.contains(orgId)).getOrElse(false)).map(_.asJavaMap)
-          ).flatten.asJava
+          val navigation = CultureHubPlugin.getEnabledPlugins.map {
+            plugin => plugin.
+              getOrganizationNavigation(
+                orgId = orgId,
+                lang = getLang,
+                roles = roles,
+                isMember = HubUser.dao.findByUsername(connectedUser).map(u => u.organizations.contains(orgId)).getOrElse(false)
+            ).map(_.asJavaMap)
+          }.flatten.asJava
 
           renderArgs += ("navigation" -> navigation)
-
 
           action(request)
       }
@@ -390,5 +357,18 @@ trait DelvingController extends ApplicationController with CoreImplicits {
 
   def listPageTitle(itemName: String)(implicit request: RequestHeader) = if (browsingUser) Messages("listPageTitle.%s.user".format(itemName), browsedFullName) else Messages("listPageTitle.%s.all".format(itemName))
 
+  // ~~~ Access control
+
+  def getUserGrantTypes(orgId: String)(implicit request: RequestHeader, configuration: DomainConfiguration): Seq[Role] = request.session.get(Constants.USERNAME).map {
+    userName =>
+      val isAdmin = organizationServiceLocator.byDomain.isAdmin(orgId, userName)
+      val groups: Seq[Role] = Group.dao.findDirectMemberships(userName).map(_.roleKey).toSeq.distinct.map(Role.get(_))
+      // TODO make this cleaner
+      if(isAdmin) {
+        groups ++ Seq(Role.get("own"))
+      } else {
+        groups
+      }
+  }.getOrElse(Seq.empty)
 
 }

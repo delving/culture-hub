@@ -1,0 +1,4 @@
+#SIPCreator - facts
+recordCount=8
+recordRootPath=/adlibXML/recordList/record
+uniqueElementPath=/adlibXML/recordList/record/priref

@@ -193,3 +193,78 @@ May not be a problem but we need to check if there are any items live.
       db.getCollection(cache).insert(item);
       c = c + 1;
     });
+
+
+16.08.2012 - DataSet model should not hold a RecordDefinition anymore
+
+    db.Datasets.find().forEach(function(ds) {
+      for(var key in ds.mappings) {
+        if(ds.mappings.hasOwnProperty(key)) {
+          print(key);
+          var mapping = ds.mappings[key];
+          ds.mappings[key].schemaPrefix = mapping.format.prefix;
+          if(key == 'ese') {
+            ds.mappings[key].schemaVersion = "3.4.0";
+          } else {
+            ds.mappings[key].schemaVersion = "1.0.0";
+          }
+          delete ds.mappings[key].format;
+        }
+      }
+      db.Datasets.save(ds);
+    })
+
+17.08.2012 - MetadataItem also has the version of the schema mappings in use
+
+    // migrate records
+
+    var orgId = "delving";
+    var cache = orgId + "_MetadataCache";
+    db.Datasets.find().forEach(function(ds) {
+      print(ds.spec)
+      var versions = {};
+      for(var key in ds.mappings) {
+        if(ds.mappings.hasOwnProperty(key)) {
+          versions[key] = ds.mappings[key].schemaVersion;
+        }
+      }
+      db.getCollection(cache).update({collection: ds.spec, itemType: "mdr"}, {$set: {"schemaVersions": versions}}, false, true);
+    })
+    db.getCollection(cache).find({schemaVersions: {$exists: false}}).forEach(function(item) {
+      var versions = {};
+      for(var key in item.xml) {
+        if(item.xml.hasOwnProperty(key)) {
+          if(key == 'ese') {
+            versions[key] = "3.4.0";
+          } else {
+            versions[key] = "1.0.0";
+          }
+        }
+      }
+      item.schemaVersions = versions;
+      db.getCollection(cache).save(item);
+    })
+
+    // migrate facts to reflect versions
+
+    db.Datasets.find().forEach(function(ds) {
+      var versions = {};
+      for(var key in ds.mappings) {
+        if(ds.mappings.hasOwnProperty(key)) {
+          versions[key] = ds.mappings[key].schemaVersion;
+        }
+      }
+      var schemaVersions = "";
+      for(var key in versions) {
+        if(ds.mappings.hasOwnProperty(key)) {
+          if(schemaVersions.length > 0) {
+            schemaVersions = schemaVersions + ", " + key + "_" + versions[key];
+          } else {
+            schemaVersions = key + "_" + versions[key];
+          }
+        }
+      }
+      print(ds.spec + " --> " + schemaVersions);
+      ds.details.facts.schemaVersions = schemaVersions;
+      db.Datasets.save(ds);
+    })

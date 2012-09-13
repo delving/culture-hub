@@ -1,15 +1,15 @@
 #{list _facetMap, as: 'facet'}
     #{if facet.getLinks().length() > 0 && facet.getType() == _type}
         *{ FACET HEADER }*
-        <h4 class="facet-toggle dropdown #{if facet.isFacetSelected()}open#{/if}">
+        <header class="facet-toggle dropdown #{if facet.isFacetSelected()}open#{/if}">
             ${_typeKey ? _typeKey : _type}
             #{if _collapsable == true}<b class="caret"></b>#{/if}
-        </h4>
+        </header>
         *{ FACET CONTAINER: lists all facets of type x }*
-        <div class="facet-container">
+        <section class="facet-container">
             #{list facet.getLinks(), as: 'link'}
                 %{
-                    def qs = '/search?query='+ _qString + link.url
+                    def qs = '/search?query='+ _qString + '&searchIn=' + _searchIn + link.url
                     // translate object types
                     def thingType = link.value()
                     if (facet.getType() == "delving_recordType_facet") {
@@ -30,17 +30,27 @@
                             thingType = link.value()
                         }
                     }
+                    if (facet.getType() == "delving_hasDigitalObject_facet") {
+                      switch (link.value()) {
+                          case 'false':
+                          thingType = messages.get('ui.label.withoutDigitalObject')
+                          break
+                          case 'true':
+                          thingType = messages.get('ui.label.withDigitalObject')
+                          break
+                      }
+                    }
                 }%
                 <div class="facet #{if _columns == 2}span1of2#{/if}">
                     #{if !link.remove()}
-                        <input type="checkbox" value="${qs}&facetBoolType=OR"/><span><a href="${qs}&facetBoolType=OR">${thingType} (${link.count()})</a></span>
+                        <input type="checkbox" value="${qs}&facetBoolType=OR"/><span><a href="${qs}&facetBoolType=OR" rel="nofollow">${thingType} (${link.count()})</a></span>
                     #{/if}
                     #{else}
-                        <input type="checkbox" checked="checked" value="${qs}&facetBoolType=OR"/><span><a href="${qs}&facetBoolType=OR">${thingType} (${link.count()})</a></span>
+                        <input type="checkbox" checked="checked" value="${qs}&facetBoolType=OR"/><span><a href="${qs}&facetBoolType=OR" rel="nofollow">${thingType} (${link.count()})</a></span>
                     #{/else}
                 </div>
             #{/list}
-        </div>
+        </section>
 
     #{/if}
 #{/list}

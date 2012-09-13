@@ -16,30 +16,9 @@
 
 package controllers
 
-import org.bson.types.ObjectId
-import views.Helpers.getThumbnailUrl
-import models.{Visibility, ViewableItem, DataSetState}
+import models.{Visibility, ViewableItem}
 
 // ~~ short models, mainly for browsing & displaying things view full rendering
-
-case class ShortDataSet(id: Option[ObjectId] = None,
-                        spec: String = "",
-                        total_records: Long = 0,
-                        state: DataSetState = DataSetState.INCOMPLETE,
-                        errorMessage: Option[String],
-                        facts: Map[String, String] = Map.empty[String, String],
-                        recordDefinitions: List[String] = List.empty[String],
-                        indexingMappingPrefix: String,
-                        orgId: String,
-                        userName: String,
-                        lockedBy: Option[String],
-                        errors: Map[String, String] = Map.empty[String, String],
-                        visibility: Int = 0) {
-
-  val error: String = errorMessage.map {
-    m => m.replaceAll("\n", "<br/>")
-  }.getOrElse("")
-}
 
 case class Fact(name: String, prompt: String, value: String)
 
@@ -52,20 +31,13 @@ case class ListItem(id: String,
                     itemType: String,
                     title: String,
                     description: String = "",
-                    thumbnailId: Option[ObjectId] = None,
-                    thumbnailUrl: Option[String] = None,
+                    thumbnailUrl: String = "",
                     mimeType: String = "unknown/unknown",
                     userName: String,
                     isPrivate: Boolean,
                     url: String) extends ViewableItem {
-  
-  def thumbnail(size: Int = 100): String = (thumbnailId, thumbnailUrl) match {
-    case (None,  None) => getThumbnailUrl(None)
-    case (Some(id), None) => getThumbnailUrl(Some(id), size)
-    case (None, Some(url)) => url
-  }
 
-  def getHubId = "%s_%s_%s".format(userName, itemType, id)
+  def getHubId = id
   def getItemType = itemType
   def getTitle = title
   def getDescription = description
@@ -74,10 +46,10 @@ case class ListItem(id: String,
   def getVisibility = if(isPrivate) Visibility.PRIVATE.value.toString else Visibility.PUBLIC.value.toString
   def getUri = url
   def getLandingPage = url
-  def getThumbnailUri = thumbnail(100)
-  def getThumbnailUri(size: Int) = thumbnail(size)
+  def getThumbnailUri = thumbnailUrl
+  def getThumbnailUri(size: Int) = thumbnailUrl
   def getMimeType = mimeType
-  def hasDigitalObject = thumbnailId != None || thumbnailUrl != None
+  def hasDigitalObject = !thumbnailUrl.trim.isEmpty
 }
 
 abstract class ViewModel {

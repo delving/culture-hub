@@ -5,72 +5,92 @@
 
 #{set bodyId: 'organization' /}
 
-#{breadcrumbs /}
+#{breadcrumbs crumbs: breadcrumbs /}
 
 #{organizationNavBar orgId: orgId, active:"groups", navigation: navigation /}
 
 <h3>&{'org.group.create'}</h3>
+<form action="" id="groupForm" class="form-delving">
 
 <div class="row">
-    <form action="" id="groupForm" class="form-delving">
-        <div class="span6">
-            #{textField name:"name", form: groupForm, label:messages.get('thing.name'), dataBind:"value: name, enable: canChangeGrantType", required: true /}
-            <div class="control-group" data-bind="visible: canChangeGrantType">
-                <label class="control-label" for="grantType">&{'thing.grantType'}<span class="label">&{'ui.label.required'}</span></label>
-                <div class="controls">
-                    <select id="grantType" name="grantType" data-bind="value: grantType" class="span4">
-                    #{list grantTypes, as: 'gt'}
-                        <option value="${gt.key}">&{gt.description}</option>
-                    #{/list}
-                    </select>
-                    <span class="error">${views.Helpers.showError('grantType', null)}</span>
-                </div>
+    <div class="groups-name span4">
+        #{form.textField name:"name", form: groupForm, label:messages.get('thing.name'), dataBind:"value: name, enable: canChangeGrantType", required: true /}
+    </div>
+    <div class="groups-grants span4">
+        <div class="control-group" data-bind="visible: canChangeGrantType">
+            <label class="control-label" for="grantType">&{'thing.grantType'}<span class="label">&{'ui.label.required'}</span></label>
+            <div class="controls">
+                <select id="grantType" name="grantType" data-bind="value: roleKey">
+                #{list roles, as: 'r'}
+                    <option value="${r.key}">&{r.value}</option>
+                #{/list}
+                </select>
+                <span class="error">${views.Helpers.showError('roleKey', null)}</span>
             </div>
         </div>
-        <div class="span6">
-            <div class="control-group">
-                <label class="control-label" for="users">&{'thing.users'}</label>
-                <div class="controls">
-                #{if id.isDefined()}
-                    #{addRemoveTokenField id:"users", name: "users", searchUrl: "/organizations/"+orgId+"/users/search", prePopulate: users, addUrl: "/organizations/"+orgId+"/groups/"+id.get()+"/addUser", removeUrl: "/organizations/"+orgId+"/groups/"+id.get()+"/removeUser" /}
-                #{/if}
-                #{else}
-                    #{boundAddRemoveTokenField id:"users", name:"users", searchUrl: "/organizations/"+orgId+"/users/search", dataBind:"tokens: users" /}
-                #{/else}
-                    <p>&{'org.admin.index.addMembers'}</p>
-                </div>
-            </div>
-            <div class="control-group" data-bind="visible: canChangeGrantType() && (grantType() == 'view' || grantType() == 'modify')">
-                <label class="control-label" for="datasetsInput">&{'thing.datasets'}</label>
-                <div class="controls">
-                #{if id.isDefined()}
-                    #{addRemoveTokenField id:"datasetsInput", name: "datasetsInput", searchUrl: "/organizations/"+orgId+"/datasets/search", prePopulate: dataSets, addUrl: "/organizations/"+orgId+"/groups/"+id.get()+"/addDataset", removeUrl: "/organizations/"+orgId+"/groups/"+id.get()+"/removeDataset" /}
-                #{/if}
-                #{else}
-                    #{boundAddRemoveTokenField id:"datasetsInput", name:"datasetsInput", searchUrl: "/organizations/"+orgId+"/datasets/search", dataBind:"tokens: dataSets" /}
-                #{/else}
-                </div>
-            </div>
-            <div class="well">
-            #{btnButton label: messages.get('org.group.save'), extraClass:"btn-primary btn-promiment", id:"saveButton", type:"submit" /}
-            <div class="wait"></div>
-            </div>
-        </div>
-    </form>
+    </div>
 </div>
 
+<div class="row">
+    <div class="groups-members span4">
+        <div class="control-group">
+            <label class="control-label" for="users">&{'thing.users'}</label>
+            <div class="controls">
+            #{boundAddRemoveTokenField id:"users", name:"users", searchUrl: "/users/search", dataBind:"tokens: users" /}
+                <p>&{'org.admin.index.addMembers'}</p>
+            </div>
+        </div>
+    </div>
+    <div class="groups-resources span4" data-bind="visible: canChangeGrantType() && (rolesWithResources().indexOf(roleKey()) > -1)  && !(rolesWithResourceAdmin.indexOf(roleKey()) > -1)">
+        <div class="control-group">
+            <label class="control-label" for="resourceTokenInput">&{'thing.resources'}</label>
+            <div class="controls">
+                <input type="text" id="resourceTokenInput" data-bind="tokens: resources">
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="well">
+    #{btnButton label: messages.get('org.group.save'), extraClass:"btn-primary", id:"saveButton", type:"submit" /}
+    <div class="wait"></div>
+</div>
+
+</form>
 
 <script type="text/javascript">
     $(document).ready(function () {
-        var groupModel = {};
-//        $("body").css('visibility', 'visible');
+
+        var groupModel = {
+          resourceType: function() {
+            return $.grep(groupModel.rolesResourceType(), function(item, index) { return item.roleKey() == groupModel.roleKey() })[0];
+          },
+          resourceTypeName: function() {
+            console.log("gmodel " + this)
+            return groupModel.resourceType().resourceTypeName();
+          },
+          resourceTypeKey: function() {
+            var rt = groupModel.resourceType();
+            if(typeof rt === 'undefined') {
+              return "";
+            } else {
+              return groupModel.resourceType().resourceType();
+            }
+          },
+          resourceTokensUrl: function() {
+            return '/organizations/${orgId}/groups/resources/' + groupModel.resourceTypeKey() + '/search';
+          }
+        };
+
         load(${data.raw()}, groupModel, null, function () {
             $("body").css('visibility', 'visible');
+        }, function() {
+          return $('#resourceTokenInput').tokenInput(groupModel.resourceTokensUrl);
         });
 
         $('#saveButton').click(function (event) {
             event.preventDefault();
-            handleSubmit('/organizations/${orgId}/groups/update/${views.Helpers.getOrElse(id, "")}', groupModel, '#groupForm', '/organizations/${orgId}/groups/update/', null, null);
+            handleSubmit('/organizations/${orgId}/groups/submit', groupModel, '#groupForm', '/organizations/${orgId}/groups');
         });
     });
 </script>

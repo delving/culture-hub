@@ -3,7 +3,7 @@ package plugins
 import play.api.Application
 import controllers.organization.CMS
 import core.{MenuElement, MainMenuEntry, CultureHubPlugin}
-import models.{DomainConfiguration, GrantType}
+import models.{DomainConfiguration, Role}
 
 /**
  *
@@ -14,24 +14,40 @@ class CMSPlugin(app: Application) extends CultureHubPlugin(app) {
 
   val pluginKey: String = "cms"
 
-  override def mainMenuEntries(configuration: DomainConfiguration, lang: String): Seq[MainMenuEntry] = {
-    models.cms.MenuEntry.findEntries(configuration.name, CMS.MAIN_MENU).filterNot(e => !e.title.contains(lang) || !e.published).map(e => MainMenuEntry(
-      key = e.menuKey,
-      titleKey = e.title(lang),
-      mainEntry = Some(MenuElement(url = "/page/" + e.targetPageKey.getOrElse(""), titleKey = e.title(lang)))
-    )).toSeq
+  override def mainMenuEntries(implicit configuration: DomainConfiguration, lang: String): Seq[MainMenuEntry] = {
+    _root_.models.cms.MenuEntry.dao.
+            findEntries(configuration.orgId, CMS.MAIN_MENU).
+            filterNot(e => !e.title.contains(lang) || !e.published).
+            filterNot(e => _root_.models.cms.CMSPage.dao.findByKeyAndLanguage(e.targetPageKey.getOrElse(""), lang).isEmpty).
+            map(e =>
+                    MainMenuEntry(
+                       key = e.menuKey,
+                       titleKey = e.title(lang),
+                       mainEntry = Some(MenuElement(url = "/page/" + e.targetPageKey.getOrElse(""), titleKey = e.title(lang)))
+                    )
+            ).toSeq
   }
 
-  override def organizationMenuEntries(context: Map[String, String], roles: Seq[String]): Seq[MainMenuEntry] = Seq(
+  override def organizationMenuEntries(orgId: String, lang: String, roles: Seq[String]): Seq[MainMenuEntry] = Seq(
     MainMenuEntry(
       key = "site",
       titleKey = "org.cms",
-      roles = Seq(GrantType.OWN, GrantType.CMS),
+      roles = Seq(Role.OWN, CMSPlugin.ROLE_CMS_ADMIN),
       items = Seq(
-        MenuElement("/organizations/%s/site".format(context("orgId")), "org.cms.page.list"),
-        MenuElement("/organizations/%s/site/%s/page/add".format(context("orgId"), context("currentLanguage")), "org.cms.page.new"),
-        MenuElement("/organizations/%s/site/upload".format(context("orgId")), "org.cms.upload.image")
+        MenuElement("/organizations/%s/site".format(orgId), "org.cms.page.list"),
+        MenuElement("/organizations/%s/site/%s/page/add".format(orgId, lang), "org.cms.page.new"),
+        MenuElement("/organizations/%s/site/upload".format(orgId), "org.cms.upload.image")
       )
     )
   )
+
+  /**
+   * Override this to provide custom roles to the platform, that can be used in Groups
+   * @return a sequence of [[models.Role]] instances
+   */
+  override def roles: Seq[Role] = Seq(CMSPlugin.ROLE_CMS_ADMIN)
+}
+
+object CMSPlugin {
+  val ROLE_CMS_ADMIN = Role("cms", Role.descriptions("plugin.cms.adminRight"), false, None)
 }

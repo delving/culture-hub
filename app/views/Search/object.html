@@ -1,103 +1,70 @@
 #{extends themeInfo.get('themeLayout') /}
 
-#{set title: systemFields.apply("delving_owner").get(0) +" | "+ systemFields.apply("delving_title").get(0) /}
+#{set title: systemFields.contains("delving_owner") ? systemFields.apply("delving_owner").get(0) + " | " : "" + systemFields.apply("delving_title").get(0) /}
+
+#{set bodyId: 'object'/}
 
 #{set 'moreScripts'}
-<script type='text/javascript' src="@{routes.Assets.at('common/javascripts/seadragon/seadragon-min.js')}"></script>
+<script>
+    *{ Set dynamic values to use in object.js }*
+    // i18n messages
+    jsLabels.relatedItems = "${messages.get('thing.relatedItems')}";
+    jsLabels.provider =  "${messages.get('thing.provider')}";
+    jsLabels.creator =  "${messages.get('thing.creator')}";
+    jsLabels.objTitle = "${systemFields.apply("delving_title").get(0)}";
+
+    // thing object
+    var Thing = new Object();
+    Thing.orgId = "${orgId}";
+    Thing.hubId = "${hubId}";
+</script>
+<script src="@{routes.Assets.at('common/javascripts/seadragon/seadragon-min.js')}"></script>
+<script src="@{routes.Assets.at('common/javascripts/object.js')}"></script>
+
 #{/set}
 
-#{breadcrumbs params:["search":["searchTerm": searchTerm, "returnToResults": returnToResults], "title": ["url":"", "label": systemFields.apply("delving_title").get(0)], "inOrg": ["inOrg": "yes"]] /}
-
-<style>
-    body {
-        margin-bottom: 50px;
-    }
-    h5 {
-        margin: 0 0 0 0;
-    }
-    p {
-        margin: 0 0 2px 10px;
-        padding: 0;
-    }
-    dl {
-        margin: 0 0 10px 0;
-    }
-    ul {
-        margin-bottom: 10px;
-    }
-    img {
-        max-width: 100%;
-        height: auto;
-    }
-    #collections ul {
-        display: inline-block;
-        width: 44%;
-        vertical-align: top;
-    }
-    div.image {
-        margin-bottom: 21px;
-        text-align: center;
-    }
-    img.img {
-        height: auto;
-        max-width: 100%;
-    }
-
-    div#zoom-viewer {
-        width: 100%;
-        height: 300px;
-    }
-
-</style>
-
-<div class="page-header">
-    <h1>${systemFields.apply("delving_title").get(0)}</h1>
-</div>
-
-#{view view: fullView /}
+#{breadcrumbs crumbs: breadcrumbs /}
 
 *{
-<!-- overlayed element -->
-<div id="overlay" class="result-overlay" style="padding: 20px;width:auto">
-<div class="contentWrap">
-    <img src="${systemFields.apply("delving_thumbnail").get(0)}" alt="${systemFields.apply("delving_title").get(0)}" style="max-width:900px" />
-    <div class="title"> ${systemFields.apply("delving_title").get(0)}</div>
-</div>
-</div>
+<!-- what goes where? -->
+<ul>
+<li><a href="http://creativecommons.org/publicdomain/mark/1.0/" target="_blank">http://creativecommons.org/publicdomain/mark/1.0/</a></li>
+<li><a href="http://creativecommons.org/publicdomain/zero/1.0/" target="_blank">http://creativecommons.org/publicdomain/zero/1.0/</a></li>
+<li><a href="http://creativecommons.org/licenses/by/3.0/" target="_blank">http://creativecommons.org/licenses/by/3.0/</a></li>
+<li><a href="http://creativecommons.org/licenses/by-sa/3.0/nl/" target="_blank">http://creativecommons.org/licenses/by-sa/3.0/nl/</a></li>
+<li><a href="http://creativecommons.org/licenses/by-nc/3.0/de/" target="_blank">http://creativecommons.org/licenses/by-nc/3.0/de/</a></li>
+<li><a href="http://creativecommons.org/licenses/by-nc-sa/2.0/fr/" target="_blank">http://creativecommons.org/licenses/by-nc-sa/2.0/fr/</a></li>
+<li><a href="http://creativecommons.org/licenses/by-nd/2.0/es/" target="_blank">http://creativecommons.org/licenses/by-nd/2.0/es/</a></li>
+<li><a href="http://creativecommons.org/licenses/by-nc-nd/1.0/fi/" target="_blank">http://creativecommons.org/licenses/by-nc-nd/1.0/fi/</a></li>
+<li><a href="http://www.europeana.eu/rights/rr-f/" target="_blank">http://www.europeana.eu/rights/rr-f/</a> Europeana: Rights Reserved - Free Access</li>
+<li><a href="http://www.europeana.eu/rights/rr-p/" target="_blank">http://www.europeana.eu/rights/rr-p/</a> Europeana: Rights Reserved - Paid Access</li>
+<li><a href="http://www.europeana.eu/rights/rr-r/" target="_blank">http://www.europeana.eu/rights/rr-r/</a> Europeana: Rights Reserved - Restricted Access</li>
+<li><a href="http://www.europeana.eu/rights/unknown/" target="_blank">http://www.europeana.eu/rights/unknown/</a> Europeana: Unknown copyright status</li>
+</ul>
 }*
-<script type="text/javascript" language="javascript">
-*{
-//    $(function () {
-//        $("a.overlay-trigger").overlay({
-//            closeOnClick: true,
-//            mask: {
-//                color: "#ddddd0",
-//                loadSpeed: 200,
-//                opacity: 0.5
-//            }
-//        });
-//    });
-}*
-$(document).ready(function() {
-
-    if ($('a[rel=zoom]').size() > 0) {
-        // Deepzoom image
-        var zoomImg = $('a[rel=zoom]').attr('href');
-        // Deepzoom viewer
-        var viewer;
-
-        Seadragon.Config.imagePath = "/assets/common/javascripts/seadragon/img/";
-        Seadragon.Config.autoHideControls = false;
-        viewer = new Seadragon.Viewer("zoom-viewer");
-        viewer.openDzi({
-            "url":zoomImg,
-            "width":1800,
-            "height":1400,
-            "tileSize":256,
-            "tileOverlap":0,
-            "tileFormat":"jpg"});
-    }
-});
 
 
-</script>
+<div class="object-top row">
+    <div class="return-navigation span4">
+    #{if returnToResults.length() > 0}
+        <a href="/search?${returnToResults}" rel="nofollow" class="return-to-results">
+            <i class="icon icon-arrow-left"></i> &{'ui.label.returnToResults'}</a>
+    #{/if}&#160;
+    </div>
+    <div class="rights span4">
+        #{if rights}#{rightsIcon rights: rights/}#{/if}
+    </div>
+    <div class="social-media span4">
+    #{if themeInfo.addThisTrackingCode().length() > 0}
+        <div class="social-media-block pull-right">
+            #{addThis lang:lang ?: 'en', pubId:themeInfo.addThisTrackingCode()/}
+        </div>
+    #{/if}
+    </div>
+</div>
+
+<div class="object-main">
+    <div class="object-data">
+        #{view view: fullView /}
+    </div>
+</div>

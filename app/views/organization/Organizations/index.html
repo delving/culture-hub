@@ -2,7 +2,7 @@
 
 #{set title: messages.get('thing.organization') + ': ' + orgId /}
 #{set bodyId: 'organization' /}
-#{breadcrumbs configuration: themeInfo.getConfiguration() /}
+#{breadcrumbs crumbs: breadcrumbs /}
 
 #{if isMember}
     #{organizationNavBar orgId: orgId, active: 'overview', navigation: navigation /}
@@ -13,8 +13,8 @@
     <div class="span4">
         <h3>&{'thing.datasets'}</h3>
         <ol>
-        #{list dataSets, as: 'ds'}
-            <li><a href=${"/organizations/"+orgId+"/dataset/"+ds.spec}>${ds.spec}</a></li>
+        #{list collections, as: 'c'}
+            <li><a href=${"/organizations/"+orgId+"/dataset/"+c.spec}>${c.spec}</a></li>
         #{/list}
         </ol>
     </div>
@@ -26,4 +26,5 @@
         #{/list}
         </ol>
     </div>
+
 </div>

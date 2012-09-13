@@ -1,10 +1,11 @@
 package controllers.api
 
-import controllers.DelvingController
-import play.api.mvc.Action
-import core.HubServices
+import controllers.{RenderingExtensions, DomainConfigurationAware, BoundController}
+import play.api.mvc.{Controller, Action}
+import core._
 import play.api.i18n.Messages
-import models.{DataSet, Visibility}
+import models.DomainConfiguration
+import core.collection.OrganizationCollectionInformation
 
 /**
  * Organization API
@@ -12,14 +13,21 @@ import models.{DataSet, Visibility}
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-object Organization extends DelvingController {
+object Organization extends BoundController(HubModule) with Organization
 
-  def providers(orgId: String) = Root {
+trait Organization extends Controller with DomainConfigurationAware with RenderingExtensions {
+  this: BoundController with Controller with DomainConfigurationAware with RenderingExtensions =>
+  
+  val organizationCollectionLookupService = inject [OrganizationCollectionLookupService]
+  val organizationServiceLocator = inject [ DomainServiceLocator[OrganizationService] ]
+
+
+  def providers(orgId: String) = DomainConfigured {
     Action {
       implicit request =>
-        if (HubServices.organizationService.exists(orgId)) {
+        if (organizationServiceLocator.byDomain.exists(orgId)) {
 
-          val providers = getFactAlternatives(orgId, "provider")
+          val providers = getAllOrganiztationCollectionInformation.map(_.getProvider)
 
           val xmlResponse =
             <providers>
@@ -38,12 +46,12 @@ object Organization extends DelvingController {
     }
   }
 
-  def dataProviders(orgId: String) = Root {
+  def dataProviders(orgId: String) = DomainConfigured {
     Action {
       implicit request =>
-        if (HubServices.organizationService.exists(orgId)) {
+        if (organizationServiceLocator.byDomain.exists(orgId)) {
 
-          val dataProviders = getFactAlternatives(orgId, "dataProvider")
+          val dataProviders = getAllOrganiztationCollectionInformation.map(_.getDataProvider)
 
           val xmlResponse =
             <dataProviders>
@@ -62,18 +70,18 @@ object Organization extends DelvingController {
     }
   }
 
-  def collections(orgId: String) = Root {
+  def collections(orgId: String) = DomainConfigured {
     Action {
       implicit request =>
-        if (HubServices.organizationService.exists(orgId)) {
-          val collections = models.DataSet.findAllByOrgId(orgId)
+        if (organizationServiceLocator.byDomain.exists(orgId)) {
+          val collections = organizationCollectionLookupService.findAll
 
           val xmlResponse =
             <collections>
               {for (c <- collections) yield
               <collection>
-                <id>{toIdentifier(c.spec)}</id>
-                <name>{c.getName}</name>
+                <id>{toIdentifier(c.spec)}</id>{if (c.isInstanceOf[OrganizationCollectionInformation]) {
+                <name>{c.asInstanceOf[OrganizationCollectionInformation].getName}</name>}}
               </collection>}
             </collections>
 
@@ -85,7 +93,13 @@ object Organization extends DelvingController {
     }
   }
 
-  private def getFactAlternatives(orgId: String, fact: String) = DataSet.findAll(orgId).map(ds => ds.details.facts.get(fact)).filterNot(_ == null).map(_.toString).toList.distinct
+  private def getAllOrganiztationCollectionInformation(implicit configuration: DomainConfiguration) = organizationCollectionLookupService.findAll.flatMap { collection =>
+    if(collection.isInstanceOf[OrganizationCollectionInformation]) {
+      Some(collection.asInstanceOf[OrganizationCollectionInformation])
+    } else {
+      None
+    }
+  }
 
   private def toIdentifier(name: String) = name.replaceAll(" ", "_")
 

@@ -4,59 +4,71 @@
 
 #{set bodyId: 'organization' /}
 
-#{breadcrumbs /}
+#{breadcrumbs crumbs: breadcrumbs /}
 
 #{organizationNavBar orgId: orgId, active:"groups", navigation: navigation /}
 
 <div class="row">
-    <div class="span12">
+    <div class="groups-list span12">
         <table class="table table-striped">
             <caption>&{'org.group.list'}</caption>
             <thead>
                 <th>&{'thing.name'}</th>
                 <th>&{'thing.action'}</th>
             </thead>
-            <tbody>
-            #{list groups, as: 'group'}
-                #{if group.grantType == models.GrantType.OWN().key}
-                <tr>
-                    <td>${group.name} - &{'org.list.memberCount', group.users.size()} &{'org.list.grantType.own'}</td>
-                    <td>#{if isAdmin}<a class="btn btn-primary btn-mini" href="/organizations/${orgId}/groups/update/${group._id}">&{'ui.label.edit'}</a>#{/if}</td>
-                </tr>
-                #{/if}
-                #{else}
-                <tr>
-                    <td>${group.name} - &{'org.list.memberCount', group.users.size()}</td>
-                    <td>#{if isAdmin}
-                        <a class="btn btn-primary btn-mini" href="/organizations/${orgId}/groups/update/${group._id}">&{'ui.label.edit'}</a>
-                        <a class="btn btn-danger btn-mini delete" id="remove${group._id}" data-remove="${group._id}">
-                        ${messages.get('ui.label.delete')}
-                        </a>
-                    #{/if}</td>
-                </tr>
-                #{/else}
-            #{/list}
-            #{else}
-                <tr>
-                    <td>No groups defined</td>
-                    <td>#{if isAdmin}<a class="btn btn-primary btn-mini" href="/organizations/${orgId}/groups/create">&{'org.group.create'}</a>#{/if}</td>
-                </tr>
-            #{/else}
+            <!-- ko if: groups().length > 0 -->
+            <tbody data-bind="foreach: groups">
+              <tr>
+                  <td><span data-bind="text: name"></span></td>
+                  <td><span data-bind="text: description"></span></td>
+                  <td>#{if isAdmin}
+                      <a class="btn btn-primary btn-mini" data-bind="attr: { href: '/organizations/${orgId}/groups/update/' + id() }">&{'ui.label.edit'}</a>
+                      <a class="btn btn-danger btn-mini delete" data-bind="attr: { id: 'remove-' + id(), 'data-remove': id() }">
+                      ${messages.get('ui.label.delete')}
+                      </a>
+                  #{/if}</td>
+              </tr>
             </tbody>
+          <!-- /ko -->
+          <!-- ko if: !groups().length > 0 -->
+          <tbody>
+            <tr>
+                <td>No groups defined</td>
+                <td>#{if isAdmin}<a class="btn btn-primary btn-mini" href="/organizations/${orgId}/groups/create">&{'org.group.create'}</a>#{/if}</td>
+            </tr>
+          </tbody>
+          <!-- /ko -->
         </table>
     </div>
 </div>
-
 <script type="text/javascript">
-    $(document).ready(function() {
-        $('.delete:not(.disabled)').click(function() {
+$(document).ready(function() {
+    var viewModel = {};
+    load(${groups.raw()}, viewModel, null, function () {
+        $('.delete:not(.disabled)').click(function () {
             var group = $(this).attr('data-remove');
-            bootboxConfirm({
-                'type': 'DELETE',
-                'message' : '<h3 class="shout beware">&{'thing.confirmation'}</h3>&{'organizations.group.confirmDeletion'}',
-                'action_url':'/organizations/${orgId}/groups/remove/'+ group,
-                'success_url':'/organizations/${orgId}/groups'
-            });
+            bootbox.dialog('<h3 class="shout beware">&{'thing.confirmation'}</h3>&{'organizations.group.confirmDeletion'}',
+            [
+                {
+                    "label":"No thanks!",
+                    "class":"btn"
+                },
+                {
+                    "label":"Yes, I'm sure",
+                    "class":"btn-primary",
+                    "callback":function () {
+                        $.ajax({
+                            url:'/organizations/${orgId}/groups/remove/' + group,
+                            type:"DELETE",
+                            success:function () {
+                                document.location = '/organizations/${orgId}/groups'
+                            }
+                        });
+                    }
+                }
+            ]);
         });
-    })
+    });
+});
 </script>
+

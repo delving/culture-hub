@@ -1,4 +1,4 @@
-@(error: Option[Throwable])
+@(error: Option[Throwable], message: Option[String])
 
 <!DOCTYPE html>
 
@@ -16,6 +16,12 @@
     <img src="/assets/common/images/error-500-1.jpg" width="300" />
     <img src="/assets/common/images/error-500-2.jpg" width="300" />
     <p>We are dispatching a team of highly trained mathematicians to analyze the issue.</p>
+    @if(error.isDefined) {
+        <p>@error.get.getMessage</p>
+    }
+    @if(message.isDefined) {
+        <p>@message.get</p>
+    }
     <div class="options">
       <a href="/">@play.api.i18n.Messages("site.nav.home")</a>
     </div>

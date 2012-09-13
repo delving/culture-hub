@@ -42,16 +42,28 @@ dt, dd, li {
 }
 
 .span1of2 {
-    width: 49%;
-    margin-right: 1%;
+    width: 47%;
+    margin: 0 0 0 3.33%;
     float: left;
 }
 
 .span1of3 {
-    width: 32%;
-    margin-right: 1%;
+    width: 30%;
+    margin: 0 0 0 3.33%;
     float: left;
 }
+
+.span1of4 {
+    width: 22%;
+    float: left;
+}
+
+.grid1of4 {
+    width: 21.77%;
+    margin: 0 0 0 3.33%;
+    float: left;
+}
+
 
 
 /* `Clear Floated Elements
@@ -147,12 +159,27 @@ dt, dd, li {
 
 .clip-100 {
     display: block;
-    height: 80px;
+    height: 100px;
+}
+
+.clip-120 {
+    display: block;
+    height: 120px;
+}
+
+.clip-140 {
+    display: block;
+    height: 140px;
+}
+
+.clip-160 {
+    display: block;
+    height: 160px;
 }
 
 .clip-180 {
     display: block;
-    height: 120px;
+    height: 180px;
 }
 
 .clip-200 {
@@ -186,33 +213,23 @@ dt, dd, li {
 
 /* media overrides */
 
-.media.record .img {
-    margin-right: 10px;
-    max-width: 450px;
-}
-
-
-.media .title {
-    font-weight: bold;
-}
-
-.media .extra {
-    display: block;
-    clear: left;
-    float: left;
-}
-
-.media .toolbar {
-    margin: 10px 0;
-}
-
-.media ic_container a {
-    display: block;
-}
-
 .media .clip {
     float: left;
 }
+
+.media.media-stack {
+    margin-top: 0px;
+}
+
+.media.media-stack .clip {
+    clear: both;
+    float: none;
+}
+
+.media.media-stack .img {
+    margin: 0 0 8px 0;
+}
+
 
 /* OBJECT OVERLAY */
 
@@ -240,157 +257,37 @@ dt, dd, li {
     width: 35px;
 }
 
-/* RESULT / BROWSE LIST CAPTIONS / THING-CONTAINER ************************************************************************/
+/* RESULT / BROWSE LIST CAPTIONS / thumbnail grid ************************************************************************/
 
-.thing-container {
-    margin-bottom: 11px;
-    position: relative;
-    padding: 2px;
-    list-style: none;
-    background-color: #FBFBFB;
-    background-image: -moz-linear-gradient(top, white, whiteSmoke);
-    background-image: -ms-linear-gradient(top, white, whiteSmoke);
-    background-image: -webkit-gradient(linear, 0 0, 0 100%, from(white), to(whiteSmoke));
-    background-image: -webkit-linear-gradient(top, white, whiteSmoke);
-    background-image: -o-linear-gradient(top, white, whiteSmoke);
-    background-image: linear-gradient(top, white, whiteSmoke);
-    background-repeat: repeat-x;
-    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='white', endColorstr='whiteSmoke', GradientType=0);
-    border: 1px solid #DDD;
-    -webkit-border-radius: 3px;
-    -moz-border-radius: 3px;
-    border-radius: 3px;
-    -webkit-box-shadow: inset 0 1px 0 white;
-    -moz-box-shadow: inset 0 1px 0 white;
-    box-shadow: inset 0 1px 0 white;
 
+
+/*.thumbnails > li {*/
+    /*margin-bottom: 8px;*/
+/*}*/
+
+.thumbnail {
+    background-color: whiteSmoke;
+    -moz-border-radius: 0;
+    -wekit-border-radius: 0;
+    border-radius: 0;
 }
 
-.thing-container.no-image {
-    background: #e1e1e1;
-    margin-bottom: 10px;
+.thumbnail .media {
+    margin-top: 0px;
 }
 
-.thing-container .category {
-    background: #0088cc;
-    color: #fff;
-    letter-spacing: 2px;
-    padding: 2px 6px;
-    margin: 0;
-    text-shadow: 1px 2px 3px #666;
-    /*position: absolute;*/
-    /*top: 0px;*/
-    /*right: 0px;*/
-    /*opacity: .8;*/
+.thumbnail .media .bd {
+    padding: 8px;
 }
 
-.thing-container .title {
-    /*background: #444;*/
-    font-weight: bold;
-    font-size: 120%;
-    padding: 2px 6px;
-    line-height: 1.5;
-    clear: both;
+.thumbnail .media .title {
+    margin-bottom: 8px;
 }
 
-.thing-container .title a {
-    /*color: #fff;*/
-}
-
-/* GRID ITEM */
-
-.grid-item {
-    float: left;
-    margin: 0;
-}
-
-/*
-.ic_container {
-    vertical-align: baseline;
-    position: relative;
-    text-align: center;
-}
-
-.ic_container img {
-    height: auto;
-
-}
-
-.ic_container bd {
-    margin: 0;
-    padding: 0;
-    text-align: left;
-}
-
-.overlay {
-    opacity: 0.3;
-    position: absolute;
-    top: 0px;
-    bottom: 0px;
-    left: 0px;
-    right: 0px;
-    filter: progid:DXImageTransform.Microsoft.Alpha(opacity = 50);
-
-}
-
-.ic_caption {
-    position: absolute;
-    opacity: 0.7;
-    overflow: hidden;
-    margin: 0px;
-    padding: 5px 0px;
-    left: 0px;
-    right: 0px;
-    bottom: 0px;
-    cursor: default;
-    filter: progid:DXImageTransform.Microsoft.Alpha(opacity = 60);
-    text-align: left;
-    min-height: 50px;
-}
-
-.ic_caption .title a {
-    display: block;
-    padding: 0 5px;
-}
-
-.ic_caption .title {
-    font-size: 100%;
-}
-
-.ic_category {
-    text-transform: uppercase;
-    font-size: 10px;
-    letter-spacing: 2px;
-    padding: 0 5px;
-    margin: 0px;
-}
-
-.ic_text {
-    padding: 5px;
-    margin: 0px;
+.thumbnail .media .description {
     font-size: smaller;
-
-}
-*/
-.is_private {
-    background: #fff;
-    color: #000;
-    opacity: 0.7;
-    position: absolute;
-    top: 0px;
 }
 
-.is_private span {
-    padding: 5px;
-    display: block;
-    font-size: smaller;
-    z-index: 14;
-}
-
-/* Pagination */
-.pagination {
-    margin: 11px 0;
-}
 
 /** BOOTSTRAP TABLE HELPER **/
 
@@ -697,7 +594,7 @@ form label.radio {
 }
 
 /*---------------------------------
-	BOOTSTRAP DROPDOWN HELPER
+	BOOTSTRAP PAGINATION HELPER
 -----------------------------------*/
 
 /* bootstrap pagination: include spans for object list pages */
@@ -705,7 +602,7 @@ form label.radio {
 .pagination a,
 .pagination span {
     float: left;
-    padding: 0 14px;
+    padding: 0 13px;
     line-height: 34px;
     text-decoration: none;
     border: 1px solid #ddd;
@@ -758,20 +655,21 @@ form label.radio {
 
 /* bootstrap dropdown disabled state */
 
-.dropdown-menu.disabled {
+.dropdown-menu.disabled,
+.dropdown-menu li.disabled{
     display: none;
 }
 
 .facet-toggle {
     border-bottom: 1px solid #eaeaea;
-    color: #a9a9a9;
+    color: #888;
     padding: 8px 0;
-    text-transform: uppercase;
+    /*text-transform: uppercase;*/
     margin: 0;
 }
 
 
-/* facets */
+/* facets **************************/
 
 .facet-toggle:hover {
     color: #888;
@@ -793,7 +691,12 @@ form label.radio {
     border-bottom: 4px solid #000000;
 }
 
-
+.facets-header {
+    border-bottom: 4px solid #ccc;
+    color: #666;
+    padding: 0 0 8px 0;
+    font-weight: bold;
+}
 
 .facet-container {
     border-bottom: 1px solid #eaeaea;
@@ -805,7 +708,7 @@ form label.radio {
 }
 
 .facet-container .facet {
-    padding: 2px 0;
+    padding: 2px;
 }
 
 .facet-container input[type=checkbox] {
@@ -818,12 +721,75 @@ form label.radio {
     display: table-cell;
 }
 
+/* object view ************/
+
+#object .page-header {
+    /*line-height: 135%;*/
+    /*background: #888;*/
+    /*color: white;*/
+    font-size: 150%;
+    border-bottom: none;
+    line-height: 125%;
+    margin: 0 0 13px 0;
+    padding: 0;
+}
+
+#object .return-to-results {
+    display: block;
+    margin: 13px 0 0 0;
+}
+
+#object .social-media-block {
+    margin: 13px 0;
+}
+
+#object h5 {
+    margin: 0 0 0 0;
+    color: #adadad;
+    font-size: 105%;
+}
+
+#object p {
+    margin: 0 0 8px 0;
+}
+
+#object ul {
+    margin-bottom: 8px;
+}
+
+#object img {
+    max-width: 100%;
+    height: auto;
+}
+#object #collections ul {
+    display: inline-block;
+    width: 44%;
+    vertical-align: top;
+}
+#object div.image {
+    margin-bottom: 21px;
+    text-align: center;
+}
+
+#object div#zoom-viewer {
+   width: 100%;
+   height: 300px;
+}
+
+#object .related-items ul {
+    margin-top: 8px;
+}
+
+/* Advanced search plugin */
+
+#collection-list {
+    display: none;
+    margin-top: 13px;
+}
+
+#collection-list span.label {
+    margin: 0 4px;
+}
 
 
-/*.nav-facets {*/
-    /*padding: 0;*/
-/*}*/
 
-/*.nav-facets > li > a {*/
-    /*padding: 3px 0px;*/
-/*}*/

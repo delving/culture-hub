@@ -2,13 +2,13 @@
 #{set title: messages.get('profile.title') + ': ' + browsedUserName /}
 #{set bodyId: 'profile' /}
 
-#{breadcrumbs /}
+#{breadcrumbs crumbs: breadcrumbs /}
 
 <div class="row">
     <div class="span3">
       <p>#{gravatar.img user.email, size:200 /}</p>
       #{if user.userName == userName}
-        <p>#{btnHref label:messages.get('ui.label.edit'), extraClass:"btn-primary", href: "/" + user.userName + "/admin/profile/update" /}</p>
+        <p>#{btnHref label:messages.get('ui.label.edit'), extraClass:"btn-primary", href: "/" + user.userName + "/admin/profile/update", rel:"nofollow" /}</p>
       #{/if}
     </div>
     <div class="span9">

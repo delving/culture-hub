@@ -1,4 +1,0 @@
-#SIPCreator - facts
-recordCount=24733
-recordRootPath=/adlibXML/recordList/record
-uniqueElementPath=/adlibXML/recordList/record/priref

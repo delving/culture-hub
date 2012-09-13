@@ -58,6 +58,7 @@ ui.label.lastname=Achternaam
 ui.label.less=Minder
 ui.label.load=Laden
 ui.label.location=Plaats
+ui.label.loggedInAs=Ingelogd als
 ui.label.login=Inloggen
 ui.label.logout=Uitloggen
 ui.label.memberSince=Lid sinds
@@ -79,6 +80,7 @@ ui.label.remove=Verwijder
 ui.label.required=Verplicht
 ui.label.reset=Herstel
 ui.label.returnToResults=Terug naar resultaten
+ui.label.save=Bewaar
 ui.label.scope=Scope
 ui.label.scope.public=Publiek
 ui.label.scope.notpublic=Niet publiek
@@ -96,6 +98,13 @@ ui.label.visibility.public=Publiek
 ui.label.visibility.notpublic=Privé
 ui.label.website=Website
 ui.label.welcome=Welkom
+ui.label.all=Alles
+ui.label.withoutDigitalObject=Heeft geen afbeelding
+ui.label.withDigitalObject=Heeft afbeelding
+
+ui.widget.upload.chooseFile=Bestand kiezen
+ui.widget.upload.start=Upload starten
+ui.widget.upload.cancel=Upload annuleren
 
 # General 'thing' like object, collection or story
 thing.label=Label
@@ -165,6 +174,7 @@ thing.startYear=Start jaar
 thing.endYear=Eind jaar
 thing.keyword=Trefwoord
 thing.keywords=Trefwoorden
+thing.relatedItems=Soortgelijke inhoud
 
 
 
@@ -215,7 +225,7 @@ search.facets=Facetten
 search.nrfound= {0} resultaten gevonden
 search.resultsfor=Zoekresultate voor
 search.sortby= Sorteer op
-search.refineYourSearchBy=Zoekopdracht verfijnen per
+search.refineYourSearch=Zoekopdracht verfijnen
 search.facet.byYear=Jaar
 search.facet.byProvider=Aanbieder
 search.facet.byObjectType=Soort object
@@ -269,7 +279,7 @@ metadata.delving.dimensions=Afmeting
 metadata.delving.owner=Eigenaar
 metadata.delving.creator=Vervaardiger
 metadata.delving.recordType=Record type
-metadata.delving.hasDigitalObject=Record heeft een digital object
+metadata.delving.hasDigitalObject=Record heeft een digitaal object
 
 
 metadata.europeana.country=Land
@@ -406,6 +416,7 @@ org.list.grantType.view=with rights to view
 org.list.grantType.modify=with rights to modify
 org.list.grantType.own=with full access to everything
 org.list.dataSetCount={0} Dataset(s)
+org.list.filter=Type hier om de lijst te filteren
 
 org.group.grantType.view=View rights
 org.group.grantType.modify=Modification rights
@@ -431,9 +442,6 @@ org.cms.list.deletePageConfirm=Weet u zeker dat u deze pagina en alle versies va
 org.cms.upload=Bestand uploaden
 org.cms.upload.image=Afbeelding uploaden
 org.cms.upload.image.explain=U kunt hier plaatjes van uw eigen computer uploaden om aan een CMS pagina toe te voegen. Deze plaatjes worden toegevoegd aan een lijst die terug te vinden is wanneer u nieuwe pagina aanmaakt of een bestaande pagina aanpast.
-org.cms.upload.chooseFile=Bestand kiezen
-org.cms.upload.start=Upload starten
-org.cms.upload.cancel=Upload annuleren
 
 org.cms.upload.help.toggle=Hulp met bestanden uploaden
 org.cms.upload.help.chooseImage=<ul><li>Kies eerst een bestand van uw eigen computer door op <span class="btn btn-success btn-mini"><i class="icon-plus icon-white"></i>Bestand kiezen</span> te klikken</li><li>Meerdere plaatjes mogen tegelijkertijd geselecteerd worden</li></ul>
@@ -494,11 +502,10 @@ org.vc.keyauto.error=Naam veld moet eerst ingevuld worden
 
 org.admin.index.title=Organisatie administratie
 org.admin.index.removeMemberConfirmation=Removing a member will also remove them from all groups they are in. Are you sure you want to proceed?
-org.admin.index.editOwners=U kunt de eigenaren van de organisatie aanpassen op de groep-pagina voor
-org.admin.index.editOwnersLink=eigenaren
 org.admin.index.addMembers=Voeg een nieuw lid toe door de gebruikersnaam hierboven in te vullen en dan op de ENTER toets indrukken
 org.admin.index.members=Leden
-org.admin.index.owners=Eigenaren
+org.admin.index.admins=Beheerders
+org.admin.index.addAdmins=Voeg een nieuwe beheerder toe door de gebruikersnaam hierboven in te vullen en dan op de ENTER toets indrukken
 
 organization.dataset.title.create=Create new dataset for user {0}
 organization.dataset.title.update=Update dataset for user {0}
@@ -601,3 +608,13 @@ plugin.statistics.withObjects=Met objecten
 plugin.statistics.withoutObjects=Zonder objecten
 plugin.statistics.nrRecords=Aantal records
 plugin.statistics.landingPages=Met landing-pages
+
+plugin.advancedsearch=Uitgebreid zoeken
+plugin.advancedsearch.searchIn=Zoek in
+plugin.advancedsearch.searchInAll=Alles
+plugin.advancedsearch.booleanAnd=EN
+plugin.advancedsearch.booleanOr=OF
+plugin.advancedsearch.booleanNot=NIET
+plugin.advancedsearch.allProviders=Alle aanbieders
+plugin.advancedsearch.selectProviders=Selecteer aanbieder(s)
+

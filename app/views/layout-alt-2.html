@@ -1,0 +1,75 @@
+#{include 'commonHeader.html'/}
+
+<div class="page-top">
+    <div class="container">
+        <div class="row">
+            <div class="branding span4">
+                <div id="primary-branding">
+                    <a href="@{controllers.routes.Application.index()}">
+                        <img src='${themeInfo.path("images/logo-primary.png")}' alt="${themeInfo.siteName()}" title="${themeInfo.siteName()}"/>
+                    </a>
+                </div>
+            </div>
+            <div class="navigation span8">
+                <div class="navbar navbar-user">
+                    <div class="navbar-inner">
+                        <div class="container">
+                        #{userNav userName: userName, email:email, organization:organization, showLogin:themeInfo.showLogin(), showRegistration:themeInfo.showRegistration(), extraClass:"pull-right"/}
+                        </div>
+                    </div>
+                </div>
+                #{mainMenu menu:menu, extraClass: 'nav-site'/}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="header">
+    <div class="container">
+        <div class="row">
+            <div class="span12">
+                <h1>${themeInfo.siteName()}</h1>
+                <h2>${themeInfo.siteSlogan()}</h2>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="search">
+    <div class="container">
+        <div class="row">
+            <div class="span12">
+                <form method="get" action="/search" class="form-horizontal" id="simple-search" onsubmit="return checkSimpleSearchSubmit('query');">
+                #{searchIn searchIn: params.searchIn, fields: searchIn /}
+                    <div class="input-append">
+                        <input class="" placeholder="&{'ui.label.search'} ..." type="text" id="query" name="query" value='${params.get("query")? params.get("query").apply(0) : ""}'/>
+                        <button type="submit" class="btn" title="&{'ui.label.search'}">&{'ui.label.search'}</button>
+                    </div>
+                    &#160;<a href="/search/advanced" rel="nofollow" class="hidden-phone">&{'plugin.advancedsearch'}</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="content" role="main">
+    <div class="container">
+        #{doLayout /}
+    </div>
+</div>
+
+<div id="footer">
+    <div class="container">
+        <div class="row">
+            <div class="span12">
+                <div class="pull-right">
+                    <a href="http://www.delving.eu" target="_blank" title="Powered by DELVING.EU"><img
+                            src="@{routes.Assets.at('common/images/delving-small.png')}"
+                            alt="Powered by DELVING.EU" id="pbd" />Powered by Delving</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+

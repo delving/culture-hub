@@ -1,66 +1,100 @@
 package core
 
+import _root_.util.DomainConfigurationHandler
+import scala.collection.mutable.HashMap
 import services._
-import models.HubUser
+import models.{DomainConfiguration, HubUser}
 import play.api.Play
 import play.api.Play.current
 import storage.BaseXStorage
 
 /**
+ * Global Services used by the Hub, initialized at startup time (see ConfigurationPlugin)
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
 object HubServices {
 
-  // ~~~ service references
-  // TODO decide on a dependency injection mechanism
+  // ~~~ service locators
 
-  var authenticationService: AuthenticationService = null
-  var registrationService: RegistrationService = null
-  var userProfileService: UserProfileService = null
-  var organizationService: OrganizationService = null
-  var directoryService: DirectoryService = null
+  lazy val authenticationServiceLocator = new DomainServiceLocator[AuthenticationService] {
+    def byDomain(implicit configuration: DomainConfiguration): AuthenticationService = baseServices(configuration)
+  }
+  lazy val registrationServiceLocator = new DomainServiceLocator[RegistrationService] {
+    def byDomain(implicit configuration: DomainConfiguration): RegistrationService = baseServices(configuration)
+  }
+  lazy val userProfileServiceLocator = new DomainServiceLocator[UserProfileService] {
+    def byDomain(implicit configuration: DomainConfiguration): UserProfileService = baseServices(configuration)
+  }
+  lazy val organizationServiceLocator = new DomainServiceLocator[OrganizationService] {
+    def byDomain(implicit configuration: DomainConfiguration): OrganizationService = baseServices(configuration)
+  }
+  lazy val directoryServiceLocator = new DomainServiceLocator[DirectoryService] {
+    def byDomain(implicit configuration: DomainConfiguration): DirectoryService = baseServices(configuration)
+  }
 
-  var basexStorage: BaseXStorage = null
+  val basexStorage =  new HashMap[DomainConfiguration, BaseXStorage]
+
+  var baseServices: Map[DomainConfiguration, AuthenticationService with RegistrationService with UserProfileService with OrganizationService with DirectoryService] = Map.empty
 
   def init() {
 
-    val services = Play.configuration.getString("cultureCommons.host") match {
-      case Some(host) =>
-        val node = Play.configuration.getString("cultureHub.nodeName").getOrElse(throw new RuntimeException("No nodeName provided"))
-        val orgId = Play.configuration.getString("cultureHub.orgId").getOrElse(throw new RuntimeException("No orgId provided"))
-        val apiToken = Play.configuration.getString("cultureCommons.apiToken").getOrElse(throw new RuntimeException("No api token provided"))
-        new CommonsServices(host, orgId, apiToken, node)
-      case None if !Play.isProd =>
-        // load all hubUsers as basis for the remote ones
-        val users = HubUser.findAll.map(u => MemoryUser(u.userName, u.firstName, u.lastName, u.email, "secret", u.userProfile, true)).map(u => (u.userName -> u)).toMap
-        val memoryServices = new MemoryServices
-        users.foreach {
-          u => memoryServices.users += u
+    baseServices = DomainConfigurationHandler.domainConfigurations.map { configuration =>
+
+      val services = configuration.commonsService.commonsHost match {
+
+        case host if (!host.isEmpty) =>
+          val node = configuration.commonsService.nodeName
+          val orgId = configuration.orgId
+          val apiToken = configuration.commonsService.apiToken
+          new CommonsServices(host, orgId, apiToken, node)
+
+        case host if (host.isEmpty) && !Play.isProd => {
+          // in development mode, load all hubUsers as basis for the remote ones
+          val users = HubUser.all.flatMap { users =>
+            users.findAll.map {
+              u => {
+                MemoryUser(
+                  u.userName,
+                  u.firstName,
+                  u.lastName,
+                  u.email,
+                  "secret",
+                  u.userProfile,
+                  true
+                )
+              }
+            }
+          }.map(u => (u.userName -> u)).toMap
+
+          val memoryServices = new MemoryServices
+          users.foreach {
+            u => memoryServices.users += u
+          }
+
+          // add example organizations
+          DomainConfigurationHandler.domainConfigurations.foreach { configuration =>
+            val org = MemoryOrganization(orgId = configuration.orgId, name = Map("en" -> configuration.orgId.capitalize), admins = List("bob"))
+            memoryServices.organizations += (configuration.orgId -> org)
+
+            // now ensure that bob is member everywhere
+            HubUser.dao(configuration).addToOrganization("bob", configuration.orgId)
+          }
+          memoryServices
         }
 
-        // add example organization
-        val delving = MemoryOrganization(orgId = "delving", name = Map("en" -> "Delving"), admins = List("bob"))
-        memoryServices.organizations += ("delving" -> delving)
 
-        memoryServices
-      case _ => throw new RuntimeException("The remote services are not configured. You need to specify 'cultureCommons.host' and 'cultureCommons.apiToken")
-    }
+        case _ => throw new RuntimeException("The remote services are not configured. You need to specify 'services.commons.host' and 'services.commons.apiToken")
+      }
 
-    authenticationService = services
-    registrationService = services
-    userProfileService = services
-    organizationService = services
-    directoryService = services
+      basexStorage += (configuration -> new BaseXStorage(configuration.baseXConfiguration))
 
-    basexStorage = new BaseXStorage(
-      Play.configuration.getString("basex.host").getOrElse("localhost"),
-      Play.configuration.getInt("basex.port").getOrElse(1984),
-      Play.configuration.getInt("basex.eport").getOrElse(1985),
-      Play.configuration.getString("basex.user").getOrElse("admin"),
-      Play.configuration.getString("basex.password").getOrElse("admin")
-    )
+      (configuration -> services)
+
+    }.toMap
 
   }
+
+
 }

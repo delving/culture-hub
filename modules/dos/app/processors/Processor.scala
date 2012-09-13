@@ -16,7 +16,7 @@
 
 package processors
 
-import util.Logging
+import util.{DomainConfigurationHandler, Logging}
 import models.dos.{Task}
 import play.api.Play
 import play.api.Play.current
@@ -50,5 +50,10 @@ trait Processor extends Logging {
 
   /** image name without extension **/
   def getImageName(name: String) = if (name.indexOf(".") > 0) name.substring(0, name.lastIndexOf(".")) else name
+
+  protected def getStore(orgId: String) = {
+    import controllers.dos.fileStore
+    fileStore(DomainConfigurationHandler.getByOrgId(orgId))
+  }
 
 }

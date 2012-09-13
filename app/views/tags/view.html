@@ -33,7 +33,7 @@ switch (_view.nodeType) {
 
     case "container":}%
 
-    #{if !_view.isLeaf() && !(_view.content().length() == 1 && _view.content().apply(0).nodeType() == "list" && _view.content().apply(0).content().length() == 0)}
+    #{if (!_view.isLeaf() && !(_view.content().length() == 1 && _view.content().apply(0).nodeType() == "list" && _view.content().apply(0).content().length() == 0)) || _view.attr("type") == "placeholder"}
         <div #{if _view.attr("id")}id="${_view.attr("id")}"#{/if}>
 
             #{if _view.attr("label")}
@@ -72,11 +72,11 @@ switch (_view.nodeType) {
             <dt>&{_view.attr("label")}#{if _view.attr("role")}<span class="label">admin</span>#{/if}</dt><dd>${_view.text()}</dd>
         #{/if}
         #{elseif _view.parent.attr("type") == "list"}
-            <li>${_view.parent.attr("type")}${_view.text()}</li>
+            <li>${_view.text()}</li>
         #{/elseif}
         #{else}
             #{if _view.attr("label")}<h5>&{_view.attr("label")} #{if _view.attr("role")}<span class="label">admin</span>#{/if}</h5>#{/if}
-            <p>${_view.parent.attr("type")} ${_view.text()}</p>
+            <p>${_view.text()}</p>
         #{/else}
     %{ }
     break
@@ -84,17 +84,17 @@ switch (_view.nodeType) {
     case "link": if (_view.attr("text")){ }%
 
         #{if _view.parent.attr("type") == "labelled-list"  }
-            <dt>&{_view.attr("label")}</dt><dd><a href="${_view.attr("url")}">&{_view.attr("text")}</a></dd>
+            <dt>&{_view.attr("label")}</dt><dd><a href="${_view.attr("url")}" rel="nofollow">&{_view.attr("text")}</a></dd>
         #{/if}
 
         #{elseif _view.parent.attr("type") == "list"}
-            <li><a href="${_view.attr("url")}">&{_view.attr("text")}</a></li>
+            <li><a href="${_view.attr("url")}" rel="nofollow">&{_view.attr("text")}</a></li>
         #{/elseif}
 
         #{else}
             #{if _view.attr("label")}<h5>&{_view.attr("label")}</h5>#{/if}
             #{if _view.attr("url")}
-                <p>${ _view.parent.attr("type")}<a href="${_view.attr("url")}" rel="${_view.attr("type")}">&{_view.attr("text")}</a></p>
+                <p>${ _view.parent.attr("type")}<a href="${_view.attr("url")}" data-type="${_view.attr("type")}" rel="nofollow">&{_view.attr("text")}</a></p>
             #{/if}
             #{else}
                 <p>&{_view.attr("text")}</p>
@@ -106,7 +106,7 @@ switch (_view.nodeType) {
     break
 
     case "image": if (_view.text()){ }%
-        <div class="image img"><img src="${_view.text()}"#{if _view.attr("class")} class="${_view.attr("class")}"#{/if} #{if _view.attr("title")} title="${_view.attr("title")}"#{/if}/></div>
+        <div class="img"><img src="${_view.text()}"#{if _view.attr("class")} class="${_view.attr("class")}"#{/if} #{if _view.attr("title")} title="${_view.attr("title")}"#{/if} onerror="showDefaultImg(this)"/></div>
     %{ }
     break
 
@@ -124,10 +124,21 @@ switch (_view.nodeType) {
             separator = _view.attr("separator")
         }}%
         #{if _view.content().length() > 0 }
-        #{if _view.attr("label")}
-            <h5>&{_view.attr("label")}</h5>
-        #{/if}
-        <p>#{list _view.content(), as: 'e'}${e.text()}#{if !e_isLast}${separator.raw()}#{/if}#{/list}</p>
+            #{if _view.parent.attr("type") == "list"}
+                #{list _view.content(), as: 'e'}<li>${e.text()}</li>#{/list}
+            #{/if}
+            #{elseif _view.parent.attr("type") == "labelled-list"}
+                <dt>&{_view.attr("label")}</dt>
+                <dd>
+                    #{list _view.content(), as: 'e'}${e.text()}#{if !e_isLast}${separator.raw()}#{/if}#{/list}
+                </dd>
+            #{/elseif}
+            #{else}
+                #{if _view.attr("label")}
+                    <h5>&{_view.attr("label")}</h5>
+                #{/if}
+                <p>#{list _view.content(), as: 'e'}${e.text()}#{if !e_isLast}${separator.raw()}#{/if}#{/list}</p>
+            #{/else}
         #{/if}
     %{
     break

@@ -2,9 +2,9 @@ import core.indexing.IndexingService
 import core.search.SolrQueryService
 import models.MetadataCache
 import org.apache.solr.client.solrj.SolrQuery
-import org.specs2.mutable.Specification
 import play.api.test.Helpers._
-import play.api.test.{FakeHeaders, FakeRequest, FakeApplication}
+import play.api.test.{FakeHeaders, FakeRequest}
+import util.DomainConfigurationHandler
 import xml.XML
 import scala.xml.Utility.trim
 
@@ -13,7 +13,7 @@ import scala.xml.Utility.trim
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-class IndexApiSpec extends Specification with TestContext {
+class IndexApiSpec extends Specs2TestContext {
 
   val testItems = <indexRequest>
                       <indexItem itemId="123" itemType="book">
@@ -34,9 +34,11 @@ class IndexApiSpec extends Specification with TestContext {
 
       withTestConfig {
 
+        implicit val configuration = DomainConfigurationHandler.getByOrgId("delving")
+
         val fakeRequest: FakeRequest[scala.xml.NodeSeq] = FakeRequest(
           method = "POST",
-          uri = "",
+          uri = "delving.localhost",
           headers = FakeHeaders(Map(CONTENT_TYPE -> Seq("application/xml"))),
           body =  testItems
         )
@@ -75,7 +77,7 @@ class IndexApiSpec extends Specification with TestContext {
 
         val fakeRequest: FakeRequest[scala.xml.NodeSeq] = FakeRequest(
           method = "POST",
-          uri = "",
+          uri = "delving.localhost",
           headers = FakeHeaders(Map(CONTENT_TYPE -> Seq("application/xml"))),
           body =  <indexRequest>
                     <indexItem itemId="123" itemType="book">
@@ -122,7 +124,7 @@ class IndexApiSpec extends Specification with TestContext {
 
           val fakeRequest: FakeRequest[scala.xml.NodeSeq] = FakeRequest(
             method = "POST",
-            uri = "",
+            uri = "delving.localhost",
             headers = FakeHeaders(Map(CONTENT_TYPE -> Seq("application/xml"))),
             body = testItems
 
@@ -132,7 +134,7 @@ class IndexApiSpec extends Specification with TestContext {
 
           val fakeDeleteRequest: FakeRequest[scala.xml.NodeSeq] = FakeRequest(
             method = "POST",
-            uri = "",
+            uri = "delving.localhost",
             headers = FakeHeaders(Map(CONTENT_TYPE -> Seq("application/xml"))),
             body = <indexRequest>
                      <indexItem itemId="123" itemType="book" delete="true" />
@@ -160,9 +162,11 @@ class IndexApiSpec extends Specification with TestContext {
 
     withTestConfig {
 
+      implicit val configuration = DomainConfigurationHandler.getByOrgId("delving")
+
       val fakeRequest: FakeRequest[scala.xml.NodeSeq] = FakeRequest(
         method = "POST",
-        uri = "",
+        uri = "delving.localhost",
         headers = FakeHeaders(Map(CONTENT_TYPE -> Seq("application/xml"))),
         body =  <indexRequest>
                   <indexItem itemId="123" itemType="foo">
@@ -194,10 +198,10 @@ class IndexApiSpec extends Specification with TestContext {
   }
 
   "yield errors for items with invalid dates" in {
-    running(FakeApplication()) {
+    withTestConfig {
       val fakeRequest: FakeRequest[scala.xml.NodeSeq] = FakeRequest(
         method = "POST",
-        uri = "",
+        uri = "delving.localhost",
         headers = FakeHeaders(Map(CONTENT_TYPE -> Seq("application/xml"))),
         body =  <indexRequest>
                   <indexItem itemId="123456" itemType="test" delete="false">
@@ -238,7 +242,8 @@ class IndexApiSpec extends Specification with TestContext {
 
 
   step {
-    running(FakeApplication()) {
+    withTestConfig {
+      implicit val configuration = DomainConfigurationHandler.getByOrgId("delving")
       IndexingService.deleteByQuery("delving_orgId:delving delving_systemType:indexApiItem")
     }
   }

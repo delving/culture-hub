@@ -1,7 +1,7 @@
 #{extends themeInfo.get('themeLayout') /}
 #{set bodyId: 'list' /}
 #{set pageId:'ho'/}
-#{if count > views.Helpers.PAGE_SIZE()}
+#{if count > themeInfo.pageSize()}
 #{set 'moreScripts'}
 <script type="text/javascript" src="@{routes.Assets.at("common/javascripts/jquery.pagination.js")}"></script>
 <script>
@@ -11,14 +11,14 @@
     pageObject.link = '?page=__id__';
     pageObject.previous = "${messages.get('ui.label.previous')}";
     pageObject.next = "${messages.get('ui.label.next')}";
-    pageObject.itemsPerPage = ${views.Helpers.PAGE_SIZE()}
+    pageObject.itemsPerPage = ${themeInfo.pageSize()}
     pageObject.selector = ".pg"
 </script>
 <script type="text/javascript" language="javascript" src="/assets/common/javascripts/paginationInit.js"></script>
 #{/set}
 #{/if}
 
-#{breadcrumbs /}
+#{breadcrumbs crumbs: breadcrumbs /}
 
 #{if browsedUserName}
     #{set title: messages.get('ui.label.browse') + ' ' + messages.get("thing.${itemName.pluralize()}") + ': ' + browsedUserName + ' (' + count +')' /}
@@ -29,7 +29,7 @@
     <h2>&{'ui.label.browse'} ${messages.get("thing.${itemName.pluralize()}")} (${count})</h2>
 #{/else}
 
-#{if count > views.Helpers.PAGE_SIZE()}
+#{if count > themeInfo.pageSize()}
     <div class="pg"></div>
 #{/if}
 #{elseif items.length() == 0}
@@ -45,7 +45,7 @@
     <div class="row">
     #{/if}
     <div class="span3 #{if i.isPrivate}private#{/if}">
-        #{thingSummaryView data: i, iSize: 220, isPrivate: i.isPrivate /}
+        #{results.thingSummaryView data: i, iSize: 220, isPrivate: i.isPrivate /}
     </div>
     %{ counter++ }%
     #{if counter > 4 || i_isLast }
@@ -55,7 +55,7 @@
 #{/list}
 
 
-#{if count > views.Helpers.PAGE_SIZE()}
+#{if count > themeInfo.pageSize()}
     <div class="pg"></div>
 #{/if}
 

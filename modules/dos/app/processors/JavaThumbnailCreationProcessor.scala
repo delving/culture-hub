@@ -35,16 +35,16 @@ object JavaThumbnailCreationProcessor extends ThumbnailCreationProcessor with Th
         val id = createThumbnailFromFile(image, width, task._id, orgId, collectionId)
         info(task, "Created thumbnail of size '%s' for image '%s'".format(width, image.getAbsolutePath), Some(image.getAbsolutePath), Some(id.toString))
       } catch {
-        case t => error(task, "Error creating thumbnail for image '%s': %s".format(image.getAbsolutePath, t.getMessage), Some(image.getAbsolutePath))
+        case t: Throwable => error(task, "Error creating thumbnail for image '%s': %s".format(image.getAbsolutePath, t.getMessage), Some(image.getAbsolutePath))
       } finally {
-        Task.incrementProcessedItems(task, 1)
+        Task.dao(task.orgId).incrementProcessedItems(task, 1)
       }
     }
   }
 
   protected def createThumbnailFromFile(image: File, width: Int, taskId: ObjectId, orgId: String, collectionId: String): ObjectId = {
     val imageName = getImageName(image.getName)
-    createThumbnailFromStream(new FileInputStream(image), image.getName, width, fileStore, Map(
+    createThumbnailFromStream(new FileInputStream(image), image.getName, "image/jpeg", width, getStore(orgId), Map(
       ORIGIN_PATH_FIELD -> image.getAbsolutePath,
       IMAGE_ID_FIELD -> imageName,
       TASK_ID -> taskId,

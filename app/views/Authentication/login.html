@@ -28,8 +28,8 @@
             </div>
             #{/if}
 
-            #{textField name:"userName", placeholder: messages.get("ui.label.username"), form: loginForm /}
-            #{passwordField name:"password", placeholder: messages.get("ui.label.password"), form: loginForm /}
+            #{form.textField name:"userName", placeholder: messages.get("ui.label.username"), form: loginForm /}
+            #{form.passwordField name:"password", placeholder: messages.get("ui.label.password"), form: loginForm /}
 
             <div class="field">
                 <label for="remember" class="checkbox">
@@ -39,7 +39,7 @@
             </div>
 
             <div class="btn-group">
-                #{btnButton label: messages.get("ui.label.login"), extraClass:"btn-primary btn-large span3", type:"submit", id:"signin" /}
+                #{btnButton label: messages.get("ui.label.login"), extraClass:"btn-primary btn-block", type:"submit", id:"signin" /}
             </div>
             <p>
                 #{href label: messages.get('authentication.label.forgotpassword'), href:"/registration/lostPassword", rel:"nofollow" /}

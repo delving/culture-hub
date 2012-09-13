@@ -16,7 +16,7 @@ class ThemeInfo(configuration: DomainConfiguration) {
   }
 
   def themeProperty[T](property: String, clazz: Class[T] = classOf[String])(implicit mf: Manifest[T]): T = {
-    val value: String = ThemeInfoReader.get(property, configuration.name, configuration.themeDir) match {
+    val value: String = ThemeInfoReader.get(property, configuration.name, configuration.ui.themeDir) match {
       case Some(prop) => prop
       case None =>
         ThemeInfoReader.get(property, "default", "default") match {
@@ -34,9 +34,14 @@ class ThemeInfo(configuration: DomainConfiguration) {
     result.asInstanceOf[T]
   }
 
-  def path(path: String) = "/assets/themes/%s/%s".format(configuration.themeDir, path)
+  def path(path: String) = "/assets/themes/%s/%s".format(configuration.ui.themeDir, path)
 
-  val siteName = configuration.siteName.getOrElse("Delving CultureHub")
-  val siteSlogan = configuration.siteSlogan.getOrElse("")
+  val siteName = configuration.ui.siteName.getOrElse("Delving CultureHub")
+  val siteSlogan = configuration.ui.siteSlogan.getOrElse("")
+  val addThisTrackingCode = configuration.ui.addThisTrackingCode.getOrElse("")
+  val googleAnalyticsTrackingCode = configuration.ui.googleAnalyticsTrackingCode.getOrElse("")
+  val showLogin = configuration.ui.showLogin
+  val showRegistration = configuration.ui.showRegistration
 
+  val pageSize = configuration.searchService.pageSize
 }

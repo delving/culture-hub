@@ -1,10 +1,11 @@
 package controllers.api
 
-import controllers.DelvingController
+import controllers.{DomainConfigurationAware, RenderingExtensions}
 import play.api.mvc._
 import play.api.libs.concurrent.Promise
 import scala.xml._
 import core.Constants._
+import core.indexing.IndexField._
 import core.indexing.IndexingService
 import models.{MetadataItem, MetadataCache}
 import org.apache.solr.common.SolrInputDocument
@@ -18,9 +19,11 @@ import play.api.Logger
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-object Index extends DelvingController {
+object Index extends Controller with DomainConfigurationAware with RenderingExtensions {
 
   val CACHE_COLLECTION = "indexApiItems"
+
+  val log = Logger("IndexApi")
 
   def explain(path: List[String]) = path match {
     case Nil =>
@@ -76,47 +79,49 @@ object Index extends DelvingController {
       Ok
   }
 
-  def submit(orgId: String) = Action(parse.tolerantXml) {
-    implicit request => {
-      Async {
-        Promise.pure {
+  def submit(orgId: String) = DomainConfigured {
+    Action(parse.tolerantXml) {
+      implicit request => {
+        Async {
+          Promise.pure {
 
-          val (valid, invalid) = parseIndexRequest(orgId, request.body)
+            val (valid, invalid) = parseIndexRequest(orgId, request.body)
 
-          var indexed: Int = 0
-          var deleted: Int = 0
+            var indexed: Int = 0
+            var deleted: Int = 0
 
-          for(i <- valid.zipWithIndex) {
-            val item = i._1
-            val index = i._2
-            val cache = MetadataCache.get(orgId, CACHE_COLLECTION, item.itemType)
-            if(item.deleted) {
-              cache.remove(item.itemId)
-              IndexingService.deleteByQuery("""id:%s_%s_%s""".format(item.orgId, item.itemType, item.itemId))
-              deleted += 1
-            } else {
-              val cacheItem = MetadataItem(collection = CACHE_COLLECTION, itemType = item.itemType, itemId = item.itemId, xml = Map("raw" -> item.rawXml), index = index)
-              cache.saveOrUpdate(cacheItem)
-              IndexingService.stageForIndexing(item.toSolrDocument)
-              indexed += 1
+            for(i <- valid.zipWithIndex) {
+              val item = i._1
+              val index = i._2
+              val cache = MetadataCache.get(orgId, CACHE_COLLECTION, item.itemType)
+              if(item.deleted) {
+                cache.remove(item.itemId)
+                IndexingService.deleteByQuery("""id:%s_%s_%s""".format(item.orgId, item.itemType, item.itemId))
+                deleted += 1
+              } else {
+                val cacheItem = MetadataItem(collection = CACHE_COLLECTION, itemType = item.itemType, itemId = item.itemId, xml = Map("raw" -> item.rawXml), schemaVersions = Map("raw" -> "1.0.0"), index = index)
+                cache.saveOrUpdate(cacheItem)
+                IndexingService.stageForIndexing(item.toSolrDocument)
+                indexed += 1
+              }
             }
+            IndexingService.commit
+
+            val invalidItems = invalid.map(i => <invalidItem><error>{i._1}</error><item>{i._2}</item></invalidItem>)
+
+            <indexResponse>
+              <totalItemCount>{valid.size + invalid.size}</totalItemCount>
+              <indexedItemCount>{valid.filterNot(_.deleted).size}</indexedItemCount>
+              <deletedItemCount>{valid.filter(_.deleted).size}</deletedItemCount>
+              <invalidItemCount>{invalid.size}</invalidItemCount>
+              <invalidItems>{invalidItems}</invalidItems>
+            </indexResponse>
+
+          } map {
+            response => Ok(response)
           }
-          IndexingService.commit()
 
-          val invalidItems = invalid.map(i => <invalidItem><error>{i._1}</error><item>{i._2}</item></invalidItem>)
-
-          <indexResponse>
-            <totalItemCount>{valid.size + invalid.size}</totalItemCount>
-            <indexedItemCount>{valid.filterNot(_.deleted).size}</indexedItemCount>
-            <deletedItemCount>{valid.filter(_.deleted).size}</deletedItemCount>
-            <invalidItemCount>{invalid.size}</invalidItemCount>
-            <invalidItems>{invalidItems}</invalidItems>
-          </indexResponse>
-
-        } map {
-          response => Ok(response)
         }
-
       }
     }
   }
@@ -136,39 +141,31 @@ object Index extends DelvingController {
         val itemId = item.attribute("itemId").get.text
         val itemType = item.attribute("itemType").get.text
 
-        // TODO add more reserved values?
-        if(itemType == MDR) {
-          invalidItems += "Item uses reserved itemType value 'mdr'" -> item
-        } else {
-          val deleted = item.attribute("delete").map(_.text == "true").getOrElse(false)
+        val deleted = item.attribute("delete").map(_.text == "true").getOrElse(false)
 
-          // TODO check more field syntax
-          val invalidDates = item.nonEmptyChildren.filter(f => f.label == "field" && f.attribute("fieldType").isDefined && f.attribute("fieldType").get.head.text == "date") flatMap {
-            f =>
-              try {
-                ISODateTimeFormat.dateTime().parseDateTime(f.text)
-                None
-              } catch {
-                case t => Some(("Invalid date field '%s' with value '%s'".format((f \ "@name").text, f.text) -> item))
-              }
-          }
-
-          if(!invalidDates.isEmpty) {
-            invalidItems ++= invalidDates
-          } else {
-            val indexItem = IndexItem(
-              orgId = orgId,
-              itemId = itemId,
-              itemType = itemType,
-              rawXml = item.toString(),
-              deleted = deleted
-            )
-            validItems += indexItem
-          }
-
-
+        // TODO check more field syntax
+        val invalidDates = item.nonEmptyChildren.filter(f => f.label == "field" && f.attribute("fieldType").isDefined && f.attribute("fieldType").get.head.text == "date") flatMap {
+          f =>
+            try {
+              ISODateTimeFormat.dateTime().parseDateTime(f.text)
+              None
+            } catch {
+              case t: Throwable => Some(("Invalid date field '%s' with value '%s'".format((f \ "@name").text, f.text) -> item))
+            }
         }
 
+        if(!invalidDates.isEmpty) {
+          invalidItems ++= invalidDates
+        } else {
+          val indexItem = IndexItem(
+            orgId = orgId,
+            itemId = itemId,
+            itemType = itemType,
+            rawXml = item.toString(),
+            deleted = deleted
+          )
+          validItems += indexItem
+        }
       }
     }
     (validItems.toList, invalidItems.toList)
@@ -256,12 +253,10 @@ case class IndexItem(orgId: String,
 
     // mandatory fields
     val id = "%s_%s_%s".format(orgId, itemType, itemId)
-    doc.addField(ID, id)
-    doc.addField(HUB_ID, id)
-    doc.addField(ORG_ID, orgId)
-
-    doc.addField(SYSTEM_TYPE, INDEX_API_ITEM)
-    doc.addField(RECORD_TYPE, itemType)
+    doc += (ID -> id)
+    doc += (HUB_ID -> id)
+    doc += (ORG_ID -> orgId)
+    doc += (RECORD_TYPE -> itemType)
 
     doc
   }
@@ -269,5 +264,5 @@ case class IndexItem(orgId: String,
 }
 
 case object IndexItem {
-  def apply(orgId: String, item: MetadataItem): IndexItem = IndexItem(orgId, item.itemId, item.itemType, item.getRawXmlString, false)
+  def apply(orgId: String, item: MetadataItem): IndexItem = IndexItem(orgId, item.itemId, item.itemType, item.xml("raw"), false)
 }

@@ -1,13 +1,12 @@
 package core.mapping
 
-import models.RecordDefinition
-import play.api.{Play, Logger}
-import play.api.Play.current
-import eu.delving.MappingEngine
+import core.{HubModule, SchemaService}
+import play.api.Logger
 import eu.delving.metadata._
-import scala.collection.JavaConverters._
 import org.w3c.dom.Node
 import eu.delving.groovy.XmlSerializer
+import eu.delving.schema.{SchemaVersion, SchemaType}
+import java.io.ByteArrayInputStream
 
 /**
  * Initializes the MetadataModel used by the mapping engine
@@ -19,24 +18,25 @@ object MappingService {
 
   var recDefModel: RecDefModel = null
   val serializer = new XmlSerializer
+  val schemaService: SchemaService = HubModule.inject[SchemaService](name = None)
 
   def init() {
     try {
       Logger("CultureHub").info("Initializing MappingService")
 
-      val recordDefinitions = RecordDefinition.getRecordDefinitionResources
-      recordDefinitions.foreach {
-        definition => Logger("CultureHub").info("Loading record definition: " + definition.getPath)
-      }
-
       recDefModel = new RecDefModel {
-        def createRecDef(prefix: String): RecDefTree = {
-          RecDefTree.create(
-            RecDef.read(Play.classloader.getResourceAsStream("definitions/%s/%s-record-definition.xml".format(prefix, prefix)))
-          )
+
+        def createRecDefTree(schemaVersion: SchemaVersion): RecDefTree = {
+          val schema = schemaService.getSchema(schemaVersion.getPrefix, schemaVersion.getVersion, SchemaType.RECORD_DEFINITION)
+          if (schema.isEmpty) {
+            throw new RuntimeException("Empty schema for prefix %s and version %s".format(schemaVersion.getPrefix, schemaVersion.getVersion))
+          } else {
+            RecDefTree.create(
+              RecDef.read(new ByteArrayInputStream(schema.get.getBytes("utf-8")))
+            )
+          }
         }
       }
-
     } catch {
       case t: Throwable =>
         t.printStackTrace()
@@ -45,11 +45,11 @@ object MappingService {
 
   }
 
-  def nodeTreeToXmlString(node: Node): String = {
-    val serialized = serializer.toXml(node)
+  def nodeTreeToXmlString(node: Node, fromMapping: Boolean): String = {
+    val serialized = serializer.toXml(node, fromMapping)
     // chop of the XML prefix. kindof a hack. this should be a regex instead, more robust
     val xmlPrefix = """<?xml version='1.0' encoding='UTF-8'?>"""
-    if(serialized.startsWith(xmlPrefix)) {
+    if (serialized.startsWith(xmlPrefix)) {
       serialized.substring(xmlPrefix.length)
     } else {
       serialized

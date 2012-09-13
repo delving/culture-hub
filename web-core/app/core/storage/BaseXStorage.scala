@@ -7,6 +7,7 @@ import org.basex.server.ClientSession
 import java.io.ByteArrayInputStream
 import play.api.Logger
 import core.collection.Collection
+import models.BaseXConfiguration
 
 /**
  * BaseX-based Storage engine.
@@ -17,11 +18,18 @@ import core.collection.Collection
  */
 
 
-class BaseXStorage(host: String, port: Int, ePort: Int, user: String, password: String) {
+class BaseXStorage(configuration: BaseXConfiguration) {
 
   val DEFAUL_BASEX_PATH_EXTENSION = "DOT"
 
-  lazy val storage = new BaseX(host, port, ePort, user, password, false)
+  lazy val storage = new BaseX(
+    configuration.host,
+    configuration.port,
+    configuration.eport,
+    configuration.user,
+    configuration.password,
+    false
+  )
 
   def createCollection(collection: Collection): Collection = {
     storage.createDatabase(storageName(collection))
@@ -103,7 +111,7 @@ class BaseXStorage(host: String, port: Int, ePort: Int, user: String, password: 
 
   def buildRecord(record: Record, version: Int, namespaces: Map[String, String], index: Int) = {
 
-    val ns = namespaces.map(ns => if(ns._1.isEmpty) """xmlns="%s"""".format(ns._2) else """xmlns:%s="%s"""".format(ns._1, ns._2)).mkString(" ")
+    val ns = util.XMLUtils.namespacesToString(namespaces)
 
     new ByteArrayInputStream("""<record id="%s" version="%s" %s>
       <system>
@@ -134,7 +142,7 @@ class BaseXStorage(host: String, port: Int, ePort: Int, user: String, password: 
   def findAllCurrentDocuments(implicit session: ClientSession) = {
     val currentVersion = currentCollectionVersion
     session.execute("SET SERIALIZER omit-xml-declaration=yes,method=xml,indent=yes,indents=0,format=yes")
-    session.findRaw("for $i in /*:record[@version = %s] order by $i/system/index return $i/*:document/*:input".format(currentVersion))
+    session.findRaw("for $i in /*:record[@version = %s] order by number($i/system/index) return $i/*:document/*:input".format(currentVersion))
   }
 
   private def storageName(c: Collection) = c.getOwner + "____" + c.spec
