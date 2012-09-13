@@ -6,6 +6,7 @@ import core.Constants._
 import models.{DomainConfiguration, DataSet, MetadataCache}
 import com.mongodb.casbah.Imports._
 import core.rendering.ViewType
+import plugins.DataSetPlugin
 
 /**
  * 
@@ -21,7 +22,7 @@ class MetadataRecordResolverService extends RecordResolverService {
    */
   def getRecord(hubId: HubId, schemaVersion: Option[SchemaVersion])(implicit configuration: DomainConfiguration): Option[RenderableRecord] = {
 
-    MetadataCache.get(hubId.orgId, hubId.spec, ITEM_TYPE_MDR).findOne(hubId.id).flatMap { record =>
+    MetadataCache.get(hubId.orgId, hubId.spec, DataSetPlugin.ITEM_TYPE).findOne(hubId.id).flatMap { record =>
 
       DataSet.dao.findBySpecAndOrgId(hubId.spec, hubId.orgId).map { collection =>
 

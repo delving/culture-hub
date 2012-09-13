@@ -1,5 +1,6 @@
 import play.api.test.Helpers._
 import play.api.test.FakeRequest
+import util.DomainConfigurationHandler
 
 /**
  * TODO better check of the content of all records & search by ID
@@ -20,9 +21,11 @@ class SearchApiSpec extends Specs2TestContext {
 
   "the Search API" should {
 
-    "find all records, although there seems to be one missing" in {
+    "find all records" in {
 
       withTestConfig {
+
+        implicit val configuration = DomainConfigurationHandler.getByOrgId("delving")
 
         val response = query("delving_spec:sample-b")
         status(response) must equalTo(OK)
@@ -31,8 +34,6 @@ class SearchApiSpec extends Specs2TestContext {
         val numFound = (results \ "query" \ "@numFound").text.toInt
 
         numFound must equalTo(299)
-        // todo: should be 300, so where the hell did the second record go?
-        // http://localhost:8983/solr/test/select/?q=delving_hubId%3Adelving_sample-b_oai-jhm-50000002&version=2.2&start=0&rows=30&indent=true
       }
     }
   }
