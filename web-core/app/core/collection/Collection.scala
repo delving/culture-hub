@@ -1,5 +1,7 @@
 package core.collection
 
+import core.ItemType
+
 /**
  * The mother of all Collections
  *
@@ -13,6 +15,9 @@ abstract class Collection {
 
   // the type of owner
   val ownerType: OwnerType.OwnerType
+
+  // the kind of items in this collection
+  val itemType: ItemType
 
   // the userName of the creator of this collection
   def getCreator: String

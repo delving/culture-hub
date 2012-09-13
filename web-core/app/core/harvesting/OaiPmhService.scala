@@ -301,7 +301,7 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
     }
 
     val record: MetadataItem = {
-      val cache = MetadataCache.get(orgId, hubId.spec, ITEM_TYPE_MDR)
+      val cache = MetadataCache.get(orgId, hubId.spec, c.get.itemType)
       val mdRecord = cache.findOne(pmhRequest.identifier)
       if (mdRecord == None) return createErrorResponse("noRecordsMatch")
       else mdRecord.get

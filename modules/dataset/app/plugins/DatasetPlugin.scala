@@ -411,4 +411,6 @@ object DataSetPlugin {
     resourceType = Some(DataSet.RESOURCE_TYPE)
   )
 
+  val ITEM_TYPE = ItemType("mdr")
+
 }

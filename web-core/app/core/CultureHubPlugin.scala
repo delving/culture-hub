@@ -164,7 +164,7 @@ object CultureHubPlugin {
   /**
    * All available hub plugins to the application
    */
-  lazy val hubPlugins: List[CultureHubPlugin] = Play.application.plugins.
+  def hubPlugins: List[CultureHubPlugin] = Play.application.plugins.
     filter(_.isInstanceOf[CultureHubPlugin]).
     map(_.asInstanceOf[CultureHubPlugin]).
     toList

@@ -71,7 +71,7 @@ class CollectionProcessor(collection: Collection,
           try {
             val recordCount = basexStorage.count
             val records = basexStorage.findAllCurrent
-            val cache = MetadataCache.get(collection.getOwner, collection.spec, ITEM_TYPE_MDR)
+            val cache = MetadataCache.get(collection.getOwner, collection.spec, collection.itemType)
 
             records.zipWithIndex.foreach {
               r => {
@@ -148,7 +148,7 @@ class CollectionProcessor(collection: Collection,
 
                   val cachedRecord = MetadataItem(
                     collection = collection.spec,
-                    itemType = ITEM_TYPE_MDR,
+                    itemType = collection.itemType.itemType,
                     itemId = hubId,
                     xml = serializedRecords,
                     schemaVersions = mappingResultSchemaVersions,

@@ -6,8 +6,9 @@ import core.indexing.IndexField._
 import core.search.SearchService
 import collection.mutable.ListBuffer
 import play.api.libs.concurrent.Promise
-import controllers.DomainConfigurationAware
+import controllers.{BoundController, DomainConfigurationAware}
 import play.api.Logger
+import core.{OrganizationCollectionLookupService, HubModule}
 
 /**
  * Search API
@@ -15,7 +16,11 @@ import play.api.Logger
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-object Search extends Controller with DomainConfigurationAware {
+object Search extends BoundController(HubModule) with Search
+
+trait Search extends Controller with DomainConfigurationAware { this: Controller with BoundController with DomainConfigurationAware =>
+
+  val organizationCollectionLookupService = inject [ OrganizationCollectionLookupService ]
 
   def searchApi(orgId: String, provider: Option[String], dataProvider: Option[String], collection: Option[String]) = DomainConfigured {
     Action {
@@ -27,8 +32,14 @@ object Search extends Controller with DomainConfigurationAware {
               Logger("CultureHub").warn("Using deprecated API call " + request.uri)
             }
 
+            val itemTypes = organizationCollectionLookupService.findAll.map(_.itemType).distinct
+
             val hiddenQueryFilters = List(
-              "%s:%s".format(RECORD_TYPE.key, ITEM_TYPE_MDR),
+              "(%s)".format(
+                itemTypes.map(t =>
+                 "%s:%s".format(RECORD_TYPE.key, t.itemType)
+                ).mkString(" OR ")
+              ),
               "%s:%s".format(ORG_ID.key, configuration.orgId)
             )
 
