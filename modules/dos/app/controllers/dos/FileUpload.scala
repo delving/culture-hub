@@ -170,7 +170,7 @@ object FileUpload extends Controller with Extensions with Thumbnail with DomainC
       fileStore(configuration).findOne(f._id.get) match {
         case Some(storedFile) =>
           val thumbnails = createThumbnails(storedFile, fileStore(configuration))
-          if (thumbnails.size > 0) "/file/" + thumbnails.get(80).getOrElse(emptyThumbnailUrl) else emptyThumbnailUrl
+          if (thumbnails.size > 0) "/thumbnail/" + f.id.toString + "/80" else emptyThumbnailUrl
         case None => emptyThumbnailUrl
       }
     } else emptyThumbnailUrl
