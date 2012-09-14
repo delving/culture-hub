@@ -34,8 +34,6 @@ object IndexingService extends SolrServer {
       doc += (VISIBILITY -> Visibility.PUBLIC.value.toString)
     }
 
-    println(doc.getFieldNames)
-
     // add full text from digital objects
     val fullTextUrl = "%s_link".format(FULL_TEXT_OBJECT_URL.key)
     if (doc.containsKey(fullTextUrl)) {
