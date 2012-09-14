@@ -20,7 +20,6 @@ import core.collection.{Indexable, OrganizationCollectionInformation}
 import extensions.HTTPClient
 import org.apache.solr.common.SolrInputDocument
 import play.api.Logger
-import core.Constants._
 import core.SystemField._
 import core.indexing.IndexField._
 import org.apache.commons.httpclient.methods.GetMethod
@@ -28,7 +27,7 @@ import java.io.{InputStream, FilenameFilter, File}
 import org.apache.tika.sax.BodyContentHandler
 import org.apache.tika.parser.pdf.PDFParser
 import exceptions.SolrConnectionException
-import core.search.{SolrBindingService, SolrServer}
+import core.search.SolrServer
 import org.apache.tika.parser.ParseContext
 import org.apache.tika.metadata.Metadata
 import java.net.URLEncoder
@@ -155,18 +154,21 @@ object Indexing extends SolrServer {
 
 object TikaIndexer extends HTTPClient {
 
-  def getFullTextFromRemoteURL (url: String): Option[String] = {
+  val log = Logger("CultureHub")
+
+  def getFullTextFromRemoteURL(url: String): Option[String] = {
     try {
+      log.info("Retrieving document for indexing with Tika at " + url)
       Some(parseFullTextFromPdf(getObject(url)))
     }
     catch {
-      case e: Exception =>
-        Logger.error("unable to process digital object found at " + url)
+      case t: Throwable =>
+        log.error("Unable to process digital object found at " + url)
         None
     }
   }
 
-  def getObject(url: String): InputStream  = {
+  def getObject(url: String): InputStream = {
     val method = new GetMethod(url)
     getHttpClient executeMethod (method)
     method.getResponseBodyAsStream
@@ -178,6 +180,7 @@ object TikaIndexer extends HTTPClient {
     val parser = new PDFParser()
     parser.parse(input, textHandler, metadata, new ParseContext)
     input.close()
+    log.debug("Found following text via Tika for indexing:\n\n" + textHandler.toString)
     textHandler.toString
   }
 }

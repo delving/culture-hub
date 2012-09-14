@@ -79,7 +79,7 @@ object FileUpload extends Controller with Extensions with Thumbnail with DomainC
   def getFilesForUID(uid: String)(implicit configuration: DomainConfiguration): Seq[StoredFile] = fileStore(configuration).find(MongoDBObject(UPLOAD_UID_FIELD -> uid)) map {
     f => {
       val id = f.getId.asInstanceOf[ObjectId]
-      val thumbnail = if (isImage(f)) {
+      val thumbnail = if (hasThumbnail(f)) {
         fileStore(configuration).findOne(MongoDBObject(FILE_POINTER_FIELD -> id)) match {
           case Some(t) => Some(t.id.asInstanceOf[ObjectId])
           case None => None
@@ -141,7 +141,7 @@ object FileUpload extends Controller with Extensions with Thumbnail with DomainC
     }
   }
 
-  def isImage(f: GridFSFile) = f.getContentType.contains("image")
+  def hasThumbnail(f: GridFSFile) = f.getContentType.contains("image") || f.getContentType.contains("pdf")
 
 
   // ~~~ PRIVATE

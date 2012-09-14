@@ -51,7 +51,7 @@ object FileStore extends Controller with DomainConfigurationAware {
 
   private[dos] def fileToStoredFile(f: GridFSDBFile)(implicit configuration: DomainConfiguration) = {
     val id = f.getId.asInstanceOf[ObjectId]
-    val thumbnail = if (FileUpload.isImage(f)) {
+    val thumbnail = if (FileUpload.hasThumbnail(f)) {
       fileStore(configuration).findOne(MongoDBObject(FILE_POINTER_FIELD -> id)) match {
         case Some(t) => Some(t.id.asInstanceOf[ObjectId])
         case None => None

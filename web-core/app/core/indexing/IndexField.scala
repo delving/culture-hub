@@ -5,6 +5,8 @@ import org.apache.solr.common.SolrInputDocument
 /**
  * Fixed set of fields used during indexing and search
  *
+ * TODO add SOLR type here.
+ *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 case class IndexField(key: String) {
