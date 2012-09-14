@@ -100,7 +100,6 @@ object DataSetCollectionProcessor {
       Indexing.indexOne(dataSet, item, fields, prefix)
 
     def onIndexingComplete(start: DateTime) {
-      IndexingService.commit
 
       // we retry this one 3 times, in order to minimize the chances of loosing the whole index if a timeout happens to occur
       var retries = 0
