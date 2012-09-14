@@ -16,6 +16,7 @@ package core.search
  * limitations under the License.
  */
 
+import core.indexing.IndexField
 import exceptions.AccessKeyException
 import core.Constants._
 import core.indexing.IndexField._
@@ -237,7 +238,7 @@ case class SearchSummary(result: BriefItemView, language: String = "en", chRespo
 
   private val pagination = result.getPagination
   private val searchTerms = pagination.getPresentationQuery.getUserSubmittedQuery
-  private val filteredFields = Seq("delving_snippet", "delving_fullTextObjectUrl")
+  private val filteredFields = Seq("delving_snippet", IndexField.FULL_TEXT.key)
 
   def minusAmp(link: String) = link.replaceAll("amp;", "").replaceAll(" ", "%20").replaceAll("qf=", "qf[]=")
 
