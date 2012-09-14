@@ -34,13 +34,15 @@ object IndexingService extends SolrServer {
       doc += (VISIBILITY -> Visibility.PUBLIC.value.toString)
     }
 
+    println(doc.getFieldNames)
+
     // add full text from digital objects
-    val fullTextUrl = "%s_string".format(FULL_TEXT_OBJECT_URL.key)
+    val fullTextUrl = "%s_link".format(FULL_TEXT_OBJECT_URL.key)
     if (doc.containsKey(fullTextUrl)) {
-      val pdfUrl = doc.get(fullTextUrl).getFirstValue.toString
-      if (pdfUrl.endsWith(".pdf")) {
-        val fullText = TikaIndexer.getFullTextFromRemoteURL(pdfUrl)
-        doc.addField("%s_text".format(FULL_TEXT.key), fullText)
+      // we try to index this object - we don't know its type yet because the URL does not necessarily reflect the file name.
+      val digitalObjectUrl = doc.get(fullTextUrl).getFirstValue.toString
+      TikaIndexer.getFullTextFromRemoteURL(digitalObjectUrl).foreach { text =>
+        doc.addField("%s_text".format(FULL_TEXT.key), text)
       }
     }
 
