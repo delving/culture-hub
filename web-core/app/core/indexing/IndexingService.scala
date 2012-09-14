@@ -18,6 +18,8 @@ import models.{Visibility, DomainConfiguration}
  */
 object IndexingService extends SolrServer {
 
+  val COMMIT_WITHIN = 5000
+
   /**
    * Stages a SOLR InputDocument for indexing, and applies all generic delving mechanisms on top
    */
@@ -77,14 +79,15 @@ object IndexingService extends SolrServer {
       doc.addField(HAS_DIGITAL_OBJECT.key + "_facet", hasDigitalObject)
     }
 
-    getStreamingUpdateServer(configuration).add(doc)
+    // see http://wiki.apache.org/solr/CommitWithin
+    getStreamingUpdateServer(configuration).add(doc, COMMIT_WITHIN)
   }
 
   /**
    * Commits staged Things or MDRs to index
     */
   def commit(implicit configuration: DomainConfiguration) = {
-    getStreamingUpdateServer(configuration).commit()
+    getStreamingUpdateServer(configuration).commit(false, false)
   }
 
   /**
