@@ -8,11 +8,8 @@
                 <container id="object-media">
                     <container ifNot="/tib:record/delving:deepZoomUrl" id="image-viewer">
                         <container ifNot="/tib:record/delving:imageUrl">
-                            <container ifNot="tib:record/europeana:isShownBy">
-                                <image path="/tib:record/europeana:object"/>
-                            </container>
-                            <container if="tib:record/europeana:isShownBy">
-                                <image path="/tib:record/europeana:isShownBy"/>
+                            <container if="/tib:record/delving:thumbnail">
+                                <image path="/tib:record/delving:thumbnail"/>
                             </container>
                         </container>
                         <container if="/tib:record/delving:imageUrl">
