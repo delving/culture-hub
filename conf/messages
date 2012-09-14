@@ -674,6 +674,8 @@ plugin.musip.collection=Collection
 plugin.musip.collections=Collections
 plugin.musip.province=Province
 plugin.musip.municipality=Municipality
+plugin.musip.returnToMuseum=Return to museum
+plugin.musip.returnToCollection=Return to collection
 
 plugin.statistics.statistics=Statistics
 plugin.statistics.dataset=DataSet

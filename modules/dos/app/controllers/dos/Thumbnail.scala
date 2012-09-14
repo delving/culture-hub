@@ -28,7 +28,7 @@ trait Thumbnail {
     thumbnailSizes.map {
       size =>
         logger.info("Creating thumbnail for file " + image.filename)
-        createThumbnailFromStream(image.inputStream, image.filename, image.contentType, size._2, store, globalParams + (FILE_POINTER_FIELD -> image._id.get))
+        createThumbnailFromStream(image.inputStream, image.filename.getOrElse(""), image.contentType.getOrElse("unknown/unknown"), size._2, store, globalParams + (FILE_POINTER_FIELD -> image._id.get))
     }
   }
 

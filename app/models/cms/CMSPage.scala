@@ -16,7 +16,8 @@
 
 package models.cms
 
-import com.mongodb.casbah.Imports._
+import com.mongodb.casbah.Imports.{ MongoCollection, MongoDB }
+import com.mongodb.casbah.query.Imports._
 import org.bson.types.ObjectId
 import com.novus.salat.dao.SalatDAO
 import models.HubMongoContext._

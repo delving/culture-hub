@@ -31,7 +31,7 @@ object FileStore extends Controller with DomainConfigurationAware {
               Ok.stream(Enumerator.fromStream(file.inputStream)).withHeaders(
                 (CONTENT_DISPOSITION -> ("attachment; filename=" + file.filename)),
                 (CONTENT_LENGTH -> file.length.toString),
-                (CONTENT_TYPE -> file.contentType))
+                (CONTENT_TYPE -> file.contentType.getOrElse("unknown/unknown")))
             case None =>
               NotFound("Could not find file with ID " + id)
           }

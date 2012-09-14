@@ -25,4 +25,5 @@ case class RenderableRecord(recordXml: String,
                             schemaVersion: SchemaVersion,
                             viewType: ViewType = ViewType.HTML,
                             parameters: Map[String, String] = Map.empty,
-                            hasRelatedItems: Boolean = false)
+                            hasRelatedItems: Boolean = false,
+                            resolveRefererLink: Option[String => (String, String)] = None)

@@ -20,7 +20,6 @@ import play.api.mvc._
 import play.api.Logger
 
 import com.mongodb.casbah.Imports._
-import com.mongodb.casbah.gridfs.Implicits._
 import org.bson.types.ObjectId
 import com.mongodb.gridfs.GridFSDBFile
 import com.mongodb.casbah.gridfs.GridFS
@@ -28,7 +27,6 @@ import java.util.Date
 import play.api.libs.iteratee.Enumerator
 import extensions.MissingLibs
 import controllers.DomainConfigurationAware
-import models.DomainConfiguration
 
 
 /**
@@ -163,9 +161,9 @@ object ImageDisplay extends Controller with RespondWithDefaultImage with DomainC
 //        response.setHeader("Cache-Control", cacheControl)
         additionalHeaders += ("ETag" -> t.get("_id").toString)
 
-        val stream = Enumerator.fromStream(t.inputStream)
+        val stream = Enumerator.fromStream(t.getInputStream)
 
-        Ok.stream(stream).withHeaders((CONTENT_LENGTH -> t.length.toString), (CONTENT_TYPE -> t.contentType))
+        Ok.stream(stream).withHeaders((CONTENT_LENGTH -> t.getLength.toString), (CONTENT_TYPE -> t.getContentType))
     }
   }
 

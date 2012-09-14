@@ -4,7 +4,8 @@ import play.api.Logger
 import play.api.mvc._
 import play.api.mvc.Results._
 
-import com.mongodb.casbah.Imports._
+import com.mongodb.casbah.Imports.{ MongoCollection, MongoDB }
+import com.mongodb.casbah.query.Imports._
 import java.util.Date
 import java.io.InputStream
 import org.apache.commons.httpclient.methods.GetMethod
