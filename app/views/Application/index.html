@@ -52,14 +52,13 @@
     #{include pluginInclude /}
 #{/list}
 
+#{if themeInfo.get('homepageRecentMdrs') == "true" && recentMdrs.size() > 0 }
 <div class="row">
     <div class="results span12">
-    #{if themeInfo.get('homepageRecentMdrs') == "true" && recentMdrs.size() > 0 }
-    #{results.resultGrid results: recentMdrs/}
-    #{/if}
+        #{results.resultGrid results: recentMdrs/}
     </div>
 </div>
-
+#{/if}
 
 
 
