@@ -50,6 +50,10 @@
         <a href="/search?${returnToResults}" rel="nofollow" class="return-to-results">
             <i class="icon icon-arrow-left"></i> &{'ui.label.returnToResults'}</a>
     #{/if}&#160;
+    #{if returnToPreviousLink.length() > 0}
+        <a href="${returnToPreviousLink}" rel="nofollow" class="return-to-previous">
+            <i class="icon icon-arrow-left"></i> ${returnToPreviousLabel}</a>
+    #{/if}&#160;
     </div>
     <div class="rights span4">
         #{if rights}#{rightsIcon rights: rights/}#{/if}
