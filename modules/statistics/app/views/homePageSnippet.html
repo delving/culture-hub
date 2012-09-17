@@ -1,8 +1,11 @@
-<div>
-    &{'plugin.statistics.nrRecords'} <span id="nrRecords"></span><br/>
-    &{'plugin.statistics.withObjects'} <span id="nrDigitalObjects"></span><br/>
-    &{'metadata.delving.owner'} <span id="owners"></span>
-</div>
+<section class="statistics-block">
+    <header class="statistics-header">&{'plugin.statistics.statistics'}</header>
+    <ul class="statistics-list">
+        <li>&{'plugin.statistics.nrRecords'} <span id="nrRecords"></span></li>
+        <li>&{'plugin.statistics.withObjects'} <span id="nrDigitalObjects"></span></li>
+        <li>&{'metadata.delving.owner'} <span id="owners"></span></li>
+    </ul>
+</section>
 <script type="text/javascript">
     $(document).ready(function() {
         $.get('/organizations/${orgId}/api/statistics', function(data) {
