@@ -45,8 +45,8 @@ class StatisticsPlugin(app: Application) extends CultureHubPlugin(app) {
 
        }.getOrElse {
         Map(
-          "delving_owner" -> "metadata.delving.owner",
-          "delving_provider" -> "metadata.delving.provider"
+          "delving_owner_facet" -> "metadata.delving.owner",
+          "delving_provider_facet" -> "metadata.delving.provider"
         )
       }
 
