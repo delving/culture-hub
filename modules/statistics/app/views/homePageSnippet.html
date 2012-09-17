@@ -1,0 +1,18 @@
+<div>
+    &{'plugin.statistics.nrRecords'} <span id="nrRecords"></span><br/>
+    &{'plugin.statistics.withObjects'} <span id="nrDigitalObjects"></span><br/>
+    &{'metadata.delving.owner'} <span id="owners"></span>
+</div>
+<script type="text/javascript">
+    $(document).ready(function() {
+        $.get('/organizations/${orgId}/api/statistics', function(data) {
+            $('#nrRecords').text(data.statistics.totalRecords);
+            $('#nrDigitalObjects').text(data.statistics.totalRecordsWithDigitalObjects);
+            $.grep(data.statistics.facets, function(elem, index) {
+                if(elem.name == 'delving_owner_facet') {
+                    $('#owners').text(elem.entries.length);
+                }
+            });
+        });
+    });
+</script>

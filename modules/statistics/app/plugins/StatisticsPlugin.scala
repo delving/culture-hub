@@ -4,7 +4,7 @@ import play.api.{Logger, Configuration, Application}
 import scala.util.matching.Regex
 import play.api.mvc.Handler
 import models.{DomainConfiguration, Role}
-import core.{MenuElement, MainMenuEntry, CultureHubPlugin}
+import core.{RequestContext, MenuElement, MainMenuEntry, CultureHubPlugin}
 import collection.immutable.ListMap
 import collection.JavaConverters._
 
@@ -75,5 +75,13 @@ class StatisticsPlugin(app: Application) extends CultureHubPlugin(app) {
       )
     )
   )
+
+  override def homePageSnippet: Option[(String, (RequestContext) => Unit)] = Some(
+    "/homePageSnippet.html",
+    { context => {
+        context.renderArgs += ("orgId" -> context.configuration.orgId)
+    }}
+  )
+
 
 }
