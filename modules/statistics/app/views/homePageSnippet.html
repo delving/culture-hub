@@ -1,16 +1,21 @@
 <section class="statistics-block">
-    <header class="statistics-header">&{'plugin.statistics.statistics'}</header>
-    <ul class="statistics-list">
-        <li>&{'plugin.statistics.nrRecords'} <span id="nrRecords"></span></li>
-        <li>&{'plugin.statistics.withObjects'} <span id="nrDigitalObjects"></span></li>
-        <li>&{'metadata.delving.owner'} <span id="owners"></span></li>
-    </ul>
+    <div class="statistics-inner">
+        <header class="statistics-header">&{'plugin.statistics.statistics'}</header>
+        <ul class="statistics-list">
+            <li>&{'plugin.statistics.nrRecords'} <span id="nrRecords" class="label label-info"></span></li>
+            <li>&{'plugin.statistics.withObjects'} <span id="nrDigitalObjects" class="label label-info"></span></li>
+            <li>&{'plugin.statistics.landingPages'} <span id="nrLandingPage" class="label label-info"></span></li>
+            <li>&{'metadata.delving.owner'} <span id="owners" class="label label-info"></span></li>
+        </ul>
+    </div>
 </section>
 <script type="text/javascript">
     $(document).ready(function() {
         $.get('/organizations/${orgId}/api/statistics', function(data) {
+            console.log(data.statistics);
             $('#nrRecords').text(data.statistics.totalRecords);
             $('#nrDigitalObjects').text(data.statistics.totalRecordsWithDigitalObjects);
+            $('#nrLandingPage').text(data.statistics.totalRecordsWithLandingPages);
             $.grep(data.statistics.facets, function(elem, index) {
                 if(elem.name == 'delving_owner_facet') {
                     $('#owners').text(elem.entries.length);
