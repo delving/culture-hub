@@ -10,6 +10,7 @@ import core.rendering.RecordRenderer
 import com.mongodb.casbah.Imports._
 import core.rendering.ViewType
 import eu.delving.schema.SchemaVersion
+import core.{SearchInService, CultureHubPlugin}
 
 /**
  *
@@ -29,7 +30,17 @@ object Search extends DelvingController {
             if(searchIn == "all") {
               List(query)
             } else {
-              List("""%s:"%s"""".format(searchIn, query))
+              val searchInQuery = CultureHubPlugin.getEnabledPlugins.flatMap { p =>
+                p.getServices(classOf[SearchInService]).flatMap { service =>
+                  service.composeSearchInQuery(searchIn, query)
+                }
+              }.headOption
+
+              if (searchInQuery.isDefined) {
+                List(searchInQuery.get)
+              } else {
+                List(query)
+              }
             }
           }.getOrElse(List(query))
 
