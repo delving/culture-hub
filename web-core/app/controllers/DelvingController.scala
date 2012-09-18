@@ -241,7 +241,7 @@ trait DelvingController extends ApplicationController with CoreImplicits {
             p.getServices(classOf[SearchInService]).map { service =>
               service.getSearchInTargets(Option(connectedUser))
             }
-          }.reduce { _ ++ _ }
+          }.foldLeft(Map.empty[String, String]) { _ ++ _ }
 
           renderArgs += ("searchIn" -> searchIn.asJava)
 
