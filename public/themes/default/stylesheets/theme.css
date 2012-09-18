@@ -49,11 +49,11 @@ a:hover {
 }
 .site-navigation {
   background: #eeeeee;
-  height: 44px;
+  height: 50px;
   margin: 0 0 20px 0;
 }
 .site-navigation .nav {
-  margin: 4px 0 0 0;
+  margin: 8px 0 0 0;
 }
 .nav-pills > li > a {
   color: #ffffff;
