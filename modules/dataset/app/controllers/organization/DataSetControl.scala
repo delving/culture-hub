@@ -247,7 +247,8 @@ trait DataSetControl extends OrganizationController { this: BoundController =>
               val existing = mappings.filter(m => schemaProcessingConfigurations.exists(s => s.prefix == m._1))
               val keyList = mappings.keys.toList
               val added = schemaProcessingConfigurations.filter(s => !keyList.contains(s.prefix))
-              existing ++ buildMappings(added)
+              val updated = existing.map(e => (e._1 -> e._2.copy(schemaVersion = schemaProcessingConfigurations.find(_.prefix == e._1).get.version)))
+              updated ++ buildMappings(added)
             }
 
             // TODO handle all "automatic facts"
