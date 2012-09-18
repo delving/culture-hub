@@ -26,7 +26,7 @@
   box-sizing: border-box;
 }
 body {
-  padding-top: 80px;
+  padding-top: 63px;
 }
 a {
   color: #0061a1;
@@ -41,8 +41,19 @@ a:hover {
 }
 .search-bar {
   background: #a5cbe4;
-  margin-bottom: 21px;
-  height: 42px;
+  height: 44px;
+}
+.search-bar form {
+  margin: 0;
+  float: left;
+}
+.site-navigation {
+  background: #eeeeee;
+  height: 44px;
+  margin: 0 0 20px 0;
+}
+.site-navigation .nav {
+  margin: 4px 0 0 0;
 }
 .nav-pills > li > a {
   color: #ffffff;
@@ -55,6 +66,9 @@ a:hover {
   background: #007bcc;
   color: #fff;
   padding: 4px 8px;
+}
+.navbar .brand img {
+  margin: 0px 12px 0 0;
 }
 @media (max-width: 767px) {
   body {
@@ -77,7 +91,4 @@ a:hover {
   .navbar-fixed-top {
     margin-bottom: 0px;
   }
-}
-.navbar .brand img {
-  margin: 0px 12px 0 0;
 }

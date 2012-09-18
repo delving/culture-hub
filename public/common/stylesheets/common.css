@@ -6065,6 +6065,22 @@ div.token-input-dropdown ul li.token-input-selected-dropdown-item {
   font-weight: bold;
   width: auto;
 }
+/*---------------------------------
+    Statistics
+-----------------------------------*/
+#home .statistics-block .statistics-header {
+  font-weight: bold;
+}
+/*---------------------------------
+    Organizations
+-----------------------------------*/
+.organization-navbar h2 {
+  background: #049cdb;
+  text-transform: uppercase;
+  color: #ffffff;
+  display: inline-block !important;
+  padding: 0px 8px;
+}
 @media (max-width: 480px) {
   .results .result {
     display: block;
