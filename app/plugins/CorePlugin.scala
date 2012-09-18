@@ -5,6 +5,7 @@ import core.CultureHubPlugin
 import models._
 import core.MainMenuEntry
 import core.MenuElement
+import core.search.BasicSearchInService
 
 
 /**
@@ -26,6 +27,11 @@ class CorePlugin(app: Application) extends CultureHubPlugin(app) {
       titleKey = "site.nav.home",
       mainEntry = Some(MenuElement(url = "/", titleKey = "site.nav.home"))
     )
+  )
+
+
+  override def services: Seq[Any] = Seq(
+    new BasicSearchInService
   )
 
   override def organizationMenuEntries(orgId: String, lang: String, roles: Seq[String]): Seq[MainMenuEntry] = Seq(
