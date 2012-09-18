@@ -235,9 +235,15 @@ trait DelvingController extends ApplicationController with CoreImplicits {
             renderArgs +=("email" -> u.email)
           }
 
-          // Search in
-          // TODO move to search plugin, one day
-          renderArgs += ("searchIn" -> configuration.searchService.searchIn.asJava)
+          // SearchIn
+
+          val searchIn: Map[String, String] = CultureHubPlugin.getEnabledPlugins.flatMap { p =>
+            p.getServices(classOf[SearchInService]).map { service =>
+              service.getSearchInTargets(Option(connectedUser))
+            }
+          }.reduce { _ ++ _ }
+
+          renderArgs += ("searchIn" -> searchIn.asJava)
 
           // breadcrumbs
           renderArgs += ("breadcrumbs" -> Breadcrumbs.crumble())

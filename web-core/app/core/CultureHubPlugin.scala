@@ -85,6 +85,14 @@ abstract class CultureHubPlugin(app: Application) extends play.api.Plugin {
   def organizationMenuEntries(orgId: String, lang: String, roles: Seq[String]): Seq[MainMenuEntry] = Seq.empty
 
   /**
+   * Override this to include a snippet in the homePage.
+   *
+   * Caution: this is an experimental API feature and might disappear at any time!
+   */
+  def homePageSnippet: Option[(String, RequestContext => Unit)] = None
+
+
+  /**
    * Override this to provide custom roles to the platform, that can be used in Groups
    * @return a sequence of [[models.Role]] instances
    */
@@ -95,7 +103,6 @@ abstract class CultureHubPlugin(app: Application) extends play.api.Plugin {
    * @return
    **/
   def resourceLookups: Seq[ResourceLookup] = Seq.empty
-
 
   /**
    * Service instances this plugin provides
@@ -135,6 +142,7 @@ abstract class CultureHubPlugin(app: Application) extends play.api.Plugin {
   def getSingleService[T <: Any](serviceClass: Class[T]): Option[T] = {
     services.find(s => serviceClass.isAssignableFrom(s.getClass)).map(_.asInstanceOf[T])
   }
+
 
   // ~~~ Play Plugin lifecycle integration
 

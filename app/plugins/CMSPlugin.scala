@@ -2,8 +2,16 @@ package plugins
 
 import play.api.Application
 import controllers.organization.CMS
-import core.{MenuElement, MainMenuEntry, CultureHubPlugin}
+import core._
 import models.{DomainConfiguration, Role}
+import scala.collection.mutable
+import models.cms.CMSPage
+import com.mongodb.casbah.Imports._
+import scala.Some
+import scala.collection
+import core.MainMenuEntry
+import scala.Some
+import core.MenuElement
 
 /**
  *
@@ -39,6 +47,22 @@ class CMSPlugin(app: Application) extends CultureHubPlugin(app) {
         MenuElement("/organizations/%s/site/upload".format(orgId), "org.cms.upload.image")
       )
     )
+  )
+
+
+  override def homePageSnippet: Option[(String, RequestContext => Unit)] = Some(
+    ("/CMS/homePageSnippet.html",
+    { context => {
+        CMSPage.dao(context.configuration).find(
+          MongoDBObject("key" -> "homepage", "lang" -> context.lang, "orgId" -> context.configuration.orgId)
+        ).$orderby(MongoDBObject("_id" -> -1)).
+          limit(1).
+          toList.
+          headOption.foreach { page =>
+          context.renderArgs += ("homepageCmsContent" -> page)
+        }
+      }
+    })
   )
 
   /**

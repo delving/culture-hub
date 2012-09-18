@@ -92,7 +92,11 @@ object Statistics extends OrganizationController {
             }
           }
 
-          val statistics = new SolrFacetBasedStatistics(facets, orgId)
+          val filter = request.queryString.get("filter").flatMap { f =>
+            f.headOption
+          }
+
+          val statistics = new SolrFacetBasedStatistics(orgId, facets, filter)
           Ok(statistics.renderAsJSON()).as(JSON)
       }
     }
@@ -138,7 +142,7 @@ case class StatisticsHeader(name: String, label: String = "", entries: Seq[Combi
   }
 }
 
-class SolrFacetBasedStatistics(facets: Map[String, String], orgId: String)(implicit configuration: DomainConfiguration, lang: Lang) {
+class SolrFacetBasedStatistics(orgId: String, facets: Map[String, String], filter: Option[String])(implicit configuration: DomainConfiguration, lang: Lang) {
 
     val orgIdFilter = "%s:%s".format(IndexField.ORG_ID.key, orgId)
 
@@ -151,6 +155,7 @@ class SolrFacetBasedStatistics(facets: Map[String, String], orgId: String)(impli
     query addFacetField (facetsForStatistics: _ *)
     query setRows (0)
     query setFilterQueries (orgIdFilter)
+    filter foreach { f => query setFilterQueries f }
 
     val allRecordsResponse = SolrQueryService.getSolrResponseFromServer(solrQuery = query)
     val allRecords = SolrBindingService.createFacetStatistics(allRecordsResponse.getFacetFields.asScala.toList)
