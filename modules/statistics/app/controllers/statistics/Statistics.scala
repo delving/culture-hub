@@ -2,7 +2,7 @@ package controllers.statistics
 
 import controllers.OrganizationController
 import play.api.mvc.Action
-import models.{Group, DomainConfiguration, DataSet}
+import models.{Role, Group, DomainConfiguration, DataSet}
 import collection.JavaConverters._
 import models.statistics.DataSetStatistics
 import collection.immutable.ListMap
@@ -96,7 +96,7 @@ object Statistics extends OrganizationController {
           }
 
           val canSeeFullStatistics = request.session.get(Constants.USERNAME).map { userName =>
-            Group.dao.hasRole(userName, StatisticsPlugin.UNIT_ROLE_STATISTICS_VIEW)
+            Group.dao.hasRole(userName, StatisticsPlugin.UNIT_ROLE_STATISTICS_VIEW) || Group.dao.hasRole(userName, Role.OWN)
           }.getOrElse(false)
 
           val statistics = new SolrFacetBasedStatistics(orgId, facets, filter)
