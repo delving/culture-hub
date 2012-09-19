@@ -12,15 +12,25 @@
 
 #{if pagination.getNumFound() > 0}
 
-    <div class="item-count row">
-        <div class="span12">
-            <h4>&{'search.trail', pagination.getStart(), pagination.getLastViewableRecord(), pagination.getNumFound() }</h4>
-        </div>
-    </div>
 
-    #{if pagination.getNumFound() > themeInfo.pageSize()}
-        #{results.resultPagination pageLinks: pagination, pQuery: pagination.getPresentationQuery().getQueryForPresentation(), searchIn: params.searchIn ? params.searchIn.apply(0) : "all", lastPage: pagination.getNumFound(), extraClass:"pagination-top" /}
-    #{/if}
+<div class="results-header-block">
+    <div class="results-header-inner">
+        <h4>&{'search.trail', pagination.getStart(), pagination.getLastViewableRecord(), pagination.getNumFound() }</h4>
+        #{if pagination.getNumFound() > themeInfo.pageSize()}
+            #{results.resultPagination pageLinks: pagination, pQuery: pagination.getPresentationQuery().getQueryForPresentation(), searchIn: params.searchIn ? params.searchIn.apply(0) : "all", lastPage: pagination.getNumFound(), extraClass:"pagination-top" /}
+        #{/if}
+    </div>
+</div>
+
+    *{<div class="item-count row">}*
+        *{<div class="span12">}*
+            *{<h4>&{'search.trail', pagination.getStart(), pagination.getLastViewableRecord(), pagination.getNumFound() }</h4>}*
+        *{</div>}*
+    *{</div>}*
+
+    *{#{if pagination.getNumFound() > themeInfo.pageSize()}}*
+        *{#{results.resultPagination pageLinks: pagination, pQuery: pagination.getPresentationQuery().getQueryForPresentation(), searchIn: params.searchIn ? params.searchIn.apply(0) : "all", lastPage: pagination.getNumFound(), extraClass:"pagination-top" /}}*
+    *{#{/if}}*
 
     <div class="row">
         <div class="results span9">
@@ -34,7 +44,8 @@
                 typeKey: messages.get(tf.facetInternationalisationCode()),
                 qString: pagination.getPresentationQuery().getUserSubmittedQuery(),
                 searchIn: params.searchIn ? params.searchIn.apply(0)  : "all",
-                columns: tf.nrDisplayColumns/}
+                columns: tf.nrDisplayColumns,
+                collapsable: false /}
             #{/list}
         </div>
     </div>
