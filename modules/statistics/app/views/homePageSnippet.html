@@ -16,11 +16,7 @@
             $('#nrRecords').text(data.statistics.totalRecords);
             $('#nrDigitalObjects').text(data.statistics.totalRecordsWithDigitalObjects);
             $('#nrLandingPage').text(data.statistics.totalRecordsWithLandingPages);
-            $.grep(data.statistics.facets, function(elem, index) {
-                if(elem.name == 'delving_owner_facet') {
-                    $('#owners').text(elem.entries.length);
-                }
-            });
+            $('#owners').text(data.statistics.facetCounts['delving_owner_facet']);
         });
     });
 </script>
