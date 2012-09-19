@@ -29,7 +29,7 @@ class ProcessingQueueWatcher extends Actor {
     case PollDataSets => {
       DataSet.all.flatMap(_.findCollectionForProcessing()).foreach {
         set =>
-          DataSet.dao.updateState(set, DataSetState.PROCESSING)
+          DataSet.dao(set.orgId).updateState(set, DataSetState.PROCESSING)
           processorRef ! ProcessDataSet(set)
       }
     }
