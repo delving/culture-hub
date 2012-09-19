@@ -10,6 +10,8 @@ import play.api.i18n.Messages
 case class DataSetState(name: String) {
 
   def description = Messages("dataSetState." + name.toLowerCase)
+
+  override def toString: String = name.toUpperCase
 }
 
 object DataSetState {
