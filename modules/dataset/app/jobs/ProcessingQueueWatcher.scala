@@ -27,7 +27,7 @@ class ProcessingQueueWatcher extends Actor {
   def receive = {
 
     case PollDataSets => {
-      DataSet.all.flatMap(_.findCollectionForIndexing()).foreach {
+      DataSet.all.flatMap(_.findCollectionForProcessing()).foreach {
         set => processorRef ! ProcessDataSet(set)
       }
     }
