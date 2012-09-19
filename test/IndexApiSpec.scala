@@ -62,8 +62,6 @@ class IndexApiSpec extends Specs2TestContext {
         cacheMovie.count() must equalTo(1)
         cacheBook.count() must equalTo(1)
 
-        Thread.sleep(6000) // wait for commitWithin
-
         val queryByType = SolrQueryService.getSolrResponseFromServer(new SolrQuery("delving_orgId:delving delving_recordType:book"))
         val queryById = SolrQueryService.getSolrResponseFromServer(new SolrQuery("delving_orgId:delving id:delving_movie_456"))
 
@@ -191,8 +189,6 @@ class IndexApiSpec extends Specs2TestContext {
                     </indexResponse>
 
       trim(XML.loadString(contentAsString(result))) must equalTo(trim(expected))
-
-      Thread.sleep(6000) // wait for commitWithin
 
       val queryByHasDigitalObject = SolrQueryService.getSolrResponseFromServer(new SolrQuery("delving_orgId:delving delving_recordType:foo delving_hasDigitalObject:true"))
 
