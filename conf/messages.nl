@@ -618,3 +618,5 @@ plugin.advancedsearch.booleanNot=NIET
 plugin.advancedsearch.allProviders=Alle aanbieders
 plugin.advancedsearch.selectProviders=Selecteer aanbieder(s)
 
+plugin.rijks.rijks=Rijkscollectie
+
