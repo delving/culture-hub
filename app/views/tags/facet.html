@@ -46,7 +46,7 @@
                         <input type="checkbox" value="${qs}&facetBoolType=OR"/><span><a href="${qs}&facetBoolType=OR" rel="nofollow">${thingType} (${link.count()})</a></span>
                     #{/if}
                     #{else}
-                        <input type="checkbox" checked="checked" value="${qs}&facetBoolType=OR"/><span><a href="${qs}&facetBoolType=OR" rel="nofollow">${thingType} (${link.count()})</a></span>
+                        <input type="checkbox" checked="checked" value="${qs}&facetBoolType=OR"/><span><a href="${qs}&facetBoolType=OR" rel="nofollow" class="active">${thingType} (${link.count()})</a></span>
                     #{/else}
                 </div>
             #{/list}
