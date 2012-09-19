@@ -34,7 +34,7 @@ object DataSetEventLog extends MultiModel[DataSetEventLog, DataSetEventLogDAO] {
 
 class DataSetEventLogDAO(connection: MongoCollection) extends SalatDAO[DataSetEventLog, ObjectId](connection) {
 
-  def findRecent = find(MongoDBObject()).limit(50).sort(MongoDBObject("_id" -> -1)).toList.reverse
+  def findRecent = find(MongoDBObject()).limit(200).sort(MongoDBObject("_id" -> -1)).toList.reverse
 
   def removeTransient() {
     remove(MongoDBObject("transientEvent" -> true))
