@@ -83,5 +83,14 @@ class StatisticsPlugin(app: Application) extends CultureHubPlugin(app) {
     }}
   )
 
+  override def roles: Seq[Role] = Seq(StatisticsPlugin.UNIT_ROLE_STATISTICS_VIEW)
+}
 
+object StatisticsPlugin {
+
+  lazy val UNIT_ROLE_STATISTICS_VIEW = Role(
+    key = "statistics-view",
+    description = Map.empty,
+    isUnitRole = true
+  )
 }

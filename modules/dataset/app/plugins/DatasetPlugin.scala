@@ -150,7 +150,7 @@ class DataSetPlugin(app: Application) extends CultureHubPlugin(app) {
    * Override this to provide custom roles to the platform, that can be used in Groups
    * @return a sequence of [[models.Role]] instances
    */
-  override val roles: Seq[Role] = Seq(DataSetPlugin.ROLE_DATASET_ADMIN, DataSetPlugin.ROLE_DATASET_EDITOR)
+  override def roles: Seq[Role] = Seq(DataSetPlugin.ROLE_DATASET_ADMIN, DataSetPlugin.ROLE_DATASET_EDITOR)
 
   /**
    * Override this to provide the necessary lookup for a [[core.access.Resource]] depicted by a [[models.Role]]
@@ -397,14 +397,14 @@ class DataSetPlugin(app: Application) extends CultureHubPlugin(app) {
 
 object DataSetPlugin {
 
-  val ROLE_DATASET_ADMIN = Role(
+  lazy val ROLE_DATASET_ADMIN = Role(
     key = "dataSetAdmin",
     description = Map("en" -> "Dataset administration rights"),
     isResourceAdmin = true,
     resourceType = Some(DataSet.RESOURCE_TYPE)
   )
 
-  val ROLE_DATASET_EDITOR = Role(
+  lazy val ROLE_DATASET_EDITOR = Role(
     key = "dataSetEditor",
     description = Map("en" -> "Dataset modification rights"),
     isResourceAdmin = false,
