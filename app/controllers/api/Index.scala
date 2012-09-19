@@ -105,6 +105,7 @@ object Index extends Controller with DomainConfigurationAware with RenderingExte
                 indexed += 1
               }
             }
+            IndexingService.commit
 
             val invalidItems = invalid.map(i => <invalidItem><error>{i._1}</error><item>{i._2}</item></invalidItem>)
 
