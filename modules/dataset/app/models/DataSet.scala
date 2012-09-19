@@ -154,7 +154,7 @@ case class DataSet(
   def getResourceType = DataSet.RESOURCE_TYPE
 
   def editors: Seq[String] = Group.dao(configuration).findUsersWithAccess(
-    orgId, DataSetPlugin.ROLE_DATASET_EDITOR.key, this
+    orgId, DataSetPlugin.ROLE_DATASET_EDITOR, this
   )
 
   val administrators: Seq[String] = (Group.dao(configuration).findResourceAdministrators(orgId, DataSet.RESOURCE_TYPE)
@@ -236,10 +236,10 @@ class DataSetDAO(collection: MongoCollection)(implicit val configuration: Domain
     DataSetState(name)
   }
 
-  def findCollectionForIndexing(): Option[DataSet] = {
-    val allDataSets: List[DataSet] = findByState(DataSetState.PROCESSING).sort(MongoDBObject("name" -> 1)).toList
-    if (allDataSets.length < 3) {
-      val queuedIndexing = findByState(DataSetState.QUEUED).sort(MongoDBObject("name" -> 1)).toList
+  def findCollectionForProcessing(): Option[DataSet] = {
+    val allProcessingSets: List[DataSet] = findByState(DataSetState.PROCESSING).sort(MongoDBObject("spec" -> 1)).toList
+    if (allProcessingSets.length < Runtime.getRuntime.availableProcessors()) {
+      val queuedIndexing = findByState(DataSetState.QUEUED).sort(MongoDBObject("spec" -> 1)).toList
       queuedIndexing.headOption
     }
     else {

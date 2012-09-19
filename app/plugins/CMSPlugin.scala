@@ -73,5 +73,5 @@ class CMSPlugin(app: Application) extends CultureHubPlugin(app) {
 }
 
 object CMSPlugin {
-  val ROLE_CMS_ADMIN = Role("cms", Role.descriptions("plugin.cms.adminRight"), false, None)
+  lazy val ROLE_CMS_ADMIN = Role("cms", Role.descriptions("plugin.cms.adminRight"), false, None)
 }
