@@ -27,6 +27,8 @@ object DataSetCollectionProcessor {
 
   def process(dataSet: DataSet)(implicit configuration: DomainConfiguration) {
 
+    DataSet.dao.updateState(dataSet, DataSetState.PROCESSING)
+
     val invalidRecords = DataSet.dao.getInvalidRecords(dataSet)
 
     val selectedSchemas: Seq[RecordDefinition] = dataSet.mappings.flatMap(mapping => RecordDefinition.getRecordDefinition(mapping._2.schemaPrefix, mapping._2.schemaVersion)).toSeq
@@ -128,7 +130,6 @@ object DataSetCollectionProcessor {
 
     }
 
-    DataSet.dao.updateState(dataSet, DataSetState.PROCESSING)
     collectionProcessor.process(interrupted, updateCount, onError, indexOne, onIndexingComplete)(configuration)
     val state = DataSet.dao.getState(dataSet.orgId, dataSet.spec)
     if(state == DataSetState.PROCESSING) {
