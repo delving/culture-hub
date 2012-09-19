@@ -3,7 +3,7 @@ package jobs
 import akka.util.duration._
 import akka.actor.{Cancellable, Actor}
 import play.libs.Akka
-import models.DataSet
+import models.{DataSetState, DataSet}
 
 /**
  *
@@ -28,7 +28,9 @@ class ProcessingQueueWatcher extends Actor {
 
     case PollDataSets => {
       DataSet.all.flatMap(_.findCollectionForProcessing()).foreach {
-        set => processorRef ! ProcessDataSet(set)
+        set =>
+          DataSet.dao.updateState(set, DataSetState.PROCESSING)
+          processorRef ! ProcessDataSet(set)
       }
     }
 
