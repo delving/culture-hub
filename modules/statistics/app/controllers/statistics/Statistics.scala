@@ -2,7 +2,7 @@ package controllers.statistics
 
 import controllers.OrganizationController
 import play.api.mvc.Action
-import models.{DomainConfiguration, DataSet}
+import models.{Group, DomainConfiguration, DataSet}
 import collection.JavaConverters._
 import models.statistics.DataSetStatistics
 import collection.immutable.ListMap
@@ -76,8 +76,7 @@ object Statistics extends OrganizationController {
    *  The purpose of this fu
    */
 
-  def legacyStatistics(orgId: String) = {
-    DomainConfigured {
+  def legacyStatistics(orgId: String) = DomainConfigured {
       Action {
         implicit request =>
 
@@ -96,11 +95,15 @@ object Statistics extends OrganizationController {
             f.headOption
           }
 
+          val canSeeFullStatistics = request.session.get(Constants.USERNAME).map { userName =>
+            Group.dao.hasRole(userName, StatisticsPlugin.UNIT_ROLE_STATISTICS_VIEW)
+          }.getOrElse(false)
+
           val statistics = new SolrFacetBasedStatistics(orgId, facets, filter)
-          Ok(statistics.renderAsJSON()).as(JSON)
+          Ok(statistics.renderAsJSON(canSeeFullStatistics)).as(JSON)
       }
     }
-  }
+
 }
 
 case class StatisticsCounter(name: String, total: Int, withNr: Int = 0)  {
@@ -207,18 +210,28 @@ class SolrFacetBasedStatistics(orgId: String, facets: Map[String, String], filte
 
   val entries: Seq[StatisticsHeader] = facets.map(createHeader(_)).toSeq
 
-  def renderAsJSON(): String = {
+  val entryCounts: Map[String, Int] = entries.map { e =>
+    (e.name -> e.entries.size)
+  }.toMap
+
+  def renderAsJSON(displayFacetDetail: Boolean): String = {
     import net.liftweb.json.{Extraction, JsonAST, Printer}
     implicit val formats = net.liftweb.json.DefaultFormats
 
     val outputJson = Printer.pretty(JsonAST.render(Extraction.decompose(
-      ListMap("statistics" ->
-        ListMap(
+      ListMap("statistics" -> {
+        val stats = ListMap(
           "totalRecords" -> totalRecords,
           "totalRecordsWithDigitalObjects" -> totalDigitalObjects,
           "totalRecordsWithLandingPages" -> totalLandingPages,
-          "facets" -> entries.map(_.asListMap)
+          "facetCounts" -> entryCounts
         )
+        if (displayFacetDetail) {
+          stats ++ ListMap("facets" -> entries.map(_.asListMap))
+        } else {
+          stats
+        }
+      }
       ))))
 
     outputJson
