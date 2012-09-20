@@ -45,7 +45,7 @@
                 qString: pagination.getPresentationQuery().getUserSubmittedQuery(),
                 searchIn: params.searchIn ? params.searchIn.apply(0)  : "all",
                 columns: tf.nrDisplayColumns,
-                collapsable: false /}
+                collapsable: themeInfo.get('collapseFacets')  /}
             #{/list}
         </div>
     </div>

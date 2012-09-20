@@ -177,6 +177,10 @@ thing.keywords=Trefwoorden
 thing.relatedItems=Soortgelijke inhoud
 
 
+thing.creator=Vervaardiger
+thing.datecreated=Vervaardigingsdatum
+thing.datemodified=Datum aangepast
+
 
 # Account registration and activation messages
 ui.message.registration.success=Uw account is met success aangemaakt! Een e-mail is verstuurd naar {0} om het account te activeren
