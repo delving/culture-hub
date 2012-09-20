@@ -12,7 +12,7 @@ import models.{DomainConfiguration, RecordDefinition, DataSetState, DataSet}
 class DataSetLookupService extends HarvestCollectionLookupService with OrganizationCollectionLookupService {
 
   def findAllNonEmpty(orgId: String, format: Option[String], accessKey: Option[String])(implicit configuration: DomainConfiguration): List[Harvestable] = {
-    val sets = DataSet.dao(orgId).findAll().filterNot(_.state != DataSetState.ENABLED)
+    val sets = DataSet.dao.findAll().filterNot(_.state != DataSetState.ENABLED)
     if (format.isDefined) {
       sets.filter(ds => ds.getVisibleMetadataSchemas(accessKey).exists(_.prefix == format.get))
     } else {

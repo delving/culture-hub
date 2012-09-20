@@ -387,6 +387,7 @@ class DataSetPlugin(app: Application) extends CultureHubPlugin(app) {
         DataSet.dao.updateState(dataSet, DataSetState.QUEUED)
         DataSetCollectionProcessor.process(dataSet)
         while (DataSet.dao.getState(dataSet.orgId, dataSet.spec) == DataSetState.PROCESSING) Thread.sleep(500)
+        DataSet.dao.updateState(dataSet, DataSetState.ENABLED)
       }
 
       boot.init()

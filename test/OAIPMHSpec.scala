@@ -157,26 +157,27 @@ class OAIPMHSpec extends Specs2TestContext {
         (error \ "@code").text must equalTo("noRecordsMatch")
       }
     }
-  }
 
-  "list no records with an 'until' datestamp using a past YYYYMMDD format" in {
-    withTestConfig {
-      val d = new DateTime()
-      val yesterday = OaiPmhService.dateFormat.format(d.minusDays(1).toDate)
-      val request = FakeRequest("GET", "?verb=ListRecords&set=" + spec + "&metadataPrefix=icn&until=" + yesterday)
-      val r = controllers.api.OaiPmh.oaipmh("delving", None, None)(request)
+    "list no records with an 'until' datestamp using a past YYYYMMDD format" in {
+      withTestConfig {
+        val d = new DateTime()
+        val yesterday = OaiPmhService.dateFormat.format(d.minusDays(1).toDate)
+        val request = FakeRequest("GET", "?verb=ListRecords&set=" + spec + "&metadataPrefix=icn&until=" + yesterday)
+        val r = controllers.api.OaiPmh.oaipmh("delving", None, None)(request)
 
-      val response = asyncToResult(r)
+        val response = asyncToResult(r)
 
-      status(response) must equalTo(OK)
+        status(response) must equalTo(OK)
 
-      val xml = contentAsXML(response)
-      val error = xml \ "error"
-      error.length must equalTo(1)
-      (error \ "@code").text must equalTo("noRecordsMatch")
+        val xml = contentAsXML(response)
+        val error = xml \ "error"
+        error.length must equalTo(1)
+        (error \ "@code").text must equalTo("noRecordsMatch")
+      }
     }
-  }
 
+
+  }
 
   step(cleanup())
 
