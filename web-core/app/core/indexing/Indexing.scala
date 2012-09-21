@@ -81,6 +81,7 @@ object Indexing extends SolrServer {
     inputDoc += (VISIBILITY -> Visibility.PUBLIC.value.toString)
 
     inputDoc.addField(SPEC.tag, "%s".format(dataSet.spec))
+    inputDoc.addField(COLLECTION.tag, "%s".format(dataSet.getName))
 
     // for backwards-compatibility
     inputDoc += (PMH_ID -> URLEncoder.encode(record.itemId, "utf-8"))
