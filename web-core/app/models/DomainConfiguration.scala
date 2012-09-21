@@ -350,7 +350,7 @@ object DomainConfiguration {
                       )
                     }
                   },
-                  pageSize = getOptionalInt(configuration, SEARCH_PAGE_SIZE).getOrElse(12)
+                  pageSize = getOptionalInt(configuration, SEARCH_PAGE_SIZE).getOrElse(20)
                 ),
                 plugins = configuration.underlying.getStringList(PLUGINS).asScala.toSeq,
                 schemas = configuration.underlying.getStringList(SCHEMAS).asScala.toList,
