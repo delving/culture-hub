@@ -34,10 +34,20 @@ object DataSetEventLog extends MultiModel[DataSetEventLog, DataSetEventLogDAO] {
 
 class DataSetEventLogDAO(connection: MongoCollection) extends SalatDAO[DataSetEventLog, ObjectId](connection) {
 
-  def findRecent = find(MongoDBObject()).limit(200).sort(MongoDBObject("_id" -> -1)).toList.reverse
+  def findRecent = {
+    val nonTransient = find(MongoDBObject("transientEvent" -> false)).limit(10).sort(MongoDBObject("_id" -> -1)).toList
+    val transient = find(MongoDBObject("transientEvent" -> true)).limit(40).sort(MongoDBObject("_id" -> -1)).toList
+
+    (nonTransient ++ transient).sortBy(_._id.getTime).reverse
+  }
 
   def removeTransient() {
-    remove(MongoDBObject("transientEvent" -> true))
+    val recent = find(MongoDBObject("transientEvent" -> true)).limit(10).sort(MongoDBObject("_id" -> -1)).toList.reverse.headOption
+    recent.map { r =>
+      remove(MongoDBObject("transientEvent" -> true) ++ "_id" $lt r._id)
+    }.getOrElse {
+      remove(MongoDBObject("transientEvent" -> true))
+    }
   }
 
 }
