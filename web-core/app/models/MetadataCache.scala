@@ -10,6 +10,7 @@ import java.util.Date
 import scala.collection.JavaConverters._
 
 /**
+ * A generic MetadataItem. The source data is meant to be kept as raw XML documents, for one or multiple versioned schemas.
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
