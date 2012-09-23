@@ -5,18 +5,20 @@ import eu.delving.schema.xml.Schema
 import eu.delving.schema.SchemaType
 
 /**
+ * Gives access to the Schema repository
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 trait SchemaService {
 
   /**
-   * Refreshes the repository, i.e. fetches the latest version of schemas
+   * Refreshes the repository, i.e. fetches the latest version of all schemas
    */
   def refresh()
 
   /**
    * Retrieves all Schemas that are active for the current configuration
+   *
    * @param configuration the active DomainConfiguration
    * @return a sequence of Schema
    */

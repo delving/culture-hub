@@ -15,7 +15,7 @@ case class SystemField(name: String) {
 
 object SystemField {
 
-  val values = List(TITLE, DESCRIPTION, PROVIDER, OWNER, THUMBNAIL, LANDING_PAGE, DEEP_ZOOM_URL, SPEC)
+  val values = List(TITLE, DESCRIPTION, PROVIDER, OWNER, THUMBNAIL, LANDING_PAGE, DEEP_ZOOM_URL, SPEC, COLLECTION)
 
   def valueOf(name: String) = values.find(v => v.name.toUpperCase == name.toUpperCase.replaceAll("_", "")).getOrElse(throw new IllegalArgumentException("Invalid SystemField " + name))
 
@@ -28,6 +28,8 @@ object SystemField {
   object DEEP_ZOOM_URL extends SystemField("deepZoomUrl")
   object OWNER extends SystemField("owner")  // dataProvider
   object PROVIDER extends SystemField("provider")
+
+  object COLLECTION extends SystemField("collection")
 
   // TODO this is rather an Indexing Field
   object SPEC extends SystemField("spec")

@@ -51,7 +51,7 @@ object Breadcrumbs {
           case _ => List(("/organizations/" + orgId, orgId), ("NOLINK", Messages("plugin.musip.collections")), ("NOLINK", p.get("title").get("label")))
         }
 
-      case "rijks" :: "search" :: Nil => List(("/rijks", "Rijks"), ("NOLINK", Messages("ui.label.search")))
+      case "rijks" :: "search" :: Nil => List(("/rijks", Messages("plugin.rijks.rijks")), ("NOLINK", Messages("ui.label.search")))
 
 
       case "organizations" :: orgName :: Nil => List(("NOLINK", Messages("thing.organizations")), ("/organizations/" + orgName, orgName))
