@@ -79,6 +79,7 @@ ui.label.register=Registreren
 ui.label.remove=Verwijder
 ui.label.required=Verplicht
 ui.label.reset=Herstel
+ui.label.results.withoutImages=Toon ook resultaten zonder afbeeldingen
 ui.label.returnToResults=Terug naar resultaten
 ui.label.save=Bewaar
 ui.label.scope=Scope

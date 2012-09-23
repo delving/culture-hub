@@ -82,6 +82,7 @@ ui.label.register=Register
 ui.label.remove=Remove
 ui.label.required=Required
 ui.label.reset=Reset
+ui.label.results.withoutImages=Also include results without images
 ui.label.returnToResults=Return to results
 ui.label.save=Save
 ui.label.scope=Scope
