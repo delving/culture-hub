@@ -7,6 +7,7 @@ import eu.delving.templates.Plugin._
 
 object Build extends sbt.Build {
 
+  val cultureHub     = SettingKey[String]("cultureHub", "Version of the CultureHub")
   val sipApp     = SettingKey[String]("sip-app", "Version of the SIP-App")
   val sipCore    = SettingKey[String]("sip-core", "Version of the SIP-Core")
   val schemaRepo = SettingKey[String]("schema-repo", "Version of the Schema Repository")
@@ -112,11 +113,12 @@ object Build extends sbt.Build {
 
     sourceGenerators in Compile <+= groovyTemplatesList,
 
+    cultureHub := cultureHubVersion,
     sipApp := sipAppVersion,
     sipCore := sipCoreVersion,
     schemaRepo := schemaRepoVersion,
     sourceGenerators in Compile <+= buildInfo,
-    buildInfoKeys := Seq[Scoped](name, version, scalaVersion, sbtVersion, sipApp, sipCore, schemaRepo),
+    buildInfoKeys := Seq[Scoped](name, cultureHub, scalaVersion, sbtVersion, sipApp, sipCore, schemaRepo),
     buildInfoPackage := "eu.delving.culturehub",
 
     publishTo := Some(delvingRepository(cultureHubVersion)),

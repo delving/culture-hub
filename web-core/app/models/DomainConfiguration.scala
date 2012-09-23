@@ -98,6 +98,7 @@ case class UserInterfaceConfiguration(
   defaultLanguage:             String = "en",
   siteName:                    Option[String],
   siteSlogan:                  Option[String],
+  footer:                      Option[String],
   addThisTrackingCode:         Option[String],
   googleAnalyticsTrackingCode: Option[String],
   showLogin:                   Boolean,
@@ -350,7 +351,7 @@ object DomainConfiguration {
                       )
                     }
                   },
-                  pageSize = getOptionalInt(configuration, SEARCH_PAGE_SIZE).getOrElse(12)
+                  pageSize = getOptionalInt(configuration, SEARCH_PAGE_SIZE).getOrElse(20)
                 ),
                 plugins = configuration.underlying.getStringList(PLUGINS).asScala.toSeq,
                 schemas = configuration.underlying.getStringList(SCHEMAS).asScala.toList,
@@ -360,6 +361,7 @@ object DomainConfiguration {
                   defaultLanguage = configuration.getString("ui.defaultLanguage").getOrElse("en"),
                   siteName = configuration.getString("ui.siteName"),
                   siteSlogan = configuration.getString("ui.siteSlogan").orElse(Some("Delving CultureHub")),
+                  footer = configuration.getString("ui.footer").orElse(Some("")),
                   addThisTrackingCode = configuration.getString("ui.addThisTrackingCode").orElse(None),
                   googleAnalyticsTrackingCode = configuration.getString("ui.googleAnalyticsTrackingCode").orElse(None),
                   showLogin = configuration.getBoolean("ui.showLogin").getOrElse(false),

@@ -4,7 +4,6 @@
         <ul class="statistics-list">
             <li>&{'plugin.statistics.nrRecords'} <span id="nrRecords" class="label"></span></li>
             <li>&{'plugin.statistics.withObjects'} <span id="nrDigitalObjects" class="label"></span></li>
-            <li>&{'plugin.statistics.landingPages'} <span id="nrLandingPage" class="label"></span></li>
             <li>&{'metadata.delving.owner'} <span id="owners" class="label"></span></li>
         </ul>
     </div>
@@ -15,7 +14,6 @@
             console.log(data.statistics);
             $('#nrRecords').text(data.statistics.totalRecords);
             $('#nrDigitalObjects').text(data.statistics.totalRecordsWithDigitalObjects);
-            $('#nrLandingPage').text(data.statistics.totalRecordsWithLandingPages);
             $('#owners').text(data.statistics.facetCounts['delving_owner_facet']);
         });
     });

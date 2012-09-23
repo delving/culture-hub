@@ -446,7 +446,7 @@ class DataSetDAO(collection: MongoCollection)(implicit val configuration: Domain
   def updateIndexingCount(dataSet: DataSet, count: Long) {
     update(
       MongoDBObject("_id" -> dataSet._id),
-      MongoDBObject("$set" -> MongoDBObject("details.indexing_count" -> count))
+      MongoDBObject("$set" -> MongoDBObject("details.processedRecordCount" -> count))
     )
     DataSetEvent ! DataSetEvent.ProcessedRecordCountChanged(dataSet.orgId, dataSet.spec, count)
   }
@@ -499,7 +499,7 @@ case class Mapping(recordMapping: Option[String] = None, schemaPrefix: String, s
 case class Details(
   name: String, // TODO this is repeated with the fact "name"...one day, unify
   total_records: Long = 0,
-  indexing_count: Long = 0,
+  processedRecordCount: Option[Long] = None,
   invalidRecordCount: Map[String, Long] = Map.empty,
   facts: BasicDBObject = new BasicDBObject()
   ) {
