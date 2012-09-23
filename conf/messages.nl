@@ -282,9 +282,10 @@ metadata.dcterms.requires=Vereist
 metadata.dcterms.spatial=Plaats van vervaardiging
 metadata.dcterms.temporal=Periode
 
+metadata.delving.creator=Vervaardiger
+metadata.delving.collection=Collectie
 metadata.delving.dimensions=Afmeting
 metadata.delving.owner=Eigenaar
-metadata.delving.creator=Vervaardiger
 metadata.delving.recordType=Record type
 metadata.delving.hasDigitalObject=Record heeft een digitaal object
 

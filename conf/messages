@@ -321,6 +321,7 @@ metadata.dcterms.extent=Extent
 
 metadata.delving.owner=Owner
 metadata.delving.creator=Creator
+metadata.delving.collection=Collection
 metadata.delving.provider=Provider
 metadata.delving.owner=Data Provider
 metadata.delving.recordType=Record type
