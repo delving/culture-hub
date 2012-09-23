@@ -543,6 +543,7 @@ dataSetState.incomplete=Incomplete
 dataSetState.parsing=Parsing source data
 dataSetState.uploaded=uploaded and ready for processing
 dataSetState.queued=Queued for processing
+dataSetState.processingQueued=Queued for processing
 dataSetState.indexing=Processing
 dataSetState.enabled=Enabled
 dataSetState.disabled=Disabled

@@ -590,6 +590,7 @@ dataSetState.incomplete=Incomplete
 dataSetState.uploaded=Uploaded and ready for processing
 dataSetState.parsing=Parsing and storing uploaded source data
 dataSetState.queued=Queued for processing
+dataSetState.processingQueued=Queued for processing
 dataSetState.processing=Processing
 dataSetState.cancelled=Processing cancelled
 dataSetState.enabled=Enabled
