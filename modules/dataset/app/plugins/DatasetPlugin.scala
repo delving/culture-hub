@@ -277,7 +277,7 @@ class DataSetPlugin(app: Application) extends CultureHubPlugin(app) {
     if (!Play.isTest) {
       DataSet.all.foreach {
         dataSetDAO =>
-          dataSetDAO.findByState(DataSetState.PROCESSING, DataSetState.CANCELLED).foreach {
+          dataSetDAO.findByState(DataSetState.PROCESSING, DataSetState.CANCELLED, DataSetState.PROCESSING_QUEUED).foreach {
             set =>
               dataSetDAO.updateState(set, DataSetState.CANCELLED)
               try {
@@ -307,6 +307,9 @@ class DataSetPlugin(app: Application) extends CultureHubPlugin(app) {
         dataSetDAO =>
           dataSetDAO.findByState(DataSetState.PROCESSING).foreach { set =>
             dataSetDAO.updateState(set, DataSetState.CANCELLED)
+          }
+          dataSetDAO.findByState(DataSetState.PROCESSING_QUEUED).foreach { set =>
+            dataSetDAO.updateState(set, DataSetState.UPLOADED)
           }
       }
       Thread.sleep(2000)

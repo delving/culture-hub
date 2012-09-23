@@ -53,14 +53,16 @@
             <tr>
                 <td><a data-bind="attr: { href: '/organizations/' + orgId() + '/dataset/' + spec() }" rel="nofollow" class="btn"><i class="icon icon-wrench"></i> <span data-bind="text: name"></span></a></td>
                 <td><span data-bind="text: nodeName"></span></td>
-                <td>
+                <td width="120">
+                    <!-- ko if: dataSetState() == 'processing' -->
+                    <span data-bind="text: dataSetState() == 'processing' ? processedRecords() + ' / ' : ''"></span>
+                    <!-- /ko -->
                     <a data-bind="text: totalRecords, attr: { href: '/search?query%3Ddelving_spec%3A' + spec() }" class="rCount" rel="nofollow"></a>
                     <!-- ko if: validRecords().length > 0 -->
                     <div data-bind="template: {name: 'validRecordCountTemplate', afterRender: $parent.applyPopover }" style="display: none;"></div>
                     <!-- /ko -->
                 </td>
                 <td width="120">
-
                     <!-- ko if: dataSetState == "error" -->
                     <span class="badge badge-important badge-error" data-bind="attr: { 'data-original-title': dataSetState()}" rel="popover"></span>
                     <!-- /ko -->
@@ -76,7 +78,7 @@
                     <span class="badge badge-info">&{'organization.dataset.unlocked'}</span>
                     <!-- /ko -->
                 </td>
-                <td>
+                <td width="80">
                   <!-- ko if: canEdit().indexOf('${userName}') > -1 -->
                     <a data-bind="attr: { href: '/organizations/' + orgId() + '/dataset/' + spec() + '/update' }" rel="nofollow">
                         <i class="icon icon-edit"></i> ${messages.get('ui.label.edit')}
@@ -127,7 +129,6 @@
 
         ws.onmessage = function(evt) {
             var data = $.parseJSON(evt.data);
-            console.log(data)
             switch(data.eventType) {
                 case "loadList":
                     $.each(data.payload, function(index, item) {
@@ -152,6 +153,11 @@
                 case "sourceRecordCountChanged":
                     viewModel.updateSet(data.spec, function(toUpdate) {
                         toUpdate.totalRecords(data.payload);
+                    });
+                    break;
+                case "processedRecordCountChanged":
+                    viewModel.updateSet(data.spec, function(toUpdate) {
+                        toUpdate.processedRecords(data.payload);
                     });
                     break;
                 case "stateChanged":

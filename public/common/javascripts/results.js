@@ -1,6 +1,6 @@
 $(document).ready(function() {
 
-// facets
+    // facets collapse
     if ($(".facet-container.collapsible").length > 0) {
         // hide() or show() the toggle containers on load
         $(".facet-container").hide();
@@ -37,5 +37,10 @@ $(document).ready(function() {
                     scrollTop: $checked.offset().top - $this.offset().top - $this.height() / 2
                 }, 1);
             }
+    });
+
+    // launch query when checkbox is selected/deselected
+    $('.include-without-digtalobjects').on('click', function(){
+        document.location.href=$(this).val();
     });
 });
