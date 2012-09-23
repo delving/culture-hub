@@ -44,7 +44,7 @@ class DataSetEventLogDAO(connection: MongoCollection) extends SalatDAO[DataSetEv
   def removeTransient() {
     val recent = find(MongoDBObject("transientEvent" -> true)).limit(10).sort(MongoDBObject("_id" -> -1)).toList.reverse.headOption
     recent.map { r =>
-      remove(MongoDBObject("transientEvent" -> true) ++ "_id" $lt r._id)
+      remove(MongoDBObject("transientEvent" -> true) ++ ("_id" $lt r._id))
     }.getOrElse {
       remove(MongoDBObject("transientEvent" -> true))
     }
