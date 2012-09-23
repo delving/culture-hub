@@ -5708,6 +5708,9 @@ hr.editorRule {
   color: #ffffff;
   text-decoration: none;
 }
+select[name=searchIn] {
+  width: 121px;
+}
 .results .result {
   display: block;
   float: left;

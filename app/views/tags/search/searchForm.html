@@ -1,0 +1,16 @@
+<form method="get" action="/search" class="navbar-form form-horizontal" id="simple-search" onsubmit="return checkSimpleSearchSubmit('query');">
+    <input type="hidden" name="hqf" value="delving_hasDigitalObject_facet:true"/>
+    #{if _showSearchIn}
+    #{search.searchIn searchIn: _searchIn, fields: _fields /}
+    #{/if}
+    <div class="input-append">
+        <input class="" placeholder="&{'ui.label.search'} ..." type="text" id="query" name="query" value='${params.get("query")? params.get("query").apply(0) : ""}'/>
+        <button type="submit" class="btn" title="&{'ui.label.search'}">
+        #{if _iconOnly}<i class="icon icon-search"></i>#{/if}
+        #{else}&{'ui.label.search'}#{/else}
+        </button>
+    </div>
+    #{if _advancedSearchLink}
+    &#160;<a href="/search/advanced" rel="nofollow" class="hidden-phone">&{'plugin.advancedsearch'}</a>
+    #{/if}
+</form>
