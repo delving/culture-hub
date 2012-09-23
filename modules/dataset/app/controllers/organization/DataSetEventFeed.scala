@@ -32,6 +32,7 @@ object DataSetEventFeed {
     nodeId = "", // TODO once we have nodes...
     nodeName = ds.getDataProvider,
     totalRecords = ds.getTotalRecords,
+    processedRecords = ds.details.processedRecordCount,
     validRecords = ds.details.invalidRecordCount.map(f => (f._1 -> (ds.getTotalRecords - f._2))),
     state = ds.state.name,
     lockState = if (ds.lockedBy.isDefined) "locked" else "unlocked",
@@ -130,6 +131,7 @@ object DataSetEventFeed {
                                   nodeName: String,
                                   totalRecords: Long,
                                   validRecords: Map[String, Long],
+                                  processedRecords: Option[Long],
                                   state: String,
                                   lockState: String,
                                   lockedBy: String,
@@ -144,6 +146,7 @@ object DataSetEventFeed {
         "nodeName" -> JsString(nodeName),
         "totalRecords" -> JsNumber(totalRecords),
         "validRecords" -> JsArray(validRecords.toSeq.map(f => JsObject(Seq(("schema" -> JsString(f._1)), ("valid" -> JsNumber(f._2)))))),
+        "processedRecords" -> JsString(processedRecords.getOrElse(0).toString),
         "dataSetState" -> JsString(state),
         "lockState" -> JsString(lockState),
         "lockedBy" -> JsString(lockedBy),
@@ -220,7 +223,7 @@ class DataSetEventFeed extends Actor {
 
   implicit val timeout = Timeout(1 second)
 
-  val LIST_FEED_EVENTS = Seq(EventType.CREATED, EventType.UPDATED, EventType.REMOVED, EventType.STATE_CHANGED, EventType.LOCKED, EventType.UNLOCKED)
+  val LIST_FEED_EVENTS = Seq(EventType.CREATED, EventType.UPDATED, EventType.REMOVED, EventType.STATE_CHANGED, EventType.LOCKED, EventType.UNLOCKED, EventType.PROCESSED_RECORD_COUNT_CHANGED)
 
   var lastSeen: Long = System.currentTimeMillis()
 
