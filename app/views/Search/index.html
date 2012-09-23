@@ -15,33 +15,26 @@
 
 <div class="results-header-block">
     <div class="results-header-inner">
-        <h4>&{'search.trail', pagination.getStart(), pagination.getLastViewableRecord(), pagination.getNumFound() }</h4>
-        #{if pagination.getNumFound() > themeInfo.pageSize()}
-            #{results.resultPagination pageLinks: pagination, pQuery: pagination.getPresentationQuery().getQueryForPresentation(), searchIn: params.searchIn ? params.searchIn.apply(0) : "all", lastPage: pagination.getNumFound(), extraClass:"pagination-top" /}
-        #{/if}
-    </div>
-    <div class="object-search">
+        <h4>
+            &{'search.trail', pagination.getStart(), pagination.getLastViewableRecord(), pagination.getNumFound() }
+            <small>
             #{list hasDigitalObject, as: 'facet'}
                 #{list facet.getLinks(), as: 'link'}
                     #{if link.value() == 'true' && !facet.isFacetSelected()}
-                        <label>
-                        <input type="checkbox" class="search-digital-objects" checked="checked" value="/search?query=${pagination.getPresentationQuery().getUserSubmittedQuery()}&searchIn=${params.searchIn ? params.searchIn.apply(0)  : "all"}${link.url}">
+                        <input type="checkbox" class="include-without-digtalobjects" checked="checked" value="/search?query=${pagination.getPresentationQuery().getUserSubmittedQuery()}&searchIn=${params.searchIn ? params.searchIn.apply(0)  : "all"}${link.url}">
                         <a href="/search?query=${pagination.getPresentationQuery().getUserSubmittedQuery()}&searchIn=${params.searchIn ? params.searchIn.apply(0)  : "all"}${link.url}">&{'ui.label.results.withoutImages'}</a>
-                        </label>
                     #{/if}
                     #{if link.value() == 'true' && facet.isFacetSelected()}
-                        <label>
-                        <input type="checkbox" class="search-digital-objects" value="/search?query=${pagination.getPresentationQuery().getUserSubmittedQuery()}&searchIn=${params.searchIn ? params.searchIn.apply(0)  : "all"}">
+                        <input type="checkbox" class="include-without-digtalobjects" value="/search?query=${pagination.getPresentationQuery().getUserSubmittedQuery()}&searchIn=${params.searchIn ? params.searchIn.apply(0)  : "all"}">
                         <a href="/search?query=${pagination.getPresentationQuery().getUserSubmittedQuery()}&searchIn=${params.searchIn ? params.searchIn.apply(0)  : "all"}">&{'ui.label.results.withoutImages'}</a>
-                        </label>
                     #{/if}
                 #{/list}
             #{/list}
-        <script>
-            $('.search-digital-objects').on('click', function(){
-                document.location.href=$(this).val();
-            });
-        </script>
+            </small>
+        </h4>
+        #{if pagination.getNumFound() > themeInfo.pageSize()}
+            #{results.resultPagination pageLinks: pagination, pQuery: pagination.getPresentationQuery().getQueryForPresentation(), searchIn: params.searchIn ? params.searchIn.apply(0) : "all", lastPage: pagination.getNumFound(), extraClass:"pagination-top" /}
+        #{/if}
     </div>
 </div>
 
