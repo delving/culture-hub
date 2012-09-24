@@ -671,6 +671,7 @@ accessControl.resourceType.dataSet=DataSets
 
 plugin.cms.adminRight=Site content administration rights
 
+plugin.chc.orKeywords=Keywords (OR)
 
 plugin.musip.museum=Museum
 plugin.musip.museums=Museums
