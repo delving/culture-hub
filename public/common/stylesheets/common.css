@@ -5711,6 +5711,13 @@ hr.editorRule {
 select[name=searchIn] {
   width: 121px;
 }
+.results-header-block h4 small {
+  margin-left: 12px;
+}
+.results-header-block h4 small a {
+  color: #999999;
+  font-size: smaller;
+}
 .results .result {
   display: block;
   float: left;

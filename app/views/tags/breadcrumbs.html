@@ -27,6 +27,7 @@
     #{/list}
     #{if _queryCrumbs}
         #{list _queryCrumbs.getBreadcrumbs(), as: 'crumb'}
+            #{ifnot crumb.field() == 'delving_hasDigitalObject_facet'}
             #{ifnot crumb_isLast}
             <li class="linked">
                 <span class="divider">/</span><a href="/search?${crumb.href()}" rel="nofollow">${views.Helpers.shorten(crumb.value(),50)}</a></li>
@@ -34,6 +35,7 @@
             #{else}
                 <li><span class="divider">/</span><span class="searched">${crumb.value()}</span></li>
             #{/else}
+            #{/ifnot}
         #{/list}
     #{/if}
     </ul>
