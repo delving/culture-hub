@@ -66,7 +66,7 @@ class GroupDAO(collection: MongoCollection)(implicit configuration: DomainConfig
 
 
     isAdmin ||
-    directGroupMemberships.exists(_ == role) ||
+    roles.exists(_ == role) ||
     roles.flatMap(_.unitRoles).contains(role)
   }
 
