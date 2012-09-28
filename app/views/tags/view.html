@@ -69,13 +69,13 @@ switch (_view.nodeType) {
     case "field": if (_view.text()){ }%
 
         #{if _view.parent.attr("type") == "labelled-list"}
-            <dt>&{_view.attr("label")}#{if _view.attr("role")}<span class="label">${_view.attr("role")}</span>#{/if}</dt><dd>${_view.text()}</dd>
+            <dt>&{_view.attr("label")}#{if _view.attr("role")} <span class="label">${_view.attr("role")}</span>#{/if}</dt><dd>${_view.text()}</dd>
         #{/if}
         #{elseif _view.parent.attr("type") == "list"}
             <li>${_view.text()}</li>
         #{/elseif}
         #{else}
-            #{if _view.attr("label")}<h5>&{_view.attr("label")} #{if _view.attr("role")}<span class="label">${_view.attr("role")}</span>#{/if}</h5>#{/if}
+            #{if _view.attr("label")}<h5>&{_view.attr("label")} #{if _view.attr("role")} <span class="label">${_view.attr("role")}</span>#{/if}</h5>#{/if}
             <p>${_view.text()}</p>
         #{/else}
     %{ }
