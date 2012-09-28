@@ -5688,6 +5688,17 @@ hr.editorRule {
   margin: 0;
   border: 0;
 }
+ul.lined,
+ol.lined {
+  list-style: none;
+  margin: 0 0 8px 0;
+  padding: 0;
+}
+ul.lined li,
+ol.lined li {
+  border-bottom: 1px solid #eeeeee;
+  padding: 4px 0;
+}
 .clip {
   display: block;
   overflow: hidden;
@@ -5940,6 +5951,13 @@ form label.radio {
 
   float: left;
   clear: right;
+}
+#advanced-search .controls-row {
+  border-bottom: 1px solid #eeeeee;
+  padding: 8px 0;
+}
+#advanced-search .controls-row:first-of-type {
+  border-top: 1px solid #eeeeee;
 }
 /*---------------------------------
 	BOOTSTRAP BUTTON HELPER
