@@ -58,16 +58,18 @@ class GroupDAO(collection: MongoCollection)(implicit configuration: DomainConfig
   def hasAnyRole(userName: String, roles: Seq[Role]) = roles.foldLeft(false) { (c, r) => c || hasRole(userName, r) }
 
   /** whether a user is in the given role **/
-  def hasRole(userName: String, role: Role): Boolean = {
+  def hasRole(userName: String, role: Role): Boolean = hasRole(userName, role.key)
+
+  /** whether a user is in the given role **/
+  def hasRole(userName: String, roleKey: String): Boolean = {
     val directGroupMemberships = findDirectMemberships(userName).toSeq
-    val roles = directGroupMemberships.map(group => Role.get(group.roleKey))
+    val roles = directGroupMemberships.map(group => Role.get(roleKey))
 
-    val isAdmin = role.key == Role.OWN.key && organizationServiceLocator.byDomain.isAdmin(configuration.orgId, userName)
-
+    val isAdmin = roleKey == Role.OWN.key && organizationServiceLocator.byDomain.isAdmin(configuration.orgId, userName)
 
     isAdmin ||
-    roles.exists(_ == role) ||
-    roles.flatMap(_.unitRoles).contains(role)
+    roles.exists(_.key == roleKey) ||
+    roles.flatMap(_.unitRoles).exists(_.key == roleKey)
   }
 
 
