@@ -303,19 +303,27 @@ metadata.europeana.collectionName=Collectie naam
 metadata.europeana.rights=Rechten
 metadata.europeana.uri=Europeana url
 
+metadata.icn.material=Materiaal
+metadata.icn.collection=Collectie
+metadata.icn.technique=Technique
+metadata.icn.creatorYearOfBirth=Vervaardiger geboortejaar
 metadata.icn.acquisitionMeans=Wijze van verwerving
 metadata.icn.acquisitionYear=Jaar van verwerving
 metadata.icn.acquiredWithHelpFrom=Verworven met steun van
 metadata.icn.collectionPart=Deelcollectie
-metadata.icn.collection=Collectie
-metadata.icn.creatorYearOfBirth=Vervaardiger geboortejaar
 metadata.icn.location=Locatie
-metadata.icn.material=Materiaal
-metadata.icn.collectionType=Collectie type
 metadata.icn.physicalState=Fysieke staat
 metadata.icn.province=Provincie
 metadata.icn.purchasePrice=Aankoopbedrag
-metadata.icn.technique=Techniek
+metadata.icn.collectionType=Collectie type
+metadata.icn.legalStatus=Rechtspositie
+metadata.icn.acceptedStateCharges=Staatslasten aanvaard
+metadata.icn.acceptedStateChargesReason=Reden voor aanvaarde staatslasten
+metadata.icn.expulsionYear=Jaar verwijderd
+metadata.icn.expulsionMeans=Verwijderings methode
+metadata.icn.currentLocation=Huidige locatie
+metadata.icn.previousLocation=Vorige locatie
+
 metadata.searchfield.contributor=Bijdragende organisatie
 metadata.type.all=Alle
 metadata.type.images=Beelden
@@ -626,6 +634,8 @@ plugin.advancedsearch.booleanOr=OF
 plugin.advancedsearch.booleanNot=NIET
 plugin.advancedsearch.allProviders=Alle aanbieders
 plugin.advancedsearch.selectProviders=Selecteer aanbieder(s)
+plugin.advancedsearch.contains=Bevat
+plugin.advancedsearch.between=Tussen
 
 plugin.rijks.rijks=Rijkscollectie
 
