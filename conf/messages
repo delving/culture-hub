@@ -274,6 +274,9 @@ search.viewInOriginalContext=View in original context
 search.invalidQuery=Query "{0}" is not a valid query. Please try something else.
 
 #metadata
+
+metadata.text=All
+
 metadata.abm.contentProvider=Content Provider
 metadata.abm.county=County
 metadata.abm.data.provider=Data Provider
@@ -358,6 +361,13 @@ metadata.icn.physicalState=Physical State
 metadata.icn.province=Province
 metadata.icn.purchasePrice=Purchase Price
 metadata.icn.collectionType=Collection type
+metadata.icn.legalStatus=Legal Status
+metadata.icn.acceptedStateCharges=Accepted State Charges
+metadata.icn.acceptedStateChargesReason=Reason for accepted state charges
+metadata.icn.expulsionYear=Expulsion year
+metadata.icn.expulsionMeans=Expulsion means
+metadata.icn.currentLocation=Current location
+metadata.icn.previousLocation=Previous location
 
 # Tib
 metadata.tib.period=Period
