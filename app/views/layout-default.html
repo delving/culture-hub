@@ -45,4 +45,18 @@
     </div>
 </div>
 
+<div id="footer">
+    <div class="container">
+        <div class="row">
+        ${themeInfo.footer().raw()}
+            <div class="span2 offset6">
+                <a href="http://www.delving.eu" target="_blank" title="Powered by DELVING.EU">
+                    <img src="@{routes.Assets.at('common/images/delving-small.png')}" alt="Powered by DELVING.EU" id="pbd"/>
+                    Powered by Delving
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
 #{include 'commonFooter.html' /}
