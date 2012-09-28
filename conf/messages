@@ -709,6 +709,8 @@ plugin.advancedsearch.booleanNot=NOT
 plugin.advancedsearch.allProviders=All data providers
 plugin.advancedsearch.selectProviders=Select data provider(s)
 plugin.advancedsearch.select=Select
+plugin.advancedsearch.contains=Contains
+plugin.advancedsearch.between=Between
 
 plugin.simpledocumentupload.documentUpload=Document upload
 plugin.simpledocumentupload.list=List of uploaded documents
