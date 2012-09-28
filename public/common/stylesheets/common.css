@@ -5953,11 +5953,8 @@ form label.radio {
   clear: right;
 }
 #advanced-search .controls-row {
-  border-bottom: 1px solid #eeeeee;
-  padding: 8px 0;
-}
-#advanced-search .controls-row:first-of-type {
   border-top: 1px solid #eeeeee;
+  padding: 8px 0;
 }
 /*---------------------------------
 	BOOTSTRAP BUTTON HELPER
