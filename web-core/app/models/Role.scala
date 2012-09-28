@@ -44,8 +44,10 @@ object Role {
 
   def computeRoles(configuration: DomainConfiguration) = (systemRoles ++ dynamicRoles(configuration))
 
-  def allPrimaryRoles(configuration: DomainConfiguration): Seq[Role] = computeRoles(configuration).filterNot(_.isUnitRole)
+  def allRoles(configuration: DomainConfiguration): Seq[Role] = computeRoles(configuration)
 
-  def get(role: String)(implicit configuration: DomainConfiguration) = allPrimaryRoles(configuration).find(_.key == role).getOrElse(illegal(role))
+  def allPrimaryRoles(configuration: DomainConfiguration): Seq[Role] = allRoles(configuration).filterNot(_.isUnitRole)
+
+  def get(role: String)(implicit configuration: DomainConfiguration) = allRoles(configuration).find(_.key == role).getOrElse(illegal(role))
 
 }
