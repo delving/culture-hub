@@ -78,7 +78,7 @@ trait Registration extends ApplicationController { this: BoundController =>
     }
 
     def orgIdTaken(implicit configuration: DomainConfiguration) = Constraint[RegistrationInfo]("registration.duplicateDisplayName") {
-        case r if organizationServiceLocator.byDomain.exists(r.userName) => Valid
+        case r if !organizationServiceLocator.byDomain.exists(r.userName) => Valid
         case _ => Invalid(ValidationError(Messages("registration.duplicateDisplayName")))
     }
 
