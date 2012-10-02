@@ -132,7 +132,13 @@ class SearchService(request: RequestHeader, hiddenQueryFilters: Seq[String] = Se
       }
       case _ =>
         val briefView = getBriefResultsFromSolr
-        SearchSummary(result = briefView, chResponse = briefView.chResponse, language = apiLanguage).renderAsXML(authorized)
+        val summary = SearchSummary(result = briefView, chResponse = briefView.chResponse, language = apiLanguage)
+        format match {
+          case "kml" =>
+            summary.renderAsKML(authorized)
+          case _ =>
+            summary.renderAsXML(authorized)
+        }
     }
 
     Ok("<?xml version='1.0' encoding='utf-8' ?>\n" + prettyPrinter.format(response)).as(XML)
@@ -256,6 +262,57 @@ case class SearchSummary(result: BriefItemView, language: String = "en", chRespo
     else
       value
   }
+
+  def renderAsKML(authorized: Boolean): Elem = {
+//    def renderField(key: String, labelName: String): Elem = {
+//      {if (item.getFieldValue("delving_address").isNotEmpty) {
+//        <address>{item.getAsString("delving_address")}</address>
+//      }
+//    }
+//
+    val response: Elem =
+      <kml xmlns="http://earth.google.com/kml/2.0">
+        <Document>
+          <Folder>
+            <name>Culture-Hub</name>
+            <Schema name="Culture-Hub" id="Culture-Hub">
+              {uniqueKeyNames.map {
+              item =>
+                <SimpleField name={item} type="string">{SearchService.localiseKey(item, language)}</SimpleField>
+            }}
+            </Schema>
+            {briefDocs.map(
+          (item: BriefDocItem) =>
+          <Placemark id={item.getAsString(HUB_ID.key)}>
+          <name>{item.getAsString("delving_title")}</name>
+          <Point>
+            <coordinates>{item.getAsString("delving_geohash")}</coordinates>
+          </Point>
+            {if (item.getFieldValue(ADDRESS.key).isNotEmpty) {
+            <address>
+              {item.getAsString(ADDRESS.key)}
+            </address>
+          }}
+            {if (item.getFieldValue("delving_description").isNotEmpty) {
+            <description>
+              {"<![CDATA[%s]]>".format(item.getAsString("delving_description"))}
+            </description>
+          }}
+          <ExtendedData>
+            <SchemaData schemaUrl="#Culture-Hub">
+              <Data name="thumbnail"><value>http://fries-museum.delving.org/images/PH/GMP_1985-031_%5B01%5D.jpg</value> </Data>
+            {item.toKmFields(filteredFields).map(field => field)}
+             </SchemaData>
+          </ExtendedData>
+        </Placemark>
+        )
+        }
+          </Folder>
+        </Document>
+      </kml>
+    response
+  }
+
 
   def renderAsXML(authorized: Boolean): Elem = {
 
