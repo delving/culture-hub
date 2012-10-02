@@ -288,9 +288,9 @@ case class SearchSummary(result: BriefItemView, language: String = "en", chRespo
           <Point>
             <coordinates>{item.getAsString("delving_geohash")}</coordinates>
           </Point>
-            {if (item.getFieldValue("delving_address").isNotEmpty) {
+            {if (item.getFieldValue(ADDRESS.key).isNotEmpty) {
             <address>
-              {item.getAsString("delving_address")}
+              {item.getAsString(ADDRESS.key)}
             </address>
           }}
             {if (item.getFieldValue("delving_description").isNotEmpty) {
