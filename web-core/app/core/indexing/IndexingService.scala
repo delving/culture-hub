@@ -44,7 +44,6 @@ object IndexingService extends SolrServer {
       }
     }
 
-
     // configured facets
 
     // to filter always index a facet with _facet .filter(!_.matches(".*_(s|string|link|single)$"))
@@ -76,6 +75,7 @@ object IndexingService extends SolrServer {
     if(!doc.containsKey(HAS_DIGITAL_OBJECT.key + "_facet")) {
       doc.addField(HAS_DIGITAL_OBJECT.key + "_facet", hasDigitalObject)
     }
+    doc.addField(HAS_GEO_HASH.key.toString, doc.containsKey(GEOHASH.key) && !doc.get(GEOHASH.key).isEmpty)
 
     getStreamingUpdateServer(configuration).add(doc)
   }
