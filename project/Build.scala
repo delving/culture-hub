@@ -25,13 +25,16 @@ object Build extends sbt.Build {
 
   val delvingReleases = "Delving Releases Repository" at "http://development.delving.org:8081/nexus/content/repositories/releases"
   val delvingSnapshots = "Delving Snapshot Repository" at "http://development.delving.org:8081/nexus/content/repositories/snapshots"
+  val delvingThirdParty = "Delving Third Party "  at "http://development.delving.org:8081/nexus/content/repositories/thirdparty"
+
   def delvingRepository(version: String) = if (version.endsWith("SNAPSHOT")) delvingSnapshots else delvingReleases
 
   val commonResolvers = Seq(
     "sonatype snapshots" at "https://oss.sonatype.org/content/repositories/snapshots/",
     "sonatype releases" at "https://oss.sonatype.org/content/repositories/releases/",
     delvingSnapshots,
-    delvingReleases
+    delvingReleases,
+    delvingThirdParty
   )
 
   val appDependencies = Seq(
