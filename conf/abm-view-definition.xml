@@ -54,7 +54,7 @@
                 <field label="metadata.abm.namedPlace" path="/abm:record/abm:namedPlace"/>
                 <field label="metadata.dc.coverage" path="/abm:record/dc:coverage"/>
                 <field label="metadata.abm.aboutPerson" path="/abm:record/abm:aboutPerson"/>
-                <field label="metadata.dcterms.provinance" path="/abm:record/dcterms:provenance"/>
+                <field label="metadata.dcterms.provenance" path="/abm:record/dcterms:provenance"/>
                 <field label="metadata.dc.relation" path="/abm:record/dc:relation"/>
                 <field label="metadata.dc.type" path="/abm:record/dc:type"/>
             </column>
