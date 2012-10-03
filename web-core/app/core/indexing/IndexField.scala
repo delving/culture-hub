@@ -15,28 +15,31 @@ case class IndexField(key: String) {
 
 case object IndexField {
 
-  // ~~~ system fields
   val ID = IndexField("id")
   val HUB_ID = IndexField("delving_hubId")
   val ORG_ID = IndexField("delving_orgId")
-  val GEOHASH = IndexField("delving_geohash")
 
   val SCHEMA = IndexField("delving_currentSchema")
   val ALL_SCHEMAS = IndexField("delving_allSchemas")
 
   val RECORD_TYPE = IndexField("delving_recordType")
+
   val HAS_DIGITAL_OBJECT = IndexField("delving_hasDigitalObject")
-  val HAS_GEO_HASH = IndexField("delving_hasGeoHash")
-  val ADDRESS = IndexField("delving_address")
 
   val FULL_TEXT_OBJECT_URL = IndexField("delving_fullTextObjectUrl")
   val FULL_TEXT = IndexField("delving_fullText")
 
-  val IMAGE_URL = IndexField("delving_imageUrl")
+  val GEOHASH = IndexField("delving_geohash")
+  val HAS_GEO_HASH = IndexField("delving_hasGeoHash")
+
+  // TODO review this one.
+  val ADDRESS = IndexField("delving_address")
 
   // ~~ legacy
   val EUROPEANA_URI = IndexField("europeana_uri")
   val PMH_ID = IndexField("delving_pmhId")
+
+  // ~~~ deprecated
   val VISIBILITY = IndexField("delving_visibility")
 
   implicit def withRichSolrInputDocument(doc: SolrInputDocument) = new {
