@@ -1,7 +1,9 @@
 package core
 
 /**
- * The system fields used by the CultureHub
+ * The system fields used by the CultureHub.
+ *
+ * Don't touch this class unless there has been a consensus amongst the core developers.
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
@@ -15,13 +17,14 @@ case class SystemField(name: String) {
 
 object SystemField {
 
-  val values = List(TITLE, DESCRIPTION, PROVIDER, OWNER, THUMBNAIL, LANDING_PAGE, DEEP_ZOOM_URL, SPEC, COLLECTION)
+  val values = List(TITLE, DESCRIPTION, PROVIDER, OWNER, THUMBNAIL, IMAGE_URL, LANDING_PAGE, DEEP_ZOOM_URL, SPEC, COLLECTION)
 
   def valueOf(name: String) = values.find(v => v.name.toUpperCase == name.toUpperCase.replaceAll("_", "")).getOrElse(throw new IllegalArgumentException("Invalid SystemField " + name))
 
   object TITLE extends SystemField("title")
   object DESCRIPTION extends SystemField("description")
   object THUMBNAIL extends SystemField("thumbnail")
+  object IMAGE_URL extends SystemField("imageUrl")
 
   object CREATOR extends SystemField("creator")
   object LANDING_PAGE extends SystemField("landingPage")

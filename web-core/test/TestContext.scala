@@ -1,8 +1,10 @@
+import com.gargoylesoftware.htmlunit.BrowserVersion
 import core.HubServices
 import core.indexing.IndexingService
 import core.services.AggregatingOrganizationCollectionLookupService
 import java.io.File
 import models.HubMongoContext._
+import org.openqa.selenium.htmlunit.HtmlUnitDriver
 import org.specs2.mutable.Specification
 import play.api.mvc.{AsyncResult, Result}
 import play.api.test._
@@ -89,3 +91,5 @@ trait Specs2TestContext extends Specification with TestContext {
   args(sequential = true)
 
 }
+
+class FirefoxHtmlUnitDriver extends HtmlUnitDriver(BrowserVersion.FIREFOX_3_6)
