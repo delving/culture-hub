@@ -292,7 +292,7 @@ case class SearchSummary(result: BriefItemView, language: String = "en", chRespo
           <Placemark id={item.getAsString(HUB_ID.key)}>
           <name>{item.getAsString("delving_title")}</name>
           <Point>
-            <coordinates>{item.getAsString(sfield)}</coordinates>
+            <coordinates>{item.getAsString(sfield).split(",").reverse.mkString(",")}</coordinates>
           </Point>
             {if (item.getFieldValue(ADDRESS.key).isNotEmpty) {
             <address>
@@ -301,13 +301,12 @@ case class SearchSummary(result: BriefItemView, language: String = "en", chRespo
           }}
             {if (item.getFieldValue("delving_description").isNotEmpty) {
             <description>
-              {"<![CDATA[%s]]>".format(item.getAsString("delving_description"))}
+              {"%s".format(item.getAsString("delving_description"))}
             </description>
           }}
           <ExtendedData>
             <SchemaData schemaUrl="#Culture-Hub">
-              <Data name="thumbnail"><value>http://fries-museum.delving.org/images/PH/GMP_1985-031_%5B01%5D.jpg</value> </Data>
-            {item.toKmFields(filteredFields).map(field => field)}
+              {item.toKmFields(filteredFields).map(field => field)}
              </SchemaData>
           </ExtendedData>
         </Placemark>
