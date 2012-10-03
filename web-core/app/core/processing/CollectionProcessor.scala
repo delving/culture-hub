@@ -114,9 +114,7 @@ class CollectionProcessor(collection: Collection,
                   val mappingResults = directMappingResults ++ derivedMappingResults
 
                   val allSystemFields = if (renderingSchema.isDefined && mappingResults.contains(renderingSchema.get.prefix)) {
-                    val systemFields = getSystemFields(mappingResults(renderingSchema.get.prefix))
-                    val enriched = enrichSystemFields(systemFields, hubId, renderingSchema.get.prefix)
-                    Some(enriched)
+                    Some(getSystemFields(mappingResults(renderingSchema.get.prefix)))
                   } else {
                     None
                   }
@@ -161,7 +159,7 @@ class CollectionProcessor(collection: Collection,
                     val r = mappingResults(indexingSchema.get.prefix)
                     val fields: Map[String, List[String]] = r.fields()
                     val searchFields: Map[String, List[String]] = r.searchFields()
-                    indexOne(cachedRecord, fields ++ searchFields ++ getSystemFields(r), indexingSchema.get.prefix)
+                    indexOne(cachedRecord, fields ++ searchFields ++ getSystemFields(r) ++ getOtherFields(r), indexingSchema.get.prefix)
                   }
 
                 }
@@ -228,28 +226,16 @@ class CollectionProcessor(collection: Collection,
 
   }
 
+  private def getCopyFields(mappingResult: MappingResult): MultiMap = {
+    mappingResult.copyFields().asScala.map(f => (f._1.replaceAll(":", "_") -> f._2.asScala.toList)).toMap[String, List[String]]
+  }
 
   private def getSystemFields(mappingResult: MappingResult): MultiMap = {
-    val systemFields: Map[String, List[String]] = mappingResult.systemFields().asScala.map(f => (f._1.getLocalPart -> f._2.asScala.toList)).toMap[String, List[String]]
-    val renamedSystemFields: Map[String, List[String]] = systemFields.flatMap(sf => {
-      try {
-        Some(SystemField.valueOf(sf._1).tag -> sf._2)
-      } catch {
-        case t: Throwable =>
-          // we boldly ignore any fields that do not match the system fields
-          None
-      }
-    })
-    renamedSystemFields
+    getCopyFields(mappingResult).filter(f => SystemField.isValid(f._1))
   }
 
-  private def enrichSystemFields(systemFields: MultiMap, hubId: String, currentFormatPrefix: String): MultiMap = {
-    val id = HubId(hubId)
-    systemFields ++ Map(
-      SPEC.tag -> id.spec,
-      HAS_DIGITAL_OBJECT.key -> (systemFields.contains(SystemField.THUMBNAIL.tag) && systemFields.get(SystemField.THUMBNAIL.tag).size > 0).toString
-    ).map(v => (v._1, List(v._2))).toMap
+  private def getOtherFields(mappingResult: MappingResult): MultiMap = {
+    getCopyFields(mappingResult).filterNot(f => SystemField.isValid(f._1))
   }
-
 
 }

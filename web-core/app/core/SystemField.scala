@@ -19,6 +19,8 @@ object SystemField {
 
   def valueOf(name: String) = values.find(v => v.name.toUpperCase == name.toUpperCase.replaceAll("_", "")).getOrElse(throw new IllegalArgumentException("Invalid SystemField " + name))
 
+  def isValid(xmlKey: String) = values.exists(_.xmlKey == xmlKey)
+
   object TITLE extends SystemField("title")
   object DESCRIPTION extends SystemField("description")
   object THUMBNAIL extends SystemField("thumbnail")
