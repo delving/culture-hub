@@ -4,6 +4,8 @@ import core._
 import scala.collection.mutable.HashMap
 import extensions.MissingLibs
 import eu.delving.definitions.OrganizationEntry
+import play.api.Play
+import play.api.Play.current
 
 
 /**
@@ -30,14 +32,15 @@ class MemoryServices(val users: HashMap[String, MemoryUser] = new HashMap[String
 
   def registerUser(userName: String, node: String, firstName: String, lastName: String, email: String, password: String): Option[String] = {
     if (users.contains(userName)) return None
-    val newUser = MemoryUser(userName, firstName, lastName, email, password, models.UserProfile())
+    val newUser = MemoryUser(userName, firstName, lastName, email, password, models.UserProfile(), false, if (Play.isTest) "TESTACTIVATION" else MissingLibs.UUID)
     users += (userName -> newUser)
     Some(newUser.activationToken)
   }
 
   def activateUser(activationToken: String) = {
-    users.values.find(_.activationToken == activationToken).map {
-      u => Some(RegisteredUser(u.userName, u.firstName, u.lastName, u.email))
+    users.values.find(_.activationToken == activationToken).map { u =>
+      users.put(u.userName, u.copy(isActive = true))
+      Some(RegisteredUser(u.userName, u.firstName, u.lastName, u.email))
     }.getOrElse(None)
   }
 
