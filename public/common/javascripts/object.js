@@ -46,7 +46,7 @@ $(document).ready(function () {
                         html += '<div rel="dc:creator"><span>'+jsLabels.creator+':</span> '+item.fields['dc_creator']+'</div>';
                     }
                     if (item.fields['europeana_collectionTitle']) {
-                        html += '<div rel="eruopeana:collectionTitle"><span>'+jsLabels.collection+':</span> '+item.fields['europeana_collectionTitle']+'</div>';
+                        html += '<div rel="europeana:collectionTitle"><span>'+jsLabels.collection+':</span> '+item.fields['europeana_collectionTitle']+'</div>';
                     }
                     html += '</div></div>';
                 });
