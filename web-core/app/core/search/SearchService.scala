@@ -270,6 +270,12 @@ case class SearchSummary(result: BriefItemView, language: String = "en", chRespo
 //      }
 //    }
 //
+    // todo remove this hack later
+    val sfield = chResponse.params.getValueOrElse("sfield", GEOHASH.key) match {
+      case "abm_geo_geohash" => "abm_geo"
+      case _ => GEOHASH.key
+    }
+
     val response: Elem =
       <kml xmlns="http://earth.google.com/kml/2.0">
         <Document>
@@ -286,7 +292,7 @@ case class SearchSummary(result: BriefItemView, language: String = "en", chRespo
           <Placemark id={item.getAsString(HUB_ID.key)}>
           <name>{item.getAsString("delving_title")}</name>
           <Point>
-            <coordinates>{item.getAsString("delving_geohash")}</coordinates>
+            <coordinates>{item.getAsString(sfield)}</coordinates>
           </Point>
             {if (item.getFieldValue(ADDRESS.key).isNotEmpty) {
             <address>
