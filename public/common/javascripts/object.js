@@ -45,7 +45,9 @@ $(document).ready(function () {
                     if (item.fields['dc_creator']) {
                         html += '<div rel="dc:creator"><span>'+jsLabels.creator+':</span> '+item.fields['dc_creator']+'</div>';
                     }
-                    html += '<div rel="delving:provider"><span>'+jsLabels.provider+':</span> '+item.fields['delving_provider']+'</div>';
+                    if (item.fields['europeana_collectionTitle']) {
+                        html += '<div rel="europeana:collectionTitle"><span>'+jsLabels.collection+':</span> '+item.fields['europeana_collectionTitle']+'</div>';
+                    }
                     html += '</div></div>';
                 });
                 html += "</ul>";
