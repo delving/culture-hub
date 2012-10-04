@@ -13,7 +13,7 @@ object Build extends sbt.Build {
   val schemaRepo = SettingKey[String]("schema-repo", "Version of the Schema Repository")
 
   val appName = "culture-hub"
-  val cultureHubVersion = "12.09"
+  val cultureHubVersion = "12.10-SNAPSHOT"
   val sipAppVersion = "1.0.10-SNAPSHOT"
   val sipCoreVersion = "1.0.13-SNAPSHOT"
   val schemaRepoVersion = "1.0.11-SNAPSHOT"
