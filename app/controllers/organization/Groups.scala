@@ -25,7 +25,7 @@ object Groups extends BoundController(HubModule) with Groups
 
 trait Groups extends OrganizationController { this: BoundController =>
 
-  def list(orgId: String) = OrgMemberAction(orgId) {
+  def list(orgId: String) = OrganizationMember {
     Action {
       implicit request =>
         val groups = Group.dao.list(userName, orgId).map { group =>
@@ -43,7 +43,7 @@ trait Groups extends OrganizationController { this: BoundController =>
     }
   }
 
-  def groups(orgId: String, groupId: Option[ObjectId]) = OrgMemberAction(orgId) {
+  def groups(orgId: String, groupId: Option[ObjectId]) = OrganizationMember {
     Action {
       implicit request =>
         if (groupId != None && !canUpdateGroup(orgId, groupId.get) || groupId == None && !canCreateGroup(orgId)) {
@@ -70,7 +70,7 @@ trait Groups extends OrganizationController { this: BoundController =>
     }
   }
 
-  def remove(orgId: String, groupId: Option[ObjectId]) = OrgOwnerAction(orgId) {
+  def remove(orgId: String, groupId: Option[ObjectId]) = OrganizationAdmin {
     Action {
       implicit request =>
         if(!groupId.isDefined) {
@@ -83,7 +83,7 @@ trait Groups extends OrganizationController { this: BoundController =>
   }
 
 
-  def submit(orgId: String): Action[AnyContent] = OrgMemberAction(orgId) {
+  def submit(orgId: String): Action[AnyContent] = OrganizationMember {
     Action {
       implicit request =>
 
@@ -164,7 +164,7 @@ trait Groups extends OrganizationController { this: BoundController =>
     }
   }
 
-  def searchResourceTokens(orgId: String, resourceType: String, q: String) = OrgMemberAction(orgId) {
+  def searchResourceTokens(orgId: String, resourceType: String, q: String) = OrganizationMember {
     Action {
       implicit request =>
         val maybeLookup = resourceLookup(resourceType)

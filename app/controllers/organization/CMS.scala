@@ -29,7 +29,7 @@ trait CMS extends OrganizationController { this: BoundController =>
   val NO_MENU = "none"
 
   def CMSAction[A](orgId: String)(action: Action[A]): Action[A] = {
-    OrgMemberAction(orgId) {
+    OrganizationMember {
       Action(action.parser) {
         implicit request => {
           if (organizationServiceLocator.byDomain.isAdmin(orgId, connectedUser) || Group.dao.count(MongoDBObject("users" -> connectedUser, "grantType" -> CMSPlugin.ROLE_CMS_ADMIN.key)) > 0) {

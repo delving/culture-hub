@@ -18,14 +18,14 @@ import util.DomainConfigurationHandler
 
 object DataSets extends OrganizationController {
 
-  def list(orgId: String) = OrgMemberAction(orgId) {
+  def list(orgId: String) = OrganizationMember {
     Action {
       implicit request =>
         Ok(Template('title -> listPageTitle("dataset"), 'canAdministrate -> DataSet.dao.canAdministrate(connectedUser)))
     }
   }
 
-  def dataSet(orgId: String, spec: String) = OrgMemberAction(orgId) {
+  def dataSet(orgId: String, spec: String) = OrganizationMember {
     Action {
       implicit request =>
         val maybeDataSet = DataSet.dao.findBySpecAndOrgId(spec, orgId)

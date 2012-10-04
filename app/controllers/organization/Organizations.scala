@@ -19,7 +19,7 @@ trait Organizations extends DelvingController { this: BoundController =>
 
   val organizationCollectionLookupService = inject[OrganizationCollectionLookupService]
 
-  def index(orgId: String, language: Option[String]) = OrgBrowsingAction(orgId) {
+  def index(orgId: String, language: Option[String]) = OrganizationBrowsing {
     Action {
       implicit request =>
         if (organizationServiceLocator.byDomain.exists(orgId)) {

@@ -133,6 +133,8 @@ thing.collection=Collection
 thing.collections=Collections
 thing.museum=Museum
 thing.museums=Museums
+thing.virtualNode=Virtual node
+thing.virtualNodes=Virtual nodes
 thing.virtualCollection=Virtual collection
 thing.virtualCollections=Virtual collections
 thing.bookmarksCollection=My bookmarks
@@ -683,6 +685,10 @@ accessControl.resourceType.dataSet=DataSets
 plugin.cms.adminRight=Site content administration rights
 
 plugin.chc.orKeywords=Keywords (OR)
+
+plugin.virtualNode.create=Create Virtual node
+plugin.virtualNode.deleteConfirm=Are you sure you want to delete this Virtual Node as well as all of its data?
+plugin.virtualNode.nodeIdTaken=This nodeId is alraedy taken
 
 plugin.musip.museum=Museum
 plugin.musip.museums=Museums

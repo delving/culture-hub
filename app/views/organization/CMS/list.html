@@ -78,7 +78,7 @@
 <script type="text/javascript">
     $(document).ready(function () {
         var pagesModel = {
-            editPage:function (page) {
+            update:function (page) {
                 document.location = "/organizations/${orgId}/site/" + page.lang() + "/page/" + page.key() + "/update"
             },
             previewPage:function (page) {
