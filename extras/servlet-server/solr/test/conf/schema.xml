@@ -1025,6 +1025,7 @@ unknown fields indexed and/or stored by default -->
      <copyField source="delving_creator" dest="text"/>
      <copyField source="delving_visibility" dest="text"/>
      <copyField source="delving_thumbnail" dest="text"/>
+     <copyField source="delving_imageUrl" dest="text"/>
      <copyField source="delving_hasDigitalObject" dest="text"/>
      <copyfield source="delving_landingPage" dest="text"/>
      <copyField source="delving_collection" dest="text"/>

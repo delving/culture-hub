@@ -9,7 +9,7 @@
     *{ Set dynamic values to use in object.js }*
     // i18n messages
     jsLabels.relatedItems = "${messages.get('thing.relatedItems')}";
-    jsLabels.provider =  "${messages.get('thing.provider')}";
+    jsLabels.collection =  "${messages.get('thing.collection')}";
     jsLabels.creator =  "${messages.get('thing.creator')}";
     jsLabels.objTitle = "${systemFields.apply("delving_title").get(0)}";
 
@@ -49,6 +49,10 @@
     #{if returnToResults.length() > 0}
         <a href="/search?${returnToResults}" rel="nofollow" class="return-to-results">
             <i class="icon icon-arrow-left"></i> &{'ui.label.returnToResults'}</a>
+    #{/if}&#160;
+    #{if returnToPreviousLink.length() > 0}
+        <a href="${returnToPreviousLink}" rel="nofollow" class="return-to-previous">
+            <i class="icon icon-arrow-left"></i> ${returnToPreviousLabel}</a>
     #{/if}&#160;
     </div>
     <div class="rights span4">

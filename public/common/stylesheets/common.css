@@ -5688,6 +5688,21 @@ hr.editorRule {
   margin: 0;
   border: 0;
 }
+ul.lined {
+  list-style: none;
+  margin: 0 0 8px 0;
+  padding: 0;
+}
+ul.lined li {
+  border-bottom: 1px solid #eeeeee;
+  padding: 6px 0;
+}
+ul.nav-row li {
+  float: left;
+}
+ul.nav-row li.divider {
+  padding: 0 8px;
+}
 .clip {
   display: block;
   overflow: hidden;
@@ -5707,6 +5722,16 @@ hr.editorRule {
   background: #000000;
   color: #ffffff;
   text-decoration: none;
+}
+select[name=searchIn] {
+  width: 121px;
+}
+.results-header-block h4 small {
+  margin-left: 12px;
+}
+.results-header-block h4 small a {
+  color: #999999;
+  font-size: smaller;
 }
 .results .result {
   display: block;
@@ -5931,6 +5956,10 @@ form label.radio {
   float: left;
   clear: right;
 }
+#advanced-search .controls-row {
+  border-top: 1px solid #eeeeee;
+  padding: 8px 0;
+}
 /*---------------------------------
 	BOOTSTRAP BUTTON HELPER
 -----------------------------------*/
@@ -6064,6 +6093,22 @@ div.token-input-dropdown ul li.token-input-selected-dropdown-item {
   color: #ffffff;
   font-weight: bold;
   width: auto;
+}
+/*---------------------------------
+    Statistics
+-----------------------------------*/
+#home .statistics-block .statistics-header {
+  font-weight: bold;
+}
+/*---------------------------------
+    Organizations
+-----------------------------------*/
+.organization-navbar h2 {
+  background: #049cdb;
+  text-transform: uppercase;
+  color: #ffffff;
+  display: inline-block !important;
+  padding: 0px 8px;
 }
 @media (max-width: 480px) {
   .results .result {

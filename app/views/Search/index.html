@@ -12,15 +12,31 @@
 
 #{if pagination.getNumFound() > 0}
 
-    <div class="item-count row">
-        <div class="span12">
-            <h4>&{'search.trail', pagination.getStart(), pagination.getLastViewableRecord(), pagination.getNumFound() }</h4>
-        </div>
-    </div>
 
-    #{if pagination.getNumFound() > themeInfo.pageSize()}
-        #{results.resultPagination pageLinks: pagination, pQuery: pagination.getPresentationQuery().getQueryForPresentation(), searchIn: params.searchIn ? params.searchIn.apply(0) : "all", lastPage: pagination.getNumFound(), extraClass:"pagination-top" /}
-    #{/if}
+<div class="results-header-block">
+    <div class="results-header-inner">
+        <h4>
+            &{'search.trail', pagination.getStart(), pagination.getLastViewableRecord(), pagination.getNumFound() }
+            <small>
+            #{list hasDigitalObject, as: 'facet'}
+                #{list facet.getLinks(), as: 'link'}
+                    #{if link.value() == 'true' && !facet.isFacetSelected()}
+                        <input type="checkbox" class="include-without-digtalobjects" checked="checked" value="/search?query=${pagination.getPresentationQuery().getUserSubmittedQuery()}&searchIn=${params.searchIn ? params.searchIn.apply(0)  : "all"}${link.url}">
+                        <a href="/search?query=${pagination.getPresentationQuery().getUserSubmittedQuery()}&searchIn=${params.searchIn ? params.searchIn.apply(0)  : "all"}${link.url}">&{'ui.label.results.withoutImages'}</a>
+                    #{/if}
+                    #{if link.value() == 'true' && facet.isFacetSelected()}
+                        <input type="checkbox" class="include-without-digtalobjects" value="/search?query=${pagination.getPresentationQuery().getUserSubmittedQuery()}&searchIn=${params.searchIn ? params.searchIn.apply(0)  : "all"}">
+                        <a href="/search?query=${pagination.getPresentationQuery().getUserSubmittedQuery()}&searchIn=${params.searchIn ? params.searchIn.apply(0)  : "all"}">&{'ui.label.results.withoutImages'}</a>
+                    #{/if}
+                #{/list}
+            #{/list}
+            </small>
+        </h4>
+        #{if pagination.getNumFound() > themeInfo.pageSize()}
+            #{results.resultPagination pageLinks: pagination, pQuery: pagination.getPresentationQuery().getQueryForPresentation(), searchIn: params.searchIn ? params.searchIn.apply(0) : "all", lastPage: pagination.getNumFound(), extraClass:"pagination-top" /}
+        #{/if}
+    </div>
+</div>
 
     <div class="row">
         <div class="results span9">
@@ -34,7 +50,8 @@
                 typeKey: messages.get(tf.facetInternationalisationCode()),
                 qString: pagination.getPresentationQuery().getUserSubmittedQuery(),
                 searchIn: params.searchIn ? params.searchIn.apply(0)  : "all",
-                columns: tf.nrDisplayColumns/}
+                columns: tf.nrDisplayColumns,
+                collapsable: themeInfo.get('collapseFacets')  /}
             #{/list}
         </div>
     </div>
@@ -43,87 +60,9 @@
         #{results.resultPagination pageLinks: pagination, pQuery: pagination.getPresentationQuery().getQueryForPresentation(), searchIn: params.searchIn ? params.searchIn.apply(0)  : "all", lastPage: pagination.getNumFound(), extraClass:"pagination-bottom" /}
     #{/if}
 
-*{#{if userName}}*
-*{<div id="dropbox" class="widget object">}*
-*{<div class="hd"><h3>&{'search.addItemsToCollection'}</h3></div>}*
-*{<div class="bd">}*
-*{<div id="dropbox-info"><p>&{'search.dragItems'}</p></div>}*
-*{<form action="" method="post" class="dropbox">}*
-*{<ul></ul>}*
-*{<div id="dropbox-actions">}*
-*{#{if collections}}*
-*{<select name="collection" id="dropbox-collection">}*
-*{<option selected='selected'>&{'user.story.label.selectCollection'}</option>}*
-*{#{list collections, as: 'col'}}*
-*{<option value="${col.id}">${col.title}</option>}*
-*{#{/list}}*
-*{</select>}*
-*{<hr/>}*
-*{<button id="addToCollectionButton" type="submit" class="button action submit">&{'search.addToCollection'}</button>}*
-*{#{/if}}*
-*{#{else}}*
-*{<hr>}*
-*{You have no collections. <a href="/${userName}/collection/add">Create a collection</a> so that you can save items into them.}*
-*{#{/else}}*
-*{</div>}*
-*{</form>}*
-
-*{</div>}*
-*{</div>}*
-*{#{/if}}*
-<!-- commented out for now until functionality is there -->
-*{<div class="dropdown">}*
-*{#{btnHref label: viewUtils.getKey('search.sortby'), toggle:true/}}*
-*{<div class="dropdown-slider">}*
-*{<a href="#" class="ddm"><span class="label">&{'thing.object'}</span></a>}*
-*{<a href="#" class="ddm"><span class="label">&{'thing.collection'}</span></a>}*
-*{</div>}*
-*{</div>}*
-
-*{</div>}*
-*{</div>}*
-
 #{/if}
-
 #{else}
-<div class="no-results">
-    &{'ui.message.nothingFound'}
-</div>
+    <div class="no-results">
+        &{'ui.message.nothingFound'}
+    </div>
 #{/else}
-*{
-<!-- overlayed element -->
-<div id="overlay" class="result-overlay">
-    <!-- the external content is loaded inside this tag -->
-    <div class="contentWrap"></div>
-</div>
-
-
-<script type="text/javascript">
-//    $(document).ready(function () {
-
-//  $('#dropbox').dropbox();
-//
-//  $('#addToCollectionButton').click(function(event) {
-//        event.preventDefault();
-//        $('#dropbox input[name="itemId"]').each(function() {
-//          var uri = $(this).val();
-//          $.ajax({
-//            type: 'POST',
-//            url: uri + '/link/partOf/collection/' + $('#dropbox-collection').val(),
-//            success: function() {
-//              $('#dropbox').trigger({
-//                type: 'removeItem',
-//                itemId: uri
-//              });
-//            },
-//            error: function() {
-//                $("select#dropbox-collection").css("background","#cc3300").effect("bounce", { times:4 }, 200);
-//                setTimeout('$("select#dropbox-collection").delay(800).css("background","#ffffff")', 1500);
-//            }
-//          });
-//        });
-//      });
-
-//    });
-</script>
-}*

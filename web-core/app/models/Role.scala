@@ -6,7 +6,11 @@ import play.api.i18n.{Messages, Lang}
 
 /**
  * A role, granting rights to a resource.
- * Each Role can also grant a set of resource rights (e.g. creation, modification, deletion) to a resource
+ *
+ * Each Role can also grant a set of resource rights (e.g. creation, modification, deletion) to a resource.
+ *
+ * Roles can also grant the privileges to aggregated "unit" roles. Unit roles are not directly visible to the user,
+ * but can be defined by the system to be used by super-roles.
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
@@ -14,7 +18,10 @@ import play.api.i18n.{Messages, Lang}
 case class Role(key: String,
                 description: Map[String, String],
                 isResourceAdmin: Boolean = false,
-                resourceType: Option[ResourceType] = None) {
+                resourceType: Option[ResourceType] = None,
+                isUnitRole: Boolean = false,
+                unitRoles: Seq[Role] = Seq.empty
+               ) {
 
   def getDescription(lang: Lang) = description.get(lang.language).getOrElse(description.values.head)
 
@@ -38,6 +45,8 @@ object Role {
   def computeRoles(configuration: DomainConfiguration) = (systemRoles ++ dynamicRoles(configuration))
 
   def allRoles(configuration: DomainConfiguration): Seq[Role] = computeRoles(configuration)
+
+  def allPrimaryRoles(configuration: DomainConfiguration): Seq[Role] = allRoles(configuration).filterNot(_.isUnitRole)
 
   def get(role: String)(implicit configuration: DomainConfiguration) = allRoles(configuration).find(_.key == role).getOrElse(illegal(role))
 

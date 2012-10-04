@@ -25,7 +25,8 @@ import java.lang.{Boolean => JBoolean, Float => JFloat}
 import java.util.{Date, ArrayList, List => JList, Map => JMap}
 import models.MetadataAccessors
 import play.api.Logger
-import xml.Elem
+import xml.{XML, Elem}
+import org.apache.commons.lang.StringEscapeUtils
 
 /**
  *
@@ -36,7 +37,7 @@ import xml.Elem
 object SolrBindingService {
 
   def stripDynamicFieldLabels(fieldName: String): String = {
-    fieldName.replaceFirst("_(string|facet|location|int|single|text|date|link|s|lowercase)$","").replaceFirst("^(facet|sort|sort_all)_","")
+    fieldName.replaceFirst("_(string|facet|location|int|single|text|date|link|s|lowercase|geohash)$","").replaceFirst("^(facet|sort|sort_all)_","")
   }
 
   def addFieldNodes(key : String, values: List[Any]) : List[FieldValueNode] =
@@ -237,6 +238,8 @@ case class FieldValue(key: String, solrDocument: SolrResultDocument) {
 
   def hasHighLights = if (highLightValues != None) true else false
 
+  def asCDATA(text: String) = "<![CDATA[%s]]>".format(text)
+
 }
 
 case class FieldValueNode(fieldName : String, fieldValue: String, attributes: ImMap[String, String] = new HashMap[String, String]())  {
@@ -283,8 +286,41 @@ case class BriefDocItem(solrDocument : SolrResultDocument) extends MetadataAcces
   var score : Int = _
   var debugQuery : String = _
 
+  // todo clean up and make more dry
+  def toKmFields(filteredFields: Seq[String] = Seq.empty, include: Boolean = false, language : String = "en"): List[Elem] = {
+    def renderKMLSimpleDataFields(field : FieldValue): (Seq[Elem], Seq[(String, String, Throwable)]) = {
+      val keyAsXml = field.getKeyAsXml
+      val values = field.getValueAsArray.map(value => {
+        val cleanValue = if (value.startsWith("http")) value.replaceAll("&(?!amp;)", "&amp;") else StringEscapeUtils.escapeXml(value)
+        try {
+          Right(XML.loadString("<SimpleData name='%s'>%s</SimpleData>\n".format(field.getKey, cleanValue)))
+        } catch {
+          case t: Throwable =>
+            Left((cleanValue, keyAsXml, t))
+        }
+      })
 
-  def toXml(filteredFields: Seq[String] = Seq.empty, include: Boolean = false) = {
+      (values.filter(_.isRight).map(_.right.get), values.filter(_.isLeft).map(_.left.get))
+    }
+
+    val renderedFields = getFieldValuesFiltered(include, filteredFields).
+      sortWith((fv1, fv2) => fv1.getKey < fv2.getKey).
+      map(field => renderKMLSimpleDataFields(field))
+
+    val (fields, fieldErrors) = (renderedFields.flatMap(f => f._1), renderedFields.flatMap(f => f._2))
+
+
+    fieldErrors.foreach { e =>
+      Logger("CultureHub").warn(
+        "Couldn't parse value %s for field %s: %s".format(
+          e._1, e._2, e._3
+        ), e._3)
+    }
+    fields
+  }
+
+
+  def toXml(filteredFields: Seq[String] = Seq.empty, include: Boolean = false): Elem = {
 
     val renderedFields = getFieldValuesFiltered(include, filteredFields).
                              sortWith((fv1, fv2) => fv1.getKey < fv2.getKey).

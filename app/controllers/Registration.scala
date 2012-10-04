@@ -63,7 +63,7 @@ trait Registration extends ApplicationController { this: BoundController =>
     }
 
     def captchaConstraint(implicit configuration: DomainConfiguration) = Constraint[RegistrationInfo]("registration.invalidCode") {
-        case r if Cache.get(r.randomId) == Some(r.code) => Valid
+        case r if Cache.get(r.randomId) == Some(r.code) || Play.isTest => Valid
         case e => Invalid(ValidationError(Messages("registration.invalidCode")))
     }
 
@@ -78,7 +78,7 @@ trait Registration extends ApplicationController { this: BoundController =>
     }
 
     def orgIdTaken(implicit configuration: DomainConfiguration) = Constraint[RegistrationInfo]("registration.duplicateDisplayName") {
-        case r if organizationServiceLocator.byDomain.exists(r.userName) => Valid
+        case r if !organizationServiceLocator.byDomain.exists(r.userName) => Valid
         case _ => Invalid(ValidationError(Messages("registration.duplicateDisplayName")))
     }
 
@@ -111,7 +111,7 @@ trait Registration extends ApplicationController { this: BoundController =>
     }
 
     def register() = ApplicationAction {
-        Action {
+        Action(parse.urlFormEncoded) {
             implicit request =>
                 registrationForm.bindFromRequest.fold(
                     formWithErrors => {
@@ -124,6 +124,7 @@ trait Registration extends ApplicationController { this: BoundController =>
                     },
                     registration => {
                         val r = registration
+
                         Cache.set(r.randomId, null)
 
                         val activationToken = registrationServiceLocator.byDomain.registerUser(

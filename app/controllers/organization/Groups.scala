@@ -61,7 +61,7 @@ trait Groups extends OrganizationController { this: BoundController =>
             'data -> load(orgId, groupId),
             'groupForm -> GroupViewModel.groupForm,
             'users -> usersAsTokens,
-            'roles -> Role.allRoles(configuration).
+            'roles -> Role.allPrimaryRoles(configuration).
                     filterNot(_ == Role.OWN).
                     map(role => (role.key -> role.getDescription(lang))).
                     toMap.asJava
@@ -189,11 +189,11 @@ trait Groups extends OrganizationController { this: BoundController =>
   }
 
   private def load(orgId: String, groupId: Option[ObjectId])(implicit configuration: DomainConfiguration): String = {
-    val resourceRoles = Role.allRoles(configuration).filterNot(_.resourceType.isEmpty)
+    val resourceRoles = Role.allPrimaryRoles(configuration).filterNot(_.resourceType.isEmpty)
     val defaultGroupViewModel = GroupViewModel(
-      roleKey = Role.allRoles(configuration).head.key,
+      roleKey = Role.allPrimaryRoles(configuration).head.key,
       rolesWithResources = resourceRoles.map(_.key),
-      rolesWithResourceAdmin = Role.allRoles(configuration).filter(_.isResourceAdmin).map(_.key),
+      rolesWithResourceAdmin = Role.allPrimaryRoles(configuration).filter(_.isResourceAdmin).map(_.key),
       rolesResourceType = resourceRoles.map(r => RoleResourceType(r.key, r.resourceType.get.resourceType, Messages("accessControl.resourceType." + r.resourceType.get.resourceType)))
     )
 

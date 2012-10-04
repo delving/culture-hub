@@ -1,0 +1,40 @@
+<?xml version ="1.0" encoding="UTF-8"?>
+
+<views>
+    <view name="api">
+        <elem name="result">
+            <attrs>
+                <attr prefix="xmlns" name="delving" value="http://www.delving.eu/schemas/"/>
+                <attr prefix="xmlns" name="custom" value="http://www.delving.eu/schemas/"/>
+                <attr prefix="xmlns" name="dc" value="http://purl.org/dc/elements/1.1/"/>
+                <attr prefix="xmlns" name="dcterms" value="http://purl.org/dc/termes/"/>
+                <attr prefix="xmlns" name="europeana" value="http://www.europeana.eu/schemas/ese/"/>
+                <attr prefix="xmlns" name="ese" value="http://www.europeana.eu/schemas/ese/"/>
+                <attr prefix="xmlns" name="tib" value="http://www.thuisinbrabant.nl/namespace"/>
+                <attr prefix="xmlns" name="icn" value="http://www.icn.nl/"/>
+                <attr prefix="xmlns" name="raw" value="http://delving.eu/namespaces/raw"/>
+                <attr prefix="xmlns" name="abm" value="http://to_be_decided/abm/" />
+                <attr prefix="xmlns" name="abc" value="http://www.ab-c.nl/" />
+                <attr prefix="xmlns" name="drup" value="http://www.itin.nl/drupal" />
+                <attr prefix="xmlns" name="itin" value="http://www.itin.nl/namespace" />
+            </attrs>
+            <elem name="layout">
+                <list name="fields" path="//*[local-name()='record']/*" distinct="name">
+                    <auto-layout-field/>
+                </list>
+            </elem>
+            <elem name="item">
+                <list name="fields" path="//*[local-name()='record']/*[fn:not(fn:contains('relatedItems', local-name()))]">
+                    <auto-field/>
+                </list>
+            </elem>
+            <list name="relatedItems" path="//*[local-name()='record']/*[fn:contains('relatedItems', local-name())]/*">
+                <elem name="item">
+                    <list name="fields" path="fields/*">
+                        <auto-field/>
+                    </list>
+                </elem>
+            </list>
+        </elem>
+    </view>
+</views>

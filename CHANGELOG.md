@@ -2,6 +2,23 @@
 
 This is the changelog of the CultureHub. It documents changes of the main platform, without modules.
 
+# 12.09
+
+### New features
+- eric: collapsible facets
+- manu: SystemField for collection name
+- sjoerd: first version of KML support
+
+### Fixes and refactoring
+- manu: fixes for image caching coming from the same domain
+- manu: fixing PDF thumbnail creation
+- manu: using new Salat version
+- manu: modularizing homepage so that plugins can contribute to it
+- manu: fixes with Processing, introducing new processing state
+- manu: Increasing default page size. Fixes #687
+- manu: searchIn service
+- manu: unitRoles support for better plugin modularity
+
 # 12.08
 
 ### New features

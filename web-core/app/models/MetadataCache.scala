@@ -2,7 +2,7 @@ package models
 
 import _root_.util.DomainConfigurationHandler
 import com.mongodb.casbah.Imports._
-import core.SystemField
+import core.{ItemType, SystemField}
 import org.bson.types.ObjectId
 import HubMongoContext._
 import com.novus.salat.dao.SalatDAO
@@ -10,6 +10,7 @@ import java.util.Date
 import scala.collection.JavaConverters._
 
 /**
+ * A generic MetadataItem. The source data is meant to be kept as raw XML documents, for one or multiple versioned schemas.
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
@@ -34,6 +35,8 @@ case class MetadataItem(modified: Date = new Date(),
 object MetadataCache {
 
   def getMongoCollectionName(orgId: String) = "%s_MetadataCache".format(orgId)
+
+  def get(orgId: String, col: String, itemType: ItemType): core.MetadataCache = get(orgId, col, itemType.itemType)
 
   def get(orgId: String, col: String, itemType: String): core.MetadataCache = {
     val configuration = DomainConfigurationHandler.getByOrgId(orgId)

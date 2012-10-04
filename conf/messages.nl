@@ -42,7 +42,7 @@ ui.label.enlargeImage=Afbeelding vergroten
 ui.label.error=Foutmelding
 ui.label.filesadd=Bestand(en) toevoegen...
 ui.label.filesdelete=Bestand(en) verwijderen
-ui.label.first=Eeste
+ui.label.first=Eerste
 ui.label.firstname=Voornaam
 ui.label.fullname=Volledige naam
 ui.label.hi=Hallo
@@ -79,6 +79,7 @@ ui.label.register=Registreren
 ui.label.remove=Verwijder
 ui.label.required=Verplicht
 ui.label.reset=Herstel
+ui.label.results.withoutImages=Toon ook resultaten zonder afbeeldingen
 ui.label.returnToResults=Terug naar resultaten
 ui.label.save=Bewaar
 ui.label.scope=Scope
@@ -147,6 +148,8 @@ thing.actions=Acties
 thing.datasetcount=Aantal Datasets
 thing.objects=Objecten
 thing.labels=Labels
+thing.admin=Beheerder
+thing.admins=Beheerders
 thing.addlabel=Label toevoegen
 thing.comments=Comments
 thing.addcomment=Comment toevoegen
@@ -176,6 +179,10 @@ thing.keyword=Trefwoord
 thing.keywords=Trefwoorden
 thing.relatedItems=Soortgelijke inhoud
 
+
+thing.creator=Vervaardiger
+thing.datecreated=Vervaardigingsdatum
+thing.datemodified=Datum aangepast
 
 
 # Account registration and activation messages
@@ -275,9 +282,10 @@ metadata.dcterms.requires=Vereist
 metadata.dcterms.spatial=Plaats van vervaardiging
 metadata.dcterms.temporal=Periode
 
+metadata.delving.creator=Vervaardiger
+metadata.delving.collection=Collectie
 metadata.delving.dimensions=Afmeting
 metadata.delving.owner=Eigenaar
-metadata.delving.creator=Vervaardiger
 metadata.delving.recordType=Record type
 metadata.delving.hasDigitalObject=Record heeft een digitaal object
 
@@ -295,19 +303,27 @@ metadata.europeana.collectionName=Collectie naam
 metadata.europeana.rights=Rechten
 metadata.europeana.uri=Europeana url
 
+metadata.icn.material=Materiaal
+metadata.icn.collection=Collectie
+metadata.icn.technique=Technique
+metadata.icn.creatorYearOfBirth=Vervaardiger geboortejaar
 metadata.icn.acquisitionMeans=Wijze van verwerving
 metadata.icn.acquisitionYear=Jaar van verwerving
 metadata.icn.acquiredWithHelpFrom=Verworven met steun van
 metadata.icn.collectionPart=Deelcollectie
-metadata.icn.collection=Collectie
-metadata.icn.creatorYearOfBirth=Vervaardiger geboortejaar
 metadata.icn.location=Locatie
-metadata.icn.material=Materiaal
-metadata.icn.collectionType=Collectie type
 metadata.icn.physicalState=Fysieke staat
 metadata.icn.province=Provincie
 metadata.icn.purchasePrice=Aankoopbedrag
-metadata.icn.technique=Techniek
+metadata.icn.collectionType=Collectie type
+metadata.icn.legalStatus=Rechtspositie
+metadata.icn.acceptedStateCharges=Staatslasten aanvaard
+metadata.icn.acceptedStateChargesReason=Reden voor aanvaarde staatslasten
+metadata.icn.expulsionYear=Jaar verwijderd
+metadata.icn.expulsionMeans=Verwijderings methode
+metadata.icn.currentLocation=Huidige locatie
+metadata.icn.previousLocation=Vorige locatie
+
 metadata.searchfield.contributor=Bijdragende organisatie
 metadata.type.all=Alle
 metadata.type.images=Beelden
@@ -536,6 +552,7 @@ dataSetState.incomplete=Incomplete
 dataSetState.parsing=Parsing source data
 dataSetState.uploaded=uploaded and ready for processing
 dataSetState.queued=Queued for processing
+dataSetState.processingQueued=Queued for processing
 dataSetState.indexing=Processing
 dataSetState.enabled=Enabled
 dataSetState.disabled=Disabled
@@ -617,4 +634,8 @@ plugin.advancedsearch.booleanOr=OF
 plugin.advancedsearch.booleanNot=NIET
 plugin.advancedsearch.allProviders=Alle aanbieders
 plugin.advancedsearch.selectProviders=Selecteer aanbieder(s)
+plugin.advancedsearch.contains=Bevat
+plugin.advancedsearch.between=Tussen
+
+plugin.rijks.rijks=Rijkscollectie
 

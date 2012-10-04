@@ -12,8 +12,14 @@ import models.DomainConfiguration
 
 trait OrganizationCollectionLookupService {
 
+  /**
+   * Find all collections
+   */
   def findAll(implicit configuration: DomainConfiguration): Seq[OrganizationCollection]
 
+  /**
+   * Find a sepcific collection
+   */
   def findBySpecAndOrgId(spec: String, orgId: String)(implicit configuration: DomainConfiguration): Option[OrganizationCollection]
 
 }

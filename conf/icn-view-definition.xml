@@ -30,7 +30,7 @@
                     <column proportion="1of3">
                         <container type="labelled-list">
                             <field path="/icn:record/dc:title" label="metadata.dc.title"/>
-                            <field path="/icn:record/dc:creator" label="metadata.dc.creator"/>
+                            <enumeration path="/icn:record/dc:creator" separator="lf" label="metadata.dc.creator"/>
                             <field path="/icn:record/icn:creatorYearOfBirth" label="metadata.icn.creatorYearOfBirth"/>
                             <enumeration label="metadata.dc.date" separator=", " path="/icn:record/dc:date,/icn:record/dcterms:created,/icn:record/dcterms:temportal,/icn:record/dcterms:issued"/>
                             <field path="/icn:record/dc:type" label="metadata.dc.type"/>
@@ -53,6 +53,7 @@
                             <field path="/icn:record/icn:acquisitionYear" label="metadata.icn.acquisitionYear" role="museometrie"/>
                             <field path="/icn:record/icn:acquiredWithHelpFrom" label="metadata.icn.acquiredWithHelpFrom" role="museometrie"/>
                             <field path="/icn:record/icn:purchasePrice" label="metadata.icn.purchasePrice" role="museometrie"/>
+                            <field path="/icn:record/icn:physicalState" label="metadata.icn.physicalState" role="museometrie"/>
                         </container>
 
                     </column>
@@ -71,13 +72,14 @@
                             <field path="/icn:record/icn:province" label="metadata.icn.province"/>
                             <field path="/icn:record/europeana:country" label="metadata.europeana.country"/>
                             <field path="/icn:record/dc:rights" label="metadata.dc.rights"/>
-                            <!-- MUSEOMETRIE FIELDS -->
-                            <container role="museometrie" type="labelled-list">
-                                <field path="/icn:record/icn:legalStatus" label="metadata.icn.legalStatus" role="museometrie"/>
-                                <field path="/icn:record/icn:stateAcceptsCharges" label="metadata.icn.stateAcceptsCharges" role="museometrie"/>
-                                <field path="/icn:record/icn:expulsionFromStateYear" label="metadata.icn.expulsionFromStateYear" role="museometrie"/>
-                                <field path="/icn:record/icn:meansOfExpulsion" label="metadata.icn.meansOfExpulsion" role="museometrie"/>
-                                <field path="/icn:record/icn:physicalState" label="metadata.icn.physicalState" role="museometrie"/>
+
+                            <!-- RIJKS FIELDS -->
+                            <container role="rijksMember" type="labelled-list">
+                                <field path="/icn:record/icn:legalStatus" label="metadata.icn.legalStatus" role="rijksMember"/>
+                                <field path="/icn:record/icn:acceptedStateCharges" label="metadata.icn.acceptedStateCharges" role="rijksMember"/>
+                                <field path="/icn:record/icn:acceptedStateChargesReason" label="metadata.icn.acceptedStateChargesReason" role="rijksMember"/>
+                                <field path="/icn:record/icn:expulsionYear" label="metadata.icn.expulsionYear" role="rijksMember"/>
+                                <field path="/icn:record/icn:expulsionMeans" label="metadata.icn.expulsionMeans" role="rijksMember"/>
                             </container>
                         </container>
                     </column>

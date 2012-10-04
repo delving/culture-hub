@@ -150,7 +150,7 @@ class DataSetPlugin(app: Application) extends CultureHubPlugin(app) {
    * Override this to provide custom roles to the platform, that can be used in Groups
    * @return a sequence of [[models.Role]] instances
    */
-  override val roles: Seq[Role] = Seq(DataSetPlugin.ROLE_DATASET_ADMIN, DataSetPlugin.ROLE_DATASET_EDITOR)
+  override def roles: Seq[Role] = Seq(DataSetPlugin.ROLE_DATASET_ADMIN, DataSetPlugin.ROLE_DATASET_EDITOR)
 
   /**
    * Override this to provide the necessary lookup for a [[core.access.Resource]] depicted by a [[models.Role]]
@@ -277,7 +277,7 @@ class DataSetPlugin(app: Application) extends CultureHubPlugin(app) {
     if (!Play.isTest) {
       DataSet.all.foreach {
         dataSetDAO =>
-          dataSetDAO.findByState(DataSetState.PROCESSING, DataSetState.CANCELLED).foreach {
+          dataSetDAO.findByState(DataSetState.PROCESSING, DataSetState.CANCELLED, DataSetState.PROCESSING_QUEUED).foreach {
             set =>
               dataSetDAO.updateState(set, DataSetState.CANCELLED)
               try {
@@ -307,6 +307,9 @@ class DataSetPlugin(app: Application) extends CultureHubPlugin(app) {
         dataSetDAO =>
           dataSetDAO.findByState(DataSetState.PROCESSING).foreach { set =>
             dataSetDAO.updateState(set, DataSetState.CANCELLED)
+          }
+          dataSetDAO.findByState(DataSetState.PROCESSING_QUEUED).foreach { set =>
+            dataSetDAO.updateState(set, DataSetState.UPLOADED)
           }
       }
       Thread.sleep(2000)
@@ -387,6 +390,7 @@ class DataSetPlugin(app: Application) extends CultureHubPlugin(app) {
         DataSet.dao.updateState(dataSet, DataSetState.QUEUED)
         DataSetCollectionProcessor.process(dataSet)
         while (DataSet.dao.getState(dataSet.orgId, dataSet.spec) == DataSetState.PROCESSING) Thread.sleep(500)
+        DataSet.dao.updateState(dataSet, DataSetState.ENABLED)
       }
 
       boot.init()
@@ -397,18 +401,20 @@ class DataSetPlugin(app: Application) extends CultureHubPlugin(app) {
 
 object DataSetPlugin {
 
-  val ROLE_DATASET_ADMIN = Role(
+  lazy val ROLE_DATASET_ADMIN = Role(
     key = "dataSetAdmin",
     description = Map("en" -> "Dataset administration rights"),
     isResourceAdmin = true,
     resourceType = Some(DataSet.RESOURCE_TYPE)
   )
 
-  val ROLE_DATASET_EDITOR = Role(
+  lazy val ROLE_DATASET_EDITOR = Role(
     key = "dataSetEditor",
     description = Map("en" -> "Dataset modification rights"),
     isResourceAdmin = false,
     resourceType = Some(DataSet.RESOURCE_TYPE)
   )
+
+  val ITEM_TYPE = ItemType("mdr")
 
 }

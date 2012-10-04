@@ -79,7 +79,7 @@ object FileUpload extends Controller with Extensions with Thumbnail with DomainC
   def getFilesForUID(uid: String)(implicit configuration: DomainConfiguration): Seq[StoredFile] = fileStore(configuration).find(MongoDBObject(UPLOAD_UID_FIELD -> uid)) map {
     f => {
       val id = f.getId.asInstanceOf[ObjectId]
-      val thumbnail = if (isImage(f)) {
+      val thumbnail = if (hasThumbnail(f)) {
         fileStore(configuration).findOne(MongoDBObject(FILE_POINTER_FIELD -> id)) match {
           case Some(t) => Some(t.id.asInstanceOf[ObjectId])
           case None => None
@@ -141,7 +141,7 @@ object FileUpload extends Controller with Extensions with Thumbnail with DomainC
     }
   }
 
-  def isImage(f: GridFSFile) = f.getContentType.contains("image")
+  def hasThumbnail(f: GridFSFile) = f.getContentType.contains("image") || f.getContentType.contains("pdf")
 
 
   // ~~~ PRIVATE
@@ -166,14 +166,14 @@ object FileUpload extends Controller with Extensions with Thumbnail with DomainC
     f.save
 
     // if this is an image, create a thumbnail for it so we can display it on the fly in the upload widget
-    val thumbnailUrl: String = if (f.contentType.contains("image")) {
+    val thumbnailUrl: String = if (f.contentType.map(c => c.contains("image") || c.contains("pdf")).getOrElse(false)) {
       fileStore(configuration).findOne(f._id.get) match {
         case Some(storedFile) =>
           val thumbnails = createThumbnails(storedFile, fileStore(configuration))
-          if (thumbnails.size > 0) "/file/" + thumbnails.get(80).getOrElse(emptyThumbnailUrl) else emptyThumbnailUrl
-        case None => ""
+          if (thumbnails.size > 0) "/thumbnail/" + f.id.toString + "/80" else emptyThumbnailUrl
+        case None => emptyThumbnailUrl
       }
-    } else ""
+    } else emptyThumbnailUrl
 
     (f, thumbnailUrl)
   }
