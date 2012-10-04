@@ -16,6 +16,7 @@ package core.search
  * limitations under the License.
  */
 
+import core.indexing.IndexField
 import exceptions.AccessKeyException
 import core.Constants._
 import core.indexing.IndexField._
@@ -131,7 +132,13 @@ class SearchService(request: RequestHeader, hiddenQueryFilters: Seq[String] = Se
       }
       case _ =>
         val briefView = getBriefResultsFromSolr
-        SearchSummary(result = briefView, chResponse = briefView.chResponse, language = apiLanguage).renderAsXML(authorized)
+        val summary = SearchSummary(result = briefView, chResponse = briefView.chResponse, language = apiLanguage)
+        format match {
+          case "kml" =>
+            summary.renderAsKML(authorized)
+          case _ =>
+            summary.renderAsXML(authorized)
+        }
     }
 
     Ok("<?xml version='1.0' encoding='utf-8' ?>\n" + prettyPrinter.format(response)).as(XML)
@@ -237,7 +244,7 @@ case class SearchSummary(result: BriefItemView, language: String = "en", chRespo
 
   private val pagination = result.getPagination
   private val searchTerms = pagination.getPresentationQuery.getUserSubmittedQuery
-  private val filteredFields = Seq("delving_snippet", "delving_fullTextObjectUrl")
+  private val filteredFields = Seq("delving_snippet", IndexField.FULL_TEXT.key)
 
   def minusAmp(link: String) = link.replaceAll("amp;", "").replaceAll(" ", "%20").replaceAll("qf=", "qf[]=")
 
@@ -256,6 +263,62 @@ case class SearchSummary(result: BriefItemView, language: String = "en", chRespo
       value
   }
 
+  def renderAsKML(authorized: Boolean): Elem = {
+//    def renderField(key: String, labelName: String): Elem = {
+//      {if (item.getFieldValue("delving_address").isNotEmpty) {
+//        <address>{item.getAsString("delving_address")}</address>
+//      }
+//    }
+//
+    // todo remove this hack later
+    val sfield = chResponse.params.getValueOrElse("sfield", GEOHASH.key) match {
+      case "abm_geo_geohash" => "abm_geo"
+      case _ => GEOHASH.key
+    }
+
+    val response: Elem =
+      <kml xmlns="http://earth.google.com/kml/2.0">
+        <Document>
+          <Folder>
+            <name>Culture-Hub</name>
+            <Schema name="Culture-Hub" id="Culture-Hub">
+              {uniqueKeyNames.map {
+              item =>
+                <SimpleField name={item} type="string">{SearchService.localiseKey(item, language)}</SimpleField>
+            }}
+            </Schema>
+            {briefDocs.map(
+          (item: BriefDocItem) =>
+          <Placemark id={item.getAsString(HUB_ID.key)}>
+          <name>{item.getAsString("delving_title")}</name>
+          <Point>
+            <coordinates>{item.getAsString(sfield).split(",").reverse.mkString(",")}</coordinates>
+          </Point>
+            {if (item.getFieldValue(ADDRESS.key).isNotEmpty) {
+            <address>
+              {item.getAsString(ADDRESS.key)}
+            </address>
+          }}
+            {if (item.getFieldValue("delving_description").isNotEmpty) {
+            <description>
+              {"%s".format(item.getAsString("delving_description"))}
+            </description>
+          }}
+          <ExtendedData>
+            <SchemaData schemaUrl="#Culture-Hub">
+              {item.toKmFields(filteredFields).map(field => field)}
+             </SchemaData>
+          </ExtendedData>
+        </Placemark>
+        )
+        }
+          </Folder>
+        </Document>
+      </kml>
+    response
+  }
+
+
   def renderAsXML(authorized: Boolean): Elem = {
 
     // todo add years from query if they exist
@@ -265,7 +328,7 @@ case class SearchSummary(result: BriefItemView, language: String = "en", chRespo
                xmlns:raw="http://delving.eu/namespaces/raw" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:ese="http://www.europeana.eu/schemas/ese/"
                xmlns:abm="http://to_be_decided/abm/" xmlns:abc="http://www.ab-c.nl/" xmlns:drup="http://www.itin.nl/drupal"
                xmlns:itin="http://www.itin.nl/namespace" xmlns:tib="http://www.thuisinbrabant.nl/namespace"
-               xmlns:custom="http://www.delving.eu/namespaces/custom">
+               xmlns:musip="http://www.musip.nl/" xmlns:custom="http://www.delving.eu/namespaces/custom">
         <query numFound={pagination.getNumFound.toString} firstYear="0" lastYear="0">
           <terms>{searchTerms}</terms>
           <breadCrumbs>

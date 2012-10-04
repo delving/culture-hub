@@ -7,16 +7,17 @@ import eu.delving.templates.Plugin._
 
 object Build extends sbt.Build {
 
+  val cultureHub     = SettingKey[String]("cultureHub", "Version of the CultureHub")
   val sipApp     = SettingKey[String]("sip-app", "Version of the SIP-App")
   val sipCore    = SettingKey[String]("sip-core", "Version of the SIP-Core")
   val schemaRepo = SettingKey[String]("schema-repo", "Version of the Schema Repository")
 
   val appName = "culture-hub"
-  val cultureHubVersion = "12.08"
+  val cultureHubVersion = "12.09"
   val sipAppVersion = "1.0.10-SNAPSHOT"
-  val sipCoreVersion = "1.0.11-SNAPSHOT"
+  val sipCoreVersion = "1.0.13-SNAPSHOT"
   val schemaRepoVersion = "1.0.11-SNAPSHOT"
-  val playExtensionsVersion = "1.3.2"
+  val playExtensionsVersion = "1.3.3"
 
   val dosVersion = "1.5"
 
@@ -24,23 +25,21 @@ object Build extends sbt.Build {
 
   val delvingReleases = "Delving Releases Repository" at "http://development.delving.org:8081/nexus/content/repositories/releases"
   val delvingSnapshots = "Delving Snapshot Repository" at "http://development.delving.org:8081/nexus/content/repositories/snapshots"
+  val delvingThirdParty = "Delving Third Party "  at "http://development.delving.org:8081/nexus/content/repositories/thirdparty"
+
   def delvingRepository(version: String) = if (version.endsWith("SNAPSHOT")) delvingSnapshots else delvingReleases
 
   val commonResolvers = Seq(
     "sonatype snapshots" at "https://oss.sonatype.org/content/repositories/snapshots/",
     "sonatype releases" at "https://oss.sonatype.org/content/repositories/releases/",
     delvingSnapshots,
-    delvingReleases
+    delvingReleases,
+    delvingThirdParty
   )
 
   val appDependencies = Seq(
     "org.apache.amber"          %  "oauth2-authzserver"              % "0.2-SNAPSHOT",
     "org.apache.amber"          %  "oauth2-client"                   % "0.2-SNAPSHOT",
-    "net.liftweb"               %% "lift-json-ext"                   % "2.4-M4",
-    "org.seleniumhq.selenium"   %  "selenium-firefox-driver"         % "2.25.0"            % "test",
-    "org.seleniumhq.selenium"   %  "selenium-htmlunit-driver"        % "2.25.0"            % "test",
-    "org.fluentlenium"          %  "fluentlenium-core"               % "0.7.2"             % "test",
-    "net.sourceforge.htmlunit"  %  "htmlunit"                        % "2.10"              % "test",
     "eu.delving"                %% "themes"                          % "1.0-SNAPSHOT"      changing()
   )
 
@@ -112,11 +111,12 @@ object Build extends sbt.Build {
 
     sourceGenerators in Compile <+= groovyTemplatesList,
 
+    cultureHub := cultureHubVersion,
     sipApp := sipAppVersion,
     sipCore := sipCoreVersion,
     schemaRepo := schemaRepoVersion,
     sourceGenerators in Compile <+= buildInfo,
-    buildInfoKeys := Seq[Scoped](name, version, scalaVersion, sbtVersion, sipApp, sipCore, schemaRepo),
+    buildInfoKeys := Seq[Scoped](name, cultureHub, scalaVersion, sbtVersion, sipApp, sipCore, schemaRepo),
     buildInfoPackage := "eu.delving.culturehub",
 
     publishTo := Some(delvingRepository(cultureHubVersion)),

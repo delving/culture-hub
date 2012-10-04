@@ -36,6 +36,7 @@ object Breadcrumbs {
         }
 
       // TODO fetch these crumbs from the plugin
+
       case "org" :: orgId :: "museum" :: id :: Nil =>
         val returnToResults = Option(p.get("search").get("returnToResults"))
         returnToResults match {
@@ -49,6 +50,8 @@ object Breadcrumbs {
           case Some(r) if r.length() > 0 => List(("NOLINK", Messages("ui.label.search")), ("/search?" + r, "%s".format(p.get("search").get("searchTerm"))), ("NOLINK", p.get("title").get("label")))
           case _ => List(("/organizations/" + orgId, orgId), ("NOLINK", Messages("plugin.musip.collections")), ("NOLINK", p.get("title").get("label")))
         }
+
+      case "rijks" :: "search" :: Nil => List(("/rijks", Messages("plugin.rijks.rijks")), ("NOLINK", Messages("ui.label.search")))
 
 
       case "organizations" :: orgName :: Nil => List(("NOLINK", Messages("thing.organizations")), ("/organizations/" + orgName, orgName))

@@ -10,8 +10,14 @@ import models.{DomainConfiguration, RecordDefinition}
 
 trait HarvestCollectionLookupService {
 
+  /**
+   * Finds all harvest collections that have records.
+   */
   def findAllNonEmpty(orgId: String, format: Option[String], accessKey: Option[String] = None)(implicit configuration: DomainConfiguration): Seq[Harvestable]
 
+  /**
+   * Finds a specific harvest collection
+   */
   def findBySpecAndOrgId(spec: String, orgId: String)(implicit configuration: DomainConfiguration): Option[Harvestable]
 
   /**

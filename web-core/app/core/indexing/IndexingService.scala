@@ -35,15 +35,14 @@ object IndexingService extends SolrServer {
     }
 
     // add full text from digital objects
-    val fullTextUrl = "%s_string".format(FULL_TEXT_OBJECT_URL.key)
+    val fullTextUrl = "%s_link".format(FULL_TEXT_OBJECT_URL.key)
     if (doc.containsKey(fullTextUrl)) {
-      val pdfUrl = doc.get(fullTextUrl).getFirstValue.toString
-      if (pdfUrl.endsWith(".pdf")) {
-        val fullText = TikaIndexer.getFullTextFromRemoteURL(pdfUrl)
-        doc.addField("%s_text".format(FULL_TEXT.key), fullText)
+      // we try to index this object - we don't know its type yet because the URL does not necessarily reflect the file name.
+      val digitalObjectUrl = doc.get(fullTextUrl).getFirstValue.toString
+      TikaIndexer.getFullTextFromRemoteURL(digitalObjectUrl).foreach { text =>
+        doc.addField("%s_text".format(FULL_TEXT.key), text)
       }
     }
-
 
     // configured facets
 
@@ -76,6 +75,7 @@ object IndexingService extends SolrServer {
     if(!doc.containsKey(HAS_DIGITAL_OBJECT.key + "_facet")) {
       doc.addField(HAS_DIGITAL_OBJECT.key + "_facet", hasDigitalObject)
     }
+    doc.addField(HAS_GEO_HASH.key.toString, doc.containsKey(GEOHASH.key) && !doc.get(GEOHASH.key).isEmpty)
 
     getStreamingUpdateServer(configuration).add(doc)
   }

@@ -129,14 +129,7 @@ object DataSetCollectionProcessor {
 
     }
 
-    DataSet.dao.updateState(dataSet, DataSetState.PROCESSING)
     collectionProcessor.process(interrupted, updateCount, onError, indexOne, onIndexingComplete)(configuration)
-    val state = DataSet.dao.getState(dataSet.orgId, dataSet.spec)
-    if(state == DataSetState.PROCESSING) {
-      DataSet.dao.updateState(dataSet, DataSetState.ENABLED)
-    } else if(state == DataSetState.CANCELLED) {
-      DataSet.dao.updateState(dataSet, DataSetState.UPLOADED)
-    }
   }
 
 

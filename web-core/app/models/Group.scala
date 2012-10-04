@@ -32,11 +32,49 @@ object Group extends MultiModel[Group, GroupDAO] {
 
 }
 
+/**
+ * Access rights management. Some of this should move to a better location, or be easier to find
+ */
 class GroupDAO(collection: MongoCollection)(implicit configuration: DomainConfiguration, val bindingModule: BindingModule)
   extends SalatDAO[Group, ObjectId](collection) with Injectable {
 
   val organizationServiceLocator = inject [ DomainServiceLocator[OrganizationService] ]
 
+
+  // ~~~ role-based access rights
+
+  /** finds all users that have access to a specific resource within a given role **/
+  def findUsersWithAccess(orgId: String, role: Role, resource: Resource): Seq[String] = {
+    Role.
+            allPrimaryRoles(DomainConfigurationHandler.getByOrgId(orgId)).
+            filter(_.key == role.key).
+            flatMap(role => find(MongoDBObject("orgId" -> orgId, "roleKey" -> role.key))).
+            filter(group => group.resources.exists(p => p.getResourceKey == resource.getResourceKey && p.getResourceType == resource.getResourceType)).
+            flatMap(group => group.users).
+            toSeq
+  }
+
+  /** whether a user is in any of the given roles **/
+  def hasAnyRole(userName: String, roles: Seq[Role]) = roles.foldLeft(false) { (c, r) => c || hasRole(userName, r) }
+
+  /** whether a user is in the given role **/
+  def hasRole(userName: String, role: Role): Boolean = hasRole(userName, role.key)
+
+  /** whether a user is in the given role **/
+  def hasRole(userName: String, roleKey: String): Boolean = {
+    val directGroupMemberships = findDirectMemberships(userName).toSeq
+    val roles = directGroupMemberships.map(group => Role.get(roleKey))
+
+    val isAdmin = roleKey == Role.OWN.key && organizationServiceLocator.byDomain.isAdmin(configuration.orgId, userName)
+
+    isAdmin ||
+    roles.exists(_.key == roleKey) ||
+    roles.flatMap(_.unitRoles).exists(_.key == roleKey)
+  }
+
+
+
+  // ~~~ group lookups
 
   /** lists all groups a user has access to for a given organization **/
   def list(userName: String, orgId: String) = {
@@ -47,35 +85,20 @@ class GroupDAO(collection: MongoCollection)(implicit configuration: DomainConfig
     }
   }
 
+  /** finds all groups of which the user is a direct member **/
   def findDirectMemberships(userName: String) = find(MongoDBObject("orgId" -> configuration.orgId, "users" -> userName))
 
+  /** finds all administrators for a given ResourceType **/
   def findResourceAdministrators(orgId: String, resourceType: ResourceType): Seq[String] = {
     Role.
-            allRoles(DomainConfigurationHandler.getByOrgId(orgId)).
+            allPrimaryRoles(DomainConfigurationHandler.getByOrgId(orgId)).
             filter(r => r.resourceType == Some(resourceType) && r.isResourceAdmin).
             flatMap(role => find(MongoDBObject("orgId" -> orgId, "roleKey" -> role.key))).
             flatMap(group => group.users).
             toSeq
   }
 
-  def findUsersWithAccess(orgId: String, roleKey: String, resource: Resource): Seq[String] = {
-    Role.
-            allRoles(DomainConfigurationHandler.getByOrgId(orgId)).
-            filter(_.key == roleKey).
-            flatMap(role => find(MongoDBObject("orgId" -> orgId, "roleKey" -> role.key))).
-            filter(group => group.resources.exists(p => p.getResourceKey == resource.getResourceKey && p.getResourceType == resource.getResourceType)).
-            flatMap(group => group.users).
-            toSeq
-  }
-
-  def hasAnyRole(userName: String, roles: Seq[Role]) = roles.foldLeft(false) { (c, r) => c || hasRole(userName, r) }
-
-  def hasRole(userName: String, role: Role): Boolean = hasRole(userName, role.key)
-
-  def hasRole(userName: String, roleKey: String): Boolean = {
-    findDirectMemberships(userName).toSeq.exists(_.roleKey == roleKey) ||
-      roleKey == Role.OWN.key && organizationServiceLocator.byDomain.isAdmin(configuration.orgId, userName)
-  }
+  // ~~~ group management
 
   def addUser(orgId: String, userName: String, groupId: ObjectId): Boolean = {
     // TODO FIXME make this operation safe

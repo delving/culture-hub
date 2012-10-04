@@ -4,7 +4,7 @@ import play.api.{Logger, Configuration, Application}
 import scala.util.matching.Regex
 import play.api.mvc.Handler
 import models.{DomainConfiguration, Role}
-import core.{MenuElement, MainMenuEntry, CultureHubPlugin}
+import core.{RequestContext, MenuElement, MainMenuEntry, CultureHubPlugin}
 import collection.immutable.ListMap
 import collection.JavaConverters._
 
@@ -45,8 +45,8 @@ class StatisticsPlugin(app: Application) extends CultureHubPlugin(app) {
 
        }.getOrElse {
         Map(
-          "delving_owner" -> "metadata.delving.owner",
-          "delving_provider" -> "metadata.delving.provider"
+          "delving_owner_facet" -> "metadata.delving.owner",
+          "delving_provider_facet" -> "metadata.delving.provider"
         )
       }
 
@@ -76,4 +76,21 @@ class StatisticsPlugin(app: Application) extends CultureHubPlugin(app) {
     )
   )
 
+  override def homePageSnippet: Option[(String, (RequestContext) => Unit)] = Some(
+    "/homePageSnippet.html",
+    { context => {
+        context.renderArgs += ("orgId" -> context.configuration.orgId)
+    }}
+  )
+
+  override def roles: Seq[Role] = Seq(StatisticsPlugin.UNIT_ROLE_STATISTICS_VIEW)
+}
+
+object StatisticsPlugin {
+
+  lazy val UNIT_ROLE_STATISTICS_VIEW = Role(
+    key = "statistics-view",
+    description = Map.empty,
+    isUnitRole = true
+  )
 }

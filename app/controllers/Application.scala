@@ -4,7 +4,7 @@ import play.api.mvc._
 import models._
 import cms.CMSPage
 import com.mongodb.casbah.Imports._
-import core.ThemeInfo
+import core.{RequestContext, CultureHubPlugin, ThemeInfo}
 import core.Constants._
 import core.indexing.IndexField._
 
@@ -19,22 +19,22 @@ object Application extends DelvingController {
           CommonSearch.search(
             None,
             List("%s:%s AND %s:%s".format(RECORD_TYPE.key, ITEM_TYPE_MDR, HAS_DIGITAL_OBJECT.key, true))
-          ).
-            _1.
-            slice(0, themeInfo.themeProperty("recentMdrsCount", classOf[Int]))
+          )._1.slice(0, themeInfo.themeProperty("recentMdrsCount", classOf[Int]))
 
         } catch {
           case t: Throwable =>
             List.empty
         }
-        val homepageCmsContent = CMSPage.dao.find(MongoDBObject("key" -> "homepage", "lang" -> getLang, "orgId" -> configuration.orgId)).$orderby(MongoDBObject("_id" -> -1)).limit(1).toList.headOption
 
-        homepageCmsContent match {
-          case None =>
-            Ok(Template('recentMdrs -> recentMdrs))
-          case Some(cmsContent) =>
-            Ok(Template('recentMdrs -> recentMdrs, 'homepageCmsContent -> cmsContent))
+        val pluginSnippets = CultureHubPlugin.getEnabledPlugins.flatMap(_.homePageSnippet)
+
+        val pluginIncludes = pluginSnippets.map(_._1).toSeq
+
+        pluginSnippets.foreach { snippet =>
+          snippet._2(RequestContext(request, configuration, renderArgs(), getLang))
         }
+
+        Ok(Template('recentMdrs -> recentMdrs, 'pluginIncludes -> pluginIncludes))
     }
   }
 

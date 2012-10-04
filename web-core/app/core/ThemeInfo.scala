@@ -38,6 +38,7 @@ class ThemeInfo(configuration: DomainConfiguration) {
 
   val siteName = configuration.ui.siteName.getOrElse("Delving CultureHub")
   val siteSlogan = configuration.ui.siteSlogan.getOrElse("")
+  val footer = configuration.ui.footer.getOrElse("")
   val addThisTrackingCode = configuration.ui.addThisTrackingCode.getOrElse("")
   val googleAnalyticsTrackingCode = configuration.ui.googleAnalyticsTrackingCode.getOrElse("")
   val showLogin = configuration.ui.showLogin

@@ -16,12 +16,10 @@
 
 package models {
 
-import com.mongodb.casbah.Imports._
-import com.mongodb.casbah.commons.MongoDBObject
-import com.mongodb.casbah.{MongoDB, MongoConnection}
+import com.mongodb.casbah.Imports.{ MongoCollection, MongoDB }
+import com.mongodb.casbah.query.Imports._
 import java.util.Date
 import com.novus.salat.dao.SalatDAO
-import org.bson.types.ObjectId
 import java.io.File
 import play.api.Play
 import play.api.Play.current

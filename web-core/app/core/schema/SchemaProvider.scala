@@ -54,8 +54,18 @@ class SchemaProvider extends SchemaService {
     case SchemaContent(schemaContent) =>
       log.trace("Retrieved schema %s %s %s: ".format(prefix, version, schemaType.toString) + schemaContent)
       Option(schemaContent)
+    case SchemaError(error: Throwable) =>
+      log.error("Error while trying to retrieve schema %s of type %s: %s".format(
+        version, schemaType.fileName, error.getMessage
+      ), error)
+      None
   }.await.fold(
-    { t => throw t },
+    { t =>
+      log.error("Timeout while trying to retrieve schema %s of type %s: timed out after %s ms".format(
+        version, schemaType.fileName, timeout
+      ))
+      throw t
+    },
     { r => r }
   )
 
@@ -73,6 +83,7 @@ object SchemaProvider {
 
   case class Schemas(schemas: Seq[eu.delving.schema.xml.Schema])
   case class SchemaContent(schemaContent: String)
+  case class SchemaError(t: Throwable)
 
 }
 
@@ -101,15 +112,24 @@ class SchemaRepositoryWrapper extends Actor {
 
     case GetSchemas =>
       if (schemaRepository == null) {
+        log.warn("Schema repository was null?! Refreshing...")
         refresh()
       }
       sender ! Schemas(schemaRepository.getSchemas.asScala)
 
     case GetSchema(version, schemaType) =>
       if (schemaRepository == null) {
+        log.warn("Schema repository was null?! Refreshing...")
         refresh()
       }
-      sender ! SchemaContent(schemaRepository.getSchema(version, schemaType))
+
+      try {
+        val content = schemaRepository.getSchema(version, schemaType)
+        sender ! SchemaContent(content)
+      } catch {
+        case t: Throwable =>
+          sender ! SchemaError(t)
+      }
 
   }
 
@@ -132,19 +152,19 @@ class RemoteFetcher extends Fetcher {
   def isValidating: java.lang.Boolean = true
 
   def fetchList(): String = WS.url(SCHEMA_REPO + "/schema-repository.xml").get().await(5, TimeUnit.SECONDS).fold(
-    { t: Throwable => log.error("Could not retrieve schema list", t); "" },
+    { t: Throwable => log.error("RemoteFetcher: could not retrieve schema list", t); "" },
     { r: Response => r.getAHCResponse.getResponseBody("UTF-8") }
   )
 
   def fetchFactDefinitions(definition: String): String = {
     WS.url(SCHEMA_REPO + "/fact-definition-list_1.0.0.xml").get().await(5, TimeUnit.SECONDS).fold(
-      { t: Throwable => log.error("Could not fact definitions", t); "" },
+      { t: Throwable => log.error("RemoteFetcher: could not fetch fact definitions", t); "" },
       { r: Response => r.getAHCResponse.getResponseBody("UTF-8") }
     )
   }
 
   def fetchSchema(version: SchemaVersion, schemaType: SchemaType): String = WS.url(SCHEMA_REPO + version.getPath(schemaType)).get().await(5, TimeUnit.SECONDS).fold(
-      { t: Throwable => log.error("Could not retrieve schema", t); "" },
+      { t: Throwable => log.error("RemoteFetcher: could not retrieve schema", t); "" },
       { r: Response => r.getAHCResponse.getResponseBody("UTF-8") }
     )
 

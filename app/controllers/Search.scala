@@ -10,6 +10,8 @@ import core.rendering.RecordRenderer
 import com.mongodb.casbah.Imports._
 import core.rendering.ViewType
 import eu.delving.schema.SchemaVersion
+import core.{SearchInService, CultureHubPlugin}
+import core.indexing.IndexField
 
 /**
  *
@@ -29,17 +31,30 @@ object Search extends DelvingController {
             if(searchIn == "all") {
               List(query)
             } else {
-              List("""%s:"%s"""".format(searchIn, query))
+              val searchInQuery = CultureHubPlugin.getEnabledPlugins.flatMap { p =>
+                p.getServices(classOf[SearchInService]).flatMap { service =>
+                  service.composeSearchInQuery(searchIn, query)
+                }
+              }.headOption
+
+              if (searchInQuery.isDefined) {
+                List(searchInQuery.get)
+              } else {
+                List(query)
+              }
             }
           }.getOrElse(List(query))
 
           renderArgs += ("breadcrumbs" -> Breadcrumbs.crumble(Map("search" -> Map("searchTerm" -> query, "returnToResults" -> request.rawQueryString))))
 
           val (items, briefItemView) = CommonSearch.search(Option(connectedUser), solrQuery)
+          // method checks if facet is for "HasDigitalObject" - used later on (filterNot) to filter out the facet from the display list
+          def isFacetHasDigitalObject(link:FacetQueryLinks) = link.facetName == IndexField.HAS_DIGITAL_OBJECT.key+"_facet"
           Ok(Template("/Search/index.html",
             'briefDocs -> items,
             'pagination -> briefItemView.getPagination,
-            'facets -> briefItemView.getFacetQueryLinks,
+            'facets -> briefItemView.getFacetQueryLinks.filterNot(isFacetHasDigitalObject),
+            'hasDigitalObject -> briefItemView.getFacetQueryLinks.filter(isFacetHasDigitalObject),
             'themeFacets -> configuration.getFacets)).withSession(
             session +
               (RETURN_TO_RESULTS -> request.rawQueryString) +

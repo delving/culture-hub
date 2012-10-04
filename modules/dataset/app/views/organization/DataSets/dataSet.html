@@ -191,7 +191,7 @@
                             </tr>
                             <tr>
                                 <th>CultureHub api search</th>
-                                <td><a data-bind="text: baseUri() + 'organizations/' + orgId() + '/api/search?query=delving_spec%3A' + spec(), attr: {href: baseUri() + 'organizations/' + orgId() + '/api/search?query=*:*&delving_spec%3A' + spec() + 'format=json'}" rel="nofollow"  target="_blank"></a></td>
+                                <td><a data-bind="text: baseUri() + 'organizations/' + orgId() + '/api/search?query=delving_spec%3A' + spec(), attr: {href: baseUri() + 'organizations/' + orgId() + '/api/search?query=delving_spec%3A' + spec() + '&format=json'}" rel="nofollow"  target="_blank"></a></td>
                             </tr>
                             <!-- ko foreach: harvestingConfiguration -->
                             <tr>
@@ -324,15 +324,25 @@
             }));
         };
 
+        var retries = 0;
+
         ws.onclose = function() {
-            bootbox.alert("Lost connection with the server. Please refresh the page when you're online again.");
+            if(retries < 3) {
+                retries++;
+                document.target = document.url;
+            } else {
+                bootbox.alert("Lost connection with the server. Please refresh the page when you're online again.");
+            }
         };
 
         ws.onmessage = function(evt) {
             var data = $.parseJSON(evt.data);
+            console.log(data)
             switch(data.eventType) {
                 case "loadSet":
                     $.extend(viewModel, ko.mapping.fromJS(data.payload));
+                    retries = 0;
+                    viewModel.progressPercentage(viewModel.processedRecords + '%');
                     ko.applyBindings(viewModel);
                     $("body").css('visibility', 'visible');
                     break;

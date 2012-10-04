@@ -911,8 +911,11 @@
    <field name="delving_creator" type="text_general" indexed="true" stored="true" multiValued="true"/>
    <field name="delving_visibility" type="string" indexed="true" stored="true" multiValued="false" />
    <field name="delving_thumbnail" type="string" indexed="true" stored="true" multiValued="true"/>
+   <field name="delving_imageUrl" type="string" indexed="true" stored="true" multiValued="true"/>
    <field name="delving_geohash" type="geohash" indexed="true" stored="true" multiValued="true"/>
    <field name="delving_hasDigitalObject" type="boolean" indexed="true" stored="true" multiValued="false"/>
+   <field name="delving_hasGeoHash" type="boolean" indexed="true" stored="true" multiValued="false"/>
+   <field name="delving_address" type="text_general" indexed="true" stored="true" multiValued="true"/>
    <field name="delving_landingPage" type="string" indexed="true" stored="true" multiValued="true"/>
    <field name="delving_collection" type="text_general" indexed="true" stored="true" multiValued="true"/>
    <field name="delving_fullText" type="text_general" indexed="true" stored="true" multiValued="true"/>
@@ -1025,6 +1028,8 @@ unknown fields indexed and/or stored by default -->
      <copyField source="delving_creator" dest="text"/>
      <copyField source="delving_visibility" dest="text"/>
      <copyField source="delving_thumbnail" dest="text"/>
+     <copyField source="delving_imageUrl" dest="text"/>
+     <copyField source="delving_address" dest="text"/>
      <copyField source="delving_hasDigitalObject" dest="text"/>
      <copyfield source="delving_landingPage" dest="text"/>
      <copyField source="delving_collection" dest="text"/>

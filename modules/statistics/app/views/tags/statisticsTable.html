@@ -1,0 +1,54 @@
+<div class="row">
+    <div class="span12">
+        <h3 class="page-header">&{'plugin.statistics.statistics'}</h3>
+        <div class="tabbable">
+            <ul class="nav nav-pills" id="stats-tabs" data-bind="foreach: facets">
+                <li data-bind="css: { active: $root.selected() === $data.name()  }"><a href='#' data-bind="click: function() { $root.selected($data.name()) }, text: i18n"></a></li>
+            </ul>
+            <div class="tab-content" data-bind="foreach: facets">
+                <div class="tab-pane" data-bind="css: { active: $root.selected() === $data.name() }">
+                    <table class="table">
+                        <thead>
+                        <tr>
+                            <th>&{'thing.name'}</th>
+                            <th>&{'plugin.statistics.nrRecords'}</th>
+                            <th>&{'plugin.statistics.withObjects'}</th>
+                            <th>&{'plugin.statistics.landingPages'}</th>
+                        </tr>
+                        </thead>
+                        <tbody data-bind="foreach: entries">
+                        <tr>
+                            <td><span data-bind="text: name"></span></td>
+                            <td><span data-bind="text: total"></span></td>
+                            <td><span class="badge badge-info" rel="tooltip" data-bind="text: digitalObjectsPercentage() + ' %', attr: { title: digitalObjects() + ' records' }"></span></td>
+                            <td><span class="badge badge-info" rel="tooltip" data-bind="text: landingPagesPercentage() + ' %', attr: { title: landingPages() + ' records' }"></span></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<script>
+    $(document).ready(function() {
+
+      var viewModel = {
+        selected: ko.observable("")
+      };
+
+      $.get('/organizations/${_orgId}/api/statistics${_filter}', function(data) {
+        load(data.statistics, viewModel, null, function() {
+          var name = viewModel.facets()[0].name();
+          viewModel.selected(name);
+          $('span[rel=tooltip]').tooltip();
+        });
+
+      });
+
+    })
+</script>

@@ -22,15 +22,20 @@ object FileStore extends Controller with DomainConfigurationAware {
   def get(id: String): Action[AnyContent] = DomainConfigured {
     Action {
       implicit request =>
-        if (!ObjectId.isValid(id)) BadRequest("Invalid ID " + id)
-        val oid = new ObjectId(id)
-        val file = fileStore(configuration).findOne(oid) getOrElse (return Action {
-          implicit request => NotFound("Could not find file with ID " + id)
-        })
-        Ok.stream(Enumerator.fromStream(file.inputStream)).withHeaders(
-          (CONTENT_DISPOSITION -> ("attachment; filename=" + file.filename)),
-          (CONTENT_LENGTH -> file.length.toString),
-          (CONTENT_TYPE -> file.contentType))
+        if (!ObjectId.isValid(id)) {
+          BadRequest("Invalid ID " + id)
+        } else {
+          val oid = new ObjectId(id)
+          fileStore(configuration).findOne(oid) match {
+            case Some(file) =>
+              Ok.stream(Enumerator.fromStream(file.inputStream)).withHeaders(
+                (CONTENT_DISPOSITION -> ("attachment; filename=" + file.filename)),
+                (CONTENT_LENGTH -> file.length.toString),
+                (CONTENT_TYPE -> file.contentType.getOrElse("unknown/unknown")))
+            case None =>
+              NotFound("Could not find file with ID " + id)
+          }
+        }
     }
   }
 
@@ -46,7 +51,7 @@ object FileStore extends Controller with DomainConfigurationAware {
 
   private[dos] def fileToStoredFile(f: GridFSDBFile)(implicit configuration: DomainConfiguration) = {
     val id = f.getId.asInstanceOf[ObjectId]
-    val thumbnail = if (FileUpload.isImage(f)) {
+    val thumbnail = if (FileUpload.hasThumbnail(f)) {
       fileStore(configuration).findOne(MongoDBObject(FILE_POINTER_FIELD -> id)) match {
         case Some(t) => Some(t.id.asInstanceOf[ObjectId])
         case None => None

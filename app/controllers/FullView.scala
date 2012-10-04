@@ -72,12 +72,21 @@ trait FullView extends DelvingController {
                 )
               ))
 
+              val returnToPrevious = r.resolveRefererLink.map { resolver =>
+                val ref = request.headers.get(REFERER).getOrElse("")
+                resolver(ref)
+              }
+              val returnToPreviousLink = returnToPrevious.map(_._1).getOrElse("")
+              val returnToPreviousLabel = returnToPrevious.map(l => Messages(l._2)).getOrElse("")
+
               Ok(
                 Template(
                   "Search/object.html",
                   'systemFields -> r.systemFields,
                   'fullView -> renderedRecord.right.get.toViewTree,
                   'returnToResults -> returnToResults,
+                  'returnToPreviousLink -> returnToPreviousLink,
+                  'returnToPreviousLabel -> returnToPreviousLabel,
                   'orgId -> orgId,
                   'hubId -> hubId,
                   'rights -> r.parameters.get("rights").getOrElse(""),

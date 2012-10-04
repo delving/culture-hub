@@ -109,7 +109,7 @@ object SolrQueryService extends SolrServer {
       if (!hasGeoType) queryParams setFilterQueries ("{!%s}".format("geofilt"))
       // set defaults
       queryParams setParam ("d", "5")
-      queryParams setParam ("sfield", "location")
+      queryParams setParam ("sfield", "delving_geohash")
 
       params.all.filter(!_._2.isEmpty).map(params => (params._1, params._2.head)).toMap.filterKeys(key => List("geoType", "d", "sfield").contains(key)).foreach {
         item =>
@@ -232,6 +232,8 @@ object SolrQueryService extends SolrServer {
     }
 
     val format = params.getValueOrElse("format", "xml")
+    // todo enable later again when the fieldmarkers for GEOHASH is working correctly
+    //if (format.equalsIgnoreCase("kml")) params.put("hqf", List("%s:true".format(HAS_GEO_HASH.key)))
     val filterQueries = createFilterQueryList(getAllFilterQueries("qf"))
     val hiddenQueryFilters = createFilterQueryList(if (!configuration.searchService.hiddenQueryFilter.isEmpty) getAllFilterQueries("hqf") ++ configuration.searchService.hiddenQueryFilter.split(",") else getAllFilterQueries("hqf"))
 

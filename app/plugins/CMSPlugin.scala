@@ -2,8 +2,16 @@ package plugins
 
 import play.api.Application
 import controllers.organization.CMS
-import core.{MenuElement, MainMenuEntry, CultureHubPlugin}
+import core._
 import models.{DomainConfiguration, Role}
+import scala.collection.mutable
+import models.cms.CMSPage
+import com.mongodb.casbah.Imports._
+import scala.Some
+import scala.collection
+import core.MainMenuEntry
+import scala.Some
+import core.MenuElement
 
 /**
  *
@@ -41,6 +49,22 @@ class CMSPlugin(app: Application) extends CultureHubPlugin(app) {
     )
   )
 
+
+  override def homePageSnippet: Option[(String, RequestContext => Unit)] = Some(
+    ("/CMS/homePageSnippet.html",
+    { context => {
+        CMSPage.dao(context.configuration).find(
+          MongoDBObject("key" -> "homepage", "lang" -> context.lang, "orgId" -> context.configuration.orgId)
+        ).$orderby(MongoDBObject("_id" -> -1)).
+          limit(1).
+          toList.
+          headOption.foreach { page =>
+          context.renderArgs += ("homepageCmsContent" -> page)
+        }
+      }
+    })
+  )
+
   /**
    * Override this to provide custom roles to the platform, that can be used in Groups
    * @return a sequence of [[models.Role]] instances
@@ -49,5 +73,5 @@ class CMSPlugin(app: Application) extends CultureHubPlugin(app) {
 }
 
 object CMSPlugin {
-  val ROLE_CMS_ADMIN = Role("cms", Role.descriptions("plugin.cms.adminRight"), false, None)
+  lazy val ROLE_CMS_ADMIN = Role("cms", Role.descriptions("plugin.cms.adminRight"), false, None)
 }

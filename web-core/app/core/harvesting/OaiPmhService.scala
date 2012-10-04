@@ -16,6 +16,8 @@
 
 package core.harvesting
 
+import core.harvesting.PmhVerbType.PmhVerb
+import core.search.Params
 import core.{HarvestCollectionLookupService, HubId}
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -23,12 +25,17 @@ import exceptions._
 import core.search.Params
 import core.harvesting.PmhVerbType.PmhVerb
 import play.api.Logger
-import xml.{Elem, PrettyPrinter, XML}
+import xml._
 import java.net.URLEncoder
 import core.Constants._
 import models._
 import core.collection.{OrganizationCollectionInformation, Harvestable}
 import org.scala_tools.subcut.inject.{Injectable, BindingModule}
+import models.MetadataItem
+import models.Namespace
+import scala.Null
+import xml.NamespaceBinding
+import collection.mutable.ArrayBuffer
 
 /**
  *  This class is used to parse an OAI-PMH instruction from an HttpServletRequest and return the proper XML response
@@ -301,7 +308,7 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
     }
 
     val record: MetadataItem = {
-      val cache = MetadataCache.get(orgId, hubId.spec, ITEM_TYPE_MDR)
+      val cache = MetadataCache.get(orgId, hubId.spec, c.get.itemType)
       val mdRecord = cache.findOne(pmhRequest.identifier)
       if (mdRecord == None) return createErrorResponse("noRecordsMatch")
       else mdRecord.get
@@ -362,12 +369,28 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
     val globalNamespaces = collection.getNamespaces.map(ns => Namespace(ns._1, ns._2, ""))
     val namespaces = (formatNamespaces ++ globalNamespaces).distinct.filterNot(_.prefix == "xsi")
 
+    def collectNamespaces(ns: NamespaceBinding, namespaces: ArrayBuffer[(String, String)]): ArrayBuffer[(String, String)] ={
+      if(ns == TopScope) {
+        namespaces += (ns.prefix -> ns.uri)
+      } else {
+        namespaces += (ns.prefix -> ns.uri)
+        collectNamespaces(ns.parent, namespaces)
+      }
+      namespaces
+    }
+
+    val existingNs = collectNamespaces(elem.scope, new ArrayBuffer[(String, String)])
+
     for (ns <- namespaces) {
       import xml.{Null, UnprefixedAttribute}
       if(ns.prefix == null || ns.prefix.isEmpty) {
-        mutableElem = mutableElem % new UnprefixedAttribute("xmlns", ns.uri, Null)
+        if (!existingNs.exists(p => p._1 == null || p._1.isEmpty)) {
+          mutableElem = mutableElem % new UnprefixedAttribute("xmlns", ns.uri, Null)
+        }
       } else {
-        mutableElem = mutableElem % new UnprefixedAttribute("xmlns:" + ns.prefix, ns.uri, Null)
+        if (!existingNs.exists(_._1 == ns.prefix)) {
+          mutableElem = mutableElem % new UnprefixedAttribute("xmlns:" + ns.prefix, ns.uri, Null)
+        }
       }
     }
     mutableElem

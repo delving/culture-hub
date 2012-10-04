@@ -1,0 +1,7 @@
+<div class="row">
+    <div class="span12">
+    #{if homepageCmsContent && homepageCmsContent.published == true}
+    ${homepageCmsContent.content.raw()}
+    #{/if}
+    </div>
+</div>

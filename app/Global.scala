@@ -38,7 +38,7 @@ object Global extends GlobalSettings {
             SIP-App Version %s
             SIP-Core Version %s
 
-      """.format(BuildInfo.version, BuildInfo.sipApp, BuildInfo.sipCore))
+      """.format(BuildInfo.cultureHub, BuildInfo.sipApp, BuildInfo.sipCore))
     }
 
     // ~~~ bootstrap jobs

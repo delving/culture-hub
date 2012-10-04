@@ -82,6 +82,7 @@ ui.label.register=Register
 ui.label.remove=Remove
 ui.label.required=Required
 ui.label.reset=Reset
+ui.label.results.withoutImages=Also include results without images
 ui.label.returnToResults=Return to results
 ui.label.save=Save
 ui.label.scope=Scope
@@ -122,7 +123,7 @@ thing.comment=Comment
 thing.comments=Comments
 thing.dataset=Dataset
 thing.datasets=Datasets
-thing.landingPage=Landingpage
+thing.landingPage=Landing page
 thing.object=Object
 thing.objects=Objects
 thing.object.heritage=Heritage object
@@ -140,6 +141,7 @@ thing.stories=Stories
 thing.stories.info=Creating a captivating narrative is sometimes the only way to give cultural objects the context they deserve. Often their descriptions do not do them justice, and using them in a story with maybe a few of your own cultural treasures would be much better. This website makes it easy for us to build these stories and make them available for everyone to read.
 thing.user=User
 thing.users=Users
+thing.admin=Administrator
 thing.admins=Administrators
 thing.organization=Organization
 thing.organizations=Organizations
@@ -160,9 +162,7 @@ thing.title=Title
 thing.action=Action
 thing.actions=Actions
 thing.datasetcount=Number of Datasets
-thing.objects=Objects
 thing.addlabel=Add label
-thing.comments=Comments
 thing.addcomment=Add comment
 thing.collaborators=Collaborators
 thing.createnew=Create a new {0}
@@ -172,6 +172,9 @@ thing.browse.ownedby=Browse {0} owned by
 thing.grantType=This group grants
 thing.confirmation=Are you sure?
 thing.provider=Provider
+
+thing.instant=Instant
+thing.version=Version
 
 thing.address=Address
 thing.postalCode=Postal code
@@ -271,6 +274,9 @@ search.viewInOriginalContext=View in original context
 search.invalidQuery=Query "{0}" is not a valid query. Please try something else.
 
 #metadata
+
+metadata.text=All
+
 metadata.abm.contentProvider=Content Provider
 metadata.abm.county=County
 metadata.abm.data.provider=Data Provider
@@ -318,6 +324,7 @@ metadata.dcterms.extent=Extent
 
 metadata.delving.owner=Owner
 metadata.delving.creator=Creator
+metadata.delving.collection=Collection
 metadata.delving.provider=Provider
 metadata.delving.owner=Data Provider
 metadata.delving.recordType=Record type
@@ -354,6 +361,13 @@ metadata.icn.physicalState=Physical State
 metadata.icn.province=Province
 metadata.icn.purchasePrice=Purchase Price
 metadata.icn.collectionType=Collection type
+metadata.icn.legalStatus=Legal Status
+metadata.icn.acceptedStateCharges=Accepted State Charges
+metadata.icn.acceptedStateChargesReason=Reason for accepted state charges
+metadata.icn.expulsionYear=Expulsion year
+metadata.icn.expulsionMeans=Expulsion means
+metadata.icn.currentLocation=Current location
+metadata.icn.previousLocation=Previous location
 
 # Tib
 metadata.tib.period=Period
@@ -571,6 +585,9 @@ organization.dataset.unlocked=Unlocked
 
 organization.members=Members
 
+organization.instant.list=List Instant Sites
+organization.instant.create=Create an Instant Site
+
 
 
 organization.sipcreator.p1=The SIP-Creator is a stand-alone tool that you can use to manage your data sets.  It allows you to map any existing XML format to the record definitions that have been chosen as target for each data set individually. Once mapped and validated, the SIP-Creator lets you upload the source XML and the mapping instruction files to the Delving Culture Hub so that the mappings can also be executed there.
@@ -584,6 +601,7 @@ dataSetState.incomplete=Incomplete
 dataSetState.uploaded=Uploaded and ready for processing
 dataSetState.parsing=Parsing and storing uploaded source data
 dataSetState.queued=Queued for processing
+dataSetState.processingQueued=Queued for processing
 dataSetState.processing=Processing
 dataSetState.cancelled=Processing cancelled
 dataSetState.enabled=Enabled
@@ -663,6 +681,7 @@ accessControl.resourceType.dataSet=DataSets
 
 plugin.cms.adminRight=Site content administration rights
 
+plugin.chc.orKeywords=Keywords (OR)
 
 plugin.musip.museum=Museum
 plugin.musip.museums=Museums
@@ -670,6 +689,8 @@ plugin.musip.collection=Collection
 plugin.musip.collections=Collections
 plugin.musip.province=Province
 plugin.musip.municipality=Municipality
+plugin.musip.returnToMuseum=Return to museum
+plugin.musip.returnToCollection=Return to collection
 
 plugin.statistics.statistics=Statistics
 plugin.statistics.dataset=DataSet
@@ -688,14 +709,19 @@ plugin.advancedsearch.booleanNot=NOT
 plugin.advancedsearch.allProviders=All data providers
 plugin.advancedsearch.selectProviders=Select data provider(s)
 plugin.advancedsearch.select=Select
+plugin.advancedsearch.contains=Contains
+plugin.advancedsearch.between=Between
 
 plugin.simpledocumentupload.documentUpload=Document upload
 plugin.simpledocumentupload.list=List of uploaded documents
 plugin.simpledocumentupload.add=Upload document
 plugin.simpledocumentupload.deleteConfirmation=Are you sure you want to delete this item?
 
+plugin.instant.list=List of Instant Sites
+plugin.instant.edit=Edit Instant Site
+plugin.instant.deleteConfirmation=The associated Instant Site will no longer function
 
-
+plugin.rijks.rijks=Rijkscollectie
 
 
 
