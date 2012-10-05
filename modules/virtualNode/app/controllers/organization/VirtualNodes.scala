@@ -59,6 +59,7 @@ object VirtualNodes extends OrganizationController {
               case Some(id) =>
                 VirtualNode.dao.findOneById(id) match {
                   case Some(existingNode) =>
+                    // only update the node name, not the ID!
                     val updatedNode = existingNode.copy(
                       name = virtualNodeForm.name
                     )
@@ -69,7 +70,7 @@ object VirtualNodes extends OrganizationController {
                 }
               case None =>
                 val newNode = VirtualNode(
-                  nodeId = virtualNodeForm.nodeId,
+                  nodeId = slugify(virtualNodeForm.name),
                   name = virtualNodeForm.name,
                   orgId = virtualNodeForm.orgId
                 )
@@ -87,6 +88,11 @@ object VirtualNodes extends OrganizationController {
     }
   }
 
+  def slugify(str: String): String = {
+    import java.text.Normalizer
+    Normalizer.normalize(str, Normalizer.Form.NFD).replaceAll("[^\\w ]", "").replace(" ", "-").toLowerCase
+  }
+
 
   case class VirtualNodeViewModel(
     id: Option[ObjectId] = None,
@@ -101,25 +107,25 @@ object VirtualNodes extends OrganizationController {
     def apply(n: VirtualNode): VirtualNodeViewModel = VirtualNodeViewModel(Some(n._id), n.nodeId, n.orgId, n.name)
 
     def nodeIdTaken(implicit configuration: DomainConfiguration) = Constraint[VirtualNodeViewModel]("plugin.virtualNode.nodeIdTaken") {
-        case r =>
-          val maybeOne = VirtualNode.dao.findOne(r.orgId, r.nodeId)
-          val maybeOneId = maybeOne.map(_._id)
-          if (maybeOneId.isDefined && r.id.isDefined && maybeOneId == r.id) {
-            Valid
-          } else if (maybeOne == None) {
-            Valid
-          } else {
-            Invalid(ValidationError(Messages("plugin.virtualNode.nodeIdTaken")))
-          }
+      case r =>
+        val maybeOne = VirtualNode.dao.findOne(r.orgId, r.nodeId)
+        val maybeOneId = maybeOne.map(_._id)
+        if (maybeOneId.isDefined && r.id.isDefined && maybeOneId == r.id) {
+          Valid
+        } else if (maybeOne == None) {
+          Valid
+        } else {
+          Invalid(ValidationError(Messages("plugin.virtualNode.nodeIdTaken")))
+        }
     }
 
 
     def virtualNodeForm(implicit configuration: DomainConfiguration) = Form(
       mapping(
         "id" -> optional(of[ObjectId]),
-        "nodeId" -> nonEmptyText.verifying(Constraints.pattern("^[A-Za-z0-9-]{3,40}$".r, "plugin.virtualNode.invalidNodeId", "plugin.virtualNode.invalidNodeId")),
+        "nodeId" -> text,
         "orgId" -> nonEmptyText.verifying(Constraints.pattern("^[A-Za-z0-9-]{3,40}$".r, "plugin.virtualNode.invalidOrgId", "plugin.virtualNode.invalidOrgId")),
-        "name" -> nonEmptyText,
+        "name" -> nonEmptyText.verifying(Constraints.pattern("^[A-Za-z0-9- ]{3,40}$".r, "plugin.virtualNode.invalidNodeId", "plugin.virtualNode.invalidNodeName")),
         "errors" -> of[Map[String, String]]
       )(VirtualNodeViewModel.apply)(VirtualNodeViewModel.unapply).verifying(nodeIdTaken)
     )

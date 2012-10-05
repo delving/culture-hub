@@ -12,8 +12,8 @@
 <div class="row">
     <div class="span6">
         <form id="virtualNodeForm" method="POST" action="" class="form-delving form-horizontal well well-small">
+            #{form.textField name:"nodeId", form: virtualNodeForm, label: messages.get('plugin.virtualNode.nodeId'), dataBind:"value: nodeId, disable: true", maxLength: 30 /}
             #{form.textField name:"orgId", form: virtualNodeForm, label: messages.get('plugin.virtualNode.orgId'), dataBind:"value: orgId, disable: typeof id !== 'undefined'", maxLength: 30, required: true /}
-            #{form.textField name:"nodeId", form: virtualNodeForm, label: messages.get('plugin.virtualNode.nodeId'), dataBind:"value: nodeId, disable: typeof id !== 'undefined'", maxLength: 30, required: true /}
             #{form.textField name:"name", form: virtualNodeForm, label: messages.get('plugin.virtualNode.name'), dataBind:"value: name", maxLength: 30, required: true /}
         </form>
     </div>
@@ -32,7 +32,6 @@
     $(document).ready(function () {
         var viewModel = {};
         load(${data.raw()}, viewModel, document.getElementById('virtualNodeForm'), function () {
-
             $("table.files td.delete button").addClass("btn btn-danger");
             $("body").css('visibility', 'visible');
         });

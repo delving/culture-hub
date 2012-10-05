@@ -694,7 +694,7 @@ plugin.virtualNode.orgId=Organization identifier
 plugin.virtualNode.nodeId=Node identifier
 plugin.virtualNode.name=Node name
 plugin.virtualNode.invalidOrgId=Invalid organization identifier
-plugin.virtualNode.invalidNodeId=Invalid node identifier
+plugin.virtualNode.invalidNodeName=Invalid node name: can only have letters and white spaces
 
 plugin.musip.museum=Museum
 plugin.musip.museums=Museums
