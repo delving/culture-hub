@@ -686,13 +686,15 @@ plugin.chc.orKeywords=Keywords (OR)
 
 plugin.virtualNode.virtualNode=Virtual node
 plugin.virtualNode.virtualNodes=Virtual nodes
-plugin.virtualNode.list=List of virtual nodes
+plugin.virtualNode.list=List Virtual nodes
 plugin.virtualNode.create=Create Virtual node
 plugin.virtualNode.deleteConfirm=Are you sure you want to delete this Virtual Node as well as all of its data?
 plugin.virtualNode.nodeIdTaken=This nodeId is already taken
 plugin.virtualNode.orgId=Organization identifier
 plugin.virtualNode.nodeId=Node identifier
 plugin.virtualNode.name=Node name
+plugin.virtualNode.invalidOrgId=Invalid organization identifier
+plugin.virtualNode.invalidNodeId=Invalid node identifier
 
 plugin.musip.museum=Museum
 plugin.musip.museums=Museums

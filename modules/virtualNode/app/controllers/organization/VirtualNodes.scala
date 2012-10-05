@@ -10,8 +10,10 @@ import models.{DomainConfiguration, VirtualNode}
 import extensions.JJson
 import org.bson.types.ObjectId
 import controllers.OrganizationController
-import play.api.data.validation.{ValidationError, Invalid, Valid, Constraint}
+import play.api.data.validation._
 import play.api.i18n.Messages
+import scala.Some
+import play.api.data.validation.ValidationError
 
 /**
  * TODO verify that node with nodeKey and orgId doesn't exist on creation
@@ -115,8 +117,8 @@ object VirtualNodes extends OrganizationController {
     def virtualNodeForm(implicit configuration: DomainConfiguration) = Form(
       mapping(
         "id" -> optional(of[ObjectId]),
-        "nodeId" -> nonEmptyText,
-        "orgId" -> nonEmptyText,
+        "nodeId" -> nonEmptyText.verifying(Constraints.pattern("^[A-Za-z0-9-]{3,40}$".r, "plugin.virtualNode.invalidNodeId", "plugin.virtualNode.invalidNodeId")),
+        "orgId" -> nonEmptyText.verifying(Constraints.pattern("^[A-Za-z0-9-]{3,40}$".r, "plugin.virtualNode.invalidOrgId", "plugin.virtualNode.invalidOrgId")),
         "name" -> nonEmptyText,
         "errors" -> of[Map[String, String]]
       )(VirtualNodeViewModel.apply)(VirtualNodeViewModel.unapply).verifying(nodeIdTaken)
