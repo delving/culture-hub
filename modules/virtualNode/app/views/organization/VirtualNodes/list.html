@@ -1,6 +1,6 @@
 #{extends themeInfo.get('themeLayout') /}
 
-#{set title: messages.get('thing.virtualNodes') /}
+#{set title: messages.get('plugin.virtualNode.virtualNodes') /}
 
 #{set bodyId: 'organization' /}
 
@@ -12,10 +12,10 @@
     <div class="span12">
 
         <table class="table table-striped">
-            <caption>&{'thing.virtualNodes'}</caption>
+            <caption>&{'plugin.virtualNode.virtualNodes'}</caption>
             <thead>
             <tr>
-                <th>&{'thing.title'}</th>
+                <th>&{'thing.name'}</th>
                 <th width="25%">&{'thing.actions'}</th>
             </tr>
             </thead>
@@ -23,7 +23,7 @@
             <tbody data-bind="foreach: nodes()">
             <tr>
                 <td>
-                    <span class="node-title" data-bind="text: title"></span>
+                    <span class="node-title" data-bind="text: name"></span>
                 </td>
                 <td>
                     <a class="btn btn-primary btn-mini" href="#" data-bind="click: function() { $parent.update($data) }" rel="nofollow">
@@ -36,7 +36,7 @@
             </tr>
             </tbody>
             <!-- /ko -->
-            <!-- ko if: !nodes().length > 0 -->
+            <!-- ko ifnot: nodes().length > 0 -->
             <tbody>
             <tr>
                 <td colspan="2">
@@ -57,14 +57,14 @@
     $(document).ready(function () {
 
         var viewModel = {
-            update: function (node) {
+            update: function(node) {
                 document.location = "/organizations/${orgId}/virtualNode/" + node.id() + "/update"
             },
             delete: function(node) {
                 bootboxConfirm({
                     'type': 'DELETE',
                     'message' : '<h3 class="shout">' + node.name() + '</h3>&{'plugin.virtualNode.deleteConfirm'}',
-                    'action_url' : '/organizations/${orgId}/virtualNode/' + node.id(),
+                    'action_url' : '/organizations/${orgId}/virtualNode/' + node.id() + '/remove',
                     'success_callback' : function () {
                         viewModel.nodes.remove(function (item) {
                             return item.key === node.key;

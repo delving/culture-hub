@@ -22,7 +22,7 @@ object VirtualNodes extends OrganizationController {
     Action {
       implicit request =>
         val nodes: Seq[VirtualNodeViewModel] = VirtualNode.dao.findAll.map(VirtualNodeViewModel(_))
-        Ok(Template('nodes -> JJson.generate(nodes)))
+        Ok(Template('data -> JJson.generate(Map("nodes" -> nodes))))
     }
   }
 
@@ -34,7 +34,7 @@ object VirtualNodes extends OrganizationController {
 
         data match {
           case Some(d) => Ok(Template('data -> JJson.generate(d)))
-          case None => NotFound("Node with nodeId %s was not found".format(id.getOrElse("")))
+          case None => Ok(Template('data -> JJson.generate(VirtualNodeViewModel())))
         }
     }
   }
@@ -88,9 +88,10 @@ object VirtualNodes extends OrganizationController {
 
   case class VirtualNodeViewModel(
     id: Option[ObjectId] = None,
-    nodeId: String,
-    orgId: String,
-    name: String
+    nodeId: String = "",
+    orgId: String = "",
+    name: String = "",
+    errors: Map[String, String] = Map.empty
   )
 
   object VirtualNodeViewModel {
@@ -98,8 +99,16 @@ object VirtualNodes extends OrganizationController {
     def apply(n: VirtualNode): VirtualNodeViewModel = VirtualNodeViewModel(Some(n._id), n.nodeId, n.orgId, n.name)
 
     def nodeIdTaken(implicit configuration: DomainConfiguration) = Constraint[VirtualNodeViewModel]("plugin.virtualNode.nodeIdTaken") {
-        case r if VirtualNode.dao.findOne(r.orgId, r.nodeId) == None => Valid
-        case _ => Invalid(ValidationError(Messages("plugin.virtualNode.nodeIdTaken")))
+        case r =>
+          val maybeOne = VirtualNode.dao.findOne(r.orgId, r.nodeId)
+          val maybeOneId = maybeOne.map(_._id)
+          if (maybeOneId.isDefined && r.id.isDefined && maybeOneId == r.id) {
+            Valid
+          } else if (maybeOne == None) {
+            Valid
+          } else {
+            Invalid(ValidationError(Messages("plugin.virtualNode.nodeIdTaken")))
+          }
     }
 
 
@@ -108,7 +117,8 @@ object VirtualNodes extends OrganizationController {
         "id" -> optional(of[ObjectId]),
         "nodeId" -> nonEmptyText,
         "orgId" -> nonEmptyText,
-        "name" -> nonEmptyText
+        "name" -> nonEmptyText,
+        "errors" -> of[Map[String, String]]
       )(VirtualNodeViewModel.apply)(VirtualNodeViewModel.unapply).verifying(nodeIdTaken)
     )
   }
