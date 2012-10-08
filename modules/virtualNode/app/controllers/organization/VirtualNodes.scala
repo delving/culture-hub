@@ -9,16 +9,18 @@ import extensions.Formatters._
 import models.{DomainConfiguration, VirtualNode}
 import extensions.JJson
 import org.bson.types.ObjectId
-import controllers.OrganizationController
+import controllers.{BoundController, OrganizationController}
 import play.api.data.validation._
 import play.api.i18n.Messages
 import scala.Some
 import play.api.data.validation.ValidationError
+import core.{DomainServiceLocator, NodeRegistrationService, HubModule}
 
-/**
- * TODO verify that node with nodeKey and orgId doesn't exist on creation
- */
-object VirtualNodes extends OrganizationController {
+object VirtualNodes extends BoundController(HubModule) with VirtualNodes
+
+trait VirtualNodes extends OrganizationController { self: BoundController =>
+
+  val nodeRegistrationServiceLocator = inject [ DomainServiceLocator[NodeRegistrationService] ]
 
   def list = OrganizationAdmin {
     Action {
@@ -44,8 +46,18 @@ object VirtualNodes extends OrganizationController {
   def delete(id: ObjectId) = OrganizationAdmin {
     Action {
       implicit request =>
-        VirtualNode.dao.removeById(id)
-        Ok
+          VirtualNode.dao.findOneById(id).map { node =>
+            try {
+              nodeRegistrationServiceLocator.byDomain.removeNode(node)
+              VirtualNode.dao.removeById(id)
+              Ok
+            } catch {
+             case t: Throwable =>
+               BadRequest
+            }
+        }.getOrElse {
+          NotFound
+        }
     }
   }
 
@@ -54,34 +66,43 @@ object VirtualNodes extends OrganizationController {
       implicit request =>
         VirtualNodeViewModel.virtualNodeForm.bind(request.body.asJson.get).fold(
           formWithErrors => handleValidationError(formWithErrors),
-          virtualNodeForm => {
-            val maybeNode = virtualNodeForm.id match {
+          viewModel => {
+            viewModel.id match {
               case Some(id) =>
                 VirtualNode.dao.findOneById(id) match {
                   case Some(existingNode) =>
-                    // only update the node name, not the ID!
-                    val updatedNode = existingNode.copy(
-                      name = virtualNodeForm.name
-                    )
-                    VirtualNode.dao.save(updatedNode)
-                    Some(updatedNode)
+                    try {
+                      nodeRegistrationServiceLocator.byDomain.updateNode(existingNode)
+                      // only update the node name, not the ID!
+                      val updatedNode = existingNode.copy(
+                        name = viewModel.name
+                      )
+                      VirtualNode.dao.save(updatedNode)
+                      Json(viewModel)
+                    } catch {
+                      case t: Throwable =>
+                        Json(viewModel.copy(errors = Map("global" -> t.getMessage)))
+                    }
+
                   case None =>
-                    None
+                    Json(viewModel.copy(errors = Map("global" -> "Node could not be found! Maybe it was deleted by somebody else in the meantime ?")))
                 }
               case None =>
                 val newNode = VirtualNode(
-                  nodeId = slugify(virtualNodeForm.name),
-                  name = virtualNodeForm.name,
-                  orgId = virtualNodeForm.orgId
+                  nodeId = slugify(viewModel.name),
+                  name = viewModel.name,
+                  orgId = viewModel.orgId
                 )
 
-                VirtualNode.dao.insert(newNode)
-                Some(newNode)
-            }
+                try {
+                  nodeRegistrationServiceLocator.byDomain.registerNode(newNode, connectedUser)
+                  VirtualNode.dao.insert(newNode)
+                  Json(VirtualNodeViewModel(newNode))
+                } catch {
+                  case t: Throwable =>
+                    Json(VirtualNodeViewModel(newNode).copy(errors = Map("global" -> t.getMessage)))
+                }
 
-            maybeNode match {
-              case Some(n) => Json(n)
-              case None => BadRequest
             }
           }
         )

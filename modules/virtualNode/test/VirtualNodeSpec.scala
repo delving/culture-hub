@@ -24,7 +24,7 @@ class VirtualNodeSpec extends Specs2TestContext {
         val response = controllers.organization.VirtualNodes.submit(fakeRequest)
         status(response) must equalTo(200)
 
-        VirtualNode.dao("delving").findOne("delving", "rotterdam") must beSome
+        VirtualNode.dao("delving").findOne("delving", "rotterdam-node") must beSome
       }
 
     }
@@ -41,7 +41,7 @@ class VirtualNodeSpec extends Specs2TestContext {
     "delete a node" in {
 
       withTestConfig {
-        val node = VirtualNode.dao("delving").findOne("delving", "rotterdam").get
+        val node = VirtualNode.dao("delving").findOne("delving", "rotterdam-node").get
         val response = controllers.organization.VirtualNodes.delete(node._id)(
           FakeRequest(method = "DELETE", path = "/organizations/delving/node/delete/" + node._id.toString).withSession(
             ("userName" -> "bob")
@@ -63,7 +63,7 @@ class VirtualNodeSpec extends Specs2TestContext {
     body = AnyContentAsJson(
       JsObject(
         Seq(
-          "nodeId" -> JsString("rotterdam"),
+          "nodeId" -> JsString("rotterdam-node"),
           "orgId" -> JsString("delving"),
           "name" -> JsString("Rotterdam Node")
         )
