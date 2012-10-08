@@ -22,5 +22,6 @@ object HubModule extends NewBindingModule({ module =>
   bind [DomainServiceLocator[UserProfileService]].toSingleInstance(HubServices.userProfileServiceLocator)
   bind [DomainServiceLocator[OrganizationService]].toSingleInstance(HubServices.organizationServiceLocator)
   bind [DomainServiceLocator[DirectoryService]].toSingleInstance(HubServices.directoryServiceLocator)
+  bind [DomainServiceLocator[NodeRegistrationService]].toSingleInstance(HubServices.nodeRegistrationServiceLocator)
 
 })
