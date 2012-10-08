@@ -1,7 +1,7 @@
 package core.processing
 
 import models.RecordDefinition
-import eu.delving.MappingEngine
+import eu.delving.{MappingEngineFactory, MappingEngine}
 import play.api.Play
 import play.api.Play.current
 import core.mapping.MappingService
@@ -21,9 +21,9 @@ abstract class ProcessingSchema {
   lazy val javaNamespaces = namespaces.asJava
   lazy val engine: Option[MappingEngine] = {
     if(prefix == "raw") {
-      Some(new MappingEngine(Play.classloader, javaNamespaces))
+      Some(MappingEngineFactory.newInstance(Play.classloader, javaNamespaces))
     } else {
-      mapping.map(new MappingEngine(Play.classloader, javaNamespaces, MappingService.recDefModel, _))
+      mapping.map(MappingEngineFactory.newInstance(Play.classloader, javaNamespaces, MappingService.recDefModel, _))
     }
   }
 
