@@ -1,7 +1,7 @@
 package core
 
 /**
- * Node registration service
+ * This service allows to register a Node against a centralized lookup service for nodes across a network.
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
