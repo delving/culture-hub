@@ -473,11 +473,11 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
     
     def renderResumptionToken(recordList: List[MetadataItem], totalListSize: Long) = {
 
-      val nextIndex = currentPageNr * recordsReturned
-
       val originalListSize = if (getOriginalListSize == 0) totalListSize else getOriginalListSize
 
       val currentPageNr = if (resumptionToken.isEmpty) getPagenumber else getPagenumber + 1
+
+      val nextIndex = currentPageNr * recordsReturned
 
       val nextResumptionToken = "%s:%s:%s:%s:%s".format(getSet, getMetadataFormat, nextIndex, currentPageNr, originalListSize)
 
