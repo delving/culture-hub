@@ -120,6 +120,8 @@ class MemoryServices(val users: HashMap[String, MemoryUser] = new HashMap[String
     }
   }
 
+  def listMembers(node: Node): Seq[String] = nodes.find(findNode(_, node)).map(_.members).getOrElse(Seq.empty)
+
   def addMember(node: Node, userName: String) {
     nodes.find(findNode(_, node)).map { n =>
       val updated = n.copy(members = n.members ++ Seq(userName))

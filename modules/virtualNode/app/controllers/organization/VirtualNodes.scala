@@ -37,8 +37,15 @@ trait VirtualNodes extends OrganizationController { self: BoundController =>
         val data = node.map(VirtualNodeViewModel(_))
 
         data match {
-          case Some(d) => Ok(Template('data -> JJson.generate(d)))
-          case None => Ok(Template('data -> JJson.generate(VirtualNodeViewModel())))
+          case Some(d) =>
+            val members = nodeRegistrationServiceLocator.byDomain.listMembers(node.get)
+            Ok(Template(
+              'data -> JJson.generate(d),
+              'nodeId -> d.id.get,
+              'members -> JJson.generate(members.map(m => Map("id" -> m, "name" -> m)))
+            ))
+          case None =>
+            Ok(Template('data -> JJson.generate(VirtualNodeViewModel())))
         }
     }
   }
@@ -108,6 +115,33 @@ trait VirtualNodes extends OrganizationController { self: BoundController =>
         )
     }
   }
+
+  def addMember(id: ObjectId) = OrganizationAdmin {
+    Action {
+      implicit request =>
+        VirtualNode.dao.findOneById(id).flatMap { node =>
+          val member = request.body.getFirstAsString("id")
+          member.map { m =>
+            nodeRegistrationServiceLocator.byDomain.addMember(node, m)
+            Ok
+          }
+        }.getOrElse(BadRequest)
+    }
+  }
+
+  def removeMember(id: ObjectId) = OrganizationAdmin {
+    Action {
+      implicit request =>
+        VirtualNode.dao.findOneById(id).flatMap { node =>
+          val member = request.body.getFirstAsString("id")
+          member.map { m =>
+            nodeRegistrationServiceLocator.byDomain.removeMember(node, m)
+            Ok
+          }
+        }.getOrElse(BadRequest)
+    }
+  }
+
 
   def slugify(str: String): String = {
     import java.text.Normalizer

@@ -17,6 +17,20 @@
             #{form.textField name:"name", form: virtualNodeForm, label: messages.get('plugin.virtualNode.name'), dataBind:"value: name", maxLength: 30, required: true /}
         </form>
     </div>
+    #{if nodeId}
+    <div class="span6">
+        <h3>&{'ui.label.members'}</h3>
+        <div>
+            #{addRemoveTokenField
+                  id:"memberInput",
+                  name: "memberInput",
+                  searchUrl: "/organizations/"+orgId+"/users/search",
+                  prePopulate: members,
+                  addUrl: "/organizations/"+orgId+"/virtualNode/"+nodeId+"/addMember",
+                  removeUrl: "/organizations/"+orgId+"/virtualNode/"+nodeId+"/removeMember" /}
+        </div>
+    </div>
+    #{/if}
 </div>
 
 <div class="well">

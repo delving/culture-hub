@@ -271,6 +271,19 @@ class CommonsServices(commonsHost: String, orgId: String, apiToken: String, node
     }
   }
 
+  def listMembers(node: Node): Seq[String] = {
+    get(
+      "/node/%s/%s/user/list".format(node.orgId, node.nodeId)
+    ).map { response =>
+      response.status match {
+        case OK =>
+          (response.json \ "members").asOpt[Seq[String]].getOrElse(Seq.empty)
+        case _ =>
+          Seq.empty
+      }
+    }.getOrElse(Seq.empty)
+  }
+
   def addMember(node: Node, userName: String) {
     post(
       "/node/%s/%s/user/add".format(node.orgId, node.nodeId),

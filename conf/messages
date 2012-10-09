@@ -65,7 +65,8 @@ ui.label.location=Location
 ui.label.loggedInAs=Logged in as
 ui.label.login=Login
 ui.label.logout=Logout
-ui.label.memberSince=Member since
+ui.label.member=Member
+ui.label.members=Members
 ui.label.more=More
 ui.label.next=Next
 ui.label.nritems=Nr. of items
@@ -695,6 +696,7 @@ plugin.virtualNode.nodeId=Node identifier
 plugin.virtualNode.name=Node name
 plugin.virtualNode.invalidOrgId=Invalid organization identifier
 plugin.virtualNode.invalidNodeName=Invalid node name: can only have letters and white spaces
+
 
 plugin.musip.museum=Museum
 plugin.musip.museums=Museums

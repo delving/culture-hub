@@ -30,6 +30,14 @@ trait NodeRegistrationService {
   def removeNode(node: Node)
 
   /**
+   * List all members of this node
+   *
+   * @param node the node to list users of
+   * @return a list of userNames
+   */
+  def listMembers(node: Node): Seq[String]
+
+  /**
    * Adds a member to a node
    *
    * @param node the node to update

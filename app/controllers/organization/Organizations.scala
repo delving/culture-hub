@@ -6,6 +6,9 @@ import play.api.mvc.Action
 import models.HubUser
 import core.{OrganizationCollectionLookupService, HubModule}
 import core.collection.OrganizationCollection
+import com.mongodb.casbah.Imports._
+import controllers.Token
+import java.util.regex.Pattern
 
 /**
  *

@@ -1,12 +1,15 @@
 package plugins
 
-import core.{MenuElement, MainMenuEntry, CultureHubPlugin}
-import play.api.Application
-import models.Role
+import core.{HubServices, MenuElement, MainMenuEntry, CultureHubPlugin}
+import play.api.{Play, Application}
+import play.api.Play.current
+import models.{VirtualNode, Role}
 import collection.immutable.ListMap
 import scala.util.matching.Regex
 import play.api.mvc.Handler
 import org.bson.types.ObjectId
+import util.DomainConfigurationHandler
+import core.services.MemoryServices
 
 /**
  * 
@@ -41,10 +44,28 @@ class VirtualNodePlugin(app: Application) extends CultureHubPlugin(app) {
     ("POST", """^/organizations/([A-Za-z0-9-]+)/virtualNode/submit""".r) -> {
       (pathArgs: List[String], queryString: Map[String, String]) => controllers.organization.VirtualNodes.submit
     },
+    ("POST", """^/organizations/([A-Za-z0-9-]+)/virtualNode/([A-Za-z0-9-_]+)/addMember""".r) -> {
+      (pathArgs: List[String], queryString: Map[String, String]) => controllers.organization.VirtualNodes.addMember(new ObjectId(pathArgs(1)))
+    },
+    ("DELETE", """^/organizations/([A-Za-z0-9-]+)/virtualNode/([A-Za-z0-9-_]+)/removeMember""".r) -> {
+      (pathArgs: List[String], queryString: Map[String, String]) => controllers.organization.VirtualNodes.removeMember(new ObjectId(pathArgs(1)))
+    },
     ("DELETE", """^/organizations/([A-Za-z0-9-]+)/virtualNode/([A-Za-z0-9-_]+)/remove""".r) -> {
       (pathArgs: List[String], queryString: Map[String, String]) => controllers.organization.VirtualNodes.delete(new ObjectId(pathArgs(1)))
     }
   )
 
+  override def onStart() {
+    if (Play.isTest || Play.isDev) {
+      DomainConfigurationHandler.domainConfigurations.foreach { domainConfiguration =>
+        val service = HubServices.nodeRegistrationServiceLocator.byDomain(domainConfiguration)
+        if (service.isInstanceOf[MemoryServices]) {
+          VirtualNode.dao(domainConfiguration).findAll.foreach { node =>
+            service.registerNode(node, "system")
+          }
+        }
+      }
 
+    }
+  }
 }
