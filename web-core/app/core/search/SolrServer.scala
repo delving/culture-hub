@@ -59,8 +59,8 @@ object SolrServer {
   private lazy val solrServers: Map[String, HttpSolrServer] = DomainConfigurationHandler.domainConfigurations.map { configuration =>
     (configuration.solrBaseUrl -> {
       val solrServer = new HttpSolrServer(configuration.solrBaseUrl)
-      solrServer.setSoTimeout(1000) // socket read timeout
-      solrServer.setConnectionTimeout(1000)
+      solrServer.setSoTimeout(5000) // socket read timeout
+      solrServer.setConnectionTimeout(5000)
       solrServer.setDefaultMaxConnectionsPerHost(64)
       solrServer.setMaxTotalConnections(125)
       solrServer.setFollowRedirects(false) // defaults to false
