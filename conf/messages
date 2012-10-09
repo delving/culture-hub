@@ -35,6 +35,7 @@ ui.label.captcha=Enter the code you see here
 ui.label.cancel=Cancel
 ui.label.collectionSelect=Select a collection
 ui.label.create=Create
+ui.label.compute=Compute
 ui.label.content=Content
 ui.label.delete=Delete
 ui.label.edit=Edit
