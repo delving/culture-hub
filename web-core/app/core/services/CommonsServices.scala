@@ -1,13 +1,14 @@
 package core.services
 
 import core._
+import core.node._
 import play.api.libs.Crypto
 import play.api.libs.ws.{Response, WS}
 import play.api.libs.json._
 import play.api.Logger
 import java.util.concurrent.TimeoutException
 import java.net.URLEncoder
-import extensions.{JJson, MissingLibs}
+import extensions.MissingLibs
 import eu.delving.definitions.OrganizationEntry
 
 /**

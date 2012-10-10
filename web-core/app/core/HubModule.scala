@@ -1,5 +1,6 @@
 package core
 
+import core.node.NodeRegistrationService
 import core.schema.SchemaProvider
 import core.services.{AggregatingOrganizationCollectionLookupService, AggregatingHarvestCollectionLookup}
 import org.scala_tools.subcut.inject.NewBindingModule

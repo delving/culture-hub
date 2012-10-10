@@ -14,7 +14,8 @@ import play.api.data.validation._
 import play.api.i18n.Messages
 import scala.Some
 import play.api.data.validation.ValidationError
-import core.{DomainServiceLocator, NodeRegistrationService, HubModule}
+import core.{DomainServiceLocator, HubModule}
+import core.node.NodeRegistrationService
 
 object VirtualNodes extends BoundController(HubModule) with VirtualNodes
 

@@ -1,4 +1,4 @@
-package core
+package core.node
 
 /**
  * A Node

@@ -1,9 +1,9 @@
 package models
 
 import models.HubMongoContext._
-import core.Node
 import com.mongodb.casbah.Imports._
 import com.novus.salat.dao.SalatDAO
+import core.node.Node
 
 /**
  *

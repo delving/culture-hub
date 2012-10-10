@@ -1,4 +1,4 @@
-package core
+package core.node
 
 /**
  * This service allows to register a Node against a centralized lookup service for nodes across a network.
