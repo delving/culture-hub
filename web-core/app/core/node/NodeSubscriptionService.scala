@@ -10,7 +10,7 @@ import models.DomainConfiguration
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
-trait NodeConnectionService {
+trait NodeSubscriptionService {
 
   /**
    * Requests to be connected with another node

@@ -1,6 +1,6 @@
 package services
 
-import core.node.{Node, NodeConnectionService}
+import core.node.{Node, NodeSubscriptionService}
 import models.{VirtualNode, DomainConfiguration}
 import org.scala_tools.subcut.inject.{BindingModule, Injectable}
 
@@ -8,9 +8,9 @@ import org.scala_tools.subcut.inject.{BindingModule, Injectable}
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
-class VirtualNodeConnectionService(implicit val bindingModule: BindingModule) extends NodeConnectionService with Injectable {
+class VirtualNodeSubscriptionService(implicit val bindingModule: BindingModule) extends NodeSubscriptionService with Injectable {
 
-  private val broadcastingHubNodeService = inject [NodeConnectionService ]
+  private val broadcastingHubNodeService = inject [NodeSubscriptionService ]
 
   def generateSubscriptionRequest(to: Node, from: Node)(implicit configuration: DomainConfiguration) {
     broadcastingHubNodeService.processSubscriptionRequest(to, from)

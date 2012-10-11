@@ -1,7 +1,8 @@
 package plugins
 
+import _root_.services.VirtualNodeSubscriptionService
 import core._
-import node.NodeConnectionService
+import core.node.NodeSubscriptionService
 import play.api.{Play, Application}
 import play.api.Play.current
 import models.{VirtualNode, Role}
@@ -9,10 +10,9 @@ import scala.collection.immutable.ListMap
 import scala.util.matching.Regex
 import play.api.mvc.Handler
 import org.bson.types.ObjectId
-import _root_.services.VirtualNodeConnectionService
 import util.DomainConfigurationHandler
 import core.services.MemoryServices
-import scala.collection
+import core._
 import core.MainMenuEntry
 import scala.Some
 import core.MenuElement
@@ -82,6 +82,6 @@ class VirtualNodePlugin(app: Application) extends CultureHubPlugin(app) {
 
 object VirtualNodePlugin {
 
-  lazy val virtualNodeConnectionService: NodeConnectionService = new VirtualNodeConnectionService()(HubModule)
+  lazy val virtualNodeConnectionService: NodeSubscriptionService = new VirtualNodeSubscriptionService()(HubModule)
 
 }

@@ -1,8 +1,8 @@
 package core
 
-import _root_.core.node.{NodeConnectionService, NodeRegistrationService}
+import core.node.{NodeSubscriptionService, NodeRegistrationService}
 import core.schema.SchemaProvider
-import _root_.core.services.{BroadcastingNodeConnectionService, AggregatingOrganizationCollectionLookupService, AggregatingHarvestCollectionLookup}
+import core.services.{BroadcastingNodeSubscriptionService, AggregatingOrganizationCollectionLookupService, AggregatingHarvestCollectionLookup}
 import org.scala_tools.subcut.inject.NewBindingModule
 
 /**
@@ -18,7 +18,7 @@ object HubModule extends NewBindingModule({ module =>
 
   bind [OrganizationCollectionLookupService].toSingle ( new AggregatingOrganizationCollectionLookupService )
 
-  bind [NodeConnectionService].toSingle ( new BroadcastingNodeConnectionService )
+  bind [NodeSubscriptionService].toSingle ( new BroadcastingNodeSubscriptionService )
 
   bind [DomainServiceLocator[AuthenticationService]].toSingleInstance(HubServices.authenticationServiceLocator)
   bind [DomainServiceLocator[RegistrationService]].toSingleInstance(HubServices.registrationServiceLocator)

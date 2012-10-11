@@ -1,7 +1,7 @@
 package core.services
 
-import core.node.{NodeConnectionService, Node}
-import core.{HubServices, HubModule}
+import core.node.{NodeSubscriptionService, Node}
+import core.HubModule
 import models.DomainConfiguration
 import collection.mutable.ArrayBuffer
 
@@ -10,19 +10,19 @@ import collection.mutable.ArrayBuffer
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
-class HubNodeConnectionService extends NodeConnectionService {
+class HubNodeSubscriptionService extends NodeSubscriptionService {
 
-  private val nodeConnectionService: NodeConnectionService = HubModule.inject[NodeConnectionService](name = None)
+  private val broadcastingNodeSubscriptionService: NodeSubscriptionService = HubModule.inject[NodeSubscriptionService](name = None)
 
   // TODO this needs to become persistent
   private val buddies = new ArrayBuffer[Node]
 
   def generateSubscriptionRequest(to: Node, from: Node)(implicit configuration: DomainConfiguration) {
-    nodeConnectionService.generateSubscriptionRequest(to, from)
+    broadcastingNodeSubscriptionService.generateSubscriptionRequest(to, from)
   }
 
   def generateSubscriptionResponse(to: Node, from: Node, accepted: Boolean)(implicit configuration: DomainConfiguration) {
-    nodeConnectionService.generateSubscriptionResponse(to, from, accepted)
+    broadcastingNodeSubscriptionService.generateSubscriptionResponse(to, from, accepted)
   }
 
 

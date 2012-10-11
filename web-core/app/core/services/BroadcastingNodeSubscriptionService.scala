@@ -1,17 +1,17 @@
 package core.services
 
-import _root_.core.CultureHubPlugin
-import _root_.core.node.{Node, NodeConnectionService}
+import core.CultureHubPlugin
+import core.node.{Node, NodeSubscriptionService}
 import models.DomainConfiguration
 
 /**
  * 
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
-class BroadcastingNodeConnectionService extends NodeConnectionService {
+class BroadcastingNodeSubscriptionService extends NodeSubscriptionService {
 
   private def nodeConnectionServices(implicit configuration: DomainConfiguration) = {
-    CultureHubPlugin.getServices(classOf[NodeConnectionService]).filterNot(_ == this)
+    CultureHubPlugin.getServices(classOf[NodeSubscriptionService]).filterNot(_ == this)
   }
 
   def listActiveSubscriptions(node: Node)(implicit configuration: DomainConfiguration): scala.Seq[Node] = {
