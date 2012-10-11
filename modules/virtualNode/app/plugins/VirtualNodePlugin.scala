@@ -1,15 +1,21 @@
 package plugins
 
-import core.{HubServices, MenuElement, MainMenuEntry, CultureHubPlugin}
+import core._
+import node.NodeConnectionService
 import play.api.{Play, Application}
 import play.api.Play.current
 import models.{VirtualNode, Role}
-import collection.immutable.ListMap
+import scala.collection.immutable.ListMap
 import scala.util.matching.Regex
 import play.api.mvc.Handler
 import org.bson.types.ObjectId
+import _root_.services.VirtualNodeConnectionService
 import util.DomainConfigurationHandler
 import core.services.MemoryServices
+import scala.collection
+import core.MainMenuEntry
+import scala.Some
+import core.MenuElement
 
 /**
  * 
@@ -65,7 +71,17 @@ class VirtualNodePlugin(app: Application) extends CultureHubPlugin(app) {
           }
         }
       }
-
     }
   }
+
+  /**
+   * Service instances this plugin provides
+   */
+  override def services: Seq[Any] = Seq(VirtualNodePlugin.virtualNodeConnectionService)
+}
+
+object VirtualNodePlugin {
+
+  lazy val virtualNodeConnectionService: NodeConnectionService = new VirtualNodeConnectionService()(HubModule)
+
 }

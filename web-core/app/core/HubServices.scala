@@ -1,6 +1,6 @@
 package core
 
-import _root_.core.node.NodeRegistrationService
+import _root_.core.node.{Node, NodeRegistrationService}
 import _root_.util.DomainConfigurationHandler
 import scala.collection.mutable.HashMap
 import services._

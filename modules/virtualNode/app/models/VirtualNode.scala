@@ -13,7 +13,8 @@ case class VirtualNode(
   _id: ObjectId = new ObjectId,
   nodeId: String,
   name: String,
-  orgId: String) extends Node {
+  orgId: String,
+  contacts: Seq[String] = Seq.empty) extends Node {
 
   val isLocal: Boolean = true
 
@@ -31,13 +32,25 @@ object VirtualNode extends MultiModel[VirtualNode, VirtualNodeDAO] {
     new VirtualNodeDAO(collection)
   }
 
+  def addContact(to: VirtualNode, contact: Node)(implicit configuration: DomainConfiguration) {
+    if (!to.contacts.exists(contact.nodeId == _)) {
+      val updated = to.copy(contacts = to.contacts ++ Seq(contact.nodeId))
+      dao.save(updated)
+    }
+  }
+
 }
 
 class VirtualNodeDAO(collection: MongoCollection) extends SalatDAO[VirtualNode, ObjectId](collection) {
 
   def findAll = find(MongoDBObject()).toSeq
 
+  def findOne(node: Node): Option[VirtualNode] = findOne(MongoDBObject("orgId" -> node.orgId, "nodeId" -> node.nodeId))
+
+  @deprecated("Use findOne(nodeId: String) instead", "today")
   def findOne(orgId: String, nodeId: String): Option[VirtualNode] = findOne(MongoDBObject("orgId" -> orgId, "nodeId" -> nodeId))
+
+  def findOne(nodeId: String): Option[VirtualNode] = findOne(MongoDBObject("nodeId" -> nodeId))
 
 }
 

@@ -1,5 +1,6 @@
 package plugins
 
+import _root_.core.services.{BroadcastingNodeConnectionService, HubNodeConnectionService}
 import _root_.util.DomainConfigurationHandler
 import core.mapping.MappingService
 import core.schema.SchemaRepositoryWrapper
@@ -65,6 +66,10 @@ class ConfigurationPlugin(app: Application) extends CultureHubPlugin(app) {
 
   }
 
+  override def services: Seq[Any] = Seq(
+    new HubNodeConnectionService,
+    new BroadcastingNodeConnectionService
+  )
 
   /**
    * Executed when test data is loaded (for development and testing)

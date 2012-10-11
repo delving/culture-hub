@@ -1,5 +1,7 @@
 package core.node
 
+import models.DomainConfiguration
+
 /**
  * The NodeConnectionService makes it possible for Nodes to connect to each-other following a basic request / response
  * mechanism, inspired by the XMPP protocol (RFC 6121).
@@ -15,14 +17,7 @@ trait NodeConnectionService {
    * @param to the target node to request connection with
    * @param from this node
    */
-  def requestConnection(to: Node, from: Node)
-
-  /**
-   * Handles a connection request
-   * @param to the target node of the request
-   * @param from the node the request came from
-   */
-  def receiveConnectionRequest(to: Node, from: Node)
+  def generateSubscriptionRequest(to: Node, from: Node)(implicit configuration: DomainConfiguration)
 
   /**
    * Replies to a connection request
@@ -30,7 +25,14 @@ trait NodeConnectionService {
    * @param from the node replying to the connection request
    * @param accepted whether the connection request was accepted or rejected
    */
-  def respondToConnectionRequeset(to: Node, from: Node, accepted: Boolean)
+  def generateSubscriptionResponse(to: Node, from: Node, accepted: Boolean)(implicit configuration: DomainConfiguration)
+
+  /**
+   * Handles a connection request
+   * @param to the target node of the request
+   * @param from the node the request came from
+   */
+  def processSubscriptionRequest(to: Node, from: Node)(implicit configuration: DomainConfiguration)
 
   /**
    * Handles a connection request response
@@ -38,6 +40,13 @@ trait NodeConnectionService {
    * @param from the node replying to the connection request
    * @param accepted whether the connection request was accepted or rejected
    */
-  def handleConnectionResponse(to: Node, from: Node, accepted: Boolean)
+  def processSubscriptionResponse(to: Node, from: Node, accepted: Boolean)(implicit configuration: DomainConfiguration)
+
+  /**
+   * Lists the active connections of a Node, i.e. lists nodes that the node is connected with and that are reachable
+   * @param node the node for which to list the active connections
+   * @return a sequence of [[core.node.Node]]
+   */
+  def listActiveSubscriptions(node: Node)(implicit configuration: DomainConfiguration): Seq[Node]
 
 }

@@ -14,14 +14,17 @@ import play.api.data.validation._
 import play.api.i18n.Messages
 import scala.Some
 import play.api.data.validation.ValidationError
-import core.{DomainServiceLocator, HubModule}
-import core.node.NodeRegistrationService
+import core.{HubServices, DomainServiceLocator, HubModule}
+import core.node.{NodeConnectionService, NodeRegistrationService}
+import plugins.VirtualNodePlugin
 
 object VirtualNodes extends BoundController(HubModule) with VirtualNodes
 
 trait VirtualNodes extends OrganizationController { self: BoundController =>
 
   val nodeRegistrationServiceLocator = inject [ DomainServiceLocator[NodeRegistrationService] ]
+
+  val broadcastingNodeSubscriptionService = inject [ NodeConnectionService ]
 
   def list = OrganizationAdmin {
     Action {
@@ -105,6 +108,10 @@ trait VirtualNodes extends OrganizationController { self: BoundController =>
                 try {
                   nodeRegistrationServiceLocator.byDomain.registerNode(newNode, connectedUser)
                   VirtualNode.dao.insert(newNode)
+
+                  // connect to our hub
+                  broadcastingNodeSubscriptionService.generateSubscriptionRequest(configuration.node, newNode)
+
                   Json(VirtualNodeViewModel(newNode))
                 } catch {
                   case t: Throwable =>
