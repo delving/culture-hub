@@ -12,7 +12,6 @@ import org.bson.types.ObjectId
 import controllers.{BoundController, OrganizationController}
 import play.api.data.validation._
 import play.api.i18n.Messages
-import scala.Some
 import play.api.data.validation.ValidationError
 import core.{DomainServiceLocator, HubModule}
 import core.node.{NodeSubscriptionService, NodeRegistrationService}
@@ -170,7 +169,7 @@ trait VirtualNodes extends OrganizationController { self: BoundController =>
 
     def nodeIdTaken(implicit configuration: DomainConfiguration) = Constraint[VirtualNodeViewModel]("plugin.virtualNode.nodeIdTaken") {
       case r =>
-        val maybeOne = VirtualNode.dao.findOne(r.orgId, r.nodeId)
+        val maybeOne = VirtualNode.dao.findOne(r.nodeId)
         val maybeOneId = maybeOne.map(_._id)
         if (maybeOneId.isDefined && r.id.isDefined && maybeOneId == r.id) {
           Valid

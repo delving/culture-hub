@@ -18,28 +18,35 @@ class HubNodeSubscriptionService extends NodeSubscriptionService {
   private val buddies = new ArrayBuffer[Node]
 
   def generateSubscriptionRequest(to: Node, from: Node)(implicit configuration: DomainConfiguration) {
-    broadcastingNodeSubscriptionService.generateSubscriptionRequest(to, from)
+    if (to.nodeId == configuration.node.nodeId) {
+      broadcastingNodeSubscriptionService.processSubscriptionRequest(to, from)
+    }
   }
 
   def generateSubscriptionResponse(to: Node, from: Node, accepted: Boolean)(implicit configuration: DomainConfiguration) {
-    broadcastingNodeSubscriptionService.generateSubscriptionResponse(to, from, accepted)
+    if (from.nodeId == configuration.node.nodeId) {
+      broadcastingNodeSubscriptionService.processSubscriptionResponse(to, from, accepted)
+    }
   }
 
 
   def processSubscriptionRequest(to: Node, from: Node)(implicit configuration: DomainConfiguration) {
-    // for the time being we accept blindly everyone since requests can only come from our own Virtual Nodes
-    generateSubscriptionResponse(from, to, true)
+    if (to.nodeId == configuration.node.nodeId && !buddies.exists(_.nodeId == from.nodeId)) {
+      // for the time being we accept blindly everyone since requests can only come from our own Virtual Nodes
+      buddies += from
+      generateSubscriptionResponse(from, to, true)
+    }
   }
 
   def processSubscriptionResponse(to: Node, from: Node, accepted: Boolean)(implicit configuration: DomainConfiguration) {
-    if (to == configuration.node && accepted) {
+    if (to.nodeId == configuration.node.nodeId && accepted) {
       buddies += from
     }
 
   }
 
   def listActiveSubscriptions(node: Node)(implicit configuration: DomainConfiguration): Seq[Node] = {
-    if (node == configuration.node) buddies.toSeq else Seq.empty
+    if (node.nodeId == configuration.node.nodeId) buddies.toSeq else Seq.empty
   }
 
 }

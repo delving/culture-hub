@@ -11,10 +11,11 @@ import models.DomainConfiguration
 class BroadcastingNodeSubscriptionService extends NodeSubscriptionService {
 
   private def nodeConnectionServices(implicit configuration: DomainConfiguration) = {
-    CultureHubPlugin.getServices(classOf[NodeSubscriptionService]).filterNot(_ == this)
+    CultureHubPlugin.getServices(classOf[NodeSubscriptionService]).
+      filterNot(s => s.getClass == classOf[BroadcastingNodeSubscriptionService])
   }
 
-  def listActiveSubscriptions(node: Node)(implicit configuration: DomainConfiguration): scala.Seq[Node] = {
+  def listActiveSubscriptions(node: Node)(implicit configuration: DomainConfiguration): Seq[Node] = {
     nodeConnectionServices.flatMap { s => s.listActiveSubscriptions(node) }
   }
 

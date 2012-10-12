@@ -1,6 +1,6 @@
 package core
 
-import core.node.{NodeSubscriptionService, NodeRegistrationService}
+import _root_.core.node.{NodeDirectoryService, NodeSubscriptionService, NodeRegistrationService}
 import core.schema.SchemaProvider
 import core.services.{BroadcastingNodeSubscriptionService, AggregatingOrganizationCollectionLookupService, AggregatingHarvestCollectionLookup}
 import org.scala_tools.subcut.inject.NewBindingModule
@@ -26,5 +26,6 @@ object HubModule extends NewBindingModule({ module =>
   bind [DomainServiceLocator[OrganizationService]].toSingleInstance(HubServices.organizationServiceLocator)
   bind [DomainServiceLocator[DirectoryService]].toSingleInstance(HubServices.directoryServiceLocator)
   bind [DomainServiceLocator[NodeRegistrationService]].toSingleInstance(HubServices.nodeRegistrationServiceLocator)
+  bind [DomainServiceLocator[NodeDirectoryService]].toSingleInstance(HubServices.nodeDirectoryServiceLocator)
 
 })

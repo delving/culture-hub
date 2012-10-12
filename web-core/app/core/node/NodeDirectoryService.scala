@@ -13,4 +13,11 @@ trait NodeDirectoryService {
    */
   def listEntries: Seq[Node]
 
+  /**
+   * Finds one node by ID
+   * @param nodeId the unique ID of the node
+   * @return an optional [[core.node.Node]]
+   */
+  def findOneById(nodeId: String): Option[Node]
+
 }

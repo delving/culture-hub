@@ -1,8 +1,9 @@
 package services
 
-import core.node.{Node, NodeSubscriptionService}
+import core.node.{NodeDirectoryService, Node, NodeSubscriptionService}
 import models.{VirtualNode, DomainConfiguration}
 import org.scala_tools.subcut.inject.{BindingModule, Injectable}
+import core.{HubModule, DomainServiceLocator}
 
 /**
  *
@@ -10,14 +11,15 @@ import org.scala_tools.subcut.inject.{BindingModule, Injectable}
  */
 class VirtualNodeSubscriptionService(implicit val bindingModule: BindingModule) extends NodeSubscriptionService with Injectable {
 
-  private val broadcastingHubNodeService = inject [NodeSubscriptionService ]
+  private val nodeDirectoryServiceLocator = inject [ DomainServiceLocator[NodeDirectoryService] ]
+  private val broadcastingNodeSubscriptionService: NodeSubscriptionService = HubModule.inject[NodeSubscriptionService](name = None)
 
   def generateSubscriptionRequest(to: Node, from: Node)(implicit configuration: DomainConfiguration) {
-    broadcastingHubNodeService.processSubscriptionRequest(to, from)
+    broadcastingNodeSubscriptionService.processSubscriptionRequest(to, from)
   }
 
   def generateSubscriptionResponse(to: Node, from: Node, accepted: Boolean)(implicit configuration: DomainConfiguration) {
-    broadcastingHubNodeService.processSubscriptionResponse(to, from, accepted)
+    broadcastingNodeSubscriptionService.processSubscriptionResponse(to, from, accepted)
   }
 
   def processSubscriptionRequest(to: Node, from: Node)(implicit configuration: DomainConfiguration) {
@@ -39,7 +41,11 @@ class VirtualNodeSubscriptionService(implicit val bindingModule: BindingModule) 
   def listActiveSubscriptions(node: Node)(implicit configuration: DomainConfiguration): Seq[Node] = {
     VirtualNode.dao.findOne(node).map { node =>
       node.contacts.flatMap { contact =>
-        VirtualNode.dao.findOne(contact)
+        if (contact == configuration.node.nodeId) {
+          Some(configuration.node)
+        } else {
+          nodeDirectoryServiceLocator.byDomain.findOneById(contact)
+        }
       }
     }.getOrElse(Seq.empty)
   }

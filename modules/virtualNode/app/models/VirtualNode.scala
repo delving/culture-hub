@@ -18,6 +18,11 @@ case class VirtualNode(
 
   val isLocal: Boolean = true
 
+  override def equals(other: Any): Boolean = {
+    other.isInstanceOf[Node] && other.asInstanceOf[Node].nodeId == nodeId
+  }
+
+  override def hashCode(): Int = nodeId.hashCode
 }
 
 object VirtualNode extends MultiModel[VirtualNode, VirtualNodeDAO] {
@@ -45,10 +50,7 @@ class VirtualNodeDAO(collection: MongoCollection) extends SalatDAO[VirtualNode, 
 
   def findAll = find(MongoDBObject()).toSeq
 
-  def findOne(node: Node): Option[VirtualNode] = findOne(MongoDBObject("orgId" -> node.orgId, "nodeId" -> node.nodeId))
-
-  @deprecated("Use findOne(nodeId: String) instead", "today")
-  def findOne(orgId: String, nodeId: String): Option[VirtualNode] = findOne(MongoDBObject("orgId" -> orgId, "nodeId" -> nodeId))
+  def findOne(node: Node): Option[VirtualNode] = findOne(MongoDBObject("nodeId" -> node.nodeId))
 
   def findOne(nodeId: String): Option[VirtualNode] = findOne(MongoDBObject("nodeId" -> nodeId))
 

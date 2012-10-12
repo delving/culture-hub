@@ -72,6 +72,16 @@ class VirtualNodePlugin(app: Application) extends CultureHubPlugin(app) {
         }
       }
     }
+
+    val service = HubModule.inject[NodeSubscriptionService](name = None)
+
+    // HubNodeSubscriptionService has amnesia for the time being
+    DomainConfigurationHandler.domainConfigurations.foreach { implicit configuration =>
+      VirtualNode.dao.findAll.foreach { node =>
+        service.processSubscriptionRequest(configuration.node, node)
+      }
+    }
+
   }
 
   /**

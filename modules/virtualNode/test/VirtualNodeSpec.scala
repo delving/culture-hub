@@ -1,8 +1,10 @@
+import core.services.BroadcastingNodeSubscriptionService
 import models.VirtualNode
 import play.api.libs.json.{JsString, JsObject}
 import play.api.mvc.AnyContentAsJson
 import play.api.test._
 import play.api.test.Helpers._
+import util.DomainConfigurationHandler
 
 
 /**
@@ -24,7 +26,23 @@ class VirtualNodeSpec extends Specs2TestContext {
         val response = controllers.organization.VirtualNodes.submit(fakeRequest)
         status(response) must equalTo(200)
 
-        VirtualNode.dao("delving").findOne("delving", "rotterdam-node") must beSome
+        VirtualNode.dao("delving").findOne("rotterdam-node") must beSome
+      }
+
+    }
+
+    "find a created node" in {
+
+      withTestConfig {
+
+        implicit val configuration = DomainConfigurationHandler.getByOrgId("delving")
+
+        val node = VirtualNode.dao.findOne("rotterdam-node").get
+
+        val broadcastingNodeSubscriptionService = new BroadcastingNodeSubscriptionService
+
+        broadcastingNodeSubscriptionService.listActiveSubscriptions(node) must equalTo(Seq(configuration.node))
+        broadcastingNodeSubscriptionService.listActiveSubscriptions(configuration.node) must equalTo(Seq(node))
       }
 
     }
@@ -41,18 +59,17 @@ class VirtualNodeSpec extends Specs2TestContext {
     "delete a node" in {
 
       withTestConfig {
-        val node = VirtualNode.dao("delving").findOne("delving", "rotterdam-node").get
+        val node = VirtualNode.dao("delving").findOne("rotterdam-node").get
         val response = controllers.organization.VirtualNodes.delete(node._id)(
           FakeRequest(method = "DELETE", path = "/organizations/delving/node/delete/" + node._id.toString).withSession(
             ("userName" -> "bob")
           )
         )
         status(response) must equalTo(200)
-        VirtualNode.dao("delving").findOne("delving", "rotterdam") must beNone
+        VirtualNode.dao("delving").findOne("rotterdam") must beNone
       }
 
     }
-
 
   }
 

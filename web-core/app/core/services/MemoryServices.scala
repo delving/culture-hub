@@ -18,7 +18,8 @@ class MemoryServices(val users: HashMap[String, MemoryUser] = new HashMap[String
                      val organizations: HashMap[String, MemoryOrganization] = new HashMap[String, MemoryOrganization],
                      val nodes: ArrayBuffer[MemoryNode] = new ArrayBuffer[MemoryNode]
                     ) extends AuthenticationService with RegistrationService with UserProfileService
-                      with OrganizationService with DirectoryService with NodeRegistrationService {
+                      with OrganizationService with DirectoryService with NodeRegistrationService
+                      with NodeDirectoryService {
 
 
   // ~~~ authentication
@@ -138,6 +139,16 @@ class MemoryServices(val users: HashMap[String, MemoryUser] = new HashMap[String
       nodes.append(updated)
     }
   }
+
+
+  // node directory
+
+  def listEntries: Seq[Node] = {
+    nodes.toSeq
+  }
+
+  def findOneById(nodeId: String): Option[Node] = nodes.find(_.nodeId == nodeId)
+
 
   // directory
 

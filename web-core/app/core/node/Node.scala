@@ -28,4 +28,7 @@ trait Node {
    */
   def isLocal: Boolean
 
+  override def equals(that: Any): Boolean = that.isInstanceOf[Node] && that.asInstanceOf[Node].nodeId == nodeId
+
+  override def hashCode(): Int = nodeId.hashCode
 }

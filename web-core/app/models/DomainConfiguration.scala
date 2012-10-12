@@ -2,7 +2,7 @@ package models {
 
 import _root_.core.node.Node
 import core.access.ResourceType
-import core.{SystemField, CultureHubPlugin, Constants}
+import core.{SystemField, CultureHubPlugin}
 import org.apache.solr.client.solrj.SolrQuery
 import core.search.{SolrSortElement, SolrFacetElement}
 import play.api.{Configuration, Play, Logger}
@@ -56,14 +56,16 @@ case class DomainConfiguration(
 
 ) {
 
+  val self = this
+
   /**
    * The node for this organization hub
    */
-  lazy val node = new Node {
-    def nodeId: String = commonsService.nodeName
-    def name: String = commonsService.nodeName
-    def orgId: String = orgId
-    def isLocal: Boolean = true
+  val node = new Node {
+    val nodeId: String = commonsService.nodeName
+    val name: String = commonsService.nodeName
+    val orgId: String = self.orgId
+    val isLocal: Boolean = true
   }
 
   def getFacets: List[SolrFacetElement] = {

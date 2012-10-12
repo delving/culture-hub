@@ -19,7 +19,8 @@ import eu.delving.definitions.OrganizationEntry
  */
 
 class CommonsServices(commonsHost: String, orgId: String, apiToken: String, node: String) extends AuthenticationService
-  with RegistrationService with UserProfileService with OrganizationService with DirectoryService with NodeRegistrationService
+  with RegistrationService with UserProfileService with OrganizationService with DirectoryService
+  with NodeRegistrationService with NodeDirectoryService
   with play.api.http.Status {
 
   val log = Logger("CultureHub")
@@ -322,6 +323,45 @@ class CommonsServices(commonsHost: String, orgId: String, apiToken: String, node
             throw new RuntimeException("Error removing member from node: " + response.body)
         }
       }
+  }
+
+  // node directory
+
+  def findOneById(nodeId: String): Option[Node] = {
+    get("/node/" + nodeId).flatMap { response =>
+      if (response.status == OK) {
+        Some(parseNode(response.json))
+      } else {
+        None
+      }
+    }
+  }
+
+  def listEntries: Seq[Node] = {
+    Seq.empty
+//    get("/node/list").map { response =>
+//      if (response.status == OK) {
+//        // TODO
+//        Seq.empty
+////        Some(
+////          (response.json \\ "nodes").map(parseNode(_))
+////        )
+//      } else {
+//        None
+//      }
+//    }
+  }
+
+  private def parseNode(json: JsValue): Node = {
+    val rNodeId = (json \ "nodeId").as[String]
+    val rOrgId = (json \ "orgId").as[String]
+    val rName = (json \ "name").as[String]
+    new Node {
+      def isLocal: Boolean = false // TODO
+      def nodeId: String = rNodeId
+      def orgId: String = rOrgId
+      def name: String = rName
+    }
   }
 
   // directory
