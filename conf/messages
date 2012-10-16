@@ -547,16 +547,18 @@ org.vc.queryDatasets=Queried DataSets
 
 ### VC HELP ###
 org.vc.help.toggle=Help with virtual collections
+
 # FIELDS #
 org.vc.help.fields.tab=Fields explained
 org.vc.help.fields.name.info=The display name of the virtual collection.
 org.vc.help.fields.identifier.info=The system name for the virtual collection.
 org.vc.help.fields.datasets.info=The Dataset(s) included in the virtual collection.
 org.vc.help.fields.query.info=The search-term(s) which will query the Datasets to build the virtual collection.
-org.vc.help.fields.excludedHubIds.info=Exclude specific records from the virtual collection by entering their <em>hubId</em> here. Multiple <em>hubIds</em> are separated by a comma.
+org.vc.help.fields.keywords=Comma separated list of terms (term_1, term_2, ... )
+org.vc.help.fields.excludedHubIds.info=Exclude specific records from the virtual collection by entering their <em>hubId</em> here. Multiple <em>hubIds</em> are separated by a comma. Or add them automatically by clicking on the "Exlclude" button in the preview results.
 # QUERIES #
 org.vc.help.queries.tab=Writing queries
-org.vc.help.queries.info=<h6>Simple queries</h6><p>Queries can be a simple search term like a <em>place</em> or <em>person</em> name.</p><h6>Complex queries</h6><p>Multiple terms are combined using the boolean operators <code>AND</code> <code>NOT</code> and <code>OR</code>. An example would be: <code>sketch OR drawing NOT charcoal</code>.</p><h6>Excluding specific hubIds</h6><p>Try to compose the query in such a way that undesired records are not part of the results. Any undesired results that remain can be omitted by entering their <span class="label label-contrast">hubId</span> in the <span class="label label-contrast">Exclude</span> field.</p><h6>Better results</h6><p>To increase the chance that returned results contain digital objects (i.e. images) append <code>AND delving_hasDigitalObject_facet:true</code> to the query in the <span class="label label-contrast">Query</span> field.</p>
+org.vc.help.queries.info=<h6>Simple queries</h6><p>Queries can be a simple search term like a <em>place</em> or <em>person</em> name.</p><h6>Complex queries</h6><p>Multiple terms are combined using the boolean operators <code>AND</code> and <code>NOT</code>. An example would be: <code>sketch OR drawing NOT charcoal</code>.</p><h6>Excluding specific hubIds</h6><p>Try to compose the query in such a way that undesired records are not part of the results. Any undesired results that remain can be omitted by entering their <span class="label label-contrast">hubId</span> in the <span class="label label-contrast">Exclude</span> field.</p><h6>Better results</h6><p>To increase the chance that returned results contain digital objects (i.e. images) append <code>AND delving_hasDigitalObject_facet:true</code> to the query in the <span class="label label-contrast">Query</span> field.</p>
 
 
 # AUTO-GEN PAGE KEY #

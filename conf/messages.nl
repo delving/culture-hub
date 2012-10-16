@@ -305,7 +305,7 @@ metadata.europeana.uri=Europeana url
 
 metadata.icn.material=Materiaal
 metadata.icn.collection=Collectie
-metadata.icn.technique=Technique
+metadata.icn.technique=Techniek
 metadata.icn.creatorYearOfBirth=Vervaardiger geboortejaar
 metadata.icn.acquisitionMeans=Wijze van verwerving
 metadata.icn.acquisitionYear=Jaar van verwerving
@@ -506,7 +506,9 @@ org.vc.help.fields.name.info=De getoonde naam van de virtuele collectie.
 org.vc.help.fields.identifier.info=systeem naam van de virtuele collectie.
 org.vc.help.fields.datasets.info=De Dataset(s) opgenomen in de virtuele collectie.
 org.vc.help.fields.query.info=De zoek-term(en) waarmee de virtuele collectie opgebouwd wordt.
-org.vc.help.fields.excludedHubIds.info=Verwijder specifieke resultaten uit de virtuele collectie door hun <em>hubId</em> hier in te vullen. Meerdere <em>hubIds</em> gescheiden door een komma.
+org.vc.help.fields.keywords=Comma separated list of terms (term1, term2, ...)
+org.vc.help.fields.keywords=Komma gescheiden lijst van termen (term_1, term_2, ... )
+org.vc.help.fields.excludedHubIds.info=Verwijder specifieke resultaten uit de virtuele collectie door hun <em>hubId</em> hier in te vullen. Meerdere <em>hubIds</em> gescheiden door een komma. Door op de knop "Uitsluiten" te drukken in de voorbeeld lijst van resultaten kunt u ook een <em>hubId</em> toevoegen.
 # QUERIES #
 org.vc.help.queries.tab=Zoekopdracht schrijven
 org.vc.help.queries.info=<h6>Simplele zoekopdracht</h6><p>Een zoekopdracht kan zoiets simpels als een <em>plaats</em> of <em>persoon</em> naam zijn.</p><h6>Complexe zoekopdracht</h6><p>Complexe zoekopdrachten kunnen ook aangemaakt worden door zoektermen te combineren met <code>AND</code> <code>NOT</code> en <code>OR</code>. Een voorbeeld hiervan zo zijn: <code>schets OR tekening NOT houtskool</code>.</p><h6>Individuele resultaten uitsluiten</h6><p>Probeer de zoekopdracht zodanig te forumuleren dat ongewenste resultaten uitgesloten blijven. Mocht dit echter niet volledig lukken dan is het mogelijk om individuele resulaten uit te sluiten door het desbetreffende <span class="label label-contrast">hubId</span> toe te voegen aan het <span class="label label-contrast">Uitsluiten</span> veld.</p><h6>Betere resultaten</h6><p>Om de kans op resultaten met digitale objecten (plaatjes) te verbeteren voeg <code>AND delving_hasDigitalObject_facet:true</code> aan het eind van de zoekopdracht toe in het <span class="label label-contrast">Zoekopdracht</span> veld.</p>

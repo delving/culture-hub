@@ -72,15 +72,16 @@
                             <field path="/icn:record/icn:province" label="metadata.icn.province"/>
                             <field path="/icn:record/europeana:country" label="metadata.europeana.country"/>
                             <field path="/icn:record/dc:rights" label="metadata.dc.rights"/>
+                            <field path="/icn:record/dc:identifier" label="metadata.dc.identifier"/>
+                        </container>
 
-                            <!-- RIJKS FIELDS -->
-                            <container role="rijksMember" type="labelled-list">
-                                <field path="/icn:record/icn:legalStatus" label="metadata.icn.legalStatus" role="rijksMember"/>
-                                <field path="/icn:record/icn:acceptedStateCharges" label="metadata.icn.acceptedStateCharges" role="rijksMember"/>
-                                <field path="/icn:record/icn:acceptedStateChargesReason" label="metadata.icn.acceptedStateChargesReason" role="rijksMember"/>
-                                <field path="/icn:record/icn:expulsionYear" label="metadata.icn.expulsionYear" role="rijksMember"/>
-                                <field path="/icn:record/icn:expulsionMeans" label="metadata.icn.expulsionMeans" role="rijksMember"/>
-                            </container>
+                        <!-- RIJKS FIELDS -->
+                        <container role="rijksMember" type="labelled-list">
+                            <field path="/icn:record/icn:legalStatus" label="metadata.icn.legalStatus" role="rijksMember"/>
+                            <field path="/icn:record/icn:acceptedStateCharges" label="metadata.icn.acceptedStateCharges" role="rijksMember"/>
+                            <field path="/icn:record/icn:acceptedStateChargesReason" label="metadata.icn.acceptedStateChargesReason" role="rijksMember"/>
+                            <field path="/icn:record/icn:expulsionYear" label="metadata.icn.expulsionYear" role="rijksMember"/>
+                            <field path="/icn:record/icn:expulsionMeans" label="metadata.icn.expulsionMeans" role="rijksMember"/>
                         </container>
                     </column>
                 </row>
