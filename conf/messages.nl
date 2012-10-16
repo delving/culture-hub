@@ -305,7 +305,7 @@ metadata.europeana.uri=Europeana url
 
 metadata.icn.material=Materiaal
 metadata.icn.collection=Collectie
-metadata.icn.technique=Technique
+metadata.icn.technique=Techniek
 metadata.icn.creatorYearOfBirth=Vervaardiger geboortejaar
 metadata.icn.acquisitionMeans=Wijze van verwerving
 metadata.icn.acquisitionYear=Jaar van verwerving
