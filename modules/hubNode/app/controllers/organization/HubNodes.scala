@@ -98,6 +98,7 @@ trait HubNodes extends OrganizationController { self: BoundController =>
                     Json(viewModel.copy(errors = Map("global" -> "Node could not be found! Maybe it was deleted by somebody else in the meantime ?")))
                 }
               case None =>
+
                 val newNode = HubNode(
                   nodeId = slugify(viewModel.name),
                   name = viewModel.name,
@@ -169,7 +170,7 @@ trait HubNodes extends OrganizationController { self: BoundController =>
 
     def apply(n: HubNode): HubNodeViewModel = HubNodeViewModel(Some(n._id), n.nodeId, n.orgId, n.name)
 
-    def nodeIdTaken(implicit configuration: DomainConfiguration) = Constraint[HubNodeViewModel]("plugin.virtualNode.nodeIdTaken") {
+    def nodeIdTaken(implicit configuration: DomainConfiguration) = Constraint[HubNodeViewModel]("plugin.hubNode.nodeIdTaken") {
       case r =>
         val maybeOne = HubNode.dao.findOne(r.nodeId)
         val maybeOneId = maybeOne.map(_._id)
@@ -178,17 +179,22 @@ trait HubNodes extends OrganizationController { self: BoundController =>
         } else if (maybeOne == None) {
           Valid
         } else {
-          Invalid(ValidationError(Messages("plugin.virtualNode.nodeIdTaken")))
+          Invalid(ValidationError(Messages("plugin.hubNode.nodeIdTaken")))
         }
     }
 
+    def orgIdValid(implicit configuration: DomainConfiguration) = Constraint[String]("plugin.hubNode.orgIdValid") {
+      case r if organizationServiceLocator.byDomain.exists(r) => Valid
+      case _ => Invalid(ValidationError(Messages("plugin.hubNode.orgIdValid")))
+
+    }
 
     def virtualNodeForm(implicit configuration: DomainConfiguration) = Form(
       mapping(
         "id" -> optional(of[ObjectId]),
         "nodeId" -> text,
-        "orgId" -> nonEmptyText.verifying(Constraints.pattern("^[A-Za-z0-9-]{3,40}$".r, "plugin.virtualNode.invalidOrgId", "plugin.virtualNode.invalidOrgId")),
-        "name" -> nonEmptyText.verifying(Constraints.pattern("^[A-Za-z0-9- ]{3,40}$".r, "plugin.virtualNode.invalidNodeId", "plugin.virtualNode.invalidNodeName")),
+        "orgId" -> nonEmptyText.verifying(orgIdValid),
+        "name" -> nonEmptyText.verifying(Constraints.pattern("^[A-Za-z0-9- ]{3,40}$".r, "plugin.hubNode.invalidNodeId", "plugin.hubNode.invalidNodeName")),
         "errors" -> of[Map[String, String]]
       )(HubNodeViewModel.apply)(HubNodeViewModel.unapply).verifying(nodeIdTaken)
     )

@@ -81,6 +81,10 @@ class MemoryServices(val users: HashMap[String, MemoryUser] = new HashMap[String
 
   def exists(orgId: String) = organizations.contains(orgId)
 
+  def queryByOrgId(query: String): Seq[OrganizationProfile] = organizations.values.filter(_.orgId.contains(query)).map { org =>
+    OrganizationProfile(org.orgId, org.name)
+  }.toSeq
+
   def isAdmin(orgId: String, userName: String): Boolean = organizations.get(orgId).getOrElse(return false).admins.contains(userName)
 
   def listAdmins(orgId: String): List[String] = organizations.get(orgId).getOrElse(return List.empty).admins

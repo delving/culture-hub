@@ -4,7 +4,7 @@ import play.api.i18n.Messages
 import controllers._
 import play.api.mvc.Action
 import models.HubUser
-import core.{OrganizationCollectionLookupService, HubModule}
+import core.{OrganizationService, DomainServiceLocator, OrganizationCollectionLookupService, HubModule}
 import core.collection.OrganizationCollection
 import com.mongodb.casbah.Imports._
 import controllers.Token
@@ -20,7 +20,7 @@ object Organizations extends BoundController(HubModule) with Organizations
 
 trait Organizations extends DelvingController { this: BoundController =>
 
-  val organizationCollectionLookupService = inject[OrganizationCollectionLookupService]
+  val organizationCollectionLookupService = inject [ OrganizationCollectionLookupService ]
 
   def index(orgId: String, language: Option[String]) = OrganizationBrowsing {
     Action {
@@ -43,5 +43,14 @@ trait Organizations extends DelvingController { this: BoundController =>
         }
     }
   }
+
+  def listAsTokens(q: String) = Root {
+    Action {
+      implicit request =>
+        val tokens = organizationServiceLocator.byDomain.queryByOrgId(q).map { org => Token(org.orgId, org.orgId) }
+        Json(tokens)
+    }
+  }
+
 
 }

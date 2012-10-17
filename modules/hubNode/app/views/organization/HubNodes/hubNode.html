@@ -50,6 +50,18 @@
             $("body").css('visibility', 'visible');
         });
 
+        $('#orgId').typeahead({
+            source: function (query, process) {
+                return $.get('/organizations/search', { query: query }, function (data) {
+                    var orgIds = [];
+                    $.each(data, function(index, item) {
+                        orgIds.push(item.id);
+                    });
+                    return process(orgIds);
+                });
+            }
+        });
+
         $('#saveButton').click(function (event) {
             event.preventDefault();
             handleSubmit('/organizations/${orgId}/hubNode/submit', viewModel, '#hubNodeForm', null, function () {

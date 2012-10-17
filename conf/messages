@@ -694,7 +694,7 @@ plugin.hubNode.nodeIdTaken=This nodeId is already taken
 plugin.hubNode.orgId=Organization identifier
 plugin.hubNode.nodeId=Node identifier
 plugin.hubNode.name=Node name
-plugin.hubNode.invalidOrgId=Invalid organization identifier
+plugin.hubNode.orgIdValid=This organization doesn't exist. Contact support@delving.eu for help.
 plugin.hubNode.invalidNodeName=Invalid node name: can only have letters and white spaces
 
 

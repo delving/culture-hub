@@ -168,9 +168,18 @@ class CommonsServices(commonsHost: String, orgId: String, apiToken: String, node
   // organization
 
   def exists(orgId: String): Boolean = {
-    get("/organization/" + orgId).map {
-      response => response.status == OK
-    }.getOrElse(true)
+    get("/organization/" + orgId).map { response => response.status == OK }.getOrElse(true)
+  }
+
+  def queryByOrgId(query: String): Seq[OrganizationProfile] = {
+    get("/organization/query", "field" -> "name", "value" -> query).map { response =>
+      if (response.status == OK) {
+        import OrganizationProfileFormat._
+        Json.fromJson[Seq[OrganizationProfile]](Json.parse(response.body))
+      } else {
+        Seq.empty
+      }
+    }.getOrElse(Seq.empty)
   }
 
   def isAdmin(orgId: String, userName: String): Boolean = {
@@ -187,7 +196,6 @@ class CommonsServices(commonsHost: String, orgId: String, apiToken: String, node
         List()
       }
     }.getOrElse(List())
-
   }
 
   def addAdmin(orgId: String, userName: String): Boolean = {
