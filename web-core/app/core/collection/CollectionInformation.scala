@@ -11,4 +11,6 @@ trait CollectionInformation extends Collection {
 
   def getTotalRecords: Long
 
+  def getDescription: Option[String]
+
 }
