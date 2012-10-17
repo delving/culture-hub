@@ -172,6 +172,7 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
           <setSpec>{set.spec}</setSpec>
           <setName>{set.getName}</setName>
           <setDescription>
+            <description>{set.getDescription.getOrElse("")}</description>
             <totalRecords>{set.getTotalRecords}</totalRecords>{if (set.isInstanceOf[OrganizationCollectionInformation]) {
             val organizationCollectionInformation = set.asInstanceOf[OrganizationCollectionInformation]
             <dataProvider>{organizationCollectionInformation.getDataProvider}</dataProvider>}}
