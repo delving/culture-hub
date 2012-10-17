@@ -6,7 +6,7 @@ import play.api.data.Forms._
 import play.api.data.format.Formats._
 import play.api.data.validation.Constraints._
 import extensions.Formatters._
-import models.{DomainConfiguration, VirtualNode}
+import models.{DomainConfiguration, HubNode}
 import extensions.JJson
 import org.bson.types.ObjectId
 import controllers.{BoundController, OrganizationController}
@@ -16,9 +16,9 @@ import play.api.data.validation.ValidationError
 import core.{DomainServiceLocator, HubModule}
 import core.node.{NodeSubscriptionService, NodeRegistrationService}
 
-object VirtualNodes extends BoundController(HubModule) with VirtualNodes
+object HubNodes extends BoundController(HubModule) with HubNodes
 
-trait VirtualNodes extends OrganizationController { self: BoundController =>
+trait HubNodes extends OrganizationController { self: BoundController =>
 
   val nodeRegistrationServiceLocator = inject [ DomainServiceLocator[NodeRegistrationService] ]
 
@@ -27,16 +27,16 @@ trait VirtualNodes extends OrganizationController { self: BoundController =>
   def list = OrganizationAdmin {
     Action {
       implicit request =>
-        val nodes: Seq[VirtualNodeViewModel] = VirtualNode.dao.findAll.map(VirtualNodeViewModel(_))
+        val nodes: Seq[HubNodeViewModel] = HubNode.dao.findAll.map(HubNodeViewModel(_))
         Ok(Template('data -> JJson.generate(Map("nodes" -> nodes))))
     }
   }
 
-  def virtualNode(id: Option[ObjectId]) = OrganizationAdmin {
+  def hubNode(id: Option[ObjectId]) = OrganizationAdmin {
     Action {
       implicit request =>
-        val node = id.flatMap { nodeId => VirtualNode.dao.findOneById(nodeId) }
-        val data = node.map(VirtualNodeViewModel(_))
+        val node = id.flatMap { nodeId => HubNode.dao.findOneById(nodeId) }
+        val data = node.map(HubNodeViewModel(_))
 
         data match {
           case Some(d) =>
@@ -47,7 +47,7 @@ trait VirtualNodes extends OrganizationController { self: BoundController =>
               'members -> JJson.generate(members.map(m => Map("id" -> m, "name" -> m)))
             ))
           case None =>
-            Ok(Template('data -> JJson.generate(VirtualNodeViewModel())))
+            Ok(Template('data -> JJson.generate(HubNodeViewModel())))
         }
     }
   }
@@ -55,10 +55,10 @@ trait VirtualNodes extends OrganizationController { self: BoundController =>
   def delete(id: ObjectId) = OrganizationAdmin {
     Action {
       implicit request =>
-          VirtualNode.dao.findOneById(id).map { node =>
+          HubNode.dao.findOneById(id).map { node =>
             try {
               nodeRegistrationServiceLocator.byDomain.removeNode(node)
-              VirtualNode.dao.removeById(id)
+              HubNode.dao.removeById(id)
               Ok
             } catch {
              case t: Throwable =>
@@ -73,12 +73,12 @@ trait VirtualNodes extends OrganizationController { self: BoundController =>
   def submit = OrganizationAdmin {
     Action {
       implicit request =>
-        VirtualNodeViewModel.virtualNodeForm.bind(request.body.asJson.get).fold(
+        HubNodeViewModel.virtualNodeForm.bind(request.body.asJson.get).fold(
           formWithErrors => handleValidationError(formWithErrors),
           viewModel => {
             viewModel.id match {
               case Some(id) =>
-                VirtualNode.dao.findOneById(id) match {
+                HubNode.dao.findOneById(id) match {
                   case Some(existingNode) =>
                     try {
                       nodeRegistrationServiceLocator.byDomain.updateNode(existingNode)
@@ -86,7 +86,7 @@ trait VirtualNodes extends OrganizationController { self: BoundController =>
                       val updatedNode = existingNode.copy(
                         name = viewModel.name
                       )
-                      VirtualNode.dao.save(updatedNode)
+                      HubNode.dao.save(updatedNode)
                       Json(viewModel)
                     } catch {
                       case t: Throwable =>
@@ -97,7 +97,7 @@ trait VirtualNodes extends OrganizationController { self: BoundController =>
                     Json(viewModel.copy(errors = Map("global" -> "Node could not be found! Maybe it was deleted by somebody else in the meantime ?")))
                 }
               case None =>
-                val newNode = VirtualNode(
+                val newNode = HubNode(
                   nodeId = slugify(viewModel.name),
                   name = viewModel.name,
                   orgId = viewModel.orgId
@@ -105,15 +105,15 @@ trait VirtualNodes extends OrganizationController { self: BoundController =>
 
                 try {
                   nodeRegistrationServiceLocator.byDomain.registerNode(newNode, connectedUser)
-                  VirtualNode.dao.insert(newNode)
+                  HubNode.dao.insert(newNode)
 
                   // connect to our hub
                   broadcastingNodeSubscriptionService.generateSubscriptionRequest(configuration.node, newNode)
 
-                  Json(VirtualNodeViewModel(newNode))
+                  Json(HubNodeViewModel(newNode))
                 } catch {
                   case t: Throwable =>
-                    Json(VirtualNodeViewModel(newNode).copy(errors = Map("global" -> t.getMessage)))
+                    Json(HubNodeViewModel(newNode).copy(errors = Map("global" -> t.getMessage)))
                 }
 
             }
@@ -125,7 +125,7 @@ trait VirtualNodes extends OrganizationController { self: BoundController =>
   def addMember(id: ObjectId) = OrganizationAdmin {
     Action {
       implicit request =>
-        VirtualNode.dao.findOneById(id).flatMap { node =>
+        HubNode.dao.findOneById(id).flatMap { node =>
           val member = request.body.getFirstAsString("id")
           member.map { m =>
             nodeRegistrationServiceLocator.byDomain.addMember(node, m)
@@ -138,7 +138,7 @@ trait VirtualNodes extends OrganizationController { self: BoundController =>
   def removeMember(id: ObjectId) = OrganizationAdmin {
     Action {
       implicit request =>
-        VirtualNode.dao.findOneById(id).flatMap { node =>
+        HubNode.dao.findOneById(id).flatMap { node =>
           val member = request.body.getFirstAsString("id")
           member.map { m =>
             nodeRegistrationServiceLocator.byDomain.removeMember(node, m)
@@ -155,7 +155,7 @@ trait VirtualNodes extends OrganizationController { self: BoundController =>
   }
 
 
-  case class VirtualNodeViewModel(
+  case class HubNodeViewModel(
     id: Option[ObjectId] = None,
     nodeId: String = "",
     orgId: String = "",
@@ -163,13 +163,13 @@ trait VirtualNodes extends OrganizationController { self: BoundController =>
     errors: Map[String, String] = Map.empty
   )
 
-  object VirtualNodeViewModel {
+  object HubNodeViewModel {
 
-    def apply(n: VirtualNode): VirtualNodeViewModel = VirtualNodeViewModel(Some(n._id), n.nodeId, n.orgId, n.name)
+    def apply(n: HubNode): HubNodeViewModel = HubNodeViewModel(Some(n._id), n.nodeId, n.orgId, n.name)
 
-    def nodeIdTaken(implicit configuration: DomainConfiguration) = Constraint[VirtualNodeViewModel]("plugin.virtualNode.nodeIdTaken") {
+    def nodeIdTaken(implicit configuration: DomainConfiguration) = Constraint[HubNodeViewModel]("plugin.virtualNode.nodeIdTaken") {
       case r =>
-        val maybeOne = VirtualNode.dao.findOne(r.nodeId)
+        val maybeOne = HubNode.dao.findOne(r.nodeId)
         val maybeOneId = maybeOne.map(_._id)
         if (maybeOneId.isDefined && r.id.isDefined && maybeOneId == r.id) {
           Valid
@@ -188,7 +188,7 @@ trait VirtualNodes extends OrganizationController { self: BoundController =>
         "orgId" -> nonEmptyText.verifying(Constraints.pattern("^[A-Za-z0-9-]{3,40}$".r, "plugin.virtualNode.invalidOrgId", "plugin.virtualNode.invalidOrgId")),
         "name" -> nonEmptyText.verifying(Constraints.pattern("^[A-Za-z0-9- ]{3,40}$".r, "plugin.virtualNode.invalidNodeId", "plugin.virtualNode.invalidNodeName")),
         "errors" -> of[Map[String, String]]
-      )(VirtualNodeViewModel.apply)(VirtualNodeViewModel.unapply).verifying(nodeIdTaken)
+      )(HubNodeViewModel.apply)(HubNodeViewModel.unapply).verifying(nodeIdTaken)
     )
   }
 

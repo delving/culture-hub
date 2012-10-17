@@ -685,17 +685,17 @@ plugin.cms.adminRight=Site content administration rights
 
 plugin.chc.orKeywords=Keywords (OR)
 
-plugin.virtualNode.virtualNode=Virtual node
-plugin.virtualNode.virtualNodes=Virtual nodes
-plugin.virtualNode.list=List Virtual nodes
-plugin.virtualNode.create=Create Virtual node
-plugin.virtualNode.deleteConfirm=Are you sure you want to delete this Virtual Node as well as all of its data?
-plugin.virtualNode.nodeIdTaken=This nodeId is already taken
-plugin.virtualNode.orgId=Organization identifier
-plugin.virtualNode.nodeId=Node identifier
-plugin.virtualNode.name=Node name
-plugin.virtualNode.invalidOrgId=Invalid organization identifier
-plugin.virtualNode.invalidNodeName=Invalid node name: can only have letters and white spaces
+plugin.hubNode.hubNode=Hub node
+plugin.hubNode.hubNodes=Hub nodes
+plugin.hubNode.list=List Hub nodes
+plugin.hubNode.create=Create Hub node
+plugin.hubNode.deleteConfirm=Are you sure you want to delete this Virtual Node as well as all of its data?
+plugin.hubNode.nodeIdTaken=This nodeId is already taken
+plugin.hubNode.orgId=Organization identifier
+plugin.hubNode.nodeId=Node identifier
+plugin.hubNode.name=Node name
+plugin.hubNode.invalidOrgId=Invalid organization identifier
+plugin.hubNode.invalidNodeName=Invalid node name: can only have letters and white spaces
 
 
 plugin.musip.museum=Museum

@@ -1,5 +1,5 @@
 import core.services.BroadcastingNodeSubscriptionService
-import models.VirtualNode
+import models.HubNode
 import play.api.libs.json.{JsString, JsObject}
 import play.api.mvc.AnyContentAsJson
 import play.api.test._
@@ -11,22 +11,22 @@ import util.DomainConfigurationHandler
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
-class VirtualNodeSpec extends Specs2TestContext {
+class HubNodeSpec extends Specs2TestContext {
 
   step {
     loadStandalone()
   }
 
-  "The VirtualNode controller" should {
+  "The HubNode controller" should {
 
     "create a new node" in {
 
       withTestConfig {
 
-        val response = controllers.organization.VirtualNodes.submit(fakeRequest)
+        val response = controllers.organization.HubNodes.submit(fakeRequest)
         status(response) must equalTo(200)
 
-        VirtualNode.dao("delving").findOne("rotterdam-node") must beSome
+        HubNode.dao("delving").findOne("rotterdam-node") must beSome
       }
 
     }
@@ -37,7 +37,7 @@ class VirtualNodeSpec extends Specs2TestContext {
 
         implicit val configuration = DomainConfigurationHandler.getByOrgId("delving")
 
-        val node = VirtualNode.dao.findOne("rotterdam-node").get
+        val node = HubNode.dao.findOne("rotterdam-node").get
 
         val broadcastingNodeSubscriptionService = new BroadcastingNodeSubscriptionService
 
@@ -50,7 +50,7 @@ class VirtualNodeSpec extends Specs2TestContext {
     "not allow to create two nodes with the same ID" in {
 
       withTestConfig {
-        val response = controllers.organization.VirtualNodes.submit(fakeRequest)
+        val response = controllers.organization.HubNodes.submit(fakeRequest)
         status(response) must equalTo(400)
       }
 
@@ -59,14 +59,14 @@ class VirtualNodeSpec extends Specs2TestContext {
     "delete a node" in {
 
       withTestConfig {
-        val node = VirtualNode.dao("delving").findOne("rotterdam-node").get
-        val response = controllers.organization.VirtualNodes.delete(node._id)(
-          FakeRequest(method = "DELETE", path = "/organizations/delving/node/delete/" + node._id.toString).withSession(
+        val node = HubNode.dao("delving").findOne("rotterdam-node").get
+        val response = controllers.organization.HubNodes.delete(node._id)(
+          FakeRequest(method = "DELETE", path = "/organizations/delving/hubNode/delete/" + node._id.toString).withSession(
             ("userName" -> "bob")
           )
         )
         status(response) must equalTo(200)
-        VirtualNode.dao("delving").findOne("rotterdam") must beNone
+        HubNode.dao("delving").findOne("rotterdam") must beNone
       }
 
     }

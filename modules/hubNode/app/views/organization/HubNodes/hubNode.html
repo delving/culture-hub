@@ -1,20 +1,20 @@
 #{extends themeInfo.get('themeLayout') /}
 
-#{set title: messages.get('plugin.virtualNode.create') /}
+#{set title: messages.get('plugin.hubNode.create') /}
 
 #{set bodyId: 'organization' /}
 
 #{breadcrumbs crumbs: breadcrumbs /}
 
-#{organizationNavBar orgId: orgId, active:"virtualNode", navigation: navigation /}
+#{organizationNavBar orgId: orgId, active:"hubNode", navigation: navigation /}
 
 
 <div class="row">
     <div class="span6">
-        <form id="virtualNodeForm" method="POST" action="" class="form-delving form-horizontal well well-small">
-            #{form.textField name:"nodeId", form: virtualNodeForm, label: messages.get('plugin.virtualNode.nodeId'), dataBind:"value: nodeId, disable: true", maxLength: 30 /}
-            #{form.textField name:"orgId", form: virtualNodeForm, label: messages.get('plugin.virtualNode.orgId'), dataBind:"value: orgId, disable: typeof id !== 'undefined'", maxLength: 30, required: true /}
-            #{form.textField name:"name", form: virtualNodeForm, label: messages.get('plugin.virtualNode.name'), dataBind:"value: name", maxLength: 30, required: true /}
+        <form id="hubNodeForm" method="POST" action="" class="form-delving form-horizontal well well-small">
+            #{form.textField name:"nodeId", form: hubNodeForm, label: messages.get('plugin.hubNode.nodeId'), dataBind:"value: nodeId, disable: true", maxLength: 30 /}
+            #{form.textField name:"orgId", form: hubNodeForm, label: messages.get('plugin.hubNode.orgId'), dataBind:"value: orgId, disable: typeof id !== 'undefined'", maxLength: 30, required: true /}
+            #{form.textField name:"name", form: hubNodeForm, label: messages.get('plugin.hubNode.name'), dataBind:"value: name", maxLength: 30, required: true /}
         </form>
     </div>
     #{if nodeId}
@@ -26,8 +26,8 @@
                   name: "memberInput",
                   searchUrl: "/organizations/"+orgId+"/users/search",
                   prePopulate: members,
-                  addUrl: "/organizations/"+orgId+"/virtualNode/"+nodeId+"/addMember",
-                  removeUrl: "/organizations/"+orgId+"/virtualNode/"+nodeId+"/removeMember" /}
+                  addUrl: "/organizations/"+orgId+"/hubNode/"+nodeId+"/addMember",
+                  removeUrl: "/organizations/"+orgId+"/hubNode/"+nodeId+"/removeMember" /}
         </div>
     </div>
     #{/if}
@@ -45,15 +45,15 @@
 
     $(document).ready(function () {
         var viewModel = {};
-        load(${data.raw()}, viewModel, document.getElementById('virtualNodeForm'), function () {
+        load(${data.raw()}, viewModel, document.getElementById('hubNodeForm'), function () {
             $("table.files td.delete button").addClass("btn btn-danger");
             $("body").css('visibility', 'visible');
         });
 
         $('#saveButton').click(function (event) {
             event.preventDefault();
-            handleSubmit('/organizations/${orgId}/virtualNode/submit', viewModel, '#virtualNodeForm', null, function () {
-                document.location = '/organizations/${orgId}/virtualNode';
+            handleSubmit('/organizations/${orgId}/hubNode/submit', viewModel, '#hubNodeForm', null, function () {
+                document.location = '/organizations/${orgId}/hubNode';
             });
         });
     });

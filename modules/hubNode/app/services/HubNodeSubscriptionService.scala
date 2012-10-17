@@ -1,7 +1,7 @@
 package services
 
 import core.node.{NodeDirectoryService, Node, NodeSubscriptionService}
-import models.{VirtualNode, DomainConfiguration}
+import models.{HubNode, DomainConfiguration}
 import org.scala_tools.subcut.inject.{BindingModule, Injectable}
 import core.{HubModule, DomainServiceLocator}
 
@@ -9,7 +9,7 @@ import core.{HubModule, DomainServiceLocator}
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
-class VirtualNodeSubscriptionService(implicit val bindingModule: BindingModule) extends NodeSubscriptionService with Injectable {
+class HubNodeSubscriptionService(implicit val bindingModule: BindingModule) extends NodeSubscriptionService with Injectable {
 
   private val nodeDirectoryServiceLocator = inject [ DomainServiceLocator[NodeDirectoryService] ]
   private val broadcastingNodeSubscriptionService: NodeSubscriptionService = HubModule.inject[NodeSubscriptionService](name = None)
@@ -24,22 +24,22 @@ class VirtualNodeSubscriptionService(implicit val bindingModule: BindingModule) 
 
   def processSubscriptionRequest(to: Node, from: Node)(implicit configuration: DomainConfiguration) {
     // for the moment, accept blindly
-    VirtualNode.dao.findOne(to).foreach { receiver =>
-      VirtualNode.addContact(receiver, from)
+    HubNode.dao.findOne(to).foreach { receiver =>
+      HubNode.addContact(receiver, from)
       generateSubscriptionResponse(from, to, true)
     }
   }
 
   def processSubscriptionResponse(to: Node, from: Node, accepted: Boolean)(implicit configuration: DomainConfiguration) {
     if (accepted) {
-      VirtualNode.dao.findOne(to).foreach { receiver =>
-        VirtualNode.addContact(receiver, from)
+      HubNode.dao.findOne(to).foreach { receiver =>
+        HubNode.addContact(receiver, from)
       }
     }
   }
 
   def listActiveSubscriptions(node: Node)(implicit configuration: DomainConfiguration): Seq[Node] = {
-    VirtualNode.dao.findOne(node).map { node =>
+    HubNode.dao.findOne(node).map { node =>
       node.contacts.flatMap { contact =>
         if (contact == configuration.node.nodeId) {
           Some(configuration.node)
