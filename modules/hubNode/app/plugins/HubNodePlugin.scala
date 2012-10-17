@@ -83,7 +83,7 @@ class HubNodePlugin(app: Application) extends CultureHubPlugin(app) {
           val hubNode = HubNode(
             nodeId = configuration.node.nodeId,
             name = configuration.node.name,
-            orgId = configuration.node.name
+            orgId = configuration.node.orgId
           )
           try {
             log.info("Attempting to create and register node '%s' for hub".format(configuration.node.nodeId))

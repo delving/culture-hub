@@ -307,7 +307,7 @@ class CommonsServices(commonsHost: String, orgId: String, apiToken: String, node
     }
 
   def removeMember(node: Node, userName: String) {
-    post(
+    delete(
       "/node/%s/%s/user/%s".format(node.orgId, node.nodeId, userName)
     ).foreach { response =>
         response.status match {
@@ -330,7 +330,8 @@ class CommonsServices(commonsHost: String, orgId: String, apiToken: String, node
   def findOneById(nodeId: String): Option[Node] = {
     get("/node/" + nodeId).flatMap { response =>
       if (response.status == OK) {
-        Some(parseNode(response.json))
+        import NodeFormat._
+        Some(Json.fromJson[Node](response.json))
       } else {
         None
       }
@@ -340,23 +341,12 @@ class CommonsServices(commonsHost: String, orgId: String, apiToken: String, node
   def listEntries: Seq[Node] = {
     get("/node/list").flatMap { response =>
       if (response.status == OK) {
-        Some((response.json \ "nodes").as[JsArray].value.map(parseNode(_)))
+        import NodeFormat._
+        Some(Json.fromJson[List[Node]](response.json))
       } else {
         None
       }
     }.getOrElse(Seq.empty)
-  }
-
-  private def parseNode(json: JsValue): Node = {
-    val rNodeId = (json \ "nodeId").as[String]
-    val rOrgId = (json \ "orgId").as[String]
-    val rName = (json \ "name").as[String]
-    new Node {
-      def isLocal: Boolean = false // TODO
-      def nodeId: String = rNodeId
-      def orgId: String = rOrgId
-      def name: String = rName
-    }
   }
 
   // directory
@@ -366,7 +356,7 @@ class CommonsServices(commonsHost: String, orgId: String, apiToken: String, node
       response =>
         if(response.status == OK) {
           import OrganizationEntryFormat._
-          Json.fromJson[List[OrganizationEntry]](Json.parse(response.body))
+          Json.fromJson[List[OrganizationEntry]](response.json)
         } else {
           List.empty
         }
@@ -451,8 +441,23 @@ class CommonsServices(commonsHost: String, orgId: String, apiToken: String, node
     )
   }
 
+  implicit object NodeFormat extends Format[Node] {
 
+    def reads(json: JsValue): Node = new Node {
+      def nodeId: String = (json \ "nodeId").as[String]
+      def name: String = (json \ "name").as[String]
+      def orgId: String = (json \ "orgId").as[String]
+      def isLocal: Boolean = false
+    }
 
+    def writes(o: Node): JsValue = JsObject(
+      Seq(
+        "nodeId" -> JsString(o.nodeId),
+        "name" -> JsString(o.name),
+        "orgId" -> JsString(o.orgId)
+      )
+    )
+  }
 
 }
 

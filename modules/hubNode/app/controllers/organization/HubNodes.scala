@@ -81,11 +81,11 @@ trait HubNodes extends OrganizationController { self: BoundController =>
                 HubNode.dao.findOneById(id) match {
                   case Some(existingNode) =>
                     try {
-                      nodeRegistrationServiceLocator.byDomain.updateNode(existingNode)
                       // only update the node name, not the ID!
                       val updatedNode = existingNode.copy(
                         name = viewModel.name
                       )
+                      nodeRegistrationServiceLocator.byDomain.updateNode(updatedNode)
                       HubNode.dao.save(updatedNode)
                       Json(viewModel)
                     } catch {

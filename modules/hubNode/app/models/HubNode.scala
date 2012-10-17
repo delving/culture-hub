@@ -27,7 +27,7 @@ case class HubNode(
 
 object HubNode extends MultiModel[HubNode, HubNodeDAO] {
 
-  protected def connectionName: String = "VirtualNode"
+  protected def connectionName: String = "HubNode"
 
   protected def initIndexes(collection: MongoCollection) {
     addIndexes(collection, Seq(MongoDBObject("nodeId" -> 1)))
