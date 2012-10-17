@@ -1,6 +1,6 @@
 package plugins
 
-import core.services.{BroadcastingNodeSubscriptionService, HubNodeSubscriptionService}
+import core.services.AggregatingNodeSubscriptionService
 import util.DomainConfigurationHandler
 import core.mapping.MappingService
 import core.schema.SchemaRepositoryWrapper
@@ -67,8 +67,7 @@ class ConfigurationPlugin(app: Application) extends CultureHubPlugin(app) {
   }
 
   override def services: Seq[Any] = Seq(
-    new HubNodeSubscriptionService,
-    new BroadcastingNodeSubscriptionService
+    new AggregatingNodeSubscriptionService
   )
 
   /**

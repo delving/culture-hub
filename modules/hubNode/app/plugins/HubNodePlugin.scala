@@ -1,8 +1,7 @@
 package plugins
 
 import _root_.services.HubNodeSubscriptionService
-import core.node.NodeSubscriptionService
-import play.api.{Play, Application}
+import play.api.{Logger, Play, Application}
 import play.api.Play.current
 import models.{HubNode, Role}
 import scala.collection.immutable.ListMap
@@ -12,12 +11,15 @@ import org.bson.types.ObjectId
 import util.DomainConfigurationHandler
 import core.services.MemoryServices
 import core._
+import node.{NodeDirectoryService, NodeRegistrationService, NodeSubscriptionService}
 
 /**
  * 
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 class HubNodePlugin(app: Application) extends CultureHubPlugin(app) {
+
+  private val log = Logger("CultureHub")
 
   val pluginKey: String = "hubNode"
 
@@ -69,15 +71,36 @@ class HubNodePlugin(app: Application) extends CultureHubPlugin(app) {
       }
     }
 
-    val service = HubModule.inject[NodeSubscriptionService](name = None)
+    val nodeDirectoryServiceLocator = HubModule.inject[DomainServiceLocator[NodeDirectoryService]](name = None)
+    val nodeRegistrationServiceLocator = HubModule.inject[DomainServiceLocator[NodeRegistrationService]](name = None)
 
-    // HubNodeSubscriptionService has amnesia for the time being
+
+    // check if we have a HubNode for the hub itself, and create it if necessary
     DomainConfigurationHandler.domainConfigurations.foreach { implicit configuration =>
-      HubNode.dao.findAll.foreach { node =>
-        service.processSubscriptionRequest(configuration.node, node)
+      if (HubNode.dao.findOne(configuration.node.nodeId).isEmpty) {
+        val registered = nodeDirectoryServiceLocator.byDomain.findOneById(configuration.node.nodeId)
+        if (registered.isEmpty) {
+          val hubNode = HubNode(
+            nodeId = configuration.node.nodeId,
+            name = configuration.node.name,
+            orgId = configuration.node.name
+          )
+          try {
+            log.info("Attempting to create and register node '%s' for hub".format(configuration.node.nodeId))
+            nodeRegistrationServiceLocator.byDomain.registerNode(hubNode, "system")
+            HubNode.dao.insert(hubNode)
+            log.info("Node '%s' registered successfully".format(configuration.node.nodeId))
+          } catch {
+            case t: Throwable =>
+              log.error("Cannot register node for hub", t)
+              System.exit(-1)
+          }
+        } else {
+          log.error("System is in inconsistent state: node '%s' for hub is registered, but no local HubNode can be found".format(configuration.node.nodeId))
+          System.exit(-1)
+        }
       }
     }
-
   }
 
   /**

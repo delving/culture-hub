@@ -1,4 +1,4 @@
-import core.services.BroadcastingNodeSubscriptionService
+import core.services.AggregatingNodeSubscriptionService
 import models.HubNode
 import play.api.libs.json.{JsString, JsObject}
 import play.api.mvc.AnyContentAsJson
@@ -39,7 +39,7 @@ class HubNodeSpec extends Specs2TestContext {
 
         val node = HubNode.dao.findOne("rotterdam-node").get
 
-        val broadcastingNodeSubscriptionService = new BroadcastingNodeSubscriptionService
+        val broadcastingNodeSubscriptionService = new AggregatingNodeSubscriptionService
 
         broadcastingNodeSubscriptionService.listActiveSubscriptions(node) must equalTo(Seq(configuration.node))
         broadcastingNodeSubscriptionService.listActiveSubscriptions(configuration.node) must equalTo(Seq(node))

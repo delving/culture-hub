@@ -8,11 +8,11 @@ import models.DomainConfiguration
  * 
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
-class BroadcastingNodeSubscriptionService extends NodeSubscriptionService {
+class AggregatingNodeSubscriptionService extends NodeSubscriptionService {
 
   private def nodeConnectionServices(implicit configuration: DomainConfiguration) = {
     CultureHubPlugin.getServices(classOf[NodeSubscriptionService]).
-      filterNot(s => s.getClass == classOf[BroadcastingNodeSubscriptionService])
+      filterNot(s => s.getClass == classOf[AggregatingNodeSubscriptionService])
   }
 
   def listActiveSubscriptions(node: Node)(implicit configuration: DomainConfiguration): Seq[Node] = {

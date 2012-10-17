@@ -338,18 +338,13 @@ class CommonsServices(commonsHost: String, orgId: String, apiToken: String, node
   }
 
   def listEntries: Seq[Node] = {
-    Seq.empty
-//    get("/node/list").map { response =>
-//      if (response.status == OK) {
-//        // TODO
-//        Seq.empty
-////        Some(
-////          (response.json \\ "nodes").map(parseNode(_))
-////        )
-//      } else {
-//        None
-//      }
-//    }
+    get("/node/list").flatMap { response =>
+      if (response.status == OK) {
+        Some((response.json \ "nodes").as[JsArray].value.map(parseNode(_)))
+      } else {
+        None
+      }
+    }.getOrElse(Seq.empty)
   }
 
   private def parseNode(json: JsValue): Node = {

@@ -28,7 +28,7 @@ trait HubNodes extends OrganizationController { self: BoundController =>
     Action {
       implicit request =>
         val nodes: Seq[HubNodeViewModel] = HubNode.dao.findAll.map(HubNodeViewModel(_))
-        Ok(Template('data -> JJson.generate(Map("nodes" -> nodes))))
+        Ok(Template('data -> JJson.generate(Map("nodes" -> nodes.filterNot(_.nodeId == configuration.node.nodeId)))))
     }
   }
 
@@ -90,6 +90,7 @@ trait HubNodes extends OrganizationController { self: BoundController =>
                       Json(viewModel)
                     } catch {
                       case t: Throwable =>
+                        logError(t, "Problem while updating hub node %s", existingNode.nodeId)
                         Json(viewModel.copy(errors = Map("global" -> t.getMessage)))
                     }
 
@@ -113,6 +114,7 @@ trait HubNodes extends OrganizationController { self: BoundController =>
                   Json(HubNodeViewModel(newNode))
                 } catch {
                   case t: Throwable =>
+                    logError(t, "Problem while creating hub node %s", newNode.nodeId)
                     Json(HubNodeViewModel(newNode).copy(errors = Map("global" -> t.getMessage)))
                 }
 
