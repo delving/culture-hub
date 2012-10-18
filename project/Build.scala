@@ -85,6 +85,11 @@ object Build extends sbt.Build {
     publish := { }
   ).dependsOn(webCore % "test->test;compile->compile")
 
+  val hubNode = PlayProject("hubNode", "1.0-SNAPSHOT", Seq.empty, path = file("modules/hubNode")).settings(
+    resolvers ++= commonResolvers,
+    publish := {}
+  ).dependsOn(webCore % "test->test;compile->compile")
+
   val dataSet = PlayProject("dataset", "1.0-SNAPSHOT", Seq.empty, path = file("modules/dataset"), settings = Defaults.defaultSettings ++ buildInfoSettings).settings(
     resolvers ++= commonResolvers,
     sipApp := sipAppVersion,
@@ -132,11 +137,13 @@ object Build extends sbt.Build {
     ).settings :_*
   ).dependsOn(
     webCore                 % "test->test;compile->compile",
+    hubNode                 % "test->test;compile->compile",
     dataSet                 % "test->test;compile->compile",
     dos                     % "test->test;compile->compile",
     statistics              % "test->test;compile->compile"
   ).aggregate(
     webCore,
+    hubNode,
     dataSet,
     dos,
     statistics
