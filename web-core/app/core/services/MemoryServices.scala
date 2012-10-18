@@ -1,11 +1,12 @@
 package core.services
 
-import core._
-import scala.collection.mutable.HashMap
+import _root_.core._
+import _root_.core.node._
+import scala.collection.mutable.{ArrayBuffer, HashMap}
 import extensions.MissingLibs
-import eu.delving.definitions.OrganizationEntry
 import play.api.Play
 import play.api.Play.current
+import eu.delving.definitions.OrganizationEntry
 
 
 /**
@@ -14,8 +15,11 @@ import play.api.Play.current
  */
 
 class MemoryServices(val users: HashMap[String, MemoryUser] = new HashMap[String, MemoryUser],
-                     val organizations: HashMap[String, MemoryOrganization] = new HashMap[String, MemoryOrganization]
-                    ) extends AuthenticationService with RegistrationService with UserProfileService with OrganizationService with DirectoryService {
+                     val organizations: HashMap[String, MemoryOrganization] = new HashMap[String, MemoryOrganization],
+                     val nodes: ArrayBuffer[MemoryNode] = new ArrayBuffer[MemoryNode]
+                    ) extends AuthenticationService with RegistrationService with UserProfileService
+                      with OrganizationService with DirectoryService with NodeRegistrationService
+                      with NodeDirectoryService {
 
 
   // ~~~ authentication
@@ -77,6 +81,10 @@ class MemoryServices(val users: HashMap[String, MemoryUser] = new HashMap[String
 
   def exists(orgId: String) = organizations.contains(orgId)
 
+  def queryByOrgId(query: String): Seq[OrganizationProfile] = organizations.values.filter(_.orgId.contains(query)).map { org =>
+    OrganizationProfile(org.orgId, org.name)
+  }.toSeq
+
   def isAdmin(orgId: String, userName: String): Boolean = organizations.get(orgId).getOrElse(return false).admins.contains(userName)
 
   def listAdmins(orgId: String): List[String] = organizations.get(orgId).getOrElse(return List.empty).admins
@@ -95,7 +103,59 @@ class MemoryServices(val users: HashMap[String, MemoryUser] = new HashMap[String
 
   def getName(orgId: String, language: String): Option[String] = organizations.get(orgId).getOrElse(return None).name.get(language)
 
+  // node registration
+
+  def findNode(n: Node, node: Node) = n.orgId == node.orgId && n.nodeId == node.nodeId
+
+  def registerNode(node: Node, userName: String) {
+    nodes.append(MemoryNode(node))
+  }
+
+  def updateNode(node: Node) {
+    nodes.find(findNode(_, node)).map { n =>
+      val updated = n.copy(name = node.name)
+      removeNode(node)
+      nodes.append(updated)
+    }
+  }
+
+  def removeNode(node: Node) {
+    val i = nodes.indexWhere(findNode(_, node))
+    if (nodes.isDefinedAt(i)) {
+      nodes.remove(i)
+    }
+  }
+
+  def listMembers(node: Node): Seq[String] = nodes.find(findNode(_, node)).map(_.members).getOrElse(Seq.empty)
+
+  def addMember(node: Node, userName: String) {
+    nodes.find(findNode(_, node)).map { n =>
+      val updated = n.copy(members = n.members ++ Seq(userName))
+      removeNode(node)
+      nodes.append(updated)
+    }
+  }
+
+  def removeMember(node: Node, userName: String) {
+    nodes.find(findNode(_, node)).map { n =>
+      val updated = n.copy(members = n.members.filterNot(_ == userName))
+      removeNode(node)
+      nodes.append(updated)
+    }
+  }
+
+
+  // node directory
+
+  def listEntries: Seq[Node] = {
+    nodes.toSeq
+  }
+
+  def findOneById(nodeId: String): Option[Node] = nodes.find(_.nodeId == nodeId)
+
+
   // directory
+
   private val dummyDelving = OrganizationEntry("http://id.delving.org/org/1", "Delving", "NL")
 
   def findOrganization(query: String): List[OrganizationEntry] = List(dummyDelving)
@@ -117,3 +177,15 @@ case class MemoryOrganization(orgId: String,
                               name: Map[String, String],
                               admins: List[String])
 
+case class MemoryNode(orgId: String,
+                      nodeId: String,
+                      name: String,
+                      members: Seq[String]) extends Node {
+
+  def isLocal: Boolean = true
+}
+
+object MemoryNode {
+
+  def apply(n: Node): MemoryNode = MemoryNode(n.orgId, n.nodeId, n.name, Seq.empty)
+}

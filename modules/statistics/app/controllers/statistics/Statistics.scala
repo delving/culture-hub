@@ -26,7 +26,7 @@ import core.indexing.IndexField
 
 object Statistics extends OrganizationController {
 
-  def statistics(orgId: String) = OrgOwnerAction(orgId) {
+  def statistics(orgId: String) = OrganizationAdmin {
     Action {
       implicit request =>
 

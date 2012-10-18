@@ -11,7 +11,7 @@ import controllers.OrganizationController
 
 object SipCreator extends OrganizationController {
 
-  def index(orgId: String) = OrgMemberAction(orgId) {
+  def index(orgId: String) = OrganizationMember {
     Action {
       implicit request => Ok(Template('orgId -> orgId))
     }

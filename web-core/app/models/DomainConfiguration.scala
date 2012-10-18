@@ -1,7 +1,8 @@
 package models {
 
+import _root_.core.node.Node
 import core.access.ResourceType
-import core.{SystemField, CultureHubPlugin, Constants}
+import core.{SystemField, CultureHubPlugin}
 import org.apache.solr.client.solrj.SolrQuery
 import core.search.{SolrSortElement, SolrFacetElement}
 import play.api.{Configuration, Play, Logger}
@@ -55,6 +56,18 @@ case class DomainConfiguration(
 
 ) {
 
+  val self = this
+
+  /**
+   * The node for this organization hub
+   */
+  val node = new Node {
+    val nodeId: String = commonsService.nodeName
+    val name: String = commonsService.nodeName
+    val orgId: String = self.orgId
+    val isLocal: Boolean = true
+  }
+
   def getFacets: List[SolrFacetElement] = {
     searchService.facets.split(",").filter(k => k.split(":").size > 0 && k.split(":").size < 4).map {
       entry => {
@@ -107,7 +120,7 @@ case class UserInterfaceConfiguration(
 
 case class CommonsServiceConfiguration(
   commonsHost:                 String,
-  nodeName:                    String, // TODO deprecate this. We keep it for now to ease migration
+  nodeName:                    String,
   apiToken:                    String
 )
 

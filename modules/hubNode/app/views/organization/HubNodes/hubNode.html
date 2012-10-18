@@ -1,0 +1,72 @@
+#{extends themeInfo.get('themeLayout') /}
+
+#{set title: messages.get('plugin.hubNode.create') /}
+
+#{set bodyId: 'organization' /}
+
+#{breadcrumbs crumbs: breadcrumbs /}
+
+#{organizationNavBar orgId: orgId, active:"hubNode", navigation: navigation /}
+
+
+<div class="row">
+    <div class="span6">
+        <form id="hubNodeForm" method="POST" action="" class="form-delving form-horizontal well well-small">
+            #{form.textField name:"nodeId", form: hubNodeForm, label: messages.get('plugin.hubNode.nodeId'), dataBind:"value: nodeId, disable: true", maxLength: 30 /}
+            #{form.textField name:"orgId", form: hubNodeForm, label: messages.get('plugin.hubNode.orgId'), dataBind:"value: orgId, disable: typeof id !== 'undefined'", maxLength: 30, required: true /}
+            #{form.textField name:"name", form: hubNodeForm, label: messages.get('plugin.hubNode.name'), dataBind:"value: name", maxLength: 30, required: true /}
+        </form>
+    </div>
+    #{if nodeId}
+    <div class="span6">
+        <h3>&{'ui.label.members'}</h3>
+        <div>
+            #{addRemoveTokenField
+                  id:"memberInput",
+                  name: "memberInput",
+                  searchUrl: "/organizations/"+orgId+"/users/search",
+                  prePopulate: members,
+                  addUrl: "/organizations/"+orgId+"/hubNode/"+nodeId+"/addMember",
+                  removeUrl: "/organizations/"+orgId+"/hubNode/"+nodeId+"/removeMember" /}
+        </div>
+    </div>
+    #{/if}
+</div>
+
+<div class="well">
+    #{btnButton label: messages.get('ui.label.save'), extraClass:"btn-success btn-large span6 pull-right", iconClass:"icon-ok-circle icon-white", id:"saveButton", type:"submit" /}
+    #{btnButton label: messages.get('ui.label.cancel'), extraClass:"cancelButton", id:"cancelButton", type:"reset" /}
+    #{btnButton label: messages.get('ui.label.reset'), extraClass:"", type:"reset" /}
+    <div class="wait"></div>
+</div>
+
+
+<script type="text/javascript">
+
+    $(document).ready(function () {
+        var viewModel = {};
+        load(${data.raw()}, viewModel, document.getElementById('hubNodeForm'), function () {
+            $("table.files td.delete button").addClass("btn btn-danger");
+            $("body").css('visibility', 'visible');
+        });
+
+        $('#orgId').typeahead({
+            source: function (query, process) {
+                return $.get('/organizations/search', { query: query }, function (data) {
+                    var orgIds = [];
+                    $.each(data, function(index, item) {
+                        orgIds.push(item.id);
+                    });
+                    return process(orgIds);
+                });
+            }
+        });
+
+        $('#saveButton').click(function (event) {
+            event.preventDefault();
+            handleSubmit('/organizations/${orgId}/hubNode/submit', viewModel, '#hubNodeForm', null, function () {
+                document.location = '/organizations/${orgId}/hubNode';
+            });
+        });
+    });
+</script>

@@ -155,7 +155,7 @@ trait DataSetControl extends OrganizationController { this: BoundController =>
 
   implicit def dSListToSdSList(dsl: List[DataSet]) = dsl map { ds => dataSetToShort(ds) }
 
-  def dataSet(orgId: String, spec: Option[String]): Action[AnyContent] = OrgMemberAction(orgId) {
+  def dataSet(orgId: String, spec: Option[String]): Action[AnyContent] = OrganizationMember {
     Action {
       implicit request =>
         val dataSet = if (spec == None) None else DataSet.dao.findBySpecAndOrgId(spec.get, orgId)
@@ -218,7 +218,7 @@ trait DataSetControl extends OrganizationController { this: BoundController =>
     }
   }
 
-  def dataSetSubmit(orgId: String): Action[AnyContent] = OrgMemberAction(orgId) {
+  def dataSetSubmit(orgId: String): Action[AnyContent] = OrganizationMember {
     Action {
       implicit request =>
         DataSetCreationViewModel.dataSetForm.bind(request.body.asJson.get).fold(
@@ -315,7 +315,7 @@ trait DataSetControl extends OrganizationController { this: BoundController =>
     }
   }
 
-  def organizationLookup(orgId: String, term: String) = OrgMemberAction(orgId) {
+  def organizationLookup(orgId: String, term: String) = OrganizationMember {
     Action {
       implicit request =>
         Json(directoryServiceLocator.byDomain.findOrganization(term).map(_.name))

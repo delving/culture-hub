@@ -1,6 +1,7 @@
 package plugins
 
-import _root_.util.DomainConfigurationHandler
+import core.services.AggregatingNodeSubscriptionService
+import util.DomainConfigurationHandler
 import core.mapping.MappingService
 import core.schema.SchemaRepositoryWrapper
 import core._
@@ -65,6 +66,9 @@ class ConfigurationPlugin(app: Application) extends CultureHubPlugin(app) {
 
   }
 
+  override def services: Seq[Any] = Seq(
+    new AggregatingNodeSubscriptionService
+  )
 
   /**
    * Executed when test data is loaded (for development and testing)
