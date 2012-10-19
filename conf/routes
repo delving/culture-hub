@@ -89,20 +89,20 @@ GET     /@dos/thumbnail/*id                    controllers.dos.ImageDisplay.disp
 
 
 # User registration
-GET        /registration                                                           controllers.Registration.index
-POST       /registration/register                                                  controllers.Registration.register
-GET        /registration/captcha/:id                                               controllers.Registration.captcha(id)
-GET        /registration/activate/:activationToken                                 controllers.Registration.activate(activationToken)
-GET        /registration/lostPassword                                              controllers.Registration.lostPassword
-POST       /registration/resetPasswordEmail                                        controllers.Registration.resetPasswordEmail
-GET        /registration/resetPassword/:resetPasswordToken                         controllers.Registration.resetPassword(resetPasswordToken)
-POST       /registration/newPassword/:resetPasswordToken                           controllers.Registration.newPassword(resetPasswordToken)
+GET        /registration                                                      controllers.Registration.index
+POST       /registration/register                                             controllers.Registration.register
+GET        /registration/captcha/:id                                          controllers.Registration.captcha(id)
+GET        /registration/activate/:activationToken                            controllers.Registration.activate(activationToken)
+GET        /registration/lostPassword                                         controllers.Registration.lostPassword
+POST       /registration/resetPasswordEmail                                   controllers.Registration.resetPasswordEmail
+GET        /registration/resetPassword/:resetPasswordToken                    controllers.Registration.resetPassword(resetPasswordToken)
+POST       /registration/newPassword/:resetPasswordToken                      controllers.Registration.newPassword(resetPasswordToken)
 
 
 
 # Enrichment lookups
 
-GET         /enrichment/place/search                                               controllers.ws.Places.find
+GET         /enrichment/place/search                                          controllers.ws.Places.find
 
 # Delving URL scheme
 
@@ -120,6 +120,8 @@ POST         /:user/admin/profile                                             co
 # Organizations API
 
 GET         /organizations/:orgId/api                                         controllers.api.Api.api(orgId)
+
+GET         /organizations/search                                             controllers.organization.Organizations.listAsTokens(q: String ?= "")
 
 GET         /organizations/:orgId/api/search                                  controllers.api.Search.searchApi(orgId, provider: Option[String] = None, dataProvider: Option[String] = None, collection: Option[String] = None)
 

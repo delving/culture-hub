@@ -65,7 +65,8 @@ ui.label.location=Location
 ui.label.loggedInAs=Logged in as
 ui.label.login=Login
 ui.label.logout=Logout
-ui.label.memberSince=Member since
+ui.label.member=Member
+ui.label.members=Members
 ui.label.more=More
 ui.label.next=Next
 ui.label.nritems=Nr. of items
@@ -685,6 +686,19 @@ accessControl.resourceType.dataSet=DataSets
 plugin.cms.adminRight=Site content administration rights
 
 plugin.chc.orKeywords=Keywords (OR)
+
+plugin.hubNode.hubNode=Hub node
+plugin.hubNode.hubNodes=Hub nodes
+plugin.hubNode.list=List Hub nodes
+plugin.hubNode.create=Create Hub node
+plugin.hubNode.deleteConfirm=Are you sure you want to delete this Virtual Node as well as all of its data?
+plugin.hubNode.nodeIdTaken=This nodeId is already taken
+plugin.hubNode.orgId=Organization identifier
+plugin.hubNode.nodeId=Node identifier
+plugin.hubNode.name=Node name
+plugin.hubNode.orgIdValid=This organization doesn't exist. Contact support@delving.eu for help.
+plugin.hubNode.invalidNodeName=Invalid node name: can only have letters and white spaces
+
 
 plugin.musip.museum=Museum
 plugin.musip.museums=Museums

@@ -17,7 +17,7 @@ object Admin extends BoundController(HubModule) with Admin
 
 trait Admin extends OrganizationController { this: BoundController =>
 
-  def index(orgId: String) = OrgOwnerAction(orgId) {
+  def index(orgId: String) = OrganizationAdmin {
     Action {
       implicit request =>
         if (!organizationServiceLocator.byDomain.exists(orgId)) {
@@ -36,7 +36,7 @@ trait Admin extends OrganizationController { this: BoundController =>
   /**
    * Add to organization
    */
-  def addUser(orgId: String) = OrgOwnerAction(orgId) {
+  def addUser(orgId: String) = OrganizationAdmin {
     Action {
       implicit request =>
         val id = request.body.getFirstAsString("id").get
@@ -53,7 +53,7 @@ trait Admin extends OrganizationController { this: BoundController =>
   /**
    * Remove from organization
    */
-  def removeUser(orgId: String) = OrgOwnerAction(orgId) {
+  def removeUser(orgId: String) = OrganizationAdmin {
     Action {
       implicit request =>
         val id = request.body.getFirstAsString("id").get
@@ -67,7 +67,7 @@ trait Admin extends OrganizationController { this: BoundController =>
     }
   }
 
-  def addAdmin(orgId: String) = OrgOwnerAction(orgId) {
+  def addAdmin(orgId: String) = OrganizationAdmin {
     Action {
       implicit request =>
         val id = request.body.getFirstAsString("id").get
@@ -81,7 +81,7 @@ trait Admin extends OrganizationController { this: BoundController =>
     }
   }
 
-  def removeAdmin(orgId: String) = OrgOwnerAction(orgId) {
+  def removeAdmin(orgId: String) = OrganizationAdmin {
     Action {
       implicit request =>
         val id = request.body.getFirstAsString("id").get
@@ -96,7 +96,7 @@ trait Admin extends OrganizationController { this: BoundController =>
   }
 
 
-  def solrSearchProxy(orgId: String) = OrgOwnerAction(orgId) {
+  def solrSearchProxy(orgId: String) = OrganizationAdmin {
     Action {
       implicit request =>
         val solrQueryString: String = request.rawQueryString
