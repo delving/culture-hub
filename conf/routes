@@ -84,8 +84,8 @@ GET     /@dos/task/status/:id                   controllers.dos.ui.Tasks.status(
 GET     /@dos/log/list/:taskId                 controllers.dos.ui.Logs.list(taskId: org.bson.types.ObjectId, lastCount: Option[Int])
 GET     /@dos/log/view/:taskId                 controllers.dos.ui.Logs.view(taskId: org.bson.types.ObjectId)
 
-GET     /@dos/thumbnail/:id/:width             controllers.dos.ImageDisplay.displayThumbnail(id, orgId = "", collectionId = "", width: Option[String], browse: Boolean = false, fileId: Boolean = false)
-GET     /@dos/thumbnail/*id                    controllers.dos.ImageDisplay.displayThumbnail(id, orgId = "", collectionId = "", width: Option[String], browse: Boolean = false, fileId: Boolean = false)
+GET     /@dos/thumbnail/:id/:width             controllers.dos.ImageDisplay.displayThumbnail(id, orgId = "", collectionId = "", width: Option[String], browse: Boolean = true, fileId: Boolean = false)
+GET     /@dos/thumbnail/*id                    controllers.dos.ImageDisplay.displayThumbnail(id, orgId = "", collectionId = "", width: Option[String], browse: Boolean = true, fileId: Boolean = false)
 
 
 # User registration
