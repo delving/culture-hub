@@ -5,6 +5,7 @@
     <div class="controls">
         <input type="text" id="${_id}" class="span4" name="${_name}" data-bind="${_dataBind}">
     </div>
+    <span class="error" data-bind="text: errors().${_name.replaceAll("\\.", "_")}">${views.Helpers.showError(_name, _form)}</span>
 </div>
 <script type="text/javascript">
   $(document).ready(function() {
