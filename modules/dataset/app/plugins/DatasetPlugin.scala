@@ -68,6 +68,13 @@ class DataSetPlugin(app: Application) extends CultureHubPlugin(app) {
       (pathArgs: List[String], queryString: Map[String, String]) =>
         controllers.organization.DataSets.list(pathArgs(0))
     },
+    ("GET", """^/organizations/([A-Za-z0-9-]+)/dataset/search""".r) -> {
+      (pathArgs: List[String], queryString: Map[String, String]) =>
+        controllers.organization.DataSets.listAsTokens(
+          queryString("q"),
+          queryString.get("formats").map(_.split(",").toSeq.map(_.trim).filterNot(_.isEmpty)).getOrElse(Seq.empty)
+        )
+    },
     ("GET", """^/organizations/([A-Za-z0-9-]+)/dataset/feed""".r) -> {
       (pathArgs: List[String], queryString: Map[String, String]) =>
         controllers.organization.DataSets.feed(pathArgs(0), queryString("clientId"), queryString.get("spec"))
