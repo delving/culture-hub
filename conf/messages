@@ -686,6 +686,7 @@ accessControl.resourceType.dataSet=DataSets
 plugin.cms.adminRight=Site content administration rights
 
 plugin.chc.orKeywords=Keywords (OR)
+plugin.chc.dataSetsNotEmpty=You must select at least one constraining DataSet
 
 plugin.hubNode.hubNode=Hub node
 plugin.hubNode.hubNodes=Hub nodes
