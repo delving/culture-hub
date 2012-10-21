@@ -23,7 +23,7 @@ object Demo extends DelvingController {
         if (image.isEmpty)
           Ok(Template('image -> smallballs))
         else
-          Ok(Template('image -> (image)))
+          Ok(Template('image -> (image.get)))
     }
   }
 
