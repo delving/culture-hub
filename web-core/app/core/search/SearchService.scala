@@ -112,7 +112,7 @@ class SearchService(request: RequestHeader, hiddenQueryFilters: Seq[String] = Se
       }
       case _ =>
         val briefView = getBriefResultsFromSolr
-        SearchSummary(result = briefView, chResponse = briefView.chResponse, language = apiLanguage).renderAsJSON(authorized)
+        SearchSummary(result = briefView, chResponse = briefView.chResponse, language = apiLanguage, request = request).renderAsJSON(authorized)
     }
     Ok(if (!callback.isEmpty) "%s(%s)".format(callback, response) else response).as(JSON)
 
@@ -132,10 +132,12 @@ class SearchService(request: RequestHeader, hiddenQueryFilters: Seq[String] = Se
       }
       case _ =>
         val briefView = getBriefResultsFromSolr
-        val summary = SearchSummary(result = briefView, chResponse = briefView.chResponse, language = apiLanguage)
+        val summary = SearchSummary(result = briefView, chResponse = briefView.chResponse, language = apiLanguage, request = request)
         format match {
           case "kml" =>
             summary.renderAsKML(authorized)
+          case "kml-abc" =>
+            summary.renderAsABCKML(authorized)
           case _ =>
             summary.renderAsXML(authorized)
         }
@@ -240,11 +242,13 @@ class SearchService(request: RequestHeader, hiddenQueryFilters: Seq[String] = Se
 
 case class RecordLabel(name : String, fieldValue : String, multivalued : Boolean = false)
 
-case class SearchSummary(result: BriefItemView, language: String = "en", chResponse: CHResponse) {
+case class SearchSummary(result: BriefItemView, language: String = "en", chResponse: CHResponse, request: RequestHeader) {
 
   private val pagination = result.getPagination
   private val searchTerms = pagination.getPresentationQuery.getUserSubmittedQuery
-  private val filteredFields = Seq("delving_snippet", IndexField.FULL_TEXT.key)
+  private val filteredFields = Seq("delving_snippet", IndexField.FULL_TEXT.key, "delving_SNIPPET")
+
+  val baseUrl = request.host
 
   def minusAmp(link: String) = link.replaceAll("amp;", "").replaceAll(" ", "%20").replaceAll("qf=", "qf[]=")
 
@@ -253,6 +257,7 @@ case class SearchSummary(result: BriefItemView, language: String = "en", chRespo
   val filterKeys = List("id", "timestamp", "score")
   // FIXME why are delving fields filtered out here????
   val uniqueKeyNames = result.getBriefDocs.flatMap(doc => doc.solrDocument.getFieldNames).distinct.filterNot(_.startsWith("delving")).filterNot(filterKeys.contains(_)).sortWith(_ > _)
+  val uniqueKeyNamesWithDelving = result.getBriefDocs.flatMap(doc => doc.solrDocument.getFieldNames).distinct.filterNot(filterKeys.contains(_)).sortWith(_ > _)
 
   def translateFacetValue(name: String, value: String) = {
     val listOfFacets = List("europeana_type")
@@ -263,51 +268,90 @@ case class SearchSummary(result: BriefItemView, language: String = "en", chRespo
       value
   }
 
+  def renderAsABCKML(authorized: Boolean): Elem = {
+    def renderData(field: String, fieldName: String, item: BriefDocItem, cdata: Boolean = false): Elem = {
+      if (cdata)
+        <Data name={fieldName}><value>{"<![CDATA[%s]]>".format(item.getAsString(field))}</value></Data>
+      else
+        <Data name={fieldName}><value>{item.getAsString(field)}</value></Data>
+
+    }
+    val response: Elem =
+      <kml xmlns="http://earth.google.com/kml/2.0">
+        <Document>
+          {briefDocs.map(
+          (item: BriefDocItem) =>
+            <Placemark id={item.getAsString(HUB_ID.key)}>
+              <name>{item.getAsString("delving_title")}</name>
+              <Point>
+                <coordinates>{item.getAsString(GEOHASH.key).split(",").reverse.mkString(",")}</coordinates>
+              </Point>
+              {if (item.getFieldValue(ADDRESS.key).isNotEmpty) {
+              <address>
+                {item.getAsString(ADDRESS.key)}
+              </address>
+            }}
+              {if (item.getFieldValue("delving_description").isNotEmpty) {
+              <description>
+                {"<![CDATA[%s]]".format(item.getAsString("delving_description"))}
+              </description>
+            }}
+              <ExtendedData>
+                {renderData("delving_title", "titel", item)}
+                {renderData("delving_landingPage", "bron", item, cdata = false)}
+                {renderData("delving_description", "text", item)}
+                {renderData("delving_thumbnail", "thumbnail", item)}
+                {renderData("europeana_isShownBy", "image", item)}
+              </ExtendedData>
+            </Placemark>
+          )
+        }
+        </Document></kml>
+    response
+  }
+
   def renderAsKML(authorized: Boolean): Elem = {
-//    def renderField(key: String, labelName: String): Elem = {
-//      {if (item.getFieldValue("delving_address").isNotEmpty) {
-//        <address>{item.getAsString("delving_address")}</address>
-//      }
-//    }
-//
+
     // todo remove this hack later
     val sfield = chResponse.params.getValueOrElse("sfield", GEOHASH.key) match {
       case "abm_geo_geohash" => "abm_geo"
       case _ => GEOHASH.key
     }
 
+    val useSchema = false
+
     val response: Elem =
       <kml xmlns="http://earth.google.com/kml/2.0">
         <Document>
           <Folder>
             <name>Culture-Hub</name>
-            <Schema name="Culture-Hub" id="Culture-Hub">
-              {uniqueKeyNames.map {
+            { if (useSchema) {
+            <Schema name="Culture-Hub" id="Culture-HubId">
+              {uniqueKeyNamesWithDelving.map {
               item =>
                 <SimpleField name={item} type="string">{SearchService.localiseKey(item, language)}</SimpleField>
             }}
             </Schema>
-            {briefDocs.map(
+          }
+          }
+          {briefDocs.map(
           (item: BriefDocItem) =>
           <Placemark id={item.getAsString(HUB_ID.key)}>
           <name>{item.getAsString("delving_title")}</name>
           <Point>
             <coordinates>{item.getAsString(sfield).split(",").reverse.mkString(",")}</coordinates>
           </Point>
-            {if (item.getFieldValue(ADDRESS.key).isNotEmpty) {
-            <address>
-              {item.getAsString(ADDRESS.key)}
-            </address>
-          }}
-            {if (item.getFieldValue("delving_description").isNotEmpty) {
-            <description>
-              {"%s".format(item.getAsString("delving_description"))}
-            </description>
-          }}
           <ExtendedData>
-            <SchemaData schemaUrl="#Culture-Hub">
-              {item.toKmFields(filteredFields).map(field => field)}
-             </SchemaData>
+            { if (useSchema) {
+            <SchemaData schemaUrl="#Culture-HubId">
+              {item.toKmFields(filteredFields = filteredFields, language = language).map(field => field)}
+            </SchemaData>
+          }
+            else
+              { List(<Data name='delving:linkHome'><value>{"http://%s/%s/%s/%s".format(baseUrl, item.getOrgId,  item.getSpec, item.getRecordId)}</value></Data>) :::
+                item.toKmFields(filteredFields = filteredFields, language = language, simpleData = useSchema).map(field => field)
+              }
+            }
           </ExtendedData>
         </Placemark>
         )
