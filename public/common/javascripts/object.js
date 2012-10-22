@@ -1,19 +1,56 @@
 $(document).ready(function () {
 
-    // If deepzoom URL is present initiate SeaDragon
-    if ($('a[data-type=zoom]').size() > 0) {
-        // Deepzoom image & viewer
-        var zoomImg = $('a[data-type=zoom]').attr('href'), viewer;
-        Seadragon.Config.imagePath = "/assets/common/javascripts/seadragon/img/";
-        Seadragon.Config.autoHideControls = false;
-        viewer = new Seadragon.Viewer("zoom-viewer");
-        viewer.openDzi({
-            "url":zoomImg,
-            "width":1800,
-            "height":1400,
-            "tileSize":256,
-            "tileOverlap":0,
-            "tileFormat":"jpg"});
+    var imageNavThumbs = $('#thumbnails .img img');
+    
+    // hide thumbnav if there is only one image to view
+    if( imageNavThumbs.size() <= 1 ){
+        $('#thumbnails').hide();
+    }
+
+    // regular images present
+    if ( $('#image-viewer').length) {
+        imageNavThumbs.each(function(index, el) {
+            // switch image src onclick
+            $(el).on("click", function() {
+                var index = $('#thumbnails .img img').index(el);
+                var imageSrc = $('#imageUrls a').get(index);
+                if(typeof imageSrc !== 'undefined') {
+                    $('#image-viewer .img img').attr("src", imageSrc)
+                }
+            });
+        });
+
+    }
+
+    // deepzoom images present
+    if ($('#zoom-viewer').length) {
+        var viewer;
+        // activate deepzoom functionality for first image
+        activateDeepZoom(0)
+        // switch zoom image onclick
+        imageNavThumbs.each(function(index, el) {
+            $(el).on("click", function() { activateDeepZoom(el); });
+        });
+    }
+
+    function activateDeepZoom(el) {
+        var index = imageNavThumbs.index(el);
+        var deepZoomElement = $('#deepZoomUrls a').get(index);
+        if (typeof deepZoomElement !== 'undefined') {
+            var deepZoomUrl = $(deepZoomElement).attr("href");
+            if(typeof viewer === 'undefined') {
+                Seadragon.Config.imagePath = "/assets/common/javascripts/seadragon/img/";
+                Seadragon.Config.autoHideControls = false;
+                viewer = new Seadragon.Viewer("zoom-viewer");
+            }
+            viewer.openDzi({
+                "url":deepZoomUrl,
+                "width":1800,
+                "height":1400,
+                "tileSize":256,
+                "tileOverlap":0,
+                "tileFormat":"jpg"});
+        }
     }
 
     // Endpoint to retrieve related items for this object

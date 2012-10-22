@@ -5832,6 +5832,46 @@ select[name=searchIn] {
 #object-media #zoom-viewer {
   height: 350px;
 }
+#object #thumbnails ul {
+  margin: 0;
+  padding: 10px;
+  background: #333333;
+  *zoom: 1;
+}
+#object #thumbnails ul:before,
+#object #thumbnails ul:after {
+  display: table;
+  content: "";
+  line-height: 0;
+}
+#object #thumbnails ul:after {
+  clear: both;
+}
+#object #thumbnails ul:before,
+#object #thumbnails ul:after {
+  display: table;
+  content: "";
+  line-height: 0;
+}
+#object #thumbnails ul:after {
+  clear: both;
+}
+#object #thumbnails ul li {
+  float: left;
+  list-style: none;
+  margin-right: 10px;
+  width: 100px;
+  cursor: pointer;
+}
+#object #deepZoomUrls,
+#object #imageUrls {
+  height: 0px;
+  font: 0/0 a;
+  color: transparent;
+  text-shadow: none;
+  background-color: transparent;
+  border: 0;
+}
 #context-link {
   background: #333333;
   clear: both;
