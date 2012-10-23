@@ -6,21 +6,22 @@ import play.api.data.Forms._
 import play.api.data.format.Formats._
 import play.api.data.validation.Constraints._
 import extensions.Formatters._
-import models.{DomainConfiguration, HubNode}
+import models.{HubNodeDAO, DomainConfiguration, HubNode}
 import extensions.JJson
 import org.bson.types.ObjectId
-import controllers.{BoundController, OrganizationController}
+import controllers.{CRUDViewModel, BoundController, OrganizationController}
 import play.api.data.validation._
 import play.api.i18n.Messages
 import play.api.data.validation.ValidationError
 import core.{DomainServiceLocator, HubModule}
-import core.node.{NodeSubscriptionService, NodeRegistrationService}
+import core.node.{NodeDirectoryService, NodeSubscriptionService, NodeRegistrationService}
 
 object HubNodes extends BoundController(HubModule) with HubNodes
 
 trait HubNodes extends OrganizationController { self: BoundController =>
 
   val nodeRegistrationServiceLocator = inject [ DomainServiceLocator[NodeRegistrationService] ]
+  val nodeDirectoryServiceLocator = inject [ DomainServiceLocator[NodeDirectoryService] ]
 
   val broadcastingNodeSubscriptionService = inject [ NodeSubscriptionService ]
 
@@ -73,55 +74,34 @@ trait HubNodes extends OrganizationController { self: BoundController =>
   def submit = OrganizationAdmin {
     Action {
       implicit request =>
-        HubNodeViewModel.virtualNodeForm.bind(request.body.asJson.get).fold(
-          formWithErrors => handleValidationError(formWithErrors),
-          viewModel => {
-            viewModel.id match {
-              case Some(id) =>
-                HubNode.dao.findOneById(id) match {
-                  case Some(existingNode) =>
-                    try {
-                      // only update the node name, not the ID!
-                      val updatedNode = existingNode.copy(
-                        name = viewModel.name
-                      )
-                      nodeRegistrationServiceLocator.byDomain.updateNode(updatedNode)
-                      HubNode.dao.save(updatedNode)
-                      Json(viewModel)
-                    } catch {
-                      case t: Throwable =>
-                        logError(t, "Problem while updating hub node %s", existingNode.nodeId)
-                        Json(viewModel.copy(errors = Map("global" -> t.getMessage)))
-                    }
 
-                  case None =>
-                    Json(viewModel.copy(errors = Map("global" -> "Node could not be found! Maybe it was deleted by somebody else in the meantime ?")))
-                }
-              case None =>
+        def update(viewModel: HubNodeViewModel, existingNode: HubNode) = {
+            // only update the node name, not the ID!
+            val updatedNode = existingNode.copy(
+              name = viewModel.name
+            )
+            nodeRegistrationServiceLocator.byDomain.updateNode(updatedNode)
+            Right(updatedNode)
+        }
 
-                val newNode = HubNode(
-                  nodeId = slugify(viewModel.name),
-                  name = viewModel.name,
-                  orgId = viewModel.orgId
-                )
+        def create(viewModel: HubNodeViewModel) = {
+          val newNode = HubNode(
+            nodeId = slugify(viewModel.name),
+            name = viewModel.name,
+            orgId = viewModel.orgId
+          )
 
-                try {
-                  nodeRegistrationServiceLocator.byDomain.registerNode(newNode, connectedUser)
-                  HubNode.dao.insert(newNode)
+          nodeRegistrationServiceLocator.byDomain.registerNode(newNode, connectedUser)
 
-                  // connect to our hub
-                  broadcastingNodeSubscriptionService.generateSubscriptionRequest(configuration.node, newNode)
+          // connect to our hub
+          broadcastingNodeSubscriptionService.generateSubscriptionRequest(configuration.node, newNode)
 
-                  Json(HubNodeViewModel(newNode))
-                } catch {
-                  case t: Throwable =>
-                    logError(t, "Problem while creating hub node %s", newNode.nodeId)
-                    Json(HubNodeViewModel(newNode).copy(errors = Map("global" -> t.getMessage)))
-                }
+          Right(newNode, HubNodeViewModel(newNode))
+        }
 
-            }
-          }
-        )
+        handleSubmit[HubNodeViewModel, HubNode, HubNodeDAO](HubNodeViewModel.virtualNodeForm, HubNode.dao, update, create)
+
+
     }
   }
 
@@ -164,7 +144,7 @@ trait HubNodes extends OrganizationController { self: BoundController =>
     orgId: String = "",
     name: String = "",
     errors: Map[String, String] = Map.empty
-  )
+  ) extends CRUDViewModel
 
   object HubNodeViewModel {
 
@@ -172,9 +152,8 @@ trait HubNodes extends OrganizationController { self: BoundController =>
 
     def nodeIdTaken(implicit configuration: DomainConfiguration) = Constraint[HubNodeViewModel]("plugin.hubNode.nodeIdTaken") {
       case r =>
-        val maybeOne = HubNode.dao.findOne(r.nodeId)
-        val maybeOneId = maybeOne.map(_._id)
-        if (maybeOneId.isDefined && r.id.isDefined && maybeOneId == r.id) {
+        val maybeOne = nodeDirectoryServiceLocator.byDomain.findOneById(slugify(r.name))
+        if (maybeOne.isDefined && r.id.isDefined) {
           Valid
         } else if (maybeOne == None) {
           Valid
