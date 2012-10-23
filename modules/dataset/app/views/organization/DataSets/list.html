@@ -49,7 +49,7 @@
             #{/if}
         </tr>
         </tfoot>
-        <tbody data-bind="foreach: sets()">
+        <tbody data-bind="foreach: sets(), sortable: { connectWith: '.sortable' }">
             <tr>
                 <td><a data-bind="attr: { href: '/organizations/' + orgId() + '/dataset/' + spec() }" rel="nofollow" class="btn btn-small"><i class="icon icon-wrench"></i> <span data-bind="text: name"></span></a></td>
                 <td><span data-bind="text: nodeName"></span></td>
