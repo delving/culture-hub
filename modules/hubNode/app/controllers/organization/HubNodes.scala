@@ -81,6 +81,7 @@ trait HubNodes extends OrganizationController { self: BoundController =>
               name = viewModel.name
             )
             nodeRegistrationServiceLocator.byDomain.updateNode(updatedNode)
+            HubNode.dao.save(updatedNode)
             Right(updatedNode)
         }
 
@@ -92,14 +93,15 @@ trait HubNodes extends OrganizationController { self: BoundController =>
           )
 
           nodeRegistrationServiceLocator.byDomain.registerNode(newNode, connectedUser)
+          HubNode.dao.insert(newNode)
 
           // connect to our hub
           broadcastingNodeSubscriptionService.generateSubscriptionRequest(configuration.node, newNode)
 
-          Right(newNode, HubNodeViewModel(newNode))
+          Right(HubNodeViewModel(newNode))
         }
 
-        handleSubmit[HubNodeViewModel, HubNode, HubNodeDAO](HubNodeViewModel.virtualNodeForm, HubNode.dao, update, create)
+        handleSubmit[HubNodeViewModel, HubNode](HubNodeViewModel.virtualNodeForm, HubNode.dao.findOneById, update, create)
 
 
     }

@@ -7,7 +7,6 @@ import play.api.data.Forms._
 import extensions.Extensions
 import org.bson.types.ObjectId
 import com.novus.salat
-import salat.dao.SalatDAO
 import play.api.data.FormError
 import scala.Some
 
@@ -22,8 +21,18 @@ import scala.Some
  */
 trait CRUDController extends Logging with Extensions with RenderingExtensions { self: Controller with DomainConfigurationAware =>
 
-  def handleSubmit[ViewModel <: CRUDViewModel, A <: salat.CaseClass, B <: SalatDAO[A, ObjectId]]
-                  (form: Form[ViewModel], dao: B, update: (ViewModel, A) => Either[String, A], create: ViewModel => Either[String, (A, ViewModel)])
+  /**
+   * Handles the submission of a form for creation or update
+   * @param form the [[play.api.data.Form]] being submitted
+   * @param findOneById finds a Model by ID
+   * @param update updates an existing Model
+   * @param create creates a new Model
+   * @tparam ViewModel the type of the ViewModel
+   * @tparam A the type of the Model
+   * @return a [[play.api.mvc.Result]]
+   */
+  def handleSubmit[ViewModel <: CRUDViewModel, A <: salat.CaseClass]
+                  (form: Form[ViewModel], findOneById: ObjectId => Option[A], update: (ViewModel, A) => Either[String, A], create: ViewModel => Either[String, ViewModel])
                   (implicit request: Request[AnyContent], mf: Manifest[A]): Result = {
 
     form.bind(request.body.asJson.get).fold(
@@ -31,13 +40,12 @@ trait CRUDController extends Logging with Extensions with RenderingExtensions { 
       boundViewModel => {
         boundViewModel.id match {
           case Some(id) =>
-            dao.findOneById(id) match {
+            findOneById(id) match {
               case Some(existingModel) =>
                 try {
                   update(boundViewModel, existingModel) match {
                     case Right(updatedModel) =>
                       info("Updated 's%' with identifier %s".format(mf.erasure.getName, id))
-                      dao.save(updatedModel)
                       Json(existingModel)
                     case Left(errorMessage) =>
                       warning("Problem while updating '%s' with identifier %s: %s".format(mf.erasure.getName, id, errorMessage))
@@ -56,8 +64,7 @@ trait CRUDController extends Logging with Extensions with RenderingExtensions { 
             }
           case None =>
             create(boundViewModel) match {
-              case Right((createdModel, createdViewModel)) =>
-                dao.insert(createdModel)
+              case Right(createdViewModel) =>
                 Json(createdViewModel)
               case Left(errorMessage) =>
                 Json(Map("errors" -> Map("global" -> errorMessage)))
