@@ -90,9 +90,9 @@ class CollectionProcessor(collection: Collection,
                   }
 
                   val directMappingResults: Map[String, MappingResult] = (for (targetSchema <- targetSchemas; if (targetSchema.isValidRecord(recordIndex) && targetSchema.sourceSchema == "raw")) yield {
-                    val sourceRecord = (record \ "document" \ "input" \*).mkString("\n")
+                    val sourceRecord: String = (record \ "document" \ "input" \*).mkString("\n")
                     try {
-                      (targetSchema.prefix -> targetSchema.engine.get.execute(sourceRecord))
+                      (targetSchema.prefix -> targetSchema.engine.get.execute(localId, sourceRecord))
                     } catch {
                       case t: Throwable => {
                         log.error(
@@ -108,7 +108,7 @@ class CollectionProcessor(collection: Collection,
 
                   val derivedMappingResults: Map[String, MappingResult] = (for (targetSchema <- targetSchemas; if (targetSchema.sourceSchema != "raw")) yield {
                     val sourceRecord = MappingService.nodeTreeToXmlString(directMappingResults(targetSchema.sourceSchema).root(), true)
-                    (targetSchema.prefix -> targetSchema.engine.get.execute(sourceRecord))
+                    (targetSchema.prefix -> targetSchema.engine.get.execute(localId, sourceRecord))
                   }).toMap
 
                   val mappingResults = directMappingResults ++ derivedMappingResults
