@@ -8,13 +8,11 @@ import extensions.Extensions
 import org.bson.types.ObjectId
 import com.novus.salat
 import play.api.data.FormError
-import scala.Some
 
 /**
  * Experimental CRUD controller.
  * The idea is to provide a number of generic methods handling the listing, submission (create or update), and deletion of a model.
  *
- * TODO look into a trait for the companion object of the ViewModel that would provide a Model => ViewModel transformation
  * TODO see how to handle the viewModel.copy(errors = ...) case.
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
@@ -32,7 +30,7 @@ trait CRUDController extends Logging with Extensions with RenderingExtensions { 
    * @return a [[play.api.mvc.Result]]
    */
   def handleSubmit[ViewModel <: CRUDViewModel, A <: salat.CaseClass]
-                  (form: Form[ViewModel], findOneById: ObjectId => Option[A], update: (ViewModel, A) => Either[String, A], create: ViewModel => Either[String, ViewModel])
+                  (form: Form[ViewModel], findOneById: ObjectId => Option[A], update: (ViewModel, A) => Either[String, ViewModel], create: ViewModel => Either[String, ViewModel])
                   (implicit request: Request[AnyContent], mf: Manifest[A]): Result = {
 
     form.bind(request.body.asJson.get).fold(
@@ -44,9 +42,9 @@ trait CRUDController extends Logging with Extensions with RenderingExtensions { 
               case Some(existingModel) =>
                 try {
                   update(boundViewModel, existingModel) match {
-                    case Right(updatedModel) =>
+                    case Right(updatedViewModel) =>
                       info("Updated 's%' with identifier %s".format(mf.erasure.getName, id))
-                      Json(existingModel)
+                      Json(updatedViewModel)
                     case Left(errorMessage) =>
                       warning("Problem while updating '%s' with identifier %s: %s".format(mf.erasure.getName, id, errorMessage))
                       // TODO see if there's a way to abstract the copy method and return the full initial object.
