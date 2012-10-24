@@ -82,7 +82,7 @@ trait HubNodes extends OrganizationController { self: BoundController =>
             )
             nodeRegistrationServiceLocator.byDomain.updateNode(updatedNode)
             HubNode.dao.save(updatedNode)
-            Right(updatedNode)
+            Right(viewModel)
         }
 
         def create(viewModel: HubNodeViewModel) = {
