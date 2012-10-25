@@ -20,7 +20,7 @@ import play.api.data.Forms._
  */
 
 
-trait ApplicationController extends Controller with GroovyTemplates with DomainConfigurationAware with Logging with Extensions with RenderingExtensions {
+trait ApplicationController extends Controller with GroovyTemplates with DomainConfigurationAware with Logging with CRUDController {
 
   // ~~~ i18n
 
@@ -119,27 +119,6 @@ trait ApplicationController extends Controller with GroovyTemplates with DomainC
     Logger("CultureHub").trace("Setting session to: " + s)
     actionResult.withSession(s)
   }
-
-  // ~~~ form handling when using knockout. This returns a map of error messages
-
-  def handleValidationError[T](form: Form[T])(implicit request: RequestHeader) = {
-    val fieldErrors = form.errors.filterNot(_.key.isEmpty).map(error => (error.key.replaceAll("\\.", "_"), Messages(error.message, error.args))).toMap
-    val globalErrors = form.errors.filter(_.key.isEmpty).map(error => ("global", Messages(error.message, error.args))).toMap
-
-    Json(Map("errors" -> (fieldErrors ++ globalErrors)), BAD_REQUEST)
-  }
-
-  // ~~~ Form utilities
-  import extensions.Formatters._
-
-  val tokenListMapping = seq(
-    play.api.data.Forms.mapping(
-      "id" -> text,
-      "name" -> text,
-      "tokenType" -> optional(text),
-      "data" -> optional(of[Map[String, String]])
-      )(Token.apply)(Token.unapply)
-    )
 
 }
 
