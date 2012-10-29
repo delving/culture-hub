@@ -4,14 +4,13 @@ import play.api.Application
 import controllers.organization.CMS
 import core._
 import models.{DomainConfiguration, Role}
-import scala.collection.mutable
 import models.cms.CMSPage
 import com.mongodb.casbah.Imports._
-import scala.Some
-import scala.collection
 import core.MainMenuEntry
-import scala.Some
 import core.MenuElement
+import scala.util.matching.Regex
+import play.api.mvc.Handler
+import scala.collection.immutable.ListMap
 
 /**
  *
@@ -21,6 +20,75 @@ import core.MenuElement
 class CMSPlugin(app: Application) extends CultureHubPlugin(app) {
 
   val pluginKey: String = "cms"
+
+  /**
+
+   GET        /page/:key                                                         controllers.Application.page(key)
+
+   GET         /organizations/:orgId/site/upload                                 controllers.organization.CMS.upload(orgId)
+   POST        /organizations/:orgId/site/upload/:uid                            controllers.organization.CMS.uploadSubmit(orgId, uid)
+   GET         /organizations/:orgId/site/listImages                             controllers.organization.CMS.listImages(orgId)
+   GET         /organizations/:orgId/site                                        controllers.organization.CMS.list(orgId, language: Option[String] = None)
+   GET         /organizations/:orgId/site/:language                              controllers.organization.CMS.list(orgId, language: Option[String])
+   GET         /organizations/:orgId/site/:language/page/add                     controllers.organization.CMS.page(orgId, language, page: Option[String] = None)
+   GET         /organizations/:orgId/site/:language/page/:page/update            controllers.organization.CMS.page(orgId, language, page: Option[String])
+   POST        /organizations/:orgId/site/page                                   controllers.organization.CMS.pageSubmit(orgId)
+   DELETE      /organizations/:orgId/site/:language/page/:key                    controllers.organization.CMS.pageDelete(orgId, key, language)
+   GET         /organizations/:orgId/site/:language/page/preview/:key            controllers.organization.CMS.pagePreview(orgId, language, key)
+
+   */
+  override val routes: ListMap[(String, Regex), (List[String], Map[String, String]) => Handler] = ListMap(
+
+    ("GET", """^/page/([A-Za-z0-9-]+)""".r) -> {
+      (pathArgs: List[String], queryString: Map[String, String]) =>
+        controllers.CMS.page(pathArgs(0))
+    },
+    ("GET", """^/organizations/([A-Za-z0-9-]+)/site/upload""".r) -> {
+      (pathArgs: List[String], queryString: Map[String, String]) =>
+        controllers.organization.CMS.upload(pathArgs(0))
+    },
+    ("GET", """^/organizations/([A-Za-z0-9-]+)/site/upload""".r) -> {
+      (pathArgs: List[String], queryString: Map[String, String]) =>
+        controllers.organization.CMS.upload(pathArgs(0))
+    },
+    ("POST", """^/organizations/([A-Za-z0-9-]+)/site/upload/([A-Za-z0-9-]+)""".r) -> {
+      (pathArgs: List[String], queryString: Map[String, String]) =>
+        controllers.organization.CMS.uploadSubmit(pathArgs(0), pathArgs(1))
+    },
+    ("GET", """^/organizations/([A-Za-z0-9-]+)/site/listImages""".r) -> {
+      (pathArgs: List[String], queryString: Map[String, String]) =>
+        controllers.organization.CMS.listImages(pathArgs(0))
+    },
+    ("GET", """^/organizations/([A-Za-z0-9-]+)/site""".r) -> {
+      (pathArgs: List[String], queryString: Map[String, String]) =>
+        controllers.organization.CMS.list(pathArgs(0), None)
+    },
+    ("GET", """^/organizations/([A-Za-z0-9-]+)/site/([A-Za-z0-9-]+)""".r) -> {
+      (pathArgs: List[String], queryString: Map[String, String]) =>
+        controllers.organization.CMS.list(pathArgs(0), Some(pathArgs(1)))
+    },
+    ("GET", """^/organizations/([A-Za-z0-9-]+)/site/([A-Za-z0-9-]+)/page/add""".r) -> {
+      (pathArgs: List[String], queryString: Map[String, String]) =>
+        controllers.organization.CMS.page(pathArgs(0), pathArgs(1), None)
+    },
+    ("GET", """^/organizations/([A-Za-z0-9-]+)/site/([A-Za-z0-9-]+)/page/([A-Za-z0-9-]+)/update""".r) -> {
+      (pathArgs: List[String], queryString: Map[String, String]) =>
+        controllers.organization.CMS.page(pathArgs(0), pathArgs(1), Some(pathArgs(2)))
+    },
+    ("POST", """^/organizations/([A-Za-z0-9-]+)/site/page""".r) -> {
+      (pathArgs: List[String], queryString: Map[String, String]) =>
+        controllers.organization.CMS.pageSubmit(pathArgs(0))
+    },
+    ("DELETE", """^/organizations/([A-Za-z0-9-]+)/site/([A-Za-z0-9-]+)/page/([A-Za-z0-9-]+)""".r) -> {
+      (pathArgs: List[String], queryString: Map[String, String]) =>
+        controllers.organization.CMS.pageDelete(pathArgs(0), pathArgs(2), pathArgs(1))
+    },
+    ("GET", """^/organizations/([A-Za-z0-9-]+)/site/([A-Za-z0-9-]+)/page/([A-Za-z0-9-]+)/preview""".r) -> {
+      (pathArgs: List[String], queryString: Map[String, String]) =>
+        controllers.organization.CMS.pagePreview(pathArgs(0), pathArgs(1), pathArgs(2))
+    }
+
+  )
 
   override def mainMenuEntries(implicit configuration: DomainConfiguration, lang: String): Seq[MainMenuEntry] = {
     _root_.models.cms.MenuEntry.dao.

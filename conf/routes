@@ -15,9 +15,6 @@ GET     /                                                                       
 
 GET     /browsers.html                                                             controllers.Assets.at(path="/public", file="browsers.html")
 
-# Site page
-GET        /page/:key                                                              controllers.Application.page(key)
-
 # Form-based authentication
 GET        /login                                                                  controllers.Authentication.login
 POST       /login                                                                  controllers.Authentication.authenticate
@@ -172,17 +169,6 @@ GET         /organizations/:orgId/groups/create                               co
 GET         /organizations/:orgId/groups/update/:groupId                      controllers.organization.Groups.groups(orgId, groupId: Option[org.bson.types.ObjectId])
 DELETE      /organizations/:orgId/groups/remove/:groupId                      controllers.organization.Groups.remove(orgId, groupId: Option[org.bson.types.ObjectId])
 POST        /organizations/:orgId/groups/submit                               controllers.organization.Groups.submit(orgId)
-
-GET         /organizations/:orgId/site/upload                                 controllers.organization.CMS.upload(orgId)
-POST        /organizations/:orgId/site/upload/:uid                            controllers.organization.CMS.uploadSubmit(orgId, uid)
-GET         /organizations/:orgId/site/listImages                             controllers.organization.CMS.listImages(orgId)
-GET         /organizations/:orgId/site                                        controllers.organization.CMS.list(orgId, language: Option[String] = None)
-GET         /organizations/:orgId/site/:language                              controllers.organization.CMS.list(orgId, language: Option[String])
-GET         /organizations/:orgId/site/:language/page/add                     controllers.organization.CMS.page(orgId, language, page: Option[String] = None)
-GET         /organizations/:orgId/site/:language/page/:page/update            controllers.organization.CMS.page(orgId, language, page: Option[String])
-POST        /organizations/:orgId/site/page                                   controllers.organization.CMS.pageSubmit(orgId)
-DELETE      /organizations/:orgId/site/:language/page/:key                    controllers.organization.CMS.pageDelete(orgId, key, language)
-GET         /organizations/:orgId/site/:language/page/preview/:key            controllers.organization.CMS.pagePreview(orgId, language, key)
 
 GET         /organizations/:orgId/directory/organizationLookup                controllers.organization.DataSetControl.organizationLookup(orgId, term)
 
