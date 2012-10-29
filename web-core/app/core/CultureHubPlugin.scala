@@ -198,6 +198,17 @@ object CultureHubPlugin {
     }
   }
 
+  /**
+   * Gets the CultureHubPlugin of a certain type
+   * @param pluginClass the class of the plugin
+   * @param configuration the [[models.DomainConfiguration]] being accessed
+   * @tparam T the type of the plugin
+   * @return an instance of T if there is any
+   */
+  def getPlugin[T <: CultureHubPlugin](pluginClass: Class[T])(implicit configuration: DomainConfiguration): Option[T] = {
+    getEnabledPlugins.find(p => pluginClass.isAssignableFrom(p.getClass)).map(_.asInstanceOf[T])
+  }
+
 
 }
 

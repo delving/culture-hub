@@ -684,6 +684,7 @@ locale.nb=Norwegian b�kmal (nb)
 accessControl.resourceType.dataSet=DataSets
 
 plugin.cms.adminRight=Site content administration rights
+plugin.cms.mainMenu=Main menu
 
 plugin.chc.orKeywords=Keywords (OR)
 plugin.chc.dataSetsNotEmpty=You must select at least one constraining DataSet

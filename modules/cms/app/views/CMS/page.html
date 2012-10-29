@@ -5,12 +5,23 @@
 #{set bodyId:'page' /}
 
 #{set pageId: page.key /}
+#{set menuKey: menuKey /}
 
 #{breadcrumbs crumbs: breadcrumbs /}
 
 #{if page.published == true}
+    #{if menuEntries}
+    <div class="secondary-nav">
+        <ul class="nav">
+        #{list menuEntries, as: 'm'}
+            <li class="#{if m.url == ("/site/" + menuKey + "/page/" + pageId)}active#{/if}"><a href="${m.url}">&{m.titleKey}</a></li>
+        #{/list}
+        </ul>
+    </div>
+    #{/if}
+
     ${page.content.raw()}
 #{/if}
 #{else}
-        This page is not published.
+    This page is not published.
 #{/else}

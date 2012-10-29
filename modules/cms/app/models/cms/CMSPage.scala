@@ -29,28 +29,37 @@ import models.{DomainConfiguration, MultiModel}
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-case class CMSPage(_id: ObjectId = new ObjectId(),
-                   key: String, // the key of this page (unique across all version sets of pages)
-                   userName: String, // who created the page
-                   orgId: String, // orgId to which this page belongs to
-                   lang: String, // 2-letters ISO code of the page language
-                   title: String, // title of the page in this language
-                   content: String, // actual page content (text)
-                   isSnippet: Boolean = false, // is this a snippet in the welcome page or not
-                   published: Boolean = false
-                    )
+case class CMSPage(
+  _id: ObjectId = new ObjectId(),
+  key: String, // the key of this page (unique across all version sets of pages)
+  userName: String, // who created the page
+  orgId: String, // orgId to which this page belongs to
+  lang: String, // 2-letters ISO code of the page language
+  title: String, // title of the page in this language
+  content: String, // actual page content (text)
+  isSnippet: Boolean = false, // is this a snippet in the welcome page or not
+  published: Boolean = false // is this page published, i.e. visible?
+)
 
-case class MenuEntry(_id: ObjectId = new ObjectId(),
-                     orgId: String, // orgId to which this menu belongs to
-                     menuKey: String, // key of the menu this entry belongs to
-                     parentKey: Option[ObjectId] = None, // parent menu entry key. if none is provided this entry is not part of a sub-menu
-                     position: Int, // position of this menu entry inside of the menu
-                     title: Map[String, String], // title of this menu entry, per language
-                     targetPageKey: Option[String] = None, // key of the page this menu entry links to, if any
-                     targetUrl: Option[String] = None, // URL this menu entry links to, if any
-                     targetAnchor: Option[String] = None, // id of the target HTML anchor, if any
-                     published: Boolean = false
-                      )
+case class MenuEntry(
+  _id: ObjectId = new ObjectId(),
+  orgId: String, // orgId to which this menu belongs to
+  menuKey: String, // key of the menu this entry belongs to
+  parentMenuKey: Option[String] = None, // parent menu key. if none is provided this entry is not part of a sub-menu
+  position: Int, // position of this menu entry inside of the menu
+  title: Map[String, String], // title of this menu entry, per language
+  targetPageKey: Option[String] = None, // key of the page this menu entry links to, if any
+  targetMenuKey: Option[String] = None, // key of the target menu this entry links to, if any
+  targetUrl: Option[String] = None, // URL this menu entry links to, if any
+  published: Boolean = false // is this entry published, i.e. visible ?
+)
+
+/** Represents a menu, which is not persisted at the time being **/
+case class Menu(
+  key: String,
+  parentMenuKey: Option[String],
+  title: Map[String, String]
+)
 
 object CMSPage extends MultiModel[CMSPage, CMSPageDAO] {
   def connectionName: String = "CMSPages"
@@ -96,7 +105,11 @@ object MenuEntry extends MultiModel[MenuEntry, MenuEntryDAO] {
 
 class MenuEntryDAO(collection: MongoCollection) extends SalatDAO[MenuEntry, ObjectId](collection) {
 
-  def findByPageAndMenu(orgId: String, menuKey: String, key: String) = findOne(MongoDBObject("orgId" -> orgId, "menuKey" -> menuKey, "targetPageKey" -> key))
+  def findOneByMenuKey(menuKey: String) = findOne(MongoDBObject("menuKey" -> menuKey))
+
+  def findOneByTargetPageKey(targetPageKey: String) = findOne(MongoDBObject("targetPageKey" -> targetPageKey))
+
+  def findOneByMenuAndPage(orgId: String, menuKey: String, pageKey: String) = findOne(MongoDBObject("orgId" -> orgId, "menuKey" -> menuKey, "targetPageKey" -> pageKey))
 
   def findEntries(orgId: String, menuKey: String, parentKey: Option[ObjectId] = None) = find(MongoDBObject("orgId" -> orgId, "menuKey" -> menuKey, "parentKey" -> parentKey)).$orderby(MongoDBObject("position" -> 1))
 
@@ -105,20 +118,20 @@ class MenuEntryDAO(collection: MongoCollection) extends SalatDAO[MenuEntry, Obje
   /**
    * Adds a page to a menu (root menu). If the menu entry already exists, updates the position and title.
    */
-  def addPage(orgId: String, menuKey: String, targetPageKey: String, position: Int, title: String, lang: String, published: Boolean) {
-    findByPageAndMenu(orgId, menuKey, targetPageKey) match {
+  def savePage(orgId: String, menuKey: String, targetPageKey: String, position: Int, title: String, lang: String, published: Boolean) {
+    findOneByTargetPageKey(targetPageKey) match {
       case Some(existing) =>
-        val updatedEntry = existing.copy(position = position, title = existing.title + (lang -> title), published = published)
+        val updatedEntry = existing.copy(position = position, menuKey = menuKey, title = existing.title + (lang -> title), published = published)
         save(updatedEntry)
         // update position of siblings by shifting them to the right
         update(MongoDBObject("orgId" -> orgId, "menuKey" -> menuKey, "published" -> published) ++ ("position" $gte (position)) ++ ("targetPageKey" $ne (targetPageKey)), $inc("position" -> 1))
       case None =>
-        val newEntry = MenuEntry(orgId = orgId, menuKey = menuKey, parentKey = None, position = position, targetPageKey = Some(targetPageKey), title = Map(lang -> title), published = published)
+        val newEntry = MenuEntry(orgId = orgId, menuKey = menuKey, parentMenuKey = None, position = position, targetPageKey = Some(targetPageKey), title = Map(lang -> title), published = published)
         insert(newEntry)
     }
   }
 
-  def removePage(orgId: String, menuKey: String, targetPageKey: String, lang: String) {
+  def removePage(orgId: String, targetPageKey: String, lang: String) {
     findOne(MongoDBObject("orgId" -> orgId, "targetPageKey" -> targetPageKey)) match {
       case Some(entry) =>
         val updated = entry.copy(title = entry.title - (lang))
@@ -131,12 +144,5 @@ class MenuEntryDAO(collection: MongoCollection) extends SalatDAO[MenuEntry, Obje
     }
   }
 
-  def updatePosition(orgId: String, menuKey: String, parentKey: Option[ObjectId] = None, position: Int) {
-    update(MongoDBObject("orgId" -> orgId, "menuKey" -> menuKey, "parentKey" -> parentKey), $set("position" -> position))
-  }
-
-  def updateTitle(orgId: String, menuKey: String, parentKey: Option[ObjectId] = None, lang: String, title: String) {
-    update(MongoDBObject("orgId" -> orgId, "menuKey" -> menuKey, "parentKey" -> parentKey), $set("title.%s".format(lang) -> title))
-  }
 
 }

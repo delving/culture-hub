@@ -89,7 +89,9 @@
                 <div class="controls">
                     <select name="menu" id="menu" data-bind="value: menu">
                         <option value="none">None</option>
-                        <option value="mainMenu">Main menu</option>
+                        #{list menuDefinitions, as: 'm'}
+                        <option value="${m.key}">${m.value}</option>
+                        #{/list}
                     </select>
                 </div>
             </div>
