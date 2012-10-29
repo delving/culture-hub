@@ -101,6 +101,11 @@ object Build extends sbt.Build {
     publish := { }
   ).dependsOn(webCore % "test->test;compile->compile")
 
+  val cms = PlayProject("cms", "1.0-SNAPSHOT", Seq.empty, path = file("modules/cms")).settings(
+    resolvers ++= commonResolvers,
+    publish := {}
+  ).dependsOn(webCore % "test->test;compile->compile", dos)
+
   val statistics = PlayProject("statistics", "1.0-SNAPSHOT", Seq.empty, path = file("modules/statistics")).settings(
     resolvers ++= commonResolvers,
     publish := { }
@@ -140,12 +145,14 @@ object Build extends sbt.Build {
     hubNode                 % "test->test;compile->compile",
     dataSet                 % "test->test;compile->compile",
     dos                     % "test->test;compile->compile",
+    cms                     % "test->test;compile->compile",
     statistics              % "test->test;compile->compile"
   ).aggregate(
     webCore,
     hubNode,
     dataSet,
     dos,
+    cms,
     statistics
   )
 
