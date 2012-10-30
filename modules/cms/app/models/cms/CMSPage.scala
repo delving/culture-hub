@@ -115,7 +115,7 @@ object MenuEntry extends MultiModel[MenuEntry, MenuEntryDAO] {
 
 class MenuEntryDAO(collection: MongoCollection) extends SalatDAO[MenuEntry, ObjectId](collection) {
 
-  def findOneByMenuKey(menuKey: String) = findOne(MongoDBObject("menuKey" -> menuKey))
+  def findOneByTargetMenuKey(targetMenuKey: String) = findOne(MongoDBObject("targetMenuKey" -> targetMenuKey))
 
   def findOneByTargetPageKey(targetPageKey: String) = findOne(MongoDBObject("targetPageKey" -> targetPageKey))
 
