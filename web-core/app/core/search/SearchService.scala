@@ -136,7 +136,7 @@ class SearchService(request: RequestHeader, hiddenQueryFilters: Seq[String] = Se
         format match {
           case "kml" =>
             summary.renderAsKML(authorized)
-          case "kml-abc" =>
+          case "kml-a" =>
             summary.renderAsABCKML(authorized)
           case _ =>
             summary.renderAsXML(authorized)
@@ -518,10 +518,10 @@ case class ExplainResponse(params: Params, configuration: DomainConfiguration) {
 
   val paramOptions: List[ExplainItem] = List(
     ExplainItem("query", List("any string"), "Will output a summary result set. Any valid Lucene or Solr Query syntax will work."),
-    ExplainItem("format", List("xml", "json", "jsonp", "simile", "similep")),
+    ExplainItem("format", List("xml", "json", "jsonp", "simile", "similep", "kml")),
     ExplainItem("cache", List("true", "false"), "Use Services Module cache for retrieving the europeana:object"),
-    ExplainItem("id", List("any valid europeana_uri identifier"), "Will output a full-view"),
-    ExplainItem("idType", List("solr", "mongo", "pmh", "drupal", "datasetId", "legacy"), "//todo complete this"),
+    ExplainItem("id", List("any valid identifier specified by the idType"), "Will output a full-view. Default idType is hubId taken from the delving_hubId field."),
+    ExplainItem("idType", List("hubId","solr", "mongo", "pmh", "drupal", "datasetId", "legacy"), "//todo complete this"),
     ExplainItem("schema", List("any schema defined in the delving:publicSchemas"), "This parameter is only available when the id is specified as well. It defines the output format for the Full-View. By default the current schema that is used for indexing is rendered."),
     ExplainItem("fl", List("any valid search field in a comma-separated list"), "Will only output the specified search fields"),
     ExplainItem("facet.limit", List("Any valid integer. Default is 100"), "Will limit the number of facet entries returned to integer specified."),
