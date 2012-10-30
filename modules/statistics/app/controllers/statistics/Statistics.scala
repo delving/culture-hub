@@ -81,7 +81,7 @@ object Statistics extends OrganizationController {
         implicit request =>
 
           val requestFacets = request.queryString.get("facet.field")
-          val facetLimit = request.queryString.getOrElse("facet.limit", "100").toString.toInt
+          val facetLimit = request.queryString.getOrElse("facet.limit", List("100")).head.toString.toInt
           val facets: Map[String, String] = requestFacets.map { facet =>
             facet.map(f => (f -> f)).toMap
           }.getOrElse {
@@ -146,7 +146,7 @@ case class StatisticsHeader(name: String, label: String = "", entries: Seq[Combi
   }
 }
 
-class SolrFacetBasedStatistics(orgId: String, facets: Map[String, String], filter: Option[String], facetLimit: int: 100)(implicit configuration: DomainConfiguration, lang: Lang) {
+class SolrFacetBasedStatistics(orgId: String, facets: Map[String, String], filter: Option[String], facetLimit: Int = 100)(implicit configuration: DomainConfiguration, lang: Lang) {
 
     val orgIdFilter = "%s:%s".format(IndexField.ORG_ID.key, orgId)
 
@@ -184,7 +184,7 @@ class SolrFacetBasedStatistics(orgId: String, facets: Map[String, String], filte
   def createHeader(facet: (String, String)): StatisticsHeader = {
     StatisticsHeader(
       name = facet._1,
-      label = Messages(facet._2),
+      label = Messages(SolrBindingService.stripDynamicFieldLabels(facet._2)),
       entries = createEntries(facet._1)
     )
   }
@@ -203,8 +203,8 @@ class SolrFacetBasedStatistics(orgId: String, facets: Map[String, String], filte
         CombinedStatisticEntry(
           name = count.getName,
           total = count.getCount.toInt,
-          digitalObject = StatisticsCounter(name = count.getName, total = total, withNr = getCountForFacet(count.getName, digitalObjectFacet)),
-          landingPage = StatisticsCounter(name = count.getName, total = total, withNr = getCountForFacet(count.getName, landingPageFacet))
+          digitalObject = StatisticsCounter(name = count.getName, total = count.getCount.toInt, withNr = getCountForFacet(count.getName, digitalObjectFacet)),
+          landingPage = StatisticsCounter(name = count.getName, total = count.getCount.toInt, withNr = getCountForFacet(count.getName, landingPageFacet))
         )
       }
     }
