@@ -6,7 +6,7 @@
 
 #{breadcrumbs crumbs: breadcrumbs /}
 
-#{organizationNavBar orgId: orgId, active:"site", navigation: navigation /}
+#{organizationNavBar orgId: orgId, active: menuKey, navigation: navigation /}
 
 <div class="row">
     <div class="span12">
@@ -102,14 +102,11 @@
         };
 
         load(${data.raw()}, pagesModel, null, function () {
+            $('#language').change(function () {
+                document.location = '/organizations/${orgId}/site/' + $('select#language').val();
+            });
             $("body").css('visibility', 'visible');
         });
-
-        $('#language').change(function () {
-            document.location = '/organizations/${orgId}/site/' + $('select#language').val();
-
-        });
-
 
     });
 </script>

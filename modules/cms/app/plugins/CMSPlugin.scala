@@ -1,7 +1,6 @@
 package plugins
 
 import play.api.{Configuration, Application}
-import controllers.organization.CMSPageViewModel
 import core._
 import models.{DomainConfiguration, Role}
 import models.cms.{MenuEntry, Menu, CMSPage}
@@ -68,19 +67,23 @@ class CMSPlugin(app: Application) extends CultureHubPlugin(app) {
     },
     ("GET", """^/organizations/([A-Za-z0-9-]+)/site""".r) -> {
       (pathArgs: List[String], queryString: Map[String, String]) =>
-        controllers.organization.CMS.list(pathArgs(0), None)
+        controllers.organization.CMS.list(pathArgs(0), None, Some(CMSPlugin.MAIN_MENU))
     },
-    ("GET", """^/organizations/([A-Za-z0-9-]+)/site/([A-Za-z0-9-]+)""".r) -> {
+    ("GET", """^/organizations/([A-Za-z0-9-]+)/site/([A-Za-z0-9-]+)/([A-Za-z0-9-]+)""".r) -> {
       (pathArgs: List[String], queryString: Map[String, String]) =>
-        controllers.organization.CMS.list(pathArgs(0), Some(pathArgs(1)))
+        controllers.organization.CMS.list(pathArgs(0), Some(pathArgs(1)), Some(pathArgs(2)))
     },
     ("GET", """^/organizations/([A-Za-z0-9-]+)/site/([A-Za-z0-9-]+)/page/add""".r) -> {
       (pathArgs: List[String], queryString: Map[String, String]) =>
-        controllers.organization.CMS.page(orgId = pathArgs(0), language = pathArgs(1), page = None, menu = CMSPageViewModel.NO_MENU)
+        controllers.organization.CMS.page(orgId = pathArgs(0), language = pathArgs(1), page = None, menu = CMSPlugin.MAIN_MENU)
+    },
+    ("GET", """^/organizations/([A-Za-z0-9-]+)/site/([A-Za-z0-9-]+)/page/add/([A-Za-z0-9-]+)""".r) -> {
+      (pathArgs: List[String], queryString: Map[String, String]) =>
+        controllers.organization.CMS.page(orgId = pathArgs(0), language = pathArgs(1), page = None, menu = pathArgs(2))
     },
     ("GET", """^/organizations/([A-Za-z0-9-]+)/site/([A-Za-z0-9-]+)/page/([A-Za-z0-9-]+)/update""".r) -> {
       (pathArgs: List[String], queryString: Map[String, String]) =>
-        controllers.organization.CMS.page(orgId = pathArgs(0), language = pathArgs(1), page = Some(pathArgs(2)), menu = CMSPageViewModel.NO_MENU)
+        controllers.organization.CMS.page(orgId = pathArgs(0), language = pathArgs(1), page = Some(pathArgs(2)), menu = CMSPlugin.MAIN_MENU)
     },
     ("POST", """^/organizations/([A-Za-z0-9-]+)/site/page""".r) -> {
       (pathArgs: List[String], queryString: Map[String, String]) =>
@@ -139,10 +142,11 @@ class CMSPlugin(app: Application) extends CultureHubPlugin(app) {
 
   override def onStart() {
 
-    // make sure that all the menu definitions in the configuration have an up-to-date menu entry for their parent menu
 
-    // TODO sync removed entries
     DomainConfigurationHandler.domainConfigurations.foreach { implicit configuration =>
+
+      // make sure that all the menu definitions in the configuration have an up-to-date menu entry for their parent menu
+      // TODO sync removed entries
       getPluginConfiguration(configuration).
         menuDefinitions.
         filterNot(_.parentMenuKey == None).
@@ -166,19 +170,33 @@ class CMSPlugin(app: Application) extends CultureHubPlugin(app) {
           MenuEntry.dao.insert(entry)
         }
       }
-    }
 
+      // create empty homepage for all languages
+      Lang.availables.foreach { lang =>
+        if (CMSPage.dao.findByKeyAndLanguage("homepage", lang.code).isEmpty) {
+          val homePage = CMSPage(
+            key = "homepage",
+            userName = "system",
+            orgId = configuration.orgId,
+            lang = lang.code,
+            title = "Homepage",
+            content = ""
+          )
+          CMSPage.dao.insert(homePage)
+          }
+        }
+    }
   }
 
   override def mainMenuEntries(configuration: DomainConfiguration, lang: String): Seq[MainMenuEntry] = {
     models.cms.MenuEntry.dao(configuration).
-      findEntries(configuration.orgId, CMSPageViewModel.MAIN_MENU).
+      findEntries(configuration.orgId, CMSPlugin.MAIN_MENU).
       filterNot(e => !e.title.contains(lang) || !e.published).
       map { e =>
 
-          val targetUrl = if (e.targetPageKey.isDefined && e.menuKey != CMSPageViewModel.MAIN_MENU) {
+          val targetUrl = if (e.targetPageKey.isDefined && e.menuKey != CMSPlugin.MAIN_MENU) {
             "/site" + e.menuKey + "/page/" + e.targetPageKey.get
-          } else if(e.targetPageKey.isDefined && e.menuKey == CMSPageViewModel.MAIN_MENU) {
+          } else if(e.targetPageKey.isDefined && e.menuKey == CMSPlugin.MAIN_MENU) {
             "/page/" + e.targetPageKey.get
           } else if (e.targetMenuKey.isDefined) {
             val first = MenuEntry.dao(configuration).findEntries(configuration.orgId, e.targetMenuKey.get).toSeq.headOption
@@ -197,18 +215,38 @@ class CMSPlugin(app: Application) extends CultureHubPlugin(app) {
       }.toSeq
   }
 
-  override def organizationMenuEntries(configuration: DomainConfiguration, lang: String, roles: Seq[String]): Seq[MainMenuEntry] = Seq(
-    MainMenuEntry(
-      key = "site",
-      titleKey = "plugin.cms",
-      roles = Seq(Role.OWN, CMSPlugin.ROLE_CMS_ADMIN),
-      items = Seq(
-        MenuElement("/organizations/%s/site".format(configuration.orgId), "ui.label.list"),
-        MenuElement("/organizations/%s/site/%s/page/add".format(configuration.orgId, lang), "ui.label.new"),
-        MenuElement("/organizations/%s/site/upload".format(configuration.orgId), "plugin.cms.upload.image")
-      )
-    )
-  )
+  override def organizationMenuEntries(configuration: DomainConfiguration, lang: String, roles: Seq[String]): Seq[MainMenuEntry] = {
+    
+    getPluginConfiguration(configuration).menuDefinitions.map { definition =>
+    
+        if (definition.key == CMSPlugin.MAIN_MENU) {
+          // default menu for site pages
+          MainMenuEntry(
+            key = CMSPlugin.MAIN_MENU,
+            titleKey = "plugin.cms",
+            roles = Seq(Role.OWN, CMSPlugin.ROLE_CMS_ADMIN),
+            items = Seq(
+              MenuElement("/organizations/%s/site/%s/%s".format(configuration.orgId, lang, CMSPlugin.MAIN_MENU), "ui.label.list"),
+              MenuElement("/organizations/%s/site/%s/page/add".format(configuration.orgId, lang), "ui.label.new"),
+              MenuElement("/organizations/%s/site/%s/page/homepage/update".format(configuration.orgId, lang), "plugins.cms.updateHomePage"),
+              MenuElement("/organizations/%s/site/upload".format(configuration.orgId), "plugin.cms.upload.image")
+            )
+          )
+        } else {
+          MainMenuEntry(
+            key = definition.key,
+            titleKey = definition.title.get(lang).getOrElse(definition.title("en")),
+            roles = Seq(Role.OWN, CMSPlugin.ROLE_CMS_ADMIN),
+            items = Seq(
+              MenuElement("/organizations/%s/site/%s/%s".format(configuration.orgId, lang, definition.key), "ui.label.list"),
+              MenuElement("/organizations/%s/site/%s/page/add/%s".format(configuration.orgId, lang, definition.key), "ui.label.new"),
+              MenuElement("/organizations/%s/site/upload".format(configuration.orgId), "plugin.cms.upload.image")
+            )
+          )
+        }
+    }
+
+  } 
 
   override def homePageSnippet: Option[(String, RequestContext => Unit)] = Some(
     ("/CMS/homePageSnippet.html",
@@ -231,9 +269,13 @@ class CMSPlugin(app: Application) extends CultureHubPlugin(app) {
 object CMSPlugin {
 
   val PLUGIN_KEY = "cms"
-
+  
   lazy val ROLE_CMS_ADMIN = Role("cms", Role.descriptions("plugin.cms.adminRight"), false, None)
 
+  val MAIN_MENU = "mainMenu"
+  val NO_MENU = "none"
+  
+  
   def getConfiguration(implicit configuration: DomainConfiguration): Option[CMSPluginConfiguration] = {
     CultureHubPlugin.getPlugin(classOf[CMSPlugin]).map(_.getPluginConfiguration)
   }

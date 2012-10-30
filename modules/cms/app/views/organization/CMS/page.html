@@ -9,9 +9,12 @@
 <script type="text/javascript" src="@{routes.Assets.at("common/javascripts/jquery.dateFormat-1.0.js")}"></script>
 #{/set}
 
+${menuKey}
+${menuKey}
+
 #{breadcrumbs crumbs: breadcrumbs /}
 
-#{organizationNavBar orgId: orgId, active:"site", navigation: navigation /}
+#{organizationNavBar orgId: orgId, active: menuKey, navigation: navigation /}
 
 <div class="accordion" id="instructions">
     <div class="accordion-group">
@@ -178,7 +181,7 @@
         $('#saveButton').click(function (event) {
             event.preventDefault();
             handleSubmit('/organizations/${orgId}/site/page', pageModel, '#pageForm', null, function () {
-                document.location = '/organizations/${orgId}/site/' + pageModel.lang();
+                document.location = '/organizations/${orgId}/site/' + pageModel.lang() + '/' + pageModel.menu();
             });
         });
 

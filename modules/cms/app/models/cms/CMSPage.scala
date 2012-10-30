@@ -71,9 +71,19 @@ object CMSPage extends MultiModel[CMSPage, CMSPageDAO] {
   def initDAO(collection: MongoCollection, connection: MongoDB)(implicit configuration: DomainConfiguration): CMSPageDAO = new CMSPageDAO(collection)
 }
 
-class CMSPageDAO(collection: MongoCollection) extends SalatDAO[CMSPage, ObjectId](collection) {
+class CMSPageDAO(collection: MongoCollection)(implicit configuration: DomainConfiguration) extends SalatDAO[CMSPage, ObjectId](collection) {
 
-  def list(orgId: String, lang: String): List[CMSPage] = find(MongoDBObject("orgId" -> orgId, "lang" -> lang)).toList.groupBy(_.key).map(m => m._2.sortBy(_._id).reverse.head).toList
+  def list(orgId: String, lang: String, menuKey: Option[String]): List[CMSPage] = {
+    val list = if (menuKey == None) {
+      find(MongoDBObject("orgId" -> orgId, "lang" -> lang))
+    } else {
+      val filterKeys = MenuEntry.dao.findEntries(orgId, menuKey.get).toList.
+        filterNot(_.targetPageKey == None).
+        map(_.targetPageKey)
+      find(MongoDBObject("orgId" -> orgId, "lang" -> lang) ++ ("key" $in filterKeys))
+    }
+    list.toList.groupBy(_.key).map(m => m._2.sortBy(_._id).reverse.head).toList
+  }
 
   def findByKey(orgId: String, key: String): List[CMSPage] = find(MongoDBObject("orgId" -> orgId, "key" -> key)).$orderby(MongoDBObject("_id" -> -1)).toList
 
@@ -111,7 +121,13 @@ class MenuEntryDAO(collection: MongoCollection) extends SalatDAO[MenuEntry, Obje
 
   def findOneByMenuAndPage(orgId: String, menuKey: String, pageKey: String) = findOne(MongoDBObject("orgId" -> orgId, "menuKey" -> menuKey, "targetPageKey" -> pageKey))
 
-  def findEntries(orgId: String, menuKey: String, parentKey: Option[ObjectId] = None) = find(MongoDBObject("orgId" -> orgId, "menuKey" -> menuKey, "parentKey" -> parentKey)).$orderby(MongoDBObject("position" -> 1))
+  def findEntries(orgId: String, menuKey: String, parentKey: Option[String] = None) = {
+    if (parentKey.isDefined) {
+      find(MongoDBObject("orgId" -> orgId, "menuKey" -> menuKey, "parentKey" -> parentKey)).$orderby(MongoDBObject("position" -> 1))
+    } else {
+      find(MongoDBObject("orgId" -> orgId, "menuKey" -> menuKey, "parentKey" -> "")).$orderby(MongoDBObject("position" -> 1))
+    }
+  }
 
   def findEntries(orgId: String, menuKey: String) = find(MongoDBObject("orgId" -> orgId, "menuKey" -> menuKey)).$orderby(MongoDBObject("position" -> 1))
 
