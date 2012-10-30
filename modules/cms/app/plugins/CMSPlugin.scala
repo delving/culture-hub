@@ -200,12 +200,12 @@ class CMSPlugin(app: Application) extends CultureHubPlugin(app) {
   override def organizationMenuEntries(orgId: String, lang: String, roles: Seq[String]): Seq[MainMenuEntry] = Seq(
     MainMenuEntry(
       key = "site",
-      titleKey = "org.cms",
+      titleKey = "plugin.cms",
       roles = Seq(Role.OWN, CMSPlugin.ROLE_CMS_ADMIN),
       items = Seq(
-        MenuElement("/organizations/%s/site".format(orgId), "org.cms.page.list"),
-        MenuElement("/organizations/%s/site/%s/page/add".format(orgId, lang), "org.cms.page.new"),
-        MenuElement("/organizations/%s/site/upload".format(orgId), "org.cms.upload.image")
+        MenuElement("/organizations/%s/site".format(orgId), "plugin.cms.page.list"),
+        MenuElement("/organizations/%s/site/%s/page/add".format(orgId, lang), "plugin.cms.page.new"),
+        MenuElement("/organizations/%s/site/upload".format(orgId), "plugin.cms.upload.image")
       )
     )
   )

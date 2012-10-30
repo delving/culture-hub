@@ -17,7 +17,7 @@
     <div class="accordion-group">
         <div class="accordion-heading  clearfix">
             <a class="accordion-toggle pull-right" href="#collapseOne" data-parent="instructions" data-toggle="collapse" rel="nofollow">
-                <i class="icon-question-sign"></i> &{'org.cms.page.help.toggle'}
+                <i class="icon-question-sign"></i> &{'plugin.cms.page.help.toggle'}
             </a>
         </div>
         <div id="collapseOne" class="accordion-body collapse">
@@ -26,40 +26,40 @@
                 <div class="tabbable">
 
                     <ul class="nav nav-pills">
-                        <li class="active"><a href="#fields" data-toggle="tab" rel="nofollow">&{'org.cms.page.help.fields.tab'}</a></li>
-                        <li><a href="#images" data-toggle="tab" rel="nofollow">&{'org.cms.page.help.images.tab'}</a></li>
-                        <li><a href="#templates" data-toggle="tab" rel="nofollow">&{'org.cms.page.help.templates.tab'}</a></li>
-                        <li><a href="#homepage" data-toggle="tab" rel="nofollow">&{'org.cms.page.help.homepage.tab'}</a></li>
+                        <li class="active"><a href="#fields" data-toggle="tab" rel="nofollow">&{'plugin.cms.page.help.fields.tab'}</a></li>
+                        <li><a href="#images" data-toggle="tab" rel="nofollow">&{'plugin.cms.page.help.images.tab'}</a></li>
+                        <li><a href="#templates" data-toggle="tab" rel="nofollow">&{'plugin.cms.page.help.templates.tab'}</a></li>
+                        <li><a href="#homepage" data-toggle="tab" rel="nofollow">&{'plugin.cms.page.help.homepage.tab'}</a></li>
                     </ul>
 
                     <div class="tab-content">
                         <div class="tab-pane active" id="fields">
                             <dl>
                                 <dt>&{'thing.title'}</dt>
-                                <dd>&{'org.cms.page.help.fields.title.info'}</dd>
-                                <dt>&{'org.cms.page.key'}</dt>
-                                <dd>&{'org.cms.page.help.fields.key.info'}</dd>
+                                <dd>&{'plugin.cms.page.help.fields.title.info'}</dd>
+                                <dt>&{'plugin.cms.page.key'}</dt>
+                                <dd>&{'plugin.cms.page.help.fields.key.info'}</dd>
                                 <dt>&{'ui.label.language'}</dt>
-                                <dd>&{'org.cms.page.help.fields.language.info'}</dd>
-                                <dt>&{'org.cms.page.menu.add'}</dt>
-                                <dd>&{'org.cms.page.help.fields.menu.info'}</dd>
-                                <dt>&{'org.cms.page.menu.position'}</dt>
-                                <dd>&{'org.cms.page.help.fields.position.info'}</dd>
+                                <dd>&{'plugin.cms.page.help.fields.language.info'}</dd>
+                                <dt>&{'plugin.cms.page.menu.add'}</dt>
+                                <dd>&{'plugin.cms.page.help.fields.menu.info'}</dd>
+                                <dt>&{'plugin.cms.page.menu.position'}</dt>
+                                <dd>&{'plugin.cms.page.help.fields.position.info'}</dd>
                             </dl>
                         </div>
                         <div class="tab-pane" id="images">
                             <p>
-                                &{'org.cms.page.help.images.info', orgId}
+                                &{'plugin.cms.page.help.images.info', orgId}
                             </p>
                         </div>
                         <div class="tab-pane" id="templates">
                             <p>
-                                &{'org.cms.page.help.templates.info'}
+                                &{'plugin.cms.page.help.templates.info'}
                             </p>
                         </div>
                         <div class="tab-pane" id="homepage">
                             <p>
-                            &{'org.cms.page.help.homepage.info'}
+                            &{'plugin.cms.page.help.homepage.info'}
                             </p>
                         </div>
                     </div>
@@ -76,7 +76,7 @@
 
          <div class="cms-page-name span4">
         #{form.textField name:"title", form:pageForm, label:messages.get('thing.title'), dataBind:"value: title", maxLength: 35, required: true /}
-        #{form.textField name:"key", form:pageForm, label:messages.get('org.cms.page.key'), dataBind:"value: key", required: true, disabled: !isNew, extHtml: '<span id="createKey" class="btn btn-mini">'+messages.get("org.cms.page.keyauto.button")+'</span><p class="error"></p>' /}
+        #{form.textField name:"key", form:pageForm, label:messages.get('plugin.cms.page.key'), dataBind:"value: key", required: true, disabled: !isNew, extHtml: '<span id="createKey" class="btn btn-mini">'+messages.get("plugin.cms.page.keyauto.button")+'</span><p class="error"></p>' /}
         </div>
 
         <div class="cms-page-lang span4">
@@ -85,7 +85,7 @@
 
         <div class="cms-page-menu span4">
             <div class="control-group">
-                <label>&{'org.cms.page.menu.add'}</label>
+                <label>&{'plugin.cms.page.menu.add'}</label>
                 <div class="controls">
                     <select name="menu" id="menu" data-bind="value: menu">
                         <option value="none">None</option>
@@ -95,7 +95,7 @@
                     </select>
                 </div>
             </div>
-            #{form.textField name:"position", form: pageForm, label:messages.get('org.cms.page.menu.position'), dataBind:"value: position", required: true /}
+            #{form.textField name:"position", form: pageForm, label:messages.get('plugin.cms.page.menu.position'), dataBind:"value: position", required: true /}
         </div>
 
     </div>
@@ -107,13 +107,13 @@
 
     <div class="row">
         <div class="span12">
-        #{form.checkboxField name: "published", label: messages.get('org.cms.page.publish'), value: "true", dataBind: "checked: published", extHelp: messages.get('org.cms.page.publish.help') /}
+        #{form.checkboxField name: "published", label: messages.get('plugin.cms.page.publish'), value: "true", dataBind: "checked: published", extHelp: messages.get('plugin.cms.page.publish.help') /}
         </div>
     </div>
     <div class="row">
         <div class="span12">
             <div class="well">
-            #{btnButton label: messages.get('org.cms.page.save'), extraClass:"btn-success btn-large span6 pull-right", iconClass:"icon-ok-circle icon-white", id:"saveButton", type:"submit" /}
+            #{btnButton label: messages.get('plugin.cms.page.save'), extraClass:"btn-success btn-large span6 pull-right", iconClass:"icon-ok-circle icon-white", id:"saveButton", type:"submit" /}
             #{btnButton label: messages.get('ui.label.cancel'), extraClass:"cancelButton", id:"cancelButton", type:"reset" /}
             #{btnButton label: messages.get('ui.label.reset'), extraClass:"", type:"reset" /}
                 <div class="wait"></div>
@@ -186,7 +186,7 @@
             $(this).next('.error').html("");
            var keyFromTitle = $('input#title').val().trim().replace(/\s+/g, '-').toLowerCase();
            if (keyFromTitle == '') {
-               $(this).next('.error').html("&{'org.cms.page.keyauto.error'}");
+               $(this).next('.error').html("&{'plugin.cms.page.keyauto.error'}");
            }
            $('input#key').attr("value", keyFromTitle);
            pageModel.key(keyFromTitle);
