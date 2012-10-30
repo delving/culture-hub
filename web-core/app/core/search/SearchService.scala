@@ -136,7 +136,7 @@ class SearchService(request: RequestHeader, hiddenQueryFilters: Seq[String] = Se
         format match {
           case "kml" =>
             summary.renderAsKML(authorized)
-          case "kml-abc" =>
+          case "kml-a" =>
             summary.renderAsABCKML(authorized)
           case _ =>
             summary.renderAsXML(authorized)
@@ -518,7 +518,7 @@ case class ExplainResponse(params: Params, configuration: DomainConfiguration) {
 
   val paramOptions: List[ExplainItem] = List(
     ExplainItem("query", List("any string"), "Will output a summary result set. Any valid Lucene or Solr Query syntax will work."),
-    ExplainItem("format", List("xml", "json", "jsonp", "simile", "similep")),
+    ExplainItem("format", List("xml", "json", "jsonp", "simile", "similep", "kml")),
     ExplainItem("cache", List("true", "false"), "Use Services Module cache for retrieving the europeana:object"),
     ExplainItem("id", List("any valid identifier specified by the idType"), "Will output a full-view. Default idType is hubId taken from the delving_hubId field."),
     ExplainItem("idType", List("hubId","solr", "mongo", "pmh", "drupal", "datasetId", "legacy"), "//todo complete this"),
