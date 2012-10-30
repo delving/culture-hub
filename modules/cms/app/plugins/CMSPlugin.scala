@@ -170,8 +170,8 @@ class CMSPlugin(app: Application) extends CultureHubPlugin(app) {
 
   }
 
-  override def mainMenuEntries(implicit configuration: DomainConfiguration, lang: String): Seq[MainMenuEntry] = {
-    models.cms.MenuEntry.dao.
+  override def mainMenuEntries(configuration: DomainConfiguration, lang: String): Seq[MainMenuEntry] = {
+    models.cms.MenuEntry.dao(configuration).
       findEntries(configuration.orgId, CMSPageViewModel.MAIN_MENU).
       filterNot(e => !e.title.contains(lang) || !e.published).
       map { e =>
@@ -181,7 +181,7 @@ class CMSPlugin(app: Application) extends CultureHubPlugin(app) {
           } else if(e.targetPageKey.isDefined && e.menuKey == CMSPageViewModel.MAIN_MENU) {
             "/page/" + e.targetPageKey.get
           } else if (e.targetMenuKey.isDefined) {
-            val first = MenuEntry.dao.findEntries(configuration.orgId, e.targetMenuKey.get).toSeq.headOption
+            val first = MenuEntry.dao(configuration).findEntries(configuration.orgId, e.targetMenuKey.get).toSeq.headOption
             "/site/" + e.targetMenuKey.get + "/page/" + first.flatMap(_.targetPageKey).getOrElse("")
           } else if (e.targetUrl.isDefined) {
             e.targetUrl.get
@@ -197,15 +197,15 @@ class CMSPlugin(app: Application) extends CultureHubPlugin(app) {
       }.toSeq
   }
 
-  override def organizationMenuEntries(orgId: String, lang: String, roles: Seq[String]): Seq[MainMenuEntry] = Seq(
+  override def organizationMenuEntries(configuration: DomainConfiguration, lang: String, roles: Seq[String]): Seq[MainMenuEntry] = Seq(
     MainMenuEntry(
       key = "site",
       titleKey = "plugin.cms",
       roles = Seq(Role.OWN, CMSPlugin.ROLE_CMS_ADMIN),
       items = Seq(
-        MenuElement("/organizations/%s/site".format(orgId), "plugin.cms.page.list"),
-        MenuElement("/organizations/%s/site/%s/page/add".format(orgId, lang), "plugin.cms.page.new"),
-        MenuElement("/organizations/%s/site/upload".format(orgId), "plugin.cms.upload.image")
+        MenuElement("/organizations/%s/site".format(configuration.orgId), "ui.label.list"),
+        MenuElement("/organizations/%s/site/%s/page/add".format(configuration.orgId, lang), "ui.label.new"),
+        MenuElement("/organizations/%s/site/upload".format(configuration.orgId), "plugin.cms.upload.image")
       )
     )
   )

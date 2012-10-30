@@ -132,19 +132,19 @@ class DataSetPlugin(app: Application) extends CultureHubPlugin(app) {
    * @param roles the roles of the current user
    * @return a sequence of [[core.MainMenuEntry]] for the organization menu
    */
-  override def organizationMenuEntries(orgId: String, lang: String, roles: Seq[String]): Seq[MainMenuEntry] = Seq(
+  override def organizationMenuEntries(configuration: DomainConfiguration, lang: String, roles: Seq[String]): Seq[MainMenuEntry] = Seq(
     MainMenuEntry(
       key = "datasets",
       titleKey = "thing.datasets",
       items = Seq(
-        MenuElement("/organizations/%s/dataset".format(orgId), "organization.dataset.list"),
-        MenuElement("/organizations/%s/dataset/add".format(orgId), "organization.dataset.create", Seq(Role.OWN))
+        MenuElement("/organizations/%s/dataset".format(configuration.orgId), "organization.dataset.list"),
+        MenuElement("/organizations/%s/dataset/add".format(configuration.orgId), "organization.dataset.create", Seq(Role.OWN))
       )
     ),
     MainMenuEntry(
       key = "sipcreator",
       titleKey = "ui.label.sipcreator",
-      mainEntry = Some(MenuElement("/organizations/%s/sip-creator".format(orgId), "ui.label.sipcreator"))
+      mainEntry = Some(MenuElement("/organizations/%s/sip-creator".format(configuration.orgId), "ui.label.sipcreator"))
     )
   )
 
