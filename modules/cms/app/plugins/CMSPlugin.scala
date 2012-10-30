@@ -191,9 +191,11 @@ class CMSPlugin(app: Application) extends CultureHubPlugin(app) {
   }
 
   override def mainMenuEntries(configuration: DomainConfiguration, lang: String): Seq[MainMenuEntry] = {
+    def isVisible(entry: MenuEntry) = entry.title.contains(lang) && entry.published
     models.cms.MenuEntry.dao(configuration).
       findEntries(configuration.orgId, CMSPlugin.MAIN_MENU).
-      filterNot(e => !e.title.contains(lang) || !e.published).
+      filter(isVisible).
+      filterNot(e => e.targetMenuKey.isDefined && models.cms.MenuEntry.dao(configuration).findEntries(e.orgId, e.targetMenuKey.get).filter(isVisible).isEmpty).
       map { e =>
 
           val targetUrl = if (e.targetPageKey.isDefined && e.menuKey != CMSPlugin.MAIN_MENU) {
