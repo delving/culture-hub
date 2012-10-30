@@ -151,7 +151,7 @@ class CMSPlugin(app: Application) extends CultureHubPlugin(app) {
         menuDefinitions.
         filterNot(_.parentMenuKey == None).
         zipWithIndex.foreach { definition =>
-        MenuEntry.dao.findOneByTargetMenuKey(definition._1.parentMenuKey.get).map { persisted =>
+        MenuEntry.dao.findOneByMenuKeyAndTargetMenuKey(definition._1.parentMenuKey.get, definition._1.key).map { persisted =>
           val updated = persisted.copy(
             position = definition._2,
             title = definition._1.title,
