@@ -191,10 +191,8 @@ $.postKOJson = function (url, viewModel, onSuccess, onFailure, additionalData) {
  */
 function load(dataOrUri, viewModel, scope, callback, onApplyBindings) {
     if (typeof dataOrUri === 'object') {
-        console.log("Doh")
         updateViewModel(dataOrUri, viewModel, scope, callback, onApplyBindings);
     } else {
-        console.log(dataOrUri)
         $.ajax({
           url: dataOrUri,
           dataType: 'json',
@@ -202,8 +200,8 @@ function load(dataOrUri, viewModel, scope, callback, onApplyBindings) {
               updateViewModel(data, viewModel, scope, callback, onApplyBindings);
           },
           error: function(jq, textStatus, error) {
-              console.log(textStatus)
-              console.log(error)
+              console.log(textStatus);
+              console.log(error);
           }
         });
     }
@@ -229,7 +227,7 @@ function updateViewModel(data, viewModel, scope, callback, onApplyBindings) {
     if (ko.mapping.isMapped(viewModel)) {
         ko.mapping.fromJS(data, viewModel)
     } else {
-        $.extend(viewModel, ko.mapping.fromJS(data, mapping));
+        $.extend(viewModel, ko.mapping.fromJS($.extend(data, { errors: { } }), mapping));
         if(typeof onApplyBindings === 'function') onApplyBindings.call();
         if (typeof scope !== 'undefined') {
             ko.applyBindings(viewModel, scope);

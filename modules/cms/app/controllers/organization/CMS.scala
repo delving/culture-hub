@@ -177,8 +177,8 @@ case class CMSPageViewModel(dateCreated: Long,
                             isSnippet: Boolean = false, // is this a snippet in the welcome page or not
                             published: Boolean,
                             position: Int,
-                            menu: String,
-                            errors: Map[String, String] = Map.empty[String, String]) extends ViewModel
+                            menu: String)
+
 
 object CMSPageViewModel {
 
@@ -204,8 +204,7 @@ object CMSPageViewModel {
       "isSnippet" -> boolean,
       "published" -> boolean,
       "position" -> number,
-      "menu" -> text,
-      "errors" -> of[Map[String, String]]
+      "menu" -> text
     )(CMSPageViewModel.apply)(CMSPageViewModel.unapply)
   )
 

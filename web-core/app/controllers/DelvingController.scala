@@ -3,16 +3,13 @@ package controllers
 import play.api.Logger
 import play.api.mvc._
 import play.api.Play.current
-import play.api.data.Form
 import play.api.i18n.{Lang, Messages}
 import play.libs.Time
 import eu.delving.templates.scala.GroovyTemplates
-import extensions.Extensions
 import collection.JavaConverters._
 import org.bson.types.ObjectId
 import core._
 import models.{DomainConfiguration, Role, Group, HubUser}
-import play.api.data.Forms._
 
 /**
  *
@@ -20,7 +17,7 @@ import play.api.data.Forms._
  */
 
 
-trait ApplicationController extends Controller with GroovyTemplates with DomainConfigurationAware with Logging with CRUDController {
+trait ApplicationController extends Controller with GroovyTemplates with ControllerBase {
 
   // ~~~ i18n
 
