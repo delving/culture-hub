@@ -29,7 +29,7 @@ trait DomainConfigurationAware {
           domainConfigurations.put(request, configuration)
           action(request)
         } catch {
-          case t =>
+          case t: Throwable =>
             Logger("CultureHub").error(t.getMessage, t)
             throw t
         } finally {

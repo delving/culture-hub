@@ -3,10 +3,8 @@ package controllers.organization
 import play.api.mvc._
 import play.api.data.Form
 import play.api.data.Forms._
-import play.api.data.format.Formats._
-import play.api.data.validation.Constraints._
 import extensions.Formatters._
-import models.{HubNodeDAO, DomainConfiguration, HubNode}
+import models.{DomainConfiguration, HubNode}
 import extensions.JJson
 import org.bson.types.ObjectId
 import controllers.{CRUDViewModel, BoundController, OrganizationController}
@@ -144,8 +142,7 @@ trait HubNodes extends OrganizationController { self: BoundController =>
     id: Option[ObjectId] = None,
     nodeId: String = "",
     orgId: String = "",
-    name: String = "",
-    errors: Map[String, String] = Map.empty
+    name: String = ""
   ) extends CRUDViewModel
 
   object HubNodeViewModel {
@@ -175,8 +172,7 @@ trait HubNodes extends OrganizationController { self: BoundController =>
         "id" -> optional(of[ObjectId]),
         "nodeId" -> text,
         "orgId" -> nonEmptyText.verifying(orgIdValid),
-        "name" -> nonEmptyText.verifying(Constraints.pattern("^[A-Za-z0-9- ]{3,40}$".r, "plugin.hubNode.invalidNodeId", "plugin.hubNode.invalidNodeName")),
-        "errors" -> of[Map[String, String]]
+        "name" -> nonEmptyText.verifying(Constraints.pattern("^[A-Za-z0-9- ]{3,40}$".r, "plugin.hubNode.invalidNodeId", "plugin.hubNode.invalidNodeName"))
       )(HubNodeViewModel.apply)(HubNodeViewModel.unapply).verifying(nodeIdTaken)
     )
   }

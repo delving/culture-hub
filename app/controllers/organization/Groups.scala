@@ -231,8 +231,7 @@ case class GroupViewModel(id: Option[ObjectId] = None,
                           resources: Seq[Token] = Seq.empty[Token],
                           rolesWithResources: Seq[String] = Seq.empty,
                           rolesWithResourceAdmin: Seq[String] = Seq.empty,
-                          rolesResourceType: Seq[RoleResourceType] = Seq.empty,
-                          errors: Map[String, String] = Map.empty[String, String]) extends ViewModel
+                          rolesResourceType: Seq[RoleResourceType] = Seq.empty)
 
 case class RoleResourceType(roleKey: String, resourceType: String, resourceTypeName: String)
 
@@ -255,8 +254,7 @@ object GroupViewModel {
         "resourceType" -> nonEmptyText,
         "resourceTypeName" -> nonEmptyText
         )(RoleResourceType.apply)(RoleResourceType.unapply)
-      ),
-      "errors" -> of[Map[String, String]]
+      )
     )(GroupViewModel.apply)(GroupViewModel.unapply)
   )
   
