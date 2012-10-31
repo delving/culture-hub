@@ -1,0 +1,7 @@
+#{extends themeInfo.get('themeLayout') /}
+#{set title: messages.get(titleKey) /}
+#{set bodyId: 'organization' /}
+#{breadcrumbs crumbs: breadcrumbs /}
+#{organizationNavBar orgId: orgId, active: menuKey, navigation: navigation /}
+
+#{doLayout /}

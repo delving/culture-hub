@@ -8,6 +8,10 @@ import extensions.Extensions
 import org.bson.types.ObjectId
 import com.novus.salat
 import play.api.data.FormError
+import models.{MultiModel, DomainConfiguration}
+import salat.dao.SalatDAO
+import com.mongodb.casbah.commons.MongoDBObject
+import eu.delving.templates.scala.GroovyTemplates
 
 /**
  * Experimental CRUD controller.
@@ -17,7 +21,24 @@ import play.api.data.FormError
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
-trait CRUDController extends Logging with Extensions with RenderingExtensions { self: Controller with DomainConfigurationAware =>
+trait CRUDController extends Logging with Extensions with RenderingExtensions { self: Controller with GroovyTemplates with DomainConfigurationAware =>
+
+  def crudList[Model <: salat.CaseClass, D <: SalatDAO[Model, ObjectId]](dao: D, listTemplate: String = "organization/crudList.html", filter: Seq[(String, String)] = Seq.empty)
+                                                                        (implicit request: RequestHeader, configuration: DomainConfiguration,
+                                                                          mom: Manifest[Model], mod: Manifest[D]): Result = {
+    val items = dao.find(MongoDBObject(filter : _*)).toSeq
+
+    log.debug(request.accept.mkString(", "))
+    log.debug(request.accepts(JSON).toString)
+    log.(request.accepts("application/json").toString)
+    log.(request.accepts(HTML).toString)
+
+    if (request.accepts("application/json") && !request.accepts(HTML)) {
+      Json(Map("items" -> items))
+    } else {
+      Ok(Template(listTemplate, 'titleKey -> "Foo", 'menuKey -> "Bar"))
+    }
+  }
 
   /**
    * Handles the submission of a form for creation or update
