@@ -5666,6 +5666,11 @@ a.badge:hover {
   margin: 0 0 0 3.33%;
   float: left;
 }
+.span2of3 {
+  width: 30%;
+  margin: 0 0 0 3.33%;
+  float: left;
+}
 .span1of4 {
   width: 21.5%;
   margin: 0 0 0 3.33%;
@@ -5816,7 +5821,6 @@ select[name=searchIn] {
   background: #333333;
 }
 #object-media .img {
-  background: #555555 url(/assets/common/images/resize.png) bottom right no-repeat;
   height: 300px;
   margin-bottom: 8px;
   padding: 8px;
@@ -6149,6 +6153,51 @@ div.token-input-dropdown ul li.token-input-selected-dropdown-item {
   color: #ffffff;
   display: inline-block !important;
   padding: 0px 8px;
+}
+/*---------------------------------
+    CMS Page elements
+-----------------------------------*/
+#page .page {
+  display: block;
+  width: 102.08333333333333%;
+  margin: 0 -1.0416666666666665%;
+  *zoom: 1;
+}
+#page .page:before,
+#page .page:after {
+  display: table;
+  content: "";
+  line-height: 0;
+}
+#page .page:after {
+  clear: both;
+}
+#page .page:before,
+#page .page:after {
+  display: table;
+  content: "";
+  line-height: 0;
+}
+#page .page:after {
+  clear: both;
+}
+#page .secondary-nav {
+  display: inline;
+  float: left;
+  width: 22.916666666666664%;
+  margin: 0 1.0416666666666665%;
+}
+#page .secondary-content {
+  display: inline;
+  float: left;
+  width: 72.91666666666666%;
+  margin: 0 1.0416666666666665%;
+}
+.cdate {
+  color: #999999;
+  display: block;
+  font-weight: bold;
+  margin-bottom: 11px;
 }
 @media (max-width: 480px) {
   .results .result {
