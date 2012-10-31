@@ -175,6 +175,7 @@ thing.browse.of=Browse {0} of
 thing.browse.ownedby=Browse {0} owned by
 thing.grantType=This group grants
 thing.confirmation=Are you sure?
+thing.deleteConfirmation=Are you sure you want to delete this item?
 thing.provider=Provider
 
 thing.instant=Instant

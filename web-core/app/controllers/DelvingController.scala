@@ -28,8 +28,6 @@ trait ApplicationController extends Controller with GroovyTemplates with DomainC
 
   private val LANG_COOKIE = "CH_LANG"
 
-  protected val log = Logger("CultureHub")
-
   implicit def getLang(implicit request: RequestHeader) = request.cookies.get(LANG_COOKIE).map(_.value).getOrElse(configuration.ui.defaultLanguage)
 
   override implicit def lang(implicit request: RequestHeader): Lang = Lang(getLang)
@@ -201,6 +199,9 @@ trait DelvingController extends ApplicationController {
 //              Forbidden("Bad authenticity token")
 //          }
 
+          // orgId
+          renderArgs += ("orgId" -> configuration.orgId)
+
           // Connected user
           HubUser.dao.findByUsername(userName).foreach { u =>
             renderArgs +=("fullName" -> u.fullname)
@@ -292,10 +293,7 @@ trait DelvingController extends ApplicationController {
     Root {
       Action(action.parser) {
         implicit request =>
-          val orgName = organizationServiceLocator.byDomain.getName(configuration.orgId, "en")
           val isAdmin = organizationServiceLocator.byDomain.isAdmin(configuration.orgId, userName)
-          renderArgs += ("orgId" -> configuration.orgId)
-          renderArgs += ("browsedOrgName" -> orgName)
           renderArgs += ("currentLanguage" -> getLang)
           renderArgs += ("isAdmin" -> isAdmin.asInstanceOf[AnyRef])
 
