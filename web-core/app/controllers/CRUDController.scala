@@ -23,22 +23,41 @@ import eu.delving.templates.scala.GroovyTemplates
  */
 trait CRUDController extends Logging with Extensions with RenderingExtensions { self: Controller with GroovyTemplates with DomainConfigurationAware =>
 
-  def crudList[Model <: salat.CaseClass, D <: SalatDAO[Model, ObjectId]](dao: D, listTemplate: String = "organization/crudList.html", filter: Seq[(String, String)] = Seq.empty)
+  /**
+   * The menu key for the actions of this CRUD controller.
+   * In the future, the navigation should be handled transparently via routing.
+   */
+  def menuKey: Option[String] = None
+
+  def crudList[Model <: salat.CaseClass, D <: SalatDAO[Model, ObjectId]](dao: D, titleKey: String = "", listTemplate: String = "organization/crudList.html", filter: Seq[(String, String)] = Seq.empty)
                                                                         (implicit request: RequestHeader, configuration: DomainConfiguration,
                                                                           mom: Manifest[Model], mod: Manifest[D]): Result = {
     val items = dao.find(MongoDBObject(filter : _*)).toSeq
 
     log.debug(request.accept.mkString(", "))
     log.debug(request.accepts(JSON).toString)
-    log.(request.accepts("application/json").toString)
-    log.(request.accepts(HTML).toString)
+    log.debug(request.accepts("application/json").toString)
+    log.debug(request.accepts(HTML).toString)
 
     if (request.accepts("application/json") && !request.accepts(HTML)) {
       Json(Map("items" -> items))
     } else {
-      Ok(Template(listTemplate, 'titleKey -> "Foo", 'menuKey -> "Bar"))
+
+      val tKey = if (titleKey.isEmpty) {
+        splitCamelCase(mom.erasure.getName.split("\\.").lastOption.getOrElse(mom.erasure.getName)) + "s"
+      } else {
+        titleKey
+      }
+
+      Ok(Template(listTemplate, 'titleKey -> tKey, 'menuKey -> menuKey.getOrElse("")))
     }
   }
+
+  def splitCamelCase(s: String) = s.replaceAll(
+    String.format("%s|%s|%s",
+                  "(?<=[A-Z])(?=[A-Z][a-z])",
+                  "(?<=[^A-Z])(?=[A-Z])",
+                  "(?<=[A-Za-z])(?=[^A-Za-z])"), " ")
 
   /**
    * Handles the submission of a form for creation or update

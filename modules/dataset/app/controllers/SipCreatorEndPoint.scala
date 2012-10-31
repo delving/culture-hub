@@ -43,8 +43,6 @@ object SipCreatorEndPoint extends BoundController(HubModule) with SipCreatorEndP
 trait SipCreatorEndPoint extends Controller with DomainConfigurationAware with Logging {
   this: BoundController with Controller with DomainConfigurationAware with Logging =>
 
-  protected val log = Logger("CultureHub")
-
   val organizationServiceLocator = HubModule.inject[DomainServiceLocator[OrganizationService]](name = None)
 
   val DOT_PLACEHOLDER = "--"
