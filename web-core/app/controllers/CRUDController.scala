@@ -129,13 +129,8 @@ trait CRUDController[Model <: CaseClass { def id: ObjectId }, D <: SalatDAO[Mode
 
     val items = dao.find(MongoDBObject(filter : _*)).toSeq
 
-    log.debug(request.accept.mkString(", "))
-    log.debug(request.accepts(JSON).toString)
-    log.debug(request.accepts("application/json").toString)
-    log.debug(request.accepts(HTML).toString)
-
     if (acceptsJson) {
-      Json(Map("items" -> items))
+      Json(Map("items" -> items)).withHeaders(CACHE_CONTROL -> "no-cache")
     } else {
 
       val tKey = if (titleKey.isEmpty) {
