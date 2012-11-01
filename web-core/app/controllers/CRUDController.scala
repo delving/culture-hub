@@ -19,13 +19,18 @@ import com.novus.salat.{TypeHintFrequency, StringTypeHintStrategy, Context}
  * The idea is to provide a number of generic methods handling the listing, submission (create or update), and deletion of a model.
  *
  * TODO customize list fields
- * TODO link to view page
  * TODO view page
+ * TODO link to view page
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 trait CRUDController[Model <: CaseClass { def id: ObjectId }, D <: SalatDAO[Model, ObjectId]] extends ControllerBase { self: Controller with GroovyTemplates with DomainConfigurationAware =>
 
+  // ~~~ Navigation
+
+  /**
+   * Base URL of all actions for this CRUD model
+   */
   def baseUrl(implicit request: RequestHeader, configuration: DomainConfiguration): String
 
   /**
@@ -33,6 +38,8 @@ trait CRUDController[Model <: CaseClass { def id: ObjectId }, D <: SalatDAO[Mode
    * In the future, the navigation should be handled transparently via routing.
    */
   def menuKey: String
+
+  // ~~~ Binding
 
   /**
    * The Play Form definition, including constraints
@@ -77,28 +84,32 @@ trait CRUDController[Model <: CaseClass { def id: ObjectId }, D <: SalatDAO[Mode
 
 
 
-//  // ~~~ default actions
-//
-//  def view(id: ObjectId) = Action {
-//    implicit request =>
-//      crudView(id)
-//  }
-//
-//
-//  def list = Action {
-//    implicit request =>
-//      crudList()
-//  }
-//
-//  def update(id: Option[ObjectId]) = Action {
-//    implicit request =>
-//      crudUpdate(id)
-//  }
-//
-//  def submit = Action {
-//    implicit request =>
-//      crudSubmit
-//  }
+  // ~~~ default actions, override if necessary
+
+  def view(id: ObjectId)(implicit mom: Manifest[Model], mod: Manifest[D]) = Action {
+    implicit request =>
+      crudView(id)
+  }
+
+  def list(implicit mom: Manifest[Model], mod: Manifest[D]) = Action {
+    implicit request =>
+      crudList()
+  }
+
+  def update(id: Option[ObjectId], templateName: Option[String] = None)(implicit mom: Manifest[Model], mod: Manifest[D]) = Action {
+    implicit request =>
+      crudUpdate(id, templateName.getOrElse("organization/" + className + "s/update.html"))
+  }
+
+  def submit(implicit mom: Manifest[Model], mod: Manifest[D]) = Action {
+    implicit request =>
+      crudSubmit()
+  }
+
+  def delete(id: ObjectId)(implicit mom: Manifest[Model], mod: Manifest[D]) = Action {
+    implicit request =>
+      crudDelete(id)
+  }
 
 
   // ~~~ CRUD handler methods
@@ -128,7 +139,7 @@ trait CRUDController[Model <: CaseClass { def id: ObjectId }, D <: SalatDAO[Mode
     } else {
 
       val tKey = if (titleKey.isEmpty) {
-        splitCamelCase(mom.erasure.getName.split("\\.").lastOption.getOrElse(mom.erasure.getName)) + "s"
+        splitCamelCase(className) + "s"
       } else {
         titleKey
       }
@@ -137,7 +148,7 @@ trait CRUDController[Model <: CaseClass { def id: ObjectId }, D <: SalatDAO[Mode
     }
   }
 
-  def crudUpdate(id: Option[ObjectId])(implicit request: RequestHeader, configuration: DomainConfiguration,
+  def crudUpdate(id: Option[ObjectId], templateName: String)(implicit request: RequestHeader, configuration: DomainConfiguration,
                                                 mom: Manifest[Model], mod: Manifest[D]): Result = {
 
     implicit val formats = DefaultFormats
@@ -153,14 +164,14 @@ trait CRUDController[Model <: CaseClass { def id: ObjectId }, D <: SalatDAO[Mode
       if (item == None) {
         NotFound("Item with ID %s wasn't found".format(_id))
       } else {
-        Ok(Template('baseUrl -> baseUrl, 'data -> grater[Model].toCompactJSON(item.get)))
+        Ok(Template(templateName, 'baseUrl -> baseUrl, 'data -> grater[Model].toCompactJSON(item.get)))
       }
     }.getOrElse {
       val json: JObject = grater[Model].toJSON(emptyModel)
       val jsonItem = json merge JObject(List(JField("_created_", JBool(true))))
       val rendered = Printer.compact(JsonAST.render(jsonItem))
       log.debug(rendered)
-      Ok(Template('baseUrl -> baseUrl, 'data -> rendered))
+      Ok(Template(templateName, 'baseUrl -> baseUrl, 'data -> rendered))
     }
 
   }
@@ -189,6 +200,7 @@ trait CRUDController[Model <: CaseClass { def id: ObjectId }, D <: SalatDAO[Mode
   protected def acceptsJson(implicit request: RequestHeader) = request.accepts("application/json") && !request.accepts(HTML)
 
 
+  private def className(implicit mom: Manifest[Model]) = mom.erasure.getName.split("\\.").lastOption.getOrElse(mom.erasure.getName)
 
   // ~~ misc
 
