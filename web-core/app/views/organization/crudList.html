@@ -1,4 +1,5 @@
 #{extends "organization/crudHeader.html" /}
+#{set 'visibility'}hidden#{/set}
 
 <div class="row">
     <div class="span12">
@@ -58,7 +59,7 @@
                     'message' : '<h3 class="shout">' + item.name() + '</h3>&{'thing.deleteConfirmation'}',
                     'action_url' : location.href + "/" + item.id() + '/remove',
                     'success_callback' : function () {
-                        viewModel.nodes.remove(function (item) {
+                        viewModel.items.remove(function (item) {
                             return item.key === item.key;
                         });
                     }

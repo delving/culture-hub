@@ -7,7 +7,7 @@ import extensions.Formatters._
 import models.{DomainConfiguration, HubNode}
 import extensions.JJson
 import org.bson.types.ObjectId
-import controllers.{CRUDViewModel, BoundController, OrganizationController}
+import controllers.{BoundController, OrganizationController}
 import play.api.data.validation._
 import play.api.i18n.Messages
 import play.api.data.validation.ValidationError
@@ -131,19 +131,12 @@ trait HubNodes extends OrganizationController { self: BoundController =>
     }
   }
 
-
-  def slugify(str: String): String = {
-    import java.text.Normalizer
-    Normalizer.normalize(str, Normalizer.Form.NFD).replaceAll("[^\\w ]", "").replace(" ", "-").toLowerCase
-  }
-
-
   case class HubNodeViewModel(
     id: Option[ObjectId] = None,
     nodeId: String = "",
     orgId: String = "",
     name: String = ""
-  ) extends CRUDViewModel
+  )
 
   object HubNodeViewModel {
 
