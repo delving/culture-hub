@@ -5,7 +5,7 @@
     <div class="span6">
         <form id="form" method="POST" action="" class="form-delving form-horizontal well well-small">
             <div class="error" style="margin-bottom: 12px;" data-bind="text: errors().global"></div>
-            #{form.textField name:"name", form: form, label: messages.get('thing.name'), dataBind:"value: name", maxLength: 30, required: true /}
+            #{doLayout /}
         </form>
     </div>
 </div>

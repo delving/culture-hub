@@ -22,25 +22,48 @@ trait ControllerBase extends Extensions with DomainConfigurationAware with Loggi
    * @param findOneById finds a Model by ID
    * @param update updates an existing Model
    * @param create creates a new Model
-   * @tparam ViewModel the type of the ViewModel
-   * @tparam A the type of the Model
+   * @tparam ViewModel the type of the ViewModel, which is submitted by the view
+   * @tparam Model the type of the domain Model
    * @return a [[play.api.mvc.Result]]
    */
-  def handleSubmit[ViewModel <: CRUDViewModel, A <: salat.CaseClass]
-                  (form: Form[ViewModel], findOneById: ObjectId => Option[A], update: (ViewModel, A) => Either[String, ViewModel], create: ViewModel => Either[String, ViewModel])
-                  (implicit request: Request[AnyContent], mf: Manifest[A]): Result = {
+  def handleSubmit[ViewModel <: salat.CaseClass, Model <: salat.CaseClass]
+                  (form: Form[ViewModel],
+                   findOneById: ObjectId => Option[Model],
+                   update: (ViewModel, Model) => Either[String, ViewModel],
+                   create: ViewModel => Either[String, ViewModel])
+                  (implicit request: Request[AnyContent], mf: Manifest[Model]): Result = {
+
+    // retrieve the id separately. This way we do not impose on the bound ViewModel to have an id attribute.
+    def extractId(field: String): Option[ObjectId] = request.body.asJson.flatMap { body =>
+      (body \ field).asOpt[String].flatMap { oid =>
+        if (ObjectId.isValid(oid)) Some(new ObjectId(oid)) else None
+      }
+    }
+
+    val maybeId: Option[ObjectId] = extractId("id").orElse(extractId("_id"))
+
+    val isNew = request.body.asJson.map { body =>
+      (body \ "_created_").asOpt[Boolean].isDefined
+    }.getOrElse(false)
 
     form.bind(request.body.asJson.get).fold(
       formWithErrors => handleValidationError(formWithErrors),
       boundViewModel => {
-        boundViewModel.id match {
-          case Some(id) =>
+        def doCreate = create(boundViewModel) match {
+          case Right(createdViewModel) =>
+            Json(createdViewModel)
+          case Left(errorMessage) =>
+            Json(Map("errors" -> Map("global" -> errorMessage)))
+        }
+
+        maybeId match {
+          case Some(id) if !isNew =>
             findOneById(id) match {
               case Some(existingModel) =>
                 try {
                   update(boundViewModel, existingModel) match {
                     case Right(updatedViewModel) =>
-                      info("Updated 's%' with identifier %s".format(mf.erasure.getName, id))
+                      info("Updated '%s' with identifier %s".format(mf.erasure.getName, id))
                       Json(updatedViewModel)
                     case Left(errorMessage) =>
                       warning("Problem while updating '%s' with identifier %s: %s".format(mf.erasure.getName, id, errorMessage))
@@ -57,22 +80,15 @@ trait ControllerBase extends Extensions with DomainConfigurationAware with Loggi
               case None =>
                 Error("Model of type '%s' was not found for identifier %s".format(mf.erasure.getName, id))
             }
-          case None =>
-            create(boundViewModel) match {
-              case Right(createdViewModel) =>
-                Json(createdViewModel)
-              case Left(errorMessage) =>
-                Json(Map("errors" -> Map("global" -> errorMessage)))
-            }
+          case None => doCreate
+          case Some(defaultId)  => doCreate
         }
       }
     )
 
-
-
   }
 
-    // ~~~ form handling when using knockout. This returns a map of error messages
+  // ~~~ turns validation errors into a JSON response. This returns a map of error messages
 
   def handleValidationError[T](form: Form[T])(implicit request: RequestHeader) = {
     val e: Seq[FormError] = form.errors
@@ -80,6 +96,15 @@ trait ControllerBase extends Extensions with DomainConfigurationAware with Loggi
     val globalErrors = e.filter(_.key.isEmpty).map(error => ("global", Messages(error.message, error.args))).toMap
     Json(Map("errors" -> (fieldErrors ++ globalErrors)), BAD_REQUEST)
   }
+
+
+  // ~~~ Utilities
+
+  def slugify(str: String): String = {
+    import java.text.Normalizer
+    Normalizer.normalize(str, Normalizer.Form.NFD).replaceAll("[^\\w ]", "").replace(" ", "-").toLowerCase
+  }
+
 
   // ~~~ Form utilities
   import extensions.Formatters._
@@ -94,8 +119,4 @@ trait ControllerBase extends Extensions with DomainConfigurationAware with Loggi
     )
 
 
-}
-
-abstract class CRUDViewModel extends Product {
-  val id: Option[ObjectId]
 }
