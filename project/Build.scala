@@ -17,7 +17,7 @@ object Build extends sbt.Build {
   val sipAppVersion = "1.0.10-SNAPSHOT"
   val sipCoreVersion = "1.0.15-SNAPSHOT"
   val schemaRepoVersion = "1.0.11-SNAPSHOT"
-  val playExtensionsVersion = "1.3.3"
+  val playExtensionsVersion = "1.3.4-SNAPSHOT"
 
   val dosVersion = "1.5"
 
