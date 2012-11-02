@@ -8,16 +8,20 @@
             <caption>&{titleKey}</caption>
             <thead>
             <tr>
-                <th>&{'thing.name'}</th>
+                #{list columnLabels, as: 'label'}
+                <th>&{label}</th>
+                #{/list}
                 <th width="25%">&{'thing.actions'}</th>
             </tr>
             </thead>
             <!-- ko if: items().length > 0 -->
             <tbody data-bind="foreach: items()">
             <tr>
+               #{list columnFields, as: 'field'}
                 <td>
-                    <span class="node-title" data-bind="text: name"></span>
+                    <span class="node-title" data-bind="text: ${field}"></span>
                 </td>
+                #{/list}
                 <td>
                     <a class="btn btn-primary btn-mini" href="#" data-bind="click: function() { $parent.update($data) }" rel="nofollow">
                         <i class="icon-edit icon-white"></i> &{'ui.label.edit'}

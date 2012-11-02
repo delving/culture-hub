@@ -18,7 +18,6 @@ import com.novus.salat.{TypeHintFrequency, StringTypeHintStrategy, Context}
  * Experimental CRUD controller.
  * The idea is to provide a number of generic methods handling the listing, submission (create or update), and deletion of a model.
  *
- * TODO customize list fields
  * TODO view page
  * TODO link to view page
  *
@@ -71,8 +70,9 @@ trait CRUDController[Model <: CaseClass { def id: ObjectId }, D <: SalatDAO[Mode
     Right(submitted)
   }
 
-  def creationHandler(onCreate: Option[Model => Model])(model: Model)(implicit request: Request[AnyContent], configuration: DomainConfiguration,
-                                             mom: Manifest[Model], mod: Manifest[D]) = {
+  def creationHandler(onCreate: Option[Model => Model])(model: Model)
+                     (implicit request: Request[AnyContent], configuration: DomainConfiguration,
+                               mom: Manifest[Model], mod: Manifest[D]) = {
     onCreate.map { c =>
       val contextualized = c(model)
       dao.insert(contextualized)
@@ -91,10 +91,15 @@ trait CRUDController[Model <: CaseClass { def id: ObjectId }, D <: SalatDAO[Mode
       crudView(id)
   }
 
-  def list(implicit mom: Manifest[Model], mod: Manifest[D]) = Action {
-    implicit request =>
-      crudList()
-  }
+  def list(titleKey: String = "",
+           listTemplate: String = "organization/crudList.html",
+           fields: Seq[(String, String)] = Seq(("thing.name" -> "name")),
+           filter: Seq[(String, String)] = Seq.empty)
+          (implicit mom: Manifest[Model], mod: Manifest[D]) = Action {
+
+            implicit request =>
+              crudList(titleKey, listTemplate, fields, filter)
+          }
 
   def update(id: Option[ObjectId], templateName: Option[String] = None)(implicit mom: Manifest[Model], mod: Manifest[D]) = Action {
     implicit request =>
@@ -123,7 +128,10 @@ trait CRUDController[Model <: CaseClass { def id: ObjectId }, D <: SalatDAO[Mode
     }
   }
 
-  def crudList(titleKey: String = "", listTemplate: String = "organization/crudList.html", filter: Seq[(String, String)] = Seq.empty)
+  def crudList(titleKey: String,
+               listTemplate: String,
+               fields: Seq[(String, String)],
+               filter: Seq[(String, String)])
               (implicit request: RequestHeader, configuration: DomainConfiguration,
                         mom: Manifest[Model], mod: Manifest[D]): Result = {
 
@@ -139,7 +147,15 @@ trait CRUDController[Model <: CaseClass { def id: ObjectId }, D <: SalatDAO[Mode
         titleKey
       }
 
-      Ok(Template(listTemplate, 'titleKey -> tKey, 'menuKey -> menuKey.getOrElse("")))
+      Ok(
+        Template(
+          listTemplate,
+          'titleKey -> tKey,
+          'menuKey -> menuKey.getOrElse(""),
+          'columnLabels -> fields.map(_._1),
+          'columnFields -> fields.map(_._2)
+        )
+      )
     }
   }
 
