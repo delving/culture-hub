@@ -68,8 +68,8 @@
                     'message' : '<h3 class="shout">' + item.name() + '</h3>&{'thing.deleteConfirmation'}',
                     'action_url' : location.href + "/" + item.id() + '/remove',
                     'success_callback' : function () {
-                        viewModel.items.remove(function (item) {
-                            return item.key === item.key;
+                        viewModel.items.remove(function (i) {
+                            return i.id() === item.id();
                         });
                     }
 
