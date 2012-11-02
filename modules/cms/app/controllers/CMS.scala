@@ -24,7 +24,7 @@ object CMS extends DelvingController {
               val subMenu = MenuEntry.dao.findEntries(configuration.orgId, menuKey.get).map { e =>
                 MenuElement(
                   url = "/site/" + menuKey.get + "/page/" + e.targetPageKey.getOrElse(""),
-                  titleKey = e.targetPageKey.getOrElse("")
+                  titleKey = e.title.get(getLang).getOrElse(e.menuKey)
                 )
               }.toSeq.asJava
               Ok(Template('page -> page, 'menuEntries -> subMenu, 'menuKey -> menuKey.get))
