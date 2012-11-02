@@ -11,7 +11,8 @@ var externalLinks = function(){
     };
     this.set = function(obj){
         obj.target = "_blank";
-        obj.className = "external";
+//        obj.className = "external";
+        $(obj).addClass('external')
     };
     for (var i=0;i<a.length;i++){
         if(check(a[i])) set(a[i]);
