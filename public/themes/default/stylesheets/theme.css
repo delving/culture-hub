@@ -27,7 +27,6 @@
 }
 body {
   background: #007bcc;
-  padding-top: 63px;
 }
 #content {
   background: #ffffff;
@@ -48,8 +47,16 @@ a:hover {
   color: #007bcc;
   text-decoration: underline;
 }
-.navbar-fixed-top .navbar-inner {
+.page-top {
   border-bottom: 4px solid #0061a1;
+}
+.navbar-static-top .container {
+  margin-left: -20px;
+}
+.navbar-static-top .navbar-inner {
+  -webkit-box-shadow: none;
+  -moz-box-shadow: none;
+  box-shadow: none;
 }
 .search-bar {
   background: #a5cbe4;
