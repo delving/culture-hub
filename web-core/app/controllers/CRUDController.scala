@@ -11,15 +11,13 @@ import eu.delving.templates.scala.GroovyTemplates
 import play.api.data.Form
 import net.liftweb.json._
 import net.liftweb.json.JsonAST.JField
+import scala.collection.JavaConverters._
 import models.HubMongoContext._
 import com.novus.salat.{TypeHintFrequency, StringTypeHintStrategy, Context}
 
 /**
  * Experimental CRUD controller.
  * The idea is to provide a number of generic methods handling the listing, submission (create or update), and deletion of a model.
- *
- * TODO view page
- * TODO link to view page
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
@@ -86,10 +84,16 @@ trait CRUDController[Model <: CaseClass { def id: ObjectId }, D <: SalatDAO[Mode
 
   // ~~~ default actions, override if necessary
 
-  def view(id: ObjectId)(implicit mom: Manifest[Model], mod: Manifest[D]) = Action {
-    implicit request =>
-      crudView(id)
-  }
+  def view(id: ObjectId,
+           titleKey: String = "",
+           viewTemplate: String = "organization/crudView.html",
+           fields: Seq[(String, String)] = Seq(("thing.name" -> "name")))
+          (implicit mom: Manifest[Model], mod: Manifest[D]) = Action {
+
+            implicit request =>
+              crudView(id, titleKey, viewTemplate, fields)
+
+          }
 
   def list(titleKey: String = "",
            listTemplate: String = "organization/crudList.html",
@@ -99,6 +103,7 @@ trait CRUDController[Model <: CaseClass { def id: ObjectId }, D <: SalatDAO[Mode
 
             implicit request =>
               crudList(titleKey, listTemplate, fields, filter)
+
           }
 
   def update(id: Option[ObjectId], templateName: Option[String] = None)(implicit mom: Manifest[Model], mod: Manifest[D]) = Action {
@@ -119,10 +124,23 @@ trait CRUDController[Model <: CaseClass { def id: ObjectId }, D <: SalatDAO[Mode
 
   // ~~~ CRUD handler methods
 
-  def crudView(id: ObjectId)(implicit request: RequestHeader, configuration: DomainConfiguration,
-                                      mom: Manifest[Model], mod: Manifest[D]): Result = {
+  def crudView(id: ObjectId, titleKey: String, viewTemplate: String, fields: Seq[(String, String)])
+              (implicit request: RequestHeader, configuration: DomainConfiguration,
+                        mom: Manifest[Model], mod: Manifest[D]): Result = {
+
     dao.findOneById(id).map { item =>
-      Json(item)
+
+      val fieldMap = fields.map(f => Map("labelKey" -> f._1, "field" -> f._2).asJava).toList.asJava
+
+      Ok(
+        Template(
+          viewTemplate,
+          'titleKey -> title(titleKey),
+          'fields -> fieldMap,
+          'item -> item
+        )
+      )
+
     }.getOrElse {
       NotFound("Could not find item with ID " + id)
     }
@@ -141,16 +159,10 @@ trait CRUDController[Model <: CaseClass { def id: ObjectId }, D <: SalatDAO[Mode
       Json(Map("items" -> items)).withHeaders(CACHE_CONTROL -> "no-cache")
     } else {
 
-      val tKey = if (titleKey.isEmpty) {
-        splitCamelCase(className) + "s"
-      } else {
-        titleKey
-      }
-
       Ok(
         Template(
           listTemplate,
-          'titleKey -> tKey,
+          'titleKey -> title(titleKey),
           'menuKey -> menuKey.getOrElse(""),
           'columnLabels -> fields.map(_._1),
           'columnFields -> fields.map(_._2)
@@ -210,6 +222,11 @@ trait CRUDController[Model <: CaseClass { def id: ObjectId }, D <: SalatDAO[Mode
 
   protected def acceptsJson(implicit request: RequestHeader) = request.accepts("application/json") && !request.accepts(HTML)
 
+  private def title(titleKey: String)(implicit mom: Manifest[Model]) = if (titleKey.isEmpty) {
+    splitCamelCase(className) + "s"
+  } else {
+    titleKey
+  }
 
   private def className(implicit mom: Manifest[Model]) = mom.erasure.getName.split("\\.").lastOption.getOrElse(mom.erasure.getName)
 

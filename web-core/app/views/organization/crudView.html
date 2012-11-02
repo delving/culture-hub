@@ -1,0 +1,19 @@
+#{extends "organization/crudHeader.html" /}
+
+<div class="row">
+    <div class="span6">
+        <h3>&{titleKey}</h3>
+        #{list fields, as: 'field'}
+        <dl>
+            <dt>&{field.labelKey}</dt>
+            <dd>${item."$field.field"}</dd>
+        </dl>
+        #{/list}
+    </div>
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function() {
+        $("body").css('visibility', 'visible');
+    });
+</script>

@@ -18,17 +18,22 @@
             <tbody data-bind="foreach: items()">
             <tr>
                #{list columnFields, as: 'field'}
-                <td>
-                    <span class="node-title" data-bind="text: ${field}"></span>
-                </td>
-                #{/list}
-                <td>
-                    <a class="btn btn-primary btn-mini" href="#" data-bind="click: function() { $parent.update($data) }" rel="nofollow">
-                        <i class="icon-edit icon-white"></i> &{'ui.label.edit'}
-                    </a>
-                    <a class="btn btn-danger btn-mini pull-right delete" href="#" data-bind="click: function() { $parent.delete($data) }" rel="nofollow">
-                        <i class="icon-trash icon-white"></i> &{'ui.label.delete'}
-                    </a>
+               <td>
+                   #{if field_isFirst}
+                       <a data-bind="attr: {href: location.href + '/' + id()}"><span class="item-title" data-bind="text: ${field}"></span></a>
+                   #{/if}
+                   #{else}
+                       <span data-bind="text: ${field}"></span>
+                   #{/else}
+               </td>
+               #{/list}
+               <td>
+                   <a class="btn btn-primary btn-mini" href="#" data-bind="click: function() { $parent.update($data) }" rel="nofollow">
+                       <i class="icon-edit icon-white"></i> &{'ui.label.edit'}
+                   </a>
+                   <a class="btn btn-danger btn-mini pull-right delete" href="#" data-bind="click: function() { $parent.delete($data) }" rel="nofollow">
+                       <i class="icon-trash icon-white"></i> &{'ui.label.delete'}
+                   </a>
                 </td>
             </tr>
             </tbody>
