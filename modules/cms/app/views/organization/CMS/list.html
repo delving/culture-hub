@@ -6,12 +6,12 @@
 
 #{breadcrumbs crumbs: breadcrumbs /}
 
-#{organizationNavBar orgId: orgId, active:"site", navigation: navigation /}
+#{organizationNavBar orgId: orgId, active: menuKey, navigation: navigation /}
 
 <div class="row">
     <div class="span12">
         <form class="form-inline well">
-            <label for="language">&{'org.cms.list.languageSwitch'}</label>
+            <label for="language">&{'plugin.cms.list.languageSwitch'}</label>
             <select id="language" name="language">
             #{list languages, as: 'option'}
                 <option #{if currentLanguage == option._1} selected="selected #{/if}value="${option._1}">${option._2}</option>
@@ -37,11 +37,11 @@
                 <td>
                     <!-- ko if: published() -->
                     <i class="icon-eye-open"></i>
-                &{'org.cms.page.published'}
+                &{'plugin.cms.page.published'}
                     <!-- /ko -->
                     <!-- ko if: !published() -->
                     <i class="icon-eye-close"></i>
-                &{'org.cms.page.notPublished'}
+                &{'plugin.cms.page.notPublished'}
                     <!-- /ko -->
                 </td>
                 <td>
@@ -65,7 +65,7 @@
                     No pages available
                 </td>
                 <td>
-                    <a class="btn btn-primary btn-mini" href="/organizations/${orgId}/site/${currentLanguage}/page/add" rel="nofollow">${messages.get('org.cms.page.new')}</a>
+                    <a class="btn btn-primary btn-mini" href="/organizations/${orgId}/site/${currentLanguage}/page/add" rel="nofollow">${messages.get('ui.label.new')}</a>
                 </td>
             </tr>
             </tbody>
@@ -82,14 +82,14 @@
                 document.location = "/organizations/${orgId}/site/" + page.lang() + "/page/" + page.key() + "/update"
             },
             previewPage:function (page) {
-                var newWindow = window.open("/organizations/${orgId}/site/" + page.lang() + "/page/preview/" + page.key())
+                var newWindow = window.open("/organizations/${orgId}/site/" + page.lang() + "/page/" + page.key() + "/preview")
                 newWindow.focus();
                 return false;
             },
             deletePage:function (page) {
                 bootboxConfirm({
                     'type': 'DELETE',
-                    'message' : '<h3 class="shout">'+page.key()+'</h3>&{'org.cms.list.deletePageConfirm'}',
+                    'message' : '<h3 class="shout">'+page.key()+'</h3>&{'plugin.cms.list.deletePageConfirm'}',
                     'action_url' : '/organizations/${orgId}/site/' + page.lang() + '/page/' + page.key(),
                     'success_callback' : function () {
                         pagesModel.pages.remove(function (item) {
@@ -102,14 +102,11 @@
         };
 
         load(${data.raw()}, pagesModel, null, function () {
+            $('#language').change(function () {
+                document.location = '/organizations/${orgId}/site/' + $('select#language').val();
+            });
             $("body").css('visibility', 'visible');
         });
-
-        $('#language').change(function () {
-            document.location = '/organizations/${orgId}/site/' + $('select#language').val();
-
-        });
-
 
     });
 </script>

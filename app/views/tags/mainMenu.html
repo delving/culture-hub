@@ -1,7 +1,7 @@
 <div class="main-nav">
     <ul class="nav ${_extraClass ? _extraClass : ''}">
     #{list _menu, as:'m'}
-        <li class="#{if m.mainEntry.url == "/page/" + pageId || m.key == pageId}active#{/if}"><a href="${m.mainEntry.url}">&{m.mainEntry.titleKey}</a></li>
+        <li class="#{if m.mainEntry.url == "/page/" + pageId || m.key == pageId || m.mainEntry.url.startsWith("/site/" + menuKey + "/page/")}active#{/if}"><a href="${m.mainEntry.url}">&{m.mainEntry.titleKey}</a></li>
     #{/list}
     </ul>
 </div>

@@ -33,6 +33,8 @@ import util.Quotes
 
 trait Logging extends Secured { self: Controller with DomainConfigurationAware =>
 
+  protected val log = Logger("CultureHub")
+
   import ErrorReporter._
 
   def Forbidden(implicit request: RequestHeader): Result                                                 = {
@@ -48,43 +50,42 @@ trait Logging extends Secured { self: Controller with DomainConfigurationAware =
     Results.NotFound(views.html.errors.notFound(request, why, None))
   }
   def Error(implicit request: RequestHeader)        = {
-    Logger.error(withContext("Internal server error"))
+    log.error(withContext("Internal server error"))
     reportError(request, "Internal server error")
     Results.InternalServerError(views.html.errors.error(None, None))
   }
   def Error(why: String)(implicit request: RequestHeader)                              = {
-    Logger.error(withContext(why))
+    log.error(withContext(why))
     reportError(request, why)
     Results.InternalServerError(views.html.errors.error(None, Some(why)))
   }
   def Error(why: String, t: Throwable)(implicit request: RequestHeader)                              = {
-    Logger.error(withContext(why), t)
+    log.error(withContext(why), t)
     reportError(request, t, why)
     Results.InternalServerError(views.html.errors.error(None, Some(why)))
   }
 
 
   // ~~~ Logger wrappers, with more context
-  val CH = "CultureHub"
 
   def info(message: String, args: String*)(implicit request: RequestHeader) {
-    Logger(CH).info(withContext(m(message, args)))
+    log.info(withContext(m(message, args)))
   }
   def warning(message: String, args: String*)(implicit request: RequestHeader) {
-    Logger(CH).warn(withContext(m(message, args)))
+    log.warn(withContext(m(message, args)))
   }
   def logError(message: String, args: String*)(implicit request: RequestHeader, configuration: DomainConfiguration) {
-    Logger(CH).error(withContext(m(message, args)))
+    log.error(withContext(m(message, args)))
     reportError(request, if(message != null) message.format(args) else "")
   }
 
   def logError(e: Throwable, message: String, args: String*)(implicit request: RequestHeader, configuration: DomainConfiguration) {
-    Logger(CH).error(withContext(m(message, args)), e)
+    log.error(withContext(m(message, args)), e)
     reportError(request, if(message != null) message.format(args) else "")
   }
 
   def reportSecurity(message: String)(implicit request: RequestHeader)  {
-    Logger(CH).error("Attempted security breach: " + message)
+    log.error("Attempted security breach: " + message)
     ErrorReporter.reportError(securitySubject, toReport(message, request))
   }
   

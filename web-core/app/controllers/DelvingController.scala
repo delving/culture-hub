@@ -3,16 +3,13 @@ package controllers
 import play.api.Logger
 import play.api.mvc._
 import play.api.Play.current
-import play.api.data.Form
 import play.api.i18n.{Lang, Messages}
 import play.libs.Time
 import eu.delving.templates.scala.GroovyTemplates
-import extensions.Extensions
 import collection.JavaConverters._
 import org.bson.types.ObjectId
 import core._
 import models.{DomainConfiguration, Role, Group, HubUser}
-import play.api.data.Forms._
 
 /**
  *
@@ -20,15 +17,13 @@ import play.api.data.Forms._
  */
 
 
-trait ApplicationController extends Controller with GroovyTemplates with DomainConfigurationAware with Logging with CRUDController {
+trait ApplicationController extends Controller with GroovyTemplates with ControllerBase {
 
   // ~~~ i18n
 
   private val LANG = "lang"
 
   private val LANG_COOKIE = "CH_LANG"
-
-  protected val log = Logger("CultureHub")
 
   implicit def getLang(implicit request: RequestHeader) = request.cookies.get(LANG_COOKIE).map(_.value).getOrElse(configuration.ui.defaultLanguage)
 
@@ -174,7 +169,7 @@ trait OrganizationController extends DelvingController with Secured {
   }
 }
 
-trait DelvingController extends ApplicationController with CoreImplicits {
+trait DelvingController extends ApplicationController {
 
   val organizationServiceLocator = HubModule.inject[DomainServiceLocator[OrganizationService]](name = None)
 
@@ -200,6 +195,9 @@ trait DelvingController extends ApplicationController with CoreImplicits {
 //            // TODO MIGRATION - PLAY 2 FIXME this does not work!!
 //              Forbidden("Bad authenticity token")
 //          }
+
+          // orgId
+          renderArgs += ("orgId" -> configuration.orgId)
 
           // Connected user
           HubUser.dao.findByUsername(userName).foreach { u =>
@@ -292,10 +290,7 @@ trait DelvingController extends ApplicationController with CoreImplicits {
     Root {
       Action(action.parser) {
         implicit request =>
-          val orgName = organizationServiceLocator.byDomain.getName(configuration.orgId, "en")
           val isAdmin = organizationServiceLocator.byDomain.isAdmin(configuration.orgId, userName)
-          renderArgs += ("orgId" -> configuration.orgId)
-          renderArgs += ("browsedOrgName" -> orgName)
           renderArgs += ("currentLanguage" -> getLang)
           renderArgs += ("isAdmin" -> isAdmin.asInstanceOf[AnyRef])
 

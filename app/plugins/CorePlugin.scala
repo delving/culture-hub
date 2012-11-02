@@ -21,7 +21,7 @@ class CorePlugin(app: Application) extends CultureHubPlugin(app) {
 
   override def isEnabled(configuration: DomainConfiguration): Boolean = true
 
-  override def mainMenuEntries(implicit configuration: DomainConfiguration, lang: String): Seq[MainMenuEntry] = Seq(
+  override def mainMenuEntries(configuration: DomainConfiguration, lang: String): Seq[MainMenuEntry] = Seq(
     MainMenuEntry(
       key = "home",
       titleKey = "site.nav.home",
@@ -34,25 +34,25 @@ class CorePlugin(app: Application) extends CultureHubPlugin(app) {
     new BasicSearchInService
   )
 
-  override def organizationMenuEntries(orgId: String, lang: String, roles: Seq[String]): Seq[MainMenuEntry] = Seq(
+  override def organizationMenuEntries(configuration: DomainConfiguration, lang: String, roles: Seq[String]): Seq[MainMenuEntry] = Seq(
     MainMenuEntry(
       key = "overview",
       titleKey = "ui.label.overview",
-      mainEntry = Some(MenuElement("/organizations/" + orgId, "ui.label.overview")),
+      mainEntry = Some(MenuElement("/organizations/" + configuration.orgId, "ui.label.overview")),
       membersOnly = false
     ),
     MainMenuEntry(
       key = "administration",
       titleKey = "ui.label.administration",
-      mainEntry = Some(MenuElement("/organizations/%s/admin".format(orgId), "ui.label.administration")),
+      mainEntry = Some(MenuElement("/organizations/%s/admin".format(configuration.orgId), "ui.label.administration")),
       roles = Seq(Role.OWN)
     ),
     MainMenuEntry(
       key = "groups",
       titleKey = "thing.groups",
       items = Seq(
-        MenuElement("/organizations/%s/groups".format(orgId), "org.group.list"),
-        MenuElement("/organizations/%s/groups/create".format(orgId), "org.group.create", Seq(Role.OWN))
+        MenuElement("/organizations/%s/groups".format(configuration.orgId), "org.group.list"),
+        MenuElement("/organizations/%s/groups/create".format(configuration.orgId), "org.group.create", Seq(Role.OWN))
       )
     )
   )

@@ -3,13 +3,11 @@ package controllers.organization
 import play.api.mvc._
 import play.api.data.Form
 import play.api.data.Forms._
-import play.api.data.format.Formats._
-import play.api.data.validation.Constraints._
 import extensions.Formatters._
-import models.{HubNodeDAO, DomainConfiguration, HubNode}
+import models.{DomainConfiguration, HubNode}
 import extensions.JJson
 import org.bson.types.ObjectId
-import controllers.{CRUDViewModel, BoundController, OrganizationController}
+import controllers.{BoundController, OrganizationController}
 import play.api.data.validation._
 import play.api.i18n.Messages
 import play.api.data.validation.ValidationError
@@ -133,20 +131,12 @@ trait HubNodes extends OrganizationController { self: BoundController =>
     }
   }
 
-
-  def slugify(str: String): String = {
-    import java.text.Normalizer
-    Normalizer.normalize(str, Normalizer.Form.NFD).replaceAll("[^\\w ]", "").replace(" ", "-").toLowerCase
-  }
-
-
   case class HubNodeViewModel(
     id: Option[ObjectId] = None,
     nodeId: String = "",
     orgId: String = "",
-    name: String = "",
-    errors: Map[String, String] = Map.empty
-  ) extends CRUDViewModel
+    name: String = ""
+  )
 
   object HubNodeViewModel {
 
@@ -175,8 +165,7 @@ trait HubNodes extends OrganizationController { self: BoundController =>
         "id" -> optional(of[ObjectId]),
         "nodeId" -> text,
         "orgId" -> nonEmptyText.verifying(orgIdValid),
-        "name" -> nonEmptyText.verifying(Constraints.pattern("^[A-Za-z0-9- ]{3,40}$".r, "plugin.hubNode.invalidNodeId", "plugin.hubNode.invalidNodeName")),
-        "errors" -> of[Map[String, String]]
+        "name" -> nonEmptyText.verifying(Constraints.pattern("^[A-Za-z0-9- ]{3,40}$".r, "plugin.hubNode.invalidNodeId", "plugin.hubNode.invalidNodeName"))
       )(HubNodeViewModel.apply)(HubNodeViewModel.unapply).verifying(nodeIdTaken)
     )
   }

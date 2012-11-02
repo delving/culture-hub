@@ -183,13 +183,27 @@ $.postKOJson = function (url, viewModel, onSuccess, onFailure, additionalData) {
 
 /**
  * Loads an object via JSON into a view model
- * @param data the data to load (as JSON object)
+ * @param dataOrUri the data to load (as JSON object) or an URI
  * @param viewModel the view model to update
  * @param scope the scope for the view model binding
  * @param onApplyBindings callback executed right before applying bindings
  */
-function load(data, viewModel, scope, callback, onApplyBindings) {
-    updateViewModel(data, viewModel, scope, callback, onApplyBindings);
+function load(dataOrUri, viewModel, scope, callback, onApplyBindings) {
+    if (typeof dataOrUri === 'object') {
+        updateViewModel(dataOrUri, viewModel, scope, callback, onApplyBindings);
+    } else {
+        $.ajax({
+          url: dataOrUri,
+          dataType: 'json',
+          success: function(data) {
+              updateViewModel(data, viewModel, scope, callback, onApplyBindings);
+          },
+          error: function(jq, textStatus, error) {
+              console.log(textStatus);
+              console.log(error);
+          }
+        });
+    }
 }
 
 /**
@@ -212,7 +226,7 @@ function updateViewModel(data, viewModel, scope, callback, onApplyBindings) {
     if (ko.mapping.isMapped(viewModel)) {
         ko.mapping.fromJS(data, viewModel)
     } else {
-        $.extend(viewModel, ko.mapping.fromJS(data, mapping));
+        $.extend(viewModel, ko.mapping.fromJS($.extend(data, { errors: { } }), mapping));
         if(typeof onApplyBindings === 'function') onApplyBindings.call();
         if (typeof scope !== 'undefined') {
             ko.applyBindings(viewModel, scope);

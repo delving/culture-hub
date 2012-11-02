@@ -440,64 +440,6 @@ org.group.save=Groep bewaren
 org.group.create=Groep aanmaken
 org.group.list=Groep lijst
 
-org.cms=Website paginas
-org.cms.page.key=Pagina sleutel
-org.cms.page.new=Nieuwe pagina
-org.cms.page.save=Bewaar pagina
-org.cms.page.menu.add=Voeg toe aan menu
-org.cms.page.menu.position=Positie in menu
-org.cms.page.keyInvalid=Sleutel niet juist. Een sleutel bestaat uit kleine letters en is 4 tot 35 characters lang.
-org.cms.page.publish=Publiceer
-org.cms.page.publish.help=Aanvinken om inhoud zichtbaar te maken
-org.cms.page.published=Gepubliceerd
-org.cms.page.notPublished=Niet gepubliceerd
-org.cms.page.list=Pagina lijst
-org.cms.list.languageSwitch=Bekijk paginas in
-org.cms.list.deletePage=Verwijder pagina
-org.cms.list.deletePageConfirm=Weet u zeker dat u deze pagina en alle versies van deze pagiana wil verwijderen? Dit kan niet ongedaan worden.
-org.cms.upload=Bestand uploaden
-org.cms.upload.image=Afbeelding uploaden
-org.cms.upload.image.explain=U kunt hier plaatjes van uw eigen computer uploaden om aan een CMS pagina toe te voegen. Deze plaatjes worden toegevoegd aan een lijst die terug te vinden is wanneer u nieuwe pagina aanmaakt of een bestaande pagina aanpast.
-
-org.cms.upload.help.toggle=Hulp met bestanden uploaden
-org.cms.upload.help.chooseImage=<ul><li>Kies eerst een bestand van uw eigen computer door op <span class="btn btn-success btn-mini"><i class="icon-plus icon-white"></i>Bestand kiezen</span> te klikken</li><li>Meerdere plaatjes mogen tegelijkertijd geselecteerd worden</li></ul>
-org.cms.upload.help.startUpload=<p>De plaatsen worden toegevoegd aan de lijst en zijn klaar voor uploaden.</p><ul><li>Klik op <span class="btn btn-primary btn-mini"><i class="icon-upload icon-white"></i>Upload starten</span> om alle plaatjes tegelijkertijd te uploaden</li><li>Klik de <span class="btn btn-primary btn-mini"><i class="icon-upload icon-white"></i>Start</span> knop om plaatjes afzonderlijk van elkaar te uploaden</li></ul>
-org.cms.upload.help.ready=Klaar voor gebruik
-org.cms.upload.help.ready.info=<p>Eenmaal klaar, ga terug naar de <a href="/organizations/{0}/site">pagina lijst</a> en bewerk een bestaande pagina of maak een <a href="/organizations/{0}/site/{1}/page/add">nieuwe pagina</a> aan. Klik op het <span class="mceIcon mceImage"></span> ikoontje om de plaatjes van de <em>Image list</em> te selecteren voor gebruik.</p>
-
-
-### CMS PAGE HELP ###
-org.cms.page.help.toggle=Hulp met website paginas
-# FIELDS #
-org.cms.page.help.fields.tab=Invoer velden
-org.cms.page.help.fields.key.info=Unieke <em>identifier</em> for de pagina. Dit wordt gebruikt als de URL voor de pagina.
-org.cms.page.help.fields.title.info=Dit wordt gebruikt in de broncode van de html voor de <code>&lt;title&gt;&lt;/title&gt;</code> attribuut. Als de pagina ook aan een menu toegevoegd wordt dan zal dit veld in zichtbaar in de menulijst zijn.
-org.cms.page.help.fields.theme.info=Hub-thema waaronder de pagina gebruikt mag worden.
-org.cms.page.help.fields.language.info=De taal van de indhoud van de pagina. Als meertaligheid is ingeschakeld voor deze Hub, dan kan er per taal een aparte pagina worden gemaakt.
-org.cms.page.help.fields.menu.info=Kies hier het menu waar de pagina aan toegevoegd moet worden.
-org.cms.page.help.fields.position.info=De positie van de pagina link in de gekozen menu. Hoe hoger het nummer, hoe verder naar rechts in het menu.
-# IMAGES #
-org.cms.page.help.images.tab=Afbeeldingen toevoegen
-org.cms.page.help.images.info=Plaatjes kunnen toegevoegd worden op twee manieren: <ol><li><strong>Uploaden van een computer:</strong> dit kan via de <a href="/organizations/{0}/site/upload">Afbeelding uploaden</a> pagina. Wanneer de afbeelding is bewaard kan deze in de pagina gebruikt worden door op het <span class="mceIcon mceImage"></span> ikoontje te klikken en de afbeelding uit de <em>Image list</em> te kiezen</li><li><strong>Direct vanaf het internet:</strong> klik op het <span class="mceIcon mceImage"></span> ikoontje en type of plak de URL van de afbeelding in het <em>Image URL</em> veld</li></ol>
-# TEMPLATES #
-org.cms.page.help.templates.tab=Templates gebruiken
-org.cms.page.help.templates.info=Het gebruik van <strong>Templates</strong> is een snelle manier om met de inhoud van een pagina te beginnen. Door op het <span class="mceIcon mceTemplate"></span> ikoontje te klikken verschijnt er een venster waarmee templates bekeken en gekozen kunnen worden
-# HOMEPAGE #
-org.cms.page.help.homepage.tab=Inhoud voor de "Home" pagina
-org.cms.page.help.homepage.info=Inhoud aanmaken voor de "Home" pagina werkt precies als het aanmaken van een gewone pagina, behalve moeten de volgenden punten geacht worden: <ol><li>De <strong>Pagina sleutel</strong> moet <em>homepage</em> zijn</li><li>Pagina mag niet aan een menu toegevoegd worden</li>
-
-org.cms.page.keyauto.button=Pagina sleutel aanmaken.
-org.cms.page.keyauto.error=Titel verplicht om pagina sleutel te kunnen aanmaken.
-
-org.vc.list=Virtuele collectie lijst
-org.vc.new=Nieuwe virtuele collectie
-org.vc.deleteCollection=Virtuele collectie verwijderen
-org.vc.deleteCollectionConfirm=Weet u zeker dat u deze virtuele collectie wil verwijderen?
-org.vc.save=Bewaren
-org.vc.query=Zoekopdracht
-org.vc.excludedIds=Uitsluiten
-org.vc.spec=Identifier
-
 ### VC HELP ###
 org.vc.help.toggle=Hulp met virtuele collecties
 # FIELDS #
@@ -614,6 +556,64 @@ organization.datasets.cannotBeEnabled=Dataset cannot be enabled in the current s
 organization.datasets.cannotBeDeleted=Dataset cannot be deleted in the current state
 
 ###### Plugin messages (TODO: move to plugin once that is available)
+
+plugin.cms=Website paginas
+plugin.cms.page.key=Pagina sleutel
+plugin.cms.page.new=Nieuwe pagina
+plugin.cms.page.save=Bewaar pagina
+plugin.cms.page.menu.add=Voeg toe aan menu
+plugin.cms.page.menu.position=Positie in menu
+plugin.cms.page.keyInvalid=Sleutel niet juist. Een sleutel bestaat uit kleine letters en is 4 tot 35 characters lang.
+plugin.cms.page.publish=Publiceer
+plugin.cms.page.publish.help=Aanvinken om inhoud zichtbaar te maken
+plugin.cms.page.published=Gepubliceerd
+plugin.cms.page.notPublished=Niet gepubliceerd
+plugin.cms.page.list=Pagina lijst
+plugin.cms.list.languageSwitch=Bekijk paginas in
+plugin.cms.list.deletePage=Verwijder pagina
+plugin.cms.list.deletePageConfirm=Weet u zeker dat u deze pagina en alle versies van deze pagiana wil verwijderen? Dit kan niet ongedaan worden.
+plugin.cms.upload=Bestand uploaden
+plugin.cms.upload.image=Afbeelding uploaden
+plugin.cms.upload.image.explain=U kunt hier plaatjes van uw eigen computer uploaden om aan een CMS pagina toe te voegen. Deze plaatjes worden toegevoegd aan een lijst die terug te vinden is wanneer u nieuwe pagina aanmaakt of een bestaande pagina aanpast.
+
+plugin.cms.upload.help.toggle=Hulp met bestanden uploaden
+plugin.cms.upload.help.chooseImage=<ul><li>Kies eerst een bestand van uw eigen computer door op <span class="btn btn-success btn-mini"><i class="icon-plus icon-white"></i>Bestand kiezen</span> te klikken</li><li>Meerdere plaatjes mogen tegelijkertijd geselecteerd worden</li></ul>
+plugin.cms.upload.help.startUpload=<p>De plaatsen worden toegevoegd aan de lijst en zijn klaar voor uploaden.</p><ul><li>Klik op <span class="btn btn-primary btn-mini"><i class="icon-upload icon-white"></i>Upload starten</span> om alle plaatjes tegelijkertijd te uploaden</li><li>Klik de <span class="btn btn-primary btn-mini"><i class="icon-upload icon-white"></i>Start</span> knop om plaatjes afzonderlijk van elkaar te uploaden</li></ul>
+plugin.cms.upload.help.ready=Klaar voor gebruik
+plugin.cms.upload.help.ready.info=<p>Eenmaal klaar, ga terug naar de <a href="/organizations/{0}/site">pagina lijst</a> en bewerk een bestaande pagina of maak een <a href="/organizations/{0}/site/{1}/page/add">nieuwe pagina</a> aan. Klik op het <span class="mceIcon mceImage"></span> ikoontje om de plaatjes van de <em>Image list</em> te selecteren voor gebruik.</p>
+
+
+### CMS PAGE HELP ###
+plugin.cms.page.help.toggle=Hulp met website paginas
+# FIELDS #
+plugin.cms.page.help.fields.tab=Invoer velden
+plugin.cms.page.help.fields.key.info=Unieke <em>identifier</em> for de pagina. Dit wordt gebruikt als de URL voor de pagina.
+plugin.cms.page.help.fields.title.info=Dit wordt gebruikt in de broncode van de html voor de <code>&lt;title&gt;&lt;/title&gt;</code> attribuut. Als de pagina ook aan een menu toegevoegd wordt dan zal dit veld in zichtbaar in de menulijst zijn.
+plugin.cms.page.help.fields.theme.info=Hub-thema waaronder de pagina gebruikt mag worden.
+plugin.cms.page.help.fields.language.info=De taal van de indhoud van de pagina. Als meertaligheid is ingeschakeld voor deze Hub, dan kan er per taal een aparte pagina worden gemaakt.
+plugin.cms.page.help.fields.menu.info=Kies hier het menu waar de pagina aan toegevoegd moet worden.
+plugin.cms.page.help.fields.position.info=De positie van de pagina link in de gekozen menu. Hoe hoger het nummer, hoe verder naar rechts in het menu.
+# IMAGES #
+plugin.cms.page.help.images.tab=Afbeeldingen toevoegen
+plugin.cms.page.help.images.info=Plaatjes kunnen toegevoegd worden op twee manieren: <ol><li><strong>Uploaden van een computer:</strong> dit kan via de <a href="/organizations/{0}/site/upload">Afbeelding uploaden</a> pagina. Wanneer de afbeelding is bewaard kan deze in de pagina gebruikt worden door op het <span class="mceIcon mceImage"></span> ikoontje te klikken en de afbeelding uit de <em>Image list</em> te kiezen</li><li><strong>Direct vanaf het internet:</strong> klik op het <span class="mceIcon mceImage"></span> ikoontje en type of plak de URL van de afbeelding in het <em>Image URL</em> veld</li></ol>
+# TEMPLATES #
+plugin.cms.page.help.templates.tab=Templates gebruiken
+plugin.cms.page.help.templates.info=Het gebruik van <strong>Templates</strong> is een snelle manier om met de inhoud van een pagina te beginnen. Door op het <span class="mceIcon mceTemplate"></span> ikoontje te klikken verschijnt er een venster waarmee templates bekeken en gekozen kunnen worden
+# HOMEPAGE #
+plugin.cms.page.help.homepage.tab=Inhoud voor de "Home" pagina
+plugin.cms.page.help.homepage.info=Inhoud aanmaken voor de "Home" pagina werkt precies als het aanmaken van een gewone pagina, behalve moeten de volgenden punten geacht worden: <ol><li>De <strong>Pagina sleutel</strong> moet <em>homepage</em> zijn</li><li>Pagina mag niet aan een menu toegevoegd worden</li>
+
+plugin.cms.page.keyauto.button=Pagina sleutel aanmaken.
+plugin.cms.page.keyauto.error=Titel verplicht om pagina sleutel te kunnen aanmaken.
+
+org.vc.list=Virtuele collectie lijst
+org.vc.new=Nieuwe virtuele collectie
+org.vc.deleteCollection=Virtuele collectie verwijderen
+org.vc.deleteCollectionConfirm=Weet u zeker dat u deze virtuele collectie wil verwijderen?
+org.vc.save=Bewaren
+org.vc.query=Zoekopdracht
+org.vc.excludedIds=Uitsluiten
+org.vc.spec=Identifier
 
 plugin.musip.museum=Museum
 plugin.musip.museums=Musea
