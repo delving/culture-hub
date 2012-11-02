@@ -76,6 +76,7 @@ ui.label.options=Options
 ui.label.overview=Overview
 ui.label.password=Password
 ui.label.passwordrepeat=Password (repeat)
+ui.label.place=Place
 ui.label.places=Places
 ui.label.poweredby=Powered by DELVING.EU
 ui.label.preview=Preview
