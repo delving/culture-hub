@@ -38,17 +38,6 @@ object Application extends DelvingController {
     }
   }
 
-  def page(key: String) = Root {
-    Action {
-      implicit request =>
-      // TODO link the themes to the organization so this also works on multi-org hubs
-        CMSPage.dao.find(MongoDBObject("key" -> key, "lang" -> getLang, "orgId" -> configuration.orgId)).$orderby(MongoDBObject("_id" -> -1)).limit(1).toList.headOption match {
-          case None => NotFound(key)
-          case Some(page) => Ok(Template('page -> page))
-        }
-    }
-  }
-
   def notFound(what: String) = Action {
     implicit request => Results.NotFound(what)
   }

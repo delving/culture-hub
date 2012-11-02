@@ -11,7 +11,8 @@ var externalLinks = function(){
     };
     this.set = function(obj){
         obj.target = "_blank";
-        obj.className = "external";
+//        obj.className = "external";
+        $(obj).addClass('external')
     };
     for (var i=0;i<a.length;i++){
         if(check(a[i])) set(a[i]);
@@ -663,7 +664,7 @@ Delving.wysiwyg = function (params) {
         force_br_newlines: true,
         forced_root_block: 'p', // Needed for 3.x
         remove_linebreaks: false,
-        content_css : "/assets/common/stylesheets/bootstrap.css",
+        content_css : "/assets/common/stylesheets/common.css",
         fix_content_duplication: false,
         fix_list_elements: true,
         cleanup_on_startup : true,
@@ -680,6 +681,8 @@ Delving.wysiwyg = function (params) {
         extended_valid_elements: "img[!src|border:0|alt|title|width|height|style]a[name|href|target|title|onclick|class]",
         template_external_list_url : "/assets/common/javascripts/tiny-templates.js",
         template_popup_width : 1000,
+        template_cdate_classes : "cdate creationdate",
+        template_cdate_format : "%d-%m-%Y %H:%M",
         width: "944px"
     };
 
@@ -714,12 +717,10 @@ function isEmpty( inputStr ) {
     return false;
 }
 
-function checkSimpleSearchSubmit(oId){
-    var o = document.getElementById(oId);
-
-    if (isEmpty(o.value)){
-        document.getElementById(oId).style.border="2px dotted firebrick";
-
+function checkSimpleSearchSubmit(form){
+    var qterm = $(form).find('input[name=query]');
+    if (isEmpty(qterm.val())){
+         qterm.addClass('error');
         return false;
     }
 

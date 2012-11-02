@@ -65,13 +65,13 @@ class StatisticsPlugin(app: Application) extends CultureHubPlugin(app) {
     }
   )
 
-  override def organizationMenuEntries(orgId: String, lang: String, roles: Seq[String]): Seq[MainMenuEntry] = Seq(
+  override def organizationMenuEntries(configuration: DomainConfiguration, lang: String, roles: Seq[String]): Seq[MainMenuEntry] = Seq(
     MainMenuEntry(
       key = "statistics",
       titleKey = "plugin.statistics.statistics",
       roles = Seq(Role.OWN),
       mainEntry = Some(
-        MenuElement(url = "/organizations/%s/statistics".format(orgId), titleKey = "plugin.statistics.statistics")
+        MenuElement(url = "/organizations/%s/statistics".format(configuration.orgId), titleKey = "plugin.statistics.statistics")
       )
     )
   )
