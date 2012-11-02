@@ -717,12 +717,10 @@ function isEmpty( inputStr ) {
     return false;
 }
 
-function checkSimpleSearchSubmit(oId){
-    var o = document.getElementById(oId);
-
-    if (isEmpty(o.value)){
-        document.getElementById(oId).style.border="2px dotted firebrick";
-
+function checkSimpleSearchSubmit(form){
+    var qterm = $(form).find('input[name=query]');
+    if (isEmpty(qterm.val())){
+         qterm.addClass('error');
         return false;
     }
 

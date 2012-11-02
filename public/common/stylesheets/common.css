@@ -5940,6 +5940,10 @@ select[name=searchIn] {
 .error {
   color: #b22222;
 }
+input.error {
+  background-color: #b22222;
+  color: #ffffff;
+}
 form.data-set {
   display: inline-block;
   *display: inline;

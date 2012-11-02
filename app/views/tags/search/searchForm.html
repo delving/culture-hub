@@ -1,4 +1,4 @@
-<form method="get" action="/search" class="navbar-form form-horizontal" id="simple-search" onsubmit="return checkSimpleSearchSubmit('query');">
+<form method="get" action="/search" class="navbar-form form-horizontal" id="simple-search" onsubmit="return checkSimpleSearchSubmit(this);">
     <input type="hidden" name="qf" value="delving_hasDigitalObject_facet:true"/>
     #{if _showSearchIn}
     #{search.searchIn searchIn: _searchIn, fields: _fields /}
