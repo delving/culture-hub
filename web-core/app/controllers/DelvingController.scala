@@ -174,7 +174,7 @@ trait OrganizationController extends DelvingController with Secured {
   }
 }
 
-trait DelvingController extends ApplicationController with CoreImplicits {
+trait DelvingController extends ApplicationController {
 
   val organizationServiceLocator = HubModule.inject[DomainServiceLocator[OrganizationService]](name = None)
 

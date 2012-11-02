@@ -36,5 +36,7 @@ target
 tmp
 RUNNING_PID
 
+test-logger.xml
+
 .idea
 .idea_modules

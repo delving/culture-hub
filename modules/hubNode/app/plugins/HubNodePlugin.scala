@@ -3,7 +3,7 @@ package plugins
 import _root_.services.HubNodeSubscriptionService
 import play.api.{Logger, Play, Application}
 import play.api.Play.current
-import models.{HubNode, Role}
+import models.{DomainConfiguration, HubNode, Role}
 import scala.collection.immutable.ListMap
 import scala.util.matching.Regex
 import play.api.mvc.Handler
@@ -23,14 +23,14 @@ class HubNodePlugin(app: Application) extends CultureHubPlugin(app) {
 
   val pluginKey: String = "hubNode"
 
-  override def organizationMenuEntries(orgId: String, lang: String, roles: Seq[String]): Seq[MainMenuEntry] = Seq(
+  override def organizationMenuEntries(configuration: DomainConfiguration, lang: String, roles: Seq[String]): Seq[MainMenuEntry] = Seq(
     MainMenuEntry(
       key = "hubNode",
       titleKey = "plugin.hubNode.hubNodes",
       roles = Seq(Role.OWN),
       items = Seq(
-        MenuElement("/organizations/%s/hubNode".format(orgId), "plugin.hubNode.list"),
-        MenuElement("/organizations/%s/hubNode/add".format(orgId), "plugin.hubNode.create")
+        MenuElement("/organizations/%s/hubNode".format(configuration.orgId), "plugin.hubNode.list"),
+        MenuElement("/organizations/%s/hubNode/add".format(configuration.orgId), "plugin.hubNode.create")
       )
     )
   )

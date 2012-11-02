@@ -73,16 +73,16 @@ abstract class CultureHubPlugin(app: Application) extends play.api.Plugin {
    * @param lang the active language
    * @return a sequence of [[core.MainMenuEntry]] for the main menu
    */
-  def mainMenuEntries(implicit configuration: DomainConfiguration, lang: String): Seq[MainMenuEntry] = Seq.empty
+  def mainMenuEntries(configuration: DomainConfiguration, lang: String): Seq[MainMenuEntry] = Seq.empty
 
   /**
    * Override this to add menu entries to the organization menu
-   * @param orgId the organization ID
+   * @param configuration the [[models.DomainConfiguration]]
    * @param lang the active language
    * @param roles the roles of the current user
    * @return a sequence of [[core.MainMenuEntry]] for the organization menu
    */
-  def organizationMenuEntries(orgId: String, lang: String, roles: Seq[String]): Seq[MainMenuEntry] = Seq.empty
+  def organizationMenuEntries(configuration: DomainConfiguration, lang: String, roles: Seq[String]): Seq[MainMenuEntry] = Seq.empty
 
   /**
    * Override this to include a snippet in the homePage.
@@ -122,7 +122,7 @@ abstract class CultureHubPlugin(app: Application) extends play.api.Plugin {
    * @return a sequence of MenuEntries
    */
   def getOrganizationNavigation(orgId: String, lang: String, roles: Seq[String], isMember: Boolean)(implicit configuration: DomainConfiguration) = if(isEnabled(configuration)) {
-    organizationMenuEntries(orgId, lang, roles).
+    organizationMenuEntries(configuration, lang, roles).
       filter(e => !e.membersOnly || (e.membersOnly && isMember && (e.roles.isEmpty || e.roles.map(_.key).intersect(roles).size > 0))).
       map(i => i.copy(items = i.items.filter(item => item.roles.isEmpty || (!item.roles.isEmpty && item.roles.map(_.key).intersect(roles).size > 0))))
   } else {
@@ -196,6 +196,17 @@ object CultureHubPlugin {
     getEnabledPlugins.flatMap { p =>
       p.getServices(serviceClass)
     }
+  }
+
+  /**
+   * Gets the CultureHubPlugin of a certain type
+   * @param pluginClass the class of the plugin
+   * @param configuration the [[models.DomainConfiguration]] being accessed
+   * @tparam T the type of the plugin
+   * @return an instance of T if there is any
+   */
+  def getPlugin[T <: CultureHubPlugin](pluginClass: Class[T])(implicit configuration: DomainConfiguration): Option[T] = {
+    getEnabledPlugins.find(p => pluginClass.isAssignableFrom(p.getClass)).map(_.asInstanceOf[T])
   }
 
 
