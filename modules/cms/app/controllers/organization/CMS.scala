@@ -44,12 +44,8 @@ trait CMS extends OrganizationController { this: BoundController =>
     Action {
       implicit request =>
         val lang = language.getOrElse(getLang)
-
-        // if we have no menu filter (or "None"), default to listing main menu entries
-        val menuKey = menu.filterNot(_ == CMSPlugin.NO_MENU)
-        val displayMenuKey = menu.map(m => if (m == CMSPlugin.NO_MENU) CMSPlugin.MAIN_MENU else m).getOrElse(CMSPlugin.MAIN_MENU)
-        val pages = CMSPage.dao.list(orgId, lang, menuKey)
-        Ok(Template('data -> JJson.generate(Map("pages" -> pages)), 'languages -> getLanguages, 'currentLanguage -> lang, 'menuKey -> displayMenuKey))
+        val pages = CMSPage.dao.list(orgId, lang, menu)
+        Ok(Template('data -> JJson.generate(Map("pages" -> pages)), 'languages -> getLanguages, 'currentLanguage -> lang, 'menuKey -> menu.getOrElse("")))
     }
   }
 
@@ -84,7 +80,7 @@ trait CMS extends OrganizationController { this: BoundController =>
   def page(orgId: String, language: String, page: Option[String], menu: String): Action[AnyContent] = CMSAction(orgId) {
     Action {
       implicit request =>
-        def menuEntries = MenuEntry.dao.findEntries(orgId, configuration.name, if (menu == CMSPlugin.NO_MENU) None else Some(menu))
+        def menuEntries = MenuEntry.dao.findEntries(orgId, configuration.name)
 
         val (viewModel: Option[CMSPageViewModel], versions: List[CMSPageViewModel]) = page match {
           case None =>
@@ -109,10 +105,8 @@ trait CMS extends OrganizationController { this: BoundController =>
           Seq.empty
         }
 
-        val activeMenuKey = if (viewModel.isDefined && viewModel.get.menu != CMSPlugin.NO_MENU) {
+        val activeMenuKey = if (viewModel.isDefined) {
           viewModel.get.menu
-        } else if (viewModel.isDefined && viewModel.get.menu == CMSPlugin.NO_MENU) {
-          CMSPlugin.MAIN_MENU
         } else {
           menu
         }
@@ -141,15 +135,9 @@ trait CMS extends OrganizationController { this: BoundController =>
         CMSPageViewModel.pageForm.bind(request.body.asJson.get).fold(
           formWithErrors => handleValidationError(formWithErrors),
           pageModel => {
-
             // create / update the entry before we create / update the page since in the implicit conversion above we'll query for that page's position.
-            if (pageModel.menu != CMSPlugin.NO_MENU) {
-              MenuEntry.dao.savePage(orgId, pageModel.menu, pageModel.key, pageModel.position, pageModel.title, pageModel.lang, pageModel.published)
-            } else if (pageModel.menu == CMSPlugin.NO_MENU) {
-              MenuEntry.dao.removePage(orgId, pageModel.key, pageModel.lang)
-            }
+            MenuEntry.dao.savePage(orgId, pageModel.menu, pageModel.key, pageModel.position, pageModel.title, pageModel.lang, pageModel.published)
             val page: CMSPageViewModel = CMSPageViewModel(CMSPage.dao.create(orgId, pageModel.key, pageModel.lang, connectedUser, pageModel.title, pageModel.content, pageModel.published), pageModel.menu)
-
             Json(page)
           }
         )
@@ -199,7 +187,7 @@ object CMSPageViewModel {
     val (menuEntryPosition, menuKey) = MenuEntry.dao.findOneByTargetPageKey(cmsPage.key).map { e =>
       (e.position, e.menuKey)
     }.getOrElse {
-      (MenuEntry.dao.findEntries(cmsPage.orgId, menu).length + 1, CMSPlugin.NO_MENU)
+      (MenuEntry.dao.findEntries(cmsPage.orgId, menu).length + 1, CMSPlugin.MAIN_MENU)
     }
 
     CMSPageViewModel(cmsPage._id.getTime, cmsPage.key, cmsPage.lang, cmsPage.title, cmsPage.userName, cmsPage.content, cmsPage.isSnippet, cmsPage.published, menuEntryPosition, menuKey)

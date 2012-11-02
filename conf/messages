@@ -660,7 +660,8 @@ plugin.cms.upload.help.ready=Ready for use
 plugin.cms.upload.help.ready.info=<p>Once uploaded, go back to the <a href="/organizations/{0}/site">page list</a> and edit and existing page or create a <a href="/organizations/{0}/site/{1}/page/add">new page</a>. Click on the <span class="mceIcon mceImage"></span> icon to select the image from the <em>Image list</em> for use.</p>
 plugin.cms.adminRight=Site content administration rights
 plugin.cms.mainMenu=Main menu
-plugins.cms.updateHomePage=Update homepage
+plugin.cms.homePage=Homepage
+plugin.cms.updateHomePage=Update homepage
 
 ### CMS PAGE HELP ###
 plugin.cms.page.help.toggle=Help with website pages

@@ -115,18 +115,16 @@ object MenuEntry extends MultiModel[MenuEntry, MenuEntryDAO] {
 
 class MenuEntryDAO(collection: MongoCollection) extends SalatDAO[MenuEntry, ObjectId](collection) {
 
+  def findOneByKey(menuKey: String) = findOne(MongoDBObject("menuKey" -> menuKey))
+
   def findOneByMenuKeyAndTargetMenuKey(menuKey: String, targetMenuKey: String) = findOne(MongoDBObject("menuKey" -> menuKey,"targetMenuKey" -> targetMenuKey))
 
   def findOneByTargetPageKey(targetPageKey: String) = findOne(MongoDBObject("targetPageKey" -> targetPageKey))
 
   def findOneByMenuAndPage(orgId: String, menuKey: String, pageKey: String) = findOne(MongoDBObject("orgId" -> orgId, "menuKey" -> menuKey, "targetPageKey" -> pageKey))
 
-  def findEntries(orgId: String, menuKey: String, parentKey: Option[String] = None) = {
-    if (parentKey.isDefined) {
-      find(MongoDBObject("orgId" -> orgId, "menuKey" -> menuKey, "parentKey" -> parentKey)).$orderby(MongoDBObject("position" -> 1))
-    } else {
-      find(MongoDBObject("orgId" -> orgId, "menuKey" -> menuKey, "parentKey" -> "")).$orderby(MongoDBObject("position" -> 1))
-    }
+  def findEntries(orgId: String, menuKey: String, parentKey: String) = {
+    find(MongoDBObject("orgId" -> orgId, "menuKey" -> menuKey, "parentKey" -> parentKey)).$orderby(MongoDBObject("position" -> 1))
   }
 
   def findEntries(orgId: String, menuKey: String) = find(MongoDBObject("orgId" -> orgId, "menuKey" -> menuKey)).$orderby(MongoDBObject("position" -> 1))

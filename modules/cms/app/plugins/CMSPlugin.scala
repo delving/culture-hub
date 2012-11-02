@@ -131,11 +131,10 @@ class CMSPlugin(app: Application) extends CultureHubPlugin(app) {
           Seq.empty
         }
 
-        CMSPluginConfiguration(Seq(Menu(
-          "mainMenu",
-          None,
-          Lang.availables.map(lang => (lang.code -> Messages("plugin.cms.mainMenu")(lang))).toMap
-        )) ++ menus)
+        val mainMenu = Menu("mainMenu", None, Lang.availables.map(lang => (lang.code -> Messages("plugin.cms.mainMenu")(lang))).toMap)
+        val homePage = Menu("homePage", None, Lang.availables.map(lang => (lang.code -> Messages("plugin.cms.homePage")(lang))).toMap)
+
+        CMSPluginConfiguration(Seq(mainMenu, homePage) ++ menus)
       }
     }
   }
@@ -185,8 +184,22 @@ class CMSPlugin(app: Application) extends CultureHubPlugin(app) {
             content = ""
           )
           CMSPage.dao.insert(homePage)
-          }
         }
+      }
+
+      if (MenuEntry.dao.findOneByKey(CMSPlugin.HOME_PAGE).isEmpty) {
+        val homePageEntry = MenuEntry(
+          orgId = configuration.orgId,
+          menuKey = CMSPlugin.HOME_PAGE,
+          parentMenuKey = None,
+          position = 0,
+          title = Lang.availables.map(lang => (lang.code -> Messages("plugin.cms.homePage")(lang))).toMap,
+          targetPageKey = Some("homepage"),
+          published = false
+        )
+        MenuEntry.dao.insert(homePageEntry)
+      }
+
     }
   }
 
@@ -221,7 +234,7 @@ class CMSPlugin(app: Application) extends CultureHubPlugin(app) {
 
   override def organizationMenuEntries(configuration: DomainConfiguration, lang: String, roles: Seq[String]): Seq[MainMenuEntry] = {
     
-    getPluginConfiguration(configuration).menuDefinitions.map { definition =>
+    getPluginConfiguration(configuration).menuDefinitions.filterNot(_.key == CMSPlugin.HOME_PAGE).map { definition =>
     
         if (definition.key == CMSPlugin.MAIN_MENU) {
           // default menu for site pages
@@ -232,7 +245,7 @@ class CMSPlugin(app: Application) extends CultureHubPlugin(app) {
             items = Seq(
               MenuElement("/organizations/%s/site/%s/%s".format(configuration.orgId, lang, CMSPlugin.MAIN_MENU), "ui.label.list"),
               MenuElement("/organizations/%s/site/%s/page/add".format(configuration.orgId, lang), "ui.label.new"),
-              MenuElement("/organizations/%s/site/%s/page/homepage/update".format(configuration.orgId, lang), "plugins.cms.updateHomePage"),
+              MenuElement("/organizations/%s/site/%s/page/homepage/update".format(configuration.orgId, lang), "plugin.cms.updateHomePage"),
               MenuElement("/organizations/%s/site/upload".format(configuration.orgId), "plugin.cms.upload.image")
             )
           )
@@ -255,12 +268,8 @@ class CMSPlugin(app: Application) extends CultureHubPlugin(app) {
   override def homePageSnippet: Option[(String, RequestContext => Unit)] = Some(
     ("/CMS/homePageSnippet.html",
     { context => {
-        CMSPage.dao(context.configuration).find(
-          MongoDBObject("key" -> "homepage", "lang" -> context.lang, "orgId" -> context.configuration.orgId)
-        ).$orderby(MongoDBObject("_id" -> -1)).
-          limit(1).
-          toList.
-          headOption.foreach { page =>
+        val homePageEntries = CMSPage.dao(context.configuration).list(context.configuration.orgId, context.lang, Some(CMSPlugin.HOME_PAGE))
+        homePageEntries.headOption.map { page =>
           context.renderArgs += ("homepageCmsContent" -> page)
         }
       }
@@ -277,9 +286,8 @@ object CMSPlugin {
   lazy val ROLE_CMS_ADMIN = Role("cms", Role.descriptions("plugin.cms.adminRight"), false, None)
 
   val MAIN_MENU = "mainMenu"
-  val NO_MENU = "none"
-  
-  
+  val HOME_PAGE = "homePage"
+
   def getConfiguration(implicit configuration: DomainConfiguration): Option[CMSPluginConfiguration] = {
     CultureHubPlugin.getPlugin(classOf[CMSPlugin]).map(_.getPluginConfiguration)
   }
