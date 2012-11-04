@@ -82,6 +82,7 @@ object Statistics extends OrganizationController {
 
           val requestFacets = request.queryString.get("facet.field")
           val facetLimit = request.queryString.getOrElse("facet.limit", List("100")).head.toString.toInt
+          val query = request.queryString.getOrElse("query", List("*:*")).head
           val facets: Map[String, String] = requestFacets.map { facet =>
             facet.map(f => (f -> f)).toMap
           }.getOrElse {
@@ -100,7 +101,7 @@ object Statistics extends OrganizationController {
             Group.dao.hasRole(userName, StatisticsPlugin.UNIT_ROLE_STATISTICS_VIEW) || Group.dao.hasRole(userName, Role.OWN)
           }.getOrElse(false)
 
-          val statistics = new SolrFacetBasedStatistics(orgId, facets, filter, facetLimit)
+          val statistics = new SolrFacetBasedStatistics(orgId, facets, filter, facetLimit, query)
           Ok(statistics.renderAsJSON(canSeeFullStatistics)).as(JSON)
       }
     }
@@ -146,14 +147,14 @@ case class StatisticsHeader(name: String, label: String = "", entries: Seq[Combi
   }
 }
 
-class SolrFacetBasedStatistics(orgId: String, facets: Map[String, String], filter: Option[String], facetLimit: Int = 100)(implicit configuration: DomainConfiguration, lang: Lang) {
+class SolrFacetBasedStatistics(orgId: String, facets: Map[String, String], filter: Option[String], facetLimit: Int = 100, queryString: String = "*:*")(implicit configuration: DomainConfiguration, lang: Lang) {
 
     val orgIdFilter = "%s:%s".format(IndexField.ORG_ID.key, orgId)
 
     // create list of facets you want returned
     val query = new SolrQuery
     // query for all *:* with facets
-    query setQuery ("*:*")
+    query setQuery (queryString)
     query setFacet (true)
     query setFacetLimit (facetLimit)
     val facetsForStatistics = facets.keys.toSeq
