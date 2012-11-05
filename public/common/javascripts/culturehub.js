@@ -410,13 +410,18 @@ ko.bindingHandlers.tokens = {
                         });
 
                         // remove elements
+                        var toRemove = [];
                         $.each(existing, function(index, el) {
                             var name = typeof el.name == 'function' ? el.name() : el.name;
                             if ($.inArray(name, updatedNames) < 0) {
-                                modelValue.remove(el);
-                                tokens.splice(index, 1);
+                                toRemove.push(el);
                             }
                         });
+                        $.each(toRemove, function(index, el) {
+                            modelValue.remove(el);
+                            tokens.splice(index, 1);
+                        });
+
                         // add new
                         $.each(tokens, function(index, el) {
                             if ($.inArray(el.name, existingNames) < 0) {
