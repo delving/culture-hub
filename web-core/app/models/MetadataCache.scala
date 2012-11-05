@@ -60,7 +60,7 @@ class MongoMetadataCache(orgId: String, col: String, itemType: String, mongoColl
     val schemaVersions = item.schemaVersions.foldLeft(MongoDBObject()) { (r, c) => r + (c._1 -> c._2) }
     update(
         q = MongoDBObject("collection" -> item.collection, "itemType" -> item.itemType, "itemId" -> item.itemId),
-        o = $set (
+        o = $set (Seq(
           "modified" -> new Date(),
           "collection" -> item.collection,
           "itemType" -> item.itemType,
@@ -69,7 +69,7 @@ class MongoMetadataCache(orgId: String, col: String, itemType: String, mongoColl
           "systemFields" -> item.systemFields.asDBObject,
           "xml" -> mappings,
           "schemaVersions" -> schemaVersions
-          ),
+          )),
         upsert = true
     )
   }

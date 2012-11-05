@@ -34,7 +34,7 @@ object ThemeInfoReader {
     }
     val info = mayInfo match {
       case Right(i) => cache.put(theme, i); i
-      case Left(err) => throw PlayException("Configuration exception", err)
+      case Left(err) => throw new PlayException("Configuration exception", err)
     }
 
     info.getProperty(key) match {

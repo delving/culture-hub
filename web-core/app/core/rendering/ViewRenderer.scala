@@ -26,7 +26,7 @@ import org.apache.commons.lang.StringEscapeUtils
 import xml.{NodeSeq, Node, XML}
 import play.api.{Play, Logger}
 import play.api.Play.current
-import org.w3c.dom.{Text, Node => WNode}
+import org.w3c.dom.{Node => WNode, NodeList, Text}
 import java.net.URLEncoder
 import collection.mutable.{HashMap, ArrayBuffer, Stack}
 
@@ -65,7 +65,21 @@ object ViewRenderer {
 }
 
 class ViewRenderer(val schema: String, viewType: ViewType, configuration: OrganizationConfiguration) {
-  
+
+  implicit class RichNodeList(nodeList: NodeList) {
+    def asIterator: Iterator[org.w3c.dom.Node] = new Iterator[org.w3c.dom.Node] {
+      var index = 0
+
+      def hasNext: Boolean = index < nodeList.getLength
+
+      def next(): org.w3c.dom.Node = {
+       val item = nodeList.item(index)
+       index = index + 1
+       item
+      }
+    }
+  }
+
   val log = Logger("CultureHub")
 
   val viewDef: Option[Node] = ViewRenderer.getViewDefinition(schema, viewType)
@@ -219,7 +233,7 @@ class ViewRenderer(val schema: String, viewType: ViewType, configuration: Organi
 
                   arrays += stackPath.toList.drop(1) // drop root
 
-                  val allChildren = XPath.selectNodes(path, dataNode, namespaces.asJava).asScala
+                  val allChildren = XPath.selectNodes(path, dataNode, namespaces.asJava).asIterator.toSeq
                   val children = if(distinct == "name") {
                     val distinctNames = allChildren.map(c => c.getPrefix + c.getLocalName).distinct
                     distinctNames.flatMap(n => allChildren.find(c => (c.getPrefix + c.getLocalName) == n))
@@ -440,7 +454,7 @@ class ViewRenderer(val schema: String, viewType: ViewType, configuration: Organi
 
   def fetchPaths(dataNode: Object, paths: Seq[String], namespaces: Map[String, String]): Seq[String] = {
     (for (path <- paths) yield {
-      XPath.selectNodes(path, dataNode, namespaces.asJava).asScala.toSeq.flatMap {
+      XPath.selectNodes(path, dataNode, namespaces.asJava).asIterator.toSeq.flatMap {
         node =>
           var rnode = node
           try {

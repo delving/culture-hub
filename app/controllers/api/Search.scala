@@ -10,6 +10,7 @@ import play.api.Logger
 import core.{OrganizationCollectionLookupService, HubModule}
 import play.api.cache.Cache
 import play.api.Play.current
+import scala.concurrent.ExecutionContext.Implicits.global
 
 /**
  * Search API

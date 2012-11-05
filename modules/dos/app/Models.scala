@@ -109,19 +109,19 @@ class TaskDAO(collection: MongoCollection) extends SalatDAO[Task, ObjectId](coll
   def listAll() = find(MongoDBObject()).sort(MongoDBObject("queuedAt" -> 1)).toList
 
   def start(task: Task) {
-    update(MongoDBObject("_id" -> task._id), $set("state.name" -> TaskState.RUNNING.name, "startedAt" -> new Date))
+    update(MongoDBObject("_id" -> task._id), $set(Seq("state.name" -> TaskState.RUNNING.name, "startedAt" -> new Date)))
   }
 
   def finish(task: Task) {
-    update(MongoDBObject("_id" -> task._id), $set("state.name" -> TaskState.FINISHED.name, "finishedAt" -> new Date))
+    update(MongoDBObject("_id" -> task._id), $set(Seq("state.name" -> TaskState.FINISHED.name, "finishedAt" -> new Date)))
   }
 
   def cancel(task: Task) {
-    update(MongoDBObject("_id" -> task._id), $set("state.name" -> TaskState.CANCELLED.name, "finishedAt" -> new Date))
+    update(MongoDBObject("_id" -> task._id), $set(Seq("state.name" -> TaskState.CANCELLED.name, "finishedAt" -> new Date)))
   }
 
   def setTotalItems(task: Task, total: Int) {
-    update(MongoDBObject("_id" -> task._id), $set("totalItems" -> total))
+    update(MongoDBObject("_id" -> task._id), $set(Seq("totalItems" -> total)))
   }
 
   def incrementProcessedItems(task: Task, amount: Int) {

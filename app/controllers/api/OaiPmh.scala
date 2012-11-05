@@ -6,6 +6,7 @@ import play.api.libs.concurrent.Promise
 import controllers.OrganizationConfigurationAware
 import play.api.Logger
 import core.HubModule
+import scala.concurrent.ExecutionContext.Implicits.global
 
 /**
  *

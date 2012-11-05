@@ -10,7 +10,7 @@ import core.rendering.RecordRenderer
 import com.mongodb.casbah.Imports._
 import core.rendering.ViewType
 import eu.delving.schema.SchemaVersion
-import core.{RequestContext, SearchInService, CultureHubPlugin}
+import core.{SearchInService, CultureHubPlugin}
 import core.indexing.IndexField
 
 /**

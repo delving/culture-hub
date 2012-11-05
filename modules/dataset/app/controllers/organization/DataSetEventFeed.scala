@@ -1,18 +1,20 @@
 package controllers.organization
 
+import scala.concurrent.ExecutionContext.Implicits.global
+import _root_.util.OrganizationConfigurationHandler.
+import scala.concurrent.duration._
 import akka.actor._
-import akka.util.duration._
 import akka.util.Timeout
 import akka.pattern.ask
 import _root_.core.indexing.IndexingService
-import play.api.libs.json._
 import play.api.libs.iteratee._
-import play.api.libs.concurrent._
 import play.api.Play.current
 import models.{OrganizationConfiguration, DataSetEventLog, DataSetState, DataSet}
 import play.api.Logger
 import models.DataSetState._
-import util.OrganizationConfigurationHandler
+import play.api.libs.json._
+import scala.concurrent.Future
+import play.api.libs.concurrent.Akka
 
 
 /**
@@ -76,13 +78,13 @@ object DataSetEventFeed {
     Akka.system.actorOf(Props[DataSetEventFeed])
   }
 
-  def subscribe(orgId: String, clientId: String, userName: String, configuration: String, spec: Option[String]): Promise[(Iteratee[JsValue, _], Enumerator[JsValue])] = {
+  def subscribe(orgId: String, clientId: String, userName: String, configuration: String, spec: Option[String]): Future[(Iteratee[JsValue, _], Enumerator[JsValue])] = {
 
     log.debug("Client %s of org %s requesting subscribtion to DataSetList feed".format(clientId, orgId))
 
     implicit val timeout = Timeout(1 second)
 
-    (default ? Subscribe(orgId, userName, configuration, clientId, spec)).asPromise.map {
+    (default ? Subscribe(orgId, userName, configuration, clientId, spec)).map {
 
       case Connected(enumerator) =>
 
@@ -355,7 +357,7 @@ class DataSetEventFeed extends Actor {
                         DataSet.dao.updateState(set, DataSetState.DISABLED, Some(userName))
                         send(s, ok)
                       } catch {
-                        case t =>
+                        case t: Throwable =>
                           log.warn("Error while trying to remove cancelled set from index", t)
                           DataSet.dao.updateState(set, DataSetState.ERROR, Some(userName), Some(t.getMessage))
                           send(s, error("Cannot disable set that is not enabled"))
@@ -392,7 +394,7 @@ class DataSetEventFeed extends Actor {
                       try {
                         IndexingService.deleteBySpec(set.orgId, set.spec)
                       } catch {
-                        case t =>
+                        case t: Throwable =>
                           log.warn("Error while trying to remove cancelled set from index", t)
                           DataSet.dao.updateState(set, DataSetState.ERROR, Some(userName), Some(t.getMessage))
                       }

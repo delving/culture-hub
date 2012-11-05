@@ -32,6 +32,7 @@ import models.statistics.DataSetStatisticsContext
 import models.statistics.FieldFrequencies
 import models.statistics.FieldValues
 import play.api.libs.MimeTypes
+import scala.concurrent.ExecutionContext.Implicits.global
 
 /**
  * This Controller is responsible for all the interaction with the SIP-Creator.
@@ -391,7 +392,7 @@ trait SipCreatorEndPoint extends Controller with OrganizationConfigurationAware 
       }
 
     } catch {
-      case t =>
+      case t: Throwable =>
         t.printStackTrace()
         Left("Error receiving source statistics: " + t.getMessage)
     }
@@ -626,7 +627,7 @@ class ReceiveSource extends Actor {
 
   var tempFileRef: TemporaryFile = null
 
-  protected def receive = {
+  def receive = {
     case SourceStream(dataSet, userName, inputStream, tempFile, conf) =>
       implicit val configuration = conf
       val now = System.currentTimeMillis()
