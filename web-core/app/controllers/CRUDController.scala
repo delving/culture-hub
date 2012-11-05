@@ -106,9 +106,13 @@ trait CRUDController[Model <: CaseClass { def id: ObjectId }, D <: SalatDAO[Mode
 
           }
 
-  def update(id: Option[ObjectId], templateName: Option[String] = None)(implicit mom: Manifest[Model], mod: Manifest[D]) = Action {
-    implicit request =>
-      crudUpdate(id, templateName.getOrElse("organization/" + className + "s/update.html"))
+  def update(id: Option[ObjectId],
+             templateName: Option[String] = None,
+             additionalTemplateData: Option[(Model => Seq[(Symbol, AnyRef)])] = None)
+            (implicit mom: Manifest[Model], mod: Manifest[D]) = Action {
+
+              implicit request =>
+                crudUpdate(id, templateName.getOrElse("organization/" + className + "s/update.html"), additionalTemplateData)
   }
 
   def submit(implicit mom: Manifest[Model], mod: Manifest[D]) = Action {
@@ -171,8 +175,9 @@ trait CRUDController[Model <: CaseClass { def id: ObjectId }, D <: SalatDAO[Mode
     }
   }
 
-  def crudUpdate(id: Option[ObjectId], templateName: String)(implicit request: RequestHeader, configuration: DomainConfiguration,
-                                                mom: Manifest[Model], mod: Manifest[D]): Result = {
+  def crudUpdate(id: Option[ObjectId], templateName: String, additionalTemplateData: Option[(Model => Seq[(Symbol, AnyRef)])])
+                (implicit request: RequestHeader, configuration: DomainConfiguration,
+                          mom: Manifest[Model], mod: Manifest[D]): Result = {
 
     implicit val formats = DefaultFormats
 
@@ -187,7 +192,13 @@ trait CRUDController[Model <: CaseClass { def id: ObjectId }, D <: SalatDAO[Mode
       if (item == None) {
         NotFound("Item with ID %s wasn't found".format(_id))
       } else {
-        Ok(Template(templateName, 'baseUrl -> baseUrl, 'data -> grater[Model].toCompactJSON(item.get)))
+        val baseData = Seq('baseUrl -> baseUrl, 'data -> grater[Model].toCompactJSON(item.get), 'id -> item.get.id)
+        if (additionalTemplateData.isDefined) {
+          val additionalData = additionalTemplateData.get(item.get)
+          Ok(Template(templateName, (baseData ++ additionalData) :_*))
+        } else {
+          Ok(Template(templateName, baseData :_*))
+        }
       }
     }.getOrElse {
       val json: JObject = grater[Model].toJSON(emptyModel)
