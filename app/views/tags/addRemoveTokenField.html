@@ -15,7 +15,8 @@
     function addRemoveTokenInput(id, searchUrl, prePopulate, addUrl, removeUrl, removeConfirmationDialog) {
 
     $(id).tokenInput(searchUrl, {
-      prePopulate: typeof prePopulate !== 'undefined' ? prePopulate : [],
+      resultCacheEnabled: false,
+      prePopulate: typeof prePopulate !== 'undefined' ? (typeof prePopulate === 'function' ? prePopulate.call(): prePopulate) : [],
       preventDuplicates: true,
       onAdd: function(item) {
         $.ajax({
