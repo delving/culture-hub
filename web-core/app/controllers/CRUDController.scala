@@ -98,11 +98,12 @@ trait CRUDController[Model <: CaseClass { def id: ObjectId }, D <: SalatDAO[Mode
   def list(titleKey: String = "",
            listTemplate: String = "organization/crudList.html",
            fields: Seq[(String, String)] = Seq(("thing.name" -> "name")),
+           additionalActions: Seq[ListAction] = Seq.empty,
            filter: Seq[(String, String)] = Seq.empty)
           (implicit mom: Manifest[Model], mod: Manifest[D]) = Action {
 
             implicit request =>
-              crudList(titleKey, listTemplate, fields, filter)
+              crudList(titleKey, listTemplate, fields, additionalActions, filter)
 
           }
 
@@ -153,6 +154,7 @@ trait CRUDController[Model <: CaseClass { def id: ObjectId }, D <: SalatDAO[Mode
   def crudList(titleKey: String,
                listTemplate: String,
                fields: Seq[(String, String)],
+               additionalActions: Seq[ListAction],
                filter: Seq[(String, String)])
               (implicit request: RequestHeader, configuration: DomainConfiguration,
                         mom: Manifest[Model], mod: Manifest[D]): Result = {
@@ -169,7 +171,8 @@ trait CRUDController[Model <: CaseClass { def id: ObjectId }, D <: SalatDAO[Mode
           'titleKey -> title(titleKey),
           'menuKey -> menuKey.getOrElse(""),
           'columnLabels -> fields.map(_._1),
-          'columnFields -> fields.map(_._2)
+          'columnFields -> fields.map(_._2),
+          'additionalActions -> additionalActions.asJava
         )
       )
     }
@@ -248,5 +251,9 @@ trait CRUDController[Model <: CaseClass { def id: ObjectId }, D <: SalatDAO[Mode
                   "(?<=[A-Z])(?=[A-Z][a-z])",
                   "(?<=[^A-Z])(?=[A-Z])",
                   "(?<=[A-Za-z])(?=[^A-Za-z])"), " ")
+
+
+
+  case class ListAction(actionType: String, labelKey: String, url: String)
 
 }
