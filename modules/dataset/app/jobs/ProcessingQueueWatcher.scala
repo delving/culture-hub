@@ -1,6 +1,7 @@
 package jobs
 
-import akka.util.duration._
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.duration._
 import akka.actor.{Cancellable, Actor}
 import play.libs.Akka
 import models.{DataSetState, DataSet}

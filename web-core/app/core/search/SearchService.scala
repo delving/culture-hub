@@ -528,7 +528,7 @@ case class FacetAutoComplete(params: Params, configuration: OrganizationConfigur
     params.getValueOrElse("rows", "10").toInt
   }
   catch {
-    case _ => 10
+    case t: Throwable => 10
   }
 
   val autocomplete: Seq[Count] =  if (facet != "listAll")

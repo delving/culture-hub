@@ -218,18 +218,16 @@ object DataSet extends MultiModel[DataSet, DataSetDAO] {
   protected def initIndexes(collection: MongoCollection) {}
 
   protected def initDAO(collection: MongoCollection, connection: MongoDB)
-                       (implicit configuration: OrganizationConfiguration): DataSetDAO = new DataSetDAO(collection)(configuration, HubModule)
+                       (implicit configuration: DomainConfiguration): DataSetDAO = new DataSetDAO(collection)(configuration, HubModule)
 
   val RESOURCE_TYPE = ResourceType("dataSet")
 
 }
 
-class DataSetDAO(collection: MongoCollection)(implicit val configuration: OrganizationConfiguration, val bindingModule: BindingModule)
+class DataSetDAO(collection: MongoCollection)(implicit val configuration: DomainConfiguration, val bindingModule: BindingModule)
   extends SalatDAO[DataSet, ObjectId](collection) with Pager[DataSet] with Injectable {
 
   val organizationServiceLocator = inject [ DomainServiceLocator[OrganizationService] ]
-
-  val schemaService = inject [ SchemaService ]
 
   def getState(orgId: String, spec: String): DataSetState = {
 

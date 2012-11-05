@@ -5,11 +5,16 @@ import core.node._
 import play.api.libs.Crypto
 import play.api.libs.ws.{Response, WS}
 import play.api.libs.json._
+import play.api.libs.json.util._
+import play.api.libs.json.Writes._
 import play.api.Logger
 import java.util.concurrent.TimeoutException
 import java.net.URLEncoder
 import extensions.MissingLibs
 import eu.delving.definitions.OrganizationEntry
+import scala.concurrent.Await
+import scala.concurrent.duration._
+
 
 /**
  * TODO harden this, error handling, logging... for now we always return the worst case scenario in case of an error. however we should make the clients
@@ -22,6 +27,76 @@ class CommonsServices(commonsHost: String, orgId: String, apiToken: String, node
   with RegistrationService with UserProfileService with OrganizationService with DirectoryService
   with NodeRegistrationService with NodeDirectoryService
   with play.api.http.Status {
+
+
+  // ~~~ JSON converters
+
+  implicit val OrganizationProfileReads = (
+      (__ \ "orgId").read[String] and
+      (__ \ "name").read[Map[String, String]]
+    )(OrganizationProfile.apply _)
+
+  implicit val OrganizationProfileWrites = (
+    (__ \ "orgId").write[String] and
+    (__ \ "name").write[Map[String, String]]
+  )(unlift(OrganizationProfile.unapply))
+
+  implicit val UserProfileReads = (
+    (__ \ "isPublic").read[Boolean] and
+    (__ \ "firstName").read[String] and
+    (__ \ "lastName").read[String] and
+    (__ \ "email").read[String] and
+    (__ \ "description").readOpt[String] and
+    (__ \ "funFact").readOpt[String] and
+    (__ \ "websites").read[List[String]] and
+    (__ \ "twitter").readOpt[String] and
+    (__ \ "linkedIn").readOpt[String]
+  )(UserProfile.apply _)
+
+  implicit val UserProfileWrites = (
+    (__ \ "isPublic").write[Boolean] and
+    (__ \ "firstName").write[String] and
+    (__ \ "lastName").write[String] and
+    (__ \ "email").write[String] and
+    (__ \ "description").writeOpt[String] and
+    (__ \ "funFact").writeOpt[String] and
+    (__ \ "websites").write[List[String]] and
+    (__ \ "twitter").writeOpt[String] and
+    (__ \ "linkedIn").writeOpt[String]
+  )(unlift(UserProfile.unapply))
+
+  implicit val OrganizationEntryReads = (
+    (__ \ "uri").read[String] and
+    (__ \ "name").read[String] and
+    (__ \ "countryCode").read[String]
+  )(OrganizationEntry.apply _)
+
+  implicit val OrganizationEntryWrites = (
+    (__ \ "uri").write[String] and
+    (__ \ "name").write[String] and
+    (__ \ "countryCode").write[String]
+  )(unlift(OrganizationEntry.unapply))
+
+  implicit val NodeReads = (
+    (__ \ "nodeId").read[String] and
+    (__ \ "name").read[String] and
+    (__ \ "orgId").read[String]
+  )({ (nId: String, nName: String, nOrgId: String) => new Node {
+    def nodeId: String = nId
+    def name: String = nName
+    def orgId: String = nOrgId
+    def isLocal: Boolean = false
+  }})
+
+  implicit val NodeWrites = (
+    (__ \ "nodeId").write[String] and
+    (__ \ "name").write[String] and
+    (__ \ "orgId").write[String]
+  )({ node: Node =>
+    (node.nodeId, node.name, node.orgId)
+  })
+
+
 
   val log = Logger("CultureHub")
 
@@ -51,7 +126,7 @@ class CommonsServices(commonsHost: String, orgId: String, apiToken: String, node
       case _ => throw new RuntimeException("Should not be here")
     }
     try {
-      callInvocation.await.fold(t => None, r => Some(r))
+      Some(Await.result(callInvocation, 5 seconds))
     } catch {
       case timeout: TimeoutException =>
         // retry
@@ -61,7 +136,7 @@ class CommonsServices(commonsHost: String, orgId: String, apiToken: String, node
           Logger("CultureHub").error("Still getting a timeout error while contacting CultureCommons, after %s attempts".format(retry), timeout)
           None
         }
-      case t =>
+      case t: Throwable =>
         Logger("CultureHub").error("Error contacting CultureCommons", t)
         None
     }
@@ -151,8 +226,7 @@ class CommonsServices(commonsHost: String, orgId: String, apiToken: String, node
     get("/user/profile/" + userName).map {
       response =>
         if (response.status == OK) {
-          import UserProfileFormat._
-          Some(Json.fromJson[UserProfile](Json.parse(response.body)))
+          Json.fromJson[UserProfile](response.json).asOpt
         } else {
           None
         }
@@ -174,8 +248,7 @@ class CommonsServices(commonsHost: String, orgId: String, apiToken: String, node
   def queryByOrgId(query: String): Seq[OrganizationProfile] = {
     get("/organization/query", "field" -> "name", "value" -> query).map { response =>
       if (response.status == OK) {
-        import OrganizationProfileFormat._
-        Json.fromJson[Seq[OrganizationProfile]](Json.parse(response.body))
+        Json.fromJson[Seq[OrganizationProfile]](response.json).asOpt.getOrElse(Seq.empty)
       } else {
         Seq.empty
       }
@@ -214,8 +287,7 @@ class CommonsServices(commonsHost: String, orgId: String, apiToken: String, node
     get("/organization/" + orgId).map {
       response =>
         if (response.status == OK) {
-          import OrganizationProfileFormat._
-          Json.fromJson[OrganizationProfile](Json.parse(response.body)).name.get(language)
+          Json.fromJson[OrganizationProfile](response.json).asOpt.map(_.name.get(language).getOrElse(""))
         } else {
           None
         }
@@ -338,8 +410,7 @@ class CommonsServices(commonsHost: String, orgId: String, apiToken: String, node
   def findOneById(nodeId: String): Option[Node] = {
     get("/node/" + nodeId).flatMap { response =>
       if (response.status == OK) {
-        import NodeFormat._
-        Some(Json.fromJson[Node](response.json))
+        Json.fromJson[Node](response.json).asOpt
       } else {
         None
       }
@@ -349,8 +420,7 @@ class CommonsServices(commonsHost: String, orgId: String, apiToken: String, node
   def listEntries: Seq[Node] = {
     get("/node/list").flatMap { response =>
       if (response.status == OK) {
-        import NodeFormat._
-        Some(Json.fromJson[List[Node]](response.json))
+        Json.fromJson[List[Node]](response.json).asOpt
       } else {
         None
       }
@@ -363,8 +433,7 @@ class CommonsServices(commonsHost: String, orgId: String, apiToken: String, node
     get("/directory/organization/query", "query" -> URLEncoder.encode(query, "utf-8")).map {
       response =>
         if(response.status == OK) {
-          import OrganizationEntryFormat._
-          Json.fromJson[List[OrganizationEntry]](response.json)
+          Json.fromJson[List[OrganizationEntry]](response.json).asOpt.getOrElse(List.empty)
         } else {
           List.empty
         }
@@ -375,96 +444,11 @@ class CommonsServices(commonsHost: String, orgId: String, apiToken: String, node
     get("/directory/organization/byName", "name" -> URLEncoder.encode(name, "utf-8")).map {
       response =>
         if(response.status == OK) {
-          Some(Json.fromJson[OrganizationEntry](Json.parse(response.body)))
+          Json.fromJson[OrganizationEntry](response.json).asOpt
         } else {
           None
         }
     }.getOrElse(None)
-  }
-
-  // json un/marshalling
-
-  import play.api.libs.json._
-
-  implicit object UserProfileFormat extends Format[UserProfile] {
-
-
-    def reads(json: JsValue) = UserProfile(
-      isPublic = (json \ "isPublic").as[Boolean],
-      firstName = (json \ "firstName").as[String],
-      lastName = (json \ "lastName").as[String],
-      email = (json \ "email").as[String],
-      description = (json \ "description").asOpt[String],
-      funFact = (json \ "funFact").asOpt[String],
-      websites = (json \ "websites").asOpt[List[String]].getOrElse(List()),
-      twitter = (json \ "twitter").asOpt[String],
-      linkedIn = (json \ "linkedIn").asOpt[String]
-    )
-
-    def writes(o: UserProfile) = JsObject(
-      List(
-        "isPublic" -> JsBoolean(o.isPublic),
-        "firstName" -> JsString(o.firstName),
-        "lastName" -> JsString(o.lastName),
-        "email" -> JsString(o.email)
-      ) ::: o.description.map(d => List("description" -> JsString(d))).getOrElse(List())
-        ::: o.funFact.map(d => List("funFact" -> JsString(d))).getOrElse(List())
-        ::: List("websites" -> JsArray(o.websites.map(e => JsString(e)).toList))
-        ::: o.twitter.map(d => List("twitter" -> JsString(d))).getOrElse(List())
-        ::: o.linkedIn.map(d => List("linkedIn" -> JsString(d))).getOrElse(List())
-    )
-  }
-
-  implicit object OrganizationProfileFormat extends Format[OrganizationProfile] {
-
-    def reads(json: JsValue) = OrganizationProfile(
-      orgId = (json \ "orgId").as[String],
-      name = (json \ "name").as[Map[String, String]]
-    )
-
-    def writes(o: OrganizationProfile) = JsObject(
-      List(
-        "orgId" -> JsString(o.orgId),
-        "name" -> JsObject(
-          o.name.map(n => (n._1 -> JsString(n._2))).toList
-        )
-      )
-    )
-  }
-
-  implicit object OrganizationEntryFormat extends Format[OrganizationEntry] {
-
-    def reads(json: JsValue): OrganizationEntry = OrganizationEntry(
-      uri = (json \ "uri").as[String],
-      name = (json \ "name").as[String],
-      countryCode = (json \ "countryCode").as[String]
-    )
-
-    def writes(o: OrganizationEntry): JsValue = JsObject(
-      Seq(
-        "uri" -> JsString(o.uri),
-        "name" -> JsString(o.name),
-        "countryCode" -> JsString(o.countryCode)
-      )
-    )
-  }
-
-  implicit object NodeFormat extends Format[Node] {
-
-    def reads(json: JsValue): Node = new Node {
-      def nodeId: String = (json \ "nodeId").as[String]
-      def name: String = (json \ "name").as[String]
-      def orgId: String = (json \ "orgId").as[String]
-      def isLocal: Boolean = false
-    }
-
-    def writes(o: Node): JsValue = JsObject(
-      Seq(
-        "nodeId" -> JsString(o.nodeId),
-        "name" -> JsString(o.name),
-        "orgId" -> JsString(o.orgId)
-      )
-    )
   }
 
 }

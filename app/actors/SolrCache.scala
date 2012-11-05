@@ -6,7 +6,8 @@ import play.api.cache.Cache
 import play.api.Play.current
 import util.OrganizationConfigurationHandler
 import play.api.libs.concurrent.Akka
-import akka.util.duration._
+import scala.concurrent.duration._
+import scala.concurrent.ExecutionContext.Implicits.global
 
 /**
  *
@@ -32,7 +33,7 @@ class SolrCache extends Actor {
     scheduler.cancel()
   }
 
-  protected def receive = {
+  def receive = {
 
     case CacheSolrFields =>
       OrganizationConfigurationHandler.organizationConfigurations.foreach { configuration =>

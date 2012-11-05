@@ -68,7 +68,7 @@ class ImageCacheService extends HTTPClient with Thumbnail {
 
         val isAvailable = checkOrInsert(sanitizedUrl)
         if(isAvailable) {
-          imageCacheStore(configuration).db.getCollection("fs.files").update(MongoDBObject("filename" -> sanitizedUrl), ($inc ("viewed" -> 1)) ++ $set ("lastViewed" -> new Date))
+          imageCacheStore(configuration).db.getCollection("fs.files").update(MongoDBObject("filename" -> sanitizedUrl), ($inc ("viewed" -> 1)) ++ $set (Seq("lastViewed" -> new Date)))
           ImageDisplay.renderImage(
             id = sanitizedUrl,
             thumbnail = thumbnail,
@@ -124,9 +124,9 @@ class ImageCacheService extends HTTPClient with Thumbnail {
       val inputFile = imageCacheStore(configuration).createFile(image.dataAsStream, image.url)
       inputFile.contentType = image.contentType
       inputFile put (IMAGE_ID_FIELD, image.url)
-      inputFile put("viewed", 0)
+      inputFile put("viewed", new java.lang.Integer(0))
       inputFile put("lastViewed", new Date)
-      inputFile.save
+      inputFile.save()
 
       val cachedImage = imageCacheStore(configuration).findOne(image.url).getOrElse(return false)
       createThumbnails(cachedImage, imageCacheStore(configuration), Map(IMAGE_ID_FIELD -> image.url))
@@ -156,7 +156,7 @@ class ImageCacheService extends HTTPClient with Thumbnail {
       case timeout: org.apache.commons.httpclient.ConnectTimeoutException =>
         log.error("""Could not retrieve image at URL "%s" because of connection timeout: %s""".format(url, timeout.getMessage))
         WebResource()
-      case t =>
+      case t: Throwable =>
       log.error("""Error downloading image at URL "%s": %s""".format(url, t.getMessage), t)
       WebResource()
     }

@@ -28,9 +28,9 @@
 </div>
 
 
-        @if(error.isDefined && error.get.isInstanceOf[play.api.PlayException.UsefulException]) {
+        @if(error.isDefined && error.get.isInstanceOf[play.api.UsefulException]) {
 		<p id="detail">
-			This exception has been logged with id <strong>@error.get.asInstanceOf[play.api.PlayException.UsefulException].id</strong>.
+			This exception has been logged with id <strong>@error.get.asInstanceOf[play.api.UsefulException].id</strong>.
 		</p>
         }
 

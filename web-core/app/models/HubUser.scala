@@ -69,7 +69,7 @@ class HubUserDAO(collection: MongoCollection) extends SalatDAO[HubUser, ObjectId
     try {
       update(MongoDBObject("userName" -> userName), $addToSet ("organizations" -> orgId), false, false, WriteConcern.Safe)
     } catch {
-      case _ => return false
+      case t: Throwable => return false
     }
     true
   }
@@ -83,7 +83,7 @@ class HubUserDAO(collection: MongoCollection) extends SalatDAO[HubUser, ObjectId
         group => Group.dao.removeUser(orgId, userName, group._id)
       }
     } catch {
-      case _ => return false
+      case t: Throwable => return false
     }
     true
   }
