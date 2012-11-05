@@ -750,3 +750,4 @@ plugin.rijks.rijks=Rijkscollectie
 
 plugin.relocation.membersWithReservationRights=Members with reservartion rights
 plugin.relocation.membersWithSupplierRights=Members with supplier rights
+plugin.relocation.manageMembers=Manage members
