@@ -63,6 +63,8 @@ trait CRUDController[Model <: CaseClass { def id: ObjectId }, D <: SalatDAO[Mode
       val contextualized = u(submitted, persisted)
       dao.save(contextualized)
     }.getOrElse {
+      // TODO this should, in fact, be a merge, if somehow possible.
+      // It may be that the persisted state of the item changes while it is loaded (e.g. AJAX update, different user, ...)
       dao.save(submitted)
     }
     Right(submitted)
@@ -99,11 +101,12 @@ trait CRUDController[Model <: CaseClass { def id: ObjectId }, D <: SalatDAO[Mode
            listTemplate: String = "organization/crudList.html",
            fields: Seq[(String, String)] = Seq(("thing.name" -> "name")),
            additionalActions: Seq[ListAction] = Seq.empty,
+           isAdmin: RequestHeader => Boolean = { Unit => true },
            filter: Seq[(String, String)] = Seq.empty)
           (implicit mom: Manifest[Model], mod: Manifest[D]) = Action {
 
             implicit request =>
-              crudList(titleKey, listTemplate, fields, additionalActions, filter)
+              crudList(titleKey, listTemplate, fields, additionalActions, isAdmin(request), filter)
 
           }
 
@@ -155,6 +158,7 @@ trait CRUDController[Model <: CaseClass { def id: ObjectId }, D <: SalatDAO[Mode
                listTemplate: String,
                fields: Seq[(String, String)],
                additionalActions: Seq[ListAction],
+               isAdmin: Boolean,
                filter: Seq[(String, String)])
               (implicit request: RequestHeader, configuration: DomainConfiguration,
                         mom: Manifest[Model], mod: Manifest[D]): Result = {
@@ -172,7 +176,8 @@ trait CRUDController[Model <: CaseClass { def id: ObjectId }, D <: SalatDAO[Mode
           'menuKey -> menuKey.getOrElse(""),
           'columnLabels -> fields.map(_._1),
           'columnFields -> fields.map(_._2),
-          'additionalActions -> additionalActions.asJava
+          'additionalActions -> additionalActions.asJava,
+          'isAdmin -> isAdmin
         )
       )
     }

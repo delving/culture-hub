@@ -31,12 +31,14 @@
                    #{list additionalActions, as: 'action'}
                        <a class="btn btn-primary btn-mini" href="#" data-bind="attr: { href: '\${action.url}'.replace('_id_', $data.id()).replace('_orgId_', '${orgId}' ) }" rel="nofollow"><i class="icon-${action.actionType} icon-white"></i> &{action.labelKey}</a>
                    #{/list}
+                   #{if isAdmin}
                    <a class="btn btn-primary btn-mini" href="#" data-bind="click: function() { $parent.update($data) }" rel="nofollow">
                        <i class="icon-edit icon-white"></i> &{'ui.label.edit'}
                    </a>
                    <a class="btn btn-danger btn-mini pull-right delete" href="#" data-bind="click: function() { $parent.delete($data) }" rel="nofollow">
                        <i class="icon-trash icon-white"></i> &{'ui.label.delete'}
                    </a>
+                   #{/if}
                 </td>
             </tr>
             </tbody>
