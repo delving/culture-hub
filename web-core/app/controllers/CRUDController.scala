@@ -1,34 +1,35 @@
 package controllers
 
 import play.api.mvc._
-import org.bson.types.ObjectId
+import com.mongodb.casbah.Imports._
 import com.novus.salat._
+import dao.SalatDAO
+import com.novus.salat.{TypeHintFrequency, StringTypeHintStrategy, Context}
 import json.{StringObjectIdStrategy, JSONConfig}
 import models.DomainConfiguration
-import dao.SalatDAO
 import com.mongodb.casbah.commons.MongoDBObject
-import eu.delving.templates.scala.GroovyTemplates
 import play.api.data.Form
 import net.liftweb.json._
 import net.liftweb.json.JsonAST.JField
 import scala.collection.JavaConverters._
 import models.HubMongoContext._
-import com.novus.salat.{TypeHintFrequency, StringTypeHintStrategy, Context}
+
 
 /**
- * Experimental CRUD controller.
+ * Experimental CRUD controller, for the admin part of the site.
+ *
  * The idea is to provide a number of generic methods handling the listing, submission (create or update), and deletion of a model.
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
-trait CRUDController[Model <: CaseClass { def id: ObjectId }, D <: SalatDAO[Model, ObjectId]] extends ControllerBase { self: Controller with GroovyTemplates with DomainConfigurationAware =>
+trait CRUDController[Model <: CaseClass { def id: ObjectId }, D <: SalatDAO[Model, ObjectId]] extends ControllerBase { self: OrganizationController =>
 
   // ~~~ Navigation
 
   /**
-   * Base URL of all actions for this CRUD model
+   * URL path in the administration namespace for this controller (e.g. "cms", "organizations", ...)
    */
-  def baseUrl(implicit request: RequestHeader, configuration: DomainConfiguration): String
+  def urlPath: String
 
   /**
    * The menu key for the actions of this CRUD controller.
@@ -83,6 +84,10 @@ trait CRUDController[Model <: CaseClass { def id: ObjectId }, D <: SalatDAO[Mode
   }
 
 
+  /**
+   * Base URL of all actions for this CRUD model
+   */
+  def baseUrl(implicit configuration: DomainConfiguration): String = "/organizations/%s/%s".format(configuration.orgId, urlPath)
 
   // ~~~ default actions, override if necessary
 
@@ -90,12 +95,14 @@ trait CRUDController[Model <: CaseClass { def id: ObjectId }, D <: SalatDAO[Mode
            titleKey: String = "",
            viewTemplate: String = "organization/crudView.html",
            fields: Seq[(String, String)] = Seq(("thing.name" -> "name")))
-          (implicit mom: Manifest[Model], mod: Manifest[D]) = Action {
+          (implicit mom: Manifest[Model], mod: Manifest[D]) = OrganizationAdmin {
+    Action {
 
-            implicit request =>
-              crudView(id, titleKey, viewTemplate, fields)
+      implicit request =>
+        crudView(id, titleKey, viewTemplate, fields)
 
-          }
+    }
+  }
 
   def list(titleKey: String = "",
            listTemplate: String = "organization/crudList.html",
@@ -103,30 +110,36 @@ trait CRUDController[Model <: CaseClass { def id: ObjectId }, D <: SalatDAO[Mode
            additionalActions: Seq[ListAction] = Seq.empty,
            isAdmin: RequestHeader => Boolean = { Unit => true },
            filter: Seq[(String, String)] = Seq.empty)
-          (implicit mom: Manifest[Model], mod: Manifest[D]) = Action {
+          (implicit mom: Manifest[Model], mod: Manifest[D]) = OrganizationAdmin {
+    Action {
+      implicit request =>
+        crudList(titleKey, listTemplate, fields, additionalActions, isAdmin(request), filter)
 
-            implicit request =>
-              crudList(titleKey, listTemplate, fields, additionalActions, isAdmin(request), filter)
-
-          }
+    }
+  }
 
   def update(id: Option[ObjectId],
              templateName: Option[String] = None,
-             additionalTemplateData: Option[(Model => Seq[(Symbol, AnyRef)])] = None)
-            (implicit mom: Manifest[Model], mod: Manifest[D]) = Action {
-
-              implicit request =>
-                crudUpdate(id, templateName.getOrElse("organization/" + className + "s/update.html"), additionalTemplateData)
+             additionalTemplateData: Option[(Option[Model] => Seq[(Symbol, AnyRef)])] = None)
+            (implicit mom: Manifest[Model], mod: Manifest[D]) = OrganizationAdmin {
+    Action {
+      implicit request =>
+        crudUpdate(id, templateName, additionalTemplateData)
+    }
   }
 
-  def submit(implicit mom: Manifest[Model], mod: Manifest[D]) = Action {
-    implicit request =>
-      crudSubmit()
+  def submit(implicit mom: Manifest[Model], mod: Manifest[D]) = OrganizationAdmin {
+    Action {
+      implicit request =>
+        crudSubmit()
+    }
   }
 
-  def delete(id: ObjectId)(implicit mom: Manifest[Model], mod: Manifest[D]) = Action {
-    implicit request =>
-      crudDelete(id)
+  def delete(id: ObjectId)(implicit mom: Manifest[Model], mod: Manifest[D]) = OrganizationAdmin {
+    Action {
+      implicit request =>
+        crudDelete(id)
+    }
   }
 
 
@@ -183,11 +196,13 @@ trait CRUDController[Model <: CaseClass { def id: ObjectId }, D <: SalatDAO[Mode
     }
   }
 
-  def crudUpdate(id: Option[ObjectId], templateName: String, additionalTemplateData: Option[(Model => Seq[(Symbol, AnyRef)])])
+  def crudUpdate(id: Option[ObjectId], templateName: Option[String] = None, additionalTemplateData: Option[(Option[Model] => Seq[(Symbol, AnyRef)])])
                 (implicit request: RequestHeader, configuration: DomainConfiguration,
                           mom: Manifest[Model], mod: Manifest[D]): Result = {
 
     implicit val formats = DefaultFormats
+
+    val resolvedTemplateName = templateName.getOrElse("organization/" + className + "s/update.html")
 
     implicit val ctx = new Context {
       val name = "json-context"
@@ -202,10 +217,10 @@ trait CRUDController[Model <: CaseClass { def id: ObjectId }, D <: SalatDAO[Mode
       } else {
         val baseData = Seq('baseUrl -> baseUrl, 'data -> grater[Model].toCompactJSON(item.get), 'id -> item.get.id)
         if (additionalTemplateData.isDefined) {
-          val additionalData = additionalTemplateData.get(item.get)
-          Ok(Template(templateName, (baseData ++ additionalData) :_*))
+          val additionalData = additionalTemplateData.get(item)
+          Ok(Template(resolvedTemplateName, (baseData ++ additionalData) :_*))
         } else {
-          Ok(Template(templateName, baseData :_*))
+          Ok(Template(resolvedTemplateName, baseData :_*))
         }
       }
     }.getOrElse {
@@ -213,7 +228,13 @@ trait CRUDController[Model <: CaseClass { def id: ObjectId }, D <: SalatDAO[Mode
       val jsonItem = json merge JObject(List(JField("_created_", JBool(true))))
       val rendered = Printer.compact(JsonAST.render(jsonItem))
       log.debug(rendered)
-      Ok(Template(templateName, 'baseUrl -> baseUrl, 'data -> rendered))
+      val baseData = Seq('baseUrl -> baseUrl, 'data -> rendered)
+      if (additionalTemplateData.isDefined) {
+        val additionalData = additionalTemplateData.get(None)
+        Ok(Template(resolvedTemplateName, (baseData ++ additionalData) :_*))
+      } else {
+        Ok(Template(resolvedTemplateName, baseData :_*))
+      }
     }
 
   }
