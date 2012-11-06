@@ -113,6 +113,8 @@ ui.label.identifier=Identifier
 ui.label.all=All
 ui.label.withoutDigitalObject=Without digital object
 ui.label.withDigitalObject=With digital object
+ui.label.yes=Yes
+ui.label.no=No
 
 ui.widget.upload.chooseFile=Choose file
 ui.widget.upload.start=Start upload
