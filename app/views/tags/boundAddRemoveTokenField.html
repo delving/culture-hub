@@ -9,7 +9,6 @@
 </div>
 <script type="text/javascript">
   $(document).ready(function() {
-    $('#${_id}').tokenInput('${_searchUrl}');
-//    $('.token-input-list').addClass('span4');
+    $('#${_id}').tokenInput('${_searchUrl}'#{if _options},${_options}#{/if});
   });
 </script>

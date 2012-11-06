@@ -384,15 +384,30 @@ update: function (element, valueAccessor) {
 }
 };
 
+function isInArray(array, item) {
+    var a = $.grep(array, function(it) {
+        return it == item
+    });
+    return a.length > 0;
+}
+
 
 /**
  * KnockoutJS binder for the jQuery tokenInput plugin
+ *
+ * By default, binds against an array of token objects of the kind {id: 'foo', name: 'Foo'}.
+ * If the 'textTokens' binding is set to true, will bind against an array of strings instead, where the string
+ * is being used as the id of the Token.
+ *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 ko.bindingHandlers.tokens = {
     init: function(element, valueAccessor, allBindingsAccessor, viewModel) {
         viewModel.lock = false;
         var modelValue = valueAccessor();
+
+        var allBindings = allBindingsAccessor();
+        var useTextTokens = allBindings.textTokens || false;
 
         $(element).change(function() {
             if (!viewModel.lock) {
@@ -402,7 +417,11 @@ ko.bindingHandlers.tokens = {
                         var existing = ko.utils.unwrapObservable(modelValue);
                         var existingNames = [];
                         $.each(existing, function(index, el) {
-                            existingNames.push(typeof el.name == 'function' ? el.name() : el.name);
+                            if (useTextTokens) {
+                                existingNames.push(typeof el == 'function' ? el() : el);
+                            } else {
+                                existingNames.push(typeof el.name == 'function' ? el.name() : el.name);
+                            }
                         });
                         var updatedNames = [];
                         $.each(tokens, function(index, el) {
@@ -412,24 +431,39 @@ ko.bindingHandlers.tokens = {
                         // remove elements
                         var toRemove = [];
                         $.each(existing, function(index, el) {
-                            var name = typeof el.name == 'function' ? el.name() : el.name;
-                            if ($.inArray(name, updatedNames) < 0) {
-                                toRemove.push(el);
+                            var name = "";
+                            if (useTextTokens) {
+                                name = typeof el == 'function' ? el() : el;
+                                if (!isInArray(updatedNames, name)) {
+                                    toRemove.push(name);
+                                }
+                            } else {
+                                name = typeof el.name == 'function' ? el.name() : el.name;
+                                if (!isInArray(updatedNames, name)) {
+                                    toRemove.push(el);
+                                }
                             }
                         });
                         $.each(toRemove, function(index, el) {
-                            modelValue.remove(el);
+                            if (useTextTokens) {
+                                modelValue.remove(el);
+                            } else {
+                                modelValue.remove(el.id);
+                            }
                             tokens.splice(index, 1);
                         });
 
                         // add new
                         $.each(tokens, function(index, el) {
-                            if ($.inArray(el.name, existingNames) < 0) {
-                                modelValue.push({id: el.id, name: el.name});
+                            if (!isInArray(existingNames, el.name)) {
+                                if (useTextTokens) {
+                                    modelValue.push(el.id);
+                                } else {
+                                    modelValue.push({id: el.id, name: el.name});
+                                }
                             }
                         });
                     }
-
                 }
             }
         });
@@ -439,24 +473,30 @@ ko.bindingHandlers.tokens = {
     update:
             function(element, valueAccessor, allBindingsAccessor, viewModel) {
                 viewModel.lock = true;
+                var allBindings = allBindingsAccessor();
+                var useTextTokens = allBindings.textTokens || false;
                 $(element).tokenInput('clear');
                 var value = valueAccessor();
                 var tokens = ko.utils.unwrapObservable(value);
                 $(tokens).each(function() {
                     var token = ko.utils.unwrapObservable(this);
-                    $(element).tokenInput('add', {id: typeof token.id == 'function' ? token.id() : token.id, name: typeof token.name == 'function' ? token.name() : token.name});
+                    if (useTextTokens) {
+                        $(element).tokenInput('add', {id: typeof token == 'function' ? token() : token, name: typeof token == 'function' ? token() : token});
+                    } else {
+                        $(element).tokenInput('add', {id: typeof token.id == 'function' ? token.id() : token.id, name: typeof token.name == 'function' ? token.name() : token.name});
+                    }
                 });
                 delete viewModel.lock;
             }
 };
 
+/**
+ * KnockoutJS binder for TinyMCE
+ */
 if (typeof Delving === 'undefined') {
     Delving = {};
 }
 
-/**
- * KnockoutJS binder for TinyMCE
- */
 ko.bindingHandlers.tinymce = {
     init: function (element, valueAccessor, allBindingsAccessor, context) {
         var options = allBindingsAccessor().tinymceOptions || {};
