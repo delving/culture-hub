@@ -1,6 +1,7 @@
 package controllers
 
 import com.novus.salat
+import core.storage.{FileStorage, StoredFile}
 import play.api.data.Form
 import org.bson.types.ObjectId
 import play.api.mvc._
@@ -33,6 +34,8 @@ trait ControllerBase extends Extensions with DomainConfigurationAware with Loggi
                    create: ViewModel => Either[String, ViewModel])
                   (implicit request: Request[AnyContent], mf: Manifest[Model]): Result = {
 
+    log.debug("Invoked submit handler")
+
     // retrieve the id separately. This way we do not impose on the bound ViewModel to have an id attribute.
     def extractId(field: String): Option[ObjectId] = request.body.asJson.flatMap { body =>
       (body \ field).asOpt[String].flatMap { oid =>
@@ -46,15 +49,26 @@ trait ControllerBase extends Extensions with DomainConfigurationAware with Loggi
       (body \ "_created_").asOpt[Boolean].isDefined
     }.getOrElse(false)
 
+    log.debug("Is new object: " + isNew)
+
     form.bind(request.body.asJson.get).fold(
       formWithErrors => handleValidationError(formWithErrors),
       boundViewModel => {
-        def doCreate = create(boundViewModel) match {
+
+        def doCreate() = create(boundViewModel) match {
           case Right(createdViewModel) =>
+            info("Created new model based on: " + createdViewModel.toString)
             Json(createdViewModel)
           case Left(errorMessage) =>
+            warning("Failed to create new item because of the following errors: " + errorMessage)
             Json(Map("errors" -> Map("global" -> errorMessage)))
         }
+
+        // TODO we may not need this
+        def files: List[StoredFile] = maybeId.map { id =>
+          FileStorage.getFilesForItemId(id.toString)
+        }.getOrElse(List.empty)
+
 
         maybeId match {
           case Some(id) if !isNew =>
@@ -80,8 +94,8 @@ trait ControllerBase extends Extensions with DomainConfigurationAware with Loggi
               case None =>
                 Error("Model of type '%s' was not found for identifier %s".format(mf.erasure.getName, id))
             }
-          case None => doCreate
-          case Some(defaultId)  => doCreate
+          case None => doCreate()
+          case Some(defaultId)  => doCreate()
         }
       }
     )
@@ -117,6 +131,5 @@ trait ControllerBase extends Extensions with DomainConfigurationAware with Loggi
       "data" -> optional(of[Map[String, String]])
       )(Token.apply)(Token.unapply)
     )
-
 
 }

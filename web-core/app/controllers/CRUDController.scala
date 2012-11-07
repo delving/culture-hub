@@ -1,18 +1,24 @@
 package controllers
 
+import core.storage.FileStorage
 import play.api.mvc._
 import com.mongodb.casbah.Imports._
 import com.novus.salat._
 import dao.SalatDAO
-import com.novus.salat.{TypeHintFrequency, StringTypeHintStrategy, Context}
+import com.novus.salat.{TypeHintFrequency, Context}
 import json.{StringObjectIdStrategy, JSONConfig}
 import models.DomainConfiguration
 import com.mongodb.casbah.commons.MongoDBObject
 import play.api.data.Form
 import net.liftweb.json._
-import net.liftweb.json.JsonAST.JField
+import net.liftweb.json.Extraction._
 import scala.collection.JavaConverters._
 import models.HubMongoContext._
+import com.novus.salat.StringTypeHintStrategy
+import scala.Some
+import scala.Right
+import net.liftweb.json.JsonAST.JField
+import extensions.MissingLibs
 
 
 /**
@@ -57,13 +63,19 @@ trait CRUDController[Model <: CaseClass { def id: ObjectId }, D <: SalatDAO[Mode
 
   // ~~~ override the following to customize
 
+  def fileUploadEnabled = false
+
   def updateHandler(onUpdate: Option[(Model, Model) => Model])(submitted: Model, persisted: Model)
                    (implicit request: Request[AnyContent], configuration: DomainConfiguration,
                              mom: Manifest[Model], mod: Manifest[D]) = {
+
+    log.debug("Update handler invoked")
     onUpdate.map { u =>
       val contextualized = u(submitted, persisted)
+      log.debug("Saving contextualized object: " + contextualized.toString)
       dao.save(contextualized)
     }.getOrElse {
+      log.debug("Saving automatic object: " + submitted.toString)
       // TODO this should, in fact, be a merge, if somehow possible.
       // It may be that the persisted state of the item changes while it is loaded (e.g. AJAX update, different user, ...)
       dao.save(submitted)
@@ -142,6 +154,13 @@ trait CRUDController[Model <: CaseClass { def id: ObjectId }, D <: SalatDAO[Mode
     }
   }
 
+  def upload(id: String, uid: String) = OrganizationAdmin {
+    Action {
+      implicit request =>
+        crudUpload(id, uid)
+    }
+  }
+
 
   // ~~~ CRUD handler methods
 
@@ -210,31 +229,44 @@ trait CRUDController[Model <: CaseClass { def id: ObjectId }, D <: SalatDAO[Mode
       override val jsonConfig: JSONConfig = JSONConfig(objectIdStrategy = StringObjectIdStrategy)
     }
 
+    def computeTemplateData(item: Option[Model], json: String): Seq[(Symbol, AnyRef)] = {
+      additionalTemplateData.map { data =>
+        data(item)
+      }.getOrElse {
+        Seq.empty
+      } ++ Seq('baseUrl -> baseUrl, 'data -> json, 'fileUploadEnabled -> fileUploadEnabled.asInstanceOf[AnyRef], 'uid -> MissingLibs.UUID) ++ item.map(it => Seq('id -> it.id)).getOrElse(Seq.empty)
+    }
+
+    def serializeToJson(item: Model, isCreated: Boolean): String = {
+      val serializedItem: JObject = grater[Model].toJSON(item)
+      val files: Option[JObject] = if (fileUploadEnabled) {
+        def notSelected(id: ObjectId) = false
+        val files = core.storage.FileStorage.getFilesForItemId(item.id.toString).map(_.asFileUploadResponse(notSelected))
+        val serializedFiles = JObject(List(JField("files", decompose(files))))
+        Some(serializedFiles)
+      } else {
+        None
+      }
+      val creationTag: Option[JObject] = if(isCreated) Some(JObject(List(JField("_created_", JBool(true))))) else None
+
+      val merged = Seq(files, creationTag).filterNot(_.isEmpty).map(_.get).foldLeft(serializedItem) { _ merge _ }
+      Printer.compact(render(merged))
+    }
+
     id.map { _id =>
       val item = dao.findOneById(_id)
       if (item == None) {
         NotFound("Item with ID %s wasn't found".format(_id))
       } else {
-        val baseData = Seq('baseUrl -> baseUrl, 'data -> grater[Model].toCompactJSON(item.get), 'id -> item.get.id)
-        if (additionalTemplateData.isDefined) {
-          val additionalData = additionalTemplateData.get(item)
-          Ok(Template(resolvedTemplateName, (baseData ++ additionalData) :_*))
-        } else {
-          Ok(Template(resolvedTemplateName, baseData :_*))
-        }
+        val json = serializeToJson(item.get, isCreated = false)
+        val templateData = computeTemplateData(item, json)
+        Ok(Template(resolvedTemplateName, templateData :_*))
       }
     }.getOrElse {
-      val json: JObject = grater[Model].toJSON(emptyModel)
-      val jsonItem = json merge JObject(List(JField("_created_", JBool(true))))
-      val rendered = Printer.compact(JsonAST.render(jsonItem))
-      log.debug(rendered)
-      val baseData = Seq('baseUrl -> baseUrl, 'data -> rendered)
-      if (additionalTemplateData.isDefined) {
-        val additionalData = additionalTemplateData.get(None)
-        Ok(Template(resolvedTemplateName, (baseData ++ additionalData) :_*))
-      } else {
-        Ok(Template(resolvedTemplateName, baseData :_*))
-      }
+      val json = serializeToJson(emptyModel, isCreated = true)
+      log.debug(json)
+      val templateData = computeTemplateData(None, json)
+      Ok(Template(resolvedTemplateName, templateData :_*))
     }
 
   }
@@ -253,11 +285,23 @@ trait CRUDController[Model <: CaseClass { def id: ObjectId }, D <: SalatDAO[Mode
 
     dao.findOneById(id).map { item =>
       dao.remove(item)
+
+      if(fileUploadEnabled) {
+        val files = FileStorage.getFilesForItemId(id.toString)
+        files.foreach { f => FileStorage.deleteFileById(f.id) }
+      }
+
       Ok
     }.getOrElse {
       NotFound
     }
 
+  }
+
+  def crudUpload(id: String, uid: String)(implicit configuration: DomainConfiguration): Result = {
+    log.debug("Attaching upload with UID %s to item with ID %s".format(uid, id))
+    FileStorage.markFilesAttached(uid, id)
+    Ok
   }
 
   protected def acceptsJson(implicit request: RequestHeader) = request.accepts("application/json") && !request.accepts(HTML)
