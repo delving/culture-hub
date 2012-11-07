@@ -275,7 +275,7 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
         <ListIdentifiers>
           { for (record <- recordList) yield
           <header status={recordStatus(record)}>
-            <identifier>{record.itemId}</identifier>
+            <identifier>{record.asPmhId}</identifier>
             <datestamp>{record.modified}</datestamp>
             <setSpec>{setName}</setSpec>
           </header>
@@ -288,19 +288,25 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
     prependNamespaces(metadataFormat, schema.get.schemaVersion, collection, elem)
   }
 
+  def fromPmhIdToHubId(pmhId: String): String = {
+    val pmhIdExtractor = """^oai:(.*?)_(.*?):(.*)$""".r
+    val pmhIdExtractor(orgId, spec, localId) = pmhId
+    "%s_%s_%s".format(orgId, spec, localId)
+  }
+
   def processGetRecord(pmhRequestEntry: PmhRequestEntry) : Elem = {
     val pmhRequest = pmhRequestEntry.pmhRequestItem
     // get identifier and format from map else throw BadArgument Error
     if (pmhRequest.identifier.isEmpty || pmhRequest.metadataPrefix.isEmpty) return createErrorResponse("badArgument")
-    if(pmhRequest.identifier.split("_").length < 3) return createErrorResponse("idDoesNotExist")
+    if(pmhRequest.identifier.split(":").length < 3) return createErrorResponse("idDoesNotExist")
 
-    val identifier = pmhRequest.identifier
+    val identifier = fromPmhIdToHubId(pmhRequest.identifier)
     val metadataFormat = pmhRequest.metadataPrefix
 
     if(format.isDefined && metadataFormat != format.get) throw new MappingNotFoundException("Invalid format provided for this URL")
 
-    val hubId = HubId(pmhRequest.identifier)
-
+    val hubId = HubId(identifier)
+    println("currentId: " + hubId)
     // check access rights
     val c = harvestCollectionLookupService.findBySpecAndOrgId(hubId.spec, orgId)
     if (c == None) return createErrorResponse("noRecordsMatch")
@@ -310,7 +316,7 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
 
     val record: MetadataItem = {
       val cache = MetadataCache.get(orgId, hubId.spec, c.get.itemType)
-      val mdRecord = cache.findOne(pmhRequest.identifier)
+      val mdRecord = cache.findOne(identifier)
       if (mdRecord == None) return createErrorResponse("noRecordsMatch")
       else mdRecord.get
     }
@@ -324,7 +330,7 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
         <responseDate>
           {OaiPmhService.currentDate}
         </responseDate>
-        <request verb="GetRecord" identifier={identifier}
+        <request verb="GetRecord" identifier={record.asPmhId}
                  metadataPrefix={metadataFormat}>
           {requestURL}
         </request>
@@ -341,13 +347,18 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
 
   private def renderRecord(record: MetadataItem, metadataPrefix: String, set: String) : Elem = {
 
-    val cachedString = record.xml.get(metadataPrefix).getOrElse(throw new RecordNotFoundException(record.itemId))
+    val cachedString: String = record.xml.get(metadataPrefix).getOrElse(throw new RecordNotFoundException(record.asPmhId))
+
+    val cleanString = if (metadataPrefix equalsIgnoreCase ("mods"))
+      cachedString.replaceFirst("xmlns:mods=\"http://www.loc.gov/mods/v3\"", "xmlns:mods=\"http://www.loc.gov/mods/v3\" xsi:schemaLocation=\"http://www.loc.gov/mods/v3 http://www.loc.gov/standards/mods/v3/mods-3-4.xsd\"")
+    else
+      cachedString
 
     val response = try {
-      val elem: Elem = XML.loadString(cachedString)
+      val elem: Elem = XML.loadString(cleanString)
       <record>
         <header>
-          <identifier>{URLEncoder.encode(record.itemId, "utf-8")}</identifier>
+          <identifier>{URLEncoder.encode(record.asPmhId, "utf-8").replaceAll("%3A", ":")}</identifier>
           <datestamp>{OaiPmhService.printDate(record.modified)}</datestamp>
           <setSpec>{set}</setSpec>
         </header>
@@ -357,7 +368,7 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
       </record>
     } catch {
       case e: Throwable =>
-        log.error("Unable to render record %s with format %s because of %s".format(record.itemId, metadataPrefix, e.getMessage), e)
+        log.error("Unable to render record %s with format %s because of %s".format(record.asPmhId, metadataPrefix, e.getMessage), e)
           <record/>
     }
     response
