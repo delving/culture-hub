@@ -53,7 +53,7 @@ trait CRUDController[Model <: CaseClass { def id: ObjectId }, D <: SalatDAO[Mode
   /**
    * Returns an empty model class, for entity creation
    */
-  def emptyModel(implicit configuration: DomainConfiguration): Model
+  def emptyModel(implicit request: RequestHeader, configuration: DomainConfiguration): Model
 
   /**
    * The DAO used to persist the domain model
