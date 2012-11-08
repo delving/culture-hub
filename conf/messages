@@ -182,6 +182,7 @@ thing.grantType=This group grants
 thing.confirmation=Are you sure?
 thing.deleteConfirmation=Are you sure you want to delete this item?
 thing.provider=Provider
+thing.measurements=Measurements
 
 thing.instant=Instant
 thing.version=Version
@@ -447,6 +448,24 @@ metadata.type.sounds=Sounds
 metadata.type.texts=Texts
 metadata.type.video=Video
 metadata.type.videos=Videos
+
+metadata.reloc.reasonForPlacement=Reden van plaatsing
+metadata.reloc.creator=Creator
+metadata.reloc.creationPlace=Place of creation
+metadata.reloc.material=Material
+metadata.reloc.length=Length
+metadata.reloc.height=Height
+metadata.reloc.width=Width
+metadata.reloc.depth=Depth
+metadata.reloc.diameter=Diameter
+metadata.reloc.condition=Condition object
+metadata.reloc.lamoCompleted=Placement time has expired (LAMO)
+metadata.reloc.lamoCompleted=Leidraad afstoting (LAMO) is doorlopen
+metadata.reloc.docsAvailable=Documentation available
+metadata.reloc.upForAuction=Place for auction
+metadata.reloc.contact=Contact person
+metadata.reloc.comments=Comments
+metadata.reloc.physicalState=Physical state
 
 #Users
 

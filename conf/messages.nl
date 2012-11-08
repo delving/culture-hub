@@ -102,6 +102,8 @@ ui.label.welcome=Welkom
 ui.label.all=Alles
 ui.label.withoutDigitalObject=Heeft geen afbeelding
 ui.label.withDigitalObject=Heeft afbeelding
+ui.label.yes=Ja
+ui.label.no=Nee
 
 ui.widget.upload.chooseFile=Bestand kiezen
 ui.widget.upload.start=Upload starten
@@ -160,6 +162,7 @@ thing.browse.of=Ontdek {0} van
 thing.browse.ownedby=Ontdek {0} van gebruiker
 thing.confirmation=Zeker weten?
 
+
 thing.address=Adress
 thing.postalCode=Postcode
 thing.place=Plaats
@@ -178,7 +181,7 @@ thing.endYear=Eind jaar
 thing.keyword=Trefwoord
 thing.keywords=Trefwoorden
 thing.relatedItems=Soortgelijke inhoud
-
+thing.measurements=Afmetingen
 
 thing.creator=Vervaardiger
 thing.datecreated=Vervaardigingsdatum
@@ -385,6 +388,23 @@ metadata.collection.fromCore=Uit kerncollectie
 metadata.collection.fromBorrowed=Uit bruikleen
 
 metadata.museum.type=Museum type
+
+metadata.reloc.reasonForPlacement=Reden van plaatsing
+metadata.reloc.creator=Vervaardiger
+metadata.reloc.creationPlace=Vervaardigingsplaats
+metadata.reloc.material=Materiaal
+metadata.reloc.length=Lengte
+metadata.reloc.height=Hoogte
+metadata.reloc.width=Breedte
+metadata.reloc.depth=Diepte
+metadata.reloc.diameter=Diameter
+metadata.reloc.condition=Conditie object
+metadata.reloc.lamoCompleted=Leidraad afstoting (LAMO) is doorlopen
+metadata.reloc.docsAvailable=Documentatie beschikbaar
+metadata.reloc.upForAuction=Plaats voor veiling
+metadata.reloc.contact=Contactpersoon
+metadata.reloc.comments=Opmerkingen
+metadata.reloc.physicalState=Fysieke staat
 
 #Users
 
