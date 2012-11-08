@@ -755,3 +755,4 @@ plugin.relocation.membersWithSupplierRights=Members with supplier rights
 plugin.relocation.manageMembers=Manage members
 plugin.relocation.import.noSheetFound=No sheet could be found!
 plugin.relocation.import.emptyCell=Required cell is empty
+plugin.relocation.import.invalidSheetFormat=The Excel Sheet could not be read
