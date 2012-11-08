@@ -61,6 +61,7 @@ ui.label.last=Last
 ui.label.lastname=Last name
 ui.label.less=Less
 ui.label.list=List
+ui.label.listAll=List all
 ui.label.load=Load
 ui.label.location=Location
 ui.label.loggedInAs=Logged in as
@@ -110,6 +111,7 @@ ui.label.website=Website
 ui.label.welcome=Welcome
 ui.label.theme=Site theme
 ui.label.identifier=Identifier
+ui.label.import=Import
 ui.label.all=All
 ui.label.withoutDigitalObject=Without digital object
 ui.label.withDigitalObject=With digital object
@@ -750,6 +752,7 @@ plugin.instant.deleteConfirmation=The associated Instant Site will no longer fun
 
 plugin.rijks.rijks=Rijkscollectie
 
+plugin.relocation.relocationItems=Relocation items
 plugin.relocation.membersWithReservationRights=Members with reservartion rights
 plugin.relocation.membersWithSupplierRights=Members with supplier rights
 plugin.relocation.manageMembers=Manage members
