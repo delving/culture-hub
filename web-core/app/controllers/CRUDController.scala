@@ -26,6 +26,8 @@ import extensions.MissingLibs
  *
  * The idea is to provide a number of generic methods handling the listing, submission (create or update), and deletion of a model.
  *
+ * TODO provide a way to override the default "name" field, which is used in the list action for deletion
+ *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 trait CRUDController[Model <: CaseClass { def id: ObjectId }, D <: SalatDAO[Model, ObjectId]] extends ControllerBase { self: OrganizationController =>
@@ -121,7 +123,7 @@ trait CRUDController[Model <: CaseClass { def id: ObjectId }, D <: SalatDAO[Mode
            fields: Seq[(String, String)] = Seq(("thing.name" -> "name")),
            additionalActions: Seq[ListAction] = Seq.empty,
            isAdmin: RequestHeader => Boolean = { Unit => true },
-           filter: Seq[(String, String)] = Seq.empty)
+           filter: Seq[(String, Any)] = Seq.empty)
           (implicit mom: Manifest[Model], mod: Manifest[D]) = OrganizationAdmin {
     Action {
       implicit request =>
@@ -186,12 +188,12 @@ trait CRUDController[Model <: CaseClass { def id: ObjectId }, D <: SalatDAO[Mode
     }
   }
 
-  def crudList(titleKey: String,
-               listTemplate: String,
-               fields: Seq[(String, String)],
-               additionalActions: Seq[ListAction],
-               isAdmin: Boolean,
-               filter: Seq[(String, String)])
+  def crudList(titleKey: String = "",
+               listTemplate: String = "organization/crudList.html",
+               fields: Seq[(String, String)] = Seq(("thing.name" -> "name")),
+               additionalActions: Seq[ListAction] = Seq.empty,
+               isAdmin: Boolean = true,
+               filter: Seq[(String, Any)] = Seq.empty)
               (implicit request: RequestHeader, configuration: DomainConfiguration,
                         mom: Manifest[Model], mod: Manifest[D]): Result = {
 
@@ -280,11 +282,15 @@ trait CRUDController[Model <: CaseClass { def id: ObjectId }, D <: SalatDAO[Mode
 
   }
 
-  def crudDelete(id: ObjectId)(implicit request: Request[AnyContent], configuration: DomainConfiguration,
+  def crudDelete(id: ObjectId, onDelete: Option[Model => Unit] = None)(implicit request: Request[AnyContent], configuration: DomainConfiguration,
                                         mom: Manifest[Model], mod: Manifest[D]): Result = {
 
     dao.findOneById(id).map { item =>
+      if(onDelete.isDefined) {
+        onDelete.get(item)
+      }
       dao.remove(item)
+
 
       if(fileUploadEnabled) {
         val files = FileStorage.getFilesForItemId(id.toString)
