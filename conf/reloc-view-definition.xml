@@ -36,6 +36,16 @@
                 <container type="list" label="metadata.dc.subject" if="/record/dc:subject">
                     <enumeration path="/record/dc:subject" />
                 </container>
+                <container label="plugin.relocation.form.measurementsInfo">
+                    <field label="metadata.reloc.height" path="/record/reloc:height" />
+                    <field label="metadata.reloc.width" path="/record/reloc:width" />
+                    <field label="metadata.reloc.length" path="/record/reloc:length" />
+                    <field label="metadata.reloc.depth" path="/record/reloc:depth" />
+                    <field label="metadata.reloc.diameter" path="/record/reloc:diameter" />
+                </container>
+                <container type="list" label="metadata.reloc.material" if="/record/reloc:material">
+                    <enumeration path="/record/reloc:material" />
+                </container>
             </column>
         </row>
     </view>
