@@ -51,7 +51,7 @@
                     downloadTemplate: _renderDownloadTemplate,
                     acceptFileTypes: /(\.|\/)(pdf|jpg|png|jpeg)$/i
                 }).bind('fileuploaddone', function (e, data) {
-                    $.post('${baseUrl}/upload/${uid}?id=${id}');
+                    $.post('${baseUrl}/upload/${uid}?id=' + viewModel._id());
                 });
 
                 $("table.files td.delete button").addClass("btn btn-danger");
