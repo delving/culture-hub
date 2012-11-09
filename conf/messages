@@ -779,6 +779,7 @@ plugin.instant.deleteConfirmation=The associated Instant Site will no longer fun
 plugin.rijks.rijks=Rijkscollectie
 
 plugin.relocation.relocationItems=Relocation items
+plugin.relocation.reservations=Reservations
 plugin.relocation.membersWithReservationRights=Members with reservartion rights
 plugin.relocation.membersWithSupplierRights=Members with supplier rights
 plugin.relocation.manageMembers=Manage members
