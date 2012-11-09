@@ -77,6 +77,8 @@ class ViewRenderer(val schema: String, viewType: ViewType, configuration: Domain
   def renderRecord(record: String, userRoles: Seq[Role], namespaces: Map[String, String], lang: Lang, parameters: Map[String, String] = Map.empty): RenderedView = {
     viewDef match {
       case Some(viewDefinition) =>
+        log.debug("Starting view rendering")
+        log.debug("Namespaces: " + namespaces.toString)
         renderRecordWithView(schema, viewType, viewDefinition, record, userRoles, namespaces, lang, parameters)
       case None => throw new RuntimeException("Could not find view definition '%s' for schema '%s'".format(viewType.name, schema))
     }
