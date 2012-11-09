@@ -7,7 +7,10 @@
                 <container id="object-media">
                     <container type="placeholder" id="object-title-big"></container>
                     <container ifNot="/record/delving:deepZoomUrl" id="image-viewer">
-                        <container if="/record/delving:thumbnail">
+                        <container if="/record/delving:imageUrl">
+                            <image path="/record/delving:imageUrl"/>
+                        </container>
+                        <container ifNot="/record/delving:imageUrl">
                             <image path="/record/delving:thumbnail"/>
                         </container>
                     </container>
