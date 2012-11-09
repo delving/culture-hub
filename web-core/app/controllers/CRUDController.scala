@@ -193,14 +193,21 @@ trait CRUDController[Model <: CaseClass { def id: ObjectId }, D <: SalatDAO[Mode
                fields: Seq[(String, String)] = Seq(("thing.name" -> "name")),
                additionalActions: Seq[ListAction] = Seq.empty,
                isAdmin: Boolean = true,
-               filter: Seq[(String, Any)] = Seq.empty)
+               filter: Seq[(String, Any)] = Seq.empty,
+               contextualizer: Option[Model => CaseClass] = None)
               (implicit request: RequestHeader, configuration: DomainConfiguration,
                         mom: Manifest[Model], mod: Manifest[D]): Result = {
 
     val items = dao.find(MongoDBObject(filter : _*)).toSeq
 
+    val contextualizedItems = if (contextualizer.isDefined) {
+      items.map(contextualizer.get)
+    } else {
+      items
+    }
+
     if (acceptsJson) {
-      Json(Map("items" -> items)).withHeaders(CACHE_CONTROL -> "no-cache")
+      Json(Map("items" -> contextualizedItems)).withHeaders(CACHE_CONTROL -> "no-cache")
     } else {
 
       Ok(
