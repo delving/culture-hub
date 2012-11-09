@@ -60,9 +60,15 @@ trait FullView extends DelvingController {
               val returnToResults = updatedSession.get(RETURN_TO_RESULTS).getOrElse("")
               val searchTerm = updatedSession.get(SEARCH_TERM).getOrElse("")
 
-              val fields = r.systemFields.get("delving_title").getOrElse(new BasicDBList).asInstanceOf[BasicDBList]
-
-              val title = if (fields.size() > 0) fields.get(0).toString else ""
+              val titleField = r.systemFields.get("delving_title")
+              val title: String = if(titleField.isDefined && titleField.isInstanceOf[BasicDBList]) {
+                val values = titleField.asInstanceOf[BasicDBList]
+                if (values.size() > 0) values.get(0).toString else ""
+              } else if(titleField.isDefined) {
+                titleField.get.headOption.getOrElse("").toString
+              } else {
+                ""
+              }
 
               renderArgs += ("breadcrumbs" -> Breadcrumbs.crumble(
                 Map(
@@ -82,6 +88,7 @@ trait FullView extends DelvingController {
               Ok(
                 Template(
                   "Search/object.html",
+                  'title -> title,
                   'systemFields -> r.systemFields,
                   'fullView -> renderedRecord.right.get.toViewTree,
                   'returnToResults -> returnToResults,
