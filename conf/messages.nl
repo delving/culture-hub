@@ -167,6 +167,7 @@ thing.browse=Ontdek {0}
 thing.browse.of=Ontdek {0} van
 thing.browse.ownedby=Ontdek {0} van gebruiker
 thing.confirmation=Zeker weten?
+thing.deleteConfirmation=Weet u zeker dat u dit object wilt verwijderen?
 
 
 thing.address=Adress
