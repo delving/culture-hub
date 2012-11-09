@@ -25,7 +25,7 @@
                 <field label="metadata.dc.title" path="/record/dc:title" />
                 <field label="metadata.dc.description" path="/record/dc:description" />
                 <field label="metadata.dc.date" path="/record/dc:date" />
-                <container type="list" label="metadata.dc.subject" if="/record/dc:creator">
+                <container type="list" label="metadata.dc.creator" if="/record/dc:creator">
                     <enumeration path="/record/dc:creator" />
                 </container>
             </column>
