@@ -82,7 +82,8 @@
             }
         };
 
-        load(location.href, viewModel, null, function () {
+        *{ this is a workaround for Chrome: https://code.google.com/p/chromium/issues/detail?id=108425 }*
+        load(location.href + '?format=json', viewModel, null, function () {
             $("body").css('visibility', 'visible');
         });
     });
