@@ -105,9 +105,15 @@ ui.label.withDigitalObject=Heeft afbeelding
 ui.label.yes=Ja
 ui.label.no=Nee
 
+ui.widget.upload.header=Foto/bestand toevoegen
 ui.widget.upload.chooseFile=Bestand kiezen
 ui.widget.upload.start=Upload starten
 ui.widget.upload.cancel=Upload annuleren
+ui.widget.upload.uploaded=Bestanden
+ui.widget.upload.thumbnail=Thumbnail
+ui.widget.upload.fileName=Bestandsnaam
+ui.widget.upload.fileSize=Bestandsgroote
+ui.widget.upload.actions=Acties
 
 # General 'thing' like object, collection or story
 thing.label=Label
@@ -661,4 +667,16 @@ plugin.advancedsearch.contains=Bevat
 plugin.advancedsearch.between=Tussen
 
 plugin.rijks.rijks=Rijkscollectie
+
+plugin.relocation.relocationItems=Heerplaatsingsobjecten
+plugin.relocation.membersWithReservationRights=Members with reservartion rights
+plugin.relocation.membersWithSupplierRights=Members with supplier rights
+plugin.relocation.manageMembers=Manage members
+plugin.relocation.import.noSheetFound=No sheet could be found!
+plugin.relocation.import.emptyCell=Required cell is empty
+plugin.relocation.import.invalidSheetFormat=The Excel Sheet could not be read
+plugin.relocation.form.basicInfo=Basis informatie
+plugin.relocation.form.creatorInfo=Vervaardiger informatie
+plugin.relocation.form.measurementsInfo=Afmetingen
+plugin.relocation.form.extraInfo=Extra informatie
 

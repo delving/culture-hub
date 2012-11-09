@@ -118,9 +118,15 @@ ui.label.withDigitalObject=With digital object
 ui.label.yes=Yes
 ui.label.no=No
 
+ui.widget.upload.header=Image/document upload
 ui.widget.upload.chooseFile=Choose file
 ui.widget.upload.start=Start upload
 ui.widget.upload.cancel=Cancel upload
+ui.widget.upload.uploaded=Uploaded files
+ui.widget.upload.thumbnail=Thumbnail
+ui.widget.upload.fileName=File name
+ui.widget.upload.fileSize=File size
+ui.widget.upload.actions=Actions
 
 # General 'thing' like object, collection or story
 thing.label=Label
@@ -467,6 +473,7 @@ metadata.reloc.contact=Contact person
 metadata.reloc.comments=Comments
 metadata.reloc.physicalState=Physical state
 
+
 #Users
 
 ##Index
@@ -778,3 +785,7 @@ plugin.relocation.manageMembers=Manage members
 plugin.relocation.import.noSheetFound=No sheet could be found!
 plugin.relocation.import.emptyCell=Required cell is empty
 plugin.relocation.import.invalidSheetFormat=The Excel Sheet could not be read
+plugin.relocation.form.basicInfo=Basic information
+plugin.relocation.form.creatorInfo=Creator information
+plugin.relocation.form.measurementsInfo=Dimensions
+plugin.relocation.form.extraInfo=Extra information
