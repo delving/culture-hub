@@ -194,7 +194,8 @@ trait CRUDController[Model <: CaseClass { def id: ObjectId }, D <: SalatDAO[Mode
                additionalActions: Seq[ListAction] = Seq.empty,
                isAdmin: Boolean = true,
                filter: Seq[(String, Any)] = Seq.empty,
-               contextualizer: Option[Model => CaseClass] = None)
+               contextualizer: Option[Model => CaseClass] = None,
+               customViewLink: Option[String] = None)
               (implicit request: RequestHeader, configuration: DomainConfiguration,
                         mom: Manifest[Model], mod: Manifest[D]): Result = {
 
@@ -206,6 +207,12 @@ trait CRUDController[Model <: CaseClass { def id: ObjectId }, D <: SalatDAO[Mode
       items
     }
 
+    val viewLink = if (customViewLink.isDefined) {
+      customViewLink.get
+    } else {
+      baseUrl + "/_id_"
+    }
+
     if (acceptsJson) {
       Json(Map("items" -> contextualizedItems)).withHeaders(CACHE_CONTROL -> "no-cache")
     } else {
@@ -215,6 +222,7 @@ trait CRUDController[Model <: CaseClass { def id: ObjectId }, D <: SalatDAO[Mode
           listTemplate,
           'titleKey -> title(titleKey),
           'menuKey -> menuKey.getOrElse(""),
+          'viewLink -> viewLink,
           'columnLabels -> fields.map(_._1),
           'columnFields -> fields.map(_._2),
           'additionalActions -> additionalActions.asJava,
@@ -336,7 +344,12 @@ trait CRUDController[Model <: CaseClass { def id: ObjectId }, D <: SalatDAO[Mode
                   "(?<=[A-Za-z])(?=[^A-Za-z])"), " ")
 
 
-
+  /**
+   *
+   * @param actionType
+   * @param labelKey
+   * @param url
+   */
   case class ListAction(actionType: String, labelKey: String, url: String)
 
 }

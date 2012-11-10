@@ -20,7 +20,7 @@
                #{list columnFields, as: 'field'}
                <td>
                    #{if field_isFirst}
-                       <a data-bind="attr: {href: location.href + '/' + id()}"><span class="item-title" data-bind="text: ${field}"></span></a>
+                       <a data-bind="attr: { href: '${viewLink}'.replace('_id_', $data.id()) }"><span class="item-title" data-bind="text: ${field}"></span></a>
                    #{/if}
                    #{else}
                        <span data-bind="text: ${field}"></span>
