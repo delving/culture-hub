@@ -205,7 +205,7 @@ thing.contact=Contact
 thing.url=URL
 thing.missionStatement=Mission statement
 thing.contactName=Contact name
-think.contactEmail=Contact email
+thing.contactEmail=Contact email
 thing.startYear=Start year
 thing.endYear=End year
 thing.keyword=Keyword
@@ -472,6 +472,7 @@ metadata.reloc.upForAuction=Place for auction
 metadata.reloc.contact=Contact person
 metadata.reloc.comments=Comments
 metadata.reloc.physicalState=Physical state
+metadata.reloc.identifier=Inventory number
 
 
 #Users

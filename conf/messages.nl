@@ -182,7 +182,7 @@ thing.contact=Contact
 thing.url=URL
 thing.missionStatement=Mission statement
 thing.contactName=Contact naam
-think.contactEmail=Contact email
+thing.contactEmail=Contact email
 thing.startYear=Start jaar
 thing.endYear=Eind jaar
 thing.keyword=Trefwoord
@@ -412,6 +412,7 @@ metadata.reloc.upForAuction=Plaats voor veiling
 metadata.reloc.contact=Contactpersoon
 metadata.reloc.comments=Opmerkingen
 metadata.reloc.physicalState=Fysieke staat
+metadata.reloc.identifier=Inventarisnummer
 
 #Users
 
