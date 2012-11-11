@@ -781,6 +781,13 @@ plugin.rijks.rijks=Rijkscollectie
 
 plugin.relocation.relocationItems=Relocation items
 plugin.relocation.reservations=Reservations
+plugin.relocation.madeReservations=Placed reservations
+plugin.relocation.incomingReservations=Incoming reservations
+plugin.relocation.listMadeReservations=List made reservations
+plugin.relocation.listIncomingReservations=List incoming reservations
+plugin.relocation.reservingOrganization=Reserving organization
+plugin.relocation.owningOrganization=Owning organization
+plugin.relocation.makeReservation=Make reservation
 plugin.relocation.membersWithReservationRights=Members with reservartion rights
 plugin.relocation.membersWithSupplierRights=Members with supplier rights
 plugin.relocation.manageMembers=Manage members
