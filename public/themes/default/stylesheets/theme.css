@@ -55,10 +55,6 @@ a:hover {
   background: #a5cbe4;
   height: 44px;
 }
-.search-bar form {
-  margin: 0;
-  float: left;
-}
 .site-navigation {
   background: #eeeeee;
   height: 50px;
@@ -111,25 +107,30 @@ a:hover {
 #footer a {
   color: #ffffff;
 }
-@media (max-width: 767px) {
-  body {
-    padding: 0;
-  }
-  .navbar-fixed-top {
-    margin-bottom: 0px;
+/* Large desktop */
+@media (min-width: 1200px) {
+  .search-bar {
+    float: right;
   }
 }
+@media (max-width: 1199px) {
+  .search-bar {
+    clear: both;
+    float: left;
+    margin-bottom: 11px;
+  }
+}
+/* Portrait tablet to landscape and desktop */
 @media (min-width: 768px) and (max-width: 979px) {
-  body {
-    padding: 0;
+  .search-bar {
+    float: left;
   }
-  .container {
-    width: 96%;
-  }
-  .page-top .container {
-    width: 100%;
-  }
-  .navbar-fixed-top {
-    margin-bottom: 0px;
-  }
+}
+/* Landscape phone to portrait tablet */
+@media (max-width: 767px) {
+  
+}
+/* Landscape phones and down */
+@media (max-width: 480px) {
+  
 }
