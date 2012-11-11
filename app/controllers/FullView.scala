@@ -60,6 +60,9 @@ trait FullView extends DelvingController {
               val returnToResults = updatedSession.get(RETURN_TO_RESULTS).getOrElse("")
               val searchTerm = updatedSession.get(SEARCH_TERM).getOrElse("")
 
+              // TODO what follows is a hack to compensate for Salat not retrieving nested Seq's correctly
+              // TODO SystemFields should be replaced by a case class
+
               val titleField = r.systemFields.get("delving_title")
               val title: String = if(titleField.isDefined && titleField.isInstanceOf[BasicDBList]) {
                 val values = titleField.asInstanceOf[BasicDBList]
@@ -85,6 +88,12 @@ trait FullView extends DelvingController {
               val returnToPreviousLink = returnToPrevious.map(_._1).getOrElse("")
               val returnToPreviousLabel = returnToPrevious.map(l => Messages(l._2)).getOrElse("")
 
+              val snippets: Seq[(String, Unit)] = CultureHubPlugin.getEnabledPlugins.flatMap { plugin =>
+                plugin.fullViewSnippet.map { snippet =>
+                  (snippet._1 -> snippet._2(RequestContext(request, configuration, renderArgs, getLang), hubId))
+                }
+              }
+
               Ok(
                 Template(
                   "Search/object.html",
@@ -97,7 +106,8 @@ trait FullView extends DelvingController {
                   'orgId -> orgId,
                   'hubId -> hubId,
                   'rights -> r.parameters.get("rights").getOrElse(""),
-                  'hasRelatedRecords -> r.hasRelatedItems
+                  'hasRelatedRecords -> r.hasRelatedItems,
+                  'pluginIncludes -> snippets.map(_._1)
                 )
               ).withSession(updatedSession)
 
