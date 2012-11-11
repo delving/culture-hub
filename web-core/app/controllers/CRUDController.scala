@@ -127,7 +127,7 @@ trait CRUDController[Model <: CaseClass { def id: ObjectId }, D <: SalatDAO[Mode
           (implicit mom: Manifest[Model], mod: Manifest[D]) = OrganizationAdmin {
     Action {
       implicit request =>
-        crudList(titleKey, listTemplate, fields, additionalActions, isAdmin(request), filter)
+        crudList(titleKey, listTemplate, fields, true, true, true, additionalActions, isAdmin(request), filter)
 
     }
   }
@@ -191,11 +191,14 @@ trait CRUDController[Model <: CaseClass { def id: ObjectId }, D <: SalatDAO[Mode
   def crudList(titleKey: String = "",
                listTemplate: String = "organization/crudList.html",
                fields: Seq[(String, String)] = Seq(("thing.name" -> "name")),
+               createActionEnabled: Boolean = true,
+               editActionEnabled: Boolean = true,
+               deleteActionEnabled: Boolean = true,
                additionalActions: Seq[ListAction] = Seq.empty,
                isAdmin: Boolean = true,
                filter: Seq[(String, Any)] = Seq.empty,
                contextualizer: Option[Model => CaseClass] = None,
-               customViewLink: Option[String] = None)
+               customViewLink: Option[(String, Seq[String])] = None)
               (implicit request: RequestHeader, configuration: DomainConfiguration,
                         mom: Manifest[Model], mod: Manifest[D]): Result = {
 
@@ -207,10 +210,10 @@ trait CRUDController[Model <: CaseClass { def id: ObjectId }, D <: SalatDAO[Mode
       items
     }
 
-    val viewLink = if (customViewLink.isDefined) {
+    val (viewLink, viewLinkParams) = if (customViewLink.isDefined) {
       customViewLink.get
     } else {
-      baseUrl + "/_id_"
+      (baseUrl + "/_id_", Seq("id"))
     }
 
     if (acceptsJson) {
@@ -223,8 +226,12 @@ trait CRUDController[Model <: CaseClass { def id: ObjectId }, D <: SalatDAO[Mode
           'titleKey -> title(titleKey),
           'menuKey -> menuKey.getOrElse(""),
           'viewLink -> viewLink,
+          'viewLinkParams -> viewLinkParams,
           'columnLabels -> fields.map(_._1),
           'columnFields -> fields.map(_._2),
+          'createActionEnabled -> createActionEnabled,
+          'editActionEnabled -> editActionEnabled,
+          'deleteActionEnabled -> deleteActionEnabled,
           'additionalActions -> additionalActions.asJava,
           'isAdmin -> isAdmin
         )
@@ -344,12 +351,6 @@ trait CRUDController[Model <: CaseClass { def id: ObjectId }, D <: SalatDAO[Mode
                   "(?<=[A-Za-z])(?=[^A-Za-z])"), " ")
 
 
-  /**
-   *
-   * @param actionType
-   * @param labelKey
-   * @param url
-   */
-  case class ListAction(actionType: String, labelKey: String, url: String)
+  case class ListAction(actionType: String = "link", actionClass: String = "edit", labelKey: String, url: String, urlFields: Seq[String] = Seq("id"))
 
 }

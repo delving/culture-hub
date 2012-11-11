@@ -20,7 +20,7 @@
                #{list columnFields, as: 'field'}
                <td>
                    #{if field_isFirst}
-                       <a data-bind="attr: { href: '${viewLink}'.replace('_id_', $data.id()) }"><span class="item-title" data-bind="text: ${field}"></span></a>
+                       <a data-bind="attr: { href: '${viewLink}'#{list viewLinkParams, as: 'p'}.replace('_${p}_', $data.${p}())#{/list} }"><span class="item-title" data-bind="text: ${field}"></span></a>
                    #{/if}
                    #{else}
                        <span data-bind="text: ${field}"></span>
@@ -29,15 +29,19 @@
                #{/list}
                <td>
                    #{list additionalActions, as: 'action'}
-                       <a class="btn btn-primary btn-mini" href="#" data-bind="attr: { href: '\${action.url}'.replace('_id_', $data.id()).replace('_orgId_', '${orgId}' ) }" rel="nofollow"><i class="icon-${action.actionType} icon-white"></i> &{action.labelKey}</a>
+                       <a class="btn btn-primary btn-mini" href="#" data-bind="attr: { href: '\${action.url}'#{list action.urlFields, as: 'field'}.replace('_${field}_', $data.${field}())#{/list}.replace('_orgId_', '${orgId}' ) }" rel="nofollow"><i class="icon-${action.actionClass} icon-white"></i> &{action.labelKey}</a>
                    #{/list}
                    #{if isAdmin}
+                   #{if editActionEnabled}
                    <a class="btn btn-primary btn-mini" href="#" data-bind="click: function() { $parent.update($data) }" rel="nofollow">
                        <i class="icon-edit icon-white"></i> &{'ui.label.edit'}
                    </a>
+                   #{/if}
+                   #{if deleteActionEnabled}
                    <a class="btn btn-danger btn-mini pull-right delete" href="#" data-bind="click: function() { $parent.delete($data) }" rel="nofollow">
                        <i class="icon-trash icon-white"></i> &{'ui.label.delete'}
                    </a>
+                   #{/if}
                    #{/if}
                 </td>
             </tr>
@@ -46,11 +50,13 @@
             <!-- ko ifnot: items().length > 0 -->
             <tbody>
             <tr>
-                <td colspan="2">
+                <td colspan="${columnFields.length() + 1}">
                     No items
                 </td>
                 <td>
+                    #{if createActionEnabled}
                     <a class="btn btn-primary btn-mini" href="${request.uri()}/add" rel="nofollow">${messages.get('ui.label.new')}</a>
+                    #{/if}
                 </td>
             </tr>
             </tbody>
@@ -82,7 +88,7 @@
             }
         };
 
-        *{ this is a workaround for Chrome: https://code.google.com/p/chromium/issues/detail?id=108425 }*
+        *{ the format parameter is a workaround for Chrome: https://code.google.com/p/chromium/issues/detail?id=108425 }*
         load(location.href + '?format=json', viewModel, null, function () {
             $("body").css('visibility', 'visible');
         });
