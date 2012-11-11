@@ -128,7 +128,13 @@ a:hover {
 }
 /* Landscape phone to portrait tablet */
 @media (max-width: 767px) {
-  
+  [class*="span"],
+  .row-fluid [class*="span"] {
+    display: block;
+    float: left;
+    width: 100%;
+    margin-left: 0;
+  }
 }
 /* Landscape phones and down */
 @media (max-width: 480px) {
