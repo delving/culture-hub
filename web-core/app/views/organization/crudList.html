@@ -1,17 +1,32 @@
 #{extends "organization/crudHeader.html" /}
 #{set 'visibility'}hidden#{/set}
+#{set 'moreScripts'}
+<script src="@{routes.Assets.at("common/javascripts/jquery.tablesorter.min.js")}"></script>
+<script src="@{routes.Assets.at("common/javascripts/jquery.uitablefilter.js")}"></script>
+#{/set}
+
+<div class="dataset-filter row">
+    <div class="dataset-filter-inner span12">
+        <form id="filter-form" class="form-inline pull-left form-search">
+            <input type='text' name='filter' id='filter' maxlength="30" size="30" class="search-query" placeholder="&{'org.list.filter'}"/>
+            <input onclick="saveFilter()" class="btn" type="button" value="&{'ui.label.save'}"/>
+            <input onclick="resetFilter()" class="btn" type="reset" value="&{'ui.label.reset'}"/>
+            <a class="icon icon-question-sign extHelp" href="#" rel="tooltip" title="Type in any dataset value(s) to filter the table. Press 'Save' to save the filter."></a>
+        </form>
+    </div>
+</div>
 
 <div class="row">
     <div class="span12">
 
-        <table class="table table-striped">
+        <table class="table crud-list-table table-striped sortable">
             <caption>&{titleKey}</caption>
             <thead>
             <tr>
                 #{list columnLabels, as: 'label'}
-                <th>&{label}</th>
+                <th class="sort">&{label}</th>
                 #{/list}
-                <th width="25%">&{'thing.actions'}</th>
+                <th width="160">&{'thing.actions'}</th>
             </tr>
             </thead>
             <!-- ko if: items().length > 0 -->
@@ -88,9 +103,43 @@
             }
         };
 
+        var theTable = $('table.sortable'), tableCookie = "${titleKey}"+"-table";
+
+        // table filtering functionality
+        theTable.find("tbody > tr").find("td:eq(1)").mousedown(function () {
+            $(this).prev().find(":checkbox").click();
+        });
+
+        $("#filter").keyup(function () {
+            $.uiTableFilter(theTable, this.value);
+        });
+
+        $('#filter-form').submit(
+                function () {
+                    theTable.find("tbody > tr:visible > td:eq(1)").mousedown();
+                    return false;
+                }).focus(); //Give focus to input field
+
         *{ the format parameter is a workaround for Chrome: https://code.google.com/p/chromium/issues/detail?id=108425 }*
         load(location.href + '?format=json', viewModel, null, function () {
             $("body").css('visibility', 'visible');
+            theTable.tablesorter();
+            // Check to see if there is a filter cookie. If so filter the table
+            if ($.cookie(tableCookie)) {
+                $.uiTableFilter(theTable, $.cookie(tableCookie));
+                $('input#filter').val($.cookie(tableCookie));
+            }
         });
+
+        resetFilter = function () {
+            $.uiTableFilter(theTable, '');
+            $('input#filter').val('');
+            $.cookie(tableCookie, null);
+        }
+
+        saveFilter = function () {
+            $.cookie(tableCookie,$('input#filter').val(),"/");
+        }
+
     });
 </script>
