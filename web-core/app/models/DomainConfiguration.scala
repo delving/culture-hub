@@ -115,7 +115,8 @@ case class UserInterfaceConfiguration(
   addThisTrackingCode:         Option[String],
   googleAnalyticsTrackingCode: Option[String],
   showLogin:                   Boolean,
-  showRegistration:            Boolean
+  showRegistration:            Boolean,
+  showAllObjects:              Boolean
 )
 
 case class CommonsServiceConfiguration(
@@ -381,7 +382,8 @@ object DomainConfiguration {
                   addThisTrackingCode = configuration.getString("ui.addThisTrackingCode").orElse(None),
                   googleAnalyticsTrackingCode = configuration.getString("ui.googleAnalyticsTrackingCode").orElse(None),
                   showLogin = configuration.getBoolean("ui.showLogin").getOrElse(false),
-                  showRegistration =  configuration.getBoolean("ui.showRegistration").getOrElse(false)
+                  showRegistration =  configuration.getBoolean("ui.showRegistration").getOrElse(false),
+                  showAllObjects =  configuration.getBoolean("ui.showAllObjects").getOrElse(false)
                 ),
                 emailTarget = {
                   EmailTarget(
