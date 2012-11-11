@@ -147,13 +147,14 @@ case class DirectoryServiceConfiguration(
 )
 
 case class SearchServiceConfiguration(
-  hiddenQueryFilter:           String,
-  facets:                      String, // dc_creator:crea:Creator,dc_type
-  sortFields:                  String, // dc_creator,dc_provider:desc
-  moreLikeThis:                MoreLikeThis,
-  searchIn:                    Map[String, String],
-  apiWsKey:                    Boolean = false,
-  pageSize:                    Int
+  hiddenQueryFilter:            String,
+  facets:                       String, // dc_creator:crea:Creator,dc_type
+  sortFields:                   String, // dc_creator,dc_provider:desc
+  moreLikeThis:                 MoreLikeThis,
+  searchIn:                     Map[String, String],
+  apiWsKey:                     Boolean = false,
+  pageSize:                     Int,
+  showResultsWithoutThumbnails: Boolean = false
 )
 
 /** See http://wiki.apache.org/solr/MoreLikeThis **/
@@ -218,6 +219,7 @@ object DomainConfiguration {
   val SEARCH_MORELIKETHIS = "services.search.moreLikeThis"
   val SEARCH_SEARCHIN = "services.search.searchIn"
   val SEARCH_PAGE_SIZE = "services.search.pageSize"
+  val SHOW_ITEMS_WITHOUT_THUMBNAIL = "services.search.showItemsWithoutThumbnail"
 
   val OAI_REPO_NAME = "services.pmh.repositoryName"
   val OAI_ADMIN_EMAIL = "services.pmh.adminEmail"
@@ -364,7 +366,8 @@ object DomainConfiguration {
                       )
                     }
                   },
-                  pageSize = getOptionalInt(configuration, SEARCH_PAGE_SIZE).getOrElse(20)
+                  pageSize = getOptionalInt(configuration, SEARCH_PAGE_SIZE).getOrElse(20),
+                  showResultsWithoutThumbnails = getOptionalBoolean(configuration, SHOW_ITEMS_WITHOUT_THUMBNAIL).getOrElse(false)
                 ),
                 plugins = configuration.underlying.getStringList(PLUGINS).asScala.toSeq,
                 schemas = configuration.underlying.getStringList(SCHEMAS).asScala.toList,
@@ -581,6 +584,9 @@ object DomainConfiguration {
 
   private def getBoolean(configuration: Configuration, key: String): Boolean =
     configuration.getBoolean(key).getOrElse(Play.configuration.getBoolean(key).get)
+
+  private def getOptionalBoolean(configuration: Configuration, key: String): Option[Boolean] =
+    configuration.getBoolean(key).orElse(Play.configuration.getBoolean(key))
 
 }
 
