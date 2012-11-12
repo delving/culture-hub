@@ -64,11 +64,11 @@ trait FullView extends DelvingController {
               // TODO SystemFields should be replaced by a case class
 
               val titleField = r.systemFields.get("delving_title")
-              val title: String = if(titleField.isDefined && titleField.isInstanceOf[BasicDBList]) {
-                val values = titleField.asInstanceOf[BasicDBList]
-                if (values.size() > 0) values.get(0).toString else ""
+              val title: String = if(titleField.isDefined && titleField.get.isInstanceOf[scala.collection.immutable.List[String]]) {
+                titleField.get.headOption.getOrElse("")
               } else if(titleField.isDefined) {
-                titleField.get.headOption.getOrElse("").toString
+                val values = titleField.get.asInstanceOf[BasicDBList]
+                if (values.size() > 0) values.get(0).toString else ""
               } else {
                 ""
               }
