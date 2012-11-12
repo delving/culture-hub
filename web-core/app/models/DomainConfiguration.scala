@@ -49,6 +49,7 @@ case class DomainConfiguration(
   ui:                          UserInterfaceConfiguration,
 
   // ~~~ access control
+  registeredUsersAddedToOrg:   Boolean = false,
   roles:                       Seq[Role],
 
   // ~~~ search
@@ -201,6 +202,8 @@ object DomainConfiguration {
   val COMMONS_API_TOKEN = "services.commons.apiToken"
 
   val PROVIDER_DIRECTORY_URL = "services.directory.providerDirectoryUrl"
+
+  val REGISTRATION_USERS_ADDED_TO_ORG = "registration.registeredUsersAddedToOrganization"
 
   val FILESTORE_DATABASE = "services.dos.fileStoreDatabase"
   val IMAGE_CACHE_DATABASE = "services.dos.imageCacheDatabase"
@@ -406,7 +409,8 @@ object DomainConfiguration {
                       Role(roleKey, roleDescriptions)
                     }
                   }.toSeq
-                }.getOrElse(Seq.empty)
+                }.getOrElse(Seq.empty),
+                registeredUsersAddedToOrg = getOptionalBoolean(configuration, REGISTRATION_USERS_ADDED_TO_ORG).getOrElse(false)
               )
             )
           }
