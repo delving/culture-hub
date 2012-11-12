@@ -18,14 +18,13 @@ package controllers.dos
 
 import play.api.mvc._
 import com.mongodb.casbah.Imports._
-import com.mongodb.gridfs.GridFSFile
 import org.bson.types.ObjectId
 import extensions.Extensions
 import java.io.File
 import play.api.libs.MimeTypes
 import models.DomainConfiguration
 import controllers.DomainConfigurationAware
-import core.storage.{StoredFile, FileUploadResponse, FileStorage}
+import core.storage.{FileUploadResponse, FileStorage}
 
 /**
  *
