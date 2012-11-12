@@ -19,6 +19,7 @@ import scala.Some
 import scala.Right
 import net.liftweb.json.JsonAST.JField
 import extensions.MissingLibs
+import play.api.i18n.Messages
 
 
 /**
@@ -343,7 +344,7 @@ trait CRUDController[Model <: CaseClass { def id: ObjectId }, D <: SalatDAO[Mode
   private def title(titleKey: String)(implicit mom: Manifest[Model]) = if (titleKey.isEmpty) {
     splitCamelCase(className) + "s"
   } else {
-    titleKey
+    Messages(titleKey)
   }
 
   private def className(implicit mom: Manifest[Model]) = mom.erasure.getName.split("\\.").lastOption.getOrElse(mom.erasure.getName)

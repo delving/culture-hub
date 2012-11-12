@@ -20,7 +20,7 @@
     <div class="span12">
 
         <table class="table crud-list-table table-striped sortable">
-            <caption>&{titleKey}</caption>
+            <caption>${titleKey}</caption>
             <thead>
             <tr>
                 #{list columnLabels, as: 'label'}
@@ -121,7 +121,8 @@
                 }).focus(); //Give focus to input field
 
         *{ the format parameter is a workaround for Chrome: https://code.google.com/p/chromium/issues/detail?id=108425 }*
-        load(location.href + '?format=json', viewModel, null, function () {
+        var link = location.href + (location.href.indexOf('?') > -1 ? '&format=json' : '?format=json');
+        load(link, viewModel, null, function () {
             $("body").css('visibility', 'visible');
             theTable.tablesorter();
             // Check to see if there is a filter cookie. If so filter the table
