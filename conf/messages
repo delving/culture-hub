@@ -507,6 +507,7 @@ org.list.grantType.modify=with rights to modify
 org.list.grantType.own=with full access to everything
 org.list.dataSetCount={0} Dataset(s)
 org.list.filter=Type here to narrow down the list
+org.list.filterHelp=Type in any value(s) to filter the list. Press 'Save' to save the filter. Press 'Reset' to remove the filter.
 
 org.group.grantType.view=Dataset view rights
 org.group.grantType.modify=Dataset modification rights
@@ -789,7 +790,7 @@ plugin.relocation.listMadeReservations=List made reservations
 plugin.relocation.listIncomingReservations=List incoming reservations
 plugin.relocation.reservingOrganization=Reserving organization
 plugin.relocation.owningOrganization=Owning organization
-plugin.relocation.makeReservation=Make reservation
+plugin.relocation.makeReservation=Reserve this object
 plugin.relocation.membersWithReservationRights=Members with reservartion rights
 plugin.relocation.membersWithSupplierRights=Members with supplier rights
 plugin.relocation.manageMembers=Manage members

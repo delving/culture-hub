@@ -11,7 +11,7 @@
             <input type='text' name='filter' id='filter' maxlength="30" size="30" class="search-query" placeholder="&{'org.list.filter'}"/>
             <input onclick="saveFilter()" class="btn" type="button" value="&{'ui.label.save'}"/>
             <input onclick="resetFilter()" class="btn" type="reset" value="&{'ui.label.reset'}"/>
-            <a class="icon icon-question-sign extHelp" href="#" rel="tooltip" title="Type in any dataset value(s) to filter the table. Press 'Save' to save the filter."></a>
+            <a class="icon icon-question-sign extHelp" href="#" rel="tooltip" title="&{'org.list.filterHelp'}"></a>
         </form>
     </div>
 </div>
@@ -26,7 +26,7 @@
                 #{list columnLabels, as: 'label'}
                 <th class="sort">&{label}</th>
                 #{/list}
-                <th width="280">&{'thing.actions'}</th>
+                <th>&{'thing.actions'}</th>
             </tr>
             </thead>
             <!-- ko if: items().length > 0 -->

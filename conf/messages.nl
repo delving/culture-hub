@@ -69,6 +69,7 @@ ui.label.overview=Overzicht
 ui.label.options=Opties
 ui.label.password=Wachtwoord
 ui.label.passwordrepeat=Wachtwoord (herhalen)
+ui.label.place=Plaats
 ui.label.places=Plaatsen
 ui.label.poweredby=Powered by DELVING.EU
 ui.label.preview=Voorbeeld
@@ -461,7 +462,8 @@ org.list.grantType.view=with rights to view
 org.list.grantType.modify=with rights to modify
 org.list.grantType.own=with full access to everything
 org.list.dataSetCount={0} Dataset(s)
-org.list.filter=Type hier om de lijst te filteren
+org.list.filter=Typ hier om de lijst te filteren
+org.list.filterHelp=Typ in een waarde om de lijst te filteren. Klik 'Bewaar' om de filter te bewaren. Klik op 'Herstel' om de filter te verwijderen.
 
 org.group.grantType.view=View rights
 org.group.grantType.modify=Modification rights
@@ -669,6 +671,21 @@ plugin.advancedsearch.contains=Bevat
 plugin.advancedsearch.between=Tussen
 
 plugin.rijks.rijks=Rijkscollectie
+
+
+
+
+plugin.relocation.relocationItemsOfOrganization=Relocation items of {0}
+plugin.relocation.listRelocationItems=Relocatie objecten
+plugin.relocation.reservations=Reserveringen
+plugin.relocation.madeReservations=Geplaatste reserveringen
+plugin.relocation.incomingReservations=Inkomende reserveringen
+plugin.relocation.listMadeReservations=Geplaatste reserveringen
+plugin.relocation.listIncomingReservations=Inkomende reserveringen
+plugin.relocation.reservingOrganization=Reserverende organisatie
+plugin.relocation.owningOrganization=Beheerende organisatie
+plugin.relocation.makeReservation=Reserveer dit object
+
 
 plugin.relocation.relocationItems=Heerplaatsingsobjecten
 plugin.relocation.membersWithReservationRights=Members with reservartion rights
