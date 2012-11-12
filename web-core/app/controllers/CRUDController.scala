@@ -224,7 +224,7 @@ trait CRUDController[Model <: CaseClass { def id: ObjectId }, D <: SalatDAO[Mode
         Template(
           listTemplate,
           'titleKey -> title(titleKey),
-          'menuKey -> menuKey.getOrElse(""),
+          'menuKey -> menuKey,
           'viewLink -> viewLink,
           'viewLinkParams -> viewLinkParams,
           'columnLabels -> fields.map(_._1),
@@ -258,7 +258,13 @@ trait CRUDController[Model <: CaseClass { def id: ObjectId }, D <: SalatDAO[Mode
         data(item)
       }.getOrElse {
         Seq.empty
-      } ++ Seq('baseUrl -> baseUrl, 'data -> json, 'fileUploadEnabled -> fileUploadEnabled.asInstanceOf[AnyRef], 'uid -> MissingLibs.UUID) ++ item.map(it => Seq('id -> it.id)).getOrElse(Seq.empty)
+      } ++ Seq(
+        'baseUrl -> baseUrl,
+        'menuKey -> menuKey,
+        'data -> json,
+        'fileUploadEnabled -> fileUploadEnabled.asInstanceOf[AnyRef],
+        'uid -> MissingLibs.UUID) ++
+        item.map(it => Seq('id -> it.id)).getOrElse(Seq.empty)
     }
 
     def serializeToJson(item: Model, isCreated: Boolean): String = {
