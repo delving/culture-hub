@@ -28,7 +28,7 @@ trait Groups extends OrganizationController { this: BoundController =>
   def list(orgId: String) = OrganizationMember {
     Action {
       implicit request =>
-        val groups = Group.dao.list(userName, orgId).map { group =>
+        val groups = Group.dao.list(userName, orgId).filterNot(_.isSystemGroup).map { group =>
           GroupListModel(
             id = group._id.toString,
             name = group.name,
