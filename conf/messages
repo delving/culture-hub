@@ -801,3 +801,7 @@ plugin.relocation.form.basicInfo=Basic information
 plugin.relocation.form.creatorInfo=Creator information
 plugin.relocation.form.measurementsInfo=Dimensions
 plugin.relocation.form.extraInfo=Extra information
+plugin.relocation.archive=Archive
+plugin.relocation.archiveConfirmation=Are you sure you want to archive this item?
+plugin.relocation.listArchived=List archived
+plugin.relocation.listAllArchived=List all archived
