@@ -128,7 +128,7 @@ trait CRUDController[Model <: CaseClass { def id: ObjectId }, D <: SalatDAO[Mode
           (implicit mom: Manifest[Model], mod: Manifest[D]) = OrganizationAdmin {
     Action {
       implicit request =>
-        crudList(titleKey, listTemplate, fields, true, true, true, additionalActions, isAdmin(request), filter)
+        crudList(titleKey, listTemplate, fields, true, true, true, Seq.empty, additionalActions, isAdmin(request), filter)
 
     }
   }
@@ -195,6 +195,7 @@ trait CRUDController[Model <: CaseClass { def id: ObjectId }, D <: SalatDAO[Mode
                createActionEnabled: Boolean = true,
                editActionEnabled: Boolean = true,
                deleteActionEnabled: Boolean = true,
+               additionalTemplateData: Seq[(Symbol, AnyRef)] = Seq.empty,
                additionalActions: Seq[ListAction] = Seq.empty,
                isAdmin: Boolean = true,
                filter: Seq[(String, Any)] = Seq.empty,
@@ -224,17 +225,19 @@ trait CRUDController[Model <: CaseClass { def id: ObjectId }, D <: SalatDAO[Mode
       Ok(
         Template(
           listTemplate,
-          'titleKey -> title(titleKey),
-          'menuKey -> menuKey,
-          'viewLink -> viewLink,
-          'viewLinkParams -> viewLinkParams,
-          'columnLabels -> fields.map(_._1),
-          'columnFields -> fields.map(_._2),
-          'createActionEnabled -> createActionEnabled,
-          'editActionEnabled -> editActionEnabled,
-          'deleteActionEnabled -> deleteActionEnabled,
-          'additionalActions -> additionalActions.asJava,
-          'isAdmin -> isAdmin
+          (Seq(
+            'titleKey -> title(titleKey),
+            'menuKey -> menuKey,
+            'viewLink -> viewLink,
+            'viewLinkParams -> viewLinkParams,
+            'columnLabels -> fields.map(_._1),
+            'columnFields -> fields.map(_._2),
+            'createActionEnabled -> createActionEnabled,
+            'editActionEnabled -> editActionEnabled,
+            'deleteActionEnabled -> deleteActionEnabled,
+            'additionalActions -> additionalActions.asJava,
+            'isAdmin -> isAdmin,
+            'baseUrl -> baseUrl) ++ additionalTemplateData) :_*
         )
       )
     }

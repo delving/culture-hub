@@ -1,146 +1,31 @@
-#{extends "organization/crudHeader.html" /}
-#{set 'visibility'}hidden#{/set}
-#{set 'moreScripts'}
-<script src="@{routes.Assets.at("common/javascripts/jquery.tablesorter.min.js")}"></script>
-<script src="@{routes.Assets.at("common/javascripts/jquery.uitablefilter.js")}"></script>
-#{/set}
+#{extends "organization/crudListBody.html" /}
 
-<div class="dataset-filter row">
-    <div class="dataset-filter-inner span12">
-        <form id="filter-form" class="form-inline pull-left form-search">
-            <input type='text' name='filter' id='filter' maxlength="30" size="30" class="search-query" placeholder="&{'org.list.filter'}"/>
-            <input onclick="saveFilter()" class="btn" type="button" value="&{'ui.label.save'}"/>
-            <input onclick="resetFilter()" class="btn" type="reset" value="&{'ui.label.reset'}"/>
-            <a class="icon icon-question-sign extHelp" href="#" rel="tooltip" title="&{'org.list.filterHelp'}"></a>
-        </form>
-    </div>
-</div>
-
-<div class="row">
-    <div class="span12">
-
-        <table class="table crud-list-table table-striped sortable">
-            <caption>${titleKey}</caption>
-            <thead>
-            <tr>
-                #{list columnLabels, as: 'label'}
-                <th class="sort">&{label}</th>
-                #{/list}
-                <th>&{'thing.actions'}</th>
-            </tr>
-            </thead>
-            <!-- ko if: items().length > 0 -->
-            <tbody data-bind="foreach: items()">
-            <tr>
-               #{list columnFields, as: 'field'}
-               <td>
-                   #{if field_isFirst}
-                       <a data-bind="attr: { href: '${viewLink}'#{list viewLinkParams, as: 'p'}.replace('_${p}_', $data.${p}())#{/list} }"><span class="item-title" data-bind="text: ${field}"></span></a>
-                   #{/if}
-                   #{else}
-                       <span data-bind="text: ${field}"></span>
-                   #{/else}
-               </td>
-               #{/list}
-               <td>
-                   #{list additionalActions, as: 'action'}
-                       <a class="btn btn-primary btn-mini" href="#" data-bind="attr: { href: '\${action.url}'#{list action.urlFields, as: 'field'}.replace('_${field}_', $data.${field}())#{/list}.replace('_orgId_', '${orgId}' ) }" rel="nofollow"><i class="icon-${action.actionClass} icon-white"></i> &{action.labelKey}</a>
-                   #{/list}
-                   #{if isAdmin}
-                   #{if editActionEnabled}
-                   <a class="btn btn-primary btn-mini" href="#" data-bind="click: function() { $parent.update($data) }" rel="nofollow">
-                       <i class="icon-edit icon-white"></i> &{'ui.label.edit'}
-                   </a>
-                   #{/if}
-                   #{if deleteActionEnabled}
-                   <a class="btn btn-danger btn-mini pull-right delete" href="#" data-bind="click: function() { $parent.delete($data) }" rel="nofollow">
-                       <i class="icon-trash icon-white"></i> &{'ui.label.delete'}
-                   </a>
-                   #{/if}
-                   #{/if}
-                </td>
-            </tr>
-            </tbody>
-            <!-- /ko -->
-            <!-- ko ifnot: items().length > 0 -->
-            <tbody>
-            <tr>
-                <td colspan="${columnFields.length() + 1}">
-                    No items
-                </td>
-                <td>
-                    #{if createActionEnabled}
-                    <a class="btn btn-primary btn-mini" href="${request.uri()}/add" rel="nofollow">${messages.get('ui.label.new')}</a>
-                    #{/if}
-                </td>
-            </tr>
-            </tbody>
-            <!-- /ko -->
-        </table>
-
-    </div>
-</div>
-
-<script type="text/javascript">
-    $(document).ready(function () {
-
-        var viewModel = {
-            update: function(item) {
-                document.location = location.href + "/" + item.id() + "/update"
-            },
-            delete: function(item) {
-                bootboxConfirm({
-                    'type': 'DELETE',
-                    'message' : '<h3 class="shout">' + item.name() + '</h3>&{'thing.deleteConfirmation'}',
-                    'action_url' : location.href + "/" + item.id() + '/remove',
-                    'success_callback' : function () {
-                        viewModel.items.remove(function (i) {
-                            return i.id() === item.id();
-                        });
-                    }
-
-                });
-            }
-        };
-
-        var theTable = $('table.sortable'), tableCookie = "${titleKey}"+"-table";
-
-        // table filtering functionality
-        theTable.find("tbody > tr").find("td:eq(1)").mousedown(function () {
-            $(this).prev().find(":checkbox").click();
-        });
-
-        $("#filter").keyup(function () {
-            $.uiTableFilter(theTable, this.value);
-        });
-
-        $('#filter-form').submit(
-                function () {
-                    theTable.find("tbody > tr:visible > td:eq(1)").mousedown();
-                    return false;
-                }).focus(); //Give focus to input field
-
-        *{ the format parameter is a workaround for Chrome: https://code.google.com/p/chromium/issues/detail?id=108425 }*
-        var link = location.href + (location.href.indexOf('?') > -1 ? '&format=json' : '?format=json');
-        load(link, viewModel, null, function () {
-            $("body").css('visibility', 'visible');
-            theTable.tablesorter();
-            // Check to see if there is a filter cookie. If so filter the table
-            if ($.cookie(tableCookie)) {
-                $.uiTableFilter(theTable, $.cookie(tableCookie));
-                $('input#filter').val($.cookie(tableCookie));
-            }
-        });
-
-        resetFilter = function () {
-            $.uiTableFilter(theTable, '');
-            $('input#filter').val('');
-            $.cookie(tableCookie, null);
-        }
-
-        saveFilter = function () {
-            $.cookie(tableCookie,$('input#filter').val(),"/");
-        }
-
-    });
-</script>
+<tr>
+   #{list columnFields, as: 'field'}
+   <td>
+       #{if field_isFirst}
+           <a data-bind="attr: { href: '${viewLink}'#{list viewLinkParams, as: 'p'}.replace('_${p}_', $data.${p}())#{/list} }"><span class="item-title" data-bind="text: ${field}"></span></a>
+       #{/if}
+       #{else}
+           <span data-bind="text: ${field}"></span>
+       #{/else}
+   </td>
+   #{/list}
+   <td>
+       #{list additionalActions, as: 'action'}
+           <a class="btn btn-primary btn-mini" href="#" data-bind="attr: { href: '\${action.url}'#{list action.urlFields, as: 'field'}.replace('_${field}_', $data.${field}())#{/list}.replace('_orgId_', '${orgId}' ) }" rel="nofollow"><i class="icon-${action.actionClass} icon-white"></i> &{action.labelKey}</a>
+       #{/list}
+       #{if isAdmin}
+       #{if editActionEnabled}
+       <a class="btn btn-primary btn-mini" href="#" data-bind="click: function() { $parent.update($data) }" rel="nofollow">
+           <i class="icon-edit icon-white"></i> &{'ui.label.edit'}
+       </a>
+       #{/if}
+       #{if deleteActionEnabled}
+       <a class="btn btn-danger btn-mini pull-right delete" href="#" data-bind="click: function() { $parent.delete($data) }" rel="nofollow">
+           <i class="icon-trash icon-white"></i> &{'ui.label.delete'}
+       </a>
+       #{/if}
+       #{/if}
+    </td>
+</tr>
