@@ -15,6 +15,11 @@
     #{if themeInfo.get('responsiveLayout') == "true" }
     <link rel="stylesheet" type="text/css" href="@{routes.Assets.at("common/stylesheets/bootstrap-responsive.css")}"/>
     #{/if}
+    *{ always make organization section responsive for more workspace }*
+    #{if themeInfo.get('responsiveLayout') == "false" && bodyId == "organization" }
+        <link rel="stylesheet" type="text/css" href="@{routes.Assets.at("common/stylesheets/bootstrap-responsive.css")}"/>
+    #{/if}
+
 
     #{get 'moreCss' /}
     <link rel="stylesheet" type="text/css" href='${themeInfo.path("stylesheets/theme.css")}'/>
