@@ -369,6 +369,7 @@ metadata.tib.fullTextObjectUrl=Url naar het full-text doorzoekbare document
 metadata.tib.pages=Paginering
 metadata.tib.formatted=Geformateerde tekst
 metadata.tib.vindplaats=Vindplaats
+metadata.tib.theme=Thema
 
 metadata.collection.strength=Kracht
 metadata.collection.administrators=Beheerders

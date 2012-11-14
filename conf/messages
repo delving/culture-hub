@@ -411,6 +411,7 @@ metadata.tib.pageEnd=End page
 metadata.tib.pages=Pages
 metadata.tib.formatted=Formatted
 metadata.tib.vindplaats=Physical Location
+metadata.tib.theme=Theme
 
 
 metadata.collection.strength=Strength
