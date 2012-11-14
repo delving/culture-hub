@@ -805,3 +805,7 @@ plugin.relocation.archive=Archive
 plugin.relocation.archiveConfirmation=Are you sure you want to archive this item?
 plugin.relocation.listArchived=List archived
 plugin.relocation.listAllArchived=List all archived
+plugin.relocation.itemReserved=[Relocation Database] An item was reserved
+plugin.relocation.itemReservationCancelled=[Relocation Database] A reservation was cancelled
+plugin.relocation.confirmReservation=Are you sure you want to reserve this item? An e-mail will be sent upon reservation.
+plugin.relocation.alreadyReserved=This item is already reserved by your organization.
