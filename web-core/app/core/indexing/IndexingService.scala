@@ -75,7 +75,12 @@ object IndexingService extends SolrServer {
     if(!doc.containsKey(HAS_DIGITAL_OBJECT.key + "_facet")) {
       doc.addField(HAS_DIGITAL_OBJECT.key + "_facet", hasDigitalObject)
     }
-    doc.addField(HAS_GEO_HASH.key.toString, doc.containsKey(GEOHASH.key) && !doc.get(GEOHASH.key).isEmpty)
+
+    doc.addField(HAS_GEO_HASH.key.toString,
+      if (doc.containsKey(GEOHASH.key) && !doc.get(GEOHASH.key).isEmpty) true
+      else if (doc.containsKey(GEOHASH.key + "_geohash") && !doc.get(GEOHASH.key + "_geohash").isEmpty) true
+      else false
+    )
 
     getStreamingUpdateServer(configuration).add(doc)
   }
