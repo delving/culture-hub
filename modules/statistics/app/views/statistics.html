@@ -2,9 +2,7 @@
 #{set title: messages.get('plugin.statistics.statistics') /}
 #{set bodyId:'statistics' /}
 #{set pageId:'Statistics'/}
-#{set 'moreScripts'}
-<script type="text/javascript" src="@{routes.Assets.at("common/javascripts/bootstrap/bootstrap-tooltip.js")}"></script>
-#{/set}
+
 #{breadcrumbs crumbs: breadcrumbs /}
 
 #{organizationNavBar orgId: orgId, active:"statistics", navigation: navigation /}
