@@ -43,7 +43,7 @@
                 </td>
                 <td>
                     #{if createActionEnabled}
-                    <a class="btn btn-primary btn-mini" href="${request.uri()}/add" rel="nofollow">${messages.get('ui.label.new')}</a>
+                    <a class="btn btn-primary btn-mini" href="${request.path()}/add${request.rawQueryString() ? '?' + request.rawQueryString() : ''}" rel="nofollow">${messages.get('ui.label.new')}</a>
                     #{/if}
                 </td>
             </tr>
