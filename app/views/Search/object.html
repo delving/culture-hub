@@ -55,9 +55,9 @@
             <i class="icon icon-arrow-left"></i> ${returnToPreviousLabel}</a>
     #{/if}&#160;
     </div>
-    <div class="rights span4">
-        #{if rights}#{rightsIcon rights: rights/}#{/if}
-    </div>
+    *{<div class="rights span4">}*
+        *{#{if rights}#{rightsIcon rights: rights/}#{/if}}*
+    *{</div>}*
     <div class="social-media span4">
     #{if themeInfo.addThisTrackingCode().length() > 0}
         <div class="social-media-block pull-right">

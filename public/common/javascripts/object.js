@@ -53,6 +53,58 @@ $(document).ready(function () {
         }
     }
 
+    if ($('#rightsUrl').length) {
+        var rights = $('#rightsUrl').find('a').attr('href'), icon='', img = new Image();
+
+        if (rights != 'undefined') {
+            switch (rights) {
+                case 'http://creativecommons.org/publicdomain/mark/1.0/':
+                    icon = 'cc_publicdomain_mark.png';
+                    break;
+                case 'http://creativecommons.org/publicdomain/zero/1.0/':
+                    icon = 'cc_publicdomain_zero.png';
+                    break;
+                case 'http://creativecommons.org/licenses/by/3.0/':
+                    icon = 'cc_by.png';
+                    break;
+                case 'http://creativecommons.org/licenses/by-nd/3.0/':
+                    icon = 'cc_by-nd-3.0.png';
+                    break;
+                case 'http://creativecommons.org/licenses/by-nc-sa/3.0/':
+                    icon = 'cc_by-nc-sa-3.0.png';
+                    break;
+                case 'http://creativecommons.org/licenses/by-sa/3.0/nl/':
+                    icon = 'cc_by-sa-3.0.png';
+                    break;
+                case 'http://creativecommons.org/licenses/by-sa/3.0':
+                    icon = 'cc_by-sa-3.0.png';
+                    break;
+                case 'http://creativecommons.org/licenses/by-nc/3.0':
+                    icon = 'cc_by-nc-3.0.png';
+                    break;
+                case 'http://creativecommons.org/licenses/by-nc-nd/3.0':
+                    icon = 'cc_by-nc-nd-3.0.png';
+                    break;
+                case 'http://www.europeana.eu/rights/rr-f/':
+                    icon = 'eu_free_access.jpg';
+                    break;
+                case 'http://www.europeana.eu/rights/rr-p/':
+                    icon = 'eu_paid_access.jpg';
+                    break;
+                case 'http://www.europeana.eu/rights/rr-r/':
+                    icon = 'eu_restricted_access.jpg';
+                    break;
+                default:
+                    icon = '';
+            }
+            if (icon != '') {
+                img.src = '/assets/common/images/rights/'+icon;
+                $('#rightsUrl').find('a').append(img);
+            }
+        }
+    }
+
+
     // Endpoint to retrieve related items for this object
     var mltEndpoint = '/organizations/' + Thing.orgId + '/api/search?id=' + Thing.hubId + '&format=json&mlt=true';
 
