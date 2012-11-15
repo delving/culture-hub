@@ -59,7 +59,7 @@
 
         var viewModel = {
             update: function(item) {
-                document.location = location.href + "/" + item.id() + "/update"
+                document.location = "${request.path()}/" + item.id() + "/update" + "${request.rawQueryString() ? '?' + request.rawQueryString() : ''}"
             },
             delete: function(item) {
                 bootboxConfirm({
