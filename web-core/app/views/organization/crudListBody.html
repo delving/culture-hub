@@ -65,7 +65,7 @@
                 bootboxConfirm({
                     'type': 'DELETE',
                     'message' : '<h3 class="shout">' + item.name() + '</h3>&{'thing.deleteConfirmation'}',
-                    'action_url' : location.href + "/" + item.id() + '/remove',
+                    'action_url' : "${request.path()}/" + item.id() + '/remove' + "${request.rawQueryString() ? '?' + request.rawQueryString() : ''}",
                     'success_callback' : function () {
                         viewModel.items.remove(function (i) {
                             return i.id() === item.id();
