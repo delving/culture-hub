@@ -799,6 +799,7 @@ plugin.relocation.manageMembers=Manage members
 plugin.relocation.import.noSheetFound=No sheet could be found!
 plugin.relocation.import.emptyCell=Required cell is empty
 plugin.relocation.import.invalidSheetFormat=The Excel Sheet could not be read
+plugin.relocation.import.title=Excel Import for organization {0}
 plugin.relocation.import.description=Here you can import relocation items via an Excel sheet, if you use the following template:
 plugin.relocation.import.successfullImport=Successfully imported {0} items
 plugin.relocation.import.failedImport=Problems while importing {0} items
