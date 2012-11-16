@@ -54,6 +54,12 @@
                 collapsable: themeInfo.get('collapseFacets')  /}
             #{/list}
         </div>
+
+        <div class="span3">
+            #{list pluginIncludes, as: 'pluginInclude' }
+                #{include pluginInclude /}
+            #{/list}
+        </div>
     </div>
 
     #{if pagination.getNumFound() > themeInfo.pageSize()}

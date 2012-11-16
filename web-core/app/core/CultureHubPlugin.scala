@@ -99,6 +99,13 @@ abstract class CultureHubPlugin(app: Application) extends play.api.Plugin {
   def fullViewSnippet: Option[(String, (RequestContext, HubId) => Unit)] = None
 
   /**
+   * Override this to include an additional snippet in the search result page
+   *
+   * Caution: this is an experimental API feature and might disappear at any time!
+   */
+  def searchResultSnippet: Option[(String, RequestContext => Unit)] = None
+
+  /**
    * Override this to provide custom roles to the platform, that can be used in Groups
    * @return a sequence of [[models.Role]] instances
    */
