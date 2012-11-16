@@ -12,6 +12,10 @@ import core._
 import models.{DomainConfiguration, Role, Group, HubUser}
 
 /**
+ * TODO document the default renderArgs attributes available to templates
+ *
+ * orgId
+ * isAdmin
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
@@ -199,6 +203,10 @@ trait DelvingController extends ApplicationController {
           // orgId
           renderArgs += ("orgId" -> configuration.orgId)
 
+          // admin
+          val isAdmin = organizationServiceLocator.byDomain.isAdmin(configuration.orgId, userName)
+          renderArgs += ("isAdmin" -> isAdmin.asInstanceOf[AnyRef])
+
           // Connected user
           HubUser.dao.findByUsername(userName).foreach { u =>
             renderArgs +=("fullName" -> u.fullname)
@@ -290,15 +298,13 @@ trait DelvingController extends ApplicationController {
     Root {
       Action(action.parser) {
         implicit request =>
-          val isAdmin = organizationServiceLocator.byDomain.isAdmin(configuration.orgId, userName)
           renderArgs += ("currentLanguage" -> getLang)
-          renderArgs += ("isAdmin" -> isAdmin.asInstanceOf[AnyRef])
 
           val roles: Seq[String] = (session.get("userName").map {
             u => Group.dao.findDirectMemberships(userName).map(g => g.roleKey).toSeq
           }.getOrElse {
             List.empty
-          }) ++ (if(isAdmin) Seq(Role.OWN.key) else Seq.empty)
+          }) ++ (if(renderArgs("isAdmin").map(_.asInstanceOf[Boolean]).getOrElse(false)) Seq(Role.OWN.key) else Seq.empty)
 
 
           renderArgs += ("roles" -> roles.asJava)
