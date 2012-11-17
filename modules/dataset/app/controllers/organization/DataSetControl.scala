@@ -155,15 +155,19 @@ trait DataSetControl extends OrganizationController { this: BoundController =>
 
   implicit def dSListToSdSList(dsl: List[DataSet]) = dsl map { ds => dataSetToShort(ds) }
 
-  def dataSet(orgId: String, spec: Option[String]): Action[AnyContent] = OrgMemberAction(orgId) {
+  def dataSet(orgId: String, spec: Option[String]): Action[AnyContent] = OrganizationMember {
     Action {
       implicit request =>
         val dataSet = if (spec == None) None else DataSet.dao.findBySpecAndOrgId(spec.get, orgId)
         val schemas = schemaService.getSchemas
-        val allSchemaPrefixes: Seq[String] = schemas.map(_.prefix)
+
+        val allSchemaPrefixes: Seq[String] = schemas.map(_.prefix) ++
+          (if (configuration.oaiPmhService.allowRawHarvesting) Seq("raw") else Seq.empty)
+        
         val versions: Map[String, Seq[String]] = schemas.map { schema =>
           (schema.prefix -> schema.versions.asScala.map(_.number))
-        }.toMap
+        }.toMap ++
+          (if(configuration.oaiPmhService.allowRawHarvesting) Map("raw" -> Seq("1.0.0")) else Map.empty)
 
         if (dataSet != None && !DataSet.dao.canEdit(dataSet.get, connectedUser)) {
           Forbidden("You are not allowed to edit DataSet %s".format(spec.get))
@@ -218,7 +222,7 @@ trait DataSetControl extends OrganizationController { this: BoundController =>
     }
   }
 
-  def dataSetSubmit(orgId: String): Action[AnyContent] = OrgMemberAction(orgId) {
+  def dataSetSubmit(orgId: String): Action[AnyContent] = OrganizationMember {
     Action {
       implicit request =>
         DataSetCreationViewModel.dataSetForm.bind(request.body.asJson.get).fold(
@@ -315,7 +319,7 @@ trait DataSetControl extends OrganizationController { this: BoundController =>
     }
   }
 
-  def organizationLookup(orgId: String, term: String) = OrgMemberAction(orgId) {
+  def organizationLookup(orgId: String, term: String) = OrganizationMember {
     Action {
       implicit request =>
         Json(directoryServiceLocator.byDomain.findOrganization(term).map(_.name))

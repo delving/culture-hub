@@ -119,7 +119,7 @@ object SolrQueryService extends SolrServer {
                 case "bbox" =>
                   queryParams setFilterQueries ("{!%s}".format("bbox"))
                 case _ =>
-                  queryParams setFilterQueries ("{!%s}".format("geofilt"))
+                  queryParams setFilterQueries ("{!%s}".format("gh_geofilt"))
               }
             case "d" =>
               queryParams setParam("d", item._2)
@@ -233,7 +233,7 @@ object SolrQueryService extends SolrServer {
 
     val format = params.getValueOrElse("format", "xml")
     // todo enable later again when the fieldmarkers for GEOHASH is working correctly
-    //if (format.equalsIgnoreCase("kml")) params.put("hqf", List("%s:true".format(HAS_GEO_HASH.key)))
+    if (format.startsWith("kml")) params.put("hqf", List("%s:true".format(HAS_GEO_HASH.key)))
     val filterQueries = createFilterQueryList(getAllFilterQueries("qf"))
     val hiddenQueryFilters = createFilterQueryList(if (!configuration.searchService.hiddenQueryFilter.isEmpty) getAllFilterQueries("hqf") ++ configuration.searchService.hiddenQueryFilter.split(",") else getAllFilterQueries("hqf"))
 

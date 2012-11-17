@@ -15,6 +15,8 @@ import util.DomainConfigurationHandler
 
 class SearchApiSpec extends Specs2TestContext {
 
+  args(skipAll=true)
+
   step {
     loadStandalone(SAMPLE_A, SAMPLE_B)
   }

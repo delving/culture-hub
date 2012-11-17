@@ -5,7 +5,6 @@
 .clearfix:after {
   display: table;
   content: "";
-  line-height: 0;
 }
 .clearfix:after {
   clear: both;
@@ -20,13 +19,14 @@
 .input-block-level {
   display: block;
   width: 100%;
-  min-height: 30px;
+  min-height: 28px;
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
+  -ms-box-sizing: border-box;
   box-sizing: border-box;
 }
 body {
-  padding-top: 63px;
+  background: #0061a1;
 }
 a {
   color: #0061a1;
@@ -36,8 +36,20 @@ a:hover {
   color: #007bcc;
   text-decoration: underline;
 }
-.navbar-fixed-top .navbar-inner {
+.page-top {
+  background: #007bcc;
   border-bottom: 4px solid #0061a1;
+}
+.navbar-static-top .container {
+  margin-left: -20px;
+}
+.navbar-static-top .navbar-inner {
+  -webkit-box-shadow: none;
+  -moz-box-shadow: none;
+  box-shadow: none;
+}
+.navbar .brand img {
+  margin: 0px 12px 0 0;
 }
 .search-bar {
   background: #a5cbe4;
@@ -50,7 +62,7 @@ a:hover {
 .site-navigation {
   background: #eeeeee;
   height: 50px;
-  margin: 0 0 20px 0;
+  margin: 0 0 0 0;
 }
 .site-navigation .nav {
   margin: 8px 0 0 0;
@@ -67,8 +79,37 @@ a:hover {
   color: #fff;
   padding: 4px 8px;
 }
-.navbar .brand img {
-  margin: 0px 12px 0 0;
+.branding {
+  margin-left: -20px;
+  *zoom: 1;
+}
+.branding:before,
+.branding:after {
+  display: table;
+  content: "";
+}
+.branding:after {
+  clear: both;
+}
+.branding .inner {
+  float: left;
+  margin-left: 20px;
+  width: 940px;
+}
+.site-logo {
+  float: left;
+  margin: 0 13px 13px 0;
+}
+#content {
+  background: #ffffff;
+  padding: 21px 0;
+  min-height: 300px;
+}
+#footer {
+  margin: 11px 0;
+}
+#footer a {
+  color: #ffffff;
 }
 @media (max-width: 767px) {
   body {

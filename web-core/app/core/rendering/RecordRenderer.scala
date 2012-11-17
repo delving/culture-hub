@@ -131,26 +131,39 @@ object RecordRenderer {
             Left("Could not render full record with hubId '%s' for view type '%s': view type does not exist".format(hubId, viewType.name))
           } else {
             try {
-              val cleanRawRecord = if(renderRelatedItems) {
-                // mix the related items to the record coming from mongo
+              val cleanRawRecord = {
                 val record = scala.xml.XML.loadString(recordXml)
-                val relatedItemsXml = <relatedItems>{relatedItems}</relatedItems>
-                var mergedRecord: Elem = addChild(record, relatedItemsXml).get // we know what we're doing here
-
-                // prepend the delving namespace if it ain't there
-                // and yes this check is ugly but Scala's XML <-> namespace support ain't pretty to say the least
-                if(!recordXml.contains("xmlns:delving")) {
-                  mergedRecord = mergedRecord % new UnprefixedAttribute("xmlns:delving", "http://schemas.delving.eu/", Null)
+                var mutableRecord: Elem = if (renderRelatedItems) {
+                  // mix the related items to the record coming from mongo
+                  val relatedItemsXml = <relatedItems>{relatedItems}</relatedItems>
+                  addChild(record, relatedItemsXml).get // we know what we're doing here
+                } else {
+                  record
                 }
+                  // prepend the delving namespace if it ain't there
+                  // and yes this check is ugly but Scala's XML <-> namespace support ain't pretty to say the least
+                  if(!recordXml.contains("xmlns:delving")) {
+                    mutableRecord = mutableRecord % new UnprefixedAttribute("xmlns:delving", "http://schemas.delving.eu/", Null)
+                  }
+                  if (!recordXml.contains("xmlns:xml")) {
+                    mutableRecord = mutableRecord % new UnprefixedAttribute("xmlns:xml", "http://www.w3.org/XML/1998/namespace", Null)
+                  }
+                  if (!recordXml.contains("xmlns:xsi")) {
+                    mutableRecord = mutableRecord % new UnprefixedAttribute("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance", Null)
+                  }
 
-                mergedRecord.toString().replaceFirst("<\\?xml.*?>", "")
-              } else {
-                recordXml.replaceFirst("<\\?xml.*?>", "")
+                  mutableRecord.toString().replaceFirst("<\\?xml.*?>", "")
               }
               log.debug(cleanRawRecord)
 
               // TODO see what to do with roles
-              val rendered: RenderedView = viewRenderer.get.renderRecord(cleanRawRecord, roles, definition.getNamespaces + ("delving" -> "http://schemas.delving.eu/"), lang, parameters)
+              val defaultNamespaces = Seq(
+                "delving" -> "http://schemas.delving.eu/",
+                "xml" -> "http://www.w3.org/XML/1998/namespace",
+                "xsi" -> "http://www.w3.org/2001/XMLSchema-instance"
+                )
+
+              val rendered: RenderedView = viewRenderer.get.renderRecord(cleanRawRecord, roles, definition.getNamespaces ++ defaultNamespaces, lang, parameters)
               Right(rendered)
             } catch {
               case t: Throwable =>

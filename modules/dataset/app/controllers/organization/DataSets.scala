@@ -3,7 +3,7 @@ package controllers.organization
 import play.api.mvc.{WebSocket, Action}
 import models.DataSet
 import play.api.i18n.Messages
-import com.mongodb.casbah.commons.MongoDBObject
+import com.mongodb.casbah.Imports._
 import controllers.{Token, OrganizationController}
 import java.util.regex.Pattern
 import play.api.libs.json.{JsString, JsValue}
@@ -18,14 +18,14 @@ import util.DomainConfigurationHandler
 
 object DataSets extends OrganizationController {
 
-  def list(orgId: String) = OrgMemberAction(orgId) {
+  def list(orgId: String) = OrganizationMember {
     Action {
       implicit request =>
         Ok(Template('title -> listPageTitle("dataset"), 'canAdministrate -> DataSet.dao.canAdministrate(connectedUser)))
     }
   }
 
-  def dataSet(orgId: String, spec: String) = OrgMemberAction(orgId) {
+  def dataSet(orgId: String, spec: String) = OrganizationMember {
     Action {
       implicit request =>
         val maybeDataSet = DataSet.dao.findBySpecAndOrgId(spec, orgId)
@@ -48,6 +48,20 @@ object DataSets extends OrganizationController {
       Promise.pure((Done[JsValue, JsValue](JsString(""), Input.Empty), Enumerator.imperative()))
     }
   }
+
+  def listAsTokens(q: String, formats: Seq[String]) = Root {
+    Action {
+      implicit request =>
+        val query = MongoDBObject("spec" -> Pattern.compile(q, Pattern.CASE_INSENSITIVE))
+        val sets = DataSet.dao.find(query).filter { set =>
+          formats.isEmpty ||
+          formats.toSet.subsetOf(set.getPublishableMappingSchemas.map(_.getPrefix).toSet)
+        }
+        val asTokens = sets.map(set => Token(set.spec, set.spec))
+        Json(asTokens)
+    }
+  }
+
 
 }
 
