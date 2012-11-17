@@ -7,15 +7,15 @@ import eu.delving.templates.Plugin._
 
 object Build extends sbt.Build {
 
-  val cultureHub     = SettingKey[String]("cultureHub", "Version of the CultureHub")
+  val cultureHub = SettingKey[String]("cultureHub", "Version of the CultureHub")
   val sipApp     = SettingKey[String]("sip-app", "Version of the SIP-App")
   val sipCore    = SettingKey[String]("sip-core", "Version of the SIP-Core")
   val schemaRepo = SettingKey[String]("schema-repo", "Version of the Schema Repository")
 
   val appName = "culture-hub"
-  val cultureHubVersion = "12.10-SNAPSHOT"
+  val cultureHubVersion = "12.10"
   val sipAppVersion = "1.0.10-SNAPSHOT"
-  val sipCoreVersion = "1.0.15-SNAPSHOT"
+  val sipCoreVersion = "1.0.16-SNAPSHOT"
   val schemaRepoVersion = "1.0.11-SNAPSHOT"
   val playExtensionsVersion = "1.3.3"
 
