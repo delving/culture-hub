@@ -258,7 +258,7 @@ object SolrQueryService extends SolrServer {
     val solrQuery = if (idType == DelvingIdType.LEGACY) {
       "%s:\"%s\" delving_orgId:%s".format(t.idSearchField, URLDecoder.decode(t.normalisedId, "utf-8"), configuration.orgId)
     } else if (idType == DelvingIdType.FREE) {
-      "%s delving_orgId:%s".format(t.normalisedId, configuration.orgId)
+      "%s delving_orgId:%s".format(URLDecoder.decode(t.normalisedId, "utf-8"), configuration.orgId)
     } else {
       "%s:\"%s\" delving_orgId:%s".format(t.idSearchField, t.normalisedId, configuration.orgId)
     }
@@ -457,7 +457,7 @@ object DelvingIdType {
   val HUB = DelvingIdType("hubId", HUB_ID.key)
   val INDEX_ITEM = DelvingIdType("indexItem", ID.key)
   val LEGACY = DelvingIdType("legacy", EUROPEANA_URI.key)
-  val FREE = DelvingIdType("free")
+  val FREE = DelvingIdType("free", "")
 
   val types = Seq(SOLR, PMH, DRUPAL, HUB, INDEX_ITEM, LEGACY, FREE)
 
