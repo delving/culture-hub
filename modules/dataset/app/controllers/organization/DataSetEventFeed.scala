@@ -347,8 +347,16 @@ class DataSetEventFeed extends Actor {
                 set => {
                   set.state match {
                     case ENABLED =>
-                      DataSet.dao.updateState(set, DataSetState.DISABLED, Some(userName))
-                      send(s, ok)
+                      try {
+                        IndexingService.deleteBySpec(set.orgId, set.spec)
+                        DataSet.dao.updateState(set, DataSetState.DISABLED, Some(userName))
+                        send(s, ok)
+                      } catch {
+                        case t =>
+                          log.warn("Error while trying to remove cancelled set from index", t)
+                          DataSet.dao.updateState(set, DataSetState.ERROR, Some(userName), Some(t.getMessage))
+                          send(s, error("Cannot disable set that is not enabled"))
+                      }
                     case _ => send(s, error("Cannot disable set that is not enabled"))
                   }
                 }

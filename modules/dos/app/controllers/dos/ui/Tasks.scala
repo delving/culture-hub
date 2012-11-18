@@ -89,17 +89,19 @@ object Tasks extends Controller with Extensions with DomainConfigurationAware wi
     }
   }
 
-  def status(id: ObjectId) = Action {
-    implicit request =>
-      val task = Task.dao.findOneById(id)
-      if (task.isEmpty) NotFound("Could not find task with id " + id)
-      else
-        Json(
-          Map(
-            "totalItems" -> task.get.totalItems,
-            "processedItems" -> task.get.processedItems,
-            "percentage" -> ((task.get.processedItems.toDouble / task.get.totalItems) * 100).round
-          ))
+  def status(id: ObjectId) = DomainConfigured {
+    Action {
+      implicit request =>
+        val task = Task.dao.findOneById(id)
+        if (task.isEmpty) NotFound("Could not find task with id " + id)
+        else
+          Json(
+            Map(
+              "totalItems" -> task.get.totalItems,
+              "processedItems" -> task.get.processedItems,
+              "percentage" -> ((task.get.processedItems.toDouble / task.get.totalItems) * 100).round
+            ))
+    }
   }
 
   private def getNode = Play.configuration.getString("cultureHub.nodeName").getOrElse("defaultDosNode")

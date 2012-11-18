@@ -2,6 +2,20 @@
 
 This is the changelog of the CultureHub. It documents changes of the main platform, without modules.
 
+# 12.10
+
+### New features
+
+- manu: HubNodes core component
+- manu: Adding description field to Harvestable
+- sjoerd: experimental KML rendering
+- sjoerd: added facet.limit as statistics parameter
+- manu: two-level CMS menu generation
+
+### Fixes and refactoring
+- manu: fixes in OAI-PMH resumption token computation
+- manu: fixing demo DZ browser
+
 # 12.09
 
 ### New features

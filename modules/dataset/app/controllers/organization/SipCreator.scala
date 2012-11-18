@@ -11,7 +11,7 @@ import controllers.OrganizationController
 
 object SipCreator extends OrganizationController {
 
-  def index(orgId: String) = OrgMemberAction(orgId) {
+  def index(orgId: String) = OrganizationMember {
     Action {
       implicit request => Ok(Template('orgId -> orgId))
     }
@@ -76,6 +76,8 @@ object SipCreator extends OrganizationController {
             <jar href="antlr-2.7.7.jar"/>
             <jar href="cglib-2.1_3.jar"/>
             <jar href="asm-1.5.3.jar"/>
+            <jar href="jcoord-1.0.jar"/>
+            <jar href="proj4j-0.1.0.jar"/>
           </resources>
           <application-desc main-class="eu.delving.sip.Application">
             <argument>{user}</argument> <!--Never add spaces between the user and the tags. This creates unwanted behaviour in creating the Sip-Creator workspaces-->

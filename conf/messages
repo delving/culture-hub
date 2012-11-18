@@ -35,6 +35,7 @@ ui.label.captcha=Enter the code you see here
 ui.label.cancel=Cancel
 ui.label.collectionSelect=Select a collection
 ui.label.create=Create
+ui.label.compute=Compute
 ui.label.content=Content
 ui.label.delete=Delete
 ui.label.edit=Edit
@@ -59,13 +60,16 @@ ui.label.languageSelect=Choose a language
 ui.label.last=Last
 ui.label.lastname=Last name
 ui.label.less=Less
+ui.label.list=List
 ui.label.load=Load
 ui.label.location=Location
 ui.label.loggedInAs=Logged in as
 ui.label.login=Login
 ui.label.logout=Logout
-ui.label.memberSince=Member since
+ui.label.member=Member
+ui.label.members=Members
 ui.label.more=More
+ui.label.new=New
 ui.label.next=Next
 ui.label.nritems=Nr. of items
 ui.label.options=Options
@@ -407,6 +411,7 @@ metadata.tib.pageEnd=End page
 metadata.tib.pages=Pages
 metadata.tib.formatted=Formatted
 metadata.tib.vindplaats=Physical Location
+metadata.tib.theme=Theme
 
 
 metadata.collection.strength=Strength
@@ -477,57 +482,6 @@ org.group.save=Save group
 org.group.create=Create group
 org.group.list=Group list
 
-org.cms=Website pages
-org.cms.page.update=Update page
-org.cms.page.create=Create new page
-org.cms.page.key=Page key
-org.cms.page.new=New page
-org.cms.page.save=Save page
-org.cms.page.menu.add=Add page to a menu
-org.cms.page.menu.position=Position in the menu
-org.cms.page.keyInvalid=Invalid key value. A page key must be lowercase and has to be from 3 to 35 characters long.
-org.cms.page.publish=Publish
-org.cms.page.publish.help=Checking this option will make this content visible
-org.cms.page.published=Published
-org.cms.page.notPublished=Not published
-org.cms.page.list=Page list
-org.cms.list.languageSwitch=List pages in
-org.cms.list.deletePage=Delete page
-org.cms.list.deletePageConfirm=Are you sure you want to delete this page and all of its versions? This cannot be undone.
-org.cms.upload=Upload file
-org.cms.upload.image=Upload image
-org.cms.upload.save=Save files
-org.cms.upload.help.toggle=Help with uploading images
-org.cms.upload.help.chooseImage=<ul><li>Begin by choosing an image from your own computer by pressing <span class="btn btn-success btn-mini"><i class="icon-plus icon-white"></i>Choose an image</span></li><li>Multiple images may be selected at once</li></ul>
-org.cms.upload.help.startUpload=<p>The images are then added to the list and are ready to be uploaded to the CultureHub.</p><ul><li>Press the <span class="btn btn-primary btn-mini"><i class="icon-upload icon-white"></i>Start upload</span> button to upload all images at once</li><li>Press the <span class="btn btn-primary btn-mini"><i class="icon-upload icon-white"></i>Start</span> button of the individual image in the image list for uploading one image at a time</li></ul>
-org.cms.upload.help.ready=Ready for use
-org.cms.upload.help.ready.info=<p>Once uploaded, go back to the <a href="/organizations/{0}/site">page list</a> and edit and existing page or create a <a href="/organizations/{0}/site/{1}/page/add">new page</a>. Click on the <span class="mceIcon mceImage"></span> icon to select the image from the <em>Image list</em> for use.</p>
-
-### CMS PAGE HELP ###
-org.cms.page.help.toggle=Help with website pages
-# FIELDS #
-org.cms.page.help.fields.tab=Fields explained
-org.cms.page.help.fields.key.info=Unique identifier for the page. This is used as the URL for the page.
-org.cms.page.help.fields.title.info=Used in the page&apos;s html <code>&lt;title&gt;&lt;/title&gt;</code> attribute and, if the page is added to a menu then this will appear as the link in the menu.
-org.cms.page.help.fields.theme.info=The Hub theme under which this page will be displayed.
-org.cms.page.help.fields.language.info=The language of this page's content. If language switching is active (i.e. you have your Hub available in multiple languages) then you should create a page for each language.
-org.cms.page.help.fields.menu.info=Select the menu you want to have the page link appear in.
-org.cms.page.help.fields.position.info=The position of your page link in the selected menu. The higher the number, the further to the right it will move.
-# IMAGES #
-org.cms.page.help.images.tab=Adding images
-org.cms.page.help.images.info=Images can be added in two ways: <ol><li><strong>Upload from a computer:</strong> this can be done on the <a href="/organizations/{0}/site/upload">Upload image</a> page. After the image is saved it can be used in your page content by clicking on the <span class="mceIcon mceImage"></span> icon and selecting your uploaded image from the <em>Image list</em></li><li><strong>Directly from the internet:</strong> klick on the <span class="mceIcon mceImage"></span> icon and type or paste the URL of the image in the </em>Image URL</em> field
-# TEMPLATES #
-org.cms.page.help.templates.tab=Using templates
-org.cms.page.help.templates.info=When creating page content the use of a template can help you get started quickly. By clicking on the <span class="mceIcon mceTemplate"></span> icon, a pop-up window will appear where you can preview and insert the templates
-# HOMEPAGE #
-org.cms.page.help.homepage.tab=Creating homepage content
-org.cms.page.help.homepage.info=Creating content for the homepage works exactly like creating a normal page except for the following: <ol><li>The <strong>Page key</strong> must be: <em>homepage</em></li><li>It cannot be added to a menu</li></ol>
-# AUTO-GEN PAGE KEY #
-org.cms.page.keyauto.button=Auto-generate page key
-org.cms.page.keyauto.error=Title mandatory for page key generation.
-
-
-
 org.vc.list=Virtual collection list
 org.vc.new=New Virtual collection
 org.vc.update=Edit virtual collection
@@ -546,16 +500,18 @@ org.vc.queryDatasets=Queried DataSets
 
 ### VC HELP ###
 org.vc.help.toggle=Help with virtual collections
+
 # FIELDS #
 org.vc.help.fields.tab=Fields explained
 org.vc.help.fields.name.info=The display name of the virtual collection.
 org.vc.help.fields.identifier.info=The system name for the virtual collection.
 org.vc.help.fields.datasets.info=The Dataset(s) included in the virtual collection.
 org.vc.help.fields.query.info=The search-term(s) which will query the Datasets to build the virtual collection.
-org.vc.help.fields.excludedHubIds.info=Exclude specific records from the virtual collection by entering their <em>hubId</em> here. Multiple <em>hubIds</em> are separated by a comma.
+org.vc.help.fields.keywords=Comma separated list of terms (term_1, term_2, ... )
+org.vc.help.fields.excludedHubIds.info=Exclude specific records from the virtual collection by entering their <em>hubId</em> here. Multiple <em>hubIds</em> are separated by a comma. Or add them automatically by clicking on the "Exlclude" button in the preview results.
 # QUERIES #
 org.vc.help.queries.tab=Writing queries
-org.vc.help.queries.info=<h6>Simple queries</h6><p>Queries can be a simple search term like a <em>place</em> or <em>person</em> name.</p><h6>Complex queries</h6><p>Multiple terms are combined using the boolean operators <code>AND</code> <code>NOT</code> and <code>OR</code>. An example would be: <code>sketch OR drawing NOT charcoal</code>.</p><h6>Excluding specific hubIds</h6><p>Try to compose the query in such a way that undesired records are not part of the results. Any undesired results that remain can be omitted by entering their <span class="label label-contrast">hubId</span> in the <span class="label label-contrast">Exclude</span> field.</p><h6>Better results</h6><p>To increase the chance that returned results contain digital objects (i.e. images) append <code>AND delving_hasDigitalObject_facet:true</code> to the query in the <span class="label label-contrast">Query</span> field.</p>
+org.vc.help.queries.info=<h6>Simple queries</h6><p>Queries can be a simple search term like a <em>place</em> or <em>person</em> name.</p><h6>Complex queries</h6><p>Multiple terms are combined using the boolean operators <code>AND</code> and <code>NOT</code>. An example would be: <code>sketch OR drawing NOT charcoal</code>.</p><h6>Excluding specific hubIds</h6><p>Try to compose the query in such a way that undesired records are not part of the results. Any undesired results that remain can be omitted by entering their <span class="label label-contrast">hubId</span> in the <span class="label label-contrast">Exclude</span> field.</p><h6>Better results</h6><p>To increase the chance that returned results contain digital objects (i.e. images) append <code>AND delving_hasDigitalObject_facet:true</code> to the query in the <span class="label label-contrast">Query</span> field.</p>
 
 
 # AUTO-GEN PAGE KEY #
@@ -679,9 +635,76 @@ locale.nb=Norwegian b�kmal (nb)
 
 accessControl.resourceType.dataSet=DataSets
 
+
+plugin.cms=Website pages
+plugin.cms.page.update=Update page
+plugin.cms.page.create=Create new page
+plugin.cms.page.key=Page key
+plugin.cms.page.save=Save page
+plugin.cms.page.menu.add=Add page to a menu
+plugin.cms.page.menu.position=Position in the menu
+plugin.cms.page.keyInvalid=Invalid key value. A page key must be lowercase and has to be from 3 to 35 characters long.
+plugin.cms.page.publish=Publish
+plugin.cms.page.publish.help=Checking this option will make this content visible
+plugin.cms.page.published=Published
+plugin.cms.page.notPublished=Not published
+plugin.cms.list.languageSwitch=List pages in
+plugin.cms.list.deletePage=Delete page
+plugin.cms.list.deletePageConfirm=Are you sure you want to delete this page and all of its versions? This cannot be undone.
+plugin.cms.upload=Upload file
+plugin.cms.upload.image=Upload image
+plugin.cms.upload.save=Save files
+plugin.cms.upload.help.toggle=Help with uploading images
+plugin.cms.upload.help.chooseImage=<ul><li>Begin by choosing an image from your own computer by pressing <span class="btn btn-success btn-mini"><i class="icon-plus icon-white"></i>Choose an image</span></li><li>Multiple images may be selected at once</li></ul>
+plugin.cms.upload.help.startUpload=<p>The images are then added to the list and are ready to be uploaded to the CultureHub.</p><ul><li>Press the <span class="btn btn-primary btn-mini"><i class="icon-upload icon-white"></i>Start upload</span> button to upload all images at once</li><li>Press the <span class="btn btn-primary btn-mini"><i class="icon-upload icon-white"></i>Start</span> button of the individual image in the image list for uploading one image at a time</li></ul>
+plugin.cms.upload.help.ready=Ready for use
+plugin.cms.upload.help.ready.info=<p>Once uploaded, go back to the <a href="/organizations/{0}/site">page list</a> and edit and existing page or create a <a href="/organizations/{0}/site/{1}/page/add">new page</a>. Click on the <span class="mceIcon mceImage"></span> icon to select the image from the <em>Image list</em> for use.</p>
 plugin.cms.adminRight=Site content administration rights
+plugin.cms.mainMenu=Main menu
+plugin.cms.homePage=Homepage
+plugin.cms.updateHomePage=Update homepage
+
+### CMS PAGE HELP ###
+plugin.cms.page.help.toggle=Help with website pages
+# FIELDS #
+plugin.cms.page.help.fields.tab=Fields explained
+plugin.cms.page.help.fields.key.info=Unique identifier for the page. This is used as the URL for the page.
+plugin.cms.page.help.fields.title.info=Used in the page&apos;s html <code>&lt;title&gt;&lt;/title&gt;</code> attribute and, if the page is added to a menu then this will appear as the link in the menu.
+plugin.cms.page.help.fields.theme.info=The Hub theme under which this page will be displayed.
+plugin.cms.page.help.fields.language.info=The language of this page's content. If language switching is active (i.e. you have your Hub available in multiple languages) then you should create a page for each language.
+plugin.cms.page.help.fields.menu.info=Select the menu you want to have the page link appear in.
+plugin.cms.page.help.fields.position.info=The position of your page link in the selected menu. The higher the number, the further to the right it will move.
+# IMAGES #
+plugin.cms.page.help.images.tab=Adding images
+plugin.cms.page.help.images.info=Images can be added in two ways: <ol><li><strong>Upload from a computer:</strong> this can be done on the <a href="/organizations/{0}/site/upload">Upload image</a> page. After the image is saved it can be used in your page content by clicking on the <span class="mceIcon mceImage"></span> icon and selecting your uploaded image from the <em>Image list</em></li><li><strong>Directly from the internet:</strong> klick on the <span class="mceIcon mceImage"></span> icon and type or paste the URL of the image in the </em>Image URL</em> field
+# TEMPLATES #
+plugin.cms.page.help.templates.tab=Using templates
+plugin.cms.page.help.templates.info=When creating page content the use of a template can help you get started quickly. By clicking on the <span class="mceIcon mceTemplate"></span> icon, a pop-up window will appear where you can preview and insert the templates
+# HOMEPAGE #
+plugin.cms.page.help.homepage.tab=Creating homepage content
+plugin.cms.page.help.homepage.info=Creating content for the homepage works exactly like creating a normal page except for the following: <ol><li>The <strong>Page key</strong> must be: <em>homepage</em></li><li>It cannot be added to a menu</li></ol>
+# AUTO-GEN PAGE KEY #
+plugin.cms.page.keyauto.button=Auto-generate page key
+plugin.cms.page.keyauto.error=Title mandatory for page key generation.
 
 plugin.chc.orKeywords=Keywords (OR)
+plugin.chc.dataSetsNotEmpty=You must select at least one constraining DataSet
+plugin.chc.publicSchemasNotEmpty=You must select at least one metadata format for harvesting
+plugin.chc.publicSchemas=Public metadata formats
+plugin.chc.publicSchemasHelp=Hold down the Ctrl key in order to select more than one harvesting format
+
+plugin.hubNode.hubNode=Hub node
+plugin.hubNode.hubNodes=Hub nodes
+plugin.hubNode.list=List Hub nodes
+plugin.hubNode.create=Create Hub node
+plugin.hubNode.deleteConfirm=Are you sure you want to delete this Virtual Node as well as all of its data?
+plugin.hubNode.nodeIdTaken=A node with the same node identifier is already taken
+plugin.hubNode.orgId=Organization identifier
+plugin.hubNode.nodeId=Node identifier
+plugin.hubNode.name=Node name
+plugin.hubNode.orgIdValid=This organization doesn't exist. Contact support@delving.eu for help.
+plugin.hubNode.invalidNodeName=Invalid node name: can only have letters and white spaces
+
 
 plugin.musip.museum=Museum
 plugin.musip.museums=Museums

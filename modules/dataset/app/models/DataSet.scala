@@ -110,6 +110,8 @@ case class DataSet(
 
   def getTotalRecords: Long = details.total_records
 
+  def getDescription: Option[String] = None
+
   def getOwner: String = orgId
 
   def getCreator: String = userName

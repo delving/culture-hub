@@ -1,5 +1,6 @@
 package core
 
+import _root_.core.node.{NodeDirectoryService, NodeRegistrationService}
 import _root_.util.DomainConfigurationHandler
 import scala.collection.mutable.HashMap
 import services._
@@ -33,10 +34,16 @@ object HubServices {
   lazy val directoryServiceLocator = new DomainServiceLocator[DirectoryService] {
     def byDomain(implicit configuration: DomainConfiguration): DirectoryService = baseServices(configuration)
   }
+  lazy val nodeRegistrationServiceLocator = new DomainServiceLocator[NodeRegistrationService] {
+    def byDomain(implicit configuration: DomainConfiguration): NodeRegistrationService = baseServices(configuration)
+  }
+  lazy val nodeDirectoryServiceLocator = new DomainServiceLocator[NodeDirectoryService] {
+    def byDomain(implicit configuration: DomainConfiguration): NodeDirectoryService = baseServices(configuration)
+  }
 
   val basexStorage =  new HashMap[DomainConfiguration, BaseXStorage]
 
-  var baseServices: Map[DomainConfiguration, AuthenticationService with RegistrationService with UserProfileService with OrganizationService with DirectoryService] = Map.empty
+  var baseServices: Map[DomainConfiguration, AuthenticationService with RegistrationService with UserProfileService with OrganizationService with DirectoryService with NodeRegistrationService with NodeDirectoryService] = Map.empty
 
   def init() {
 

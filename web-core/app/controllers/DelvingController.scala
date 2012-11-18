@@ -20,7 +20,7 @@ import play.api.data.Forms._
  */
 
 
-trait ApplicationController extends Controller with GroovyTemplates with DomainConfigurationAware with Logging with Extensions with RenderingExtensions {
+trait ApplicationController extends Controller with GroovyTemplates with DomainConfigurationAware with Logging with CRUDController {
 
   // ~~~ i18n
 
@@ -120,27 +120,6 @@ trait ApplicationController extends Controller with GroovyTemplates with DomainC
     actionResult.withSession(s)
   }
 
-  // ~~~ form handling when using knockout. This returns a map of error messages
-
-  def handleValidationError[T](form: Form[T])(implicit request: RequestHeader) = {
-    val fieldErrors = form.errors.filterNot(_.key.isEmpty).map(error => (error.key.replaceAll("\\.", "_"), Messages(error.message, error.args))).toMap
-    val globalErrors = form.errors.filter(_.key.isEmpty).map(error => ("global", Messages(error.message, error.args))).toMap
-
-    Json(Map("errors" -> (fieldErrors ++ globalErrors)), BAD_REQUEST)
-  }
-
-  // ~~~ Form utilities
-  import extensions.Formatters._
-
-  val tokenListMapping = seq(
-    play.api.data.Forms.mapping(
-      "id" -> text,
-      "name" -> text,
-      "tokenType" -> optional(text),
-      "data" -> optional(of[Map[String, String]])
-      )(Token.apply)(Token.unapply)
-    )
-
 }
 
 
@@ -164,11 +143,11 @@ trait OrganizationController extends DelvingController with Secured {
 
   def isAdmin(orgId: String)(implicit request: RequestHeader): Boolean = organizationServiceLocator.byDomain.isAdmin(orgId, connectedUser)
 
-  def OrgOwnerAction[A](orgId: String)(action: Action[A]): Action[A] = {
-    OrgMemberAction(orgId) {
+  def OrganizationAdmin[A](action: Action[A]): Action[A] = {
+    OrganizationMember {
       Action(action.parser) {
         implicit request => {
-          if (isAdmin(orgId)) {
+          if (isAdmin(configuration.orgId)) {
             action(request)
           } else {
             Forbidden(Messages("user.secured.noAccess"))
@@ -178,15 +157,12 @@ trait OrganizationController extends DelvingController with Secured {
     }
   }
 
-  def OrgMemberAction[A](orgId: String)(action: Action[A]): Action[A] = {
-    OrgBrowsingAction(orgId) {
+  def OrganizationMember[A](action: Action[A]): Action[A] = {
+    OrganizationBrowsing {
       Authenticated {
         Action(action.parser) {
           implicit request => {
-            if (orgId == null || orgId.isEmpty) {
-              Error("How did you even get here?")
-            }
-            if (!HubUser.dao.findByUsername(connectedUser).map(_.organizations.contains(orgId)).getOrElse(false)) {
+            if (!HubUser.dao.findByUsername(connectedUser).map(_.organizations.contains(configuration.orgId)).getOrElse(false)) {
               Forbidden(Messages("user.secured.noAccess"))
             } else {
               action(request)
@@ -198,7 +174,7 @@ trait OrganizationController extends DelvingController with Secured {
   }
 }
 
-trait DelvingController extends ApplicationController with CoreImplicits {
+trait DelvingController extends ApplicationController {
 
   val organizationServiceLocator = HubModule.inject[DomainServiceLocator[OrganizationService]](name = None)
 
@@ -312,13 +288,13 @@ trait DelvingController extends ApplicationController with CoreImplicits {
     }
   }
 
-  def OrgBrowsingAction[A](orgId: String)(action: Action[A]): Action[A] = {
+  def OrganizationBrowsing[A](action: Action[A]): Action[A] = {
     Root {
       Action(action.parser) {
         implicit request =>
-          val orgName = organizationServiceLocator.byDomain.getName(orgId, "en")
-          val isAdmin = organizationServiceLocator.byDomain.isAdmin(orgId, userName)
-          renderArgs += ("orgId" -> orgId)
+          val orgName = organizationServiceLocator.byDomain.getName(configuration.orgId, "en")
+          val isAdmin = organizationServiceLocator.byDomain.isAdmin(configuration.orgId, userName)
+          renderArgs += ("orgId" -> configuration.orgId)
           renderArgs += ("browsedOrgName" -> orgName)
           renderArgs += ("currentLanguage" -> getLang)
           renderArgs += ("isAdmin" -> isAdmin.asInstanceOf[AnyRef])
@@ -335,10 +311,10 @@ trait DelvingController extends ApplicationController with CoreImplicits {
           val navigation = CultureHubPlugin.getEnabledPlugins.map {
             plugin => plugin.
               getOrganizationNavigation(
-                orgId = orgId,
+                orgId = configuration.orgId,
                 lang = getLang,
                 roles = roles,
-                isMember = HubUser.dao.findByUsername(connectedUser).map(u => u.organizations.contains(orgId)).getOrElse(false)
+                isMember = HubUser.dao.findByUsername(connectedUser).map(u => u.organizations.contains(configuration.orgId)).getOrElse(false)
             ).map(_.asJavaMap)
           }.flatten.asJava
 

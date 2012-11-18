@@ -1,5 +1,7 @@
 package core
 
+import _root_.core.services.OrganizationProfile
+
 /**
  * Organization things
  *
@@ -12,6 +14,13 @@ trait OrganizationService {
    * Does the organization with this orgId alrady exist
    */
   def exists(orgId: String): Boolean
+
+  /**
+   * Finds organizations by orgId
+   * @param query the orgId or a part thereof
+   * @return a sequence of [[core.services.OrganizationProfile]]
+   */
+  def queryByOrgId(query: String): Seq[OrganizationProfile]
 
   /**
    * Is the user an administrator of the organiztion

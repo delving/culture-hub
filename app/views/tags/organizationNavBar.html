@@ -1,21 +1,24 @@
-<h2 style="text-transform: uppercase; color: #888;">${_orgId}</h2>
-<ul class="nav nav-tabs">
-#{list _navigation, as: 'mainMenuEntry'}
-    #{if mainMenuEntry.mainEntry}
-        <li class="${(_active == mainMenuEntry.key ? 'active' : '')}"><a href="${mainMenuEntry.mainEntry.url}" rel="nofollow">${messages.get(mainMenuEntry.mainEntry.titleKey)}</a></li>
-    #{/if}
-    #{else}
-    <li class="dropdown ${(_active == mainMenuEntry.key ? 'active' : '')}" id="${mainMenuEntry.key}">
-        <a class="dropdown-toggle" data-toggle="dropdown" href="#${mainMenuEntry.key}" rel="nofollow">
-        ${messages.get(mainMenuEntry.titleKey)}
-            <b class="caret"></b>
-        </a>
-        <ul class="dropdown-menu">
-            #{list mainMenuEntry.items, as: 'entry'}
-                <li><a href="${entry.url}" rel="nofollow">${messages.get(entry.titleKey)}</a></li>
-            #{/list}
-        </ul>
-    </li>
-    #{/else}
-#{/list}
-</ul>
+<div class="organization-navbar">
+    <h2>${_orgId}</h2>
+    <ul class="nav nav-tabs">
+    #{list _navigation, as: 'mainMenuEntry'}
+        #{if mainMenuEntry.mainEntry}
+            <li class="${(_active == mainMenuEntry.key ? 'active' : '')}"><a href="${mainMenuEntry.mainEntry.url}" rel="nofollow">${messages.get(mainMenuEntry.mainEntry.titleKey)}</a></li>
+        #{/if}
+        #{else}
+            <li class="dropdown ${(_active == mainMenuEntry.key ? 'active' : '')}" id="${mainMenuEntry.key}">
+                <a class="dropdown-toggle" data-toggle="dropdown" href="#${mainMenuEntry.key}" rel="nofollow">
+                ${messages.get(mainMenuEntry.titleKey)}
+                    <b class="caret"></b>
+                </a>
+                <ul class="dropdown-menu">
+                    #{list mainMenuEntry.items, as: 'entry'}
+                        <li><a href="${entry.url}" rel="nofollow">${messages.get(entry.titleKey)}</a></li>
+                    #{/list}
+                </ul>
+            </li>
+        #{/else}
+    #{/list}
+    </ul>
+</div>
+

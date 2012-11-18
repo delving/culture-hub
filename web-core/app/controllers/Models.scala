@@ -52,6 +52,6 @@ case class ListItem(id: String,
   def hasDigitalObject = !thumbnailUrl.trim.isEmpty
 }
 
-abstract class ViewModel {
+abstract class ViewModel extends Product {
   val errors: Map[String, String]
 }

@@ -37,7 +37,10 @@ import org.apache.commons.lang.StringEscapeUtils
 object SolrBindingService {
 
   def stripDynamicFieldLabels(fieldName: String): String = {
-    fieldName.replaceFirst("_(string|facet|location|int|single|text|date|link|s|lowercase|geohash)$","").replaceFirst("^(facet|sort|sort_all)_","")
+    if (fieldName.split("_").length > 2)
+      fieldName.replaceFirst("_(string|facet|location|int|single|text|date|link|s|lowercase|geohash)$","").replaceFirst("^(facet|sort|sort_all)_","")
+    else
+      fieldName
   }
 
   def addFieldNodes(key : String, values: List[Any]) : List[FieldValueNode] =
@@ -287,13 +290,16 @@ case class BriefDocItem(solrDocument : SolrResultDocument) extends MetadataAcces
   var debugQuery : String = _
 
   // todo clean up and make more dry
-  def toKmFields(filteredFields: Seq[String] = Seq.empty, include: Boolean = false, language : String = "en"): List[Elem] = {
+  def toKmFields(filteredFields: Seq[String] = Seq.empty, include: Boolean = false, language : String = "en", simpleData: Boolean = true): List[Elem] = {
     def renderKMLSimpleDataFields(field : FieldValue): (Seq[Elem], Seq[(String, String, Throwable)]) = {
       val keyAsXml = field.getKeyAsXml
       val values = field.getValueAsArray.map(value => {
         val cleanValue = if (value.startsWith("http")) value.replaceAll("&(?!amp;)", "&amp;") else StringEscapeUtils.escapeXml(value)
         try {
-          Right(XML.loadString("<SimpleData name='%s'>%s</SimpleData>\n".format(field.getKey, cleanValue)))
+          if (simpleData)
+            Right(XML.loadString("<SimpleData name='%s'>%s</SimpleData>\n".format(field.getKey, cleanValue)))
+          else
+            Right(XML.loadString("<Data name='%s'><value>%s</value></Data>\n".format(field.getKeyAsXml, cleanValue)))
         } catch {
           case t: Throwable =>
             Left((cleanValue, keyAsXml, t))
