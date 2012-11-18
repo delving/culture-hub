@@ -471,7 +471,7 @@
     See http://wiki.apache.org/solr/SpatialSearch
    -->
     <!--<fieldtype name="geohash" class="solr.GeoHashField"/>-->
-    <fieldType name="geohash" class="solr2155.solr.schema.GeoHashField" length="12" />
+    <fieldType name="geohash" class="solr2155.solr.schema.GeoHashField" length="20" />
 
    <!-- Money/currency field type. See http://wiki.apache.org/solr/MoneyFieldType
         Parameters:
