@@ -789,6 +789,7 @@ plugin.relocation.reservations=Reservations
 plugin.relocation.madeReservations=Placed reservations
 plugin.relocation.incomingReservations=Incoming reservations
 plugin.relocation.listMadeReservations=List made reservations
+plugin.relocation.listAllMadeReservations=List all made reservations
 plugin.relocation.listIncomingReservations=List incoming reservations
 plugin.relocation.reservingOrganization=Reserving organization
 plugin.relocation.owningOrganization=Owning organization
