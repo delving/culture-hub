@@ -167,9 +167,12 @@ trait CRUDController[Model <: CaseClass { def id: ObjectId }, D <: SalatDAO[Mode
 
   // ~~~ CRUD handler methods
 
-  def crudView(id: ObjectId, titleKey: String, viewTemplate: String, fields: Seq[(String, String)])
-              (implicit request: RequestHeader, configuration: DomainConfiguration,
-                        mom: Manifest[Model], mod: Manifest[D]): Result = {
+  def crudView(id: ObjectId,
+               titleKey: String = "",
+               viewTemplate: String = "organization/crudView.html",
+               fields: Seq[(String, String)] = Seq(("thing.name" -> "name"))
+              )(implicit request: RequestHeader, configuration: DomainConfiguration,
+                         mom: Manifest[Model], mod: Manifest[D]): Result = {
 
     dao.findOneById(id).map { item =>
 
@@ -361,6 +364,13 @@ trait CRUDController[Model <: CaseClass { def id: ObjectId }, D <: SalatDAO[Mode
                   "(?<=[A-Za-z])(?=[^A-Za-z])"), " ")
 
 
-  case class ListAction(actionType: String = "link", actionClass: String = "edit", labelKey: String, url: String, urlFields: Seq[String] = Seq("id"))
+  case class ListAction(
+    actionType: String = "link",
+    actionClass: String = "edit",
+    labelKey: String,
+    url: String,
+    urlFields: Seq[String] = Seq("id"),
+    isAdminAction: Boolean = false
+  )
 
 }

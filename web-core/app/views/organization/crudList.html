@@ -13,7 +13,9 @@
    #{/list}
    <td>
        #{list additionalActions, as: 'action'}
+           #{if !action.isAdminAction || (action.isAdminAction && isAdmin) }
            <a class="btn btn-primary btn-mini" href="#" data-bind="attr: { href: '\${action.url}'#{list action.urlFields, as: 'field'}.replace('_${field}_', $data.${field}())#{/list}.replace('_orgId_', '${orgId}' ) }" rel="nofollow"><i class="icon-${action.actionClass} icon-white"></i> &{action.labelKey}</a>
+           #{/if}
        #{/list}
        #{if isAdmin}
        #{if editActionEnabled}
