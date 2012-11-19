@@ -238,6 +238,7 @@ function updateViewModel(data, viewModel, scope, callback, onApplyBindings) {
 
     if (data.errors) {
         viewModel.errors(ko.mapping.fromJS(data.errors));
+        window.scrollTo(0, 0);
     }
 
     if (typeof callback !== 'undefined' && typeof callback === 'function') callback.call();
