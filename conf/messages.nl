@@ -671,31 +671,3 @@ plugin.advancedsearch.contains=Bevat
 plugin.advancedsearch.between=Tussen
 
 plugin.rijks.rijks=Rijkscollectie
-
-
-
-
-plugin.relocation.relocationItemsOfOrganization=Relocation items of {0}
-plugin.relocation.listRelocationItems=Relocatie objecten
-plugin.relocation.reservations=Reserveringen
-plugin.relocation.madeReservations=Geplaatste reserveringen
-plugin.relocation.incomingReservations=Inkomende reserveringen
-plugin.relocation.listMadeReservations=Geplaatste reserveringen
-plugin.relocation.listIncomingReservations=Inkomende reserveringen
-plugin.relocation.reservingOrganization=Reserverende organisatie
-plugin.relocation.owningOrganization=Beheerende organisatie
-plugin.relocation.makeReservation=Reserveer dit object
-
-
-plugin.relocation.relocationItems=Heerplaatsingsobjecten
-plugin.relocation.membersWithReservationRights=Members with reservartion rights
-plugin.relocation.membersWithSupplierRights=Members with supplier rights
-plugin.relocation.manageMembers=Manage members
-plugin.relocation.import.noSheetFound=No sheet could be found!
-plugin.relocation.import.emptyCell=Required cell is empty
-plugin.relocation.import.invalidSheetFormat=The Excel Sheet could not be read
-plugin.relocation.form.basicInfo=Basis informatie
-plugin.relocation.form.creatorInfo=Vervaardiger informatie
-plugin.relocation.form.measurementsInfo=Afmetingen
-plugin.relocation.form.extraInfo=Extra informatie
-
