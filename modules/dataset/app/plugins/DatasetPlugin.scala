@@ -303,7 +303,6 @@ class DataSetPlugin(app: Application) extends CultureHubPlugin(app) {
               }
           }
       }
-      Thread.sleep(3000)
     }
   }
 
