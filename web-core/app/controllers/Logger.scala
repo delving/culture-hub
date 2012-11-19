@@ -118,7 +118,22 @@ object ErrorReporter {
   }
 
   def reportError(subject: String, report: String)(implicit configuration: DomainConfiguration) {
-    Email(configuration.emailTarget.systemFrom, subject).to(configuration.emailTarget.exceptionTo).withTemplate("Mails/reportError.txt", "en", 'report -> report, 'quote -> Quotes.randomQuote(), 'themeInfo -> new ThemeInfo(configuration)).send()
+    val themeInfo = new ThemeInfo(configuration)
+    Email(configuration.emailTarget.systemFrom, subject)
+      .to(configuration.emailTarget.exceptionTo)
+      .withContent(
+      """
+        |Master,
+        |
+        |an error has happened:
+        |
+        |%s
+        |
+        |
+        |----
+        |%s
+      """.stripMargin.format(report, Quotes.randomQuote()))
+      .send()
   }
 
   private def getUser(request: RequestHeader) = request.session.get("userName").getOrElse("Unknown")
@@ -177,15 +192,16 @@ object ErrorReporter {
   }
 
   private def fullContext(request: RequestHeader) = {
-    """
-       URL: %s
-       METHOD: %s
-       HTTP PARAMS:
-%s
-       HTTP HEADERS:
-%s""".format(request.uri,
-             request.method,
-             request.queryString.map(pair =>         "          " + pair._1 + ": " + pair._2.mkString(", ")).mkString("\n"),
-             request.headers.toMap.map(pair =>       "          " + pair._1 + ": " + pair._2.mkString(", ")).mkString("\n"))
+    """|
+       |URL: %s
+       |METHOD: %s
+       |HTTP PARAMS:
+       |%s
+       |HTTP HEADERS:
+       |%s""".stripMargin.format(
+                request.uri,
+                request.method,
+                request.queryString.map(pair =>         "          " + pair._1 + ": " + pair._2.mkString(", ")).mkString("\n"),
+                request.headers.toMap.map(pair =>       "          " + pair._1 + ": " + pair._2.mkString(", ")).mkString("\n"))
   }
 }
