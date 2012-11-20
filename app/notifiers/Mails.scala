@@ -62,7 +62,7 @@ object Mails {
       """
         |%s!
         |
-        |${messages.get('mail.message.resetpassword', themeInfo.siteName())}:
+        |%s:
         |
         |http://%s/registration/resetPassword/%s
       """.stripMargin.format(
