@@ -27,11 +27,15 @@
 </div>
 #{/if}
 
-<div class="well">
-    #{btnButton label: messages.get('ui.label.save'), extraClass:"btn-success btn-large span6 pull-right", iconClass:"icon-ok-circle icon-white", id:"saveButton", type:"submit" /}
-    #{btnButton label: messages.get('ui.label.cancel'), extraClass:"cancelButton", id:"cancelButton", type:"reset" /}
-    #{btnButton label: messages.get('ui.label.reset'), extraClass:"", type:"reset" /}
-    <div class="wait"></div>
+<div class="well well-small clearfix">
+    <div class="pull-left">
+        #{btnButton label: messages.get('ui.label.cancel'), extraClass:"cancelButton", id:"cancelButton", type:"reset" /}
+        #{btnButton label: messages.get('ui.label.reset'), type:"reset" /}
+    </div>
+    <div class="pull-right">
+        <div class="wait"></div>#{btnButton label: messages.get('ui.label.save'), extraClass:"btn-success btn-large span6", iconClass:"icon-ok-circle icon-white", id:"saveButton", type:"submit" /}
+    </div>
+
 </div>
 
 <script type="text/javascript">
