@@ -5071,6 +5071,12 @@ div.token-input-dropdown ul li.token-input-selected-dropdown-item {
   font-weight: bold;
   margin-bottom: 11px;
 }
+/*---------------------------------
+    CRUD elements
+-----------------------------------*/
+.crud-list-img {
+  width: 50px;
+}
 @media (max-width: 480px) {
   .results .result {
     display: block;

@@ -25,7 +25,7 @@
             <thead>
             <tr>
                 #{list columnLabels, as: 'label'}
-                <th class="sort">&{label}</th>
+                <th>&{label}</th>
                 #{/list}
                 <th>&{'thing.actions'}</th>
             </tr>
@@ -97,7 +97,7 @@
         var link = location.href + (location.href.indexOf('?') > -1 ? '&format=json' : '?format=json');
         load(link, viewModel, null, function () {
             $("body").css('visibility', 'visible');
-            theTable.tablesorter();
+
             // Check to see if there is a filter cookie. If so filter the table
             if ($.cookie(tableCookie)) {
                 $.uiTableFilter(theTable, $.cookie(tableCookie));
