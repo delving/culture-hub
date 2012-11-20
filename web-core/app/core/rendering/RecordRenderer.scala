@@ -66,9 +66,11 @@ object RecordRenderer {
                            xmlns:dc="http://purl.org/dc/elements/1.1/"
                            xmlns:custom="http://www.delving.eu/schemas/"
                            xmlns:dcterms="http://purl.org/dc/termes/"
+                           xmlns:itin="http://www.itin.nl/namespace"
+                           xmlns:drup="http://www.itin.nl/drupal"
                            xmlns:europeana="http://www.europeana.eu/schemas/ese/">
 
-      { item.map { i => {i.toXml()} }}
+      { item.map { i => {i.toXml()} }.getOrElse(<item/>) }
       { relatedItems.map { ri => <relatedItems>{ri.toXml()}</relatedItems> }}
     </result>
 
