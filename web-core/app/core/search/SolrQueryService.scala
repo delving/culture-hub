@@ -297,7 +297,7 @@ object SolrQueryService extends SolrServer {
 
       Some(
         DocItemReference(
-          first.getFirstValue(HUB_ID.key).toString,
+          Option(first.getFirstValue(HUB_ID.key)).map(_.toString).getOrElse(""),
           currentFormat,
           publicFormats,
           relatedItems,
