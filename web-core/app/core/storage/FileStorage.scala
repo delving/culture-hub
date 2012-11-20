@@ -25,6 +25,12 @@ object FileStorage {
     files.foreach { f => FileStorage.deleteFileById(f.id) }
   }
 
+  def getFilesForUID(uid: String)(implicit configuration: DomainConfiguration): Seq[StoredFile] =
+    fileStore(configuration).
+      find(MongoDBObject(UPLOAD_UID_FIELD -> uid)).
+      map(f => fileToStoredFile(f)).
+      toSeq
+
   /**
    * Attaches all files to an object, given the upload UID
    */
@@ -36,6 +42,17 @@ object FileStorage {
         f.put(UPLOAD_UID_FIELD, "")
         f.put(ITEM_POINTER_FIELD, objectIdentifier)
         f.save()
+    }
+  }
+
+  /**
+   * Attaches a single file to an object given the file ID, and resets the UID
+   */
+  def markSingleFileAttached(fileId: ObjectId, objectIdentifier: String)(implicit configuration: DomainConfiguration) {
+    fileStore(configuration).find(MongoDBObject("_id" -> fileId)) map { f =>
+      f.put(UPLOAD_UID_FIELD, "")
+      f.put(ITEM_POINTER_FIELD, objectIdentifier)
+      f.save()
     }
   }
 
