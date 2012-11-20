@@ -4630,6 +4630,22 @@ select[name=searchIn] {
 .results.span12 .result {
   width: 141px;
 }
+#dropbox {
+  background: #d9edf7;
+  border: 1px solid #bce8f1;
+  margin-top: 8px;
+  min-height: 100px;
+  padding: 4px;
+}
+#dropbox.hover {
+  background: #dff0d8;
+  border-color: #d6e9c6;
+}
+#dropbox .media {
+  background: #ffffff;
+  margin: 2px;
+  padding: 2px;
+}
 .object-main {
   margin-top: 21px;
 }
@@ -4761,6 +4777,9 @@ select[name=searchIn] {
 }
 #footer ul.nav-list {
   padding: 0 0 0 0;
+}
+#footer ul.nav-list li a {
+  display: inline;
 }
 #footer ul.nav-list li:hover a {
   background: transparent;
