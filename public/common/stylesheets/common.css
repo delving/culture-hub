@@ -4580,8 +4580,12 @@ ul.nav-row li.divider {
 select[name=searchIn] {
   width: 121px;
 }
+.results-header-block {
+  margin-bottom: 21px;
+}
 .results-header-block h4 small {
   margin-left: 12px;
+  font-size: 100%;
 }
 .results-header-block h4 small a {
   color: #999999;
@@ -4635,7 +4639,7 @@ select[name=searchIn] {
   border: 1px solid #bce8f1;
   margin-top: 8px;
   min-height: 100px;
-  padding: 4px;
+  padding: 2px;
 }
 #dropbox.hover {
   background: #dff0d8;
@@ -4643,7 +4647,7 @@ select[name=searchIn] {
 }
 #dropbox .media {
   background: #ffffff;
-  margin: 2px;
+  margin: 1px;
   padding: 2px;
 }
 .object-main {
