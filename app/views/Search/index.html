@@ -53,13 +53,13 @@
                 columns: tf.nrDisplayColumns,
                 collapsable: themeInfo.get('collapseFacets')  /}
             #{/list}
-        </div>
 
-        <div class="span3">
+            *{ plugin functionality }*
             #{list pluginIncludes, as: 'pluginInclude' }
                 #{include pluginInclude /}
             #{/list}
         </div>
+
     </div>
 
     #{if pagination.getNumFound() > themeInfo.pageSize()}
