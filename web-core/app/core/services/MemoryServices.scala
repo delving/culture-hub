@@ -57,7 +57,7 @@ class MemoryServices(val users: HashMap[String, MemoryUser] = new HashMap[String
   }.getOrElse(None)
 
   def resetPassword(resetToken: String, newPassword: String): Boolean = {
-    val resetUser = users.values.find(_.passwordResetToken == resetToken).getOrElse(return false).copy(password = newPassword, passwordResetToken = None)
+    val resetUser = users.values.find(u => u.passwordResetToken.isDefined && u.passwordResetToken.get == resetToken).getOrElse(return false).copy(password = newPassword, passwordResetToken = None)
     users += (resetUser.userName -> resetUser)
     true
   }
