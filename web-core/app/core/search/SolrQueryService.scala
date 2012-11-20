@@ -257,7 +257,7 @@ object SolrQueryService extends SolrServer {
     val t = idType.resolve(id)
     val solrQuery = if (idType == DelvingIdType.LEGACY) {
       "%s:\"%s\" delving_orgId:%s".format(t.idSearchField, URLDecoder.decode(t.normalisedId, "utf-8"), configuration.orgId)
-    } else if (idType == DelvingIdType.FREE) {
+    } else if (idType == DelvingIdType.FREE || idType == DelvingIdType.ITIN) {
       "%s delving_orgId:%s".format(URLDecoder.decode(t.normalisedId, "utf-8"), configuration.orgId)
     } else {
       "%s:\"%s\" delving_orgId:%s".format(t.idSearchField, t.normalisedId, configuration.orgId)
@@ -300,7 +300,8 @@ object SolrQueryService extends SolrServer {
           first.getFirstValue(HUB_ID.key).toString,
           currentFormat,
           publicFormats,
-          relatedItems
+          relatedItems,
+          SolrBindingService.getBriefDocs(response).headOption
         )
       )
     }
@@ -459,7 +460,10 @@ object DelvingIdType {
   val LEGACY = DelvingIdType("legacy", EUROPEANA_URI.key)
   val FREE = DelvingIdType("free", "")
 
-  val types = Seq(SOLR, PMH, DRUPAL, HUB, INDEX_ITEM, LEGACY, FREE)
+  // TODO legacy support - to be removed on 01.06.2013
+  val ITIN = DelvingIdType("itin", "")
+
+  val types = Seq(SOLR, PMH, DRUPAL, HUB, INDEX_ITEM, LEGACY, FREE, ITIN)
 
   def apply(idType: String): DelvingIdType = types.find(_.idType == idType).getOrElse(DelvingIdType.HUB)
 
@@ -649,7 +653,7 @@ case class BriefItemView(chResponse: CHResponse) {
   def getPagination: ResultPagination = pagination
 }
 
-case class DocItemReference(hubId: String, defaultSchema: String, publicSchemas: Seq[String], relatedItems: Seq[BriefDocItem] = Seq.empty)
+case class DocItemReference(hubId: String, defaultSchema: String, publicSchemas: Seq[String], relatedItems: Seq[BriefDocItem] = Seq.empty, item: Option[BriefDocItem] = None)
 
 // todo implement the traits as case classes
 
