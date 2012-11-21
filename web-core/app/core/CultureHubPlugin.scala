@@ -239,7 +239,8 @@ case class MainMenuEntry(key: String, titleKey: String, roles: Seq[Role] = Seq.e
 case class MenuElement(url: String, titleKey: String, roles: Seq[Role] = Seq.empty, isDivider: Boolean = false) {
   val asJavaMap = Map(
     "url" -> url,
-    "titleKey" -> titleKey
+    "titleKey" -> titleKey,
+    "isDivider" -> isDivider
   ).asJava
 }
 
