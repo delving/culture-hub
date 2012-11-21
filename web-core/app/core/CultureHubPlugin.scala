@@ -236,7 +236,7 @@ case class MainMenuEntry(key: String, titleKey: String, roles: Seq[Role] = Seq.e
   ).asJava
 }
 
-case class MenuElement(url: String, titleKey: String, roles: Seq[Role] = Seq.empty) {
+case class MenuElement(url: String, titleKey: String, roles: Seq[Role] = Seq.empty, isDivider: Boolean = false) {
   val asJavaMap = Map(
     "url" -> url,
     "titleKey" -> titleKey
