@@ -110,6 +110,12 @@ a:hover {
 #footer a {
   color: #ffffff;
 }
+/* Large desktop */
+@media (min-width: 1200px) {
+  .container {
+    width: 75%path;
+  }
+}
 @media (max-width: 767px) {
   body {
     padding: 0;

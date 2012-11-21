@@ -4465,6 +4465,9 @@ a.badge:hover {
  * http://www.apache.org/licenses/LICENSE-2.0
  *
  */
+.split span {
+  color: #999999;
+}
 .navbar {
   margin-bottom: 0;
 }
@@ -4848,7 +4851,10 @@ form label.radio {
 form.form-horizontal ul.token-input-list {
   clear: none !important;
 }
-.form-file-upload input[type=file] {
+.form-file-upload {
+  margin-top: 21px;
+}
+.form-file-upload Dr input[type=file] {
   background: #ffffff;
   border: 1px solid #eeeeee;
   -webkit-border-radius: 4px;
