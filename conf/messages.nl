@@ -122,6 +122,7 @@ thing.labels=Labels
 thing.label.explain=Een "label" is een korte tekst die je aan iets kan toevoegen. Een "vrije-tekst" label mag van alles zijn. Een "plaats-naam" label refereerd aan een geographische locatie.
 thing.label.freeText=Vrije-tekst label
 thing.label.placeName=Plaats-naam label
+thing.city=Stad
 thing.comment=Comment
 thing.comments=Comments
 thing.dataset=Dataset

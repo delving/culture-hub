@@ -135,6 +135,7 @@ thing.labels=Labels
 thing.label.explain=A label is a piece of text which you can attach to an item. A "free-text" label can be any descriptive term. A "place-name" label should refer to a geographic location.
 thing.label.freeText=Free-text label
 thing.label.placeName=Place-name label
+thing.city=City
 thing.comment=Comment
 thing.comments=Comments
 thing.dataset=Dataset
