@@ -4851,6 +4851,10 @@ form label.radio {
 form.form-horizontal ul.token-input-list {
   clear: none !important;
 }
+.required {
+  color: #b94a48;
+  font-weight: bold;
+}
 .form-file-upload {
   margin-top: 21px;
 }
