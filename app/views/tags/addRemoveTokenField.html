@@ -24,8 +24,8 @@
           url: addUrl,
           data: {id: item.id},
           error: function(jqXHR, textStatus, errorThrown) {
-            // TODO prompt the user that something went wrong
-            $(id).tokenInput('remove', {id: item.id})
+              bootbox.alert(jqXHR.responseText);
+              $(id).tokenInput('remove', {id: item.id})
           }
         });
       },
