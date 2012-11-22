@@ -50,7 +50,7 @@ object Users extends DelvingController {
         val baseQuery = Seq(queryByUserName, queryByFirstName, queryByLastName)
         val query: Seq[MongoDBObject] = if (orgId != None) baseQuery ++ Seq(orgQuery) else baseQuery
 
-        val users: Seq[HubUser] = query.flatMap { HubUser.dao.find(_).toSeq }
+        val users: Seq[HubUser] = query.flatMap { HubUser.dao.find(_).toSeq }.distinct
         val asTokens = users.map(u => Token(u.userName, u.userName + " - " + u.fullname))
 
         Json(asTokens)
