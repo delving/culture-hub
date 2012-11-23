@@ -12,12 +12,8 @@
    </td>
    #{/list}
    <td>
-       *{#{list additionalActions, as: 'action'}}*
-           *{#{if !action.isAdminAction || (action.isAdminAction && isAdmin) }}*
-           *{<a class="btn btn-primary btn-mini" href="#" data-bind="attr: { href: '\${action.url}'#{list action.urlFields, as: 'field'}.replace('_${field}_', $data.${field}())#{/list}.replace('_orgId_', '${orgId}' ) }" rel="nofollow"><i class="icon-${action.actionClass} icon-white"></i> &{action.labelKey}</a>}*
-           *{#{/if}}*
-       *{#{/list}}*
-           <div class="btn-toolbar nom">
+       #{if (isAdmin && (editActionEnabled || deleteActionEnabled) || additionalActions.size() > 0) }
+       <div class="btn-toolbar nom">
            <div class="btn-group">
                <button class="btn btn-small input-small">&{'thing.actions'}</button>
                <button class="btn btn-small dropdown-toggle" data-toggle="dropdown">
@@ -26,11 +22,10 @@
                <ul class="dropdown-menu">
                    #{if isAdmin}
                        #{if editActionEnabled}
-                               <li><a class="" href="#" data-bind="click: function() { $parent.update($data) }" rel="nofollow">
-                                   <i class="icon-edit"></i> &{'ui.label.edit'}
-                               </a></li>
-                                <li class="divider"></li>
-
+                           <li><a class="" href="#" data-bind="click: function() { $parent.update($data) }" rel="nofollow">
+                               <i class="icon-edit"></i> &{'ui.label.edit'}
+                           </a></li>
+                            <li class="divider"></li>
                        #{/if}
                    #{/if}
                     #{list additionalActions, as: 'action'}
@@ -50,22 +45,7 @@
                    #{/if}
                </ul>
            </div>
-           *{#{if isAdmin}}*
-               *{#{if editActionEnabled}}*
-               *{<div class="btn-group">}*
-               *{<a class="btn btn-primary btn-small" href="#" data-bind="click: function() { $parent.update($data) }" rel="nofollow">}*
-                   *{<i class="icon-edit icon-white"></i> &{'ui.label.edit'}}*
-               *{</a>}*
-               *{</div>}*
-               *{#{/if}}*
-               *{#{if deleteActionEnabled}}*
-               *{<div class="btn-group">}*
-               *{<a class="btn btn-danger btn-small" href="#" data-bind="click: function() { $parent.delete($data) }" rel="nofollow">}*
-                   *{<i class="icon-trash icon-white"></i> &{'ui.label.delete'}}*
-               *{</a>}*
-               *{</div>}*
-               *{#{/if}}*
-           *{#{/if}}*
-           </div>
+       </div>
+       #{/if}
     </td>
 </tr>
