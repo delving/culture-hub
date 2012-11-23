@@ -606,6 +606,7 @@ plugin.cms.page.list=Pagina lijst
 plugin.cms.list.languageSwitch=Bekijk paginas in
 plugin.cms.list.deletePage=Verwijder pagina
 plugin.cms.list.deletePageConfirm=Weet u zeker dat u deze pagina en alle versies van deze pagiana wil verwijderen? Dit kan niet ongedaan worden.
+plugin.cms.updateHomePage=Homepage bewerken
 plugin.cms.upload=Bestand uploaden
 plugin.cms.upload.image=Afbeelding uploaden
 plugin.cms.upload.image.explain=U kunt hier plaatjes van uw eigen computer uploaden om aan een CMS pagina toe te voegen. Deze plaatjes worden toegevoegd aan een lijst die terug te vinden is wanneer u nieuwe pagina aanmaakt of een bestaande pagina aanpast.
