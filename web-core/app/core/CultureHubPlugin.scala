@@ -91,6 +91,19 @@ abstract class CultureHubPlugin(app: Application) extends play.api.Plugin {
    */
   def homePageSnippet: Option[(String, RequestContext => Unit)] = None
 
+  /**
+   * Override this to include an additional snippet in the full view page
+   *
+   * Caution: this is an experimental API feature and might disappear at any time!
+   */
+  def fullViewSnippet: Option[(String, (RequestContext, HubId) => Unit)] = None
+
+  /**
+   * Override this to include an additional snippet in the search result page
+   *
+   * Caution: this is an experimental API feature and might disappear at any time!
+   */
+  def searchResultSnippet: Option[(String, RequestContext => Unit)] = None
 
   /**
    * Override this to provide custom roles to the platform, that can be used in Groups
@@ -223,10 +236,11 @@ case class MainMenuEntry(key: String, titleKey: String, roles: Seq[Role] = Seq.e
   ).asJava
 }
 
-case class MenuElement(url: String, titleKey: String, roles: Seq[Role] = Seq.empty) {
+case class MenuElement(url: String, titleKey: String, roles: Seq[Role] = Seq.empty, isDivider: Boolean = false) {
   val asJavaMap = Map(
     "url" -> url,
-    "titleKey" -> titleKey
+    "titleKey" -> titleKey,
+    "isDivider" -> isDivider
   ).asJava
 }
 

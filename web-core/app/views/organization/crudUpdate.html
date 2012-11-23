@@ -1,0 +1,77 @@
+#{extends "organization/crudHeader.html" /}
+
+#{if fileUploadEnabled}
+    #{set 'moreCss'}
+    <link rel="stylesheet" type="text/css" href="@{routes.Assets.at("common/stylesheets/fileupload/jquery.fileupload-ui.css")}"/>
+    #{/set}
+
+    #{set 'moreScripts'}
+    <script type="text/javascript" src="@{routes.Assets.at("common/javascripts/fileupload/jquery.iframe-transport.js")}"></script>
+    <script type="text/javascript" src="@{routes.Assets.at("common/javascripts/fileupload/jquery.fileupload.js")}"></script>
+    <script type="text/javascript" src="@{routes.Assets.at("common/javascripts/fileupload/jquery.fileupload-fp.js")}"></script>
+    <script type="text/javascript" src="@{routes.Assets.at("common/javascripts/fileupload/jquery.fileupload-ui.js")}"></script>
+    <script type="text/javascript" src="@{routes.Assets.at("common/javascripts/fileupload/upload.js")}"></script>
+    #{/set}
+#{/if}
+
+
+        <form id="form" method="POST" action="" class="form-horizontal form-broad">
+            <div class="error" style="margin-bottom: 12px;" data-bind="text: errors().global"></div>
+            #{doLayout /}
+        </form>
+
+
+#{if fileUploadEnabled}
+<div>
+#{fileUploadForm /}
+</div>
+#{/if}
+
+<div class="well well-small clearfix">
+    <div class="pull-left">
+        #{btnButton label: messages.get('ui.label.cancel'), extraClass:"cancelButton", id:"cancelButton", type:"reset" /}
+        #{btnButton label: messages.get('ui.label.reset'), type:"reset" /}
+    </div>
+    <div class="pull-right">
+        <div class="wait"></div>#{btnButton label: messages.get('ui.label.save'), extraClass:"btn-success btn-large span6", iconClass:"icon-ok-circle icon-white", id:"saveButton", type:"submit" /}
+    </div>
+
+</div>
+
+<script type="text/javascript">
+
+    $(document).ready(function () {
+        var viewModel = {};
+
+        load(${data.raw()}, viewModel, document.getElementById('form'), function () {
+
+            #{if fileUploadEnabled}
+                $('#fileupload').fileupload({
+                    url: '@{controllers.user.routes.FileUpload.uploadFile(uid)}',
+                    autoUpload: true,
+                    uploadTemplate: _renderUploadTemplate,
+                    downloadTemplate: _renderDownloadTemplate,
+                    acceptFileTypes: /(\.|\/)(pdf|jpg|png|jpeg)$/i
+                }).bind('fileuploaddone', function (e, data) {
+                    $.post('${baseUrl}/upload/${uid}?id=' + viewModel._id());
+                });
+
+                $("table.files td.delete button").addClass("btn btn-danger");
+
+                $('#fileupload').each(function () {
+                    var that = this;
+                    $(that).fileupload('option', 'done').call(that, null, { result: ko.mapping.toJS(viewModel.files)} );
+                });
+            #{/if}
+
+            $("body").css('visibility', 'visible');
+        });
+
+        $('#saveButton').click(function (event) {
+            event.preventDefault();
+            handleSubmit('${baseUrl}/submit', viewModel, '#form', null, function () {
+                document.location = '${baseUrl}';
+            });
+        });
+    });
+</script>

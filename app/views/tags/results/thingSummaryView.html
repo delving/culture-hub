@@ -18,7 +18,8 @@ switch (recordType) {
 }
 }%
 
-<div class="${_data.getItemType()} item">
+<div class="${_data.getItemType()} item draggable">
+    <input type="hidden" class="hubId" value="${_data.getHubId()}"/>
     <a class="img" href="${_data.getUri()}" title="${_data.getTitle()}"  rel="nofollow">
     #{if _data.getMimeType().contains('image/') }
         <img src='${_data.getThumbnailUri(_iSize)}' alt="${_data.getTitle()}" onerror="showDefaultImg(this)" style="max-width: 100%;"/>

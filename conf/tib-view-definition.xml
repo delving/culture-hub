@@ -63,7 +63,8 @@
 
                 <row>
                     <column proportion="1of3">
-                        <container type="labelled-list">
+                        <container type="definition-list">
+                            <!--<field path="/tib:record/delving:title" label="metadata.dc.title"/>-->
                             <field path="/tib:record/dc:title" label="metadata.dc.title"/>
                             <field path="/tib:record/dc:creator" label="metadata.dc.creator"/>
                             <field path="/tib:record/tib:creatorBirthYear" label="metadata.tib.creatorBirthYear"/>
@@ -77,7 +78,7 @@
                         </container>
                    </column>
                    <column proportion="1of3">
-                       <container type="labelled-list">
+                       <container type="definition-list">
                            <field path="/tib:record/europeana:collectionTitle" label="metadata.europeana.collectionTitle"/>
                            <link textValue="${provider}" urlValue="${resolvedProviderUri}" label="metadata.europeana.provider"/>
                            <link textValue="${dataProvider}" urlValue="${resolvedDataProviderUri}" label="metadata.europeana.dataProvider"/>

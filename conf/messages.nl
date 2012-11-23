@@ -60,15 +60,18 @@ ui.label.load=Laden
 ui.label.location=Plaats
 ui.label.loggedInAs=Ingelogd als
 ui.label.login=Inloggen
+ui.label.list=Lijst
 ui.label.logout=Uitloggen
 ui.label.memberSince=Lid sinds
 ui.label.more=Meer
 ui.label.next=Volgende
+ui.label.new=Nieuw
 ui.label.nritems=Aantal items
 ui.label.overview=Overzicht
 ui.label.options=Opties
 ui.label.password=Wachtwoord
 ui.label.passwordrepeat=Wachtwoord (herhalen)
+ui.label.place=Plaats
 ui.label.places=Plaatsen
 ui.label.poweredby=Powered by DELVING.EU
 ui.label.preview=Voorbeeld
@@ -102,10 +105,18 @@ ui.label.welcome=Welkom
 ui.label.all=Alles
 ui.label.withoutDigitalObject=Heeft geen afbeelding
 ui.label.withDigitalObject=Heeft afbeelding
+ui.label.yes=Ja
+ui.label.no=Nee
 
+ui.widget.upload.header=Foto/bestand toevoegen
 ui.widget.upload.chooseFile=Bestand kiezen
 ui.widget.upload.start=Upload starten
 ui.widget.upload.cancel=Upload annuleren
+ui.widget.upload.uploaded=Bestanden
+ui.widget.upload.thumbnail=Thumbnail
+ui.widget.upload.fileName=Bestandsnaam
+ui.widget.upload.fileSize=Bestandsgroote
+ui.widget.upload.actions=Acties
 
 # General 'thing' like object, collection or story
 thing.label=Label
@@ -113,6 +124,7 @@ thing.labels=Labels
 thing.label.explain=Een "label" is een korte tekst die je aan iets kan toevoegen. Een "vrije-tekst" label mag van alles zijn. Een "plaats-naam" label refereerd aan een geographische locatie.
 thing.label.freeText=Vrije-tekst label
 thing.label.placeName=Plaats-naam label
+thing.city=Stad
 thing.comment=Comment
 thing.comments=Comments
 thing.dataset=Dataset
@@ -159,6 +171,8 @@ thing.browse=Ontdek {0}
 thing.browse.of=Ontdek {0} van
 thing.browse.ownedby=Ontdek {0} van gebruiker
 thing.confirmation=Zeker weten?
+thing.deleteConfirmation=Weet u zeker dat u dit object wilt verwijderen?
+
 
 thing.address=Adress
 thing.postalCode=Postcode
@@ -172,13 +186,13 @@ thing.contact=Contact
 thing.url=URL
 thing.missionStatement=Mission statement
 thing.contactName=Contact naam
-think.contactEmail=Contact email
+thing.contactEmail=Contact email
 thing.startYear=Start jaar
 thing.endYear=Eind jaar
 thing.keyword=Trefwoord
 thing.keywords=Trefwoorden
 thing.relatedItems=Soortgelijke inhoud
-
+thing.measurements=Afmetingen
 
 thing.creator=Vervaardiger
 thing.datecreated=Vervaardigingsdatum
@@ -386,6 +400,24 @@ metadata.collection.fromBorrowed=Uit bruikleen
 
 metadata.museum.type=Museum type
 
+metadata.reloc.reasonForPlacement=Reden van plaatsing
+metadata.reloc.creator=Vervaardiger
+metadata.reloc.creationPlace=Vervaardigingsplaats
+metadata.reloc.material=Materiaal
+metadata.reloc.length=Lengte
+metadata.reloc.height=Hoogte
+metadata.reloc.width=Breedte
+metadata.reloc.depth=Diepte
+metadata.reloc.diameter=Diameter
+metadata.reloc.condition=Conditie object
+metadata.reloc.lamoCompleted=Minimale plaatsing van twee maanden op HPD doorlopen
+metadata.reloc.docsAvailable=Documentatie beschikbaar
+metadata.reloc.upForAuction=Plaats voor veiling
+metadata.reloc.contact=Contactpersoon
+metadata.reloc.comments=Opmerkingen
+metadata.reloc.physicalState=Fysieke staat
+metadata.reloc.identifier=Inventarisnummer
+
 #Users
 
 ##Index
@@ -433,7 +465,8 @@ org.list.grantType.view=with rights to view
 org.list.grantType.modify=with rights to modify
 org.list.grantType.own=with full access to everything
 org.list.dataSetCount={0} Dataset(s)
-org.list.filter=Type hier om de lijst te filteren
+org.list.filter=Typ hier om de lijst te filteren
+org.list.filterHelp=Typ in een waarde om de lijst te filteren. Klik 'Bewaar' om de filter te bewaren. Klik op 'Herstel' om de filter te verwijderen.
 
 org.group.grantType.view=View rights
 org.group.grantType.modify=Modification rights
@@ -573,6 +606,7 @@ plugin.cms.page.list=Pagina lijst
 plugin.cms.list.languageSwitch=Bekijk paginas in
 plugin.cms.list.deletePage=Verwijder pagina
 plugin.cms.list.deletePageConfirm=Weet u zeker dat u deze pagina en alle versies van deze pagiana wil verwijderen? Dit kan niet ongedaan worden.
+plugin.cms.updateHomePage=Homepage bewerken
 plugin.cms.upload=Bestand uploaden
 plugin.cms.upload.image=Afbeelding uploaden
 plugin.cms.upload.image.explain=U kunt hier plaatjes van uw eigen computer uploaden om aan een CMS pagina toe te voegen. Deze plaatjes worden toegevoegd aan een lijst die terug te vinden is wanneer u nieuwe pagina aanmaakt of een bestaande pagina aanpast.
@@ -641,4 +675,3 @@ plugin.advancedsearch.contains=Bevat
 plugin.advancedsearch.between=Tussen
 
 plugin.rijks.rijks=Rijkscollectie
-

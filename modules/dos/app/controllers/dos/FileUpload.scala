@@ -18,13 +18,13 @@ package controllers.dos
 
 import play.api.mvc._
 import com.mongodb.casbah.Imports._
-import com.mongodb.gridfs.GridFSFile
 import org.bson.types.ObjectId
 import extensions.Extensions
 import java.io.File
 import play.api.libs.MimeTypes
 import models.DomainConfiguration
 import controllers.DomainConfigurationAware
+import core.storage.{FileUploadResponse, FileStorage}
 
 /**
  *
@@ -68,81 +68,10 @@ object FileUpload extends Controller with Extensions with Thumbnail with DomainC
         InternalServerError("Invalid file ID " + id)
       } else {
         val oid = new ObjectId(id)
-        deleteFileById(oid)
+        FileStorage.deleteFileById(oid)
         Ok
       }
   }
-
-
-  // ~~ public Scala API
-
-  def getFilesForUID(uid: String)(implicit configuration: DomainConfiguration): Seq[StoredFile] = fileStore(configuration).find(MongoDBObject(UPLOAD_UID_FIELD -> uid)) map {
-    f => {
-      val id = f.getId.asInstanceOf[ObjectId]
-      val thumbnail = if (hasThumbnail(f)) {
-        fileStore(configuration).findOne(MongoDBObject(FILE_POINTER_FIELD -> id)) match {
-          case Some(t) => Some(t.id.asInstanceOf[ObjectId])
-          case None => None
-        }
-      } else {
-        None
-      }
-      StoredFile(id, f.getFilename, f.getContentType, f.getLength, thumbnail)
-    }
-  }
-
-  /**
-   * Attaches all files to an object, given the upload UID
-   */
-  def markFilesAttached(uid: String, objectIdentifier: String)(implicit configuration: DomainConfiguration) {
-    fileStore(configuration).find(MongoDBObject(UPLOAD_UID_FIELD -> uid)) map {
-      f =>
-      // yo listen up, this ain't implemented in the mongo driver and throws an UnsupportedOperationException
-      // f.removeField("uid")
-        f.put(UPLOAD_UID_FIELD, "")
-        f.put(ITEM_POINTER_FIELD, objectIdentifier)
-        f.save()
-    }
-  }
-
-  /**
-   * For all thumbnails and images of a particular file, sets their pointer to a given item, thus enabling direct lookup
-   * using the item id.
-   */
-  def activateThumbnails(fileId: ObjectId, itemId: ObjectId)(implicit configuration: DomainConfiguration) {
-    val thumbnails = fileStore(configuration).find(MongoDBObject(FILE_POINTER_FIELD -> fileId))
-
-    // deactive old thumbnails
-    fileStore(configuration).find(MongoDBObject(THUMBNAIL_ITEM_POINTER_FIELD -> itemId)) foreach {
-      theOldOne =>
-        theOldOne.put(THUMBNAIL_ITEM_POINTER_FIELD, "")
-        theOldOne.save()
-    }
-
-    // activate new thumbnails
-    thumbnails foreach {
-      thumb =>
-        thumb.put(THUMBNAIL_ITEM_POINTER_FIELD, itemId)
-        thumb.save()
-    }
-
-    // deactivate old image
-    fileStore(configuration).findOne(MongoDBObject(IMAGE_ITEM_POINTER_FIELD -> itemId)) foreach {
-      theOldOne =>
-        theOldOne.put(IMAGE_ITEM_POINTER_FIELD, "")
-        theOldOne.save
-    }
-
-    // activate new default image
-    fileStore(configuration).findOne(fileId) foreach {
-      theNewOne =>
-        theNewOne.put(IMAGE_ITEM_POINTER_FIELD, itemId)
-        theNewOne.save
-    }
-  }
-
-  def hasThumbnail(f: GridFSFile) = f.getContentType.contains("image") || f.getContentType.contains("pdf")
-
 
   // ~~~ PRIVATE
 
@@ -176,23 +105,6 @@ object FileUpload extends Controller with Extensions with Thumbnail with DomainC
     } else emptyThumbnailUrl
 
     (f, thumbnailUrl)
-  }
-
-  /**
-   * Deletes a file
-   * @param id the mongo id of the
-   */
-  def deleteFileById(id: ObjectId)(implicit configuration: DomainConfiguration) {
-    fileStore(configuration).find(id) foreach {
-      toDelete =>
-      // remove thumbnails
-        fileStore(configuration).find(MongoDBObject(FILE_POINTER_FIELD -> id)) foreach {
-          t =>
-            fileStore(configuration).remove(t.getId.asInstanceOf[ObjectId])
-        }
-        // remove the file itself
-        fileStore(configuration).remove(id)
-    }
   }
 
 }

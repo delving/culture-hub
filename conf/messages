@@ -61,6 +61,7 @@ ui.label.last=Last
 ui.label.lastname=Last name
 ui.label.less=Less
 ui.label.list=List
+ui.label.listAll=List all
 ui.label.load=Load
 ui.label.location=Location
 ui.label.loggedInAs=Logged in as
@@ -76,6 +77,7 @@ ui.label.options=Options
 ui.label.overview=Overview
 ui.label.password=Password
 ui.label.passwordrepeat=Password (repeat)
+ui.label.place=Place
 ui.label.places=Places
 ui.label.poweredby=Powered by DELVING.EU
 ui.label.preview=Preview
@@ -109,13 +111,23 @@ ui.label.website=Website
 ui.label.welcome=Welcome
 ui.label.theme=Site theme
 ui.label.identifier=Identifier
+ui.label.import=Import
 ui.label.all=All
 ui.label.withoutDigitalObject=Without digital object
 ui.label.withDigitalObject=With digital object
+ui.label.yes=Yes
+ui.label.no=No
+ui.label.download=Download
 
+ui.widget.upload.header=Image/document upload
 ui.widget.upload.chooseFile=Choose file
 ui.widget.upload.start=Start upload
 ui.widget.upload.cancel=Cancel upload
+ui.widget.upload.uploaded=Uploaded files
+ui.widget.upload.thumbnail=Thumbnail
+ui.widget.upload.fileName=File name
+ui.widget.upload.fileSize=File size
+ui.widget.upload.actions=Actions
 
 # General 'thing' like object, collection or story
 thing.label=Label
@@ -123,6 +135,7 @@ thing.labels=Labels
 thing.label.explain=A label is a piece of text which you can attach to an item. A "free-text" label can be any descriptive term. A "place-name" label should refer to a geographic location.
 thing.label.freeText=Free-text label
 thing.label.placeName=Place-name label
+thing.city=City
 thing.comment=Comment
 thing.comments=Comments
 thing.dataset=Dataset
@@ -175,7 +188,9 @@ thing.browse.of=Browse {0} of
 thing.browse.ownedby=Browse {0} owned by
 thing.grantType=This group grants
 thing.confirmation=Are you sure?
+thing.deleteConfirmation=Are you sure you want to delete this item?
 thing.provider=Provider
+thing.measurements=Measurements
 
 thing.instant=Instant
 thing.version=Version
@@ -192,7 +207,7 @@ thing.contact=Contact
 thing.url=URL
 thing.missionStatement=Mission statement
 thing.contactName=Contact name
-think.contactEmail=Contact email
+thing.contactEmail=Contact email
 thing.startYear=Start year
 thing.endYear=End year
 thing.keyword=Keyword
@@ -442,6 +457,26 @@ metadata.type.texts=Texts
 metadata.type.video=Video
 metadata.type.videos=Videos
 
+metadata.reloc.reasonForPlacement=Reden van plaatsing
+metadata.reloc.creator=Creator
+metadata.reloc.creationPlace=Place of creation
+metadata.reloc.material=Material
+metadata.reloc.length=Length
+metadata.reloc.height=Height
+metadata.reloc.width=Width
+metadata.reloc.depth=Depth
+metadata.reloc.diameter=Diameter
+metadata.reloc.condition=Condition object
+metadata.reloc.lamoCompleted=Placement time has expired (LAMO)
+metadata.reloc.lamoCompleted=Leidraad afstoting (LAMO) is doorlopen
+metadata.reloc.docsAvailable=Documentation available
+metadata.reloc.upForAuction=Place for auction
+metadata.reloc.contact=Contact person
+metadata.reloc.comments=Comments
+metadata.reloc.physicalState=Physical state
+metadata.reloc.identifier=Inventory number
+
+
 #Users
 
 ##Index
@@ -474,6 +509,7 @@ org.list.grantType.modify=with rights to modify
 org.list.grantType.own=with full access to everything
 org.list.dataSetCount={0} Dataset(s)
 org.list.filter=Type here to narrow down the list
+org.list.filterHelp=Type in any value(s) to filter the list. Press 'Save' to save the filter. Press 'Reset' to remove the filter.
 
 org.group.grantType.view=Dataset view rights
 org.group.grantType.modify=Dataset modification rights
@@ -745,7 +781,3 @@ plugin.instant.edit=Edit Instant Site
 plugin.instant.deleteConfirmation=The associated Instant Site will no longer function
 
 plugin.rijks.rijks=Rijkscollectie
-
-
-
-

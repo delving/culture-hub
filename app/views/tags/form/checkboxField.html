@@ -3,7 +3,7 @@
     <label class="checkbox" for="${_name}">
         <input id="${_name}" type="checkbox" value="${_value}" name="${_name}" data-bind="${_dataBind}">
         ${_label}
-        #{if _required}<span class="label">&{'ui.label.required'}</span>#{/if}
+        #{if _required}<span class="required"> *</span>#{/if}
         #{if _extHelp}<a href="#" rel="tooltip" title="${_extHelp}" class="extHelp"><i class="icon-question-sign"></i></a> #{/if}
     </label>
 <span class="error" data-bind="text: errors().${_name.replaceAll("\\.", "_")}">${views.Helpers.showError(_name, _form)}</span>

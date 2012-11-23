@@ -1,5 +1,7 @@
 package core
 
+import core.indexing.IndexableField
+
 /**
  * The system fields used by the CultureHub.
  *
@@ -8,9 +10,10 @@ package core
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-case class SystemField(name: String) {
+case class SystemField(name: String) extends IndexableField {
 
   val tag = "delving_" + name
+  lazy val key = tag
   val xmlKey = "delving:" + name
 
 }

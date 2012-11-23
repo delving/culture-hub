@@ -3,9 +3,7 @@ package notifiers
 import extensions.Email
 import models.DomainConfiguration
 import core.ThemeInfo
-import play.api.i18n.Lang
-import util.Quotes
-
+import play.api.i18n.{Messages, Lang}
 
 /**
  * Email notifications
@@ -16,15 +14,64 @@ import util.Quotes
 object Mails {
 
   def activation(email: String, fullName: String, token: String, host: String)(implicit configuration: DomainConfiguration, lang: Lang) {
-    Email(configuration.emailTarget.systemFrom, "Welcome to CultureHub").to(email).withTemplate("Mails/activation.txt", lang.language, 'fullName -> fullName, 'activationToken -> token, 'themeInfo -> new ThemeInfo(configuration), 'host -> host).send()
+    val themeInfo = new ThemeInfo(configuration)
+    Email(configuration.emailTarget.systemFrom, "Welcome to CultureHub").
+      to(email).
+      withContent(
+      """
+        |Hi %s !
+        |
+        |%s:
+        |
+        |http://%s/registration/activate/%s
+      """.stripMargin.format(
+            fullName,
+            Messages("mail.message.activateaccount", themeInfo.siteName),
+            host,
+            token
+          )
+    ).send()
   }
 
   def newUser(subject: String, hub: String, userName: String, fullName: String, email: String)(implicit configuration: DomainConfiguration, lang: Lang) {
-    Email(configuration.emailTarget.systemFrom, subject).to(configuration.emailTarget.exceptionTo).withTemplate("Mails/newUser.txt", lang.language, 'fullName -> fullName, 'hub -> hub, 'userName -> userName, 'email -> email, 'quote -> Quotes.randomQuote()).send()
+    Email(configuration.emailTarget.systemFrom, subject).
+      to(configuration.emailTarget.exceptionTo).
+      withContent(
+      """
+        |Master,
+        |
+        |a new awesome user registered on the CultureHub %s:
+        |
+        |User:   %s
+        |Name:   %s
+        |Email:  %s
+      """.stripMargin.format(
+            hub,
+            userName,
+            fullName,
+            email
+          )
+    ).send()
   }
   
   def resetPassword(email: String, resetPasswordToken: String, host: String)(implicit configuration: DomainConfiguration, lang: Lang) {
-    Email(configuration.emailTarget.systemFrom, "Reset your password").to(email).withTemplate("Mails/resetPassword.txt", lang.language, 'resetPasswordToken -> resetPasswordToken, 'themeInfo -> new ThemeInfo(configuration), 'host -> host).send()
+    val themeInfo = new ThemeInfo(configuration)
+    Email(configuration.emailTarget.systemFrom, "Reset your password").
+      to(email).
+      withContent(
+      """
+        |%s!
+        |
+        |%s:
+        |
+        |http://%s/registration/resetPassword/%s
+      """.stripMargin.format(
+        Messages("ui.label.hi"),
+        Messages("mail.message.resetpassword", themeInfo.siteName),
+        host,
+        resetPasswordToken
+      )).
+      send()
   }
 
 }

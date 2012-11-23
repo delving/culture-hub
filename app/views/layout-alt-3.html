@@ -6,7 +6,7 @@
             <div class="nav-collapse">
                 <a class="brand" href="/">DiMCoN</a>
             #{userNav userName: userName, email:email, organization:organization, showLang:themeInfo.get('userNavLangSelect'), showLogin:themeInfo.showLogin(), showRegistration:themeInfo.showRegistration() /}
-            #{search.searchForm showSearchIn: true, searchIn: params.searchIn, fields: searchIn, advancedSearchLink: false, iconOnly: true/}
+            #{search.searchForm showSearchIn: true, searchIn: params.searchIn, fields: searchIn, advancedSearchLink: false, iconOnly: true, showAll: themeInfo.showAllObjects()/}
             </div>
         </div>
     </div>
