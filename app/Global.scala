@@ -32,13 +32,15 @@ object Global extends GlobalSettings {
             / /___/ /_/ / / /_/ /_/ / /  /  __/ __  / /_/ / /_/ /
             \____/\__,_/_/\__/\__,_/_/   \___/_/ /_/\__,_/_.___/
 
+            http://www.delving.eu
+            ~~~~~~~~~~~~~~~~~~~~~
 
             Version %s
 
             SIP-App Version %s
             SIP-Core Version %s
 
-      """.format(BuildInfo.cultureHub, BuildInfo.sipApp, BuildInfo.sipCore))
+              """.format(BuildInfo.cultureHub, BuildInfo.sipApp, BuildInfo.sipCore))
     }
 
     // ~~~ bootstrap jobs

@@ -1,0 +1,75 @@
+<?xml version ="1.0" encoding="UTF-8"?>
+
+<views>
+    <view name="html">
+        <row>
+            <column proportion="2of3">
+                <container id="object-media">
+                    <container type="placeholder" id="object-title-big"></container>
+                    <container ifNot="/record/delving:deepZoomUrl" id="image-viewer">
+                        <container if="/record/delving:imageUrl">
+                            <image path="/record/delving:imageUrl"/>
+                        </container>
+                        <container ifNot="/record/delving:imageUrl">
+                            <image path="/record/delving:thumbnail"/>
+                        </container>
+                    </container>
+                    <container id="zoom-viewer" if="/record/delving:deepZoomUrl">
+                        <link textValue="zoom" urlExpr="/record/delving:deepZoomUrl" type="zoom"/>
+                    </container>
+                    <container id="context-link" if="/record/reloc:isShownAt">
+                        <link textValue="search.viewInOriginalContext" urlExpr="/record/reloc:isShownAt" type="external"/>
+                    </container>
+                </container>
+                <!-- thumnail image navigation for object with multiple images (regular or zoom) -->
+                <!-- object.js will take care of the targeting details -->
+                <container id="thumbnails" type="list">
+                    <list path="/record/delving:thumbnail">
+                        <image path="."/>
+                    </list>
+                </container>
+                <!-- regular image urls -->
+                <container if="/record/delving:imageUrl" id="imageUrls">
+                    <list path="/record/delving:imageUrl">
+                        <link urlExpr="." textValue="image-url"/>
+                    </list>
+                </container>
+            </column>
+        </row>
+        <row>
+            <column proportion="1of3">
+                <field label="metadata.reloc.identifier" path="/record/dc:identifier" />
+                <field label="metadata.dc.title" path="/record/dc:title" />
+                <field label="metadata.dc.description" path="/record/dc:description" />
+                <field label="metadata.dc.date" path="/record/dc:date" />
+                <container type="list" label="metadata.dc.creator" if="/record/dc:creator">
+                    <enumeration path="/record/dc:creator" />
+                </container>
+                <field label="metadata.reloc.creationPlace" path="/record/reloc:creationPlace" />
+            </column>
+            <column proportion="1of3">
+                <container type="list" label="metadata.dc.subject" if="/record/dc:subject">
+                    <enumeration path="/record/dc:subject" />
+                </container>
+                <container label="plugin.relocation.form.measurementsInfo" type="labelled-list" class="test">
+                    <field label="metadata.reloc.height" path="/record/reloc:height" />
+                    <field label="metadata.reloc.width" path="/record/reloc:width" />
+                    <field label="metadata.reloc.length" path="/record/reloc:length" />
+                    <field label="metadata.reloc.depth" path="/record/reloc:depth" />
+                    <field label="metadata.reloc.diameter" path="/record/reloc:diameter" />
+                </container>
+                <container type="list" label="metadata.reloc.material" if="/record/reloc:material">
+                    <enumeration path="/record/reloc:material" />
+                </container>
+                <!-- TODO: physcal state should be role specific -->
+                <field label="metadata.reloc.physicalState" path="/record/reloc:physicalState"/>
+                <field label="thing.organization" path="/record/reloc:owner" />
+                <!-- TODO: contact should be role specific -->
+                <container label="thing.contact" type="labelled-list" role="">
+                    <field label="thing.contactName" path="/record/reloc:contactName"/>
+                    <link urlExpr="/record/reloc:contactEmail" urlValue="mailto:" textExpr="/record/reloc:contactEmail" label="thing.contactEmail"/>
+                </container>
+            </column>
+        </row>
+    </view>
+</views>

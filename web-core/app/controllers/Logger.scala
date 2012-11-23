@@ -33,6 +33,8 @@ import util.Quotes
 
 trait Logging extends Secured { self: Controller with DomainConfigurationAware =>
 
+  protected val log = Logger("CultureHub")
+
   import ErrorReporter._
 
   def Forbidden(implicit request: RequestHeader): Result                                                 = {
@@ -48,43 +50,42 @@ trait Logging extends Secured { self: Controller with DomainConfigurationAware =
     Results.NotFound(views.html.errors.notFound(request, why, None))
   }
   def Error(implicit request: RequestHeader)        = {
-    Logger.error(withContext("Internal server error"))
+    log.error(withContext("Internal server error"))
     reportError(request, "Internal server error")
     Results.InternalServerError(views.html.errors.error(None, None))
   }
   def Error(why: String)(implicit request: RequestHeader)                              = {
-    Logger.error(withContext(why))
+    log.error(withContext(why))
     reportError(request, why)
     Results.InternalServerError(views.html.errors.error(None, Some(why)))
   }
   def Error(why: String, t: Throwable)(implicit request: RequestHeader)                              = {
-    Logger.error(withContext(why), t)
+    log.error(withContext(why), t)
     reportError(request, t, why)
     Results.InternalServerError(views.html.errors.error(None, Some(why)))
   }
 
 
   // ~~~ Logger wrappers, with more context
-  val CH = "CultureHub"
 
   def info(message: String, args: String*)(implicit request: RequestHeader) {
-    Logger(CH).info(withContext(m(message, args)))
+    log.info(withContext(m(message, args)))
   }
   def warning(message: String, args: String*)(implicit request: RequestHeader) {
-    Logger(CH).warn(withContext(m(message, args)))
+    log.warn(withContext(m(message, args)))
   }
   def logError(message: String, args: String*)(implicit request: RequestHeader, configuration: DomainConfiguration) {
-    Logger(CH).error(withContext(m(message, args)))
+    log.error(withContext(m(message, args)))
     reportError(request, if(message != null) message.format(args) else "")
   }
 
   def logError(e: Throwable, message: String, args: String*)(implicit request: RequestHeader, configuration: DomainConfiguration) {
-    Logger(CH).error(withContext(m(message, args)), e)
+    log.error(withContext(m(message, args)), e)
     reportError(request, if(message != null) message.format(args) else "")
   }
 
   def reportSecurity(message: String)(implicit request: RequestHeader)  {
-    Logger(CH).error("Attempted security breach: " + message)
+    log.error("Attempted security breach: " + message)
     ErrorReporter.reportError(securitySubject, toReport(message, request))
   }
   
@@ -117,7 +118,22 @@ object ErrorReporter {
   }
 
   def reportError(subject: String, report: String)(implicit configuration: DomainConfiguration) {
-    Email(configuration.emailTarget.systemFrom, subject).to(configuration.emailTarget.exceptionTo).withTemplate("Mails/reportError.txt", "en", 'report -> report, 'quote -> Quotes.randomQuote(), 'themeInfo -> new ThemeInfo(configuration)).send()
+    val themeInfo = new ThemeInfo(configuration)
+    Email(configuration.emailTarget.systemFrom, subject)
+      .to(configuration.emailTarget.exceptionTo)
+      .withContent(
+      """
+        |Master,
+        |
+        |an error has happened:
+        |
+        |%s
+        |
+        |
+        |----
+        |%s
+      """.stripMargin.format(report, Quotes.randomQuote()))
+      .send()
   }
 
   private def getUser(request: RequestHeader) = request.session.get("userName").getOrElse("Unknown")
@@ -176,15 +192,16 @@ object ErrorReporter {
   }
 
   private def fullContext(request: RequestHeader) = {
-    """
-       URL: %s
-       METHOD: %s
-       HTTP PARAMS:
-%s
-       HTTP HEADERS:
-%s""".format(request.uri,
-             request.method,
-             request.queryString.map(pair =>         "          " + pair._1 + ": " + pair._2.mkString(", ")).mkString("\n"),
-             request.headers.toMap.map(pair =>       "          " + pair._1 + ": " + pair._2.mkString(", ")).mkString("\n"))
+    """|
+       |URL: %s
+       |METHOD: %s
+       |HTTP PARAMS:
+       |%s
+       |HTTP HEADERS:
+       |%s""".stripMargin.format(
+                request.uri,
+                request.method,
+                request.queryString.map(pair =>         "          " + pair._1 + ": " + pair._2.mkString(", ")).mkString("\n"),
+                request.headers.toMap.map(pair =>       "          " + pair._1 + ": " + pair._2.mkString(", ")).mkString("\n"))
   }
 }

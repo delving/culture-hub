@@ -3,32 +3,31 @@ package controllers
 import play.api.Logger
 import play.api.mvc._
 import play.api.Play.current
-import play.api.data.Form
 import play.api.i18n.{Lang, Messages}
 import play.libs.Time
 import eu.delving.templates.scala.GroovyTemplates
-import extensions.Extensions
 import collection.JavaConverters._
 import org.bson.types.ObjectId
 import core._
 import models.{DomainConfiguration, Role, Group, HubUser}
-import play.api.data.Forms._
 
 /**
+ * TODO document the default renderArgs attributes available to templates
+ *
+ * orgId
+ * isAdmin
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
 
-trait ApplicationController extends Controller with GroovyTemplates with DomainConfigurationAware with Logging with CRUDController {
+trait ApplicationController extends Controller with GroovyTemplates with ControllerBase {
 
   // ~~~ i18n
 
   private val LANG = "lang"
 
   private val LANG_COOKIE = "CH_LANG"
-
-  protected val log = Logger("CultureHub")
 
   implicit def getLang(implicit request: RequestHeader) = request.cookies.get(LANG_COOKIE).map(_.value).getOrElse(configuration.ui.defaultLanguage)
 
@@ -141,13 +140,15 @@ case class RichBody[A <: AnyContent](body: A) {
  */
 trait OrganizationController extends DelvingController with Secured {
 
+  def isAdmin(implicit request: RequestHeader, configuration: DomainConfiguration): Boolean = organizationServiceLocator.byDomain.isAdmin(configuration.orgId, connectedUser)
+
   def isAdmin(orgId: String)(implicit request: RequestHeader): Boolean = organizationServiceLocator.byDomain.isAdmin(orgId, connectedUser)
 
   def OrganizationAdmin[A](action: Action[A]): Action[A] = {
     OrganizationMember {
       Action(action.parser) {
         implicit request => {
-          if (isAdmin(configuration.orgId)) {
+          if (isAdmin) {
             action(request)
           } else {
             Forbidden(Messages("user.secured.noAccess"))
@@ -200,6 +201,13 @@ trait DelvingController extends ApplicationController {
 //            // TODO MIGRATION - PLAY 2 FIXME this does not work!!
 //              Forbidden("Bad authenticity token")
 //          }
+
+          // orgId
+          renderArgs += ("orgId" -> configuration.orgId)
+
+          // admin
+          val isAdmin = organizationServiceLocator.byDomain.isAdmin(configuration.orgId, userName)
+          renderArgs += ("isAdmin" -> isAdmin.asInstanceOf[AnyRef])
 
           // Connected user
           HubUser.dao.findByUsername(userName).foreach { u =>
@@ -292,18 +300,13 @@ trait DelvingController extends ApplicationController {
     Root {
       Action(action.parser) {
         implicit request =>
-          val orgName = organizationServiceLocator.byDomain.getName(configuration.orgId, "en")
-          val isAdmin = organizationServiceLocator.byDomain.isAdmin(configuration.orgId, userName)
-          renderArgs += ("orgId" -> configuration.orgId)
-          renderArgs += ("browsedOrgName" -> orgName)
           renderArgs += ("currentLanguage" -> getLang)
-          renderArgs += ("isAdmin" -> isAdmin.asInstanceOf[AnyRef])
 
           val roles: Seq[String] = (session.get("userName").map {
             u => Group.dao.findDirectMemberships(userName).map(g => g.roleKey).toSeq
           }.getOrElse {
             List.empty
-          }) ++ (if(isAdmin) Seq(Role.OWN.key) else Seq.empty)
+          }) ++ (if(renderArgs("isAdmin").map(_.asInstanceOf[Boolean]).getOrElse(false)) Seq(Role.OWN.key) else Seq.empty)
 
 
           renderArgs += ("roles" -> roles.asJava)

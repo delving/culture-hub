@@ -39,7 +39,7 @@
     <div class="container">
         <div class="row">
             <div class="span12">
-                #{search.searchForm showSearchIn: true, searchIn: params.searchIn, fields: searchIn, advancedSearchLink: true/}
+                #{search.searchForm showSearchIn: true, searchIn: params.searchIn, fields: searchIn, advancedSearchLink: true, showAll: themeInfo.showAllObjects()/}
             </div>
         </div>
     </div>
@@ -54,12 +54,12 @@
 <div id="footer">
     <div class="container">
         <div class="row">
-            ${themeInfo.footer().raw()}
-            <div class="span2 offset6">
-                    <a href="http://www.delving.eu" target="_blank" title="Powered by DELVING.EU">
-                        <img src="@{routes.Assets.at('common/images/delving-small.png')}" alt="Powered by DELVING.EU" id="pbd"/>
-                        Powered by Delving
-                    </a>
+        ${themeInfo.footer().raw()}
+            <div class="${themeInfo.footer().length() > 0 ? 'span4' : 'span12'}">
+                <a href="http://www.delving.eu" target="_blank" title="Powered by DELVING.EU" class="pull-right">
+                    <img src="@{routes.Assets.at('common/images/delving-small.png')}" alt="Powered by DELVING.EU" id="pbd"/>
+                    Powered by Delving
+                </a>
             </div>
         </div>
     </div>

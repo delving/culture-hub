@@ -1,5 +1,0 @@
-Hi ${fullName} !
-
-${messages.get('mail.message.activateaccount', themeInfo.siteName())}:
-
-http://${host}@{controllers.routes.Application.index()}registration/activate/${activationToken}

@@ -15,7 +15,8 @@
     function addRemoveTokenInput(id, searchUrl, prePopulate, addUrl, removeUrl, removeConfirmationDialog) {
 
     $(id).tokenInput(searchUrl, {
-      prePopulate: typeof prePopulate !== 'undefined' ? prePopulate : [],
+      resultCacheEnabled: false,
+      prePopulate: typeof prePopulate !== 'undefined' ? (typeof prePopulate === 'function' ? prePopulate.call(): prePopulate) : [],
       preventDuplicates: true,
       onAdd: function(item) {
         $.ajax({
@@ -23,8 +24,8 @@
           url: addUrl,
           data: {id: item.id},
           error: function(jqXHR, textStatus, errorThrown) {
-            // TODO prompt the user that something went wrong
-            $(id).tokenInput('remove', {id: item.id})
+              bootbox.alert(jqXHR.responseText);
+              $(id).tokenInput('remove', {id: item.id})
           }
         });
       },

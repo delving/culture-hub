@@ -1,6 +1,6 @@
 #{extends themeInfo.get('themeLayout') /}
 
-#{set title: systemFields.contains("delving_owner") ? systemFields.apply("delving_owner").get(0) + " | " : "" + systemFields.apply("delving_title").get(0) /}
+#{set title: systemFields.contains("delving_owner") ? systemFields.apply("delving_owner").get(0) + " | " : "" + title /}
 
 #{set bodyId: 'object'/}
 
@@ -11,7 +11,7 @@
     jsLabels.relatedItems = "${messages.get('thing.relatedItems')}";
     jsLabels.collection =  "${messages.get('thing.collection')}";
     jsLabels.creator =  "${messages.get('thing.creator')}";
-    jsLabels.objTitle = "${systemFields.apply("delving_title").get(0)}";
+    jsLabels.objTitle = "${title}";
 
     // thing object
     var Thing = new Object();
@@ -71,4 +71,10 @@
     <div class="object-data">
         #{view view: fullView /}
     </div>
+</div>
+
+<div>
+#{list pluginIncludes, as: 'pluginInclude' }
+    #{include pluginInclude /}
+#{/list}
 </div>

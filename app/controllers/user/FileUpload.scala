@@ -19,6 +19,7 @@ package controllers.user
 import play.api.mvc._
 import org.bson.types.ObjectId
 import controllers.DelvingController
+import core.storage.FileStorage
 
 /**
  * Router for the FileUpload service that either directly invokes the module API when running locally or invokes the remote
@@ -39,7 +40,7 @@ object FileUpload extends DelvingController {
         if(!ObjectId.isValid(id)) {
           BadRequest("Invalid id " + id)
         } else {
-          controllers.dos.FileUpload.deleteFileById(new ObjectId(id))
+          FileStorage.deleteFileById(new ObjectId(id))
           Ok
         }
     }

@@ -9,8 +9,14 @@ import org.apache.solr.common.SolrInputDocument
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
-case class IndexField(key: String) {
+case class IndexField(key: String) extends IndexableField {
   val xmlKey = key.replaceFirst("_", ":")
+}
+
+trait IndexableField {
+
+  def key: String
+
 }
 
 case object IndexField {
@@ -44,7 +50,7 @@ case object IndexField {
 
   implicit def withRichSolrInputDocument(doc: SolrInputDocument) = new {
 
-    def +=(pair: (IndexField, AnyRef)) {
+    def +=(pair: (IndexableField, AnyRef)) {
       doc.addField(pair._1.key, pair._2)
     }
 

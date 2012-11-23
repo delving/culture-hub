@@ -28,7 +28,7 @@
                 </container>
                 <row>
                     <column proportion="1of3">
-                        <container type="labelled-list">
+                        <container type="definition-list">
                             <field path="/icn:record/dc:title" label="metadata.dc.title"/>
                             <enumeration path="/icn:record/dc:creator" separator="lf" label="metadata.dc.creator"/>
                             <field path="/icn:record/icn:creatorYearOfBirth" label="metadata.icn.creatorYearOfBirth"/>
@@ -46,7 +46,7 @@
                             <field path="/icn:record/dcterms:provenance" label="metadata.dcterms.provenance"/>
                         </container>
                         <!-- MUSEOMETRIE FIELDS -->
-                        <container id="admin" role="museometrie" type="labelled-list">
+                        <container id="admin" role="museometrie" type="definition-list">
                             <field path="/icn:record/icn:currentLocation" label="metadata.icn.currentLocation" role="museometrie"/>
                             <field path="/icn:record/icn:previousLocation" label="metadata.icn.previousLocation" role="museometrie"/>
                             <field path="/icn:record/icn:acquisitionMeans" label="metadata.icn.acquisitionMeans" role="museometrie"/>
@@ -58,7 +58,7 @@
 
                     </column>
                     <column proportion="1of3">
-                        <container type="labelled-list">
+                        <container type="definition-list">
                             <!--<field path="/icn:record/europeana:collectionName" label="metadata.europeana.collectionName"/>-->
                             <field path="/icn:record/europeana:collectionTitle" label="metadata.icn.collection"/>
                             <field path="/icn:record/icn:collectionPart" label="metadata.icn.collectionPart" />
@@ -76,7 +76,7 @@
                         </container>
 
                         <!-- RIJKS FIELDS -->
-                        <container role="rijksMember" type="labelled-list">
+                        <container role="rijksMember" type="definition-list-horizontal">
                             <field path="/icn:record/icn:legalStatus" label="metadata.icn.legalStatus" role="rijksMember"/>
                             <field path="/icn:record/icn:acceptedStateCharges" label="metadata.icn.acceptedStateCharges" role="rijksMember"/>
                             <field path="/icn:record/icn:acceptedStateChargesReason" label="metadata.icn.acceptedStateChargesReason" role="rijksMember"/>
