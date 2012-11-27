@@ -25,7 +25,8 @@ trait DomainConfigurationAware {
     Action(action.parser) {
       implicit request =>
         try {
-          val configuration = DomainConfigurationHandler.getByDomain(request.domain)
+          val domain: String = request.queryString.get("domain").map(v => v.head).getOrElse(request.domain)
+          val configuration = DomainConfigurationHandler.getByDomain(domain)
           domainConfigurations.put(request, configuration)
           action(request)
         } catch {
