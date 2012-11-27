@@ -71,7 +71,7 @@ object RecordRenderer {
                            xmlns:europeana="http://www.europeana.eu/schemas/ese/">
 
       { item.map { i => {i.toXml()} }.getOrElse(<item/>) }
-      { relatedItems.map { ri => <relatedItems>{ri.toXml()}</relatedItems> }}
+      <relatedItems>{ relatedItems.map { ri => {ri.toXml()} }}</relatedItems>
     </result>
 
     Right(new RenderedView {
