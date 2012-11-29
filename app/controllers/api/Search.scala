@@ -9,6 +9,7 @@ import controllers.{BoundController, DomainConfigurationAware}
 import play.api.Logger
 import core.{OrganizationCollectionLookupService, HubModule}
 import play.api.cache.Cache
+import play.api.Play.current
 
 /**
  * Search API
