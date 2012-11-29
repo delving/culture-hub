@@ -159,7 +159,7 @@ case class DataSet(
     orgId, DataSetPlugin.ROLE_DATASET_EDITOR, this
   )
 
-  val administrators: Seq[String] = (Group.dao(configuration).findResourceAdministrators(orgId, DataSet.RESOURCE_TYPE)
+  lazy val administrators: Seq[String] = (Group.dao(configuration).findResourceAdministrators(orgId, DataSet.RESOURCE_TYPE)
       ++ organizationServiceLocator.byDomain.listAdmins(orgId)
     ).distinct
 
