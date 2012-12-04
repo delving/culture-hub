@@ -2,7 +2,7 @@ package models
 
 import _root_.util.DomainConfigurationHandler
 import com.mongodb.casbah.Imports._
-import core.{HubId, ItemType, SystemField}
+import core.{ItemType, SystemField}
 import org.bson.types.ObjectId
 import HubMongoContext._
 import com.novus.salat.dao.SalatDAO
@@ -30,11 +30,6 @@ case class MetadataItem(modified: Date = new Date(),
     systemFields.get(field.tag).getOrElse(new BasicDBList).asInstanceOf[BasicDBList].asScala.map(_.toString).toSeq
   }
 
-  def asPmhId: String = {
-    //oai:kulturnett_kulturit.no:NOMF-00455Q
-    val hubId = HubId(itemId)
-    "oai:%s_%s:%s".format(hubId.orgId, hubId.spec, hubId.localId)
-  }
 }
 
 object MetadataCache {

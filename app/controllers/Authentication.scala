@@ -99,8 +99,6 @@ trait Authentication extends ApplicationController { this: BoundController =>
                 Constants.USERNAME -> userName,
                 AT_KEY -> authenticityToken)
 
-              println(action)
-
               if (user._3) {
                 action.withCookies(Cookie(
                   name = REMEMBER_COOKIE,

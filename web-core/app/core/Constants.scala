@@ -43,6 +43,8 @@ case class HubId(orgId: String, spec: String, localId: String) {
 
   val id = "%s_%s_%s".format(orgId, spec, localId)
 
+  val pmhId = "oai:%s_%s:%s".format(orgId, spec, localId)
+
   override def toString: String = id
 }
 
