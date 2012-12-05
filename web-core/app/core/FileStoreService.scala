@@ -39,11 +39,11 @@ trait FileStoreService {
 
   /**
    * Deletes a single file
-   * @param fileIdentifier the unique identifier of the file
    * @param fileType an optional discriminator for the file
+   * @param fileIdentifier the unique identifier of the file
    * @param configuration the running [[ DomainConfiguration ]]
    */
-  def deleteFile(bucketId: String, fileIdentifier: String)(implicit configuration: DomainConfiguration)
+  def deleteFile(bucketId: String, fileType: Option[String], fileIdentifier: String)(implicit configuration: DomainConfiguration)
 
   /**
    * Stores a single file in the underlying storage
@@ -54,7 +54,7 @@ trait FileStoreService {
    * @param fileType an optional discriminator for the file
    * @return a [[ StoredFile ]] if the storage is successful, None otherwise
    */
-  def storeFile(bucketId: String, file: File, contentType: String, fileName: String, fileType: Option[String]): Option[StoredFile]
+  def storeFile(bucketId: String, fileType: Option[String], file: File, contentType: String, fileName: String): Option[StoredFile]
 
   /**
    * Renames a bucket
