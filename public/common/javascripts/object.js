@@ -118,12 +118,16 @@ $(document).ready(function () {
         type: "GET",
         url: mltEndpoint,
         success: function(data){
-            var rItems = data.result.relatedItems.item, html = '', uri;
+            var rItems = data.result.relatedItems.item, html = '', tmp, org, owner, id, uri;
             if (rItems) {
                 $('.object-title').toggleClass('hide');
                 html = '<h5>' + jsLabels.relatedItems + '</h5>';
                 $.each(rItems, function (i, item) {
-                    uri = item.fields['delving_hubId'].replace(/_/g, '/') + "?mlt=true";
+                    tmp = item.fields['delving_hubId'].split('_');
+                    org = tmp[0];
+                    owner = tmp[1];
+                    id = tmp[2];
+                    uri = "/" + org + "/" + owner + "/" + id + "?mlt=true";
                     html += '<div class="media">';
                     html += '<a class="img" href="/' + uri + '" rel="nofollow"><img class="mlt" src="' + item.fields['delving_thumbnail'] + '" alt="' + item.fields['delving_title'] + '" width="80" onerror="showDefaultImg(this)"/></a>';
                     html += '<div class="bd"><a href="/' + uri + '" rel="nofollow"><div class="title">'+item.fields['delving_title'].trunc(40)+'</a></div>';
