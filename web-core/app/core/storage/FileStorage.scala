@@ -73,33 +73,58 @@ object FileStorage {
     }
   }
 
-  def hasThumbnail(f: GridFSFile) = f.getContentType.contains("image") || f.getContentType.contains("pdf")
-
   private def fileToStoredFile(f: GridFSDBFile)(implicit configuration: DomainConfiguration) = {
     val id = f.getId.asInstanceOf[ObjectId]
-    val thumbnail = if (hasThumbnail(f)) {
-      fileStore(configuration).findOne(MongoDBObject(FILE_POINTER_FIELD -> id)) match {
+    StoredFile(id, f.getFilename, f.getContentType, f.getLength)
+  }
+
+}
+
+
+case class StoredFile(id: ObjectId, name: String, contentType: String, length: Long)
+
+
+/**
+ * Represents a response to a file upload via the jQuery File Upload widget
+ *
+ * http://blueimp.github.com/jQuery-File-Upload/
+ */
+case class FileUploadResponse(
+  name: String,
+  size: Long,
+  url: String = "",
+  thumbnail_url: String = "",
+  delete_url: String = "",
+  delete_type: String = "DELETE",
+  error: String = "",
+  id: String = ""
+)
+
+object FileUploadResponse {
+
+  def apply(file: StoredFile)(implicit configuration: DomainConfiguration): FileUploadResponse = {
+
+    def hasThumbnail(f: StoredFile) = file.contentType.contains("image") || file.contentType.contains("pdf")
+
+    def thumbnailUrl(implicit configuration: DomainConfiguration) = if (hasThumbnail(file)) {
+      fileStore(configuration).findOne(MongoDBObject(FILE_POINTER_FIELD -> file.id)) match {
         case Some(t) => Some(t.id.asInstanceOf[ObjectId])
         case None => None
       }
     } else {
       None
+    }.map { thumbnailId =>
+      "thumbnail/" + thumbnailId.toString
     }
-    StoredFile(id, f.getFilename, f.getContentType, f.getLength, thumbnail)
+
+    FileUploadResponse(
+      name = file.name,
+      size = file.length,
+      url = "/file/" + file.id,
+      thumbnail_url = thumbnailUrl + "/80",
+      delete_url = "/file/" + file.id,
+      id = file.id.toString
+    )
   }
 
 }
-
-
-case class StoredFile(id: ObjectId, name: String, contentType: String, length: Long, thumbnail: Option[ObjectId]) {
-  def thumbnailUrl = thumbnail match {
-    case Some(fid) => "/thumbnail/" + id.toString
-    case None => ""
-  }
-
-  def asFileUploadResponse(isSelected: ObjectId => Boolean) = FileUploadResponse(name = name, size = length, url = "/file/" + id, thumbnail_url = thumbnailUrl + "/80", delete_url = "/file/" + id, selected = isSelected(id), id = id.toString)
-
-}
-
-case class FileUploadResponse(name: String, size: Long, url: String = "", thumbnail_url: String = "", delete_url: String = "", delete_type: String = "DELETE", error: String = "", selected: Boolean = false, id: String = "")
-

@@ -15,7 +15,7 @@ import com.mongodb.casbah.Imports._
 import core.HubModule
 import plugins.CMSPlugin
 import scala.collection.JavaConverters._
-import core.storage.FileStorage
+import core.storage.{FileUploadResponse, FileStorage}
 
 
 /**
@@ -53,8 +53,7 @@ trait CMS extends OrganizationController { this: BoundController =>
   def upload(orgId: String) = CMSAction(orgId) {
     Action {
       implicit request =>
-        def notSelected(id: ObjectId) = false
-        val files = FileStorage.getFilesForItemId(orgId).map(_.asFileUploadResponse(notSelected))
+        val files = FileStorage.getFilesForItemId(orgId).map(f => FileUploadResponse(f))
         Ok(Template('uid -> MissingLibs.UUID, 'files -> JJson.generate(files)))
     }
   }
