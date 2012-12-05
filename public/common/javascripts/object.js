@@ -125,8 +125,8 @@ $(document).ready(function () {
                 $.each(rItems, function (i, item) {
                     uri = item.fields['delving_hubId'].replace(/_/g, '/') + "?mlt=true";
                     html += '<div class="media">';
-                    html += '<a class="img" href="' + uri + '" rel="nofollow"><img class="mlt" src="' + item.fields['delving_thumbnail'] + '" alt="' + item.fields['delving_title'] + '" width="80" onerror="showDefaultImg(this)"/></a>';
-                    html += '<div class="bd"><a href="' + uri + '" rel="nofollow"><div class="title">'+item.fields['delving_title'].trunc(40)+'</a></div>';
+                    html += '<a class="img" href="/' + uri + '" rel="nofollow"><img class="mlt" src="' + item.fields['delving_thumbnail'] + '" alt="' + item.fields['delving_title'] + '" width="80" onerror="showDefaultImg(this)"/></a>';
+                    html += '<div class="bd"><a href="/' + uri + '" rel="nofollow"><div class="title">'+item.fields['delving_title'].trunc(40)+'</a></div>';
                     if (item.fields['dc_creator']) {
                         html += '<div rel="dc:creator"><span>'+jsLabels.creator+':</span> '+item.fields['dc_creator']+'</div>';
                     }
