@@ -43,6 +43,11 @@
                     <container if="/abm:record/dc:rights" id="rightsUrl">
                         <link urlExpr="/abm:record/dc:rights" urlValue="" textExpr="/abm:record/dc:rights" label="metadata.dc.rights"/>
                     </container>
+
+                    <container ifNot="/abm:record/dc:rights" id="rightsUrl">
+                        <link urlExpr="/abm:record/europeana:rights" urlValue="" textExpr="/abm:record/europeana:rights" label="metadata.dc.rights"/>
+                    </container>
+
                     <field label="metadata.dcterms.rightsHolder" path="/abm:record/dcterms:rightsHolder"/>
                     <field label="metadata.europeana.provider" path="/abm:record/europeana:dataProvider"/>
                 </column>
