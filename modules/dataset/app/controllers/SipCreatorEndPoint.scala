@@ -11,6 +11,7 @@ import akka.actor.Actor
 import play.api.Logger
 import core._
 import scala.{Either, Option}
+import storage.FileStorage
 import util.SimpleDataSetParser
 import akka.util.Duration
 import java.util.concurrent.TimeUnit
@@ -30,6 +31,7 @@ import plugins.DataSetPlugin
 import models.statistics.DataSetStatisticsContext
 import models.statistics.FieldFrequencies
 import models.statistics.FieldValues
+import play.api.libs.MimeTypes
 
 /**
  * This Controller is responsible for all the interaction with the SIP-Creator.
@@ -258,6 +260,20 @@ trait SipCreatorEndPoint extends Controller with DomainConfigurationAware with L
 
                 case x if x.startsWith("stats-") =>
                   receiveSourceStats(dataSet.get, inputStream, prefix, fileName, request.body.file)
+
+                case "image" =>
+                  FileStorage.storeFile(
+                    request.body.file,
+                    MimeTypes.forFileName(fileName).getOrElse("unknown/unknown"),
+                    fileName,
+                    dataSet.get.spec,
+                    Some("sourceImage"),
+                    Map("spec" -> dataSet.get.spec, "orgId" -> dataSet.get.orgId)
+                  ).map { f =>
+                    Right("Ok")
+                  }.getOrElse(
+                    Left("Couldn't store file " + fileName)
+                  )
 
                 case _ => {
                   val msg = "Unknown file type %s".format(kind)
