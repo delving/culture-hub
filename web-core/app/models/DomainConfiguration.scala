@@ -169,6 +169,7 @@ case class MoreLikeThis(
   maxQueryTerms: Int = 25,
   maxNumToken: Int = 5000,
   boost: Boolean = false,
+  count: Int = 5,
   queryFields: Seq[String] = Seq()
 )
 
