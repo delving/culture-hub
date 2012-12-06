@@ -114,6 +114,7 @@ $(document).ready(function () {
 
     // Make the request for the related objects. If this is a Collection or a Museum, then this request will fail.
     // Use the bad request to change the layout to accomodate a Museum or Collection view definition
+    try {
     $.ajax({
         type: "GET",
         url: mltEndpoint,
@@ -147,4 +148,7 @@ $(document).ready(function () {
 //            $('.object-data').removeClass('span8');
         }
     });
+    } catch(e) {
+        //..do nothing
+    }
 });
