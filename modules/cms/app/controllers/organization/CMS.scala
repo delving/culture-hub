@@ -16,6 +16,7 @@ import core.HubModule
 import plugins.CMSPlugin
 import scala.collection.JavaConverters._
 import core.storage.{FileUploadResponse, FileStorage}
+import controllers.dos.FileUpload
 
 
 /**
@@ -53,7 +54,7 @@ trait CMS extends OrganizationController { this: BoundController =>
   def upload(orgId: String) = CMSAction(orgId) {
     Action {
       implicit request =>
-        val files = FileStorage.getFilesForItemId(orgId).map(f => FileUploadResponse(f))
+        val files = FileStorage.listFiles(orgId).map(f => FileUploadResponse(f))
         Ok(Template('uid -> MissingLibs.UUID, 'files -> JJson.generate(files)))
     }
   }
@@ -61,7 +62,7 @@ trait CMS extends OrganizationController { this: BoundController =>
   def uploadSubmit(orgId: String, uid: String) = CMSAction(orgId) {
     Action {
       implicit request =>
-        FileStorage.markFilesAttached(uid, orgId)
+        FileUpload.markFilesAttached(uid, orgId)
         Redirect("/organizations/%s/site/upload".format(orgId))
     }
   }
@@ -69,7 +70,7 @@ trait CMS extends OrganizationController { this: BoundController =>
   def listImages(orgId: String) = CMSAction(orgId) {
     Action {
       implicit request =>
-        val images = FileStorage.getFilesForItemId(orgId).filter(_.contentType.contains("image"))
+        val images = FileStorage.listFiles(orgId).filter(_.contentType.contains("image"))
 
         // tinyMCE stoopidity
         val javascript = "var tinyMCEImageList = new Array(" + images.map(i => """["%s","%s"]""".format(i.name, "/file/image/%s".format(i.id))).mkString(", ") + ");"

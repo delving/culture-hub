@@ -3,11 +3,8 @@ package controllers.dos
 import play.api.mvc._
 
 import org.bson.types.ObjectId
-import com.mongodb.gridfs.GridFSDBFile
-import com.mongodb.casbah.commons.MongoDBObject
 import play.api.libs.iteratee.Enumerator
 import controllers.DomainConfigurationAware
-import models.DomainConfiguration
 
 /**
  * Common controller for handling files, no matter from where.
