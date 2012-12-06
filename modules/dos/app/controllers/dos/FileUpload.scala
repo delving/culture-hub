@@ -97,7 +97,7 @@ object FileUpload extends Controller with Extensions with Thumbnail with DomainC
    * Stores a file
    */
   def storeFile(file: File, fileName: String, contentType: String, uid: String)(implicit configuration: DomainConfiguration): Option[(StoredFile, String)] = {
-    FileStorage.storeFile(file, contentType, fileName, uid, Some(FILE_TYPE_UNATTACHED)).map { f =>
+    FileStorage.storeFile(file, contentType, fileName, uid, Some(FILE_TYPE_UNATTACHED), advertise = false).map { f =>
 
     // if this is an image, create a thumbnail for it so we can display it on the fly in the upload widget
     val thumbnailUrl: String = if (f.contentType.contains("image") || f.contentType.contains("pdf")) {

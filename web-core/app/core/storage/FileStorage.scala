@@ -5,13 +5,15 @@ import com.mongodb.casbah.Imports._
 import com.mongodb.casbah.gridfs.Imports._
 import models.HubMongoContext._
 import java.io.{File, InputStream}
-import core.FileStoreService
+import core.{CultureHubPlugin, FileStoreService}
 import org.bson.types.ObjectId
+import core.messages.FileStored
 
 /**
  * Collection of methods for dealing with files and file uploads.
  * These methods have been savagly ripped out of the DoS because they are needed in web-core as well.
  *
+ * TODO method to retrieve parameters that are not mongoDB params into StoredFile
  * TODO use fileStore method in other places when it makes sense
  * TODO replace / inline all old method calls
  * TODO decouple cleanup of file derivates (thumbnails) from deletion of a file here. Perhaps via event broadcasting
@@ -35,7 +37,8 @@ object FileStorage extends FileStoreService {
     }
   }
 
-  def storeFile(file: File, contentType: String, fileName: String, bucketId: String, fileType: Option[String] = None)(implicit configuration: DomainConfiguration): Option[StoredFile] = {
+  def storeFile(file: File, contentType: String, fileName: String, bucketId: String, fileType: Option[String] = None,
+                params: Map[String, AnyRef] = Map.empty, advertise: Boolean = true)(implicit configuration: DomainConfiguration): Option[StoredFile] = {
     val f = fileStore(configuration).createFile(file)
     f.filename = fileName
     f.contentType = contentType
@@ -44,6 +47,12 @@ object FileStorage extends FileStoreService {
       f.put(ITEM_TYPE, t)
     }
     f.save()
+
+    if (advertise) {
+      CultureHubPlugin.broadcastMessage(
+        FileStored(bucketId, f.id.toString, fileType, fileName, contentType, configuration)
+      )
+    }
 
     fileStore(configuration).findOne(f._id.get).map { f =>
       fileToStoredFile(f)

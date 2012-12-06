@@ -44,9 +44,12 @@ trait FileStoreService {
    * @param fileName the file name this file should be given
    * @param bucketId the bucket to which this file should be added
    * @param fileType an optional discriminator for the file
+   * @param params optional meta-data
+   * @param advertise whether or not an event should be sent upon storing the file
    * @return a [[ StoredFile ]] if the storage is successful, None otherwise
    */
-  def storeFile(file: File, contentType: String, fileName: String, bucketId: String, fileType: Option[String] = None)(implicit configuration: DomainConfiguration): Option[StoredFile]
+  def storeFile(file: File, contentType: String, fileName: String, bucketId: String, fileType: Option[String] = None,
+                params: Map[String, AnyRef] = Map.empty, advertise: Boolean)(implicit configuration: DomainConfiguration): Option[StoredFile]
 
   /**
    * Retrieves a single file given its identifier
