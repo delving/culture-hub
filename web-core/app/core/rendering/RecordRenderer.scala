@@ -31,10 +31,10 @@ object RecordRenderer {
                           lang: Lang,
                           schema: Option[String] = None,
                           renderRelatedItems: Boolean,
-                          mltCount: Int)(implicit configuration: DomainConfiguration): Either[String, RenderedView] = {
+                          relatedItemsCount: Int)(implicit configuration: DomainConfiguration): Either[String, RenderedView] = {
 
 
-    SolrQueryService.getSolrItemReference(URLEncoder.encode(id, "utf-8"), idType, renderRelatedItems, mltCount) match {
+    SolrQueryService.getSolrItemReference(URLEncoder.encode(id, "utf-8"), idType, renderRelatedItems, relatedItemsCount) match {
       case Some(DocItemReference(hubId, defaultSchema, publicSchemas, relatedItems, item)) =>
         val prefix = if(schema.isDefined && publicSchemas.contains(schema.get)) {
           schema.get

@@ -354,6 +354,7 @@ object DomainConfiguration {
                         maxQueryTerms = mlt.get.getInt("maxQueryTerms").getOrElse(default.maxQueryTerms),
                         maxNumToken = mlt.get.getInt("maxNumToken").getOrElse(default.maxNumToken),
                         boost = mlt.get.getBoolean("boost").getOrElse(default.boost),
+                        count = mlt.get.getInt("count").getOrElse(default.count),
                         queryFields = mlt.get.underlying.getStringList("queryFields").asScala
                       )
                     }

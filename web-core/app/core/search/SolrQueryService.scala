@@ -254,7 +254,7 @@ object SolrQueryService extends SolrServer {
   }
 
 
-  def getSolrItemReference(id: String, idType: DelvingIdType, findRelatedItems: Boolean, mltCount: Int)(implicit configuration: DomainConfiguration): Option[DocItemReference] = {
+  def getSolrItemReference(id: String, idType: DelvingIdType, findRelatedItems: Boolean, relatedItemsCount: Int)(implicit configuration: DomainConfiguration): Option[DocItemReference] = {
     val t = idType.resolve(id)
     val solrQuery = if (idType == DelvingIdType.LEGACY) {
       "%s:\"%s\" delving_orgId:%s".format(t.idSearchField, URLDecoder.decode(t.normalisedId, "utf-8"), configuration.orgId)
@@ -267,7 +267,7 @@ object SolrQueryService extends SolrServer {
     if (findRelatedItems) {
       val mlt = configuration.searchService.moreLikeThis
       query.set("mlt", true)
-      query.set("mlt.count", mltCount)
+      query.set("mlt.count", relatedItemsCount)
       query.set("mlt.fl", mlt.fieldList.mkString(","))
       query.set("mlt.mintf", mlt.minTermFrequency)
       query.set("mlt.mindf", mlt.minDocumentFrequency)
