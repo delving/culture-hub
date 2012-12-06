@@ -169,6 +169,7 @@ case class MoreLikeThis(
   maxQueryTerms: Int = 25,
   maxNumToken: Int = 5000,
   boost: Boolean = false,
+  count: Int = 5,
   queryFields: Seq[String] = Seq()
 )
 
@@ -353,6 +354,7 @@ object DomainConfiguration {
                         maxQueryTerms = mlt.get.getInt("maxQueryTerms").getOrElse(default.maxQueryTerms),
                         maxNumToken = mlt.get.getInt("maxNumToken").getOrElse(default.maxNumToken),
                         boost = mlt.get.getBoolean("boost").getOrElse(default.boost),
+                        count = mlt.get.getInt("count").getOrElse(default.count),
                         queryFields = mlt.get.underlying.getStringList("queryFields").asScala
                       )
                     }

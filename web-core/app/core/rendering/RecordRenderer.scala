@@ -30,10 +30,11 @@ object RecordRenderer {
                           idType: DelvingIdType,
                           lang: Lang,
                           schema: Option[String] = None,
-                          renderRelatedItems: Boolean)(implicit configuration: DomainConfiguration): Either[String, RenderedView] = {
+                          renderRelatedItems: Boolean,
+                          relatedItemsCount: Int)(implicit configuration: DomainConfiguration): Either[String, RenderedView] = {
 
 
-    SolrQueryService.getSolrItemReference(URLEncoder.encode(id, "utf-8"), idType, renderRelatedItems) match {
+    SolrQueryService.getSolrItemReference(URLEncoder.encode(id, "utf-8"), idType, renderRelatedItems, relatedItemsCount) match {
       case Some(DocItemReference(hubId, defaultSchema, publicSchemas, relatedItems, item)) =>
         val prefix = if(schema.isDefined && publicSchemas.contains(schema.get)) {
           schema.get
