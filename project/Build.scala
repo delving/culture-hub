@@ -15,7 +15,7 @@ object Build extends sbt.Build {
   val cultureHubPath = ""
 
   val appName = "culture-hub"
-  val cultureHubVersion = "12.11-SNAPSHOT"
+  val cultureHubVersion = "12.11"
   val sipAppVersion = "1.0.10-SNAPSHOT"
   val sipCoreVersion = "1.0.16-SNAPSHOT"
   val schemaRepoVersion = "1.0.11-SNAPSHOT"
@@ -46,7 +46,7 @@ object Build extends sbt.Build {
   val appDependencies = Seq(
     "org.apache.amber"          %  "oauth2-authzserver"              % "0.2-SNAPSHOT",
     "org.apache.amber"          %  "oauth2-client"                   % "0.2-SNAPSHOT",
-    "eu.delving"                %% "themes"                          % "1.0-SNAPSHOT"      changing()
+    "eu.delving"                %  "themes"                          % "1.0-SNAPSHOT"      changing()
   )
 
   val webCoreDependencies = Seq(
