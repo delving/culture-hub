@@ -3,7 +3,7 @@ package libs
 import org.im4java.core.{ConvertCmd, IdentifyCmd, IMOperation, ImageCommand}
 import org.im4java.process.OutputConsumer
 import java.io.{File, InputStreamReader, BufferedReader, InputStream}
-import play.api.Play
+import play.api.{Logger, Play}
 import org.apache.commons.io.FileUtils
 
 /**
@@ -14,21 +14,33 @@ import org.apache.commons.io.FileUtils
  */
 object Normalizer {
 
-  def normalize(sourceImage: File, targetDirectory: File): File = {
+  /**
+   * Normalizes a file to be usable for tiling and presentation for DeepZoom
+   * @param sourceImage the source image to be normalized
+   * @param targetDirectory the target directory to which the normalized file should be written to
+   * @return an optional normalized file, if normalization took place
+   */
+  def normalize(sourceImage: File, targetDirectory: File): Option[File] = {
 
     var source: File = sourceImage
+    val destination = new File(targetDirectory, sourceImage.getName)
+
+    val log = Logger("CultureHub")
+
+    val hasBeenNormalized = identifyLargestLayer(source) != None || !isRGB(source)
 
     identifyLargestLayer(source).map { index =>
-      val converted = new File(targetDirectory, source.getName)
+      log.info("Image %s has multiple layers, normalizing to just one...".format(source.getName))
       val convertCmd = new ConvertCmd
       val convertOp = new IMOperation
       convertOp.addRawArgs(source.getAbsolutePath + "[%s]".format(index))
-      convertOp.addRawArgs(converted.getAbsolutePath)
+      convertOp.addRawArgs(destination.getAbsolutePath)
       convertCmd.run(convertOp)
-      source = converted
+      source = destination
     }
 
     if (!isRGB(source)) {
+      log.info("Image %s isn't RGB encoded, converting...".format(source.getName))
       val converted = new File(targetDirectory, "RGB_" + source.getName)
       val convertCmd = new ConvertCmd
       val convertOp = new IMOperation
@@ -37,12 +49,18 @@ object Normalizer {
       convertOp.addImage(converted.getAbsolutePath)
       convertCmd.run(convertOp)
       if (converted.exists()) {
-        FileUtils.deleteQuietly(source)
-        FileUtils.moveFile(converted, source)
+        if (converted.getParentFile.getAbsolutePath == targetDirectory.getAbsoluteFile) {
+          FileUtils.deleteQuietly(source)
+        }
+        FileUtils.moveFile(converted, destination)
       }
     }
 
-    source
+    if (hasBeenNormalized) {
+      Some(destination)
+    } else {
+      None
+    }
   }
 
   private def identifyLargestLayer(sourceImage: File): Option[Int] = {
@@ -70,17 +88,17 @@ object Normalizer {
   }
 
   private def identify(sourceImage: File, addParameters: IMOperation => Unit): Seq[String] = {
-    val identifiyCmd = new IdentifyCmd
+    val identifyCmd = new IdentifyCmd
     val identifyOp = new IMOperation
     identifyOp.addImage(sourceImage.getAbsolutePath)
     var identified: List[String] = List()
-    identifiyCmd.setOutputConsumer(new OutputConsumer() {
+    identifyCmd.setOutputConsumer(new OutputConsumer() {
       def consumeOutput(is: InputStream) {
         val br = new BufferedReader(new InputStreamReader(is))
         identified = Stream.continually(br.readLine()).takeWhile(_ != null).toList
       }
     })
-    identifiyCmd.run(identifyOp)
+    identifyCmd.run(identifyOp)
 
     identified.toSeq
   }

@@ -33,9 +33,10 @@ class DeepZoomPlugin(app: Application) extends CultureHubPlugin(app) with Thumbn
 
 
           info("%s: normalizing image for file %s".format(configuration.orgId, fileName))
-          Normalizer.normalize(sourceFile, new File(normalizationWorkingDir))
+          val tileSource = Normalizer.normalize(sourceFile, new File(normalizationWorkingDir)).getOrElse(sourceFile)
+
           info("%s: creating tiles for file %s".format(configuration.orgId, fileName))
-          PTIFTiling.createTile(tilesWorkingDir, tilesOutputDir, sourceFile)
+          PTIFTiling.createTile(tilesWorkingDir, tilesOutputDir, tileSource)
         }
       }
 

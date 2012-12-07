@@ -135,9 +135,9 @@ case class TaskType(name: String)
 object TaskType {
   val THUMBNAILS_CREATE = TaskType("createThumbnails")
   val THUMBNAILS_DELETE = TaskType("deleteThumbnails")
-  val FLATTEN = TaskType("flatten")
+  val NORMALIZE = TaskType("normalize")
   val TILES = TaskType("tiles")
-  val values = List(THUMBNAILS_CREATE, THUMBNAILS_DELETE, FLATTEN, TILES)
+  val values = List(THUMBNAILS_CREATE, THUMBNAILS_DELETE, NORMALIZE, TILES)
 
   def valueOf(what: String) = values find { _.name == what }
 }
