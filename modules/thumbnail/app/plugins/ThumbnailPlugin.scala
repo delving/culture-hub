@@ -17,7 +17,7 @@ class ThumbnailPlugin(app: Application) extends CultureHubPlugin(app) with Thumb
     case FileStored(bucketId, fileIdentifier, fileType, fileName, contentType, configuration: DomainConfiguration) =>
 
       if (contentType.contains("image")) {
-        debug("Image stored: " + fileName)
+        debug("File stored: " + fileName)
 
         FileStorage.retrieveFile(fileIdentifier)(configuration).map { file =>
           info("%s: Creating thumbnail for file %s".format(configuration.orgId, fileName))

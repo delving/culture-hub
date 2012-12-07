@@ -16,14 +16,11 @@
 
 package processors
 
-import at.ait.dme.magicktiler.image.ImageFormat
 import at.ait.dme.magicktiler.MagickTiler
-import at.ait.dme.magicktiler.ptif.PTIFConverter
 import models.dos.Task
 import java.io.File
-import play.api.Play
-import play.api.Play.current
 import util.DomainConfigurationHandler
+import libs.PTIFTiling
 
 /**
  *
@@ -82,12 +79,7 @@ object PTIFTilingProcessor extends Processor {
         return
       }
 
-      val tiler: MagickTiler = new PTIFConverter()
-      tiler.setWorkingDirectory(tilesWorkingBasePath)
-      tiler.setTileFormat(ImageFormat.JPEG);
-      tiler.setJPEGCompressionQuality(75);
-      tiler.setBackgroundColor("#ffffffff");
-      tiler.setGeneratePreviewHTML(false);
+      val tiler: MagickTiler = PTIFTiling.getTiler(tilesWorkingBasePath)
 
       val images = p.listFiles().filter(f => isImage(f.getName))
       Task.dao(task.orgId).setTotalItems(task, images.size)
@@ -102,7 +94,7 @@ object PTIFTilingProcessor extends Processor {
           info(task, "Generated PTIF for file " + i.getName + ": " + tileInfo.getImageWidth + "x" + tileInfo.getImageHeight + ", " + tileInfo.getZoomLevels + " zoom levels", Some(i.getAbsolutePath), Some(targetFile.getAbsolutePath))
           Task.dao(task.orgId).incrementProcessedItems(task, 1)
         } catch {
-          case t => error(task, "Could not create tile for image '%s': %s".format(i.getAbsolutePath, t.getMessage), Some(i.getAbsolutePath))
+          case t: Throwable => error(task, "Could not create tile for image '%s': %s".format(i.getAbsolutePath, t.getMessage), Some(i.getAbsolutePath))
         }
       }
     }

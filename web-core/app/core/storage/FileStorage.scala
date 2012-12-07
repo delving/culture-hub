@@ -4,10 +4,11 @@ import models.DomainConfiguration
 import com.mongodb.casbah.Imports._
 import com.mongodb.casbah.gridfs.Imports._
 import models.HubMongoContext._
-import java.io.{File, InputStream}
+import java.io.{FileOutputStream, File, InputStream}
 import core.{CultureHubPlugin, FileStoreService}
 import org.bson.types.ObjectId
 import core.messages.FileStored
+import org.apache.commons.io.IOUtils
 
 /**
  * Collection of methods for dealing with files and file uploads.
@@ -123,7 +124,19 @@ object FileStorage extends FileStoreService {
 }
 
 
-case class StoredFile(id: ObjectId, name: String, contentType: String, length: Long, content: InputStream)
+case class StoredFile(id: ObjectId, name: String, contentType: String, length: Long, content: InputStream) {
+
+  def writeTo(file: File) {
+    val os = new FileOutputStream(file)
+    try {
+      IOUtils.copy(content, os)
+      os.flush()
+    } finally {
+      os.close()
+    }
+  }
+
+}
 
 
 /**
