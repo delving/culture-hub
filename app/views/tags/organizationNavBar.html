@@ -13,7 +13,12 @@
                 </a>
                 <ul class="dropdown-menu">
                     #{list mainMenuEntry.items, as: 'entry'}
-                        <li><a href="${entry.url}" rel="nofollow">${messages.get(entry.titleKey)}</a></li>
+                        #{if entry.isDivider}
+                            <li class="divider"></li>
+                        #{/if}
+                        #{else}
+                            <li><a href="${entry.url}" rel="nofollow">${messages.get(entry.titleKey)}</a></li>
+                        #{/else}
                     #{/list}
                 </ul>
             </li>

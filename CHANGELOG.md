@@ -2,6 +2,16 @@
 
 This is the changelog of the CultureHub. It documents changes of the main platform, without modules.
 
+# 12.11
+
+### New features
+
+- sjoerd: Search API: support for free-field identifiers
+- manu: CRUD functionality for organization section
+- sjoerd: Search API: added MLT count
+
+### Fixes and refactoring
+
 # 12.10
 
 ### New features

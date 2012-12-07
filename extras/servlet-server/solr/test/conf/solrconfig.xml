@@ -873,7 +873,7 @@
   </requestHandler>
 
 
-    <requestHandler name="moreLikeThis" class="solr.MoreLikeThisHandler">
+    <requestHandler name="itinMoreLikeThis" class="solr.MoreLikeThisHandler">
         <lst name="defaults">
             <str name="mlt.fl">itin_link_path_s,itin_related_pvb_link,dc_title_text,dc_creator_text,dc_subject_text,drup_bundle_string</str>
             <int name="mlt.mindf">1</int>
@@ -886,6 +886,21 @@
             <str name="mlt.maxwl">20</str>
             <str name="mlt.maxqt">15</str>
             <str name="mlt.qf">itin_link_path_s ^1.1</str>
+        </lst>
+    </requestHandler>
+
+    <requestHandler name="moreLikeThis" class="solr.MoreLikeThisHandler">
+        <lst name="defaults">
+            <str name="mlt.fl">delving_description</str>
+            <int name="mlt.mindf">1</int>
+            <int name="mlt.mintf">1</int>
+            <bool name="mlt.match.include">true</bool>
+            <str name="mlt.interestingTerms">details</str>
+            <bool name="mlt.boost">false</bool>
+            <int name="mlt.minwl">3</int>
+            <int name="mlt.maxwl">20</int>
+            <int name="mlt.maxqt">15</int>
+            <str name="mlt.qf">delving_description ^1.1</str>
         </lst>
     </requestHandler>
 

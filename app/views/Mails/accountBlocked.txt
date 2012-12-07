@@ -1,3 +1,0 @@
-&{'ui.label.hello'} ${userName}
-
-${messages.get('mail.message.accountblocked', contactEmail)}:

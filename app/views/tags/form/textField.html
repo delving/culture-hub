@@ -1,7 +1,7 @@
 %{ def isDisabled = _disabled != null && _disabled ? "disabled" : "" }%
 <div class="control-group">
     #{if _label}
-        <label class="${_labelClass}" for="${_name}">${_label}#{if _required}<span class="label">&{'ui.label.required'}</span>#{/if}</label>
+        <label class="${_labelClass}" for="${_name}">${_label} #{if _required}<span class="required">*</span>#{/if}</label>
     #{/if}
     <div class="controls">
         <input

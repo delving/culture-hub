@@ -60,9 +60,18 @@ trait FullView extends DelvingController {
               val returnToResults = updatedSession.get(RETURN_TO_RESULTS).getOrElse("")
               val searchTerm = updatedSession.get(SEARCH_TERM).getOrElse("")
 
-              val fields = r.systemFields.get("delving_title").getOrElse(new BasicDBList).asInstanceOf[BasicDBList]
+              // TODO what follows is a hack to compensate for Salat not retrieving nested Seq's correctly
+              // TODO SystemFields should be replaced by a case class
 
-              val title = if (fields.size() > 0) fields.get(0).toString else ""
+              val titleField = r.systemFields.get("delving_title")
+              val title: String = if(titleField.isDefined && titleField.get.isInstanceOf[scala.collection.immutable.List[String]]) {
+                titleField.get.headOption.getOrElse("")
+              } else if(titleField.isDefined) {
+                val values = titleField.get.asInstanceOf[BasicDBList]
+                if (values.size() > 0) values.get(0).toString else ""
+              } else {
+                ""
+              }
 
               renderArgs += ("breadcrumbs" -> Breadcrumbs.crumble(
                 Map(
@@ -79,9 +88,16 @@ trait FullView extends DelvingController {
               val returnToPreviousLink = returnToPrevious.map(_._1).getOrElse("")
               val returnToPreviousLabel = returnToPrevious.map(l => Messages(l._2)).getOrElse("")
 
+              val snippets: Seq[(String, Unit)] = CultureHubPlugin.getEnabledPlugins.flatMap { plugin =>
+                plugin.fullViewSnippet.map { snippet =>
+                  (snippet._1 -> snippet._2(RequestContext(request, configuration, renderArgs, getLang), hubId))
+                }
+              }
+
               Ok(
                 Template(
                   "Search/object.html",
+                  'title -> title,
                   'systemFields -> r.systemFields,
                   'fullView -> renderedRecord.right.get.toViewTree,
                   'returnToResults -> returnToResults,
@@ -90,7 +106,8 @@ trait FullView extends DelvingController {
                   'orgId -> orgId,
                   'hubId -> hubId,
                   'rights -> r.parameters.get("rights").getOrElse(""),
-                  'hasRelatedRecords -> r.hasRelatedItems
+                  'hasRelatedRecords -> r.hasRelatedItems,
+                  'pluginIncludes -> snippets.map(_._1)
                 )
               ).withSession(updatedSession)
 

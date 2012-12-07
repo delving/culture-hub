@@ -58,12 +58,12 @@ class ViewRenderSpec extends Specs2TestContext {
           """<div class="root ">
             |<div class="row ">
             |<div class="column ">
-            |<div >
+            |<div  >
             |<h5>Description </h5>            <p>This is a test record</p>
             |</div>
             |</div>
             |<div class="column ">
-            |<div >
+            |<div  >
             |<h5>random</h5>
             |<p>A test hierarchical record, Wood</p>
             |<h5>Purchase Price  <span class="label">blabla</span></h5>            <p>5000</p>
@@ -72,7 +72,7 @@ class ViewRenderSpec extends Specs2TestContext {
             |</div>
             |</div>
             |<div class="column ">
-            |<div >
+            |<div  >
             |<h5>metadata.icn.placeName </h5>            <p>Paris</p>
             |<h5>metadata.icn.placeName </h5>            <p>Berlin</p>
             |<h5>metadata.icn.placeName </h5>            <p>Amsterdam</p>

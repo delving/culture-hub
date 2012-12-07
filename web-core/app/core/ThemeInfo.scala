@@ -43,6 +43,7 @@ class ThemeInfo(configuration: DomainConfiguration) {
   val googleAnalyticsTrackingCode = configuration.ui.googleAnalyticsTrackingCode.getOrElse("")
   val showLogin = configuration.ui.showLogin
   val showRegistration = configuration.ui.showRegistration
+  val showAllObjects = configuration.ui.showAllObjects
 
   val pageSize = configuration.searchService.pageSize
 }

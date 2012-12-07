@@ -1,7 +1,0 @@
-Master,
-
-a new awesome user registered on the CultureHub ${hub}:
-
-User:   ${userName}
-Name:   ${fullName}
-Email:  ${email}

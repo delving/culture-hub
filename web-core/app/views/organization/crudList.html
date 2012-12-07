@@ -1,0 +1,51 @@
+#{extends "organization/crudListBody.html" /}
+
+<tr>
+   #{list columnFields, as: 'field'}
+   <td>
+       #{if field_isFirst}
+           <a data-bind="attr: { href: '${viewLink}'#{list viewLinkParams, as: 'p'}.replace('_${p}_', $data.${p}())#{/list} }"><span class="item-title" data-bind="text: ${field}"></span></a>
+       #{/if}
+       #{else}
+           <span data-bind="text: ${field}"></span>
+       #{/else}
+   </td>
+   #{/list}
+   <td>
+       #{if (isAdmin && (editActionEnabled || deleteActionEnabled) || additionalActions.size() > 0) }
+       <div class="btn-toolbar nom">
+           <div class="btn-group">
+               <button class="btn btn-small input-small">&{'thing.actions'}</button>
+               <button class="btn btn-small dropdown-toggle" data-toggle="dropdown">
+                   <span class="caret"></span>
+               </button>
+               <ul class="dropdown-menu">
+                   #{if isAdmin}
+                       #{if editActionEnabled}
+                           <li><a class="" href="#" data-bind="click: function() { $parent.update($data) }" rel="nofollow">
+                               <i class="icon-edit"></i> &{'ui.label.edit'}
+                           </a></li>
+                            <li class="divider"></li>
+                       #{/if}
+                   #{/if}
+                    #{list additionalActions, as: 'action'}
+                        #{if !action.isAdminAction || (action.isAdminAction && isAdmin) }
+                        <li><a href="#" data-bind="attr: { href: '\${action.url}'#{list action.urlFields, as: 'field'}.replace('_${field}_', $data.${field}())#{/list}.replace('_orgId_', '${orgId}' ) }" rel="nofollow"><i class="icon-${action.actionClass}"></i> &{action.labelKey}</a></li>
+                        #{if action_isLast}
+                              <li class="divider"></li>
+                        #{/if}
+                        #{/if}
+                    #{/list}
+                   #{if isAdmin}
+                       #{if deleteActionEnabled}
+                           <li><a class="btn-danger" href="#" data-bind="click: function() { $parent.delete($data) }" rel="nofollow">
+                               <i class="icon-trash icon-white"></i> &{'ui.label.delete'}
+                           </a></li>
+                       #{/if}
+                   #{/if}
+               </ul>
+           </div>
+       </div>
+       #{/if}
+    </td>
+</tr>

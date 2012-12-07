@@ -16,8 +16,6 @@
 
 package core.harvesting
 
-import core.harvesting.PmhVerbType.PmhVerb
-import core.search.Params
 import core.{HarvestCollectionLookupService, HubId}
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -33,7 +31,6 @@ import core.collection.{OrganizationCollectionInformation, Harvestable}
 import org.scala_tools.subcut.inject.{Injectable, BindingModule}
 import models.MetadataItem
 import models.Namespace
-import scala.Null
 import xml.NamespaceBinding
 import collection.mutable.ArrayBuffer
 
@@ -275,7 +272,7 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
         <ListIdentifiers>
           { for (record <- recordList) yield
           <header status={recordStatus(record)}>
-            <identifier>{record.asPmhId}</identifier>
+            <identifier>{OaiPmhService.toPmhId(record.itemId)}</identifier>
             <datestamp>{record.modified}</datestamp>
             <setSpec>{setName}</setSpec>
           </header>
@@ -306,7 +303,6 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
     if(format.isDefined && metadataFormat != format.get) throw new MappingNotFoundException("Invalid format provided for this URL")
 
     val hubId = HubId(identifier)
-    println("currentId: " + hubId)
     // check access rights
     val c = harvestCollectionLookupService.findBySpecAndOrgId(hubId.spec, orgId)
     if (c == None) return createErrorResponse("noRecordsMatch")
@@ -330,7 +326,7 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
         <responseDate>
           {OaiPmhService.currentDate}
         </responseDate>
-        <request verb="GetRecord" identifier={record.asPmhId}
+        <request verb="GetRecord" identifier={OaiPmhService.toPmhId(record.itemId)}
                  metadataPrefix={metadataFormat}>
           {requestURL}
         </request>
@@ -347,18 +343,16 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
 
   private def renderRecord(record: MetadataItem, metadataPrefix: String, set: String) : Elem = {
 
-    val cachedString: String = record.xml.get(metadataPrefix).getOrElse(throw new RecordNotFoundException(record.asPmhId))
+    val cachedString: String = record.xml.get(metadataPrefix).getOrElse(throw new RecordNotFoundException(OaiPmhService.toPmhId(record.itemId)))
 
-    val cleanString = if (metadataPrefix equalsIgnoreCase ("mods"))
-      cachedString.replaceFirst("xmlns:mods=\"http://www.loc.gov/mods/v3\"", "xmlns:mods=\"http://www.loc.gov/mods/v3\" xsi:schemaLocation=\"http://www.loc.gov/mods/v3 http://www.loc.gov/standards/mods/v3/mods-3-4.xsd\"")
-    else
-      cachedString
+    // cached records may contain the default namespace, however in our situation that one is already defined in the top scope
+    val cleanString = cachedString.replaceFirst("xmlns=\"http://www.w3.org/2000/xmlns/\"", "")
 
     val response = try {
       val elem: Elem = XML.loadString(cleanString)
       <record>
         <header>
-          <identifier>{URLEncoder.encode(record.asPmhId, "utf-8").replaceAll("%3A", ":")}</identifier>
+          <identifier>{URLEncoder.encode(OaiPmhService.toPmhId(record.itemId), "utf-8").replaceAll("%3A", ":")}</identifier>
           <datestamp>{OaiPmhService.printDate(record.modified)}</datestamp>
           <setSpec>{set}</setSpec>
         </header>
@@ -368,7 +362,7 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
       </record>
     } catch {
       case e: Throwable =>
-        log.error("Unable to render record %s with format %s because of %s".format(record.asPmhId, metadataPrefix, e.getMessage), e)
+        log.error("Unable to render record %s with format %s because of %s".format(OaiPmhService.toPmhId(record.itemId), metadataPrefix, e.getMessage), e)
           <record/>
     }
     response
@@ -507,13 +501,21 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
 }
 
 object OaiPmhService {
+
   val utcFormat: SimpleDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'")
   val dateFormat = new SimpleDateFormat("yyyy-MM-dd")
   utcFormat.setLenient(false)
   dateFormat.setLenient(false)
-  private def toUtcDateTime(date: Date) : String = utcFormat.format(date)
-  private def currentDate = toUtcDateTime (new Date())
-  private def printDate(date: Date) : String = if (date != null) toUtcDateTime(date) else ""
+
+  def toUtcDateTime(date: Date) : String = utcFormat.format(date)
+  def currentDate = toUtcDateTime (new Date())
+  def printDate(date: Date) : String = if (date != null) toUtcDateTime(date) else ""
+
+  /**
+   * Turns a hubId (orgId_spec_localId) into a pmhId of the kind oai:kulturnett_kulturit.no:NOMF-00455Q
+   */
+  def toPmhId(hubId: String) = HubId(hubId).pmhId
+
 
 }
 

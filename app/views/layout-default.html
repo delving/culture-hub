@@ -9,22 +9,12 @@
                 <div class="container">
                     <a class="brand" href="/" title="${themeInfo.siteSlogan()}"><img src="${themeInfo.path("images/logo-small.png")}" alt=""/><span>${themeInfo.siteName()}</span></a>
                     #{userNav userName: userName, email:email, organization:organization, showLang:themeInfo.get('userNavLangSelect'), showLogin:themeInfo.showLogin(), showRegistration:themeInfo.showRegistration(), /}
-                    <div class="visible-desktop pull-right">
-                        #{search.searchForm showSearchIn: true, searchIn: params.searchIn, fields: searchIn, advancedSearchLink: false, iconOnly: true/}
+                    <div class="search-bar pull-right">
+                        #{search.searchForm showSearchIn: true, searchIn: params.searchIn, fields: searchIn, advancedSearchLink: false, iconOnly: true, showAll: themeInfo.showAllObjects()/}
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-</div>
-
-<div class="search-bar hidden-desktop">
-    <div class="container">
-    <div class="row">
-        <div class="span12">
-        #{search.searchForm searchIn: params.searchIn, fields: searchIn, advancedSearchLink: false, iconOnly: true/}
-        </div>
-    </div>
     </div>
 </div>
 
@@ -49,7 +39,7 @@
     <div class="container">
         <div class="row">
         ${themeInfo.footer().raw()}
-            <div class="${themeInfo.footer().length() > 0 ? 'span2 offset6' : 'span12'}">
+            <div class="${themeInfo.footer().length() > 0 ? 'span4' : 'span12'}">
                 <a href="http://www.delving.eu" target="_blank" title="Powered by DELVING.EU" class="pull-right">
                     <img src="@{routes.Assets.at('common/images/delving-small.png')}" alt="Powered by DELVING.EU" id="pbd"/>
                     Powered by Delving

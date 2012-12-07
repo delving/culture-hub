@@ -15,6 +15,7 @@ import com.mongodb.casbah.Imports._
 import core.HubModule
 import plugins.CMSPlugin
 import scala.collection.JavaConverters._
+import core.storage.FileStorage
 
 
 /**
@@ -53,7 +54,7 @@ trait CMS extends OrganizationController { this: BoundController =>
     Action {
       implicit request =>
         def notSelected(id: ObjectId) = false
-        val files = controllers.dos.FileStore.getFilesForItemId(orgId).map(_.asFileUploadResponse(notSelected))
+        val files = FileStorage.getFilesForItemId(orgId).map(_.asFileUploadResponse(notSelected))
         Ok(Template('uid -> MissingLibs.UUID, 'files -> JJson.generate(files)))
     }
   }
@@ -61,7 +62,7 @@ trait CMS extends OrganizationController { this: BoundController =>
   def uploadSubmit(orgId: String, uid: String) = CMSAction(orgId) {
     Action {
       implicit request =>
-        controllers.dos.FileUpload.markFilesAttached(uid, orgId)
+        FileStorage.markFilesAttached(uid, orgId)
         Redirect("/organizations/%s/site/upload".format(orgId))
     }
   }
@@ -69,7 +70,7 @@ trait CMS extends OrganizationController { this: BoundController =>
   def listImages(orgId: String) = CMSAction(orgId) {
     Action {
       implicit request =>
-        val images = controllers.dos.FileStore.getFilesForItemId(orgId).filter(_.contentType.contains("image"))
+        val images = FileStorage.getFilesForItemId(orgId).filter(_.contentType.contains("image"))
 
         // tinyMCE stoopidity
         val javascript = "var tinyMCEImageList = new Array(" + images.map(i => """["%s","%s"]""".format(i.name, "/file/image/%s".format(i.id))).mkString(", ") + ");"
@@ -177,8 +178,8 @@ case class CMSPageViewModel(dateCreated: Long,
                             isSnippet: Boolean = false, // is this a snippet in the welcome page or not
                             published: Boolean,
                             position: Int,
-                            menu: String,
-                            errors: Map[String, String] = Map.empty[String, String]) extends ViewModel
+                            menu: String)
+
 
 object CMSPageViewModel {
 
@@ -204,8 +205,7 @@ object CMSPageViewModel {
       "isSnippet" -> boolean,
       "published" -> boolean,
       "position" -> number,
-      "menu" -> text,
-      "errors" -> of[Map[String, String]]
+      "menu" -> text
     )(CMSPageViewModel.apply)(CMSPageViewModel.unapply)
   )
 

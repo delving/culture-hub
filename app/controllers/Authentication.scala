@@ -34,8 +34,15 @@ trait Authentication extends ApplicationController { this: BoundController =>
       "password" -> nonEmptyText,
       "remember" -> boolean
     ) verifying(Messages("authentication.error"), result => result match {
-      case (u, p, r) => authenticationServiceLocator.byDomain.connect(u, p)
+      case (u, p, r) =>
+        authenticationServiceLocator.byDomain.connect(resolveEmail(u), p)
     }))
+
+  private def resolveEmail(userName: String)(implicit configuration: DomainConfiguration) = if (userName.contains("@")) {
+      HubUser.dao.findOneByEmail(userName).map(_.userName).getOrElse(userName)
+    } else {
+      userName
+    }
 
   def login = ApplicationAction {
     Action {
@@ -58,57 +65,56 @@ trait Authentication extends ApplicationController { this: BoundController =>
    * Handle login form submission.
    */
   def authenticate: Action[AnyContent] = ApplicationAction {
-    Action { implicit request =>
-      loginForm.bindFromRequest.fold(
-        formWithErrors => BadRequest(Template("/Authentication/login.html", 'loginForm -> formWithErrors)),
-        user => {
-          // first check if the user exists in this hub
-          val u: Option[HubUser] = HubUser.dao.findByUsername(user._1).orElse {
-            // create a local user
-            userProfileServiceLocator.byDomain.getUserProfile(user._1).map {
-              p => {
-                val newHubUser = HubUser(userName = user._1,
-                                         firstName = p.firstName,
-                                         lastName = p.lastName,
-                                         email = p.email,
-                                         userProfile = models.UserProfile(
-                                           isPublic = p.isPublic,
-                                           description = p.description,
-                                           funFact = p.funFact,
-                                           websites = p.websites,
-                                           twitter = p.twitter,
-                                           linkedIn = p.linkedIn
-                                         )
-                                        )
+    Action {
+      implicit request =>
+        loginForm.bindFromRequest.fold(
+          formWithErrors => BadRequest(Template("/Authentication/login.html", 'loginForm -> formWithErrors)),
+          user => {
+            val userName = resolveEmail(user._1)
+            // first check if the user exists in this hub
+            HubUser.dao.findByUsername(userName).orElse {
+              // create a local user
+              userProfileServiceLocator.byDomain.getUserProfile(userName).flatMap { p =>
+                val newHubUser = HubUser(userName = userName,
+                  firstName = p.firstName,
+                  lastName = p.lastName,
+                  email = p.email,
+                  userProfile = models.UserProfile(
+                    isPublic = p.isPublic,
+                    description = p.description,
+                    funFact = p.funFact,
+                    websites = p.websites,
+                    twitter = p.twitter,
+                    linkedIn = p.linkedIn
+                  )
+                )
                 HubUser.dao.insert(newHubUser)
-                HubUser.dao.findByUsername(user._1)
+                HubUser.dao.findByUsername(userName)
+              }
+            }.map { u =>
+              val action = (request.session.get("uri") match {
+                case Some(uri) => Redirect(uri)
+                case None => Redirect(controllers.routes.Application.index)
+              }).withSession(
+                Constants.USERNAME -> userName,
+                AT_KEY -> authenticityToken)
+
+              if (user._3) {
+                action.withCookies(Cookie(
+                  name = REMEMBER_COOKIE,
+                  value = Crypto.sign(user._1) + "-" + user._1,
+                  maxAge = Time.parseDuration("30d")
+                ))
+              } else {
+                action
               }
             }.getOrElse {
-              ErrorReporter.reportError(request, "Could not create local HubUser for user %s".format(user._1))
-              return Action { implicit request => Redirect(controllers.routes.Authentication.login).flashing(("error", "Sorry, something went wrong while logging in, please try again")) }
+              ErrorReporter.reportError(request, "Could not create local HubUser for user %s".format(userName))
+              Redirect(controllers.routes.Authentication.login).flashing(("error", "Sorry, something went wrong while logging in, please try again"))
             }
-         }
-
-          val action = (request.session.get("uri") match {
-            case Some(uri) => Redirect(uri)
-            case None => Redirect(controllers.routes.Application.index)
-          }).withSession(
-            Constants.USERNAME -> user._1,
-            "connectedUserId" -> u.get._id.toString,
-            AT_KEY -> authenticityToken)
-
-          if (user._3) {
-            action.withCookies(Cookie(
-              name = REMEMBER_COOKIE,
-              value = Crypto.sign(user._1) + "-" + user._1,
-              maxAge = Time.parseDuration("30d")
-            ))
-          } else {
-            action
           }
-        }
-      )
-  }
+        )
+    }
   }
 
   private def authenticityToken = Crypto.sign(MissingLibs.UUID)

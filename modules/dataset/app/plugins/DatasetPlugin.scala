@@ -127,7 +127,6 @@ class DataSetPlugin(app: Application) extends CultureHubPlugin(app) {
 
   /**
    * Override this to add menu entries to the organization menu
-   * @param orgId the organization ID
    * @param lang the active language
    * @param roles the roles of the current user
    * @return a sequence of [[core.MainMenuEntry]] for the organization menu
@@ -199,49 +198,7 @@ class DataSetPlugin(app: Application) extends CultureHubPlugin(app) {
    */
   override def onStart() {
 
-    // check if we have access to all schemas that are used by the DataSets
-
-    val schemasInUse: Map[String, Seq[String]] = DataSet.all.flatMap { dao =>
-      dao.findAll().flatMap { set =>
-        set.mappings.values.map { mapping =>
-          (mapping.schemaPrefix -> mapping.schemaVersion)
-        }
-      }
-    }.foldLeft(Map.empty[String, Seq[String]]) { (acc, pair) =>
-      acc + (pair._1 -> Seq(pair._2))
-    } - "raw" // boldly ignore the raw schema, which is fake.
-
-    val allSchemas = schemaService.getAllSchemas
-
-    val missingVersions: Map[String, Seq[String]] = schemasInUse.map(inUse => {
-
-      val availableVersionNumbers = allSchemas.find(_.prefix == inUse._1).map { schema =>
-        schema.versions.asScala.map(_.number)
-      }.getOrElse(Seq.empty)
-
-      val intersection = availableVersionNumbers.intersect(inUse._2)
-
-      (inUse._1 -> inUse._2.filterNot(intersection.contains(_)))
-    })
-
-    if (missingVersions.exists(missing => !missing._2.isEmpty)) {
-      log.error(
-        """
-          |The SchemaRepository does not provide some of the versions in use by the stored DataSets. Fix this before starting the hub!
-          |
-          |Affected schemas / versions:
-          |
-          |%s
-        """.stripMargin.format(
-          missingVersions.map( missing =>
-            "%s -> %s".format(
-              missing._1, missing._2.map("'%s'".format(_)).mkString(", ")
-            )
-          ).mkString("\n")
-        ))
-
-      throw new RuntimeException("Cannot start the hub due to missing schemas")
-    }
+    checkSchemas()
 
     // ~~~ jobs
 
@@ -303,8 +260,56 @@ class DataSetPlugin(app: Application) extends CultureHubPlugin(app) {
               }
           }
       }
-      Thread.sleep(3000)
     }
+  }
+
+  /**
+   *   check if we have access to all schemas that are used by the DataSets
+   */
+  private def checkSchemas() {
+
+    val schemasInUse: Map[String, Seq[String]] = DataSet.all.flatMap { dao =>
+      dao.findAll().flatMap { set =>
+        set.mappings.values.map { mapping =>
+          (mapping.schemaPrefix -> mapping.schemaVersion)
+        }
+      }
+    }.foldLeft(Map.empty[String, Seq[String]]) { (acc, pair) =>
+      acc + (pair._1 -> Seq(pair._2))
+    } - "raw" // boldly ignore the raw schema, which is fake.
+
+    val allSchemas = schemaService.getAllSchemas
+
+    val missingVersions: Map[String, Seq[String]] = schemasInUse.map(inUse => {
+
+      val availableVersionNumbers = allSchemas.find(_.prefix == inUse._1).map { schema =>
+        schema.versions.asScala.map(_.number)
+      }.getOrElse(Seq.empty)
+
+      val intersection = availableVersionNumbers.intersect(inUse._2)
+
+      (inUse._1 -> inUse._2.filterNot(intersection.contains(_)))
+    })
+
+    if (missingVersions.exists(missing => !missing._2.isEmpty)) {
+      log.error(
+        """
+          |The SchemaRepository does not provide some of the versions in use by the stored DataSets. Fix this before starting the hub!
+          |
+          |Affected schemas / versions:
+          |
+          |%s
+        """.stripMargin.format(
+          missingVersions.map( missing =>
+            "%s -> %s".format(
+              missing._1, missing._2.map("'%s'".format(_)).mkString(", ")
+            )
+          ).mkString("\n")
+        ))
+
+      throw new RuntimeException("Cannot start the hub due to missing schemas")
+    }
+
   }
 
   override def onStop() {

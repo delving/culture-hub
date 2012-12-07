@@ -1,0 +1,119 @@
+#{extends "organization/crudHeader.html" /}
+
+#{set 'visibility'}hidden#{/set}
+#{set 'moreScripts'}
+<script src="@{routes.Assets.at("common/javascripts/jquery.tablesorter.min.js")}"></script>
+<script src="@{routes.Assets.at("common/javascripts/jquery.uitablefilter.js")}"></script>
+#{/set}
+
+<div class="dataset-filter row">
+    <div class="dataset-filter-inner span12">
+        <form id="filter-form" class="form-inline pull-left form-search">
+            <input type='text' name='filter' id='filter' maxlength="30" size="30" class="search-query" placeholder="&{'org.list.filter'}"/>
+            <input onclick="saveFilter()" class="btn" type="button" value="&{'ui.label.save'}"/>
+            <input onclick="resetFilter()" class="btn" type="reset" value="&{'ui.label.reset'}"/>
+            <a class="icon icon-question-sign extHelp" href="#" rel="tooltip" title="&{'org.list.filterHelp'}"></a>
+        </form>
+    </div>
+</div>
+
+<div class="row">
+    <div class="span12">
+
+        <table class="table crud-list-table table-striped sortable">
+            <caption>${titleKey.raw()}</caption>
+            <thead>
+            <tr>
+                #{list columnLabels, as: 'label'}
+                <th>&{label}</th>
+                #{/list}
+                <th>&{'thing.actions'}</th>
+            </tr>
+            </thead>
+            <!-- ko if: items().length > 0 -->
+            <tbody data-bind="foreach: items()">
+            #{doLayout /}
+            </tbody>
+            <!-- /ko -->
+            <!-- ko ifnot: items().length > 0 -->
+            <tbody>
+            <tr>
+                <td colspan="${columnFields.length() + 1}">
+                    No items
+                </td>
+                <td>
+                    #{if createActionEnabled}
+                    <a class="btn btn-primary btn-mini" href="${request.path()}/add${request.rawQueryString() ? '?' + request.rawQueryString() : ''}" rel="nofollow">${messages.get('ui.label.new')}</a>
+                    #{/if}
+                </td>
+            </tr>
+            </tbody>
+            <!-- /ko -->
+        </table>
+
+    </div>
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+
+        var viewModel = {
+            update: function(item) {
+                document.location = "${request.path()}/" + item.id() + "/update" + "${request.rawQueryString() ? '?' + request.rawQueryString() : ''}"
+            },
+            delete: function(item) {
+                bootboxConfirm({
+                    'type': 'DELETE',
+                    'message' : '<h3 class="shout">' + item.name() + '</h3>&{'thing.deleteConfirmation'}',
+                    'action_url' : "${request.path()}/" + item.id() + '/remove' + "${request.rawQueryString() ? '?' + request.rawQueryString() : ''}",
+                    'success_callback' : function () {
+                        viewModel.items.remove(function (i) {
+                            return i.id() === item.id();
+                        });
+                    }
+
+                });
+            }
+        };
+
+        var theTable = $('table.sortable'), tableCookie = "${titleKey}"+"-table";
+
+        // table filtering functionality
+        theTable.find("tbody > tr").find("td:eq(1)").mousedown(function () {
+            $(this).prev().find(":checkbox").click();
+        });
+
+        $("#filter").keyup(function () {
+            $.uiTableFilter(theTable, this.value);
+        });
+
+        $('#filter-form').submit(
+                function () {
+                    theTable.find("tbody > tr:visible > td:eq(1)").mousedown();
+                    return false;
+                }).focus(); //Give focus to input field
+
+        *{ the format parameter is a workaround for Chrome: https://code.google.com/p/chromium/issues/detail?id=108425 }*
+        var link = location.href + (location.href.indexOf('?') > -1 ? '&format=json' : '?format=json');
+        load(link, viewModel, null, function () {
+            $("body").css('visibility', 'visible');
+
+            // Check to see if there is a filter cookie. If so filter the table
+            if ($.cookie(tableCookie)) {
+                $.uiTableFilter(theTable, $.cookie(tableCookie));
+                $('input#filter').val($.cookie(tableCookie));
+            }
+        });
+
+        resetFilter = function () {
+            $.uiTableFilter(theTable, '');
+            $('input#filter').val('');
+            $.cookie(tableCookie, null);
+        }
+
+        saveFilter = function () {
+            $.cookie(tableCookie,$('input#filter').val(),"/");
+        }
+
+    });
+</script>

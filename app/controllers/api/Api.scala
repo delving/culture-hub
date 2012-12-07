@@ -17,7 +17,7 @@ import core.ExplainItem
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-object Api extends DelvingController {
+object Api extends DelvingController with RenderingExtensions {
 
   def explanations(orgId: String, path: String): Action[AnyContent] = {
     val pathList = path.split("/").drop(1).toList

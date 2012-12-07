@@ -75,6 +75,17 @@ object IndexingService extends SolrServer {
     if(!doc.containsKey(HAS_DIGITAL_OBJECT.key + "_facet")) {
       doc.addField(HAS_DIGITAL_OBJECT.key + "_facet", hasDigitalObject)
     }
+
+    // clean geohash with type suffix
+    if (doc.containsKey(GEOHASH.key + "_geohash")) {
+      val doubleKey = GEOHASH.key + "_geohash"
+      val field = doc.get(doubleKey)
+      doc.remove(doubleKey)
+      field.getValues.foreach(geoHash =>
+        doc.addField(GEOHASH.key, geoHash)
+      )
+    }
+
     doc.addField(HAS_GEO_HASH.key.toString, doc.containsKey(GEOHASH.key) && !doc.get(GEOHASH.key).isEmpty)
 
     getStreamingUpdateServer(configuration).add(doc)

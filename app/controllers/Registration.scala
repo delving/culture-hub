@@ -19,6 +19,7 @@ package controllers
 import notifiers.Mails
 import play.api.Play.current
 import models.DomainConfiguration
+import models.HubUser
 import extensions.MissingLibs
 import play.api._
 import cache.Cache
@@ -32,7 +33,7 @@ import play.api.i18n.Messages
 import validation.{ValidationError, Valid, Invalid, Constraint}
 import play.libs.Time
 import play.libs.Images.Captcha
-import core.{RegistrationService, DomainServiceLocator, HubModule, ThemeInfo, OrganizationService}
+import core.{RegistrationService, DomainServiceLocator, HubModule, ThemeInfo, OrganizationService, UserProfileService}
 
 /**
  *
@@ -45,6 +46,7 @@ trait Registration extends ApplicationController { this: BoundController =>
 
   val registrationServiceLocator = inject [ DomainServiceLocator[RegistrationService] ]
   val organizationServiceLocator = inject [ DomainServiceLocator[OrganizationService] ]
+  val userProfileServiceLocator = inject [ DomainServiceLocator[UserProfileService] ]
 
     case class RegistrationInfo(
         firstName: String,
@@ -190,8 +192,31 @@ trait Registration extends ApplicationController { this: BoundController =>
                     val activated = registrationServiceLocator.byDomain.activateUser(activationToken)
                     if (activated.isDefined) {
                         try {
+                            val userName = activated.get.userName
+
+                            // create a local user
+                            userProfileServiceLocator.byDomain.getUserProfile(userName).map { p => {
+                                val newHubUser = HubUser(
+                                  userName = userName,
+                                  firstName = p.firstName,
+                                  lastName = p.lastName,
+                                  email = p.email,
+                                  userProfile = models.UserProfile(
+                                    isPublic = p.isPublic,
+                                    description = p.description,
+                                    funFact = p.funFact,
+                                    websites = p.websites,
+                                    twitter = p.twitter,
+                                    linkedIn = p.linkedIn
+                                  ),
+                                  organizations = if (configuration.registeredUsersAddedToOrg) List(configuration.orgId) else List.empty
+                                )
+                                HubUser.dao.insert(newHubUser)
+                              }
+                            }
+
                             Mails.newUser(
-                                "New user registered on " + configuration.commonsService.nodeName,
+                                "New user activated on " + configuration.commonsService.nodeName,
                                 configuration.commonsService.nodeName,
                                 activated.get.userName,
                                 activated.get.fullName,

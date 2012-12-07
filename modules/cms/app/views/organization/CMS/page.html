@@ -88,6 +88,7 @@
                 <label>&{'plugin.cms.page.menu.add'}</label>
                 <div class="controls">
                     <select name="menu" id="menu" data-bind="value: menu">
+                        <option value="none">None</option>
                         #{list menuDefinitions, as: 'm'}
                         <option value="${m.key}">${m.value}</option>
                         #{/list}
