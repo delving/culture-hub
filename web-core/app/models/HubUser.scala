@@ -61,9 +61,7 @@ class HubUserDAO(collection: MongoCollection) extends SalatDAO[HubUser, ObjectId
 
   def findByUsername(userName: String, active: Boolean = true): Option[HubUser] = findOne(MongoDBObject("userName" -> userName))
 
-//  def findBookmarksCollection(userName: String): Option[UserCollection] = {
-//    UserCollection.findOne(MongoDBObject("isBookmarksCollection" -> true, "userName" -> userName))
-//  }
+  def findOneByEmail(email: String): Option[HubUser] = findOne(MongoDBObject("email" -> email))
 
   // ~~~ organizations
 

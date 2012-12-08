@@ -41,9 +41,18 @@ object Users extends DelvingController {
   def listAsTokens(orgId: Option[String], q: String) = Root {
     Action {
       implicit request =>
-        val query = MongoDBObject("userName" -> Pattern.compile(q, Pattern.CASE_INSENSITIVE))
-        val users = if(orgId != None) HubUser.dao.find(query ++ MongoDBObject("organizations" -> orgId.get)) else HubUser.dao.find(query)
-        val asTokens = users.map(u => Token(u.userName, u.userName))
+        def queryBy(field: String): MongoDBObject = MongoDBObject(field -> Pattern.compile(q, Pattern.CASE_INSENSITIVE))
+        val queryByUserName = queryBy("userName")
+        val queryByFirstName = queryBy("firstName")
+        val queryByLastName = queryBy("lastName")
+        lazy val orgQuery: MongoDBObject = MongoDBObject("organizations" -> orgId.get)
+
+        val baseQuery = Seq(queryByUserName, queryByFirstName, queryByLastName)
+        val query: Seq[MongoDBObject] = if (orgId != None) baseQuery ++ Seq(orgQuery) else baseQuery
+
+        val users: Seq[HubUser] = query.flatMap { HubUser.dao.find(_).toSeq }.distinct
+        val asTokens = users.map(u => Token(u.userName, u.userName + " - " + u.fullname))
+
         Json(asTokens)
     }
   }

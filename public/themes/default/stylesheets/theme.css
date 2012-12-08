@@ -52,7 +52,6 @@ a:hover {
   margin: 0px 12px 0 0;
 }
 .search-bar {
-  background: #a5cbe4;
   height: 44px;
 }
 .search-bar form {
@@ -110,6 +109,12 @@ a:hover {
 }
 #footer a {
   color: #ffffff;
+}
+/* Large desktop */
+@media (min-width: 1200px) {
+  .container {
+    width: 75%path;
+  }
 }
 @media (max-width: 767px) {
   body {

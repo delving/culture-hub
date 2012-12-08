@@ -156,7 +156,8 @@ class SearchService(request: RequestHeader, hiddenQueryFilters: Seq[String] = Se
     require(params._contains("id"))
     val id = params.getValue("id")
     val idTypeParam = params.getValueOrElse("idType", HUB_ID.key)
-    RecordRenderer.getRenderedFullView(id, DelvingIdType(idTypeParam), Lang(apiLanguage), schema, renderRelatedItems)
+    val mltCount = params.getValueOrElse("mlt.count", configuration.searchService.moreLikeThis.count.toString)
+    RecordRenderer.getRenderedFullView(id, DelvingIdType(idTypeParam), Lang(apiLanguage), schema, renderRelatedItems, mltCount.toInt)
   }
 
   def errorResponse(error: String = "Unable to respond to the API request",

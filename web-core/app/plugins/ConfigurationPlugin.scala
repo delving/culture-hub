@@ -82,7 +82,7 @@ class ConfigurationPlugin(app: Application) extends CultureHubPlugin(app) {
       HubUser.dao("delving").insert(new HubUser(
         _id = new ObjectId("4e5679a80364ae80333ab939"),
         userName = "bob",
-        firstName = "bob",
+        firstName = "Bob",
         lastName = "Marley",
         email = "bob@gmail.com",
         userProfile = profile

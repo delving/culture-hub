@@ -15,9 +15,12 @@ case class Group(_id: ObjectId = new ObjectId,
                  orgId: String,
                  roleKey: String,
                  resources: Seq[PersistedResource] = Seq.empty,
-                 users: Seq[String] = Seq.empty[String]) {
+                 users: Seq[String] = Seq.empty[String],
+                 systemGroup: Option[Boolean] = None) {
 
   def description(lang: String)(implicit configuration: DomainConfiguration) = Role.get(roleKey).getDescription(Lang(lang))
+
+  def isSystemGroup = systemGroup.getOrElse(false)
 
 }
 

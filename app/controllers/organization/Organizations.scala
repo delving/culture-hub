@@ -4,11 +4,12 @@ import play.api.i18n.Messages
 import controllers._
 import play.api.mvc.Action
 import models.HubUser
-import core.{OrganizationService, DomainServiceLocator, OrganizationCollectionLookupService, HubModule}
+import core._
 import core.collection.OrganizationCollection
 import com.mongodb.casbah.Imports._
 import controllers.Token
 import java.util.regex.Pattern
+import controllers.Token
 
 /**
  *
@@ -20,14 +21,14 @@ object Organizations extends BoundController(HubModule) with Organizations
 
 trait Organizations extends DelvingController { this: BoundController =>
 
-  val organizationCollectionLookupService = inject [ OrganizationCollectionLookupService ]
+  val harvestCollectionLookupService = inject [ HarvestCollectionLookupService ]
 
   def index(orgId: String, language: Option[String]) = OrganizationBrowsing {
     Action {
       implicit request =>
         if (organizationServiceLocator.byDomain.exists(orgId)) {
           val members: List[HubUser] = HubUser.dao.listOrganizationMembers(orgId).flatMap(HubUser.dao.findByUsername(_))
-          val collections: Seq[OrganizationCollection] = organizationCollectionLookupService.findAll
+          val collections: Seq[OrganizationCollection] = harvestCollectionLookupService.findAllNonEmpty(configuration.orgId, None)
           val lang = language.getOrElse(getLang)
           Ok(Template(
             'orgId -> orgId,

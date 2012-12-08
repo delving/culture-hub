@@ -1,15 +1,14 @@
 <div class="control-group">
 #{if _label}
-    <label class="${_labelClass}" for="${_name}">${_label}#{if _required}<span class="label">&{'ui.label.required'}</span>#{/if}</label>
+    <label class="${_labelClass}" for="${_name}">${_label} #{if _required}<span class="required">*</span>#{/if}</label>
 #{/if}
     <div class="controls">
-        <input type="text" id="${_id}" class="span4" name="${_name}" data-bind="${_dataBind}">
+        <input type="text" id="${_id}" name="${_name}" data-bind="${_dataBind}">
     </div>
     <span class="error" data-bind="text: errors().${_name.replaceAll("\\.", "_")}">${views.Helpers.showError(_name, _form)}</span>
 </div>
 <script type="text/javascript">
   $(document).ready(function() {
-    $('#${_id}').tokenInput('${_searchUrl}');
-//    $('.token-input-list').addClass('span4');
+    $('#${_id}').tokenInput('${_searchUrl}'#{if _options},${_options}#{/if});
   });
 </script>

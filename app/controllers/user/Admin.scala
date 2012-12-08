@@ -85,8 +85,7 @@ case class ProfileViewModel(isPublic: Boolean = false,
                             funFact: String = "",
                             websites: List[String] = List.empty[String],
                             twitter: String = "",
-                            linkedIn: String = "",
-                            errors: Map[String, String] = Map.empty[String, String]) extends ViewModel
+                            linkedIn: String = "")
 
 object ProfileViewModel {
 
@@ -100,8 +99,7 @@ object ProfileViewModel {
       "funFact" -> text,
       "websites" -> list(text),
       "twitter" -> text,
-      "linkedIn" -> text,
-      "errors" -> of[Map[String, String]]
+      "linkedIn" -> text
     )(ProfileViewModel.apply)(ProfileViewModel.unapply)
   )
 

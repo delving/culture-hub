@@ -32,13 +32,15 @@ object Global extends GlobalSettings {
             / /___/ /_/ / / /_/ /_/ / /  /  __/ __  / /_/ / /_/ /
             \____/\__,_/_/\__/\__,_/_/   \___/_/ /_/\__,_/_.___/
 
+            http://www.delving.eu
+            ~~~~~~~~~~~~~~~~~~~~~
 
             Version %s
 
             SIP-App Version %s
             SIP-Core Version %s
 
-      """.format(BuildInfo.cultureHub, BuildInfo.sipApp, BuildInfo.sipCore))
+              """.format(BuildInfo.cultureHub, BuildInfo.sipApp, BuildInfo.sipCore))
     }
 
     // ~~~ bootstrap jobs
@@ -95,12 +97,14 @@ object Global extends GlobalSettings {
 
   override def onRouteRequest(request: RequestHeader): Option[Handler] = {
 
+    val domain: String = request.queryString.get("domain").map(v => v.head).getOrElse(request.domain)
+
     // check if we access a configured domain
-    if (!DomainConfigurationHandler.hasConfiguration(request.domain)) {
-      Logger("CultureHub").debug("Accessed invalid domain %s, redirecting...".format(request.domain))
+    if (!DomainConfigurationHandler.hasConfiguration(domain)) {
+      Logger("CultureHub").debug("Accessed invalid domain %s, redirecting...".format(domain))
       Some(controllers.Default.redirect(Play.configuration.getString("defaultDomainRedirect").getOrElse("http://www.delving.eu")))
     } else {
-      implicit val configuration = DomainConfigurationHandler.getByDomain(request.domain)
+      implicit val configuration = DomainConfigurationHandler.getByDomain(domain)
       val routes = CultureHubPlugin.getEnabledPlugins.flatMap(_.routes)
 
       val routeLogger = Akka.system.actorFor("akka://application/user/routeLogger")

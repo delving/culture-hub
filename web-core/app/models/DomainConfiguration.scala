@@ -49,6 +49,7 @@ case class DomainConfiguration(
   ui:                          UserInterfaceConfiguration,
 
   // ~~~ access control
+  registeredUsersAddedToOrg:   Boolean = false,
   roles:                       Seq[Role],
 
   // ~~~ search
@@ -115,7 +116,8 @@ case class UserInterfaceConfiguration(
   addThisTrackingCode:         Option[String],
   googleAnalyticsTrackingCode: Option[String],
   showLogin:                   Boolean,
-  showRegistration:            Boolean
+  showRegistration:            Boolean,
+  showAllObjects:              Boolean
 )
 
 case class CommonsServiceConfiguration(
@@ -147,13 +149,14 @@ case class DirectoryServiceConfiguration(
 )
 
 case class SearchServiceConfiguration(
-  hiddenQueryFilter:           String,
-  facets:                      String, // dc_creator:crea:Creator,dc_type
-  sortFields:                  String, // dc_creator,dc_provider:desc
-  moreLikeThis:                MoreLikeThis,
-  searchIn:                    Map[String, String],
-  apiWsKey:                    Boolean = false,
-  pageSize:                    Int
+  hiddenQueryFilter:            String,
+  facets:                       String, // dc_creator:crea:Creator,dc_type
+  sortFields:                   String, // dc_creator,dc_provider:desc
+  moreLikeThis:                 MoreLikeThis,
+  searchIn:                     Map[String, String],
+  apiWsKey:                     Boolean = false,
+  pageSize:                     Int,
+  showResultsWithoutThumbnails: Boolean = false
 )
 
 /** See http://wiki.apache.org/solr/MoreLikeThis **/
@@ -166,6 +169,7 @@ case class MoreLikeThis(
   maxQueryTerms: Int = 25,
   maxNumToken: Int = 5000,
   boost: Boolean = false,
+  count: Int = 5,
   queryFields: Seq[String] = Seq()
 )
 
@@ -200,6 +204,8 @@ object DomainConfiguration {
 
   val PROVIDER_DIRECTORY_URL = "services.directory.providerDirectoryUrl"
 
+  val REGISTRATION_USERS_ADDED_TO_ORG = "registration.registeredUsersAddedToOrganization"
+
   val FILESTORE_DATABASE = "services.dos.fileStoreDatabase"
   val IMAGE_CACHE_DATABASE = "services.dos.imageCacheDatabase"
   val IMAGE_CACHE_ENABLED = "services.dos.imageCacheEnabled"
@@ -218,6 +224,7 @@ object DomainConfiguration {
   val SEARCH_MORELIKETHIS = "services.search.moreLikeThis"
   val SEARCH_SEARCHIN = "services.search.searchIn"
   val SEARCH_PAGE_SIZE = "services.search.pageSize"
+  val SHOW_ITEMS_WITHOUT_THUMBNAIL = "services.search.showItemsWithoutThumbnail"
 
   val OAI_REPO_NAME = "services.pmh.repositoryName"
   val OAI_ADMIN_EMAIL = "services.pmh.adminEmail"
@@ -347,6 +354,7 @@ object DomainConfiguration {
                         maxQueryTerms = mlt.get.getInt("maxQueryTerms").getOrElse(default.maxQueryTerms),
                         maxNumToken = mlt.get.getInt("maxNumToken").getOrElse(default.maxNumToken),
                         boost = mlt.get.getBoolean("boost").getOrElse(default.boost),
+                        count = mlt.get.getInt("count").getOrElse(default.count),
                         queryFields = mlt.get.underlying.getStringList("queryFields").asScala
                       )
                     }
@@ -364,7 +372,8 @@ object DomainConfiguration {
                       )
                     }
                   },
-                  pageSize = getOptionalInt(configuration, SEARCH_PAGE_SIZE).getOrElse(20)
+                  pageSize = getOptionalInt(configuration, SEARCH_PAGE_SIZE).getOrElse(20),
+                  showResultsWithoutThumbnails = getOptionalBoolean(configuration, SHOW_ITEMS_WITHOUT_THUMBNAIL).getOrElse(false)
                 ),
                 plugins = configuration.underlying.getStringList(PLUGINS).asScala.toSeq,
                 schemas = configuration.underlying.getStringList(SCHEMAS).asScala.toList,
@@ -378,7 +387,8 @@ object DomainConfiguration {
                   addThisTrackingCode = configuration.getString("ui.addThisTrackingCode").orElse(None),
                   googleAnalyticsTrackingCode = configuration.getString("ui.googleAnalyticsTrackingCode").orElse(None),
                   showLogin = configuration.getBoolean("ui.showLogin").getOrElse(false),
-                  showRegistration =  configuration.getBoolean("ui.showRegistration").getOrElse(false)
+                  showRegistration =  configuration.getBoolean("ui.showRegistration").getOrElse(false),
+                  showAllObjects =  configuration.getBoolean("ui.showAllObjects").getOrElse(false)
                 ),
                 emailTarget = {
                   EmailTarget(
@@ -401,7 +411,8 @@ object DomainConfiguration {
                       Role(roleKey, roleDescriptions)
                     }
                   }.toSeq
-                }.getOrElse(Seq.empty)
+                }.getOrElse(Seq.empty),
+                registeredUsersAddedToOrg = getOptionalBoolean(configuration, REGISTRATION_USERS_ADDED_TO_ORG).getOrElse(false)
               )
             )
           }
@@ -581,6 +592,9 @@ object DomainConfiguration {
 
   private def getBoolean(configuration: Configuration, key: String): Boolean =
     configuration.getBoolean(key).getOrElse(Play.configuration.getBoolean(key).get)
+
+  private def getOptionalBoolean(configuration: Configuration, key: String): Option[Boolean] =
+    configuration.getBoolean(key).orElse(Play.configuration.getBoolean(key))
 
 }
 

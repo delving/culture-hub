@@ -141,7 +141,8 @@ object SolrQueryService extends SolrServer {
             case "start" =>
               queryParams setStart (values.head.toInt)
             case "rows" =>
-              queryParams setRows (values.head.toInt)
+              val queryRows: Int = values.head.toInt
+              queryParams setRows (if (queryRows > 500) 500 else queryRows)
             case "fl" | "fl[]" =>
               queryParams setFields (values.mkString(","))
             case "facet.limit" =>
@@ -253,10 +254,12 @@ object SolrQueryService extends SolrServer {
   }
 
 
-  def getSolrItemReference(id: String, idType: DelvingIdType, findRelatedItems: Boolean)(implicit configuration: DomainConfiguration): Option[DocItemReference] = {
+  def getSolrItemReference(id: String, idType: DelvingIdType, findRelatedItems: Boolean, relatedItemsCount: Int)(implicit configuration: DomainConfiguration): Option[DocItemReference] = {
     val t = idType.resolve(id)
     val solrQuery = if (idType == DelvingIdType.LEGACY) {
       "%s:\"%s\" delving_orgId:%s".format(t.idSearchField, URLDecoder.decode(t.normalisedId, "utf-8"), configuration.orgId)
+    } else if (idType == DelvingIdType.FREE || idType == DelvingIdType.ITIN) {
+      "%s delving_orgId:%s".format(URLDecoder.decode(t.normalisedId, "utf-8"), configuration.orgId)
     } else {
       "%s:\"%s\" delving_orgId:%s".format(t.idSearchField, t.normalisedId, configuration.orgId)
     }
@@ -264,6 +267,7 @@ object SolrQueryService extends SolrServer {
     if (findRelatedItems) {
       val mlt = configuration.searchService.moreLikeThis
       query.set("mlt", true)
+      query.set("mlt.count", relatedItemsCount)
       query.set("mlt.fl", mlt.fieldList.mkString(","))
       query.set("mlt.mintf", mlt.minTermFrequency)
       query.set("mlt.mindf", mlt.minDocumentFrequency)
@@ -295,10 +299,11 @@ object SolrQueryService extends SolrServer {
 
       Some(
         DocItemReference(
-          first.getFirstValue(HUB_ID.key).toString,
+          Option(first.getFirstValue(HUB_ID.key)).map(_.toString).getOrElse(""),
           currentFormat,
           publicFormats,
-          relatedItems
+          relatedItems,
+          SolrBindingService.getBriefDocs(response).headOption
         )
       )
     }
@@ -455,8 +460,12 @@ object DelvingIdType {
   val HUB = DelvingIdType("hubId", HUB_ID.key)
   val INDEX_ITEM = DelvingIdType("indexItem", ID.key)
   val LEGACY = DelvingIdType("legacy", EUROPEANA_URI.key)
+  val FREE = DelvingIdType("free", "")
 
-  val types = Seq(SOLR, PMH, DRUPAL, HUB, INDEX_ITEM, LEGACY)
+  // TODO legacy support - to be removed on 01.06.2013
+  val ITIN = DelvingIdType("itin", "")
+
+  val types = Seq(SOLR, PMH, DRUPAL, HUB, INDEX_ITEM, LEGACY, FREE, ITIN)
 
   def apply(idType: String): DelvingIdType = types.find(_.idType == idType).getOrElse(DelvingIdType.HUB)
 
@@ -646,7 +655,7 @@ case class BriefItemView(chResponse: CHResponse) {
   def getPagination: ResultPagination = pagination
 }
 
-case class DocItemReference(hubId: String, defaultSchema: String, publicSchemas: Seq[String], relatedItems: Seq[BriefDocItem] = Seq.empty)
+case class DocItemReference(hubId: String, defaultSchema: String, publicSchemas: Seq[String], relatedItems: Seq[BriefDocItem] = Seq.empty, item: Option[BriefDocItem] = None)
 
 // todo implement the traits as case classes
 

@@ -5,30 +5,61 @@
         <row>
             <column proportion="2of3">
                 <container id="object-media">
+
                     <container type="placeholder" id="object-title-big"></container>
+
                     <container ifNot="/icn:record/delving:deepZoomUrl" id="image-viewer">
-                        <container ifNot="/icn:record/delving:thumbnail">
-                            <container ifNot="icn:record/europeana:isShownBy">
-                                <image path="/icn:record/europeana:object"/>
-                            </container>
-                            <container if="icn:record/europeana:isShownBy">
+
+                        <!-- FIRST CHECK FOR DELVING:IMAGEURL -->
+                        <container if="/icn:record/delving:imageUrl">
+                            <image path="/icn:record/delving:imageUrl"/>
+                        </container>
+
+                        <!-- IF THERE IS NO DELVING:IMAGEURL -->
+                        <container ifNot="/icn:record/delving:imageUrl">
+                            <!-- THEN CHECK FOR EUROPEANA:ISSHOWNBY -->
+                            <container if="/icn:record/europeana:isShownBy">
                                 <image path="/icn:record/europeana:isShownBy"/>
                             </container>
+
+                            <container ifNot="/icn:record/europeana:isShownBy">
+                                <!-- THEN CHECK FOR DELVING:THUMBNAIL -->
+                                <container if="/icn:record/delving:thumbnail">
+                                    <image path="/icn:record/delving:thumbnail"/>
+                                </container>
+                                <!-- THEN CHECK FOR EUROPEANA:OBJECT -->
+                                <container ifNot="/icn:record/delving:thumbnail">
+                                    <image path="/icn:record/europeana:object"/>
+                                </container>
+                            </container>
                         </container>
-                        <container if="/icn:record/delving:thumbnail">
-                            <image path="/icn:record/delving:thumbnail"/>
-                        </container>
+
                     </container>
+
                     <container id="zoom-viewer" if="/icn:record/delving:deepZoomUrl">
                         <link textValue="zoom" urlExpr="/icn:record/delving:deepZoomUrl" type="zoom"/>
                     </container>
+
                     <container id="context-link" if="/icn:record/europeana:isShownAt">
                         <link textValue="search.viewInOriginalContext" urlExpr="/icn:record/europeana:isShownAt" type="external"/>
                     </container>
+
+                    <container id="deepZoomUrls" if="/icn:record/delving:deepZoomUrl">
+                        <list path="/icn:record/delving:deepZoomUrl">
+                            <link urlExpr="." textValue="zoom-url"/>
+                        </list>
+                    </container>
+
+                    <container  if="/icn:record/delving:imageUrl" id="imageUrls">
+                        <list path="/icn:record/delving:imageUrl">
+                            <link urlExpr="." textValue="image-url"/>
+                        </list>
+                    </container>
+
                 </container>
                 <row>
                     <column proportion="1of3">
-                        <container type="labelled-list">
+                        <container type="definition-list">
                             <field path="/icn:record/dc:title" label="metadata.dc.title"/>
                             <enumeration path="/icn:record/dc:creator" separator="lf" label="metadata.dc.creator"/>
                             <field path="/icn:record/icn:creatorYearOfBirth" label="metadata.icn.creatorYearOfBirth"/>
@@ -46,7 +77,7 @@
                             <field path="/icn:record/dcterms:provenance" label="metadata.dcterms.provenance"/>
                         </container>
                         <!-- MUSEOMETRIE FIELDS -->
-                        <container id="admin" role="museometrie" type="labelled-list">
+                        <container id="admin" role="museometrie" type="definition-list">
                             <field path="/icn:record/icn:currentLocation" label="metadata.icn.currentLocation" role="museometrie"/>
                             <field path="/icn:record/icn:previousLocation" label="metadata.icn.previousLocation" role="museometrie"/>
                             <field path="/icn:record/icn:acquisitionMeans" label="metadata.icn.acquisitionMeans" role="museometrie"/>
@@ -58,7 +89,7 @@
 
                     </column>
                     <column proportion="1of3">
-                        <container type="labelled-list">
+                        <container type="definition-list">
                             <!--<field path="/icn:record/europeana:collectionName" label="metadata.europeana.collectionName"/>-->
                             <field path="/icn:record/europeana:collectionTitle" label="metadata.icn.collection"/>
                             <field path="/icn:record/icn:collectionPart" label="metadata.icn.collectionPart" />
@@ -76,7 +107,7 @@
                         </container>
 
                         <!-- RIJKS FIELDS -->
-                        <container role="rijksMember" type="labelled-list">
+                        <container role="rijksMember" type="definition-list-horizontal">
                             <field path="/icn:record/icn:legalStatus" label="metadata.icn.legalStatus" role="rijksMember"/>
                             <field path="/icn:record/icn:acceptedStateCharges" label="metadata.icn.acceptedStateCharges" role="rijksMember"/>
                             <field path="/icn:record/icn:acceptedStateChargesReason" label="metadata.icn.acceptedStateChargesReason" role="rijksMember"/>

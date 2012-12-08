@@ -49,8 +49,7 @@ case class DataSetCreationViewModel(id: Option[ObjectId] = None,
                             selectedSchemas: Seq[String] = Seq.empty,
                             allAvailableSchemas: Seq[String],
                             schemaProcessingConfigurations: Seq[SchemaProcessingConfiguration],
-                            indexingMappingPrefix: Option[String] = None,
-                            errors: Map[String, String] = Map.empty) extends ViewModel
+                            indexingMappingPrefix: Option[String] = None)
 
 case class SchemaProcessingConfiguration(prefix: String,
                                          availableVersions: Seq[String],
@@ -120,8 +119,7 @@ object DataSetCreationViewModel {
           "accessKey" -> text
         )(SchemaProcessingConfiguration.apply)(SchemaProcessingConfiguration.unapply)
       ),
-      "indexingMappingPrefix" -> optional(text).verifying(notRaw),
-      "errors" -> of[Map[String, String]]
+      "indexingMappingPrefix" -> optional(text).verifying(notRaw)
     )(DataSetCreationViewModel.apply)(DataSetCreationViewModel.unapply)
   )
 

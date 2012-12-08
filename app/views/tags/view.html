@@ -34,19 +34,27 @@ switch (_view.nodeType) {
     case "container":}%
 
     #{if (!_view.isLeaf() && !(_view.content().length() == 1 && _view.content().apply(0).nodeType() == "list" && _view.content().apply(0).content().length() == 0)) || _view.attr("type") == "placeholder"}
-        <div #{if _view.attr("id")}id="${_view.attr("id")}"#{/if}>
+        <div #{if _view.attr("id")}id="${_view.attr("id")}"#{/if} #{if _view.attr("class")}class="${_view.attr("class")}"#{/if}>
 
             #{if _view.attr("label")}
                 <h5>&{_view.attr("label")} #{if _view.attr("role")}<span class="label">${_view.attr("role")}</span>#{/if}</h5>
             #{/if}
 
-            #{if _view.attr("type") == "labelled-list"}
-            <dl class="dl">
+            #{if _view.attr("type") == "definition-list"}
+            <dl>
                 #{list items: _view.content(), as: 'i'}
                     #{view view: i /}
                 #{/list}
             </dl>
             #{/if}
+
+            #{elseif _view.attr("type") == "definition-list-horizontal"}
+                <dl class="dl-horizontal">
+                    #{list items: _view.content(), as: 'i'}
+                    #{view view: i /}
+                #{/list}
+                </dl>
+            #{/elseif}
 
             #{elseif _view.attr("type") == "list" }
             <ul>
@@ -54,6 +62,14 @@ switch (_view.nodeType) {
                     #{view view: i /}
                 #{/list}
             </ul>
+            #{/elseif}
+
+            #{elseif _view.attr("type") == "labelled-list" }
+                <ul>
+                    #{list items: _view.content(), as: 'i'}
+                    #{view view: i /}
+                #{/list}
+                </ul>
             #{/elseif}
 
             #{else}
@@ -68,11 +84,14 @@ switch (_view.nodeType) {
 
     case "field": if (_view.text()){ }%
 
-        #{if _view.parent.attr("type") == "labelled-list"}
+        #{if _view.parent.attr("type") == "definition-list" || _view.parent.attr("type") == "definition-list-horizontal" }
             <dt>&{_view.attr("label")}#{if _view.attr("role")} <span class="label">${_view.attr("role")}</span>#{/if}</dt><dd>${_view.text()}</dd>
         #{/if}
         #{elseif _view.parent.attr("type") == "list"}
             <li>${_view.text()}</li>
+        #{/elseif}
+        #{elseif _view.parent.attr("type") == "labelled-list"}
+            <li>#{if _view.attr("label")}&{_view.attr("label")}:#{/if} ${_view.text()}</li>
         #{/elseif}
         #{else}
             #{if _view.attr("label")}<h5>&{_view.attr("label")} #{if _view.attr("role")} <span class="label">${_view.attr("role")}</span>#{/if}</h5>#{/if}
@@ -83,12 +102,16 @@ switch (_view.nodeType) {
 
     case "link": if (_view.attr("text")){ }%
 
-        #{if _view.parent.attr("type") == "labelled-list"  }
+        #{if _view.parent.attr("type") == "definition-list" ||  _view.parent.attr("type") == "definition-list-horizontal"  }
             <dt>&{_view.attr("label")}</dt><dd><a href="${_view.attr("url")}" rel="nofollow">&{_view.attr("text")}</a></dd>
         #{/if}
 
         #{elseif _view.parent.attr("type") == "list"}
             <li><a href="${_view.attr("url")}" rel="nofollow">&{_view.attr("text")}</a></li>
+        #{/elseif}
+
+        #{elseif _view.parent.attr("type") == "labelled-list"}
+            <li>&{_view.attr("label")}: <a href="${_view.attr("url")}" rel="nofollow">&{_view.attr("text")}</a></li>
         #{/elseif}
 
         #{else}
@@ -132,7 +155,7 @@ switch (_view.nodeType) {
             #{if _view.parent.attr("type") == "list"}
                 #{list _view.content(), as: 'e'}<li>${e.text()}</li>#{/list}
             #{/if}
-            #{elseif _view.parent.attr("type") == "labelled-list"}
+            #{elseif _view.parent.attr("type") == "definition-list" || _view.parent.attr("type") == "definition-list-horizontal"}
                 <dt>&{_view.attr("label")}</dt>
                 <dd>
                     #{list _view.content(), as: 'e'}${e.text()}#{if !e_isLast}${separator.raw()}#{/if}#{/list}

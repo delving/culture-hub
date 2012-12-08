@@ -99,7 +99,7 @@ POST       /registration/newPassword/:resetPasswordToken                      co
 
 # Enrichment lookups
 
-GET         /enrichment/place/search                                          controllers.ws.Places.find
+GET         /places/search                                                    controllers.ws.Places.listAsTokens(q: String ?= "", countryCode: Option[String])
 
 # Delving URL scheme
 

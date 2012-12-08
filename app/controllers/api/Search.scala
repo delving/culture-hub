@@ -4,11 +4,12 @@ import play.api.mvc._
 import core.Constants._
 import core.indexing.IndexField._
 import core.search.SearchService
-import collection.mutable.ListBuffer
 import play.api.libs.concurrent.Promise
 import controllers.{BoundController, DomainConfigurationAware}
 import play.api.Logger
 import core.{OrganizationCollectionLookupService, HubModule}
+import play.api.cache.Cache
+import play.api.Play.current
 
 /**
  * Search API
@@ -32,7 +33,9 @@ trait Search extends Controller with DomainConfigurationAware { this: Controller
               Logger("CultureHub").warn("Using deprecated API call " + request.uri)
             }
 
-            val itemTypes = organizationCollectionLookupService.findAll.map(_.itemType).distinct
+            val itemTypes = Cache.getOrElse("itemTypes", 300) {
+              organizationCollectionLookupService.findAll.map(_.itemType).distinct
+            }
 
             val hiddenQueryFilters = List(
               "(%s)".format(

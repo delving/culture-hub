@@ -102,8 +102,6 @@ class CMSPlugin(app: Application) extends CultureHubPlugin(app) {
 
   private var cmsPluginConfiguration: Map[DomainConfiguration, CMSPluginConfiguration] = Map.empty
 
-  def getPluginConfiguration(implicit configuration: DomainConfiguration) = cmsPluginConfiguration(configuration)
-
   override def onBuildConfiguration(configurations: Map[DomainConfiguration, Option[Configuration]]) {
     cmsPluginConfiguration = configurations.map { pair =>
       pair._1 -> {
@@ -146,29 +144,31 @@ class CMSPlugin(app: Application) extends CultureHubPlugin(app) {
 
       // make sure that all the menu definitions in the configuration have an up-to-date menu entry for their parent menu
       // TODO sync removed entries
-      getPluginConfiguration(configuration).
-        menuDefinitions.
-        filterNot(_.parentMenuKey == None).
-        zipWithIndex.foreach { definition =>
-        MenuEntry.dao.findOneByMenuKeyAndTargetMenuKey(definition._1.parentMenuKey.get, definition._1.key).map { persisted =>
-          val updated = persisted.copy(
-            position = definition._2,
-            title = definition._1.title,
-            targetMenuKey = Some(definition._1.key),
-            targetPageKey = None,
-            targetUrl = None
-          )
-          MenuEntry.dao.save(updated)
-        }.getOrElse {
-          val entry = MenuEntry(
-            orgId = configuration.orgId,
-            menuKey = definition._1.parentMenuKey.get,
-            position = definition._2,
-            title = definition._1.title,
-            targetMenuKey = Some(definition._1.key),
-            published = true
-          )
-          MenuEntry.dao.insert(entry)
+      cmsPluginConfiguration.get(configuration).map { config =>
+        config.
+          menuDefinitions.
+          filterNot(_.parentMenuKey == None).
+          zipWithIndex.foreach { definition =>
+          MenuEntry.dao.findOneByMenuKeyAndTargetMenuKey(definition._1.parentMenuKey.get, definition._1.key).map { persisted =>
+            val updated = persisted.copy(
+              position = definition._2,
+              title = definition._1.title,
+              targetMenuKey = Some(definition._1.key),
+              targetPageKey = None,
+              targetUrl = None
+            )
+            MenuEntry.dao.save(updated)
+          }.getOrElse {
+            val entry = MenuEntry(
+              orgId = configuration.orgId,
+              menuKey = definition._1.parentMenuKey.get,
+              position = definition._2,
+              title = definition._1.title,
+              targetMenuKey = Some(definition._1.key),
+              published = true
+            )
+            MenuEntry.dao.insert(entry)
+          }
         }
       }
 
@@ -234,8 +234,9 @@ class CMSPlugin(app: Application) extends CultureHubPlugin(app) {
 
   override def organizationMenuEntries(configuration: DomainConfiguration, lang: String, roles: Seq[String]): Seq[MainMenuEntry] = {
     
-    getPluginConfiguration(configuration).menuDefinitions.filterNot(_.key == CMSPlugin.HOME_PAGE).map { definition =>
-    
+    cmsPluginConfiguration.get(configuration).map { config =>
+      config.menuDefinitions.filterNot(_.key == CMSPlugin.HOME_PAGE).map { definition =>
+
         if (definition.key == CMSPlugin.MAIN_MENU) {
           // default menu for site pages
           MainMenuEntry(
@@ -261,6 +262,9 @@ class CMSPlugin(app: Application) extends CultureHubPlugin(app) {
             )
           )
         }
+      }
+    }.getOrElse {
+      Seq.empty
     }
 
   } 
@@ -289,7 +293,7 @@ object CMSPlugin {
   val HOME_PAGE = "homePage"
 
   def getConfiguration(implicit configuration: DomainConfiguration): Option[CMSPluginConfiguration] = {
-    CultureHubPlugin.getPlugin(classOf[CMSPlugin]).map(_.getPluginConfiguration)
+    CultureHubPlugin.getPlugin(classOf[CMSPlugin]).flatMap(_.cmsPluginConfiguration.get(configuration))
   }
 
 }

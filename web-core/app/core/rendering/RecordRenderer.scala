@@ -30,11 +30,12 @@ object RecordRenderer {
                           idType: DelvingIdType,
                           lang: Lang,
                           schema: Option[String] = None,
-                          renderRelatedItems: Boolean)(implicit configuration: DomainConfiguration): Either[String, RenderedView] = {
+                          renderRelatedItems: Boolean,
+                          relatedItemsCount: Int)(implicit configuration: DomainConfiguration): Either[String, RenderedView] = {
 
 
-    SolrQueryService.getSolrItemReference(URLEncoder.encode(id, "utf-8"), idType, renderRelatedItems) match {
-      case Some(DocItemReference(hubId, defaultSchema, publicSchemas, relatedItems)) =>
+    SolrQueryService.getSolrItemReference(URLEncoder.encode(id, "utf-8"), idType, renderRelatedItems, relatedItemsCount) match {
+      case Some(DocItemReference(hubId, defaultSchema, publicSchemas, relatedItems, item)) =>
         val prefix = if(schema.isDefined && publicSchemas.contains(schema.get)) {
           schema.get
         } else if(schema.isDefined && !publicSchemas.contains(schema.get)) {
@@ -45,14 +46,42 @@ object RecordRenderer {
           defaultSchema
         }
 
-        if(idType == "indexItem") {
-          renderIndexItem(id)
-        } else {
-          renderMetadataRecord(prefix, URLDecoder.decode(hubId, "utf-8"), ViewType.API, lang, renderRelatedItems, relatedItems)
+        idType match {
+          case DelvingIdType.ITIN =>
+            // TODO legacy support, to be removed on 01.06.2013
+            renderItinItem(item, relatedItems)
+          case DelvingIdType.INDEX_ITEM =>
+            renderIndexItem(id)
+          case _ =>
+            renderMetadataRecord(prefix, URLDecoder.decode(hubId, "utf-8"), ViewType.API, lang, renderRelatedItems, relatedItems)
         }
       case None =>
         Left("Could not resolve identifier for hubId '%s' and idType '%s'".format(id, idType.idType))
     }
+  }
+
+  private def renderItinItem(item: Option[BriefDocItem], relatedItems: Seq[BriefDocItem]) = {
+
+    val document = <result xmlns:delving="http://www.delving.eu/schemas/"
+                           xmlns:icn="http://www.icn.nl/"
+                           xmlns:dc="http://purl.org/dc/elements/1.1/"
+                           xmlns:custom="http://www.delving.eu/schemas/"
+                           xmlns:dcterms="http://purl.org/dc/termes/"
+                           xmlns:itin="http://www.itin.nl/namespace"
+                           xmlns:drup="http://www.itin.nl/drupal"
+                           xmlns:europeana="http://www.europeana.eu/schemas/ese/">
+
+      { item.map { i => {i.toXml()} }.getOrElse(<item/>) }
+      <relatedItems>{ relatedItems.map { ri => {ri.toXml()} }}</relatedItems>
+    </result>
+
+    Right(new RenderedView {
+      def toXml: NodeSeq = document
+      def toViewTree: RenderNode = null
+      def toXmlString: String = document.toString()
+      def toJson: String = "JSON rendering is unsupported"
+    })
+
   }
 
   private def renderIndexItem(id: String): Either[String, RenderedView] = {

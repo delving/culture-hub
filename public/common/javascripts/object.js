@@ -54,26 +54,25 @@ $(document).ready(function () {
     }
 
     if ($('#rightsUrl').length) {
-        var rights = $('#rightsUrl').find('a').attr('href'), icon='', img = new Image();
-
+        var rights = stripTrailingSlash($('#rightsUrl').find('a').attr('href')), icon='', img = new Image();
         if (rights != 'undefined') {
             switch (rights) {
-                case 'http://creativecommons.org/publicdomain/mark/1.0/':
+                case 'http://creativecommons.org/publicdomain/mark/1.0':
                     icon = 'cc_publicdomain_mark.png';
                     break;
-                case 'http://creativecommons.org/publicdomain/zero/1.0/':
+                case 'http://creativecommons.org/publicdomain/zero/1.0':
                     icon = 'cc_publicdomain_zero.png';
                     break;
-                case 'http://creativecommons.org/licenses/by/3.0/':
+                case 'http://creativecommons.org/licenses/by/3.0':
                     icon = 'cc_by.png';
                     break;
-                case 'http://creativecommons.org/licenses/by-nd/3.0/':
+                case 'http://creativecommons.org/licenses/by-nd/3.0':
                     icon = 'cc_by-nd-3.0.png';
                     break;
-                case 'http://creativecommons.org/licenses/by-nc-sa/3.0/':
+                case 'http://creativecommons.org/licenses/by-nc-sa/3.0':
                     icon = 'cc_by-nc-sa-3.0.png';
                     break;
-                case 'http://creativecommons.org/licenses/by-sa/3.0/nl/':
+                case 'http://creativecommons.org/licenses/by-sa/3.0/nl':
                     icon = 'cc_by-sa-3.0.png';
                     break;
                 case 'http://creativecommons.org/licenses/by-sa/3.0':
@@ -85,13 +84,13 @@ $(document).ready(function () {
                 case 'http://creativecommons.org/licenses/by-nc-nd/3.0':
                     icon = 'cc_by-nc-nd-3.0.png';
                     break;
-                case 'http://www.europeana.eu/rights/rr-f/':
+                case 'http://www.europeana.eu/rights/rr-f':
                     icon = 'eu_free_access.jpg';
                     break;
-                case 'http://www.europeana.eu/rights/rr-p/':
+                case 'http://www.europeana.eu/rights/rr-p':
                     icon = 'eu_paid_access.jpg';
                     break;
-                case 'http://www.europeana.eu/rights/rr-r/':
+                case 'http://www.europeana.eu/rights/rr-r':
                     icon = 'eu_restricted_access.jpg';
                     break;
                 default:
@@ -114,23 +113,29 @@ $(document).ready(function () {
 
     // Make the request for the related objects. If this is a Collection or a Museum, then this request will fail.
     // Use the bad request to change the layout to accomodate a Museum or Collection view definition
+    try {
     $.ajax({
         type: "GET",
         url: mltEndpoint,
         success: function(data){
-            var rItems = data.result.relatedItems.item, html = '', tmp, org, owner, id, uri;
+            var rItems = data.result.relatedItems.item, html = '', tmp, org, owner, id, uri, title;
             if (rItems) {
+
                 $('.object-title').toggleClass('hide');
                 html = '<h5>' + jsLabels.relatedItems + '</h5>';
                 $.each(rItems, function (i, item) {
+
                     tmp = item.fields['delving_hubId'].split('_');
                     org = tmp[0];
                     owner = tmp[1];
                     id = tmp[2];
                     uri = "/" + org + "/" + owner + "/" + id + "?mlt=true";
+                    // clean up title since sometimes it contains html
+                    title = item.fields['delving_title'].replace(/<\/?[a-z][a-z0-9]*[^<>]*>/ig, "");
+
                     html += '<div class="media">';
-                    html += '<a class="img" href="' + uri + '" rel="nofollow"><img class="mlt" src="' + item.fields['delving_thumbnail'] + '" alt="' + item.fields['delving_title'] + '" width="80" onerror="showDefaultImg(this)"/></a>';
-                    html += '<div class="bd"><a href="' + uri + '" rel="nofollow"><div class="title">'+item.fields['delving_title'].trunc(40)+'</a></div>';
+                    html += '<a class="img" href="' + uri + '" rel="nofollow"><img class="mlt" src="' + item.fields['delving_thumbnail'] + '" alt="' + title + '" width="80" onerror="showDefaultImg(this)"/></a>';
+                    html += '<div class="bd"><a href="' + uri + '" rel="nofollow"><div class="title">'+ title.trunc(40) +'</a></div>';
                     if (item.fields['dc_creator']) {
                         html += '<div rel="dc:creator"><span>'+jsLabels.creator+':</span> '+item.fields['dc_creator']+'</div>';
                     }
@@ -147,4 +152,14 @@ $(document).ready(function () {
 //            $('.object-data').removeClass('span8');
         }
     });
+    } catch(e) {
+        //..do nothing
+    }
 });
+
+function stripTrailingSlash(str) {
+    if(str.substr(-1) == '/') {
+        return str.substr(0, str.length - 1);
+    }
+    return str;
+}

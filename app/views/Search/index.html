@@ -53,6 +53,10 @@
                 columns: tf.nrDisplayColumns,
                 collapsable: themeInfo.get('collapseFacets')  /}
             #{/list}
+            *{ plugin functionality }*
+            #{list pluginIncludes, as: 'pluginInclude' }
+                #{include pluginInclude /}
+            #{/list}
         </div>
     </div>
 
