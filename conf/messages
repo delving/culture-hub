@@ -493,10 +493,12 @@ user.admin.profile.title=Your profile
 user.admin.profile.help.aboutYou=A few words about yourself
 user.admin.profile.save=Save profile
 user.admin.profile.help.twitter=Your twitter username, e.g. #johndoe
+user.admin.profile.help.fixedPhone=Your phone number
 user.admin.profile.help.linkedIn=Your linkedIn public profile name, e.g. johndoe
 user.admin.profile.help.public=If you check this option, your profile is also visible to non-connected users
 user.admin.profile.gravatarHelp=Associate a <a href="http://www.gravatar.com" target="_blank">Gravatar</a> with your email adres
 
+user.profile.fixedPhone=Phone
 user.profile.aboutYou=About you
 user.profile.funFact=Fun fact
 
