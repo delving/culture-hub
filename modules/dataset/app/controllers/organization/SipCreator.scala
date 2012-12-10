@@ -4,6 +4,7 @@ import play.api.mvc._
 import controllers.OrganizationController
 import eu.delving.LaunchFile
 import java.util.Date
+import java.text.SimpleDateFormat
 
 /**
  *
@@ -11,6 +12,8 @@ import java.util.Date
  */
 
 object SipCreator extends OrganizationController {
+
+  private val format = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz")
 
   def index(orgId: String) = OrganizationMember {
     Action {
@@ -34,11 +37,13 @@ object SipCreator extends OrganizationController {
           new Date(url.openConnection().getLastModified)
         }
 
+
+
         Ok(jnlp).
           as("application/x-java-jnlp-file").
           withHeaders(
           (CACHE_CONTROL, "no-cache"),
-          (LAST_MODIFIED, lastModified.getTime.toString)
+          (LAST_MODIFIED, format.format(lastModified))
         )
     }
   }
