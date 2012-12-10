@@ -24,7 +24,7 @@ object SipCreator extends OrganizationController {
       implicit request =>
 
         val host = request.domain + ":9000"
-        val home = "http://" + host + "/" + user + "/"
+        val home = "http://" + host + "/" + user
         val codebase = "http://" + host + "/assets/sip-creator/"
 
         val jnlp = LaunchFile.createJNLP(home, codebase, user)
