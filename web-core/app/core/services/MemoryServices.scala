@@ -67,12 +67,12 @@ class MemoryServices(val users: HashMap[String, MemoryUser] = new HashMap[String
   def getUserProfile(userName: String) = users.get(userName).map {
     u => {
       val p = u.profile
-      UserProfile(p.isPublic, u.firstName, u.lastName, u.email, p.description, p.funFact, p.websites, p.twitter, p.linkedIn)
+      UserProfile(p.isPublic, u.firstName, u.lastName, u.email, p.fixedPhone, p.description, p.funFact, p.websites, p.twitter, p.linkedIn)
     }
   }
 
   def updateUserProfile(userName: String, profile: UserProfile): Boolean = {
-    val user = users.get(userName).getOrElse(return false).copy(profile = models.UserProfile(profile.isPublic, profile.description, profile.funFact, profile.websites, profile.twitter, None, profile.linkedIn))
+    val user = users.get(userName).getOrElse(return false).copy(profile = models.UserProfile(profile.isPublic, profile.fixedPhone, profile.description, profile.funFact, profile.websites, profile.twitter, None, profile.linkedIn))
     users += (userName -> user)
     true
   }

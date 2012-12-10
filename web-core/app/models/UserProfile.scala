@@ -6,6 +6,7 @@ package models
  */
 
 case class UserProfile(isPublic: Boolean = false,
+                   fixedPhone: Option[String] = None,
                    description: Option[String] = None,
                    funFact: Option[String] = None,
                    // place: EmbeddedLink, // TODO

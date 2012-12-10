@@ -97,7 +97,7 @@ class HubUserDAO(collection: MongoCollection) extends SalatDAO[HubUser, ObjectId
   def updateProfile(userName: String, firstName: String, lastName: String, email: String, profile: UserProfile) {
     findByUsername(userName).map {
       u => {
-        val updated = u.copy(firstName = firstName, lastName = lastName, email = email,  userProfile = profile)
+        val updated = u.copy(firstName = firstName, lastName = lastName, email = email, userProfile = profile)
         save(updated)
       }
     }
