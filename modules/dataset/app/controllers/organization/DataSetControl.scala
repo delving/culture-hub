@@ -43,28 +43,33 @@ import controllers.ShortDataSet
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-case class DataSetCreationViewModel(id: Option[ObjectId] = None,
-                            spec: String = "",
-                            facts: HardcodedFacts = HardcodedFacts(),
-                            selectedSchemas: Seq[String] = Seq.empty,
-                            allAvailableSchemas: Seq[String],
-                            schemaProcessingConfigurations: Seq[SchemaProcessingConfiguration],
-                            indexingMappingPrefix: Option[String] = None)
+case class DataSetCreationViewModel(
+  id: Option[ObjectId] = None,
+  spec: String = "",
+  description: String = "",
+  facts: HardcodedFacts = HardcodedFacts(),
+  selectedSchemas: Seq[String] = Seq.empty,
+  allAvailableSchemas: Seq[String],
+  schemaProcessingConfigurations: Seq[SchemaProcessingConfiguration],
+  indexingMappingPrefix: Option[String] = None)
 
-case class SchemaProcessingConfiguration(prefix: String,
-                                         availableVersions: Seq[String],
-                                         version: String,
-                                         accessType: String = "none",
-                                         accessKey: String = ""
+case class SchemaProcessingConfiguration(
+  prefix: String,
+  availableVersions: Seq[String],
+  version: String,
+  accessType: String = "none",
+  accessKey: String = ""
 )
 
-case class HardcodedFacts(name: String = "",
-                          language: String = "",
-                          country: String = "",
-                          provider: String = "",
-                          dataProvider: String = "",
-                          rights: String = "",
-                          `type`: String = "") {
+case class HardcodedFacts(
+  name: String = "",
+  language: String = "",
+  country: String = "",
+  provider: String = "",
+  dataProvider: String = "",
+  rights: String = "",
+  `type`: String = "") {
+
   def asMap = Map(
     "name" -> name,
     "language" -> language,
@@ -99,6 +104,7 @@ object DataSetCreationViewModel {
     mapping(
       "id" -> optional(of[ObjectId]),
       "spec" -> nonEmptyText.verifying(Constraints.pattern("^[A-Za-z0-9-]{3,40}$".r, "constraint.validSpec", "Invalid spec format")),
+      "description" -> text,
       "facts" -> mapping(
         "name" -> nonEmptyText,
         "language" -> nonEmptyText,
@@ -141,6 +147,7 @@ trait DataSetControl extends OrganizationController { this: BoundController =>
   implicit def dataSetToShort(ds: DataSet) = ShortDataSet(
     id = Option(ds._id),
     spec = ds.spec,
+    description = ds.description.getOrElse(""),
     total_records = ds.details.total_records,
     state = ds.state,
     errorMessage = ds.errorMessage,
@@ -193,6 +200,7 @@ trait DataSetControl extends OrganizationController { this: BoundController =>
               DataSetCreationViewModel(
                 id = Some(dS._id),
                 spec = dS.spec,
+                description = dS.description.getOrElse(""),
                 facts = HardcodedFacts.fromMap(dS.getStoredFacts),
                 selectedSchemas = dS.recordDefinitions,
                 allAvailableSchemas = allSchemaPrefixes,
@@ -253,6 +261,8 @@ trait DataSetControl extends OrganizationController { this: BoundController =>
               updated ++ buildMappings(added)
             }
 
+            def strToOpt(str: String) = if (str.trim.isEmpty) None else Some(str.trim)
+
             // TODO handle all "automatic facts"
             factsObject.append("spec", dataSetForm.spec)
             factsObject.append("orgId", orgId)
@@ -278,6 +288,7 @@ trait DataSetControl extends OrganizationController { this: BoundController =>
                 val updatedDetails = existing.details.copy(name = dataSetForm.facts.name, facts = factsObject)
                 val updated = existing.copy(
                     spec = dataSetForm.spec,
+                    description = strToOpt(dataSetForm.description),
                     details = updatedDetails,
                     mappings = updateMappings(submittedSchemaConfigurations, existing.mappings),
                     formatAccessControl = formatAccessControl,
@@ -297,6 +308,7 @@ trait DataSetControl extends OrganizationController { this: BoundController =>
                     spec = dataSetForm.spec,
                     orgId = orgId,
                     userName = connectedUser,
+                    description = strToOpt(dataSetForm.description),
                     state = DataSetState.INCOMPLETE,
                     details = Details(
                       name = dataSetForm.facts.name,

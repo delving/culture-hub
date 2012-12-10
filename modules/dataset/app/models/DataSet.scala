@@ -51,6 +51,7 @@ case class DataSet(
   spec: String,
   orgId: String,
   userName: String, // creator
+  description: Option[String] = None,
 
   // state
   state: DataSetState,
@@ -110,7 +111,7 @@ case class DataSet(
 
   def getTotalRecords: Long = details.total_records
 
-  def getDescription: Option[String] = None
+  def getDescription: Option[String] = description
 
   def getOwner: String = orgId
 
