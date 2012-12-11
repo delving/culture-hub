@@ -93,6 +93,18 @@ object RecordDefinition {
       }
     }
   }
+
+  /**
+   * Retrieves the URI of a namespace per prefix.
+   * @param prefix the prefix
+   * @return a URI if it could be found
+   */
+  def getNamespaceURI(prefix: String): Option[String] = {
+    parsedRecordDefinitionsCache.values.flatMap { recDef =>
+      recDef.allNamespaces
+    }.find(_.prefix == prefix).map(_.uri)
+  }
+
   // TODO version crosswalk lookups
   def getCrosswalkResources(sourcePrefix: String)(implicit configuration: DomainConfiguration): Seq[URL] = {
     enabledCrosswalks(configuration).
