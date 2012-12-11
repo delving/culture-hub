@@ -169,8 +169,10 @@ object RecordRenderer {
 
               val relatedItemsNamespaces: Seq[(String, String)] = {
                 val namespaces = relatedItems.flatMap { item =>
-                  item.map { field =>
-                    field.prefix
+                  (item \\ "fields").flatMap { field =>
+                    field.child.map { field =>
+                      field.prefix
+                    }
                   }.distinct.map { prefix =>
                     (prefix -> RecordDefinition.getNamespaceURI(prefix))
                   }
