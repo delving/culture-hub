@@ -29,7 +29,6 @@ ui.label.administratorOptions=Administrator options
 ui.label.availability=Availability
 ui.label.block=Block
 ui.label.browse=Browse
-ui.label.cancel=Cancel
 ui.label.disable=Disable
 ui.label.captcha=Enter the code you see here
 ui.label.cancel=Cancel
@@ -302,6 +301,12 @@ metadata.abm.data.provider=Data Provider
 metadata.abm.municipality=Municipality
 metadata.abm.namedPlace=Named place
 metadata.abm.aboutPerson=About Person
+metadata.abm.landedProperty=Gardsnummer
+metadata.abm.address=Address
+metadata.abm.digitised=Digitized
+metadata.abm.lat=Latitude
+metadata.abm.long=Longitude
+metadata.abm.geo=GeoCoordinates
 
 metadata.dc.contributor=Contributor
 metadata.dc.coverage=Coverage
@@ -341,7 +346,6 @@ metadata.dcterms.extent=Extent
 
 ### Delving NS
 
-metadata.delving.owner=Owner
 metadata.delving.creator=Creator
 metadata.delving.collection=Collection
 metadata.delving.provider=Provider
