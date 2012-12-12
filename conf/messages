@@ -471,7 +471,6 @@ metadata.reloc.width=Width
 metadata.reloc.depth=Depth
 metadata.reloc.diameter=Diameter
 metadata.reloc.condition=Condition object
-metadata.reloc.lamoCompleted=Placement time has expired (LAMO)
 metadata.reloc.lamoCompleted=Leidraad afstoting (LAMO) is doorlopen
 metadata.reloc.docsAvailable=Documentation available
 metadata.reloc.upForAuction=Place for auction

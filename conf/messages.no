@@ -429,7 +429,6 @@ metadata.tib.pageEnd=End page
 metadata.tib.pages=Pages
 metadata.tib.formatted=Formatted
 metadata.tib.vindplaats=Physical Location
-metadata.tib.theme=Theme
 
 metadata.collection.strength=Strength
 metadata.collection.administrators=Administrators
@@ -446,18 +445,18 @@ metadata.collection.fromBorrowed=Borrowed
 
 metadata.museum.type=Museum type
 
-metadata.is.about=Is about
+metadata.is.about=Handlar om
+
+metadata.searchfield.contributor=Bidragsytar
+metadata.searchfield.dataprovider=Tilbydar
+metadata.searchfield.hasDigitalObject=Har eit digitalt objekt
 metadata.searchfield.recordType=Object type
-metadata.searchfield.contributor=Contributor
-metadata.searchfield.dataprovider=Data Provider
-metadata.searchfield.creator=Creator
-metadata.searchfield.hasDigitalObject=Has digital object
-metadata.type.all=All
-metadata.type.images=Images
-metadata.type.sounds=Sounds
-metadata.type.texts=Texts
+metadata.type.all=Alle
+metadata.type.images=Bilete
+metadata.type.sounds=Lydar
+metadata.type.texts=Tekstar
 metadata.type.video=Video
-metadata.type.videos=Videos
+metadata.type.videos=Videoar
 
 metadata.reloc.reasonForPlacement=Reden van plaatsing
 metadata.reloc.creator=Creator
@@ -469,7 +468,6 @@ metadata.reloc.width=Width
 metadata.reloc.depth=Depth
 metadata.reloc.diameter=Diameter
 metadata.reloc.condition=Condition object
-metadata.reloc.lamoCompleted=Placement time has expired (LAMO)
 metadata.reloc.lamoCompleted=Leidraad afstoting (LAMO) is doorlopen
 metadata.reloc.docsAvailable=Documentation available
 metadata.reloc.upForAuction=Place for auction
@@ -478,17 +476,7 @@ metadata.reloc.comments=Comments
 metadata.reloc.physicalState=Physical state
 metadata.reloc.identifier=Inventory number
 
-## General
-metadata.is.about=Handlar om
-metadata.searchfield.contributor=Bidragsytar
-metadata.searchfield.dataprovider=Tilbydar
-metadata.searchfield.hasDigitalObject=Har eit digitalt objekt
-metadata.type.all=Alle
-metadata.type.images=Bilete
-metadata.type.sounds=Lydar
-metadata.type.texts=Tekstar
-metadata.type.video=Video
-metadata.type.videos=Videoar
+
 
 #plugins
 
