@@ -173,9 +173,11 @@ object RecordRenderer {
                     field.child.map { field =>
                       field.prefix
                     }
-                  }.distinct.map { prefix =>
-                    (prefix -> RecordDefinition.getNamespaceURI(prefix))
-                  }
+                  }.distinct
+                   .filterNot(_.trim.isEmpty)
+                   .map { prefix =>
+                     (prefix -> RecordDefinition.getNamespaceURI(prefix))
+                   }
                 }
 
                 val (resolved, missing) = namespaces.partition(_._2.isDefined)
