@@ -2,20 +2,17 @@ package core.processing
 
 import scala.collection.JavaConverters._
 import play.api.Logger
-import core.mapping.MappingService
-import akka.util.Duration
-import java.util.concurrent.TimeUnit
-import eu.delving.MappingResult
-import core.{HubId, SystemField}
-import core.SystemField._
-import core.Constants._
-import core.indexing.IndexField._
-import core.collection.Collection
+import play.api.Play.current
+import core.collection.{OrganizationCollectionInformation, Collection}
 import core.storage.BaseXStorage
 import core.indexing.IndexingService
 import models._
-import org.joda.time.{DateTimeZone, DateTime}
 import xml.{Elem, NodeSeq, Node}
+import java.util.concurrent.atomic.{AtomicBoolean, AtomicInteger}
+import akka.actor.Props
+import play.api.libs.concurrent.Akka
+import core.HubId
+import akka.routing.RoundRobinRouter
 
 /**
  * CollectionProcessor, essentially taking care of:
@@ -26,7 +23,8 @@ import xml.{Elem, NodeSeq, Node}
  * - indexing the record in the selected indexingSchema
  *
  */
-class CollectionProcessor(collection: Collection,
+class CollectionProcessor(collection: Collection with OrganizationCollectionInformation,
+                          sourceNamespaces: Map[String, String],
                           targetSchemas: List[ProcessingSchema],
                           indexingSchema: Option[ProcessingSchema],
                           renderingSchema: Option[ProcessingSchema],
@@ -47,15 +45,17 @@ class CollectionProcessor(collection: Collection,
 
   implicit def nodeSeqIsChildSelectable(xml: NodeSeq) = new ChildSelectable(xml)
 
+
   def process(interrupted: => Boolean,
               updateCount: Long => Unit,
               onError: Throwable => Unit,
               indexOne: (MetadataItem, MultiMap, String) => Either[Throwable, String],
-              onIndexingComplete: DateTime => Unit
+              onProcessingDone: ProcessingContext => Unit,
+              onProcessingFinalize: () => Unit
              )(implicit configuration: DomainConfiguration) {
 
-    val startProcessing: DateTime = new DateTime(DateTimeZone.UTC)
     val targetSchemasString = targetSchemas.map(_.prefix).mkString(", ")
+
     log.info("Starting processing of collection '%s': going to process schemas '%s', schema for indexing is '%s', format for rendering is '%s'".format(
       collection.spec, targetSchemasString, indexingSchema.map(_.prefix).getOrElse("NONE!"), renderingSchema.map(_.prefix).getOrElse("NONE!"))
     )
@@ -68,136 +68,62 @@ class CollectionProcessor(collection: Collection,
 
           updateCount(0)
 
+          val recordsProcessed = new AtomicInteger(0)
+          val interruptedFlag = new AtomicBoolean(false)
+
+          var inError: Boolean = false
+
           try {
             val recordCount = basexStorage.count
             val records = basexStorage.findAllCurrent
-            val cache = MetadataCache.get(collection.getOwner, collection.spec, collection.itemType)
 
-            records.zipWithIndex.foreach {
-              r => {
-                if (!interrupted) {
-                  record = r._1
-                  index = r._2
+            val context = ProcessingContext(collection, targetSchemas, sourceNamespaces, renderingSchema.map(_.schemaVersion), indexingSchema.map(_.schemaVersion))
 
-                  val localId = (record \ "@id").text
-                  val hubId = "%s_%s_%s".format(collection.getOwner, collection.spec, localId)
-                  val recordIndex = (record \ "system" \ "index").text.toInt
-                  val modulo = math.round(recordCount / 100)
 
-                  if (index % (if(modulo == 0) 100 else modulo) == 0) updateCount(index)
-                  if (index % 2000 == 0) {
-                    log.info("%s:%s: processed %s of %s records, for schemas '%s'".format(collection.getOwner, collection.spec, index, recordCount, targetSchemasString))
-                  }
+            val supervisorProps = Props(new ProcessingSupervisor(
+              recordCount,
+              updateCount,
+              interrupted,
+              onProcessingDone,
+              onProcessingFinalize,
+              onError,
+              context,
+              configuration
+            ))
 
-                  val directMappingResults: Map[String, MappingResult] = (for (targetSchema <- targetSchemas; if (targetSchema.isValidRecord(recordIndex) && targetSchema.sourceSchema == "raw")) yield {
-                    val sourceRecord: String = (record \ "document" \ "input" \*).mkString("\n")
-                    try {
-                      (targetSchema.prefix -> targetSchema.engine.get.execute(localId, sourceRecord))
-                    } catch {
-                      case t: Throwable => {
-                        log.error(
-                          """While processing source input document:
-                            |
-                            |%s
-                            |
-                          """.stripMargin.format(sourceRecord), t)
-                        throw t
-                      }
-                    }
-                  }).toMap
+            val supervisor = Akka.system.actorOf(supervisorProps, name = "processingSupervisor-" + collection.getOwner)
 
-                  val derivedMappingResults: Map[String, MappingResult] = (for (targetSchema <- targetSchemas; if (targetSchema.sourceSchema != "raw")) yield {
-                    val sourceRecord = MappingService.nodeTreeToXmlString(directMappingResults(targetSchema.sourceSchema).root(), true)
-                    (targetSchema.prefix -> targetSchema.engine.get.execute(localId, sourceRecord))
-                  }).toMap
+            records.zipWithIndex.foreach { r =>
+              if (!interruptedFlag.get()) {
+                record = r._1
+                index = r._2
 
-                  val mappingResults = directMappingResults ++ derivedMappingResults
+                val localId = (record \ "@id").text
+                val hubId = HubId(collection.getOwner, collection.spec, localId)
+                val recordIndex = (record \ "system" \ "index").text.toInt
+                val sourceRecord: String = (record \ "document" \ "input" \*).mkString("\n")
+                val schemas = targetSchemas.filter(targetSchema => targetSchema.isValidRecord(recordIndex) && targetSchema.sourceSchema == "raw")
 
-                  val allSystemFields = if (renderingSchema.isDefined && mappingResults.contains(renderingSchema.get.prefix)) {
-                    Some(getSystemFields(mappingResults(renderingSchema.get.prefix)))
-                  } else {
-                    None
-                  }
+                supervisor ! ProcessRecord(index, hubId, sourceRecord, schemas.map(_.schemaVersion))
 
-                  val serializedRecords = mappingResults.flatMap {
-                    r => {
-                      try {
-                        val serialized = MappingService.nodeTreeToXmlString(r._2.rootAugmented(), r._1 != "raw")
-                        Some((r._1 -> serialized))
-                      } catch {
-                        case t: Throwable => {
-                          log.error(
-                            """While attempting to serialize the following output document:
-                              |
-                              |%s
-                              |
-                            """.stripMargin.format(r._2.root()), t)
-                          throw t
-                          None
-                        }
-                      }
-                    }
-                  }
-
-                  val mappingResultSchemaVersions: Map[String, String] = mappingResults.keys.
-                          flatMap(schemaPrefix => targetSchemas.find(_.prefix == schemaPrefix)).
-                          map(processingSchema => (processingSchema.definition.prefix -> processingSchema.definition.schemaVersion)).
-                          toMap
-
-                  val cachedRecord = MetadataItem(
-                    collection = collection.spec,
-                    itemType = collection.itemType.itemType,
-                    itemId = hubId,
-                    xml = serializedRecords,
-                    schemaVersions = mappingResultSchemaVersions,
-                    systemFields = allSystemFields.getOrElse(Map.empty),
-                    index = index
-                  )
-                  cache.saveOrUpdate(cachedRecord)
-
-                  if (indexingSchema.isDefined && mappingResults.contains(indexingSchema.get.prefix)) {
-                    val r = mappingResults(indexingSchema.get.prefix)
-                    val fields: Map[String, List[String]] = r.fields()
-                    val searchFields: Map[String, List[String]] = r.searchFields()
-                    indexOne(cachedRecord, fields ++ searchFields ++ getSystemFields(r) ++ getOtherFields(r), indexingSchema.get.prefix)
-                  }
-
+                val processed = recordsProcessed.incrementAndGet()
+                if (processed % 100 == 0) {
+                  interruptedFlag.set(interrupted)
                 }
-              }
-            }
-            log.info("%s: processed %s of %s records, for schemas '%s'".format(
-              collection.spec, index, recordCount, targetSchemasString)
-            )
 
-            if (!interrupted && indexingSchema.isDefined) {
-              onIndexingComplete(startProcessing)
-            }
-
-            if(!interrupted) {
-              updateCount(index)
-              log.info("Processing of collection %s of organization %s finished, took %s seconds".format(
-                collection.spec, collection.getOwner, Duration(System.currentTimeMillis() - startProcessing.toDate.getTime, TimeUnit.MILLISECONDS).toSeconds)
-              )
-            } else {
-              updateCount(0)
-              if (indexingSchema.isDefined) {
-                log.info("Deleting DataSet %s from SOLR".format(collection.spec))
-                IndexingService.deleteBySpec(collection.getOwner, collection.spec)
               }
-              log.info("Processing of collection %s of organization %s interrupted after %s seconds".format(
-                collection.spec, collection.getOwner, Duration(System.currentTimeMillis() - startProcessing.toDate.getTime, TimeUnit.MILLISECONDS).toSeconds)
-              )
             }
 
           } catch {
             case t: Throwable => {
+              inError = true
               t.printStackTrace()
 
               log.error("""Error while processing records of collection %s of organization %s, at index %s
               |
-              | Source record:
+              |Source record:
               |
-              | %s
+              |%s
               |
               """.stripMargin.format(collection.spec, collection.getOwner, index, record), t)
 
@@ -207,13 +133,12 @@ class CollectionProcessor(collection: Collection,
               }
 
               updateCount(0)
-              log.error("Error while processing collection %s of organization %s: %s".format(collection.spec, collection.getOwner, t.getMessage), t)
+              log.error("Unexpected error while processing collection %s of organization %s: %s".format(collection.spec, collection.getOwner, t.getMessage), t)
               onError(t)
             }
 
           }
         }
-
       }
     } catch {
       case t: Throwable => {
@@ -225,17 +150,4 @@ class CollectionProcessor(collection: Collection,
     }
 
   }
-
-  private def getCopyFields(mappingResult: MappingResult): MultiMap = {
-    mappingResult.copyFields().asScala.map(f => (f._1.replaceAll(":", "_") -> f._2.asScala.toList)).toMap[String, List[String]]
-  }
-
-  private def getSystemFields(mappingResult: MappingResult): MultiMap = {
-    getCopyFields(mappingResult).filter(f => SystemField.isValid(f._1))
-  }
-
-  private def getOtherFields(mappingResult: MappingResult): MultiMap = {
-    getCopyFields(mappingResult).filterNot(f => SystemField.isValid(f._1))
-  }
-
 }

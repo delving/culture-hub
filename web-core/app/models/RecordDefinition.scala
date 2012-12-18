@@ -41,6 +41,8 @@ case class RecordDefinition(prefix: String,
 
   def getNamespaces = allNamespaces.map(ns => (ns.prefix, ns.uri)).toMap[String, String]
 
+  val version: SchemaVersion = new SchemaVersion(prefix, schemaVersion)
+
 }
 
 case class Namespace(prefix: String, uri: String, schema: String)
