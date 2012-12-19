@@ -5,7 +5,7 @@ package core.collection
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-trait CollectionInformation extends Collection {
+trait CollectionInformation {
 
   def getName: String
 
