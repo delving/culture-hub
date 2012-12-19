@@ -6,14 +6,33 @@ import java.net.URL
 import io.Source
 import core.indexing.{IndexingService, Indexing}
 import core.{HubId, HubServices}
-import core.processing.{ProcessingContext, CollectionProcessor, ProcessingSchema}
+import core.processing.{DoProcess, ProcessingContext, CollectionProcessor, ProcessingSchema}
+import akka.actor.{Props, TypedProps, TypedActor}
+import play.api.libs.concurrent.Akka
+import play.api.Play.current
 
 /**
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-object DataSetCollectionProcessor {
+trait DataSetCollectionProcessor {
+
+  def process(dataSet: DataSet)(implicit configuration: DomainConfiguration)
+
+}
+
+object DataSetCollectionProcessor extends DataSetCollectionProcessor {
+
+  private val processor: DataSetCollectionProcessor = TypedActor(Akka.system).typedActorOf(TypedProps[DataSetCollectionProcessorImpl])
+
+  def process(dataSet: DataSet)(implicit configuration: DomainConfiguration) {
+    processor.process(dataSet)
+  }
+
+}
+
+class DataSetCollectionProcessorImpl extends DataSetCollectionProcessor {
 
   val log = Logger("CultureHub")
 
@@ -80,8 +99,6 @@ object DataSetCollectionProcessor {
       actionableTargetSchemas.headOption
     }
 
-    val collectionProcessor = new CollectionProcessor(dataSet, dataSet.getNamespaces, actionableTargetSchemas, indexingSchema, renderingSchema, HubServices.basexStorage(configuration))
-
     def interrupted = {
       val current = DataSet.dao.getState(dataSet.orgId, dataSet.spec)
       current != DataSetState.PROCESSING && current != DataSetState.QUEUED
@@ -95,7 +112,7 @@ object DataSetCollectionProcessor {
       DataSet.dao.updateState(dataSet, DataSetState.ERROR, None, Some(t.getMessage))
     }
 
-    def indexOne(item: MetadataItem, fields: CollectionProcessor#MultiMap, prefix: String)(implicit configuration: DomainConfiguration) =
+    def indexOne(item: MetadataItem, fields: Map[String, List[String]], prefix: String)(implicit configuration: DomainConfiguration) =
       Indexing.indexOne(dataSet, HubId(item.itemId), fields, prefix)
 
     def onProcessingDone(context: ProcessingContext) {
@@ -126,7 +143,25 @@ object DataSetCollectionProcessor {
         }
     }
 
-    collectionProcessor.process(interrupted, updateCount, onError, indexOne, onProcessingDone, onProcessingFinalize)(configuration)
+    // TODO refactor using ProcessingContext
+    val collectionProcessorProps = Props(new CollectionProcessor(
+      dataSet,
+      dataSet.getNamespaces,
+      actionableTargetSchemas,
+      indexingSchema,
+      renderingSchema,
+      interrupted,
+      updateCount,
+      onError, indexOne,
+      onProcessingDone,
+      onProcessingFinalize,
+      HubServices.basexStorage(configuration)
+    ))
+
+    val collectionProcessor = TypedActor.context.actorOf(collectionProcessorProps)
+
+
+    collectionProcessor ! DoProcess
   }
 
 

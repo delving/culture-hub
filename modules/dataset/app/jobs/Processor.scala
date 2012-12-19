@@ -27,7 +27,6 @@ class Processor extends Actor {
         val currentState = DataSet.dao.getState(set.orgId, set.spec)
 
         if(currentState == DataSetState.PROCESSING_QUEUED) {
-
           DataSet.dao(set.orgId).updateState(set, DataSetState.PROCESSING)
           DataSetCollectionProcessor.process(set)
         } else if(currentState != DataSetState.CANCELLED) {
