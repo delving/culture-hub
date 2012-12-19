@@ -26,7 +26,7 @@ import core.{OrganizationService, DomainServiceLocator, HubModule, HubServices}
 import eu.delving.metadata.RecMapping
 import models.statistics.DataSetStatistics
 import core.ItemType
-import core.collection.{Indexable, OrganizationCollection, OrganizationCollectionInformation, Harvestable}
+import core.collection.{OrganizationCollection, OrganizationCollectionInformation, Harvestable}
 import controllers.organization.DataSetEvent
 import plugins.DataSetPlugin
 import java.util.Date
@@ -98,7 +98,7 @@ case class DataSet(
   // the sort fields selected for indexing, at the moment derived from configuration
   idxSortFields: List[String] = List.empty[String]
 
-  ) extends OrganizationCollection with OrganizationCollectionInformation with Harvestable with Indexable with Resource {
+  ) extends OrganizationCollection with OrganizationCollectionInformation with Harvestable with Resource {
 
   implicit val configuration = DomainConfigurationHandler.getByOrgId(orgId)
   val organizationServiceLocator = HubModule.inject[DomainServiceLocator[OrganizationService]](name = None)
