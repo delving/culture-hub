@@ -30,7 +30,7 @@ class CollectionProcessor(collection: Collection with OrganizationCollectionInfo
                           onError: Throwable => Unit,
                           indexOne: (MetadataItem, MultiMap, String) => Either[Throwable, String],
                           onProcessingDone: ProcessingContext => Unit,
-                          onProcessingFinalize: () => Unit,
+                          whenDone: => Unit,
                           basexStorage: BaseXStorage)(implicit configuration: DomainConfiguration) extends Actor {
 
   val log = Logger("CultureHub")
@@ -82,13 +82,13 @@ class CollectionProcessor(collection: Collection with OrganizationCollectionInfo
                 updateCount,
                 interrupted,
                 onProcessingDone,
-                onProcessingFinalize,
+                whenDone,
                 onError,
                 processingContext,
                 configuration
               ))
 
-              val supervisor = context.actorOf(supervisorProps, name = "processingSupervisor-" + collection.getOwner)
+              val supervisor = context.actorOf(supervisorProps)
 
               records.zipWithIndex.foreach { r =>
                 if (!interruptedFlag.get()) {

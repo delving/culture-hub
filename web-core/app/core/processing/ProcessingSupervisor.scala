@@ -25,7 +25,7 @@ class ProcessingSupervisor(
   updateCount: Long => Unit,
   interrupted: => Boolean,
   onProcessingDone: ProcessingContext => Unit,
-  onProcessingFinalize: () => Unit,
+  whenDone: => Unit,
   onError: Throwable => Unit,
   processingContext: ProcessingContext,
   configuration: DomainConfiguration
@@ -35,7 +35,7 @@ class ProcessingSupervisor(
 
   private val processingInterrupted = new AtomicBoolean(false)
 
-  private val recordMapper = context.actorOf(Props(new RecordMapper(processingContext, processingInterrupted)).withRouter(RoundRobinRouter(nrOfInstances = Runtime.getRuntime.availableProcessors() / 2)))
+  private val recordMapper = context.actorOf(Props(new RecordMapper(processingContext, processingInterrupted))) // .withRouter(RoundRobinRouter(nrOfInstances = Runtime.getRuntime.availableProcessors() / 2)
   private val recordCacher = context.actorOf(Props(new MappedRecordCacher(processingContext, processingInterrupted)))
   private val recordIndexer = context.actorOf(Props(new RecordIndexer(processingContext, processingInterrupted, configuration)))
 
@@ -104,12 +104,12 @@ class ProcessingSupervisor(
         )
         updateCount(numMappingResults)
         onProcessingDone(processingContext)
-        onProcessingFinalize()
         log.info("Processing of collection %s of organization %s finished, took %s seconds".format(
           processingContext.collection.spec,
           processingContext.collection.getOwner,
           Duration(System.currentTimeMillis() - processingContext.startProcessing.toDate.getTime, TimeUnit.MILLISECONDS).toSeconds)
         )
+        whenDone
       }
 
   }
@@ -149,10 +149,6 @@ class ProcessingSupervisor(
 
     processingInterrupted.set(true)
 
-    recordMapper ! PoisonPill
-    recordCacher ! PoisonPill
-    recordIndexer ! PoisonPill
-
     updateCount(0)
 
     if (processingContext.indexingSchema.isDefined) {
@@ -160,9 +156,7 @@ class ProcessingSupervisor(
       IndexingService.deleteBySpec(processingContext.collection.getOwner, processingContext.collection.spec)(configuration)
     }
 
-    onProcessingFinalize()
-
-    self ! PoisonPill
+    whenDone
   }
 
 }

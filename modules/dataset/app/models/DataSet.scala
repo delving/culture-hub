@@ -17,7 +17,6 @@
 package models
 
 import core.access.{Resource, ResourceType}
-import org.bson.types.ObjectId
 import models.HubMongoContext._
 import com.mongodb.casbah.Imports._
 import com.novus.salat.dao._
@@ -35,6 +34,7 @@ import eu.delving.schema.SchemaVersion
 import java.io.StringReader
 import core.mapping.MappingService
 import org.scala_tools.subcut.inject.{BindingModule, Injectable}
+import core.SchemaService
 
 /**
  * DataSet model
@@ -227,6 +227,8 @@ class DataSetDAO(collection: MongoCollection)(implicit val configuration: Domain
 
   val organizationServiceLocator = inject [ DomainServiceLocator[OrganizationService] ]
 
+  val schemaService = inject [ SchemaService ]
+
   def getState(orgId: String, spec: String): DataSetState = {
 
     val stateData = collection.findOne(
@@ -361,7 +363,7 @@ class DataSetDAO(collection: MongoCollection)(implicit val configuration: Domain
   }
 
   def updateMapping(dataSet: DataSet, mappingString: String)(implicit configuration: DomainConfiguration): DataSet = {
-    val mapping = RecMapping.read(new StringReader(mappingString), MappingService.recDefModel)
+    val mapping = RecMapping.read(new StringReader(mappingString), MappingService.recDefModel(schemaService))
     val recordDefinition: Option[RecordDefinition] = RecordDefinition.getRecordDefinition(
       mapping.getPrefix,
       mapping.getSchemaVersion.getVersion
