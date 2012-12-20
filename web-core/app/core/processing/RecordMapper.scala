@@ -7,7 +7,7 @@ import play.api.{Logger, Play}
 import play.api.Play.current
 import core.mapping.MappingService
 import scala.collection.JavaConverters._
-import core.HubId
+import core.{SchemaService, HubModule, HubId}
 import java.util.concurrent.atomic.AtomicBoolean
 
 /**
@@ -18,6 +18,8 @@ import java.util.concurrent.atomic.AtomicBoolean
 class RecordMapper(context: ProcessingContext, processingInterrupted: AtomicBoolean) extends Actor {
 
   private val log = Logger("CultureHub")
+
+  private val schemaService = HubModule.inject[SchemaService](name = None)
 
   private val engines: Map[SchemaVersion, MappingEngine] = {
 //    val factory = new MappingEngineFactory(
@@ -31,7 +33,7 @@ class RecordMapper(context: ProcessingContext, processingInterrupted: AtomicBool
 //    }
 //    engine
     context.targetSchemas.filter(_.mapping.isDefined).map { schema =>
-      (schema.schemaVersion -> MappingEngineFactory.newInstance(Play.classloader, context.sourceNamespaces.asJava, MappingService.recDefModel, schema.mapping.get))
+      (schema.schemaVersion -> MappingEngineFactory.newInstance(Play.classloader, context.sourceNamespaces.asJava, MappingService.recDefModel(schemaService), schema.mapping.get))
     }
   }.toMap
 

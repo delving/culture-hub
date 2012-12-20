@@ -18,16 +18,26 @@ import play.api.Play.current
 
 trait DataSetCollectionProcessor {
 
-  def process(dataSet: DataSet)(implicit configuration: DomainConfiguration)
+  def process(dataSet: DataSet, whenDone: => Unit)(implicit configuration: DomainConfiguration)
 
 }
 
 object DataSetCollectionProcessor extends DataSetCollectionProcessor {
 
-  private val processor: DataSetCollectionProcessor = TypedActor(Akka.system).typedActorOf(TypedProps[DataSetCollectionProcessorImpl])
 
-  def process(dataSet: DataSet)(implicit configuration: DomainConfiguration) {
-    processor.process(dataSet)
+  // TODO return a promise
+  def process(dataSet: DataSet, whenDone: => Unit)(implicit configuration: DomainConfiguration) {
+    val processor: DataSetCollectionProcessor = TypedActor(Akka.system).typedActorOf(TypedProps[DataSetCollectionProcessorImpl])
+    var processing = true
+    processor.process(dataSet, {
+      whenDone
+      processing = false
+    })
+    // TODO return promise and adapt client code
+    while (processing) {
+      Thread.sleep(500)
+    }
+    TypedActor(Akka.system).stop(processor)
   }
 
 }
@@ -39,7 +49,7 @@ class DataSetCollectionProcessorImpl extends DataSetCollectionProcessor {
   val RAW_PREFIX = "raw"
   val AFF_PREFIX = "aff"
 
-  def process(dataSet: DataSet)(implicit configuration: DomainConfiguration) {
+  def process(dataSet: DataSet, whenDone: => Unit)(implicit configuration: DomainConfiguration) {
 
     val invalidRecords = DataSet.dao.getInvalidRecords(dataSet)
 
@@ -134,15 +144,6 @@ class DataSetCollectionProcessorImpl extends DataSetCollectionProcessor {
       }
     }
 
-    def onProcessingFinalize() {
-        val state = DataSet.dao.getState(dataSet.orgId, dataSet.spec)
-        if(state == DataSetState.PROCESSING) {
-          DataSet.dao.updateState(dataSet, DataSetState.ENABLED)
-        } else if(state == DataSetState.CANCELLED) {
-          DataSet.dao.updateState(dataSet, DataSetState.UPLOADED)
-        }
-    }
-
     // TODO refactor using ProcessingContext
     val collectionProcessorProps = Props(new CollectionProcessor(
       dataSet,
@@ -152,14 +153,14 @@ class DataSetCollectionProcessorImpl extends DataSetCollectionProcessor {
       renderingSchema,
       interrupted,
       updateCount,
-      onError, indexOne,
+      onError,
+      indexOne,
       onProcessingDone,
-      onProcessingFinalize,
+      whenDone,
       HubServices.basexStorage(configuration)
     ))
 
     val collectionProcessor = TypedActor.context.actorOf(collectionProcessorProps)
-
 
     collectionProcessor ! DoProcess
   }
