@@ -56,12 +56,12 @@ class MappedRecordCacher(processingContext: ProcessingContext, processingInterru
         }.toMap
 
 
-        if (serializedRecords.filterNot(_ == None).size == mappedRecords.size) {
+        if (!serializedRecords.exists(_ == None)) {
 
-          val mappingResultSchemaVersions: Map[String, String] = mappedRecords.keys.
-            flatMap(schemaPrefix => processingContext.targetSchemas.find(_.prefix == schemaPrefix)).
-            map(processingSchema => (processingSchema.definition.prefix -> processingSchema.definition.schemaVersion)).
-            toMap
+          val mappingResultSchemaVersions: Map[String, String] = serializedRecords.keys.
+                  flatMap(schemaPrefix => processingContext.targetSchemas.find(_.prefix == schemaPrefix)).
+                  map(processingSchema => (processingSchema.definition.prefix -> processingSchema.definition.schemaVersion)).
+                  toMap
 
           val cachedRecord = MetadataItem(
             collection = processingContext.collection.spec,
@@ -73,8 +73,6 @@ class MappedRecordCacher(processingContext: ProcessingContext, processingInterru
             index = index
           )
           cache.saveOrUpdate(cachedRecord)
-
-          sender ! MappedRecordCachingSuccess(index, hubId)
         }
       }
   }
@@ -96,5 +94,4 @@ class MappedRecordCacher(processingContext: ProcessingContext, processingInterru
 
 case class CacheMappedRecord(index: Int, hubId: HubId, records: Map[SchemaVersion, MappingResult])
 
-case class MappedRecordCachingSuccess(index: Int, hubId: HubId)
 case class MappedRecordCachingFailure(index: Int, hubId: HubId, schema: SchemaVersion, result: MappingResult, throwable: Throwable)
