@@ -5,20 +5,34 @@ import models._
 import java.net.URL
 import io.Source
 import core.indexing.{IndexingService, Indexing}
-import org.apache.solr.client.solrj.SolrQuery
-import core.indexing.IndexField._
-import core.SystemField._
-import org.joda.time.DateTime
-import core.HubServices
-import core.processing.{CollectionProcessor, ProcessingSchema}
-
+import core.{HubId, HubServices}
+import core.processing.{DoProcess, ProcessingContext, CollectionProcessor, ProcessingSchema}
+import akka.actor.{Props, TypedProps, TypedActor}
+import play.api.libs.concurrent.Akka
+import play.api.Play.current
 
 /**
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-object DataSetCollectionProcessor {
+trait DataSetCollectionProcessor {
+
+  def process(dataSet: DataSet)(implicit configuration: DomainConfiguration)
+
+}
+
+object DataSetCollectionProcessor extends DataSetCollectionProcessor {
+
+  private val processor: DataSetCollectionProcessor = TypedActor(Akka.system).typedActorOf(TypedProps[DataSetCollectionProcessorImpl])
+
+  def process(dataSet: DataSet)(implicit configuration: DomainConfiguration) {
+    processor.process(dataSet)
+  }
+
+}
+
+class DataSetCollectionProcessorImpl extends DataSetCollectionProcessor {
 
   val log = Logger("CultureHub")
 
@@ -85,21 +99,23 @@ object DataSetCollectionProcessor {
       actionableTargetSchemas.headOption
     }
 
-    val collectionProcessor = new CollectionProcessor(dataSet, actionableTargetSchemas, indexingSchema, renderingSchema, HubServices.basexStorage(configuration))
     def interrupted = {
       val current = DataSet.dao.getState(dataSet.orgId, dataSet.spec)
       current != DataSetState.PROCESSING && current != DataSetState.QUEUED
     }
+
     def updateCount(count: Long) {
       DataSet.dao.updateIndexingCount(dataSet, count)
     }
+
     def onError(t: Throwable) {
       DataSet.dao.updateState(dataSet, DataSetState.ERROR, None, Some(t.getMessage))
     }
-    def indexOne(item: MetadataItem, fields: CollectionProcessor#MultiMap, prefix: String)(implicit configuration: DomainConfiguration) =
-      Indexing.indexOne(dataSet, item, fields, prefix)
 
-    def onIndexingComplete(start: DateTime) {
+    def indexOne(item: MetadataItem, fields: Map[String, List[String]], prefix: String)(implicit configuration: DomainConfiguration) =
+      Indexing.indexOne(dataSet, HubId(item.itemId), fields, prefix)
+
+    def onProcessingDone(context: ProcessingContext) {
       IndexingService.commit
 
       // we retry this one 3 times, in order to minimize the chances of loosing the whole index if a timeout happens to occur
@@ -107,7 +123,7 @@ object DataSetCollectionProcessor {
       var success = false
       while(retries < 3 && !success) {
         try {
-          IndexingService.deleteOrphansBySpec(dataSet.orgId, dataSet.spec, start)
+          IndexingService.deleteOrphansBySpec(dataSet.orgId, dataSet.spec, context.startProcessing)
           success = true
         } catch {
           case t: Throwable => retries += 1
@@ -116,20 +132,36 @@ object DataSetCollectionProcessor {
       if(!success) {
         log.error("Could not delete orphans records from SOLR. You may have to clean up by hand.")
       }
-
-      // TODO move someplace else...
-      // workaround: it looks as though the first query targeting a specific set after it has been indexed blows up with a timeout
-      // it does not matter how long we wait
-      // hence, we just trigger it here, and ignore the exception.
-      try {
-        IndexingService.runQuery(new SolrQuery("%s:%s %s:%s".format(SPEC.tag, dataSet.spec, ORG_ID.key, dataSet.orgId)))
-      } catch {
-        case t: Throwable => // as described earlier on, just ignore this exception
-      }
-
     }
 
-    collectionProcessor.process(interrupted, updateCount, onError, indexOne, onIndexingComplete)(configuration)
+    def onProcessingFinalize() {
+        val state = DataSet.dao.getState(dataSet.orgId, dataSet.spec)
+        if(state == DataSetState.PROCESSING) {
+          DataSet.dao.updateState(dataSet, DataSetState.ENABLED)
+        } else if(state == DataSetState.CANCELLED) {
+          DataSet.dao.updateState(dataSet, DataSetState.UPLOADED)
+        }
+    }
+
+    // TODO refactor using ProcessingContext
+    val collectionProcessorProps = Props(new CollectionProcessor(
+      dataSet,
+      dataSet.getNamespaces,
+      actionableTargetSchemas,
+      indexingSchema,
+      renderingSchema,
+      interrupted,
+      updateCount,
+      onError, indexOne,
+      onProcessingDone,
+      onProcessingFinalize,
+      HubServices.basexStorage(configuration)
+    ))
+
+    val collectionProcessor = TypedActor.context.actorOf(collectionProcessorProps)
+
+
+    collectionProcessor ! DoProcess
   }
 
 

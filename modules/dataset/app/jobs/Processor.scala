@@ -27,16 +27,8 @@ class Processor extends Actor {
         val currentState = DataSet.dao.getState(set.orgId, set.spec)
 
         if(currentState == DataSetState.PROCESSING_QUEUED) {
-
           DataSet.dao(set.orgId).updateState(set, DataSetState.PROCESSING)
           DataSetCollectionProcessor.process(set)
-
-          val state = DataSet.dao.getState(set.orgId, set.spec)
-          if(state == DataSetState.PROCESSING) {
-            DataSet.dao.updateState(set, DataSetState.ENABLED)
-          } else if(state == DataSetState.CANCELLED) {
-            DataSet.dao.updateState(set, DataSetState.UPLOADED)
-          }
         } else if(currentState != DataSetState.CANCELLED) {
           log.warn("Trying to process set %s which is not in PROCESSING_QUEUED state but in state %s".format(
             set.spec, currentState
