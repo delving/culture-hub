@@ -80,16 +80,16 @@
                    <column proportion="1of3">
                        <container type="definition-list">
                            <field path="/tib:record/europeana:collectionTitle" label="metadata.europeana.collectionTitle"/>
-                           <link textValue="${provider}" urlValue="${resolvedProviderUri}" label="metadata.europeana.provider"/>
+                           <!--<link textValue="${provider}" urlValue="${resolvedProviderUri}" label="metadata.europeana.provider"/>-->
                            <link textValue="${dataProvider}" urlValue="${resolvedDataProviderUri}" label="metadata.europeana.dataProvider"/>
                            <field path="/tib:record/dc:contributor" label="searchfield.contributor"/>
-                           <field path="/tib:record/europeana:country" label="metadata.europeana.country"/>
+                           <!--<field path="/tib:record/europeana:country" label="metadata.europeana.country"/>-->
                            <field path="/tib:record/dc:rights" label="metadata.dc.rights"/>
                        </container>
                        <!-- Rights url -->
-                       <container if="/tib:record/europeana:rights" id="rightsUrl" type="labelled-list">
-                           <link urlExpr="/tib:record/europeana:rights" urlValue="" textExpr="/tib:record/europeana:rights" label="metadata.dc.rights"/>
-                       </container>
+                       <!--<container if="/tib:record/europeana:rights" id="rightsUrl" type="labelled-list">-->
+                           <!--<link urlExpr="/tib:record/europeana:rights" urlValue="" textExpr="/tib:record/europeana:rights" label="metadata.dc.rights"/>-->
+                       <!--</container>-->
                     </column>
 
                 </row>
