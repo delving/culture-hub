@@ -1,14 +1,15 @@
 #{include 'commonHeader.html'/}
 
-    <div class="navbar navbar-fixed-top">
-        <div class="navbar-inner">
-            <div class="container">
-                <div class="nav-collapse">
+    <div class="user-bar">
+        <div class="container">
+            <div class="row">
+                <div class="span5">
                     <a class="brand" href="/">${themeInfo.siteName()}</a>
                     #{userNav userName: userName, email:email, organization:organization, showLang:themeInfo.get('userNavLangSelect'), showLogin:themeInfo.showLogin(), showRegistration:themeInfo.showRegistration()/}
-                    <div class="visible-desktop pull-right">
+                </div>
+                <div class="span7 search">
+
                     #{search.searchForm showSearchIn: true, searchIn: params.searchIn, fields: searchIn, advancedSearchLink: false, iconOnly: true, showAll: themeInfo.showAllObjects() /}
-                    </div>
                 </div>
             </div>
         </div>
@@ -17,13 +18,12 @@
     <div class="page-top">
         <div class="container">
             <div class="row">
-                <div class="branding">
+                <div class="span2">
                     <a href="@{controllers.routes.Application.index()}">
                         <img src='${themeInfo.path("images/logo-primary.png")}' alt="${themeInfo.siteName()}" title="${themeInfo.siteName()}" class="site-logo"/>
                     </a>
                 </div>
-
-                <div class="site-navigation">
+                <div class="site-nav span10">
                     #{mainMenu menu:menu, extraClass: "nav-pills" /}
                 </div>
             </div>
@@ -53,7 +53,6 @@
         </div>
     </div>
 
-    *{<div class="push"></div>}*
 
 
 <div id="footer">
