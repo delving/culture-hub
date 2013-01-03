@@ -35,14 +35,15 @@ class ProcessingSupervisor(
 
   private val processingInterrupted = new AtomicBoolean(false)
 
-  private val cpus = (math.round(Runtime.getRuntime.availableProcessors() * configuration.processingService.mappingCpuProportion)).toInt
+  private val numCores = (math.round(Runtime.getRuntime.availableProcessors() * configuration.processingService.mappingCpuProportion)).toInt
 
   private val recordMapper = context.actorOf(Props(new RecordMapper(processingContext, processingInterrupted)).withRouter(
-    RoundRobinRouter(nrOfInstances = cpus))
+    RoundRobinRouter(nrOfInstances = numCores))
   )
   private val recordCacher = context.actorOf(Props(new MappedRecordCacher(processingContext, processingInterrupted)))
   private val recordIndexer = context.actorOf(Props(new RecordIndexer(processingContext, processingInterrupted, configuration)))
 
+  private var numSourceRecords: Int = 0
   private var numMappingResults: Int = 0
   private val mappingFailures = new ArrayBuffer[(Int, HubId, String, Throwable)]
 
@@ -52,7 +53,9 @@ class ProcessingSupervisor(
   def receive = {
 
     case ProcessRecord(index, hubId, sourceRecord, targetSchemas) =>
+      numSourceRecords = numSourceRecords + 1
       recordMapper ! MapRecord(index, hubId, sourceRecord, targetSchemas)
+      sender ! (numSourceRecords - numMappingResults)
 
     case RecordMappingResult(index, hubId, results) =>
       numMappingResults = numMappingResults + 1

@@ -9,7 +9,11 @@ import models._
 import xml.{Elem, NodeSeq, Node}
 import java.util.concurrent.atomic.{AtomicBoolean, AtomicInteger}
 import akka.actor.{Actor, Props}
+import akka.pattern.ask
 import core.HubId
+import akka.util.duration._
+import akka.dispatch.Future
+import akka.util.Timeout
 
 /**
  * CollectionProcessor, essentially taking care of:
@@ -101,7 +105,19 @@ class CollectionProcessor(collection: Collection with OrganizationCollectionInfo
                   val sourceRecord: String = (record \ "document" \ "input" \*).mkString("\n")
                   val schemas = targetSchemas.filter(targetSchema => targetSchema.isValidRecord(recordIndex) && targetSchema.sourceSchema == "raw")
 
-                  supervisor ! ProcessRecord(index, hubId, sourceRecord, schemas.map(_.schemaVersion))
+                  val command = ProcessRecord(index, hubId, sourceRecord, schemas.map(_.schemaVersion))
+
+                  implicit val timeout = Timeout(5 seconds)
+
+                  var maybeQueueSize: Future[Any] = supervisor ? command
+
+                  maybeQueueSize.map { queueSize =>
+                    while (queueSize.asInstanceOf[Int] > 5000) {
+                      log.debug("Current queue size is %s, sleeping".format(queueSize))
+                      Thread.sleep(2000)
+                      maybeQueueSize = supervisor ? command
+                    }
+                  }
 
                   val processed = recordsProcessed.incrementAndGet()
                   if (processed % 100 == 0) {
