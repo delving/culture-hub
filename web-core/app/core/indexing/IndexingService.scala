@@ -18,6 +18,8 @@ import models.{Visibility, DomainConfiguration}
  */
 object IndexingService extends SolrServer {
 
+  val log = Logger("CultureHub")
+
   /**
    * Stages a SOLR InputDocument for indexing, and applies all generic delving mechanisms on top
    */
@@ -149,7 +151,7 @@ object IndexingService extends SolrServer {
    */
   def deleteBySpec(orgId: String, spec: String)(implicit configuration: DomainConfiguration) {
     val deleteQuery = SPEC.tag + ":" + spec + " " + ORG_ID.key + ":" + orgId
-    Logger.info("Deleting dataset from Solr Index: %s".format(deleteQuery))
+    log.info("Deleting dataset from Solr Index: %s".format(deleteQuery))
     val deleteResponse = getStreamingUpdateServer(configuration).deleteByQuery(deleteQuery)
     deleteResponse.getStatus
     commit
@@ -164,14 +166,14 @@ object IndexingService extends SolrServer {
         val deleteResponse = getStreamingUpdateServer(configuration).deleteByQuery(deleteQuery)
         deleteResponse.getStatus
         commit
-        Logger.info("Deleting orphans %s from dataset from Solr Index: %s".format(orphans.toString, deleteQuery))
+        log.info("Deleting orphans %s from dataset from Solr Index: %s".format(orphans.toString, deleteQuery))
       }
       catch {
         case e: Exception => Logger.info("Unable to remove orphans for %s because of %s".format(spec, e.getMessage))
       }
     }
     else
-      Logger.info("No orphans found for dataset in Solr Index: %s".format(deleteQuery))
+      log.info("No orphans found for dataset in Solr Index: %s".format(deleteQuery))
 
   }
 
