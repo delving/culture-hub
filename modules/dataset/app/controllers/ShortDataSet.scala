@@ -10,6 +10,7 @@ import models.DataSetState
 
 case class ShortDataSet(id: Option[ObjectId] = None,
                         spec: String = "",
+                        description: String = "",
                         total_records: Long = 0,
                         state: DataSetState = DataSetState.INCOMPLETE,
                         errorMessage: Option[String],

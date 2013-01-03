@@ -81,6 +81,7 @@ trait Authentication extends ApplicationController { this: BoundController =>
                   email = p.email,
                   userProfile = models.UserProfile(
                     isPublic = p.isPublic,
+                    fixedPhone = p.fixedPhone,
                     description = p.description,
                     funFact = p.funFact,
                     websites = p.websites,

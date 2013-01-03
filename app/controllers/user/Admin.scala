@@ -29,7 +29,18 @@ trait Admin extends DelvingController { this: BoundController =>
       implicit request =>
         val u = HubUser.dao.findByUsername(connectedUser).get
         val p = u.userProfile
-        val profile = ProfileViewModel(p.isPublic, u.firstName, u.lastName, u.email, p.description.getOrElse(""), p.funFact.getOrElse(""), p.websites, p.twitter.getOrElse(""), p.linkedIn.getOrElse(""))
+        val profile = ProfileViewModel(
+          p.isPublic,
+          u.firstName,
+          u.lastName,
+          u.email,
+          p.fixedPhone.getOrElse(""),
+          p.description.getOrElse(""),
+          p.funFact.getOrElse(""),
+          p.websites,
+          p.twitter.getOrElse(""),
+          p.linkedIn.getOrElse("")
+        )
         Ok(Template('data -> JJson.generate(profile), 'profileForm -> ProfileViewModel.profileForm))
     }
   }
@@ -46,6 +57,7 @@ trait Admin extends DelvingController { this: BoundController =>
             HubUser.dao.updateProfile(connectedUser, profileModel.firstName, profileModel.lastName, profileModel.email, UserProfile(
               isPublic = profileModel.isPublic,
               description = StrictOption(profileModel.description),
+              fixedPhone = StrictOption(profileModel.fixedPhone),
               funFact = StrictOption(profileModel.funFact),
               websites = profileModel.websites,
               twitter = StrictOption(profileModel.twitter),
@@ -58,6 +70,7 @@ trait Admin extends DelvingController { this: BoundController =>
               firstName = profileModel.firstName,
               lastName = profileModel.lastName,
               email = profileModel.email,
+              fixedPhone = StrictOption(profileModel.fixedPhone),
               description = StrictOption(profileModel.description),
               funFact = StrictOption(profileModel.funFact),
               websites = profileModel.websites,
@@ -81,6 +94,7 @@ case class ProfileViewModel(isPublic: Boolean = false,
                             firstName: String = "",
                             lastName: String = "",
                             email: String = "",
+                            fixedPhone: String = "",
                             description: String = "",
                             funFact: String = "",
                             websites: List[String] = List.empty[String],
@@ -95,6 +109,7 @@ object ProfileViewModel {
       "firstName" -> nonEmptyText,
       "lastName" -> nonEmptyText,
       "email" -> email,
+      "fixedPhone" -> text,
       "description" -> text,
       "funFact" -> text,
       "websites" -> list(text),

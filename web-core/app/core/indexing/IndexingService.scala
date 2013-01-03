@@ -5,7 +5,7 @@ import core.Constants._
 import core.SystemField._
 import core.indexing.IndexField._
 import play.api.Logger
-import org.apache.solr.common.SolrInputDocument
+import org.apache.solr.common.{SolrInputField, SolrInputDocument}
 import org.joda.time.DateTime
 import org.joda.time.format.DateTimeFormat
 import org.apache.solr.client.solrj.SolrQuery
@@ -79,16 +79,39 @@ object IndexingService extends SolrServer {
     // clean geohash with type suffix
     if (doc.containsKey(GEOHASH.key + "_geohash")) {
       val doubleKey = GEOHASH.key + "_geohash"
-      val field = doc.get(doubleKey)
+      val field: SolrInputField = doc.get(doubleKey)
       doc.remove(doubleKey)
-      field.getValues.foreach(geoHash =>
+      field.getValues.toList.foreach(geoHash =>
         doc.addField(GEOHASH.key, geoHash)
       )
+    }
+
+    // *remove entries that are not valid lat,long pair
+    if (doc.containsKey(GEOHASH.key)) {
+        val values = doc.get(GEOHASH.key).getValues.toList
+        doc.remove(GEOHASH.key)
+        filterForValidGeoCoordinate(values).foreach{ geoHash =>
+          doc.addField(GEOHASH.key, geoHash)
+        }
     }
 
     doc.addField(HAS_GEO_HASH.key.toString, doc.containsKey(GEOHASH.key) && !doc.get(GEOHASH.key).isEmpty)
 
     getStreamingUpdateServer(configuration).add(doc)
+  }
+
+  /**
+   * Check the values of an collection and remove all entries that are not valid lat long pairs
+   * This check is not absolute but should remove most issues associated with wrong string values being assigned
+   * in the mapping stage
+   */
+
+  def filterForValidGeoCoordinate(values: List[AnyRef]): List[String] = {
+    def isValid(value: String) = {
+      val coordinates = value.split(",")
+      (coordinates.size == 2) && (coordinates.head.split("\\.").size == 2 && coordinates.last.split("\\.").size == 2)
+    }
+    values.map(_.toString.replaceAll(" ", "")).filter(isValid(_))
   }
 
   /**

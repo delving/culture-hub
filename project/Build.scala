@@ -15,10 +15,10 @@ object Build extends sbt.Build {
   val cultureHubPath = ""
 
   val appName = "culture-hub"
-  val cultureHubVersion = "12.11"
-  val sipAppVersion = "1.0.10-SNAPSHOT"
-  val sipCoreVersion = "1.0.16-SNAPSHOT"
-  val schemaRepoVersion = "1.0.11-SNAPSHOT"
+  val cultureHubVersion = "01.13-SNAPSHOT"
+  val sipAppVersion = "1.1.0-SNAPSHOT"
+  val sipCoreVersion = "1.1.0-SNAPSHOT"
+  val schemaRepoVersion = "1.1.0-SNAPSHOT"
   val playExtensionsVersion = "1.3.4-SNAPSHOT"
 
   val dosVersion = "1.5"

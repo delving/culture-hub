@@ -76,7 +76,7 @@ object Breadcrumbs {
 
       case _ => List()
     }
-    (("/", "Home") :: crumbs).zipWithIndex
+    (("/", Messages("site.nav.home")) :: crumbs).zipWithIndex
   }
 
 }
