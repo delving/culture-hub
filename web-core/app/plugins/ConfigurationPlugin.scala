@@ -54,7 +54,6 @@ class ConfigurationPlugin(app: Application) extends CultureHubPlugin(app) {
     // ~~~ bootstrap services
 
     HubServices.init()
-    MappingService.init()
 
     // ~~~ sanity check
     DomainConfigurationHandler.domainConfigurations.foreach { implicit configuration =>
