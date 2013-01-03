@@ -30,7 +30,7 @@ import core.ExplainItem
 import java.lang.String
 import core.rendering._
 import models.DomainConfiguration
-import xml.{PrettyPrinter, Elem}
+import xml.{PCData, PrettyPrinter, Elem}
 import org.apache.solr.client.solrj.response.FacetField.Count
 import org.apache.solr.client.solrj.response.FacetField
 import net.liftweb.json.JsonAST._
@@ -272,11 +272,31 @@ case class SearchSummary(result: BriefItemView, language: String = "en", chRespo
   def renderAsABCKML(authorized: Boolean): Elem = {
     def renderData(field: String, fieldName: String, item: BriefDocItem, cdata: Boolean = false): Elem = {
       if (cdata)
-        <Data name={fieldName}><value>{"<![CDATA[%s]]>".format(item.getAsString(field))}</value></Data>
+        <Data name={fieldName}><value>{PCData(item.getAsString(field))}</value></Data>
       else
         <Data name={fieldName}><value>{item.getAsString(field)}</value></Data>
 
     }
+
+    def renderComposedDescription(item: BriefDocItem): String = {
+      def renderStrong(label: String, field: String, out: StringBuffer) {
+        val fv = item.getFieldValue(field)
+        if (fv.isNotEmpty) out append ("<strong>%s</strong>: %s </br>".format(label, fv.getArrayAsString(", "))) else "ss"
+      }
+
+      val output = new StringBuffer()
+      output append (item.getAsString("dc_title")) append ("</br></br>")
+      renderStrong("Vervaardiger", "dc_creator", output)
+      renderStrong("Soort object", "dc_type", output)
+      renderStrong("Vervaardigingsdatum", "dc_date", output)
+      renderStrong("Vervaardiging plaats", "dc_coverage", output)
+      renderStrong("Afmeting", "dc_format", output)
+      renderStrong("Material", "icn_material", output)
+      renderStrong("Trefwoorden", "dc_subject", output)
+      renderStrong("Identificatie", "dc_identifier", output)
+      output.toString
+    }
+
     val response: Elem =
       <kml xmlns="http://earth.google.com/kml/2.0">
         <Document>
@@ -292,11 +312,9 @@ case class SearchSummary(result: BriefItemView, language: String = "en", chRespo
                 {item.getAsString(ADDRESS.key)}
               </address>
             }}
-              {if (item.getFieldValue("delving_description").isNotEmpty) {
               <description>
-                {"<![CDATA[%s]]".format(item.getAsString("delving_description"))}
+                {PCData(renderComposedDescription(item))}
               </description>
-            }}
               <ExtendedData>
                 {renderData("delving_title", "titel", item)}
                 {renderData("delving_landingPage", "bron", item, cdata = false)}
