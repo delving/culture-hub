@@ -2,6 +2,23 @@
 
 This is the changelog of the CultureHub. It documents changes of the main platform, without modules.
 
+# 12.12
+
+### New features
+
+- manu: adding description field to DataSet creation page
+- manu: phone number in user profile
+
+
+### Fixes and refactoring
+
+- manu: using new Sip-Creator version, JNLP rendering now done via Sip-Core
+- manu: full view: fixing rendering of namespaces for MLT items
+- eric: adding missing translations for norwegian
+- eric: hide return-to-results nav tab if view object from direct link
+- eric: updated tib layout template for ipad fix
+- sjoerd: Hardened the indexing of the delving_geoHash field to ensure less illegal coordinates are passed onto solr for indexing
+
 # 12.11
 
 ### New features
