@@ -160,39 +160,63 @@ object RecordRenderer {
             Left("Could not render full record with hubId '%s' for view type '%s': view type does not exist".format(hubId, viewType.name))
           } else {
             try {
+
+              val defaultNamespaces = Seq(
+                "delving" -> "http://schemas.delving.eu/",
+                "xml" -> "http://www.w3.org/XML/1998/namespace",
+                "xsi" -> "http://www.w3.org/2001/XMLSchema-instance"
+              )
+
+              val relatedItemsNamespaces: Seq[(String, String)] = {
+                val namespaces = relatedItems.flatMap { item =>
+                  (item \\ "fields").flatMap { field =>
+                    field.child.map { field =>
+                      field.prefix
+                    }
+                  }.distinct
+                   .filterNot(_.trim.isEmpty)
+                   .map { prefix =>
+                     (prefix -> RecordDefinition.getNamespaceURI(prefix))
+                   }
+                }
+
+                val (resolved, missing) = namespaces.partition(_._2.isDefined)
+
+                log.warn("While rendering full view for item %s: following prefixes for related items are unknown: %s".format(
+                  hubId, missing.map(_._1).mkString(", ")
+                ))
+
+                resolved.map(r => (r._1 -> r._2.get))
+              }
+
+
               val cleanRawRecord = {
                 val record = scala.xml.XML.loadString(recordXml)
                 var mutableRecord: Elem = if (renderRelatedItems) {
-                  // mix the related items to the record coming from mongo
+                  // mix the related items to the cached record coming from mongo
                   val relatedItemsXml = <relatedItems>{relatedItems}</relatedItems>
                   addChild(record, relatedItemsXml).get // we know what we're doing here
                 } else {
                   record
                 }
-                  // prepend the delving namespace if it ain't there
+
+                val additionalNamespaces: Map[String, String] = definition.getNamespaces ++ relatedItemsNamespaces ++ defaultNamespaces
+
+                additionalNamespaces.foreach { ns =>
+
+                  // prepend missing namespaces to the declaration if they ain't there
                   // and yes this check is ugly but Scala's XML <-> namespace support ain't pretty to say the least
-                  if(!recordXml.contains("xmlns:delving")) {
-                    mutableRecord = mutableRecord % new UnprefixedAttribute("xmlns:delving", "http://schemas.delving.eu/", Null)
-                  }
-                  if (!recordXml.contains("xmlns:xml")) {
-                    mutableRecord = mutableRecord % new UnprefixedAttribute("xmlns:xml", "http://www.w3.org/XML/1998/namespace", Null)
-                  }
-                  if (!recordXml.contains("xmlns:xsi")) {
-                    mutableRecord = mutableRecord % new UnprefixedAttribute("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance", Null)
+                  if (!recordXml.contains("xmlns:" + ns._1)) {
+                    mutableRecord = mutableRecord % new UnprefixedAttribute("xmlns:" + ns._1, ns._2, Null)
+                    }
                   }
 
-                  mutableRecord.toString().replaceFirst("<\\?xml.*?>", "")
+                mutableRecord.toString().replaceFirst("<\\?xml.*?>", "")
               }
+
               log.debug(cleanRawRecord)
 
-              // TODO see what to do with roles
-              val defaultNamespaces = Seq(
-                "delving" -> "http://schemas.delving.eu/",
-                "xml" -> "http://www.w3.org/XML/1998/namespace",
-                "xsi" -> "http://www.w3.org/2001/XMLSchema-instance"
-                )
-
-              val rendered: RenderedView = viewRenderer.get.renderRecord(cleanRawRecord, roles, definition.getNamespaces ++ defaultNamespaces, lang, parameters)
+              val rendered: RenderedView = viewRenderer.get.renderRecord(cleanRawRecord, roles, definition.getNamespaces ++ relatedItemsNamespaces ++ defaultNamespaces, lang, parameters)
               Right(rendered)
             } catch {
               case t: Throwable =>
