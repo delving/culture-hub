@@ -82,6 +82,8 @@
 
             %{ }}%
 
+            #{form.textArea name: "descriptionField", form: dataSetForm, label: messages.get('thing.description'), dataBind: "value: description" /}
+
         </div>
         <div class="dataset-schemas span6">
 
@@ -149,7 +151,7 @@
 
 <script type="text/javascript">
     $(document).ready(function() {
-        var dataSetModel = {};
+        var dataSetModel = { };
 
         $('#saveButton').click(function(event) {
             event.preventDefault();

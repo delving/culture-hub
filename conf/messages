@@ -29,7 +29,6 @@ ui.label.administratorOptions=Administrator options
 ui.label.availability=Availability
 ui.label.block=Block
 ui.label.browse=Browse
-ui.label.cancel=Cancel
 ui.label.disable=Disable
 ui.label.captcha=Enter the code you see here
 ui.label.cancel=Cancel
@@ -302,6 +301,12 @@ metadata.abm.data.provider=Data Provider
 metadata.abm.municipality=Municipality
 metadata.abm.namedPlace=Named place
 metadata.abm.aboutPerson=About Person
+metadata.abm.landedProperty=Gardsnummer
+metadata.abm.address=Address
+metadata.abm.digitised=Digitized
+metadata.abm.lat=Latitude
+metadata.abm.long=Longitude
+metadata.abm.geo=GeoCoordinates
 
 metadata.dc.contributor=Contributor
 metadata.dc.coverage=Coverage
@@ -341,7 +346,6 @@ metadata.dcterms.extent=Extent
 
 ### Delving NS
 
-metadata.delving.owner=Owner
 metadata.delving.creator=Creator
 metadata.delving.collection=Collection
 metadata.delving.provider=Provider
@@ -467,7 +471,6 @@ metadata.reloc.width=Width
 metadata.reloc.depth=Depth
 metadata.reloc.diameter=Diameter
 metadata.reloc.condition=Condition object
-metadata.reloc.lamoCompleted=Placement time has expired (LAMO)
 metadata.reloc.lamoCompleted=Leidraad afstoting (LAMO) is doorlopen
 metadata.reloc.docsAvailable=Documentation available
 metadata.reloc.upForAuction=Place for auction
@@ -493,10 +496,12 @@ user.admin.profile.title=Your profile
 user.admin.profile.help.aboutYou=A few words about yourself
 user.admin.profile.save=Save profile
 user.admin.profile.help.twitter=Your twitter username, e.g. #johndoe
+user.admin.profile.help.fixedPhone=Your phone number
 user.admin.profile.help.linkedIn=Your linkedIn public profile name, e.g. johndoe
 user.admin.profile.help.public=If you check this option, your profile is also visible to non-connected users
 user.admin.profile.gravatarHelp=Associate a <a href="http://www.gravatar.com" target="_blank">Gravatar</a> with your email adres
 
+user.profile.fixedPhone=Phone
 user.profile.aboutYou=About you
 user.profile.funFact=Fun fact
 

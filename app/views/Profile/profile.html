@@ -23,6 +23,9 @@
             #{ifnot user.userProfile.funFact().isEmpty()}
                 <dt>&{'user.profile.funFact'}:</dt><dd>${user.userProfile.funFact().get()}</dd>
             #{/ifnot}
+            #{ifnot user.userProfile.fixedPhone().isEmpty()}
+                <dt>Phone:</dt><dd>${user.userProfile.fixedPhone().get()}</dd>
+            #{/ifnot}
             #{ifnot user.userProfile.twitter().isEmpty()}
                 <dt>Twitter:</dt><dd><a href="http://twitter.com/${user.userProfile.twitter().get()}" target="_blank">${user.userProfile.twitter().get()}</a></dd>
             #{/ifnot}
