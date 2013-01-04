@@ -270,9 +270,9 @@ case class SearchSummary(result: BriefItemView, language: String = "en", chRespo
   }
 
   def renderAsABCKML(authorized: Boolean): Elem = {
-    def renderData(field: String, fieldName: String, item: BriefDocItem, cdata: Boolean = false): Elem = {
+    def renderData(field: String, fieldName: String, item: BriefDocItem, cdata: Boolean = false, customString: String = "%s"): Elem = {
       if (cdata)
-        <Data name={fieldName}><value>{PCData(item.getAsString(field))}</value></Data>
+        <Data name={fieldName}><value>{PCData(customString.format(item.getAsString(field)))}</value></Data>
       else
         <Data name={fieldName}><value>{item.getAsString(field)}</value></Data>
 
@@ -317,7 +317,7 @@ case class SearchSummary(result: BriefItemView, language: String = "en", chRespo
               </description>
               <ExtendedData>
                 {renderData("delving_title", "titel", item)}
-                {renderData("delving_landingPage", "bron", item, cdata = false)}
+                {renderData("delving_landingPage", "bron", item, cdata = true, """<a href=”%s” target=”_blank”>Naar website Friesmuseum</a>""")}
                 {renderData("delving_description", "text", item)}
                 {renderData("delving_thumbnail", "thumbnail", item)}
                 {renderData("europeana_isShownBy", "image", item)}
