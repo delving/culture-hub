@@ -317,7 +317,7 @@ case class SearchSummary(result: BriefItemView, language: String = "en", chRespo
               </description>
               <ExtendedData>
                 {renderData("delving_title", "titel", item)}
-                {renderData("delving_landingPage", "bron", item, cdata = true, """<a href=”%s” target=”_blank”>Naar website Friesmuseum</a>""")}
+                {renderData("delving_landingPage", "bron", item, cdata = true, """<a href="%s" target="_blank">Naar website Friesmuseum</a>""")}
                 {renderData("delving_description", "text", item)}
                 {renderData("delving_thumbnail", "thumbnail", item)}
                 {renderData("europeana_isShownBy", "image", item)}
