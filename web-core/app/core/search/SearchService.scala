@@ -286,6 +286,7 @@ case class SearchSummary(result: BriefItemView, language: String = "en", chRespo
 
       val output = new StringBuffer()
       output append (item.getAsString("dc_title")) append ("</br></br>")
+      output append (item.getAsString("delving_description")) append ("</br></br>")
       renderStrong("Vervaardiger", "dc_creator", output)
       renderStrong("Soort object", "dc_type", output)
       renderStrong("Vervaardigingsdatum", "dc_date", output)
@@ -318,7 +319,6 @@ case class SearchSummary(result: BriefItemView, language: String = "en", chRespo
               <ExtendedData>
                 {renderData("delving_title", "titel", item)}
                 {renderData("delving_landingPage", "bron", item, cdata = true, """<a href="%s" target="_blank">Naar website Friesmuseum</a>""")}
-                {renderData("delving_description", "text", item)}
                 {renderData("delving_thumbnail", "thumbnail", item)}
                 {renderData("europeana_isShownBy", "image", item)}
               </ExtendedData>
