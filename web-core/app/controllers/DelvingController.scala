@@ -133,6 +133,11 @@ case class RichBody[A <: AnyContent](body: A) {
     case Some(b) => b.get(key).getOrElse(return None).headOption.map(id => if (ObjectId.isValid(id)) new ObjectId(id) else null)
     case None => None
   }
+
+  def getFirstAsBoolean(key: String): Option[Boolean] = body.asFormUrlEncoded match {
+    case Some(b) => b.get(key).getOrElse(return None).headOption.map(b => b.toBoolean)
+    case None => None
+  }
 }
 
 /**
