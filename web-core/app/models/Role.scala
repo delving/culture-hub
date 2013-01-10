@@ -23,7 +23,10 @@ case class Role(key: String,
                 unitRoles: Seq[Role] = Seq.empty
                ) {
 
-  def getDescription(lang: Lang) = description.get(lang.language).getOrElse(description.values.head)
+  def getDescription(lang: Lang) = {
+    if (description.isEmpty) println(key)
+    description.get(lang.language).getOrElse(description.values.headOption.getOrElse(""))
+  }
 
   override def equals(r: Any): Boolean = r.isInstanceOf[Role] && r.asInstanceOf[Role].key == key
 }
