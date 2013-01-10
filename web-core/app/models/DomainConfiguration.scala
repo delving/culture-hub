@@ -491,7 +491,7 @@ object DomainConfiguration {
       throw new RuntimeException("Role definition inconsistency. No can do.\n\n" + error)
     }
 
-    val undescribedRoles = plugins.flatMap(_.roles).filter(_.description.isEmpty)
+    val undescribedRoles = plugins.flatMap(_.roles).filter(role => !role.isUnitRole && role.description.isEmpty)
     if (!undescribedRoles.isEmpty) {
       val error = "Found roles without a description: " + undescribedRoles.mkString(", ")
       log.error(error)
