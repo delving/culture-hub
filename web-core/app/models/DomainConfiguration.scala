@@ -483,12 +483,19 @@ object DomainConfiguration {
     // access control subsystem: check roles and resource handlers defined by plugins
 
     val duplicateRoleKeys = plugins.flatMap(plugin => plugin.roles.map(r => (r -> plugin.pluginKey))).groupBy(_._1.key).filter(_._2.size > 1)
-    if(!duplicateRoleKeys.isEmpty) {
+    if (!duplicateRoleKeys.isEmpty) {
       val error = "Found two or more roles with the same key: " +
                     duplicateRoleKeys.map(r => r._1 + ": " + r._2.map(pair => "Plugin " + pair._2).mkString(", ")).mkString(", ")
 
       log.error(error)
       throw new RuntimeException("Role definition inconsistency. No can do.\n\n" + error)
+    }
+
+    val undescribedRoles = plugins.flatMap(_.roles).filter(_.description.isEmpty)
+    if (!undescribedRoles.isEmpty) {
+      val error = "Found roles without a description: " + undescribedRoles.mkString(", ")
+      log.error(error)
+      throw new RuntimeException("Roles without description\n\n: " + error)
     }
 
     // make sure that if a Role defines a ResourceType, its declaring plugin also provides a ResourceLookup
