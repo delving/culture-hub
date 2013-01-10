@@ -182,9 +182,11 @@ object RecordRenderer {
 
                 val (resolved, missing) = namespaces.partition(_._2.isDefined)
 
-                log.warn("While rendering full view for item %s: following prefixes for related items are unknown: %s".format(
-                  hubId, missing.map(_._1).mkString(", ")
-                ))
+                if (!missing.isEmpty) {
+                  log.warn("While rendering full view for item %s: following prefixes for related items are unknown: %s".format(
+                    hubId, missing.map(_._1).mkString(", ")
+                  ))
+                }
 
                 resolved.map(r => (r._1 -> r._2.get))
               }
