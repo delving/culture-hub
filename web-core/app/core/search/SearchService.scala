@@ -292,7 +292,7 @@ case class SearchSummary(result: BriefItemView, language: String = "en", chRespo
       renderStrong("Vervaardigingsdatum", "dc_date", output)
       renderStrong("Vervaardiging plaats", "dc_coverage", output)
       renderStrong("Afmeting", "dc_format", output)
-      renderStrong("Material", "icn_material", output)
+      renderStrong("Materiaal", "icn_material", output)
       renderStrong("Trefwoorden", "dc_subject", output)
       renderStrong("Identificatie", "dc_identifier", output)
       output.toString
@@ -318,7 +318,7 @@ case class SearchSummary(result: BriefItemView, language: String = "en", chRespo
               </description>
               <ExtendedData>
                 {renderData("delving_title", "titel", item)}
-                {renderData("delving_landingPage", "bron", item, cdata = true, """<a href="%s" target="_blank">Naar website Friesmuseum</a>""")}
+                {renderData("delving_landingPage", "bron", item, cdata = true, """<a href="%s" target="_blank">Naar collectiewebsite Friesmuseum</a>""")}
                 {renderData("delving_thumbnail", "thumbnail", item)}
                 {renderData("europeana_isShownBy", "image", item)}
               </ExtendedData>
