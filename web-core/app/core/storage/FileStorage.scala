@@ -98,7 +98,8 @@ object FileStorage extends FileStoreService {
         newFileType.map { t =>
           file.put(ITEM_TYPE, t)
         }.getOrElse {
-          file.remove(ITEM_TYPE)
+          // can't remove this because it throws an UnsupportedOperationException
+          file.put(ITEM_TYPE, "")
         }
         file.save()
       }
