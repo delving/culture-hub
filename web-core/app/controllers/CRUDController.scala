@@ -1,6 +1,6 @@
 package controllers
 
-import core.storage.FileStorage
+import core.storage.{FileUploadResponse, FileStorage}
 import play.api.mvc._
 import com.mongodb.casbah.Imports._
 import com.novus.salat._
@@ -277,8 +277,7 @@ trait CRUDController[Model <: CaseClass { def id: ObjectId }, D <: SalatDAO[Mode
     def serializeToJson(item: Model, isCreated: Boolean): String = {
       val serializedItem: JObject = grater[Model].toJSON(item)
       val files: Option[JObject] = if (fileUploadEnabled) {
-        def notSelected(id: ObjectId) = false
-        val files = core.storage.FileStorage.getFilesForItemId(item.id.toString).map(_.asFileUploadResponse(notSelected))
+        val files = core.storage.FileStorage.listFiles(item.id.toString).map(f => FileUploadResponse(f))
         val serializedFiles = JObject(List(JField("files", decompose(files))))
         Some(serializedFiles)
       } else {
@@ -328,8 +327,8 @@ trait CRUDController[Model <: CaseClass { def id: ObjectId }, D <: SalatDAO[Mode
 
 
       if(fileUploadEnabled) {
-        val files = FileStorage.getFilesForItemId(id.toString)
-        files.foreach { f => FileStorage.deleteFileById(f.id) }
+        val files = FileStorage.listFiles(id.toString)
+        files.foreach { f => FileStorage.deleteFile(f.id.toString) }
       }
 
       Ok

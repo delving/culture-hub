@@ -19,8 +19,6 @@ import node.{NodeDirectoryService, NodeRegistrationService, NodeSubscriptionServ
  */
 class HubNodePlugin(app: Application) extends CultureHubPlugin(app) {
 
-  private val log = Logger("CultureHub")
-
   val pluginKey: String = "hubNode"
 
   override def organizationMenuEntries(configuration: DomainConfiguration, lang: String, roles: Seq[String]): Seq[MainMenuEntry] = Seq(
@@ -86,17 +84,17 @@ class HubNodePlugin(app: Application) extends CultureHubPlugin(app) {
             orgId = configuration.node.orgId
           )
           try {
-            log.info("Attempting to create and register node '%s' for hub".format(configuration.node.nodeId))
+            info("Attempting to create and register node '%s' for hub".format(configuration.node.nodeId))
             nodeRegistrationServiceLocator.byDomain.registerNode(hubNode, "system")
             HubNode.dao.insert(hubNode)
-            log.info("Node '%s' registered successfully".format(configuration.node.nodeId))
+            info("Node '%s' registered successfully".format(configuration.node.nodeId))
           } catch {
             case t: Throwable =>
-              log.error("Cannot register node for hub", t)
+              error("Cannot register node for hub", t)
               System.exit(-1)
           }
         } else {
-          log.error("System is in inconsistent state: node '%s' for hub is registered, but no local HubNode can be found".format(configuration.node.nodeId))
+          error("System is in inconsistent state: node '%s' for hub is registered, but no local HubNode can be found".format(configuration.node.nodeId))
           System.exit(-1)
         }
       }
