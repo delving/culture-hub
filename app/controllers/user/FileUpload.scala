@@ -37,12 +37,8 @@ object FileUpload extends DelvingController {
   def deleteFile(id: String): Action[AnyContent] = ConnectedUserAction {
     Action {
       implicit request =>
-        if(!ObjectId.isValid(id)) {
-          BadRequest("Invalid id " + id)
-        } else {
-          FileStorage.deleteFileById(new ObjectId(id))
-          Ok
-        }
+        FileStorage.deleteFile(id)
+        Ok
     }
   }
 

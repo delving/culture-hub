@@ -64,12 +64,6 @@ trait ControllerBase extends Extensions with DomainConfigurationAware with Loggi
             Json(Map("errors" -> Map("global" -> errorMessage)))
         }
 
-        // TODO we may not need this
-        def files: List[StoredFile] = maybeId.map { id =>
-          FileStorage.getFilesForItemId(id.toString)
-        }.getOrElse(List.empty)
-
-
         maybeId match {
           case Some(id) if !isNew =>
             findOneById(id) match {

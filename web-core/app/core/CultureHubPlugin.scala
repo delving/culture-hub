@@ -1,13 +1,16 @@
 package core
 
+import _root_.util.DomainConfigurationHandler
 import core.access.ResourceLookup
 import scala.collection.immutable.ListMap
 import scala.util.matching.Regex
 import play.api._
+import libs.concurrent.Akka
 import play.api.Play.current
 import mvc.{RequestHeader, Handler}
 import models.{Role, DomainConfiguration}
 import scala.collection.JavaConverters._
+import akka.actor.{ActorRef, Props, Actor}
 
 /**
  * The CultureHub plugin contract, allowing to influence the appearance and functionality of the Hub.
@@ -122,7 +125,21 @@ abstract class CultureHubPlugin(app: Application) extends play.api.Plugin {
    */
   def services: Seq[Any] = Seq.empty
 
+  /**
+   * Handler for plugin messaging, based on Akka actors.
+   * Override this method to handle particular messages.
+   */
+  def receive: Actor.Receive = { case _ @ message => }
+
+
   // ~~~ API
+
+  private val log = Logger("CultureHub")
+
+  protected def info(message: String) { log.info("[plugin %s] %s".format(pluginKey, message)) }
+  protected def debug(message: String) { log.debug("[plugin %s] %s".format(pluginKey, message)) }
+  protected def error(message: String) { log.error("[plugin %s] %s".format(pluginKey, message)) }
+  protected def error(message: String, t: Throwable) { "[plugin %s] %s".format(pluginKey, message, t) }
 
   /** whether this plugin is enabled for the current domain **/
   def isEnabled(configuration: DomainConfiguration): Boolean = configuration.plugins.exists(_ == pluginKey) || pluginKey == "configuration"
@@ -182,6 +199,12 @@ abstract class CultureHubPlugin(app: Application) extends play.api.Plugin {
 
 object CultureHubPlugin {
 
+  lazy val broadcastingPluginActorReferences: Map[DomainConfiguration, ActorRef] = {
+    DomainConfigurationHandler.domainConfigurations.map { implicit configuration =>
+      (configuration -> Akka.system.actorFor("akka://application/user/plugins-" + configuration.orgId))
+    }.toMap
+  }
+
   /**
    * All available hub plugins to the application
    */
@@ -222,6 +245,19 @@ object CultureHubPlugin {
     getEnabledPlugins.find(p => pluginClass.isAssignableFrom(p.getClass)).map(_.asInstanceOf[T])
   }
 
+  /**
+   * Asynchronously broadcasts a message to all active plugins of a configuration
+   * @param message the message to send
+   * @param configuration the [[models.DomainConfiguration]] being accessed
+   */
+  def broadcastMessage(message: Any)(implicit configuration: DomainConfiguration) {
+    broadcastingPluginActorReferences.get(configuration).map { ref =>
+      ref ! message
+    }.getOrElse {
+      Logger("CultureHub").warn("Could not broadcast message %s to plugins of organization %s: no actor found".format(message, configuration.orgId))
+    }
+  }
+
 
 }
 
@@ -245,3 +281,24 @@ case class MenuElement(url: String, titleKey: String, roles: Seq[Role] = Seq.emp
 }
 
 case class RequestContext(request: RequestHeader, configuration: DomainConfiguration, renderArgs: scala.collection.mutable.Map[String, AnyRef], lang: String)
+
+class BroadcastingPluginActor(implicit configuration: DomainConfiguration) extends Actor {
+
+  var routees: Seq[ActorRef] = Seq.empty
+
+
+  override def preStart() {
+    routees = CultureHubPlugin.getEnabledPlugins.map { plugin =>
+      context.actorOf(Props(new PluginActor(plugin)))
+    }
+  }
+
+  protected def receive: BroadcastingPluginActor#Receive = {
+    case message@_ =>
+      routees.foreach { r => r ! message }
+  }
+}
+
+class PluginActor(plugin: CultureHubPlugin) extends Actor {
+  protected def receive: PluginActor#Receive = plugin.receive
+}

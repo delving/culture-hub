@@ -11,7 +11,7 @@ import models.{Group, HubUser}
 import org.bson.types.ObjectId
 import com.mongodb.casbah.Imports._
 import play.api.libs.concurrent.Akka
-import akka.actor.Props
+import akka.actor.{PoisonPill, ActorRef, Props}
 import models.UserProfile
 
 /**
@@ -27,6 +27,8 @@ class ConfigurationPlugin(app: Application) extends CultureHubPlugin(app) {
 
   val schemaService: SchemaService = HubModule.inject[SchemaService](name = None)
   val organizationServiceLocator = HubModule.inject[DomainServiceLocator[OrganizationService]](name = None)
+
+  private var pluginBroadcastActors: Seq[ActorRef] = Seq.empty
 
   override def onStart() {
 
@@ -45,7 +47,7 @@ class ConfigurationPlugin(app: Application) extends CultureHubPlugin(app) {
     }
 
     if (!Play.isTest) {
-      println("Using the following configurations: " + DomainConfigurationHandler.domainConfigurations.map(_.name).mkString(", "))
+      info("Using the following configurations: " + DomainConfigurationHandler.domainConfigurations.map(_.name).mkString(", "))
     } else {
       // now we cheat - load users before we initialize the HubServices in test mode
       onLoadTestData(Map.empty)
@@ -58,12 +60,26 @@ class ConfigurationPlugin(app: Application) extends CultureHubPlugin(app) {
 
     // ~~~ sanity check
     DomainConfigurationHandler.domainConfigurations.foreach { implicit configuration =>
-        if (!organizationServiceLocator.byDomain.exists(configuration.orgId)) {
-          println("Organization %s does not exist on the configured Organizations service!".format(configuration.orgId))
-          System.exit(-1)
-        }
+      if (!organizationServiceLocator.byDomain.exists(configuration.orgId)) {
+        error("Organization %s does not exist on the configured Organizations service!".format(configuration.orgId))
+        System.exit(-1)
+      }
     }
 
+    // ~~~ bootstrap plugin messaging, one per organization
+    pluginBroadcastActors = DomainConfigurationHandler.domainConfigurations.map { implicit configuration =>
+      val props = Props(new BroadcastingPluginActor)
+      info("Starting Akka messaging sub-system for organization " + configuration.orgId)
+      Akka.system.actorOf(props, "plugins-" + configuration.orgId)
+    }
+
+  }
+
+
+  override def onStop() {
+    pluginBroadcastActors foreach { actor =>
+      actor ! PoisonPill
+    }
   }
 
   override def services: Seq[Any] = Seq(
@@ -111,6 +127,5 @@ class ConfigurationPlugin(app: Application) extends CultureHubPlugin(app) {
     }
 
   }
-
 
 }

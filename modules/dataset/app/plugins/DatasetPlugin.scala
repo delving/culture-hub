@@ -2,7 +2,7 @@ package plugins
 
 import _root_.services.{DataSetLookupService, MetadataRecordResolverService}
 import jobs._
-import play.api.{Logger, Play, Application}
+import play.api.{Play, Application}
 import Play.current
 import models._
 import _root_.processing.DataSetCollectionProcessor
@@ -30,8 +30,6 @@ import java.io.FileInputStream
 class DataSetPlugin(app: Application) extends CultureHubPlugin(app) {
 
   val pluginKey: String = "dataSet"
-
-  private val log = Logger("CultureHub")
 
   private val dataSetHarvestCollectionLookup = new DataSetLookupService
 
@@ -248,7 +246,7 @@ class DataSetPlugin(app: Application) extends CultureHubPlugin(app) {
                 implicit val configuration = DomainConfigurationHandler.getByOrgId(set.orgId)
                 IndexingService.deleteBySpec(set.orgId, set.spec)
               } catch {
-                case t: Throwable => Logger("CultureHub").error(
+                case t: Throwable => error(
                   "Couldn't delete SOLR index for cancelled set %s:%s at startup".format(
                     set.orgId,
                     set.spec
@@ -292,7 +290,7 @@ class DataSetPlugin(app: Application) extends CultureHubPlugin(app) {
     })
 
     if (missingVersions.exists(missing => !missing._2.isEmpty)) {
-      log.error(
+      error(
         """
           |The SchemaRepository does not provide some of the versions in use by the stored DataSets. Fix this before starting the hub!
           |

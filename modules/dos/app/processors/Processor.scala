@@ -45,7 +45,7 @@ trait Processor extends Logging {
     if(gmCommand == None) {
       error(task, "Could not find path to GraphicsMagick in application.conf under key 'dos.graphicsmagic.cmd'")
       None
-    } else Some(gmCommand.get)
+    } else gmCommand
   }
 
   /** image name without extension **/

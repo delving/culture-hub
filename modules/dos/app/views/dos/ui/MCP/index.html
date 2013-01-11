@@ -7,7 +7,7 @@
     <div class="mod">
         <form method="GET" action="/@dos/browse">
             <label for="path" class="contrast">Set the path to your images:</label>
-            <input id="path" name="path" type="text" value="${params.path.apply(0)}" class="path"/>
+            <input id="path" name="path" type="text" value="${params.path ? params.path.apply(0) : ""}" class="path"/>
             <button type="submit" class="button">
                 Refresh
             </button>
@@ -33,7 +33,7 @@
                 <td>
                     <button data-bind="click: function() { addTask('${file.path.escapeJavaScript()}', 'createThumbnails'); }" class="button">Make thumbnails</button>
                     <button data-bind="click: function() { addTask('${file.path.escapeJavaScript()}', 'deleteThumbnails'); }" class="button">Remove thumbnails</button>
-                    <button data-bind="click: function() { addTask('${file.path.escapeJavaScript()}', 'flatten'); }" class="button">Flatten source TIFs</button>
+                    <button data-bind="click: function() { addTask('${file.path.escapeJavaScript()}', 'normalize'); }" class="button">Normalize source TIFs</button>
                     <button data-bind="click: function() { addTask('${file.path.escapeJavaScript()}', 'tiles'); }" class="button">Make tiles</button>
                 </td>
             </tr>
