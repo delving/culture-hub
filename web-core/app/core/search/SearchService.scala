@@ -286,7 +286,6 @@ case class SearchSummary(result: BriefItemView, language: String = "en", chRespo
 
       val output = new StringBuffer()
       output append (item.getAsString("dc_title")) append ("</br></br>")
-      output append (item.getAsString("delving_description")) append ("</br></br>")
       renderStrong("Vervaardiger", "dc_creator", output)
       renderStrong("Soort object", "dc_type", output)
       renderStrong("Vervaardigingsdatum", "dc_date", output)
@@ -295,7 +294,32 @@ case class SearchSummary(result: BriefItemView, language: String = "en", chRespo
       renderStrong("Materiaal", "icn_material", output)
       renderStrong("Trefwoorden", "dc_subject", output)
       renderStrong("Identificatie", "dc_identifier", output)
+      output append ("</br>")
+      output append (item.getAsString("delving_description"))
       output.toString
+    }
+
+    def renderDoc(item: BriefDocItem, crd: String) = {
+      <Placemark id={item.getAsString(HUB_ID.key)}>
+        <name>{item.getAsString("delving_title")}</name>
+        <Point>
+          <coordinates>{crd.split(",").reverse.mkString(",")}</coordinates>
+        </Point>
+        {if (item.getFieldValue(ADDRESS.key).isNotEmpty) {
+        <address>
+          {item.getAsString(ADDRESS.key)}
+        </address>
+      }}
+        <description>
+          {PCData(renderComposedDescription(item))}
+        </description>
+        <ExtendedData>
+          {renderData("delving_title", "titel", item)}
+          {renderData("delving_landingPage", "bron", item, cdata = true, """<a href="%s" target="_blank">Naar collectiewebsite Friesmuseum</a>""")}
+          {renderData("delving_thumbnail", "thumbnail", item)}
+          {renderData("europeana_isShownBy", "image", item)}
+        </ExtendedData>
+      </Placemark>
     }
 
     val response: Elem =
@@ -303,29 +327,14 @@ case class SearchSummary(result: BriefItemView, language: String = "en", chRespo
         <Document>
           {briefDocs.map(
           (item: BriefDocItem) =>
-            <Placemark id={item.getAsString(HUB_ID.key)}>
-              <name>{item.getAsString("delving_title")}</name>
-              <Point>
-                <coordinates>{item.getAsString(GEOHASH.key).split(",").reverse.mkString(",")}</coordinates>
-              </Point>
-              {if (item.getFieldValue(ADDRESS.key).isNotEmpty) {
-              <address>
-                {item.getAsString(ADDRESS.key)}
-              </address>
-            }}
-              <description>
-                {PCData(renderComposedDescription(item))}
-              </description>
-              <ExtendedData>
-                {renderData("delving_title", "titel", item)}
-                {renderData("delving_landingPage", "bron", item, cdata = true, """<a href="%s" target="_blank">Naar collectiewebsite Friesmuseum</a>""")}
-                {renderData("delving_thumbnail", "thumbnail", item)}
-                {renderData("europeana_isShownBy", "image", item)}
-              </ExtendedData>
-            </Placemark>
+            {
+              val coordinates: Array[String] = item.getFieldValue(GEOHASH.key).getValueAsArray
+              coordinates.map(crd => renderDoc(item, crd))
+            }
           )
         }
-        </Document></kml>
+        </Document>
+      </kml>
     response
   }
 
