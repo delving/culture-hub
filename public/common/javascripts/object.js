@@ -1,60 +1,90 @@
 $(document).ready(function () {
+    /*
+    * DEEPZOOM FUNCTIONALITY
+    * First checks if flash is enabled, if so use OpenZoomViewer.swf.
+    * If that fails use Seadragon.js
+    * And if that fails, view a regular image
+    */
+    var zoomNav = true,
+        zoomUrls = $('#deepZoomUrls a'),
+        imageUrls = $('#imageUrls a'),
+        imageNavThumbs = $('#thumbnails .img img');
+        imageViewContainer = '#image-viewer';
+        zoomViewContainer = '#zoom-viewer';
+        viewedImageSource = imageViewContainer + ' .img img',
+        activateDeepZoom = function(el) {
 
-    var imageNavThumbs = $('#thumbnails .img img');
-    
-    // hide thumbnav if there is only one image to view
+            var index = imageNavThumbs.index(el),
+                deepZoomElement = $(zoomUrls).get(index),
+                deepZoomUrl = $(deepZoomElement).attr("href");
+            if (hasFlash) {
+                var flashEmbed = '<embed class="flash-viewer-window" width="100%" height="100%" flashvars="source=' + deepZoomUrl + '" src="/assets/flash/OpenZoomViewer.swf" menu="false" wmode="opaque" allowFullScreen="true" pluginspage="http://www.adobe.com/go/getflashplayer" type="application/x-shockwave-flash"></embed>';
+                $(zoomViewContainer).html(flashEmbed);
+            }
+            else if (!isIE) {
+                // seadragon Zoom
+                if (typeof deepZoomElement !== 'undefined') {
+                    if(typeof viewer === 'undefined') {
+                        $.getScript('/assets/common/javascripts/seadragon/seadragon-min.js', function(){
+                            Seadragon.Config.imagePath = "/assets/common/javascripts/seadragon/img/";
+                            Seadragon.Config.autoHideControls = false;
+                            viewer = new Seadragon.Viewer("zoom-viewer");
+                            viewer.addEventListener("error",function(){
+                                // if viewer fails, then revert back to a regular image view
+                                zoomNav = false;
+                                var rImage = $(imageUrls).first().attr('href');
+                                // change zoom-viewer id to regular image viewer for navigation and image replacement
+                                $(zoomViewContainer).attr('id',imageViewContainer.replace('#',''));
+                                // load the first image
+                                $(imageViewContainer).html('<div class="img"><img src="'+rImage+'" alt=""/></div>');
+                            });
+                            viewer.openDzi(deepZoomUrl);
+                        });
+                    }else {
+                        viewer.openDzi(deepZoomUrl);
+                    }
+                }
+            }
+        }
+
+    // VIEW DEEP ZOOM IMAGE
+    if ($(zoomViewContainer).length) {
+        // activate deepzoom functionality for first image
+        activateDeepZoom(0)
+    }
+    // hide thumb nav if there is only one image to view
     if( imageNavThumbs.size() <= 1 ){
         $('#thumbnails').hide();
     }
-
-    // regular images present
-    if ( $('#image-viewer').length) {
+    // or  make thumbs clickable
+    else {      
         imageNavThumbs.each(function(index, el) {
             // switch image src onclick
             $(el).on("click", function() {
-                var index = $('#thumbnails .img img').index(el);
-                var imageSrc = $('#imageUrls a').get(index);
-                if(typeof imageSrc !== 'undefined') {
-                    $('#image-viewer .img img').attr("src", imageSrc)
+                if (zoomNav == false) {
+                    var index = $(imageNavThumbs).index(el);
+                    var imageSrc = $(imageUrls).get(index);
+                    if(typeof imageSrc !== 'undefined') {
+                        $(viewedImageSource).attr("src", imageSrc);
+                    }
                 }
+                else {
+                    activateDeepZoom(el);
+                }
+ 
             });
-        });
-
+        });        
     }
 
-    // deepzoom images present
-    if ($('#zoom-viewer').length) {
-        var viewer;
-        // activate deepzoom functionality for first image
-        activateDeepZoom(0)
-        // switch zoom image onclick
-        imageNavThumbs.each(function(index, el) {
-            $(el).on("click", function() { activateDeepZoom(el); });
-        });
-    }
-
-    function activateDeepZoom(el) {
-        var index = imageNavThumbs.index(el);
-        var deepZoomElement = $('#deepZoomUrls a').get(index);
-        if (typeof deepZoomElement !== 'undefined') {
-            var deepZoomUrl = $(deepZoomElement).attr("href");
-            if(typeof viewer === 'undefined') {
-                Seadragon.Config.imagePath = "/assets/common/javascripts/seadragon/img/";
-                Seadragon.Config.autoHideControls = false;
-                viewer = new Seadragon.Viewer("zoom-viewer");
-            }
-            viewer.openDzi({
-                "url":deepZoomUrl,
-                "width":1800,
-                "height":1400,
-                "tileSize":256,
-                "tileOverlap":0,
-                "tileFormat":"jpg"});
-        }
-    }
-
+    /*
+     * RIGHTS ICONS
+     * Append the corresponding icon image to the rights URL
+     */
     if ($('#rightsUrl').length) {
-        var rights = stripTrailingSlash($('#rightsUrl').find('a').attr('href')), icon='', img = new Image();
+        var rights = stripTrailingSlash($('#rightsUrl').find('a').attr('href')),
+            icon='',
+            img = new Image();
+
         if (rights != 'undefined') {
             switch (rights) {
                 case 'http://creativecommons.org/publicdomain/mark/1.0':
@@ -103,6 +133,10 @@ $(document).ready(function () {
         }
     }
 
+    /*
+     * RELATED ITEMS, AKA 'MORE LIKE THIS'
+     * Loads related items via ajax call
+     */
 
     // Endpoint to retrieve related items for this object
     var mltEndpoint = '/organizations/' + Thing.orgId + '/api/search?id=' + Thing.hubId + '&format=json&mlt=true';
@@ -147,15 +181,16 @@ $(document).ready(function () {
                 html += "</ul>";
                 $('#related-items').html(html);
             }
-        },
-        error: function(){
-//            $('.object-data').removeClass('span8');
         }
     });
     } catch(e) {
-        //..do nothing
+        //..do nothing and fail gracefully
     }
 });
+
+/*
+ * PAGE UTILITES
+ */
 
 function stripTrailingSlash(str) {
     if(str.substr(-1) == '/') {
@@ -163,3 +198,19 @@ function stripTrailingSlash(str) {
     }
     return str;
 }
+
+var isIE = (navigator.appName.indexOf("Microsoft") != -1 && navigator.appVersion.indexOf("Windows") > -1)+1-1;
+
+var hasFlash = function(){
+    var nRequiredVersion = 8;
+    if(isIE){
+        document.write('<script language="VBScript"\> \non error resume next \nhasFlash = (IsObject(CreateObject("ShockwaveFlash.ShockwaveFlash." & ' + nRequiredVersion + '))) \n</script\> \n');
+        if(window.hasFlash != null){ return window.hasFlash;};
+    };
+    if(navigator.mimeTypes && navigator.mimeTypes["application/x-shockwave-flash"] && navigator.mimeTypes["application/x-shockwave-flash"].enabledPlugin){
+        var flashDescription = (navigator.plugins["Shockwave Flash 2.0"] || navigator.plugins["Shockwave Flash"]).description;
+        var vr = parseInt(flashDescription.charAt(flashDescription.indexOf(".") - 1)); if (vr < 4) vr += 10;
+        return vr >= nRequiredVersion;
+    };
+    return false;
+}();
