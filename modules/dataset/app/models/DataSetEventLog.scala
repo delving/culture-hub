@@ -29,7 +29,7 @@ object DataSetEventLog extends MultiModel[DataSetEventLog, DataSetEventLogDAO] {
     addIndexes(collection, Seq(MongoDBObject("transientEvent" -> 1)))
   }
 
-  def initDAO(collection: MongoCollection, connection: MongoDB)(implicit configuration: DomainConfiguration): DataSetEventLogDAO = new DataSetEventLogDAO(collection)
+  def initDAO(collection: MongoCollection, connection: MongoDB)(implicit configuration: OrganizationConfiguration): DataSetEventLogDAO = new DataSetEventLogDAO(collection)
 }
 
 class DataSetEventLogDAO(connection: MongoCollection) extends SalatDAO[DataSetEventLog, ObjectId](connection) {

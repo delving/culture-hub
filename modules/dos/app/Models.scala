@@ -51,7 +51,7 @@ object Log extends MultiModel[Log, LogDAO] {
 
   protected def initIndexes(collection: MongoCollection) {}
 
-  protected def initDAO(collection: MongoCollection, connection: MongoDB)(implicit configuration: DomainConfiguration): LogDAO = new LogDAO(collection)
+  protected def initDAO(collection: MongoCollection, connection: MongoDB)(implicit configuration: OrganizationConfiguration): LogDAO = new LogDAO(collection)
 }
 
 class LogDAO(collection: MongoCollection) extends SalatDAO[Log, ObjectId](collection)
@@ -97,7 +97,7 @@ object Task extends MultiModel[Task, TaskDAO] {
 
   protected def initIndexes(collection: MongoCollection) {}
 
-  protected def initDAO(collection: MongoCollection, connection: MongoDB)(implicit configuration: DomainConfiguration): TaskDAO = new TaskDAO(collection)
+  protected def initDAO(collection: MongoCollection, connection: MongoDB)(implicit configuration: OrganizationConfiguration): TaskDAO = new TaskDAO(collection)
 }
 
 class TaskDAO(collection: MongoCollection) extends SalatDAO[Task, ObjectId](collection) {

@@ -4,7 +4,7 @@ import play.api.mvc._
 import play.api.data.Form
 import play.api.data.Forms._
 import extensions.Formatters._
-import models.{DomainConfiguration, HubNode}
+import models.{OrganizationConfiguration, HubNode}
 import extensions.JJson
 import org.bson.types.ObjectId
 import controllers.{BoundController, OrganizationController}
@@ -142,7 +142,7 @@ trait HubNodes extends OrganizationController { self: BoundController =>
 
     def apply(n: HubNode): HubNodeViewModel = HubNodeViewModel(Some(n._id), n.nodeId, n.orgId, n.name)
 
-    def nodeIdTaken(implicit configuration: DomainConfiguration) = Constraint[HubNodeViewModel]("plugin.hubNode.nodeIdTaken") {
+    def nodeIdTaken(implicit configuration: OrganizationConfiguration) = Constraint[HubNodeViewModel]("plugin.hubNode.nodeIdTaken") {
       case r =>
         val maybeOne = nodeDirectoryServiceLocator.byDomain.findOneById(slugify(r.name))
         if (maybeOne.isDefined && r.id.isDefined) {
@@ -154,13 +154,13 @@ trait HubNodes extends OrganizationController { self: BoundController =>
         }
     }
 
-    def orgIdValid(implicit configuration: DomainConfiguration) = Constraint[String]("plugin.hubNode.orgIdValid") {
+    def orgIdValid(implicit configuration: OrganizationConfiguration) = Constraint[String]("plugin.hubNode.orgIdValid") {
       case r if organizationServiceLocator.byDomain.exists(r) => Valid
       case _ => Invalid(ValidationError(Messages("plugin.hubNode.orgIdValid")))
 
     }
 
-    def virtualNodeForm(implicit configuration: DomainConfiguration) = Form(
+    def virtualNodeForm(implicit configuration: OrganizationConfiguration) = Form(
       mapping(
         "id" -> optional(of[ObjectId]),
         "nodeId" -> text,

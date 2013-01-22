@@ -1,6 +1,6 @@
 package core
 
-import _root_.util.DomainConfigurationHandler
+import _root_.util.OrganizationConfigurationHandler
 import core.access.ResourceLookup
 import scala.collection.immutable.ListMap
 import scala.util.matching.Regex
@@ -8,7 +8,7 @@ import play.api._
 import libs.concurrent.Akka
 import play.api.Play.current
 import mvc.{RequestHeader, Handler}
-import models.{Role, DomainConfiguration}
+import models.{Role, OrganizationConfiguration}
 import scala.collection.JavaConverters._
 import akka.actor.{ActorRef, Props, Actor}
 
@@ -49,17 +49,17 @@ abstract class CultureHubPlugin(app: Application) extends play.api.Plugin {
    * Called at configuration building time, giving the plugin the chance to build internal configuration
    *
    */
-  def onBuildConfiguration(configurations: Map[DomainConfiguration, Option[Configuration]]) {}
+  def onBuildConfiguration(configurations: Map[OrganizationConfiguration, Option[Configuration]]) {}
 
   /**
    * Helper method for configuration building
    * @param field the configuration field path that is missing
    * @return
    */
-  def missingConfigurationField(field: String, domainConfigurationName: String) = {
+  def missingConfigurationField(field: String, organizationConfigurationName: String) = {
     new RuntimeException(
-      "Missing field %s for configuration of plugin %s for DomainConfiguration %s".format(
-        field, pluginKey, domainConfigurationName
+      "Missing field %s for configuration of plugin %s for OrganizationConfiguration %s".format(
+        field, pluginKey, organizationConfigurationName
       )
     )
   }
@@ -72,20 +72,20 @@ abstract class CultureHubPlugin(app: Application) extends play.api.Plugin {
   /**
    * Override this to add menu entries to the main menu
    *
-   * @param configuration the [[models.DomainConfiguration]]
+   * @param configuration the [[models.OrganizationConfiguration]]
    * @param lang the active language
    * @return a sequence of [[core.MainMenuEntry]] for the main menu
    */
-  def mainMenuEntries(configuration: DomainConfiguration, lang: String): Seq[MainMenuEntry] = Seq.empty
+  def mainMenuEntries(configuration: OrganizationConfiguration, lang: String): Seq[MainMenuEntry] = Seq.empty
 
   /**
    * Override this to add menu entries to the organization menu
-   * @param configuration the [[models.DomainConfiguration]]
+   * @param configuration the [[models.OrganizationConfiguration]]
    * @param lang the active language
    * @param roles the roles of the current user
    * @return a sequence of [[core.MainMenuEntry]] for the organization menu
    */
-  def organizationMenuEntries(configuration: DomainConfiguration, lang: String, roles: Seq[String]): Seq[MainMenuEntry] = Seq.empty
+  def organizationMenuEntries(configuration: OrganizationConfiguration, lang: String, roles: Seq[String]): Seq[MainMenuEntry] = Seq.empty
 
   /**
    * Override this to include a snippet in the homePage.
@@ -142,16 +142,16 @@ abstract class CultureHubPlugin(app: Application) extends play.api.Plugin {
   protected def error(message: String, t: Throwable) { "[plugin %s] %s".format(pluginKey, message, t) }
 
   /** whether this plugin is enabled for the current domain **/
-  def isEnabled(configuration: DomainConfiguration): Boolean = configuration.plugins.exists(_ == pluginKey) || pluginKey == "configuration"
+  def isEnabled(configuration: OrganizationConfiguration): Boolean = configuration.plugins.exists(_ == pluginKey) || pluginKey == "configuration"
 
   /**
    * Retrieves the navigation for the organization section of the Hub
    * @param roles the roles of the current user
    * @param isMember whether the user is a member of the organization
-   * @param configuration the [[models.DomainConfiguration]]
+   * @param configuration the [[models.OrganizationConfiguration]]
    * @return a sequence of MenuEntries
    */
-  def getOrganizationNavigation(orgId: String, lang: String, roles: Seq[String], isMember: Boolean)(implicit configuration: DomainConfiguration) = if(isEnabled(configuration)) {
+  def getOrganizationNavigation(orgId: String, lang: String, roles: Seq[String], isMember: Boolean)(implicit configuration: OrganizationConfiguration) = if(isEnabled(configuration)) {
     organizationMenuEntries(configuration, lang, roles).
       filter(e => !e.membersOnly || (e.membersOnly && isMember && (e.roles.isEmpty || e.roles.map(_.key).intersect(roles).size > 0))).
       map(i => i.copy(items = i.items.filter(item => item.roles.isEmpty || (!item.roles.isEmpty && item.roles.map(_.key).intersect(roles).size > 0))))
@@ -179,8 +179,8 @@ abstract class CultureHubPlugin(app: Application) extends play.api.Plugin {
   /** finds out whether this plugin is enabled at all, for the whole hub **/
   override def enabled: Boolean = {
     val config = app.configuration.getConfig("configurations").get
-    val allDomainConfigurations: Seq[String] = config.keys.filterNot(_.indexOf(".") < 0).map(_.split("\\.").head).toList.distinct
-    val plugins: Seq[String] = allDomainConfigurations.flatMap {
+    val allOrganizationConfigurations: Seq[String] = config.keys.filterNot(_.indexOf(".") < 0).map(_.split("\\.").head).toList.distinct
+    val plugins: Seq[String] = allOrganizationConfigurations.flatMap {
       key => {
         val configuration = config.getConfig(key).get
         configuration.underlying.getStringList("plugins").asScala.toSeq
@@ -199,8 +199,8 @@ abstract class CultureHubPlugin(app: Application) extends play.api.Plugin {
 
 object CultureHubPlugin {
 
-  lazy val broadcastingPluginActorReferences: Map[DomainConfiguration, ActorRef] = {
-    DomainConfigurationHandler.domainConfigurations.map { implicit configuration =>
+  lazy val broadcastingPluginActorReferences: Map[OrganizationConfiguration, ActorRef] = {
+    OrganizationConfigurationHandler.organizationConfigurations.map { implicit configuration =>
       (configuration -> Akka.system.actorFor("akka://application/user/plugins-" + configuration.orgId))
     }.toMap
   }
@@ -215,10 +215,10 @@ object CultureHubPlugin {
 
   /**
    * Retrieves all enabled plugins for the current domain
-   * @param configuration the [[models.DomainConfiguration]] being accessed
+   * @param configuration the [[models.OrganizationConfiguration]] being accessed
    * @return the set of active plugins
    */
-  def getEnabledPlugins(implicit configuration: DomainConfiguration): Seq[CultureHubPlugin] = Play.application.plugins
+  def getEnabledPlugins(implicit configuration: OrganizationConfiguration): Seq[CultureHubPlugin] = Play.application.plugins
       .filter(_.isInstanceOf[CultureHubPlugin])
       .map(_.asInstanceOf[CultureHubPlugin])
       .filter(_.isEnabled(configuration))
@@ -228,7 +228,7 @@ object CultureHubPlugin {
   /**
    * Gets all service implementations of a certain type provided by all plugins
    */
-  def getServices[T <: Any](serviceClass: Class[T])(implicit configuration: DomainConfiguration): Seq[T] = {
+  def getServices[T <: Any](serviceClass: Class[T])(implicit configuration: OrganizationConfiguration): Seq[T] = {
     getEnabledPlugins.flatMap { p =>
       p.getServices(serviceClass)
     }
@@ -237,20 +237,20 @@ object CultureHubPlugin {
   /**
    * Gets the CultureHubPlugin of a certain type
    * @param pluginClass the class of the plugin
-   * @param configuration the [[models.DomainConfiguration]] being accessed
+   * @param configuration the [[models.OrganizationConfiguration]] being accessed
    * @tparam T the type of the plugin
    * @return an instance of T if there is any
    */
-  def getPlugin[T <: CultureHubPlugin](pluginClass: Class[T])(implicit configuration: DomainConfiguration): Option[T] = {
+  def getPlugin[T <: CultureHubPlugin](pluginClass: Class[T])(implicit configuration: OrganizationConfiguration): Option[T] = {
     getEnabledPlugins.find(p => pluginClass.isAssignableFrom(p.getClass)).map(_.asInstanceOf[T])
   }
 
   /**
    * Asynchronously broadcasts a message to all active plugins of a configuration
    * @param message the message to send
-   * @param configuration the [[models.DomainConfiguration]] being accessed
+   * @param configuration the [[models.OrganizationConfiguration]] being accessed
    */
-  def broadcastMessage(message: Any)(implicit configuration: DomainConfiguration) {
+  def broadcastMessage(message: Any)(implicit configuration: OrganizationConfiguration) {
     broadcastingPluginActorReferences.get(configuration).map { ref =>
       ref ! message
     }.getOrElse {
@@ -280,9 +280,9 @@ case class MenuElement(url: String, titleKey: String, roles: Seq[Role] = Seq.emp
   ).asJava
 }
 
-case class RequestContext(request: RequestHeader, configuration: DomainConfiguration, renderArgs: scala.collection.mutable.Map[String, AnyRef], lang: String)
+case class RequestContext(request: RequestHeader, configuration: OrganizationConfiguration, renderArgs: scala.collection.mutable.Map[String, AnyRef], lang: String)
 
-class BroadcastingPluginActor(implicit configuration: DomainConfiguration) extends Actor {
+class BroadcastingPluginActor(implicit configuration: OrganizationConfiguration) extends Actor {
 
   var routees: Seq[ActorRef] = Seq.empty
 

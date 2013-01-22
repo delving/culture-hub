@@ -3,7 +3,7 @@ package plugins
 import play.api.{Logger, Configuration, Application}
 import scala.util.matching.Regex
 import play.api.mvc.Handler
-import models.{DomainConfiguration, Role}
+import models.{OrganizationConfiguration, Role}
 import core.{RequestContext, MenuElement, MainMenuEntry, CultureHubPlugin}
 import collection.immutable.ListMap
 import collection.JavaConverters._
@@ -18,15 +18,15 @@ class StatisticsPlugin(app: Application) extends CultureHubPlugin(app) {
   val pluginKey: String = "statistics"
 
   /** facet key -> i18n key **/
-  private var statisticsFacets: Map[DomainConfiguration, Map[String, String]] = Map.empty
+  private var statisticsFacets: Map[OrganizationConfiguration, Map[String, String]] = Map.empty
 
-  def getStatisticsFacets(implicit configuration: DomainConfiguration) = statisticsFacets.get(configuration)
+  def getStatisticsFacets(implicit configuration: OrganizationConfiguration) = statisticsFacets.get(configuration)
 
   /**
    * Called at configuration building time, giving the plugin the chance to build internal configuration
    *
    */
-  override def onBuildConfiguration(configurations: Map[DomainConfiguration, Option[Configuration]]) {
+  override def onBuildConfiguration(configurations: Map[OrganizationConfiguration, Option[Configuration]]) {
     statisticsFacets = configurations.map { config =>
 
       val facets = config._2.map { c =>
@@ -65,7 +65,7 @@ class StatisticsPlugin(app: Application) extends CultureHubPlugin(app) {
     }
   )
 
-  override def organizationMenuEntries(configuration: DomainConfiguration, lang: String, roles: Seq[String]): Seq[MainMenuEntry] = Seq(
+  override def organizationMenuEntries(configuration: OrganizationConfiguration, lang: String, roles: Seq[String]): Seq[MainMenuEntry] = Seq(
     MainMenuEntry(
       key = "statistics",
       titleKey = "plugin.statistics.statistics",

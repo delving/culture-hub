@@ -23,7 +23,7 @@ object RouteAccess extends MultiModel[RouteAccess, RouteAccessDAO] {
 
   def initIndexes(collection: MongoCollection) {}
 
-  def initDAO(collection: MongoCollection, connection: MongoDB)(implicit configuration: DomainConfiguration) = new RouteAccessDAO(collection)
+  def initDAO(collection: MongoCollection, connection: MongoDB)(implicit configuration: OrganizationConfiguration) = new RouteAccessDAO(collection)
 }
 
 class RouteAccessDAO(collection: MongoCollection) extends SalatDAO[RouteAccess, ObjectId](collection) {

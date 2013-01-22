@@ -1,6 +1,6 @@
 import core.CultureHubPlugin
-import models.DomainConfiguration
-import util.DomainConfigurationHandler
+import models.OrganizationConfiguration
+import util.OrganizationConfigurationHandler
 
 import play.api.test._
 import play.api.test.Helpers._
@@ -12,17 +12,17 @@ import play.api.test.Helpers._
 
 class PlatformSpec extends Specs2TestContext {
 
-  val domainConfigurationHandler = DomainConfigurationHandler
+  val organizationConfigurationHandler = OrganizationConfigurationHandler
 
-  "The DomainConfigurationHandler handled" should {
+  "The OrganizationConfigurationHandler handled" should {
 
     "load configurations from disk into memory" in {
       withTestConfig {
 
 
 
-        domainConfigurationHandler.startup(CultureHubPlugin.hubPlugins)
-        DomainConfiguration.startup(CultureHubPlugin.hubPlugins).size should not equalTo (0)
+        organizationConfigurationHandler.startup(CultureHubPlugin.hubPlugins)
+        OrganizationConfiguration.startup(CultureHubPlugin.hubPlugins).size should not equalTo (0)
       }
     }
 

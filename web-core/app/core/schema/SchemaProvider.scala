@@ -15,7 +15,7 @@ import java.io.File
 import io.Source
 import scala.collection.JavaConverters._
 import akka.util.Timeout
-import models.DomainConfiguration
+import models.OrganizationConfiguration
 import play.api.libs.ws.Response
 import util.FileSystemFetcher
 
@@ -39,7 +39,7 @@ class SchemaProvider extends SchemaService {
     repository ! Refresh
   }
 
-  override def getSchemas(implicit configuration: DomainConfiguration): Seq[eu.delving.schema.xml.Schema] = {
+  override def getSchemas(implicit configuration: OrganizationConfiguration): Seq[eu.delving.schema.xml.Schema] = {
     getAllSchemas.filter(s => configuration.schemas.contains(s.prefix))
   }
 

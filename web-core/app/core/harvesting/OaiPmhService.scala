@@ -44,7 +44,7 @@ import collection.mutable.ArrayBuffer
  * @since Jun 16, 2010 12:06:56 AM
  */
 class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, orgId: String, format: Option[String], accessKey: Option[String])
-                   (implicit configuration: DomainConfiguration, val bindingModule: BindingModule) extends Injectable {
+                   (implicit configuration: OrganizationConfiguration, val bindingModule: BindingModule) extends Injectable {
 
   private val log = Logger("CultureHub")
   val prettyPrinter = new PrettyPrinter(300, 5)

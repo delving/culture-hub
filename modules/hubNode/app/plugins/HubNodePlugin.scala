@@ -3,12 +3,12 @@ package plugins
 import _root_.services.HubNodeSubscriptionService
 import play.api.{Logger, Play, Application}
 import play.api.Play.current
-import models.{DomainConfiguration, HubNode, Role}
+import models.{OrganizationConfiguration, HubNode, Role}
 import scala.collection.immutable.ListMap
 import scala.util.matching.Regex
 import play.api.mvc.Handler
 import org.bson.types.ObjectId
-import util.DomainConfigurationHandler
+import util.OrganizationConfigurationHandler
 import core.services.MemoryServices
 import core._
 import node.{NodeDirectoryService, NodeRegistrationService, NodeSubscriptionService}
@@ -21,7 +21,7 @@ class HubNodePlugin(app: Application) extends CultureHubPlugin(app) {
 
   val pluginKey: String = "hubNode"
 
-  override def organizationMenuEntries(configuration: DomainConfiguration, lang: String, roles: Seq[String]): Seq[MainMenuEntry] = Seq(
+  override def organizationMenuEntries(configuration: OrganizationConfiguration, lang: String, roles: Seq[String]): Seq[MainMenuEntry] = Seq(
     MainMenuEntry(
       key = "hubNode",
       titleKey = "plugin.hubNode.hubNodes",
@@ -59,10 +59,10 @@ class HubNodePlugin(app: Application) extends CultureHubPlugin(app) {
 
   override def onStart() {
     if (Play.isTest || Play.isDev) {
-      DomainConfigurationHandler.domainConfigurations.foreach { domainConfiguration =>
-        val service = HubServices.nodeRegistrationServiceLocator.byDomain(domainConfiguration)
+      OrganizationConfigurationHandler.organizationConfigurations.foreach { organizationConfiguration =>
+        val service = HubServices.nodeRegistrationServiceLocator.byDomain(organizationConfiguration)
         if (service.isInstanceOf[MemoryServices]) {
-          HubNode.dao(domainConfiguration).findAll.foreach { node =>
+          HubNode.dao(organizationConfiguration).findAll.foreach { node =>
             service.registerNode(node, "system")
           }
         }
@@ -74,7 +74,7 @@ class HubNodePlugin(app: Application) extends CultureHubPlugin(app) {
 
 
     // check if we have a HubNode for the hub itself, and create it if necessary
-    DomainConfigurationHandler.domainConfigurations.foreach { implicit configuration =>
+    OrganizationConfigurationHandler.organizationConfigurations.foreach { implicit configuration =>
       if (HubNode.dao.findOne(configuration.node.nodeId).isEmpty) {
         val registered = nodeDirectoryServiceLocator.byDomain.findOneById(configuration.node.nodeId)
         if (registered.isEmpty) {

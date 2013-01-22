@@ -4,7 +4,7 @@ import models.MetadataCache
 import org.apache.solr.client.solrj.SolrQuery
 import play.api.test.Helpers._
 import play.api.test.{FakeHeaders, FakeRequest}
-import util.DomainConfigurationHandler
+import util.OrganizationConfigurationHandler
 import xml.XML
 import scala.xml.Utility.trim
 
@@ -34,7 +34,7 @@ class IndexApiSpec extends Specs2TestContext {
 
       withTestConfig {
 
-        implicit val configuration = DomainConfigurationHandler.getByOrgId("delving")
+        implicit val configuration = OrganizationConfigurationHandler.getByOrgId("delving")
 
         val fakeRequest: FakeRequest[scala.xml.NodeSeq] = FakeRequest(
           method = "POST",
@@ -162,7 +162,7 @@ class IndexApiSpec extends Specs2TestContext {
 
     withTestConfig {
 
-      implicit val configuration = DomainConfigurationHandler.getByOrgId("delving")
+      implicit val configuration = OrganizationConfigurationHandler.getByOrgId("delving")
 
       val fakeRequest: FakeRequest[scala.xml.NodeSeq] = FakeRequest(
         method = "POST",
@@ -243,7 +243,7 @@ class IndexApiSpec extends Specs2TestContext {
 
   step {
     withTestConfig {
-      implicit val configuration = DomainConfigurationHandler.getByOrgId("delving")
+      implicit val configuration = OrganizationConfigurationHandler.getByOrgId("delving")
       IndexingService.deleteByQuery("delving_orgId:delving delving_systemType:indexApiItem")
     }
   }

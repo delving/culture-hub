@@ -1,6 +1,6 @@
 package controllers.api
 
-import controllers.{DomainConfigurationAware, RenderingExtensions}
+import controllers.{OrganizationConfigurationAware, RenderingExtensions}
 import play.api.mvc._
 import play.api.libs.concurrent.Promise
 import scala.xml._
@@ -19,7 +19,7 @@ import play.api.Logger
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-object Index extends Controller with DomainConfigurationAware with RenderingExtensions {
+object Index extends Controller with OrganizationConfigurationAware with RenderingExtensions {
 
   val CACHE_COLLECTION = "indexApiItems"
 
@@ -79,7 +79,7 @@ object Index extends Controller with DomainConfigurationAware with RenderingExte
       Ok
   }
 
-  def submit(orgId: String) = DomainConfigured {
+  def submit(orgId: String) = OrganizationConfigured {
     Action(parse.tolerantXml) {
       implicit request => {
         Async {

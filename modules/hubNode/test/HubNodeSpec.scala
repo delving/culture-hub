@@ -4,7 +4,7 @@ import play.api.libs.json.{JsString, JsObject}
 import play.api.mvc.AnyContentAsJson
 import play.api.test._
 import play.api.test.Helpers._
-import util.DomainConfigurationHandler
+import util.OrganizationConfigurationHandler
 
 
 /**
@@ -35,7 +35,7 @@ class HubNodeSpec extends Specs2TestContext {
 
       withTestConfig {
 
-        implicit val configuration = DomainConfigurationHandler.getByOrgId("delving")
+        implicit val configuration = OrganizationConfigurationHandler.getByOrgId("delving")
 
         val node = HubNode.dao.findOne("rotterdam-node").get
 

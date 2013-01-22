@@ -15,7 +15,7 @@ import play.api.data.FormError
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
-trait ControllerBase extends Extensions with DomainConfigurationAware with Logging { self: Controller =>
+trait ControllerBase extends Extensions with OrganizationConfigurationAware with Logging { self: Controller =>
 
   /**
    * Handles the submission of a form for creation or update

@@ -18,7 +18,7 @@ package controllers
 
 import notifiers.Mails
 import play.api.Play.current
-import models.DomainConfiguration
+import models.OrganizationConfiguration
 import models.HubUser
 import extensions.MissingLibs
 import play.api._
@@ -59,32 +59,32 @@ trait Registration extends ApplicationController { this: BoundController =>
         randomId: String
     )
 
-    def samePassword(implicit configuration: DomainConfiguration) = Constraint[RegistrationInfo]("registration.passwordsDiffer") {
+    def samePassword(implicit configuration: OrganizationConfiguration) = Constraint[RegistrationInfo]("registration.passwordsDiffer") {
         case r if r.password1 == r.password2 => Valid
         case _ => Invalid(ValidationError(Messages("registration.passwordsDiffer")))
     }
 
-    def captchaConstraint(implicit configuration: DomainConfiguration) = Constraint[RegistrationInfo]("registration.invalidCode") {
+    def captchaConstraint(implicit configuration: OrganizationConfiguration) = Constraint[RegistrationInfo]("registration.invalidCode") {
         case r if Cache.get(r.randomId) == Some(r.code) || Play.isTest => Valid
         case e => Invalid(ValidationError(Messages("registration.invalidCode")))
     }
 
-    def emailTaken(implicit configuration: DomainConfiguration) = Constraint[RegistrationInfo]("registration.duplicateEmail") {
+    def emailTaken(implicit configuration: OrganizationConfiguration) = Constraint[RegistrationInfo]("registration.duplicateEmail") {
         case r if !registrationServiceLocator.byDomain.isEmailTaken(r.email) => Valid
         case _ => Invalid(ValidationError(Messages("registration.duplicateEmail")))
     }
 
-    def userNameTaken(implicit configuration: DomainConfiguration) = Constraint[RegistrationInfo]("registration.duplicateDisplayName") {
+    def userNameTaken(implicit configuration: OrganizationConfiguration) = Constraint[RegistrationInfo]("registration.duplicateDisplayName") {
         case r if !registrationServiceLocator.byDomain.isUserNameTaken(r.userName) => Valid
         case _ => Invalid(ValidationError(Messages("registration.duplicateDisplayName")))
     }
 
-    def orgIdTaken(implicit configuration: DomainConfiguration) = Constraint[RegistrationInfo]("registration.duplicateDisplayName") {
+    def orgIdTaken(implicit configuration: OrganizationConfiguration) = Constraint[RegistrationInfo]("registration.duplicateDisplayName") {
         case r if !organizationServiceLocator.byDomain.exists(r.userName) => Valid
         case _ => Invalid(ValidationError(Messages("registration.duplicateDisplayName")))
     }
 
-    def registrationForm(implicit configuration: DomainConfiguration): Form[RegistrationInfo] = Form(
+    def registrationForm(implicit configuration: OrganizationConfiguration): Form[RegistrationInfo] = Form(
         mapping(
             "firstName" -> nonEmptyText,
             "lastName" -> nonEmptyText,
@@ -243,14 +243,14 @@ trait Registration extends ApplicationController { this: BoundController =>
     }
 
     def accountNotFound(
-        implicit configuration: DomainConfiguration
+        implicit configuration: OrganizationConfiguration
         ) = Constraint[String]("registration.accountNotFoundWithEmail") {
         case r if registrationServiceLocator.byDomain.isEmailTaken(r) => Valid
         case _ => Invalid(ValidationError(Messages("registration.accountNotFoundWithEmail")))
     }
 
     def accountNotActive(
-        implicit configuration: DomainConfiguration
+        implicit configuration: OrganizationConfiguration
         ) = Constraint[String]("registration.accountNotActive") {
         case r if registrationServiceLocator.byDomain.isAccountActive(r) => Valid
         case _ => Invalid(ValidationError(Messages("registration.accountNotActive")))
@@ -258,7 +258,7 @@ trait Registration extends ApplicationController { this: BoundController =>
 
     case class ResetPassword(email: String)
 
-    def resetPasswordForm(implicit configuration: DomainConfiguration): Form[ResetPassword] = Form(
+    def resetPasswordForm(implicit configuration: OrganizationConfiguration): Form[ResetPassword] = Form(
         mapping(
             "email" -> email.verifying(accountNotFound, accountNotActive)
         )(ResetPassword.apply)(ResetPassword.unapply)
@@ -288,7 +288,7 @@ trait Registration extends ApplicationController { this: BoundController =>
         }
     }
 
-    def resetPassword(resetPasswordToken: String) = DomainConfigured {
+    def resetPassword(resetPasswordToken: String) = OrganizationConfigured {
         Action {
             implicit request =>
                 renderArgs += ("themeInfo" -> new ThemeInfo(configuration))
@@ -316,7 +316,7 @@ trait Registration extends ApplicationController { this: BoundController =>
         )(NewPassword.apply)(NewPassword.unapply) verifying (sameNewPassword)
     )
 
-    def newPassword(resetPasswordToken: String) = DomainConfigured {
+    def newPassword(resetPasswordToken: String) = OrganizationConfigured {
         Action {
             implicit request =>
                 renderArgs += ("themeInfo" -> new ThemeInfo(configuration))

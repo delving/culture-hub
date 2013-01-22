@@ -4,7 +4,7 @@ import akka.actor._
 import models._
 import play.api.Logger
 import controllers.ErrorReporter
-import util.DomainConfigurationHandler
+import util.OrganizationConfigurationHandler
 import processing.DataSetCollectionProcessor
 
 /**
@@ -19,7 +19,7 @@ class Processor extends Actor {
   def receive = {
 
     case ProcessDataSet(set) =>
-      implicit val configuration = DomainConfigurationHandler.getByOrgId(set.orgId)
+      implicit val configuration = OrganizationConfigurationHandler.getByOrgId(set.orgId)
 
       try {
 

@@ -3,7 +3,7 @@ package controllers.api
 import play.api.mvc.{Controller, Action}
 import core.harvesting.OaiPmhService
 import play.api.libs.concurrent.Promise
-import controllers.DomainConfigurationAware
+import controllers.OrganizationConfigurationAware
 import play.api.Logger
 import core.HubModule
 
@@ -12,11 +12,11 @@ import core.HubModule
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-object OaiPmh extends Controller with DomainConfigurationAware {
+object OaiPmh extends Controller with OrganizationConfigurationAware {
 
   // TODO API documentation
 
-  def oaipmh(orgId: String, format: Option[String], accessKey: Option[String]) = DomainConfigured {
+  def oaipmh(orgId: String, format: Option[String], accessKey: Option[String]) = OrganizationConfigured {
     Action {
       implicit request =>
         Async {

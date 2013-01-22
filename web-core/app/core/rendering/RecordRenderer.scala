@@ -3,7 +3,7 @@ package core.rendering
 import core.Constants._
 import core.HubId
 import core.search.{DelvingIdType, BriefDocItem, DocItemReference, SolrQueryService}
-import models.{Role, RecordDefinition, MetadataCache, DomainConfiguration}
+import models.{Role, RecordDefinition, MetadataCache, OrganizationConfiguration}
 import java.net.{URLDecoder, URLEncoder}
 import play.api.Logger
 import xml._
@@ -31,7 +31,7 @@ object RecordRenderer {
                           lang: Lang,
                           schema: Option[String] = None,
                           renderRelatedItems: Boolean,
-                          relatedItemsCount: Int)(implicit configuration: DomainConfiguration): Either[String, RenderedView] = {
+                          relatedItemsCount: Int)(implicit configuration: OrganizationConfiguration): Either[String, RenderedView] = {
 
 
     SolrQueryService.getSolrItemReference(URLEncoder.encode(id, "utf-8"), idType, renderRelatedItems, relatedItemsCount) match {
@@ -100,7 +100,7 @@ object RecordRenderer {
     }
   }
 
-  private def renderMetadataRecord(prefix: String, hubId: String, viewType: ViewType, lang: Lang, renderRelatedItems: Boolean, relatedItems: Seq[BriefDocItem])(implicit configuration: DomainConfiguration): Either[String, RenderedView] = {
+  private def renderMetadataRecord(prefix: String, hubId: String, viewType: ViewType, lang: Lang, renderRelatedItems: Boolean, relatedItems: Seq[BriefDocItem])(implicit configuration: OrganizationConfiguration): Either[String, RenderedView] = {
     if(hubId.split("_").length < 3) return Left("Invalid hubId " + hubId)
     val id = HubId(hubId)
     val cache = MetadataCache.get(id.orgId, id.spec, ITEM_TYPE_MDR)
@@ -137,7 +137,7 @@ object RecordRenderer {
    * @param lang rendering languages
    * @param renderRelatedItems whether to render related items
    * @param relatedItems the related items
-   * @param configuration DomainConfiguration
+   * @param configuration OrganizationConfiguration
    * @return a rendered view if successful, or an error message
    */
   def renderMetadataRecord(hubId: String,
@@ -149,7 +149,7 @@ object RecordRenderer {
                            renderRelatedItems: Boolean = false,
                            relatedItems: Seq[NodeSeq] = Seq.empty,
                            roles: Seq[Role] = Seq.empty,
-                           parameters: Map[String, String] = Map.empty)(implicit configuration: DomainConfiguration): Either[String, RenderedView]  = {
+                           parameters: Map[String, String] = Map.empty)(implicit configuration: OrganizationConfiguration): Either[String, RenderedView]  = {
 
       // let's do some rendering
       RecordDefinition.getRecordDefinition(schema) match {

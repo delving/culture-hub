@@ -42,21 +42,21 @@ import play.api.libs.MimeTypes
 
 object SipCreatorEndPoint extends BoundController(HubModule) with SipCreatorEndPoint
 
-trait SipCreatorEndPoint extends Controller with DomainConfigurationAware with Logging {
-  this: BoundController with Controller with DomainConfigurationAware with Logging =>
+trait SipCreatorEndPoint extends Controller with OrganizationConfigurationAware with Logging {
+  this: BoundController with Controller with OrganizationConfigurationAware with Logging =>
 
   val organizationServiceLocator = HubModule.inject[DomainServiceLocator[OrganizationService]](name = None)
 
   val DOT_PLACEHOLDER = "--"
 
-  private def basexStorage(implicit configuration: DomainConfiguration) = HubServices.basexStorage(configuration)
+  private def basexStorage(implicit configuration: OrganizationConfiguration) = HubServices.basexStorage(configuration)
 
   // HASH__type[_prefix].extension
   private val FileName = """([^_]*)__([^._]*)_?([^.]*).(.*)""".r
 
   private var connectedUserObject: Option[HubUser] = None
 
-  def AuthenticatedAction[A](accessToken: Option[String])(action: Action[A]): Action[A] = DomainConfigured {
+  def AuthenticatedAction[A](accessToken: Option[String])(action: Action[A]): Action[A] = OrganizationConfigured {
     Action(action.parser) {
       implicit request => {
         if (accessToken.isEmpty) {
@@ -307,7 +307,7 @@ trait SipCreatorEndPoint extends Controller with DomainConfigurationAware with L
   }
 
   private def receiveMapping(dataSet: DataSet, inputStream: InputStream, spec: String, hash: String)
-    (implicit configuration: DomainConfiguration): Either[String, String] = {
+    (implicit configuration: OrganizationConfiguration): Either[String, String] = {
     val mappingString = IOUtils.toString(inputStream, "UTF-8")
     DataSet.dao(dataSet.orgId).updateMapping(dataSet, mappingString)
     Right("Good news everybody")
@@ -315,7 +315,7 @@ trait SipCreatorEndPoint extends Controller with DomainConfigurationAware with L
 
   private def receiveSourceStats(
     dataSet: DataSet, inputStream: InputStream, schemaPrefix: String, fileName: String, file: File
-    )(implicit configuration: DomainConfiguration): Either[String, String] = {
+    )(implicit configuration: OrganizationConfiguration): Either[String, String] = {
     try {
       val f = hubFileStore(configuration).createFile(file)
 
@@ -434,7 +434,7 @@ trait SipCreatorEndPoint extends Controller with DomainConfigurationAware with L
     }
   }
 
-  def getSipStream(dataSet: DataSet)(implicit configuration: DomainConfiguration) = {
+  def getSipStream(dataSet: DataSet)(implicit configuration: OrganizationConfiguration) = {
     val temp = TemporaryFile(dataSet.spec)
     val fos = new FileOutputStream(temp.file)
     val zipOut = new ZipOutputStream(fos)
@@ -586,7 +586,7 @@ trait SipCreatorEndPoint extends Controller with DomainConfigurationAware with L
     pw.flush()
   }
 
-  def loadSourceData(dataSet: DataSet, source: InputStream)(implicit configuration: DomainConfiguration): Long = {
+  def loadSourceData(dataSet: DataSet, source: InputStream)(implicit configuration: OrganizationConfiguration): Long = {
 
     // until we have a better concept on how to deal with per-collection versions, do not make use of them here, but drop the data instead
     val mayCollection = basexStorage.openCollection(dataSet)
@@ -690,7 +690,7 @@ class ReceiveSource extends Actor {
   }
 
   private def receiveSource(dataSet: DataSet, userName: String, inputStream: InputStream)
-    (implicit configuration: DomainConfiguration): Either[Throwable, Long] = {
+    (implicit configuration: OrganizationConfiguration): Either[Throwable, Long] = {
 
     try {
       val uploadedRecords = SipCreatorEndPoint.loadSourceData(dataSet, inputStream)
@@ -709,5 +709,5 @@ case class SourceStream(
   userName: String,
   stream: InputStream,
   temporaryFile: TemporaryFile,
-  configuration: DomainConfiguration
+  configuration: OrganizationConfiguration
   )

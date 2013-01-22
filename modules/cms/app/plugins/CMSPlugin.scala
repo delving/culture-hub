@@ -2,7 +2,7 @@ package plugins
 
 import play.api.{Configuration, Application}
 import core._
-import models.{DomainConfiguration, Role}
+import models.{OrganizationConfiguration, Role}
 import models.cms.{MenuEntry, Menu, CMSPage}
 import com.mongodb.casbah.Imports._
 import core.MainMenuEntry
@@ -10,7 +10,7 @@ import core.MenuElement
 import scala.util.matching.Regex
 import play.api.mvc.Handler
 import scala.collection.immutable.ListMap
-import util.DomainConfigurationHandler
+import util.OrganizationConfigurationHandler
 import play.api.i18n.{Messages, Lang}
 import play.api.Play.current
 
@@ -100,9 +100,9 @@ class CMSPlugin(app: Application) extends CultureHubPlugin(app) {
 
   )
 
-  private var cmsPluginConfiguration: Map[DomainConfiguration, CMSPluginConfiguration] = Map.empty
+  private var cmsPluginConfiguration: Map[OrganizationConfiguration, CMSPluginConfiguration] = Map.empty
 
-  override def onBuildConfiguration(configurations: Map[DomainConfiguration, Option[Configuration]]) {
+  override def onBuildConfiguration(configurations: Map[OrganizationConfiguration, Option[Configuration]]) {
     cmsPluginConfiguration = configurations.map { pair =>
       pair._1 -> {
         val menus: Seq[Menu] = pair._2.flatMap { c =>
@@ -140,7 +140,7 @@ class CMSPlugin(app: Application) extends CultureHubPlugin(app) {
   override def onStart() {
 
 
-    DomainConfigurationHandler.domainConfigurations.foreach { implicit configuration =>
+    OrganizationConfigurationHandler.organizationConfigurations.foreach { implicit configuration =>
 
       // make sure that all the menu definitions in the configuration have an up-to-date menu entry for their parent menu
       // TODO sync removed entries
@@ -203,7 +203,7 @@ class CMSPlugin(app: Application) extends CultureHubPlugin(app) {
     }
   }
 
-  override def mainMenuEntries(configuration: DomainConfiguration, lang: String): Seq[MainMenuEntry] = {
+  override def mainMenuEntries(configuration: OrganizationConfiguration, lang: String): Seq[MainMenuEntry] = {
     def isVisible(entry: MenuEntry) = entry.title.contains(lang) && entry.published
     models.cms.MenuEntry.dao(configuration).
       findEntries(configuration.orgId, CMSPlugin.MAIN_MENU).
@@ -232,7 +232,7 @@ class CMSPlugin(app: Application) extends CultureHubPlugin(app) {
       }.toSeq
   }
 
-  override def organizationMenuEntries(configuration: DomainConfiguration, lang: String, roles: Seq[String]): Seq[MainMenuEntry] = {
+  override def organizationMenuEntries(configuration: OrganizationConfiguration, lang: String, roles: Seq[String]): Seq[MainMenuEntry] = {
     
     cmsPluginConfiguration.get(configuration).map { config =>
       config.menuDefinitions.filterNot(_.key == CMSPlugin.HOME_PAGE).map { definition =>
@@ -292,7 +292,7 @@ object CMSPlugin {
   val MAIN_MENU = "mainMenu"
   val HOME_PAGE = "homePage"
 
-  def getConfiguration(implicit configuration: DomainConfiguration): Option[CMSPluginConfiguration] = {
+  def getConfiguration(implicit configuration: OrganizationConfiguration): Option[CMSPluginConfiguration] = {
     CultureHubPlugin.getPlugin(classOf[CMSPlugin]).flatMap(_.cmsPluginConfiguration.get(configuration))
   }
 

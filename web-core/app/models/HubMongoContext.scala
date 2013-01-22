@@ -16,7 +16,7 @@ package models
  * limitations under the License.
  */
 
-import _root_.util.DomainConfigurationHandler
+import _root_.util.OrganizationConfigurationHandler
 import com.mongodb.casbah.Imports._
 import com.mongodb.DBObject
 import com.mongodb.casbah.gridfs.GridFS
@@ -39,23 +39,23 @@ trait HubMongoContext extends models.MongoContext {
     }
   }
 
-  lazy val fileStoreCache: Map[String, GridFS] = DomainConfigurationHandler.domainConfigurations.map { dc =>
+  lazy val fileStoreCache: Map[String, GridFS] = OrganizationConfigurationHandler.organizationConfigurations.map { dc =>
     (dc.objectService.fileStoreDatabaseName -> GridFS(createConnection(dc.objectService.fileStoreDatabaseName)))
   }.toMap
 
-  lazy val imageCacheStoreCache: Map[String, GridFS] = DomainConfigurationHandler.domainConfigurations.map { dc =>
+  lazy val imageCacheStoreCache: Map[String, GridFS] = OrganizationConfigurationHandler.organizationConfigurations.map { dc =>
       (dc.objectService.imageCacheDatabaseName -> GridFS(createConnection(dc.objectService.imageCacheDatabaseName)))
     }.toMap
 
-  def imageCacheStore(configuration: DomainConfiguration) = imageCacheStoreCache(configuration.objectService.imageCacheDatabaseName)
-  def fileStore(configuration: DomainConfiguration) = fileStoreCache(configuration.objectService.fileStoreDatabaseName)
+  def imageCacheStore(configuration: OrganizationConfiguration) = imageCacheStoreCache(configuration.objectService.imageCacheDatabaseName)
+  def fileStore(configuration: OrganizationConfiguration) = fileStoreCache(configuration.objectService.fileStoreDatabaseName)
 
-  lazy val hubFileStore: Map[DomainConfiguration, GridFS] = {
-    DomainConfigurationHandler.domainConfigurations.map(c => (c -> GridFS(mongoConnections(c)))).toMap
+  lazy val hubFileStore: Map[OrganizationConfiguration, GridFS] = {
+    OrganizationConfigurationHandler.organizationConfigurations.map(c => (c -> GridFS(mongoConnections(c)))).toMap
   }
 
-  lazy val mongoConnections: Map[DomainConfiguration, MongoDB] =
-    DomainConfigurationHandler.domainConfigurations.map {
+  lazy val mongoConnections: Map[OrganizationConfiguration, MongoDB] =
+    OrganizationConfigurationHandler.organizationConfigurations.map {
       config => (config -> createConnection(config.mongoDatabase))
     }.toMap
 

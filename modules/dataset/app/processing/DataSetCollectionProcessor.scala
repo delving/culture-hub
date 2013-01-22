@@ -18,7 +18,7 @@ import play.api.Play.current
 
 trait DataSetCollectionProcessor {
 
-  def process(dataSet: DataSet, whenDone: => Unit)(implicit configuration: DomainConfiguration)
+  def process(dataSet: DataSet, whenDone: => Unit)(implicit configuration: OrganizationConfiguration)
 
 }
 
@@ -26,7 +26,7 @@ object DataSetCollectionProcessor extends DataSetCollectionProcessor {
 
 
   // TODO return a promise
-  def process(dataSet: DataSet, whenDone: => Unit)(implicit configuration: DomainConfiguration) {
+  def process(dataSet: DataSet, whenDone: => Unit)(implicit configuration: OrganizationConfiguration) {
     val processor: DataSetCollectionProcessor = TypedActor(Akka.system).typedActorOf(TypedProps[DataSetCollectionProcessorImpl])
     var processing = true
     processor.process(dataSet, {
@@ -49,7 +49,7 @@ class DataSetCollectionProcessorImpl extends DataSetCollectionProcessor {
   val RAW_PREFIX = "raw"
   val AFF_PREFIX = "aff"
 
-  def process(dataSet: DataSet, whenDone: => Unit)(implicit configuration: DomainConfiguration) {
+  def process(dataSet: DataSet, whenDone: => Unit)(implicit configuration: OrganizationConfiguration) {
 
     val invalidRecords = DataSet.dao.getInvalidRecords(dataSet)
 
@@ -122,7 +122,7 @@ class DataSetCollectionProcessorImpl extends DataSetCollectionProcessor {
       DataSet.dao.updateState(dataSet, DataSetState.ERROR, None, Some(t.getMessage))
     }
 
-    def indexOne(item: MetadataItem, fields: Map[String, List[String]], prefix: String)(implicit configuration: DomainConfiguration) =
+    def indexOne(item: MetadataItem, fields: Map[String, List[String]], prefix: String)(implicit configuration: OrganizationConfiguration) =
       Indexing.indexOne(dataSet, HubId(item.itemId), fields, prefix)
 
     def onProcessingDone(context: ProcessingContext) {

@@ -16,7 +16,7 @@
 
 package processors
 
-import util.{DomainConfigurationHandler, Logging}
+import util.{OrganizationConfigurationHandler, Logging}
 import models.dos.{Task}
 import play.api.Play
 import play.api.Play.current
@@ -53,7 +53,7 @@ trait Processor extends Logging {
 
   protected def getStore(orgId: String) = {
     import controllers.dos.fileStore
-    fileStore(DomainConfigurationHandler.getByOrgId(orgId))
+    fileStore(OrganizationConfigurationHandler.getByOrgId(orgId))
   }
 
 }

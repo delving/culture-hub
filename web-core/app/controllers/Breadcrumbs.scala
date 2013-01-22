@@ -2,7 +2,7 @@ package controllers
 
 import play.api.i18n.Messages
 import play.api.mvc.RequestHeader
-import models.DomainConfiguration
+import models.OrganizationConfiguration
 import play.api.i18n.Lang
 
 
@@ -13,7 +13,7 @@ import play.api.i18n.Lang
 
 object Breadcrumbs {
 
-  def crumble(p: Map[String, Map[String, String]] = Map.empty)(implicit configuration: DomainConfiguration, lang: Lang, request: RequestHeader): List[((String, String), Int)] = {
+  def crumble(p: Map[String, Map[String, String]] = Map.empty)(implicit configuration: OrganizationConfiguration, lang: Lang, request: RequestHeader): List[((String, String), Int)] = {
 
     // we can't make the difference between orgId/object and user/object
     val crumbList = if (p != null && p.contains(core.Constants.IN_ORGANIZATION)) {

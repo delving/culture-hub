@@ -4,7 +4,7 @@ import akka.actor.{Cancellable, Actor}
 import core.search.SolrServer
 import play.api.cache.Cache
 import play.api.Play.current
-import util.DomainConfigurationHandler
+import util.OrganizationConfigurationHandler
 import play.api.libs.concurrent.Akka
 import akka.util.duration._
 
@@ -35,7 +35,7 @@ class SolrCache extends Actor {
   protected def receive = {
 
     case CacheSolrFields =>
-      DomainConfigurationHandler.domainConfigurations.foreach { configuration =>
+      OrganizationConfigurationHandler.organizationConfigurations.foreach { configuration =>
         val fields = SolrServer.computeSolrFields(configuration)
         Cache.set(SolrServer.SOLR_FIELDS_CACHE_KEY_PREFIX + configuration.name, fields)
       }

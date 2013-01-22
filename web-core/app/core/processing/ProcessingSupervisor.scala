@@ -4,7 +4,7 @@ import akka.actor.{PoisonPill, Props, Actor}
 import core.HubId
 import collection.mutable.ArrayBuffer
 import eu.delving.schema.SchemaVersion
-import models.DomainConfiguration
+import models.OrganizationConfiguration
 import play.api.Logger
 import core.indexing.IndexingService
 import akka.util.Duration
@@ -28,7 +28,7 @@ class ProcessingSupervisor(
   whenDone: => Unit,
   onError: Throwable => Unit,
   processingContext: ProcessingContext,
-  configuration: DomainConfiguration
+  configuration: OrganizationConfiguration
 ) extends Actor {
 
   private val log = Logger("CultureHub")

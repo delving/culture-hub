@@ -2,7 +2,7 @@ package controllers.statistics
 
 import controllers.OrganizationController
 import play.api.mvc.Action
-import models.{Role, Group, DomainConfiguration, DataSet}
+import models.{Role, Group, OrganizationConfiguration, DataSet}
 import collection.JavaConverters._
 import models.statistics.DataSetStatistics
 import collection.immutable.ListMap
@@ -76,7 +76,7 @@ object Statistics extends OrganizationController {
    *  The purpose of this fu
    */
 
-  def legacyStatistics(orgId: String) = DomainConfigured {
+  def legacyStatistics(orgId: String) = OrganizationConfigured {
       Action {
         implicit request =>
 
@@ -147,7 +147,7 @@ case class StatisticsHeader(name: String, label: String = "", entries: Seq[Combi
   }
 }
 
-class SolrFacetBasedStatistics(orgId: String, facets: Map[String, String], filter: Option[String], facetLimit: Int = 100, queryString: String = "*:*")(implicit configuration: DomainConfiguration, lang: Lang) {
+class SolrFacetBasedStatistics(orgId: String, facets: Map[String, String], filter: Option[String], facetLimit: Int = 100, queryString: String = "*:*")(implicit configuration: OrganizationConfiguration, lang: Lang) {
 
     val orgIdFilter = "%s:%s".format(IndexField.ORG_ID.key, orgId)
 
