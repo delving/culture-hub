@@ -38,6 +38,7 @@ case class DomainConfiguration(
   oaiPmhService:               OaiPmhServiceConfiguration,
   searchService:               SearchServiceConfiguration,
   directoryService:            DirectoryServiceConfiguration,
+  processingService:           ProcessingServiceConfiguration,
 
   plugins:                     Seq[String],
 
@@ -50,10 +51,8 @@ case class DomainConfiguration(
 
   // ~~~ access control
   registeredUsersAddedToOrg:   Boolean = false,
-  roles:                       Seq[Role],
+  roles:                       Seq[Role]
 
-  // ~~~ search
-  apiWsKey:                    Boolean = false
 
 ) {
 
@@ -159,6 +158,10 @@ case class SearchServiceConfiguration(
   showResultsWithoutThumbnails: Boolean = false
 )
 
+case class ProcessingServiceConfiguration(
+  mappingCpuProportion:         Double = 0.5
+)
+
 /** See http://wiki.apache.org/solr/MoreLikeThis **/
 case class MoreLikeThis(
   fieldList: Seq[String] = Seq(SystemField.DESCRIPTION.tag, "dc_creator_text"),
@@ -225,6 +228,8 @@ object DomainConfiguration {
   val SEARCH_SEARCHIN = "services.search.searchIn"
   val SEARCH_PAGE_SIZE = "services.search.pageSize"
   val SHOW_ITEMS_WITHOUT_THUMBNAIL = "services.search.showItemsWithoutThumbnail"
+
+  val PROCESSING_MAPPING_CPU_PROPORTION = "services.processing.mappingCpuProportion"
 
   val OAI_REPO_NAME = "services.pmh.repositoryName"
   val OAI_ADMIN_EMAIL = "services.pmh.adminEmail"
@@ -374,6 +379,9 @@ object DomainConfiguration {
                   },
                   pageSize = getOptionalInt(configuration, SEARCH_PAGE_SIZE).getOrElse(20),
                   showResultsWithoutThumbnails = getOptionalBoolean(configuration, SHOW_ITEMS_WITHOUT_THUMBNAIL).getOrElse(false)
+                ),
+                processingService = ProcessingServiceConfiguration(
+                  mappingCpuProportion = if (configuration.underlying.hasPath(PROCESSING_MAPPING_CPU_PROPORTION)) configuration.underlying.getDouble(PROCESSING_MAPPING_CPU_PROPORTION) else 0.5
                 ),
                 plugins = configuration.underlying.getStringList(PLUGINS).asScala.toSeq,
                 schemas = configuration.underlying.getStringList(SCHEMAS).asScala.toList,

@@ -6,6 +6,7 @@ import play.api.Play
 import play.api.Play.current
 import core.mapping.MappingService
 import collection.JavaConverters._
+import java.util.concurrent.{Executors, ExecutorService}
 
 abstract class ProcessingSchema {
 
@@ -18,14 +19,8 @@ abstract class ProcessingSchema {
 
   lazy val prefix = definition.prefix
   lazy val hasMapping = mapping.isDefined
+  lazy val schemaVersion = definition.version
   lazy val javaNamespaces = namespaces.asJava
-  lazy val engine: Option[MappingEngine] = {
-    if(prefix == "raw") {
-      Some(MappingEngineFactory.newInstance(Play.classloader, javaNamespaces))
-    } else {
-      mapping.map(MappingEngineFactory.newInstance(Play.classloader, javaNamespaces, MappingService.recDefModel, _))
-    }
-  }
 
   override def toString: String = prefix
 }
