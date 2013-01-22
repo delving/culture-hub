@@ -17,7 +17,6 @@
 package models
 
 import core.access.{Resource, ResourceType}
-import org.bson.types.ObjectId
 import models.HubMongoContext._
 import com.mongodb.casbah.Imports._
 import com.novus.salat.dao._
@@ -26,7 +25,7 @@ import core.{OrganizationService, DomainServiceLocator, HubModule, HubServices}
 import eu.delving.metadata.RecMapping
 import models.statistics.DataSetStatistics
 import core.ItemType
-import core.collection.{Indexable, OrganizationCollection, OrganizationCollectionInformation, Harvestable}
+import core.collection.{OrganizationCollection, OrganizationCollectionInformation, Harvestable}
 import controllers.organization.DataSetEvent
 import plugins.DataSetPlugin
 import java.util.Date
@@ -35,6 +34,7 @@ import eu.delving.schema.SchemaVersion
 import java.io.StringReader
 import core.mapping.MappingService
 import org.scala_tools.subcut.inject.{BindingModule, Injectable}
+import core.SchemaService
 
 /**
  * DataSet model
@@ -98,7 +98,7 @@ case class DataSet(
   // the sort fields selected for indexing, at the moment derived from configuration
   idxSortFields: List[String] = List.empty[String]
 
-  ) extends OrganizationCollection with OrganizationCollectionInformation with Harvestable with Indexable with Resource {
+  ) extends OrganizationCollection with OrganizationCollectionInformation with Harvestable with Resource {
 
   implicit val configuration = DomainConfigurationHandler.getByOrgId(orgId)
   val organizationServiceLocator = HubModule.inject[DomainServiceLocator[OrganizationService]](name = None)
@@ -226,6 +226,8 @@ class DataSetDAO(collection: MongoCollection)(implicit val configuration: Domain
   extends SalatDAO[DataSet, ObjectId](collection) with Pager[DataSet] with Injectable {
 
   val organizationServiceLocator = inject [ DomainServiceLocator[OrganizationService] ]
+
+  val schemaService = inject [ SchemaService ]
 
   def getState(orgId: String, spec: String): DataSetState = {
 
@@ -361,7 +363,7 @@ class DataSetDAO(collection: MongoCollection)(implicit val configuration: Domain
   }
 
   def updateMapping(dataSet: DataSet, mappingString: String)(implicit configuration: DomainConfiguration): DataSet = {
-    val mapping = RecMapping.read(new StringReader(mappingString), MappingService.recDefModel)
+    val mapping = RecMapping.read(new StringReader(mappingString), MappingService.recDefModel(schemaService))
     val recordDefinition: Option[RecordDefinition] = RecordDefinition.getRecordDefinition(
       mapping.getPrefix,
       mapping.getSchemaVersion.getVersion

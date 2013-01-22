@@ -1,7 +1,6 @@
 package core.mapping
 
-import core.{HubModule, SchemaService}
-import play.api.Logger
+import core.SchemaService
 import eu.delving.metadata._
 import org.w3c.dom.Node
 import eu.delving.groovy.XmlSerializer
@@ -16,15 +15,11 @@ import java.io.ByteArrayInputStream
 
 object MappingService {
 
-  var recDefModel: RecDefModel = null
-  val serializer = new XmlSerializer
-  val schemaService: SchemaService = HubModule.inject[SchemaService](name = None)
+  private val serializer = new XmlSerializer
 
-  def init() {
+  def recDefModel(schemaService: SchemaService): RecDefModel = {
     try {
-      Logger("CultureHub").info("Initializing MappingService")
-
-      recDefModel = new RecDefModel {
+      new RecDefModel {
 
         def createRecDefTree(schemaVersion: SchemaVersion): RecDefTree = {
           val schema = schemaService.getSchema(schemaVersion.getPrefix, schemaVersion.getVersion, SchemaType.RECORD_DEFINITION)
@@ -42,7 +37,6 @@ object MappingService {
         t.printStackTrace()
         throw t
     }
-
   }
 
   def nodeTreeToXmlString(node: Node, fromMapping: Boolean): String = {
