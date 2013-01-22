@@ -9,7 +9,7 @@ import eu.delving.templates.scala.GroovyTemplates
 import collection.JavaConverters._
 import org.bson.types.ObjectId
 import core._
-import models.{DomainConfiguration, Role, Group, HubUser}
+import models.{OrganizationConfiguration, Role, Group, HubUser}
 
 /**
  * TODO document the default renderArgs attributes available to templates
@@ -36,7 +36,7 @@ trait ApplicationController extends Controller with GroovyTemplates with Control
   def getLanguages = Lang.availables.map(l => (l.language, Messages("locale." + l.language)))
 
   def ApplicationAction[A](action: Action[A]): Action[A] = {
-    DomainConfigured {
+    OrganizationConfigured {
       Action(action.parser) {
         implicit request: Request[A] => {
 
@@ -145,7 +145,7 @@ case class RichBody[A <: AnyContent](body: A) {
  */
 trait OrganizationController extends DelvingController with Secured {
 
-  def isAdmin(implicit request: RequestHeader, configuration: DomainConfiguration): Boolean = organizationServiceLocator.byDomain.isAdmin(configuration.orgId, connectedUser)
+  def isAdmin(implicit request: RequestHeader, configuration: OrganizationConfiguration): Boolean = organizationServiceLocator.byDomain.isAdmin(configuration.orgId, connectedUser)
 
   def isAdmin(orgId: String)(implicit request: RequestHeader): Boolean = organizationServiceLocator.byDomain.isAdmin(orgId, connectedUser)
 
@@ -349,7 +349,7 @@ trait DelvingController extends ApplicationController {
 
   // ~~~ Access control
 
-  def getUserGrantTypes(orgId: String)(implicit request: RequestHeader, configuration: DomainConfiguration): Seq[Role] = request.session.get(Constants.USERNAME).map {
+  def getUserGrantTypes(orgId: String)(implicit request: RequestHeader, configuration: OrganizationConfiguration): Seq[Role] = request.session.get(Constants.USERNAME).map {
     userName =>
       val isAdmin = organizationServiceLocator.byDomain.isAdmin(orgId, userName)
       val groups: Seq[Role] = Group.dao.findDirectMemberships(userName).map(_.roleKey).toSeq.distinct.map(Role.get(_))

@@ -1,6 +1,6 @@
 package core.storage
 
-import models.DomainConfiguration
+import models.OrganizationConfiguration
 import com.mongodb.casbah.Imports._
 import com.mongodb.casbah.gridfs.Imports._
 import models.HubMongoContext._
@@ -23,7 +23,7 @@ import org.apache.commons.io.IOUtils
  */
 object FileStorage extends FileStoreService {
 
-  def listFiles(bucketId: String, fileType: Option[String] = None)(implicit configuration: DomainConfiguration): List[StoredFile] = {
+  def listFiles(bucketId: String, fileType: Option[String] = None)(implicit configuration: OrganizationConfiguration): List[StoredFile] = {
     val query = MongoDBObject(ITEM_POINTER_FIELD -> bucketId) ++ fileType.map(t => MongoDBObject(ITEM_TYPE -> t)).getOrElse(MongoDBObject())
     fileStore(configuration).
       find(query).
@@ -31,7 +31,7 @@ object FileStorage extends FileStoreService {
   }
 
 
-  def deleteFiles(bucketId: String, fileType: Option[String] = None)(implicit configuration: DomainConfiguration) {
+  def deleteFiles(bucketId: String, fileType: Option[String] = None)(implicit configuration: OrganizationConfiguration) {
     val files = listFiles(bucketId, fileType)
     files.foreach { f =>
       FileStorage.deleteFile(f.id.toString)
@@ -39,7 +39,7 @@ object FileStorage extends FileStoreService {
   }
 
   def storeFile(file: File, contentType: String, fileName: String, bucketId: String, fileType: Option[String] = None,
-                params: Map[String, AnyRef] = Map.empty, advertise: Boolean = true)(implicit configuration: DomainConfiguration): Option[StoredFile] = {
+                params: Map[String, AnyRef] = Map.empty, advertise: Boolean = true)(implicit configuration: OrganizationConfiguration): Option[StoredFile] = {
     val f = fileStore(configuration).createFile(file)
     f.filename = fileName
     f.contentType = contentType
@@ -60,7 +60,7 @@ object FileStorage extends FileStoreService {
     }
   }
 
-  def retrieveFile(fileIdentifier: String)(implicit configuration: DomainConfiguration): Option[StoredFile] = {
+  def retrieveFile(fileIdentifier: String)(implicit configuration: OrganizationConfiguration): Option[StoredFile] = {
     if (ObjectId.isValid(fileIdentifier)) {
       fileStore(configuration).findOne(new ObjectId(fileIdentifier)).map { file =>
         StoredFile(file._id.get, file.filename.getOrElse(""), file.contentType.getOrElse("unknown/unknown"), file.size, file.inputStream)
@@ -70,7 +70,7 @@ object FileStorage extends FileStoreService {
     }
   }
 
-  def deleteFile(fileIdentifier: String)(implicit configuration: DomainConfiguration) {
+  def deleteFile(fileIdentifier: String)(implicit configuration: OrganizationConfiguration) {
     if (ObjectId.isValid(fileIdentifier)) {
       val id = new ObjectId(fileIdentifier)
       fileStore(configuration).find(id) foreach { toDelete =>
@@ -84,7 +84,7 @@ object FileStorage extends FileStoreService {
     }
   }
 
-  def renameBucket(oldBucketId: String, newBucketId: String)(implicit configuration: DomainConfiguration) {
+  def renameBucket(oldBucketId: String, newBucketId: String)(implicit configuration: OrganizationConfiguration) {
     val files: Seq[com.mongodb.gridfs.GridFSDBFile] = fileStore(configuration).find(MongoDBObject(ITEM_POINTER_FIELD -> oldBucketId))
     files.foreach { file =>
       file.put(ITEM_POINTER_FIELD, newBucketId.asInstanceOf[AnyRef])
@@ -92,7 +92,7 @@ object FileStorage extends FileStoreService {
     }
   }
 
-  def setFileType(newFileType: Option[String], files: Seq[StoredFile])(implicit configuration: DomainConfiguration) {
+  def setFileType(newFileType: Option[String], files: Seq[StoredFile])(implicit configuration: OrganizationConfiguration) {
     files.foreach { f =>
       fileStore(configuration).findOne(f.id).map { file =>
         newFileType.map { t =>
@@ -111,13 +111,13 @@ object FileStorage extends FileStoreService {
    *
    * TODO this method is now part of controllers.dos.FileUpload and needs to be removed here once we are done with refactoring
    */
-  def markFilesAttached(uid: String, objectIdentifier: String)(implicit configuration: DomainConfiguration) {
+  def markFilesAttached(uid: String, objectIdentifier: String)(implicit configuration: OrganizationConfiguration) {
     val files = FileStorage.listFiles(uid, Some(FILE_TYPE_UNATTACHED))
     FileStorage.renameBucket(uid, objectIdentifier)
     FileStorage.setFileType(None, files)
   }
 
-  private def fileToStoredFile(f: GridFSDBFile)(implicit configuration: DomainConfiguration) = {
+  private def fileToStoredFile(f: GridFSDBFile)(implicit configuration: OrganizationConfiguration) = {
     val id = f._id.get
     StoredFile(id, f.filename.getOrElse(""), f.contentType.getOrElse("unknown/unknown"), f.size, f.inputStream)
   }
@@ -158,11 +158,11 @@ case class FileUploadResponse(
 
 object FileUploadResponse {
 
-  def apply(file: StoredFile)(implicit configuration: DomainConfiguration): FileUploadResponse = {
+  def apply(file: StoredFile)(implicit configuration: OrganizationConfiguration): FileUploadResponse = {
 
     def hasThumbnail(f: StoredFile) = file.contentType.contains("image") || file.contentType.contains("pdf")
 
-    def thumbnailUrl(implicit configuration: DomainConfiguration) = if (hasThumbnail(file)) {
+    def thumbnailUrl(implicit configuration: OrganizationConfiguration) = if (hasThumbnail(file)) {
       fileStore(configuration).findOne(MongoDBObject(FILE_POINTER_FIELD -> file.id)) match {
         case Some(t) => Some(t.id.asInstanceOf[ObjectId])
         case None => None

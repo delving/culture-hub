@@ -29,7 +29,7 @@ import play.api.mvc.{PlainResult, RequestHeader}
 import core.ExplainItem
 import java.lang.String
 import core.rendering._
-import models.DomainConfiguration
+import models.OrganizationConfiguration
 import xml.{PCData, PrettyPrinter, Elem}
 import org.apache.solr.client.solrj.response.FacetField.Count
 import org.apache.solr.client.solrj.response.FacetField
@@ -44,7 +44,7 @@ import scala.collection.immutable.ListMap
  */
 object SearchService {
 
-  def getApiResult(request: RequestHeader, hiddenQueryFilters: Seq[String] = Seq.empty)(implicit configuration: DomainConfiguration): PlainResult =
+  def getApiResult(request: RequestHeader, hiddenQueryFilters: Seq[String] = Seq.empty)(implicit configuration: OrganizationConfiguration): PlainResult =
     new SearchService(request, hiddenQueryFilters)(configuration).getApiResult
 
 
@@ -54,7 +54,7 @@ object SearchService {
   }
 }
 
-class SearchService(request: RequestHeader, hiddenQueryFilters: Seq[String] = Seq.empty)(implicit configuration: DomainConfiguration) {
+class SearchService(request: RequestHeader, hiddenQueryFilters: Seq[String] = Seq.empty)(implicit configuration: OrganizationConfiguration) {
 
   val log = Logger("CultureHub")
 
@@ -499,7 +499,7 @@ case class SearchSummary(result: BriefItemView, language: String = "en", chRespo
   }
 }
 
-case class FacetAutoComplete(params: Params, configuration: DomainConfiguration) {
+case class FacetAutoComplete(params: Params, configuration: OrganizationConfiguration) {
   require(params._contains("field"))
   val facet = params.getValueOrElse("field", "nothing")
   val query = params.getValueOrElse("value", "")
@@ -540,7 +540,7 @@ case class FacetAutoComplete(params: Params, configuration: DomainConfiguration)
 
 }
 
-case class ExplainResponse(params: Params, configuration: DomainConfiguration) {
+case class ExplainResponse(params: Params, configuration: OrganizationConfiguration) {
 
   val excludeList = List("europeana_unstored", "europeana_source", "europeana_userTag", "europeana_collectionTitle")
 

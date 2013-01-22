@@ -9,7 +9,7 @@ import org.apache.solr.common.{SolrInputField, SolrInputDocument}
 import org.joda.time.DateTime
 import org.joda.time.format.DateTimeFormat
 import org.apache.solr.client.solrj.SolrQuery
-import models.{Visibility, DomainConfiguration}
+import models.{Visibility, OrganizationConfiguration}
 
 /**
  * Indexing API
@@ -23,7 +23,7 @@ object IndexingService extends SolrServer {
   /**
    * Stages a SOLR InputDocument for indexing, and applies all generic delving mechanisms on top
    */
-  def stageForIndexing(doc: SolrInputDocument)(implicit configuration: DomainConfiguration) {
+  def stageForIndexing(doc: SolrInputDocument)(implicit configuration: OrganizationConfiguration) {
     import scala.collection.JavaConversions._
 
     val hasDigitalObject: Boolean = !doc.entrySet().filter(entry => entry.getKey.startsWith(THUMBNAIL.tag) && !entry.getValue.isEmpty).isEmpty
@@ -119,21 +119,21 @@ object IndexingService extends SolrServer {
   /**
    * Commits staged Things or MDRs to index
     */
-  def commit(implicit configuration: DomainConfiguration) = {
+  def commit(implicit configuration: OrganizationConfiguration) = {
     getStreamingUpdateServer(configuration).commit()
   }
 
   /**
    * Rolls back staged indexing requests
    */
-  def rollback(implicit configuration: DomainConfiguration) {
+  def rollback(implicit configuration: OrganizationConfiguration) {
     getStreamingUpdateServer(configuration).rollback()
   }
 
   /**
    * Deletes from the index by string ID
    */
-  def deleteById(id: String)(implicit configuration: DomainConfiguration) {
+  def deleteById(id: String)(implicit configuration: OrganizationConfiguration) {
     getStreamingUpdateServer(configuration).deleteById(id)
     commit
   }
@@ -141,7 +141,7 @@ object IndexingService extends SolrServer {
   /**
    * Deletes from the index by query
    */
-  def deleteByQuery(query: String)(implicit configuration: DomainConfiguration) {
+  def deleteByQuery(query: String)(implicit configuration: OrganizationConfiguration) {
     SolrServer.deleteFromSolrByQuery(query)
     commit
   }
@@ -149,7 +149,7 @@ object IndexingService extends SolrServer {
   /**
    * Deletes from the index by collection spec
    */
-  def deleteBySpec(orgId: String, spec: String)(implicit configuration: DomainConfiguration) {
+  def deleteBySpec(orgId: String, spec: String)(implicit configuration: OrganizationConfiguration) {
     val deleteQuery = SPEC.tag + ":" + spec + " " + ORG_ID.key + ":" + orgId
     log.info("Deleting dataset from Solr Index: %s".format(deleteQuery))
     val deleteResponse = getStreamingUpdateServer(configuration).deleteByQuery(deleteQuery)
@@ -157,7 +157,7 @@ object IndexingService extends SolrServer {
     commit
   }
 
-  def deleteOrphansBySpec(orgId: String, spec: String, startIndexing: DateTime)(implicit configuration: DomainConfiguration) {
+  def deleteOrphansBySpec(orgId: String, spec: String, startIndexing: DateTime)(implicit configuration: OrganizationConfiguration) {
     val fmt = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
     val deleteQuery = SPEC.tag + ":" + spec + " AND " + ORG_ID.key + ":" + orgId + " AND timestamp:[* TO " + fmt.print(startIndexing.minusSeconds(15)) + "]"
     val orphans = getSolrServer(configuration).query(new SolrQuery(deleteQuery)).getResults.getNumFound

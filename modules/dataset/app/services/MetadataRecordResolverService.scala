@@ -3,7 +3,7 @@ package services
 import core.{HubId, RenderableRecord, RecordResolverService}
 import eu.delving.schema.SchemaVersion
 import core.Constants._
-import models.{DomainConfiguration, DataSet, MetadataCache}
+import models.{OrganizationConfiguration, DataSet, MetadataCache}
 import com.mongodb.casbah.Imports._
 import core.rendering.ViewType
 import plugins.DataSetPlugin
@@ -21,7 +21,7 @@ class MetadataRecordResolverService extends RecordResolverService {
    * @param hubId the ID of the record
    * @param schemaVersion the (optional) version of the schema to be fetched
    */
-  def getRecord(hubId: HubId, schemaVersion: Option[SchemaVersion])(implicit request: RequestHeader, configuration: DomainConfiguration): Option[RenderableRecord] = {
+  def getRecord(hubId: HubId, schemaVersion: Option[SchemaVersion])(implicit request: RequestHeader, configuration: OrganizationConfiguration): Option[RenderableRecord] = {
 
     MetadataCache.get(hubId.orgId, hubId.spec, DataSetPlugin.ITEM_TYPE).findOne(hubId.id).flatMap { record =>
 

@@ -24,7 +24,7 @@ import play.api.Logger
 import play.api.mvc.RequestHeader
 import core.indexing.IndexField._
 import collection.immutable.{List, Map}
-import models.DomainConfiguration
+import models.OrganizationConfiguration
 import scala.xml.XML
 import scala.xml.Elem
 import org.apache.solr.client.solrj.SolrQuery
@@ -79,7 +79,7 @@ object SolrQueryService extends SolrServer {
 
   def decodeUrl(text: String): String = URLDecoder.decode(text, "utf-8")
 
-  def getSolrQueryWithDefaults(implicit configuration: DomainConfiguration): SolrQuery = {
+  def getSolrQueryWithDefaults(implicit configuration: OrganizationConfiguration): SolrQuery = {
 
     val query = new SolrQuery("*:*")
     query set ("edismax")
@@ -95,7 +95,7 @@ object SolrQueryService extends SolrServer {
     query addHighlightField ("*_snippet")
   }
 
-  def parseSolrQueryFromParams(params: Params)(implicit configuration: DomainConfiguration) : SolrQuery = {
+  def parseSolrQueryFromParams(params: Params)(implicit configuration: OrganizationConfiguration) : SolrQuery = {
     import scala.collection.JavaConversions._
 
     val queryParams = getSolrQueryWithDefaults
@@ -189,12 +189,12 @@ object SolrQueryService extends SolrServer {
       ).toList
   }
 
-  def createCHQuery(request: RequestHeader, connectedUser: Option[String] = None, additionalSystemHQFs: Seq[String] = Seq.empty)(implicit configuration: DomainConfiguration): CHQuery = {
+  def createCHQuery(request: RequestHeader, connectedUser: Option[String] = None, additionalSystemHQFs: Seq[String] = Seq.empty)(implicit configuration: OrganizationConfiguration): CHQuery = {
     val params = Params(request.queryString)
     createCHQuery(params, connectedUser, additionalSystemHQFs)
   }
 
-  def createCHQuery(params: Params, connectedUser: Option[String], additionalSystemHQFs: Seq[String])(implicit configuration: DomainConfiguration): CHQuery = {
+  def createCHQuery(params: Params, connectedUser: Option[String], additionalSystemHQFs: Seq[String])(implicit configuration: OrganizationConfiguration): CHQuery = {
 
     def getAllFilterQueries(fqKey: String): Array[String] = {
       params.all.filter(key => key._1.equalsIgnoreCase(fqKey) || key._1.equalsIgnoreCase("%s[]".format(fqKey))).flatMap(entry => entry._2).toArray
@@ -256,7 +256,7 @@ object SolrQueryService extends SolrServer {
   }
 
 
-  def getSolrItemReference(id: String, idType: DelvingIdType, findRelatedItems: Boolean, relatedItemsCount: Int)(implicit configuration: DomainConfiguration): Option[DocItemReference] = {
+  def getSolrItemReference(id: String, idType: DelvingIdType, findRelatedItems: Boolean, relatedItemsCount: Int)(implicit configuration: OrganizationConfiguration): Option[DocItemReference] = {
     val t = idType.resolve(id)
     val solrQuery = if (idType == DelvingIdType.LEGACY) {
       "%s:\"%s\" delving_orgId:%s".format(t.idSearchField, URLDecoder.decode(t.normalisedId, "utf-8"), configuration.orgId)
@@ -311,7 +311,7 @@ object SolrQueryService extends SolrServer {
     }
   }
 
-  def getSolrResponseFromServer(solrQuery: SolrQuery, decrementStart: Boolean = false)(implicit configuration: DomainConfiguration): QueryResponse = {
+  def getSolrResponseFromServer(solrQuery: SolrQuery, decrementStart: Boolean = false)(implicit configuration: OrganizationConfiguration): QueryResponse = {
 
     // solr is 0 based so we need to decrement from our page start
     if (solrQuery.getStart != null && solrQuery.getStart.intValue() < 0) {
@@ -388,7 +388,7 @@ object SolrQueryService extends SolrServer {
     }.mkString(" ")
   }
 
-  def createPager(chResponse: CHResponse)(implicit configuration: DomainConfiguration): Pager = {
+  def createPager(chResponse: CHResponse)(implicit configuration: OrganizationConfiguration): Pager = {
     val solrStart = chResponse.chQuery.solrQuery.getStart
     Pager(
       numFound = chResponse.response.getResults.getNumFound.intValue,
@@ -539,7 +539,7 @@ case class SolrSortElement(sortKey: String, sortOrder: SolrQuery.ORDER = SolrQue
 
 case class CHQuery(solrQuery: SolrQuery, responseFormat: String = "xml", filterQueries: List[FilterQuery] = List.empty, hiddenFilterQueries: List[FilterQuery] = List.empty, systemQueries: List[String] = List.empty)
 
-case class CHResponse(params: Params, response: QueryResponse, chQuery: CHQuery, configuration: DomainConfiguration) { // todo extend with the other response elements
+case class CHResponse(params: Params, response: QueryResponse, chQuery: CHQuery, configuration: OrganizationConfiguration) { // todo extend with the other response elements
 
   def useCacheUrl: Boolean = params.hasKeyAndValue("cache", "true")
 

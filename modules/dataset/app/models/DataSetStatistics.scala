@@ -1,7 +1,7 @@
 package models
 package statistics
 
-import _root_.util.DomainConfigurationHandler
+import _root_.util.OrganizationConfigurationHandler
 import java.util.Date
 import org.bson.types.ObjectId
 import com.novus.salat.dao.SalatDAO
@@ -21,10 +21,10 @@ case class DataSetStatistics(_id: ObjectId = new ObjectId,
                              fieldCount: Histogram) {
 
   def getStatisticsFile = {
-    hubFileStore(DomainConfigurationHandler.getByOrgId(context.orgId)).findOne(MongoDBObject("orgId" -> context.orgId, "spec" -> context.spec, "uploadDate" -> context.uploadDate))
+    hubFileStore(OrganizationConfigurationHandler.getByOrgId(context.orgId)).findOne(MongoDBObject("orgId" -> context.orgId, "spec" -> context.spec, "uploadDate" -> context.uploadDate))
   }
 
-  def getHistogram(path: String)(implicit configuration: DomainConfiguration): Option[Histogram] = DataSetStatistics.dao.frequencies.
+  def getHistogram(path: String)(implicit configuration: OrganizationConfiguration): Option[Histogram] = DataSetStatistics.dao.frequencies.
     findByParentId(_id, MongoDBObject("context.orgId" -> context.orgId, "context.spec" -> context.spec, "context.uploadDate" -> context.uploadDate, "path" -> path)).toList.headOption.
     map(_.histogram)
 
@@ -93,7 +93,7 @@ object DataSetStatistics extends MultiModel[DataSetStatistics, DataSetStatistics
     addIndexes(collection, dataSetStatisticsContextIndexes, dataSetStatisticsContextIndexNames)
   }
 
-  def initDAO(collection: MongoCollection, connection: MongoDB)(implicit configuration: DomainConfiguration): DataSetStatisticsDAO = new DataSetStatisticsDAO(collection, connection)
+  def initDAO(collection: MongoCollection, connection: MongoDB)(implicit configuration: OrganizationConfiguration): DataSetStatisticsDAO = new DataSetStatisticsDAO(collection, connection)
 }
 
 class DataSetStatisticsDAO(collection: MongoCollection, connection: MongoDB) extends SalatDAO[DataSetStatistics, ObjectId](collection) {

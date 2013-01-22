@@ -1,7 +1,7 @@
 package notifiers
 
 import extensions.Email
-import models.DomainConfiguration
+import models.OrganizationConfiguration
 import core.ThemeInfo
 import play.api.i18n.{Messages, Lang}
 
@@ -13,7 +13,7 @@ import play.api.i18n.{Messages, Lang}
 
 object Mails {
 
-  def activation(email: String, fullName: String, token: String, host: String)(implicit configuration: DomainConfiguration, lang: Lang) {
+  def activation(email: String, fullName: String, token: String, host: String)(implicit configuration: OrganizationConfiguration, lang: Lang) {
     val themeInfo = new ThemeInfo(configuration)
     Email(configuration.emailTarget.systemFrom, "Welcome to CultureHub").
       to(email).
@@ -33,7 +33,7 @@ object Mails {
     ).send()
   }
 
-  def newUser(subject: String, hub: String, userName: String, fullName: String, email: String)(implicit configuration: DomainConfiguration, lang: Lang) {
+  def newUser(subject: String, hub: String, userName: String, fullName: String, email: String)(implicit configuration: OrganizationConfiguration, lang: Lang) {
     Email(configuration.emailTarget.systemFrom, subject).
       to(configuration.emailTarget.exceptionTo).
       withContent(
@@ -54,7 +54,7 @@ object Mails {
     ).send()
   }
   
-  def resetPassword(email: String, resetPasswordToken: String, host: String)(implicit configuration: DomainConfiguration, lang: Lang) {
+  def resetPassword(email: String, resetPasswordToken: String, host: String)(implicit configuration: OrganizationConfiguration, lang: Lang) {
     val themeInfo = new ThemeInfo(configuration)
     Email(configuration.emailTarget.systemFrom, "Reset your password").
       to(email).

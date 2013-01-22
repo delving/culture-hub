@@ -31,7 +31,7 @@ import core.search.SolrServer
 import org.apache.tika.parser.ParseContext
 import org.apache.tika.metadata.Metadata
 import java.net.URLEncoder
-import models.{DomainConfiguration, Visibility}
+import models.{OrganizationConfiguration, Visibility}
 import org.apache.commons.lang.StringEscapeUtils
 import core.HubId
 
@@ -45,7 +45,7 @@ object Indexing extends SolrServer {
 
   type IndexableCollection = Collection with OrganizationCollectionInformation
 
-  def indexOne(collection: IndexableCollection, hubId: HubId, mapped: Map[String, List[Any]], metadataFormatForIndexing: String)(implicit configuration: DomainConfiguration): Either[Throwable, String] = {
+  def indexOne(collection: IndexableCollection, hubId: HubId, mapped: Map[String, List[Any]], metadataFormatForIndexing: String)(implicit configuration: OrganizationConfiguration): Either[Throwable, String] = {
     val doc = createSolrInputDocument(mapped)
     addDelvingHouseKeepingFields(doc, collection, hubId, metadataFormatForIndexing)
     try {
@@ -71,7 +71,7 @@ object Indexing extends SolrServer {
     doc
   }
 
-  def addDelvingHouseKeepingFields(inputDoc: SolrInputDocument, dataSet: IndexableCollection, hubId: HubId, schemaPrefix: String)(implicit configuration: DomainConfiguration) {
+  def addDelvingHouseKeepingFields(inputDoc: SolrInputDocument, dataSet: IndexableCollection, hubId: HubId, schemaPrefix: String)(implicit configuration: OrganizationConfiguration) {
     import scala.collection.JavaConversions._
 
     // mandatory fields

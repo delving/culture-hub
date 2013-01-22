@@ -1,6 +1,6 @@
 package models
 
-import _root_.util.DomainConfigurationHandler
+import _root_.util.OrganizationConfigurationHandler
 import com.novus.salat.dao.SalatDAO
 import com.novus.salat
 import models.HubMongoContext._
@@ -16,8 +16,8 @@ import play.api.Logger
 
 trait MultiModel[A <: salat.CaseClass, B <: SalatDAO[A, ObjectId]] {
 
-  private lazy val multiDAOs: Map[DomainConfiguration, B] = {
-    DomainConfigurationHandler.domainConfigurations.map {
+  private lazy val multiDAOs: Map[OrganizationConfiguration, B] = {
+    OrganizationConfigurationHandler.organizationConfigurations.map {
       config => {
         val connection = mongoConnections(config)
         val collection = connection(connectionName)
@@ -32,9 +32,9 @@ trait MultiModel[A <: salat.CaseClass, B <: SalatDAO[A, ObjectId]] {
 
   protected def initIndexes(collection: MongoCollection)
 
-  protected def initDAO(collection: MongoCollection, connection: MongoDB)(implicit configuration: DomainConfiguration): B
+  protected def initDAO(collection: MongoCollection, connection: MongoDB)(implicit configuration: OrganizationConfiguration): B
 
-  def dao(implicit configuration: DomainConfiguration): B = multiDAOs.get(configuration).getOrElse {
+  def dao(implicit configuration: OrganizationConfiguration): B = multiDAOs.get(configuration).getOrElse {
     Logger("CultureHub").error("No DAO for configuration " + configuration.name)
     throw new RuntimeException("No DAO for domain " + configuration.name)
   }

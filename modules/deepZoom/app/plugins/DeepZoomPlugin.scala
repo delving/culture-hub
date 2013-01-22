@@ -4,7 +4,7 @@ import _root_.libs.{PTIFTiling, Normalizer}
 import play.api._
 import core.CultureHubPlugin
 import core.storage.FileStorage
-import models.DomainConfiguration
+import models.OrganizationConfiguration
 import controllers.dos.Thumbnail
 import models.HubMongoContext._
 import core.messages.FileStored
@@ -16,7 +16,7 @@ class DeepZoomPlugin(app: Application) extends CultureHubPlugin(app) with Thumbn
 
   override def receive = {
 
-    case FileStored(bucketId, fileIdentifier, fileType, fileName, contentType, configuration: DomainConfiguration) =>
+    case FileStored(bucketId, fileIdentifier, fileType, fileName, contentType, configuration: OrganizationConfiguration) =>
 
       if (contentType.contains("image")) {
         debug("Image stored: " + fileName)

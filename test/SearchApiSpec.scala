@@ -1,6 +1,6 @@
 import play.api.test.Helpers._
 import play.api.test.FakeRequest
-import util.DomainConfigurationHandler
+import util.OrganizationConfigurationHandler
 
 /**
  * TODO better check of the content of all records & search by ID
@@ -27,7 +27,7 @@ class SearchApiSpec extends Specs2TestContext {
 
       withTestConfig {
 
-        implicit val configuration = DomainConfigurationHandler.getByOrgId("delving")
+        implicit val configuration = OrganizationConfigurationHandler.getByOrgId("delving")
 
         val response = query("delving_spec:sample-b")
         status(response) must equalTo(OK)

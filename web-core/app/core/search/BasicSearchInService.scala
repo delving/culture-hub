@@ -1,7 +1,7 @@
 package core.search
 
 import core.SearchInService
-import models.DomainConfiguration
+import models.OrganizationConfiguration
 
 /**
  *
@@ -11,12 +11,12 @@ class BasicSearchInService extends SearchInService {
   /**
    * A map having as key the searchIn target and as value the internationalization key.
    */
-  def getSearchInTargets(connectedUser: Option[String])(implicit configuration: DomainConfiguration): Map[String, String] = configuration.searchService.searchIn
+  def getSearchInTargets(connectedUser: Option[String])(implicit configuration: OrganizationConfiguration): Map[String, String] = configuration.searchService.searchIn
 
   /**
    * Composes the query based on the searchIn value and the query term
    */
-  def composeSearchInQuery(searchIn: String, queryTerm: String)(implicit configuration: DomainConfiguration): Option[String] = {
+  def composeSearchInQuery(searchIn: String, queryTerm: String)(implicit configuration: OrganizationConfiguration): Option[String] = {
     if (configuration.searchService.searchIn.contains(searchIn)) {
       Some("""%s:"%s"""".format(searchIn, queryTerm))
     } else {

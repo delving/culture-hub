@@ -9,7 +9,7 @@ import org.specs2.mutable.Specification
 import play.api.mvc.{AsyncResult, Result}
 import play.api.test._
 import play.api.test.Helpers._
-import _root_.util.{TestDataLoader, DomainConfigurationHandler}
+import _root_.util.{TestDataLoader, OrganizationConfigurationHandler}
 import xml.XML
 
 /**
@@ -54,7 +54,7 @@ trait TestContext {
   def cleanup() {
     withTestConfig {
       HubServices.init()
-      implicit val configuration = DomainConfigurationHandler.getByOrgId("delving")
+      implicit val configuration = OrganizationConfigurationHandler.getByOrgId("delving")
       try {
         val specsToFix = List(SAMPLE_A, SAMPLE_B)
         specsToFix.foreach(spec =>

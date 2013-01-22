@@ -1,13 +1,13 @@
 package core
 
-import models.DomainConfiguration
+import models.OrganizationConfiguration
 import util.ThemeInfoReader
 import play.api.PlayException
 
 /**
  * Provides graphical theme related configuration and information to the view
  */
-class ThemeInfo(configuration: DomainConfiguration) {
+class ThemeInfo(configuration: OrganizationConfiguration) {
 
   def getConfiguration = configuration
 

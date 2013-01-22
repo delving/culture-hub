@@ -1,10 +1,10 @@
 package controllers.api
 
-import controllers.{RenderingExtensions, DomainConfigurationAware, BoundController}
+import controllers.{RenderingExtensions, OrganizationConfigurationAware, BoundController}
 import play.api.mvc.{Controller, Action}
 import core._
 import play.api.i18n.Messages
-import models.DomainConfiguration
+import models.OrganizationConfiguration
 import core.collection.OrganizationCollectionInformation
 
 /**
@@ -15,14 +15,14 @@ import core.collection.OrganizationCollectionInformation
 
 object Organization extends BoundController(HubModule) with Organization
 
-trait Organization extends Controller with DomainConfigurationAware with RenderingExtensions {
-  this: BoundController with Controller with DomainConfigurationAware with RenderingExtensions =>
+trait Organization extends Controller with OrganizationConfigurationAware with RenderingExtensions {
+  this: BoundController with Controller with OrganizationConfigurationAware with RenderingExtensions =>
   
   val organizationCollectionLookupService = inject [OrganizationCollectionLookupService]
   val organizationServiceLocator = inject [ DomainServiceLocator[OrganizationService] ]
 
 
-  def providers(orgId: String) = DomainConfigured {
+  def providers(orgId: String) = OrganizationConfigured {
     Action {
       implicit request =>
         if (organizationServiceLocator.byDomain.exists(orgId)) {
@@ -46,7 +46,7 @@ trait Organization extends Controller with DomainConfigurationAware with Renderi
     }
   }
 
-  def dataProviders(orgId: String) = DomainConfigured {
+  def dataProviders(orgId: String) = OrganizationConfigured {
     Action {
       implicit request =>
         if (organizationServiceLocator.byDomain.exists(orgId)) {
@@ -70,7 +70,7 @@ trait Organization extends Controller with DomainConfigurationAware with Renderi
     }
   }
 
-  def collections(orgId: String) = DomainConfigured {
+  def collections(orgId: String) = OrganizationConfigured {
     Action {
       implicit request =>
         if (organizationServiceLocator.byDomain.exists(orgId)) {
@@ -93,7 +93,7 @@ trait Organization extends Controller with DomainConfigurationAware with Renderi
     }
   }
 
-  private def getAllOrganiztationCollectionInformation(implicit configuration: DomainConfiguration) = organizationCollectionLookupService.findAll.flatMap { collection =>
+  private def getAllOrganiztationCollectionInformation(implicit configuration: OrganizationConfiguration) = organizationCollectionLookupService.findAll.flatMap { collection =>
     if(collection.isInstanceOf[OrganizationCollectionInformation]) {
       Some(collection.asInstanceOf[OrganizationCollectionInformation])
     } else {

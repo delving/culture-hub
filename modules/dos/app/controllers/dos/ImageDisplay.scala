@@ -26,7 +26,7 @@ import com.mongodb.casbah.gridfs.GridFS
 import java.util.Date
 import play.api.libs.iteratee.Enumerator
 import extensions.MissingLibs
-import controllers.DomainConfigurationAware
+import controllers.OrganizationConfigurationAware
 
 
 /**
@@ -34,14 +34,14 @@ import controllers.DomainConfigurationAware
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-object ImageDisplay extends Controller with RespondWithDefaultImage with DomainConfigurationAware {
+object ImageDisplay extends Controller with RespondWithDefaultImage with OrganizationConfigurationAware {
 
   // ~~ public HTTP API
 
   /**
    * Display a thumbnail given an ID and a width
    */
-  def displayThumbnail(id: String, orgId: String, collectionId: String, width: Option[String], browse: Boolean = false, fileId: Boolean = false) = DomainConfigured {
+  def displayThumbnail(id: String, orgId: String, collectionId: String, width: Option[String], browse: Boolean = false, fileId: Boolean = false) = OrganizationConfigured {
     Action {
       implicit request =>
         renderImage(
@@ -60,7 +60,7 @@ object ImageDisplay extends Controller with RespondWithDefaultImage with DomainC
   /**
    * Display an image given an ID
    */
-  def displayImage(id: String, fileId: Boolean) = DomainConfigured {
+  def displayImage(id: String, fileId: Boolean) = OrganizationConfigured {
     Action {
       implicit request =>
         renderImage(id = id, thumbnail = false, isFileId = fileId, store = fileStore(configuration))

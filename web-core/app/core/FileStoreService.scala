@@ -1,7 +1,7 @@
 package core
 
 import core.storage.StoredFile
-import models.DomainConfiguration
+import models.OrganizationConfiguration
 import java.io.File
 
 /**
@@ -24,18 +24,18 @@ trait FileStoreService {
   /**
    * Lists all files belonging to a bucket
    * @param bucketId the identifier of a bucket
-   * @param configuration the running [[ DomainConfiguration ]]
+   * @param configuration the running [[ OrganizationConfiguration ]]
    * @return a sequence of [[ StoredFile ]]
    */
-  def listFiles(bucketId: String, fileType: Option[String] = None)(implicit configuration: DomainConfiguration): List[StoredFile]
+  def listFiles(bucketId: String, fileType: Option[String] = None)(implicit configuration: OrganizationConfiguration): List[StoredFile]
 
   /**
    * Deletes all the files belonging to a bucket
    * @param bucketId the identifier of a bucket
    * @param fileType an optional discriminator for the file
-   * @param configuration the running [[ DomainConfiguration ]]
+   * @param configuration the running [[ OrganizationConfiguration ]]
    */
-  def deleteFiles(bucketId: String, fileType: Option[String] = None)(implicit configuration: DomainConfiguration)
+  def deleteFiles(bucketId: String, fileType: Option[String] = None)(implicit configuration: OrganizationConfiguration)
 
   /**
    * Stores a single file in the underlying storage
@@ -49,36 +49,36 @@ trait FileStoreService {
    * @return a [[ StoredFile ]] if the storage is successful, None otherwise
    */
   def storeFile(file: File, contentType: String, fileName: String, bucketId: String, fileType: Option[String] = None,
-                params: Map[String, AnyRef] = Map.empty, advertise: Boolean)(implicit configuration: DomainConfiguration): Option[StoredFile]
+                params: Map[String, AnyRef] = Map.empty, advertise: Boolean)(implicit configuration: OrganizationConfiguration): Option[StoredFile]
 
   /**
    * Retrieves a single file given its identifier
    * @param fileIdentifier the unique identifier of the file
    * @return a [[ StoredFile ]] if the lookup is successful, None otherwise
    */
-  def retrieveFile(fileIdentifier: String)(implicit configuration: DomainConfiguration): Option[StoredFile]
+  def retrieveFile(fileIdentifier: String)(implicit configuration: OrganizationConfiguration): Option[StoredFile]
 
   /**
    * Deletes a single file
    * @param fileIdentifier the unique identifier of the file
-   * @param configuration the running [[ DomainConfiguration ]]
+   * @param configuration the running [[ OrganizationConfiguration ]]
    */
-  def deleteFile(fileIdentifier: String)(implicit configuration: DomainConfiguration)
+  def deleteFile(fileIdentifier: String)(implicit configuration: OrganizationConfiguration)
 
   /**
    * Renames a bucket
    * @param oldBucketId the current identifier of the bucket
    * @param newBucketId the new identifier of the bucket
-   * @param configuration the running [[ DomainConfiguration ]]
+   * @param configuration the running [[ OrganizationConfiguration ]]
    */
-  def renameBucket(oldBucketId: String, newBucketId: String)(implicit configuration: DomainConfiguration)
+  def renameBucket(oldBucketId: String, newBucketId: String)(implicit configuration: OrganizationConfiguration)
 
   /**
    * Changes the fileType of files
    * @param newFileType the new file type, optional
    * @param files the files for which to change the type
-   * @param configuration the running [[ DomainConfiguration ]]
+   * @param configuration the running [[ OrganizationConfiguration ]]
    */
-  def setFileType(newFileType: Option[String], files: Seq[StoredFile])(implicit configuration: DomainConfiguration)
+  def setFileType(newFileType: Option[String], files: Seq[StoredFile])(implicit configuration: OrganizationConfiguration)
 
 }
