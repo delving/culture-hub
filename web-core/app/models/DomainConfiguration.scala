@@ -17,7 +17,7 @@ import collection.mutable.ArrayBuffer
  * @author Sjoerd Siebinga <sjoerd.siebinga@gmail.com>
  */
 
-case class DomainConfiguration(
+case class OrganizationConfiguration(
 
   // ~~~ core
   name:                        String,
@@ -191,7 +191,7 @@ case class EmailTarget(adminTo: String = "test-user@delving.eu",
                        systemFrom: String = "noreply@delving.eu",
                        feedbackFrom: String = "noreply@delving.eu")
 
-object DomainConfiguration {
+object OrganizationConfiguration {
 
   val log = Logger("CultureHub")
 
@@ -275,8 +275,8 @@ object DomainConfiguration {
       var missingKeys = new collection.mutable.HashMap[String, Seq[String]]
 
       val config = Play.configuration.getConfig("configurations").get
-      val allDomainConfigurations: Seq[String] = config.keys.filterNot(_.indexOf(".") < 0).map(_.split("\\.").head).toList.distinct
-      val configurations: Seq[DomainConfiguration] = allDomainConfigurations.flatMap {
+      val allOrganizationConfigurations: Seq[String] = config.keys.filterNot(_.indexOf(".") < 0).map(_.split("\\.").head).toList.distinct
+      val configurations: Seq[OrganizationConfiguration] = allOrganizationConfigurations.flatMap {
         configurationKey => {
           val configuration = config.getConfig(configurationKey).get
 
@@ -302,7 +302,7 @@ object DomainConfiguration {
             None
           } else {
             Some(
-              DomainConfiguration(
+              OrganizationConfiguration(
                 name = configurationKey,
                 orgId = configuration.getString(ORG_ID).get,
                 domains = configuration.underlying.getStringList("domains").asScala.toList,
@@ -475,7 +475,7 @@ object DomainConfiguration {
     }
 
     if (!Play.isTest) {
-      val invalidPluginKeys: Seq[(DomainConfiguration, String, Option[CultureHubPlugin])] = configurations.flatMap { configuration =>
+      val invalidPluginKeys: Seq[(OrganizationConfiguration, String, Option[CultureHubPlugin])] = configurations.flatMap { configuration =>
         configuration.plugins.map(key => Tuple3(configuration, key, plugins.find(_.pluginKey == key))).filter(_._3.isEmpty)
       }
       if(!invalidPluginKeys.isEmpty) {
@@ -572,13 +572,13 @@ object DomainConfiguration {
 
     // when everything else is ready, do the plugin configuration, per plugin
 
-    val pluginConfigurations: Map[(String, DomainConfiguration), Option[Configuration]] = configs.flatMap { configuration =>
+    val pluginConfigurations: Map[(String, OrganizationConfiguration), Option[Configuration]] = configs.flatMap { configuration =>
       configuration.plugins.map { pluginKey =>
         ((pluginKey -> configuration) -> config.getConfig("%s.plugin.%s".format(configuration.name, pluginKey)))
       }
     }.toMap
 
-    val groupedPluginConfigurations: Map[String, Map[DomainConfiguration, Option[Configuration]]] = pluginConfigurations.groupBy(_._1._1).map { g =>
+    val groupedPluginConfigurations: Map[String, Map[OrganizationConfiguration, Option[Configuration]]] = pluginConfigurations.groupBy(_._1._1).map { g =>
       (g._1 -> {
         g._2.map(group => (group._1._2 -> group._2))
       })

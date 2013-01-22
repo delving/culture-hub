@@ -1,7 +1,7 @@
 package plugins
 
 import core.services.AggregatingNodeSubscriptionService
-import util.DomainConfigurationHandler
+import util.OrganizationConfigurationHandler
 import core.mapping.MappingService
 import core.schema.SchemaRepositoryWrapper
 import core._
@@ -39,7 +39,7 @@ class ConfigurationPlugin(app: Application) extends CultureHubPlugin(app) {
 
     // ~~~ load configurations
     try {
-      DomainConfigurationHandler.startup(CultureHubPlugin.hubPlugins)
+      OrganizationConfigurationHandler.startup(CultureHubPlugin.hubPlugins)
     } catch {
       case t: Throwable =>
         t.printStackTrace()
@@ -47,7 +47,7 @@ class ConfigurationPlugin(app: Application) extends CultureHubPlugin(app) {
     }
 
     if (!Play.isTest) {
-      info("Using the following configurations: " + DomainConfigurationHandler.domainConfigurations.map(_.name).mkString(", "))
+      info("Using the following configurations: " + OrganizationConfigurationHandler.organizationConfigurations.map(_.name).mkString(", "))
     } else {
       // now we cheat - load users before we initialize the HubServices in test mode
       onLoadTestData(Map.empty)
@@ -58,7 +58,7 @@ class ConfigurationPlugin(app: Application) extends CultureHubPlugin(app) {
     HubServices.init()
 
     // ~~~ sanity check
-    DomainConfigurationHandler.domainConfigurations.foreach { implicit configuration =>
+    OrganizationConfigurationHandler.organizationConfigurations.foreach { implicit configuration =>
       if (!organizationServiceLocator.byDomain.exists(configuration.orgId)) {
         error("Organization %s does not exist on the configured Organizations service!".format(configuration.orgId))
         System.exit(-1)
@@ -66,7 +66,7 @@ class ConfigurationPlugin(app: Application) extends CultureHubPlugin(app) {
     }
 
     // ~~~ bootstrap plugin messaging, one per organization
-    pluginBroadcastActors = DomainConfigurationHandler.domainConfigurations.map { implicit configuration =>
+    pluginBroadcastActors = OrganizationConfigurationHandler.organizationConfigurations.map { implicit configuration =>
       val props = Props(new BroadcastingPluginActor)
       info("Starting Akka messaging sub-system for organization " + configuration.orgId)
       Akka.system.actorOf(props, "plugins-" + configuration.orgId)

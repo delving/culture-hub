@@ -183,7 +183,7 @@ case class CMSPageViewModel(dateCreated: Long,
 
 object CMSPageViewModel {
 
-  def apply(cmsPage: CMSPage, menu: String)(implicit configuration: DomainConfiguration): CMSPageViewModel = {
+  def apply(cmsPage: CMSPage, menu: String)(implicit configuration: OrganizationConfiguration): CMSPageViewModel = {
     // we only allow linking once to a CMSPage so we can be sure that we will only ever find at most one MenuEntry for it
     val (menuEntryPosition, menuKey) = MenuEntry.dao.findOneByTargetPageKey(cmsPage.key).map { e =>
       (e.position, e.menuKey)

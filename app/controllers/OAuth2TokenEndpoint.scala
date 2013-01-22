@@ -32,11 +32,11 @@ import scala.Right
  */
 object OAuth2TokenEndpoint extends BoundController(HubModule) with OAuth2TokenEndpoint
 
-trait OAuth2TokenEndpoint extends Controller with DomainConfigurationAware { this: BoundController with Controller with DomainConfigurationAware =>
+trait OAuth2TokenEndpoint extends Controller with OrganizationConfigurationAware { this: BoundController with Controller with OrganizationConfigurationAware =>
 
   val authenticationServiceLocator = inject [ DomainServiceLocator[AuthenticationService] ]
 
-  def token: Action[AnyContent] = DomainConfigured {
+  def token: Action[AnyContent] = OrganizationConfigured {
     Action {
       implicit request =>
         val oauthIssuerImpl: OAuthIssuer = new OAuthIssuerImpl(new MD5Generator)

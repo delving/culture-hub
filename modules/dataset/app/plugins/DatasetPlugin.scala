@@ -6,7 +6,7 @@ import play.api.{Play, Application}
 import Play.current
 import models._
 import _root_.processing.DataSetCollectionProcessor
-import util.DomainConfigurationHandler
+import util.OrganizationConfigurationHandler
 import java.util.zip.GZIPInputStream
 import com.mongodb.BasicDBObject
 import io.Source
@@ -129,7 +129,7 @@ class DataSetPlugin(app: Application) extends CultureHubPlugin(app) {
    * @param roles the roles of the current user
    * @return a sequence of [[core.MainMenuEntry]] for the organization menu
    */
-  override def organizationMenuEntries(configuration: DomainConfiguration, lang: String, roles: Seq[String]): Seq[MainMenuEntry] = Seq(
+  override def organizationMenuEntries(configuration: OrganizationConfiguration, lang: String, roles: Seq[String]): Seq[MainMenuEntry] = Seq(
     MainMenuEntry(
       key = "datasets",
       titleKey = "thing.datasets",
@@ -171,7 +171,7 @@ class DataSetPlugin(app: Application) extends CultureHubPlugin(app) {
        * @return a sequence of resources matching the query
        */
       def findResources(orgId: String, query: String): Seq[Resource] = {
-        implicit val configuration = DomainConfigurationHandler.getByOrgId(orgId)
+        implicit val configuration = OrganizationConfigurationHandler.getByOrgId(orgId)
         DataSet.dao.find(MongoDBObject(
           "orgId" -> orgId,
           "spec" -> Pattern.compile(query, Pattern.CASE_INSENSITIVE))
@@ -185,7 +185,7 @@ class DataSetPlugin(app: Application) extends CultureHubPlugin(app) {
        * @return the resource of the given key, if found
        */
       def findResourceByKey(orgId: String, resourceKey: String): Option[Resource] = {
-        implicit val configuration = DomainConfigurationHandler.getByOrgId(orgId)
+        implicit val configuration = OrganizationConfigurationHandler.getByOrgId(orgId)
         DataSet.dao.findOne(MongoDBObject("orgId" -> orgId, "spec" -> resourceKey))
       }
     }
@@ -243,7 +243,7 @@ class DataSetPlugin(app: Application) extends CultureHubPlugin(app) {
             set =>
               dataSetDAO.updateState(set, DataSetState.CANCELLED)
               try {
-                implicit val configuration = DomainConfigurationHandler.getByOrgId(set.orgId)
+                implicit val configuration = OrganizationConfigurationHandler.getByOrgId(set.orgId)
                 IndexingService.deleteBySpec(set.orgId, set.spec)
               } catch {
                 case t: Throwable => error(
@@ -347,7 +347,7 @@ class DataSetPlugin(app: Application) extends CultureHubPlugin(app) {
   def bootstrapDataset(boot: BootstrapSource) {
     if (DataSet.dao(boot.org).count(MongoDBObject("spec" -> boot.spec)) == 0) {
 
-      implicit val configuration = DomainConfigurationHandler.getByOrgId(("delving"))
+      implicit val configuration = OrganizationConfigurationHandler.getByOrgId(("delving"))
 
       val factMap = new BasicDBObject()
       factMap.put("spec", boot.spec)

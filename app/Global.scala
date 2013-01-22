@@ -10,7 +10,7 @@ import akka.actor._
 import play.api._
 import mvc.{Handler, RequestHeader}
 import play.api.Play.current
-import util.DomainConfigurationHandler
+import util.OrganizationConfigurationHandler
 import eu.delving.culturehub.BuildInfo
 import play.api.mvc.Results._
 
@@ -100,11 +100,11 @@ object Global extends GlobalSettings {
     val domain: String = request.queryString.get("domain").map(v => v.head).getOrElse(request.domain)
 
     // check if we access a configured domain
-    if (!DomainConfigurationHandler.hasConfiguration(domain)) {
+    if (!OrganizationConfigurationHandler.hasConfiguration(domain)) {
       Logger("CultureHub").debug("Accessed invalid domain %s, redirecting...".format(domain))
       Some(controllers.Default.redirect(Play.configuration.getString("defaultDomainRedirect").getOrElse("http://www.delving.eu")))
     } else {
-      implicit val configuration = DomainConfigurationHandler.getByDomain(domain)
+      implicit val configuration = OrganizationConfigurationHandler.getByDomain(domain)
       val routes = CultureHubPlugin.getEnabledPlugins.flatMap(_.routes)
 
       val routeLogger = Akka.system.actorFor("akka://application/user/routeLogger")

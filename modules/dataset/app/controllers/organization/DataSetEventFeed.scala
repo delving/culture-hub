@@ -9,10 +9,10 @@ import play.api.libs.json._
 import play.api.libs.iteratee._
 import play.api.libs.concurrent._
 import play.api.Play.current
-import models.{DomainConfiguration, DataSetEventLog, DataSetState, DataSet}
+import models.{OrganizationConfiguration, DataSetEventLog, DataSetState, DataSet}
 import play.api.Logger
 import models.DataSetState._
-import util.DomainConfigurationHandler
+import util.OrganizationConfigurationHandler
 
 
 /**
@@ -272,7 +272,7 @@ class DataSetEventFeed extends Actor {
           val s = subscriber._2
           val orgId = subscriber._2.orgId
           val userName = subscriber._2.userName
-          implicit val configuration = DomainConfigurationHandler.getByName(subscriber._2.configuration)
+          implicit val configuration = OrganizationConfigurationHandler.getByName(subscriber._2.configuration)
 
           def withAdministrableSet(block: DataSet => Unit) {
             withSet(block, (set, userName) => DataSet.dao.canAdministrate(userName))
@@ -571,7 +571,7 @@ class DataSetEventLogger extends Actor {
   def receive = {
 
     case DataSetEvent(orgId, spec, eventType, payload, userName, systemEvent, transientEvent) =>
-      implicit val configuration: DomainConfiguration = DomainConfigurationHandler.getByOrgId(orgId)
+      implicit val configuration: OrganizationConfiguration = OrganizationConfigurationHandler.getByOrgId(orgId)
       DataSetEventLog.dao.insert(
         DataSetEventLog(
           orgId = orgId,

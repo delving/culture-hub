@@ -53,15 +53,15 @@ abstract class MetadataAccessors {
   def getOwner: String = assign(OWNER.tag)
   def getVisibility: String = assign(VISIBILITY.key)
 
-  def getUri(implicit configuration: DomainConfiguration): String = "/" + getOrgId + "/" + getSpec + "/" + getRecordId
+  def getUri(implicit configuration: OrganizationConfiguration): String = "/" + getOrgId + "/" + getSpec + "/" + getRecordId
 
   def getLandingPage = getItemType match {
     case ITEM_TYPE_MDR => assign(LANDING_PAGE.tag)
     case _ => ""
   }
-  def getThumbnailUri(configuration: DomainConfiguration): String = getThumbnailUri(180, configuration)
+  def getThumbnailUri(configuration: OrganizationConfiguration): String = getThumbnailUri(180, configuration)
 
-  def getThumbnailUri(size: Int, configuration: DomainConfiguration): String = {
+  def getThumbnailUri(size: Int, configuration: OrganizationConfiguration): String = {
     assign(THUMBNAIL.tag) match {
       case id if ObjectId.isValid(id) && !id.trim.isEmpty =>
         val mongoId = Some(new ObjectId(id))

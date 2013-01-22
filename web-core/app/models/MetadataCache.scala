@@ -1,6 +1,6 @@
 package models
 
-import _root_.util.DomainConfigurationHandler
+import _root_.util.OrganizationConfigurationHandler
 import com.mongodb.casbah.Imports._
 import core.{ItemType, SystemField}
 import org.bson.types.ObjectId
@@ -39,7 +39,7 @@ object MetadataCache {
   def get(orgId: String, col: String, itemType: ItemType): core.MetadataCache = get(orgId, col, itemType.itemType)
 
   def get(orgId: String, col: String, itemType: String): core.MetadataCache = {
-    val configuration = DomainConfigurationHandler.getByOrgId(orgId)
+    val configuration = OrganizationConfigurationHandler.getByOrgId(orgId)
     val mongoConnection = mongoConnections(configuration)
     val mongoCollection: MongoCollection = mongoConnection(getMongoCollectionName(configuration.orgId))
     mongoCollection.ensureIndex(MongoDBObject("collection" -> 1, "itemType" -> 1, "itemId" -> 1))

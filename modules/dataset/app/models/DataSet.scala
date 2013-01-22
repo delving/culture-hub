@@ -29,7 +29,7 @@ import core.collection.{OrganizationCollection, OrganizationCollectionInformatio
 import controllers.organization.DataSetEvent
 import plugins.DataSetPlugin
 import java.util.Date
-import util.DomainConfigurationHandler
+import util.OrganizationConfigurationHandler
 import eu.delving.schema.SchemaVersion
 import java.io.StringReader
 import core.mapping.MappingService
@@ -100,7 +100,7 @@ case class DataSet(
 
   ) extends OrganizationCollection with OrganizationCollectionInformation with Harvestable with Resource {
 
-  implicit val configuration = DomainConfigurationHandler.getByOrgId(orgId)
+  implicit val configuration = OrganizationConfigurationHandler.getByOrgId(orgId)
   val organizationServiceLocator = HubModule.inject[DomainServiceLocator[OrganizationService]](name = None)
 
   val itemType: ItemType = DataSetPlugin.ITEM_TYPE
@@ -216,13 +216,13 @@ object DataSet extends MultiModel[DataSet, DataSetDAO] {
   protected def initIndexes(collection: MongoCollection) {}
 
   protected def initDAO(collection: MongoCollection, connection: MongoDB)
-                       (implicit configuration: DomainConfiguration): DataSetDAO = new DataSetDAO(collection)(configuration, HubModule)
+                       (implicit configuration: OrganizationConfiguration): DataSetDAO = new DataSetDAO(collection)(configuration, HubModule)
 
   val RESOURCE_TYPE = ResourceType("dataSet")
 
 }
 
-class DataSetDAO(collection: MongoCollection)(implicit val configuration: DomainConfiguration, val bindingModule: BindingModule)
+class DataSetDAO(collection: MongoCollection)(implicit val configuration: OrganizationConfiguration, val bindingModule: BindingModule)
   extends SalatDAO[DataSet, ObjectId](collection) with Pager[DataSet] with Injectable {
 
   val organizationServiceLocator = inject [ DomainServiceLocator[OrganizationService] ]
@@ -268,7 +268,7 @@ class DataSetDAO(collection: MongoCollection)(implicit val configuration: Domain
 
   // TODO generify, move to Group
   def findAllForUser(userName: String, orgId: String, role: Role)
-                    (implicit configuration: DomainConfiguration): Seq[DataSet] = {
+                    (implicit configuration: OrganizationConfiguration): Seq[DataSet] = {
 
     val userGroups: Seq[Group] = Group.dao.find(MongoDBObject("users" -> userName)).toSeq
     val userRoles: Seq[Role] = userGroups.map(group => Role.get(group.roleKey))
@@ -293,7 +293,7 @@ class DataSetDAO(collection: MongoCollection)(implicit val configuration: Domain
 
   // TODO generify, move to Group... (see above)
   // FIXME TODO use view rights. no rights are used at all here...
-  def findAllCanSee(orgId: String, userName: String)(implicit configuration: DomainConfiguration): List[DataSet] = {
+  def findAllCanSee(orgId: String, userName: String)(implicit configuration: OrganizationConfiguration): List[DataSet] = {
 
     if (organizationServiceLocator.byDomain.isAdmin(orgId, userName)) {
       findAllByOrgId(orgId).toList
@@ -311,11 +311,11 @@ class DataSetDAO(collection: MongoCollection)(implicit val configuration: Domain
 
   def findAllByOrgId(orgId: String) = find(MongoDBObject("orgId" -> orgId, "deleted" -> false))
 
-  def canEdit(ds: DataSet, userName: String)(implicit configuration: DomainConfiguration) = {
+  def canEdit(ds: DataSet, userName: String)(implicit configuration: OrganizationConfiguration) = {
     findAllForUser(userName, configuration.orgId, DataSetPlugin.ROLE_DATASET_EDITOR).contains(ds)
   }
 
-  def canAdministrate(userName: String)(implicit configuration: DomainConfiguration) = {
+  def canAdministrate(userName: String)(implicit configuration: OrganizationConfiguration) = {
     Group.dao.findResourceAdministrators(configuration.orgId, DataSet.RESOURCE_TYPE).contains(userName) ||
       organizationServiceLocator.byDomain.isAdmin(configuration.orgId, userName)
   }
@@ -362,7 +362,7 @@ class DataSetDAO(collection: MongoCollection)(implicit val configuration: Domain
     // TODO fire off appropriate state change event
   }
 
-  def updateMapping(dataSet: DataSet, mappingString: String)(implicit configuration: DomainConfiguration): DataSet = {
+  def updateMapping(dataSet: DataSet, mappingString: String)(implicit configuration: OrganizationConfiguration): DataSet = {
     val mapping = RecMapping.read(new StringReader(mappingString), MappingService.recDefModel(schemaService))
     val recordDefinition: Option[RecordDefinition] = RecordDefinition.getRecordDefinition(
       mapping.getPrefix,
@@ -487,7 +487,7 @@ class DataSetDAO(collection: MongoCollection)(implicit val configuration: Domain
 
   // statistics
 
-  def getMostRecentDataSetStatistics(implicit configuration: DomainConfiguration) = {
+  def getMostRecentDataSetStatistics(implicit configuration: OrganizationConfiguration) = {
     DataSetStatistics.dao.find(MongoDBObject()).$orderby(MongoDBObject("_id" -> -1)).limit(1).toList.headOption
   }
 

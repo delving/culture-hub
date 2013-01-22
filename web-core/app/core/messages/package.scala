@@ -1,6 +1,6 @@
 package core
 
-import models.DomainConfiguration
+import models.OrganizationConfiguration
 
 /**
  * Messages for communication with plugins
@@ -9,6 +9,6 @@ import models.DomainConfiguration
  */
 package object messages {
 
-  case class FileStored(bucketId: String, fileIdentifier: String, fileType: Option[String], fileName: String, contentType: String, configuration: DomainConfiguration)
+  case class FileStored(bucketId: String, fileIdentifier: String, fileType: Option[String], fileName: String, contentType: String, configuration: OrganizationConfiguration)
 
 }

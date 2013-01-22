@@ -16,7 +16,7 @@
 
 package models
 
-import _root_.util.DomainConfigurationHandler
+import _root_.util.OrganizationConfigurationHandler
 import xml.{Node, XML}
 import play.api.{Logger, Play}
 import play.api.Play.current
@@ -74,9 +74,9 @@ object RecordDefinition {
 
   private val parsedRecordDefinitionsCache = new mutable.HashMap[String, RecordDefinition]()
 
-  def getRecordDefinition(schema: SchemaVersion)(implicit configuration: DomainConfiguration): Option[RecordDefinition] = getRecordDefinition(schema.getPrefix, schema.getVersion)
+  def getRecordDefinition(schema: SchemaVersion)(implicit configuration: OrganizationConfiguration): Option[RecordDefinition] = getRecordDefinition(schema.getPrefix, schema.getVersion)
 
-  def getRecordDefinition(prefix: String, version: String)(implicit configuration: DomainConfiguration): Option[RecordDefinition] = {
+  def getRecordDefinition(prefix: String, version: String)(implicit configuration: OrganizationConfiguration): Option[RecordDefinition] = {
     if(prefix == "raw") {
       Some(rawRecordDefinition)
     } else {
@@ -108,14 +108,14 @@ object RecordDefinition {
   }
 
   // TODO version crosswalk lookups
-  def getCrosswalkResources(sourcePrefix: String)(implicit configuration: DomainConfiguration): Seq[URL] = {
+  def getCrosswalkResources(sourcePrefix: String)(implicit configuration: OrganizationConfiguration): Seq[URL] = {
     enabledCrosswalks(configuration).
       filter(_.startsWith(sourcePrefix)).
       flatMap(prefix => Play.resource("definitions/%s/%s-crosswalk.xml".format(sourcePrefix, prefix))).
       toSeq
   }
 
-  private def fetchRecordDefinition(prefix: String, version: String)(implicit configuration: DomainConfiguration): Option[RecordDefinition] = {
+  private def fetchRecordDefinition(prefix: String, version: String)(implicit configuration: OrganizationConfiguration): Option[RecordDefinition] = {
     schemaService.getSchema(prefix, version, SchemaType.RECORD_DEFINITION).flatMap { definition =>
       try {
         parseRecordDefinition(XML.loadString(definition), version)
@@ -151,7 +151,7 @@ object RecordDefinition {
     )
   }
 
-  private lazy val enabledCrosswalks: Map[DomainConfiguration, Seq[String]] = DomainConfigurationHandler.domainConfigurations.
+  private lazy val enabledCrosswalks: Map[OrganizationConfiguration, Seq[String]] = OrganizationConfigurationHandler.organizationConfigurations.
       map(configuration => (configuration -> configuration.crossWalks)).toMap
 
 }

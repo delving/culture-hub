@@ -19,7 +19,7 @@ package processors
 import at.ait.dme.magicktiler.MagickTiler
 import models.dos.Task
 import java.io.File
-import util.DomainConfigurationHandler
+import util.OrganizationConfigurationHandler
 import libs.PTIFTiling
 
 /**
@@ -31,7 +31,7 @@ object PTIFTilingProcessor extends Processor {
 
   def process(task: Task, processorParams: Map[String, AnyRef]) {
 
-    val configuration = DomainConfigurationHandler.getByOrgId(task.orgId)
+    val configuration = OrganizationConfigurationHandler.getByOrgId(task.orgId)
 
     val tilesOutputBasePath = new File(configuration.objectService.tilesOutputBaseDir)
     val tilesWorkingBasePath = new File(configuration.objectService.tilesWorkingBaseDir)

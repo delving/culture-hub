@@ -20,11 +20,11 @@ import core.{AuthenticationService, DomainServiceLocator, HubModule}
 
 object OAuth2Authenticator extends BoundController(HubModule) with OAuth2Authenticator
 
-trait OAuth2Authenticator extends Controller with DomainConfigurationAware { this: BoundController with Controller with DomainConfigurationAware =>
+trait OAuth2Authenticator extends Controller with OrganizationConfigurationAware { this: BoundController with Controller with OrganizationConfigurationAware =>
 
   val authenticationServiceLocator = inject [ DomainServiceLocator[AuthenticationService] ]
 
-  def authenticate = DomainConfigured {
+  def authenticate = OrganizationConfigured {
     Action {
       implicit request =>
 

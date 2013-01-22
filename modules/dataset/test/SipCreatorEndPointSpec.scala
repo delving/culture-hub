@@ -9,7 +9,7 @@ import play.api.test.Helpers._
 import models._
 import play.api.mvc._
 import play.api.libs.Files.TemporaryFile
-import util.DomainConfigurationHandler
+import util.OrganizationConfigurationHandler
 import xml.XML
 import org.apache.commons.io.FileUtils
 
@@ -173,7 +173,7 @@ class SipCreatorEndPointSpec extends BootstrapAwareSpec {
 
         val dataSet = DataSet.dao(bootstrap.org).findBySpecAndOrgId(bootstrap.spec, bootstrap.org).get
 
-        implicit val configuration = DomainConfigurationHandler.getByOrgId("delving")
+        implicit val configuration = OrganizationConfigurationHandler.getByOrgId("delving")
         while (DataSet.dao.getState(dataSet.orgId, dataSet.spec) == DataSetState.PARSING) Thread.sleep(100)
 
         DataSet.dao(bootstrap.org).getSourceRecordCount(dataSet) must equalTo(8)
@@ -235,7 +235,7 @@ class SipCreatorEndPointSpec extends BootstrapAwareSpec {
 
       withTestConfig {
 
-        implicit val configuration = DomainConfigurationHandler.getByOrgId(bootstrap.org)
+        implicit val configuration = OrganizationConfigurationHandler.getByOrgId(bootstrap.org)
 
         bootstrap.init()
 

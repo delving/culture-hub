@@ -43,14 +43,14 @@ object Role {
 
   val systemRoles = List(OWN)
 
-  def dynamicRoles(configuration: DomainConfiguration) = configuration.roles
+  def dynamicRoles(configuration: OrganizationConfiguration) = configuration.roles
 
-  def computeRoles(configuration: DomainConfiguration) = (systemRoles ++ dynamicRoles(configuration))
+  def computeRoles(configuration: OrganizationConfiguration) = (systemRoles ++ dynamicRoles(configuration))
 
-  def allRoles(configuration: DomainConfiguration): Seq[Role] = computeRoles(configuration)
+  def allRoles(configuration: OrganizationConfiguration): Seq[Role] = computeRoles(configuration)
 
-  def allPrimaryRoles(configuration: DomainConfiguration): Seq[Role] = allRoles(configuration).filterNot(_.isUnitRole)
+  def allPrimaryRoles(configuration: OrganizationConfiguration): Seq[Role] = allRoles(configuration).filterNot(_.isUnitRole)
 
-  def get(role: String)(implicit configuration: DomainConfiguration) = allRoles(configuration).find(_.key == role).getOrElse(illegal(role))
+  def get(role: String)(implicit configuration: OrganizationConfiguration) = allRoles(configuration).find(_.key == role).getOrElse(illegal(role))
 
 }

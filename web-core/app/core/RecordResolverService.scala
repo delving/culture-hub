@@ -2,7 +2,7 @@ package core
 
 import core.rendering.ViewType
 import eu.delving.schema.SchemaVersion
-import models.DomainConfiguration
+import models.OrganizationConfiguration
 import play.api.mvc.RequestHeader
 
 /**
@@ -17,7 +17,7 @@ trait RecordResolverService {
    * @param hubId the ID of the record
    * @param schemaVersion the (optional) version of the schema to be fetched
    */
-  def getRecord(hubId: HubId, schemaVersion: Option[SchemaVersion] = None)(implicit request: RequestHeader, configuration: DomainConfiguration): Option[RenderableRecord]
+  def getRecord(hubId: HubId, schemaVersion: Option[SchemaVersion] = None)(implicit request: RequestHeader, configuration: OrganizationConfiguration): Option[RenderableRecord]
 
 }
 
