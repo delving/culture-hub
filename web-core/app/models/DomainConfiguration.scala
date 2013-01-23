@@ -153,7 +153,8 @@ case class SearchServiceConfiguration(
   sortFields:                   String, // dc_creator,dc_provider:desc
   moreLikeThis:                 MoreLikeThis,
   searchIn:                     Map[String, String],
-  apiWsKey:                     Boolean = false,
+  apiWsKeyEnabled:              Boolean = false,
+  apiWsKeys:                    Seq[String] = Seq.empty,
   pageSize:                     Int,
   showResultsWithoutThumbnails: Boolean = false
 )
@@ -223,7 +224,8 @@ object OrganizationConfiguration {
   val SEARCH_HQF = "services.search.hiddenQueryFilter"
   val SEARCH_FACETS = "services.search.facets"
   val SEARCH_SORTFIELDS = "services.search.sortFields"
-  val SEARCH_APIWSKEY = "services.search.apiWsKey"
+  val SEARCH_APIWSKEYENABLED = "services.search.apiWsKeyEnabled"
+  val SEARCH_APIWSKEYS = "services.search.apiWsKeys"
   val SEARCH_MORELIKETHIS = "services.search.moreLikeThis"
   val SEARCH_SEARCHIN = "services.search.searchIn"
   val SEARCH_PAGE_SIZE = "services.search.pageSize"
@@ -258,7 +260,7 @@ object OrganizationConfiguration {
     COMMONS_HOST, COMMONS_NODE_NAME,
     IMAGE_CACHE_DATABASE, FILESTORE_DATABASE, TILES_WORKING_DIR, TILES_OUTPUT_DIR,
     OAI_REPO_NAME, OAI_ADMIN_EMAIL, OAI_EARLIEST_TIMESTAMP, OAI_REPO_IDENTIFIER, OAI_SAMPLE_IDENTIFIER, OAI_RESPONSE_LIST_SIZE, OAI_ALLOW_RAW_HARVESTING,
-    SEARCH_FACETS, SEARCH_SORTFIELDS, SEARCH_APIWSKEY,
+    SEARCH_FACETS, SEARCH_SORTFIELDS,
     BASEX_HOST, BASEX_PORT, BASEX_EPORT, BASEX_USER, BASEX_PASSWORD,
     PROVIDER_DIRECTORY_URL,
     EMAIL_ADMINTO, EMAIL_EXCEPTIONTO, EMAIL_FEEDBACKTO, EMAIL_REGISTERTO, EMAIL_SYSTEMFROM, EMAIL_FEEDBACKFROM
@@ -343,7 +345,8 @@ object OrganizationConfiguration {
                   hiddenQueryFilter = getOptionalString(configuration, SEARCH_HQF).getOrElse(""),
                   facets = getString(configuration, SEARCH_FACETS),
                   sortFields = getString(configuration, SEARCH_SORTFIELDS),
-                  apiWsKey = getBoolean(configuration, SEARCH_APIWSKEY),
+                  apiWsKeyEnabled = getOptionalBoolean(configuration, SEARCH_APIWSKEYENABLED).getOrElse(false),
+                  apiWsKeys = getOptionalStringList(configuration, SEARCH_APIWSKEYS).getOrElse(Seq.empty),
                   moreLikeThis = {
                     val mlt = configuration.getConfig(SEARCH_MORELIKETHIS)
                     val default = MoreLikeThis()
@@ -598,6 +601,13 @@ object OrganizationConfiguration {
 
   private def getOptionalString(configuration: Configuration, key: String): Option[String] =
     configuration.getString(key).orElse(Play.configuration.getString(key))
+
+  private def getOptionalStringList(configuration: Configuration, key: String): Option[Seq[String]] =
+    if (configuration.underlying.hasPath(key))
+      Some(configuration.underlying.getStringList(key).asScala.toSeq)
+   else
+      None
+
 
   private def getInt(configuration: Configuration, key: String): Int =
     configuration.getInt(key).getOrElse(Play.configuration.getInt(key).get)
