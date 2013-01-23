@@ -70,12 +70,13 @@ class SearchService(request: RequestHeader, hiddenQueryFilters: Seq[String] = Se
   def getApiResult: PlainResult = {
 
     val response = try {
-      if (configuration.searchService.apiWsKey) {
-        val wskey = params.getValueOrElse("wskey", "unknown") //paramMap.getOrElse("wskey", Array[String]("unknown")).head
-        // todo add proper wskey checking
-        if (!wskey.toString.equalsIgnoreCase("unknown")) {
-          Logger.warn(String.format("Service Access Key %s invalid!", wskey));
-          throw new AccessKeyException(String.format("Access Key %s not accepted", wskey));
+      if (configuration.searchService.apiWsKeyEnabled) {
+        val wsKey = params.getValueOrElse("wskey", "unknown")
+        val wsKeyProvided = !wsKey.equalsIgnoreCase("unknown")
+        if ((configuration.searchService.apiWsKeyEnabled && !wsKeyProvided) ||
+            (configuration.searchService.apiWsKeyEnabled && wsKeyProvided && !configuration.searchService.apiWsKeys.exists(_ == wsKey.trim))) {
+          Logger("CultureHub").warn("[%s] Service Access Key %s invalid!".format(configuration.orgId, wsKey))
+          throw new AccessKeyException(String.format("Access Key %s not accepted", wsKey))
         }
       }
       format match {
