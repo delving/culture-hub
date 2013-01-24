@@ -120,9 +120,9 @@
                         <span class="caret"></span>
                     </a>
                     <ul class="dropdown-menu" data-bind="css: { disabled: cannotEdit | (dataSetState() == 'enabled') }">
-                        <li data-bind="css: { disabled: lockState() == 'unlocked'},"><a data-bind="click: function() { unlock(spec); } "><i class="icon icon-lock"></i> Unlock</a></li>
-                        <li><a data-bind="click: function() { resetHashes(spec); }"><i class="icon icon-warning-sign"></i> Reset Hashes</a></li>
-                        <li><a data-bind="click: function() { deleteSet(spec); }"><i class="icon icon-remove"></i> Delete</a></li>
+                        <li data-bind="css: { hide: lockState() == 'unlocked'},"><a data-bind="click: function() { unlock(spec); } "><i class="icon-unlock"></i>Unlock</a></li>
+                        <li><a data-bind="click: function() { resetHashes(spec); }"><i class="icon-warning-sign"></i> Reset Hashes</a></li>
+                        <li><a data-bind="click: function() { deleteSet(spec); }"><i class="icon-remove"></i> Delete</a></li>
                     </ul>
                 </div>
                 <div class="btn-group pull-right">
