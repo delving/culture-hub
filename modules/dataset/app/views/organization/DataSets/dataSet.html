@@ -103,31 +103,33 @@
 
     <div class="dataset-actions span7">
 
-        <div data-bind="template: { name: 'statusInformation' }"></div>
+        <div class="well">
 
-        <h4>Dataset actions</h4>
+            <div data-bind="template: { name: 'statusInformation' }"></div>
 
-        <div class="btn-toolbar">
-            <div class="btn-group">
-                <button class="btn" data-bind="css: { disabled: cannotEdit | (dataSetState() != 'disabled' && dataSetState() != 'enabled') }, click: function() { (dataSetState() == 'disabled' ? enable(spec) : disable(spec)) }, text: (dataSetState() == 'enabled' ? 'Disable' : 'Enable')"></button>
-                <button class="btn" data-bind="css: { disabled: cannotEdit | (dataSetState() != 'uploaded' && dataSetState() != 'enabled' && dataSetState() != 'disabled' && dataSetState() != 'error') }, click: function() { process(spec); }">Process</button>
-            </div>
-            <div class="btn-group">
-                <a class="btn dropdown-toggle" data-bind="css: { disabled: cannotEdit | (dataSetState() == 'enabled') }" data-toggle="dropdown" href="#">
-                    Expert actions
-                    <span class="caret"></span>
-                </a>
-                <ul class="dropdown-menu" data-bind="css: { disabled: cannotEdit | (dataSetState() == 'enabled') }">
-                    <li data-bind="css: { disabled: lockState() == 'unlocked'},"><a data-bind="click: function() { unlock(spec); } "><i class="icon icon-lock"></i> Unlock</a></li>
-                    <li><a data-bind="click: function() { resetHashes(spec); }"><i class="icon icon-warning-sign"></i> Reset Hashes</a></li>
-                    <li><a data-bind="click: function() { deleteSet(spec); }"><i class="icon icon-remove"></i> Delete</a></li>
-                </ul>
-            </div>
-            <div class="btn-group pull-right">
-                <a data-bind="css: { disabled: cannotEdit }, click: function() { if (!cannotEdit()) document.location = '/organizations/${orgId}/dataset/${spec}/update' }" class="btn"><i class="icon icon-edit"></i> ${messages.get('ui.label.edit')}</a>
+            <h4>Dataset actions</h4>
+
+            <div class="btn-toolbar">
+                <div class="btn-group">
+                    <button class="btn" data-bind="css: { disabled: cannotEdit | (dataSetState() != 'disabled' && dataSetState() != 'enabled') }, click: function() { (dataSetState() == 'disabled' ? enable(spec) : disable(spec)) }, text: (dataSetState() == 'enabled' ? 'Disable' : 'Enable')"></button>
+                    <button class="btn" data-bind="css: { disabled: cannotEdit | (dataSetState() != 'uploaded' && dataSetState() != 'enabled' && dataSetState() != 'disabled' && dataSetState() != 'error') }, click: function() { process(spec); }">Process</button>
+                </div>
+                <div class="btn-group">
+                    <a class="btn dropdown-toggle" data-bind="css: { disabled: cannotEdit | (dataSetState() == 'enabled') }" data-toggle="dropdown" href="#">
+                        Expert actions
+                        <span class="caret"></span>
+                    </a>
+                    <ul class="dropdown-menu" data-bind="css: { disabled: cannotEdit | (dataSetState() == 'enabled') }">
+                        <li data-bind="css: { disabled: lockState() == 'unlocked'},"><a data-bind="click: function() { unlock(spec); } "><i class="icon icon-lock"></i> Unlock</a></li>
+                        <li><a data-bind="click: function() { resetHashes(spec); }"><i class="icon icon-warning-sign"></i> Reset Hashes</a></li>
+                        <li><a data-bind="click: function() { deleteSet(spec); }"><i class="icon icon-remove"></i> Delete</a></li>
+                    </ul>
+                </div>
+                <div class="btn-group pull-right">
+                    <a data-bind="css: { disabled: cannotEdit }, click: function() { if (!cannotEdit()) document.location = '/organizations/${orgId}/dataset/${spec}/update' }" class="btn"><i class="icon icon-edit"></i> ${messages.get('ui.label.edit')}</a>
+                </div>
             </div>
         </div>
-
 
         <div id="extra-alert"></div>
 
@@ -390,7 +392,7 @@
 </script>
 <script type="text/html" id="statusInformation">
     <table class="table table-condensed">
-        <caption>Status information</caption>
+        <!--<caption>Status information</caption>-->
         <thead>
         <tr>
             <th>State</th>
