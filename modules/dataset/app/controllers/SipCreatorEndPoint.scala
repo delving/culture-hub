@@ -132,6 +132,12 @@ trait SipCreatorEndPoint extends Controller with OrganizationConfigurationAware 
                                 <email>{lockedBy.get.email}</email>
                               </lockedBy>}}
                               <state>{ds.state.name}</state>
+                              <schemaVersions>{ds.getAllMappingSchemas.map { schema =>
+                                <schemaVersion>
+                                  <prefix>{schema.getPrefix}</prefix>
+                                  <version>{schema.getVersion}</version>
+                                </schemaVersion>}}
+                              </schemaVersions>
                               <recordCount>{ds.details.total_records}</recordCount>
                             </data-set>
                     }
