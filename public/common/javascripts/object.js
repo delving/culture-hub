@@ -28,7 +28,7 @@ $(document).ready(function () {
                         $.getScript('/assets/common/javascripts/seadragon/seadragon-min.js', function(){
                             Seadragon.Config.imagePath = "/assets/common/javascripts/seadragon/img/";
                             Seadragon.Config.autoHideControls = false;
-                            viewer = new Seadragon.Viewer("zoom-viewer");
+                            viewer = new Seadragon.Viewer(zoomViewContainer.replace('#',''));
                             viewer.addEventListener("error",function(){
                                 // if viewer fails, then revert back to a regular image view
                                 zoomNav = false;
