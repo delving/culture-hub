@@ -35,6 +35,7 @@ import java.io.StringReader
 import core.mapping.MappingService
 import org.scala_tools.subcut.inject.{BindingModule, Injectable}
 import core.SchemaService
+import play.api.Play
 
 /**
  * DataSet model
@@ -56,6 +57,7 @@ case class DataSet(
   // state
   state: DataSetState,
   errorMessage: Option[String] = None,
+  processingInstanceIdentifier: Option[String] = None,
 
   // not used, fixed to public. We'll see in the future whether this is still necessary to have or should be removed.
   visibility: Visibility = Visibility.PUBLIC,
@@ -241,22 +243,23 @@ class DataSetDAO(collection: MongoCollection)(implicit val configuration: Organi
     DataSetState(name)
   }
 
-  def findCollectionForProcessing(): Option[DataSet] = {
+  def findCollectionForProcessing: Option[DataSet] = {
     val allProcessingSets: List[DataSet] = findByState(DataSetState.PROCESSING).sort(MongoDBObject("spec" -> 1)).toList
-    if (allProcessingSets.length < Runtime.getRuntime.availableProcessors()) {
-      val queuedIndexing = findByState(DataSetState.QUEUED).sort(MongoDBObject("spec" -> 1)).toList
-      queuedIndexing.headOption
-    }
-    else {
+    val instanceIdentifier = Play.current.configuration.getString("cultureHub.instanceIdentifier").getOrElse("default")
+    val localProcessingSets = allProcessingSets.filter(_.processingInstanceIdentifier == instanceIdentifier)
+
+    if (localProcessingSets.length < Runtime.getRuntime.availableProcessors()) {
+      val allQueuedForProcessing = findByState(DataSetState.QUEUED).sort(MongoDBObject("spec" -> 1)).toList
+      val availableQueuedProcessing = allQueuedForProcessing.filterNot(set => set.processingInstanceIdentifier.isDefined && set.processingInstanceIdentifier.get != instanceIdentifier)
+      availableQueuedProcessing.headOption
+    } else {
       None
     }
   }
 
   // ~~~ finders
 
-  def findBySpecAndOrgId(
-    spec: String, orgId: String
-    ): Option[DataSet] = findOne(MongoDBObject("spec" -> spec, "orgId" -> orgId, "deleted" -> false))
+  def findBySpecAndOrgId(spec: String, orgId: String): Option[DataSet] = findOne(MongoDBObject("spec" -> spec, "orgId" -> orgId, "deleted" -> false))
 
   def findByState(states: DataSetState*) = {
     find("state.name" $in (states.map(_.name)) ++ MongoDBObject("deleted" -> false))
@@ -420,17 +423,22 @@ class DataSetDAO(collection: MongoCollection)(implicit val configuration: Organi
 
   // ~~~ dataSet control
 
-  def updateState(
-    dataSet: DataSet, state: DataSetState, userName: Option[String] = None, errorMessage: Option[String] = None
-    ) {
+  def updateProcessingInstanceIdentifier(dataSet: DataSet, instanceIdentifier: Option[String]) {
+    if (instanceIdentifier == None) {
+      update(MongoDBObject("_id" -> dataSet._id), $unset ("processingInstanceIdentifier"))
+    } else {
+      update(MongoDBObject("_id" -> dataSet._id), $set("processingInstanceIdentifier" -> instanceIdentifier.get))
+    }
+  }
+
+  def updateState(dataSet: DataSet, state: DataSetState, userName: Option[String] = None, errorMessage: Option[String] = None) {
     if (errorMessage.isDefined) {
       update(MongoDBObject("_id" -> dataSet._id), $set(
         "state.name" -> state.name, "errorMessage" -> errorMessage.get
       ))
       DataSetEvent ! DataSetEvent.StateChanged(dataSet.orgId, dataSet.spec, state, userName)
       DataSetEvent ! DataSetEvent.Error(dataSet.orgId, dataSet.spec, errorMessage.get, userName)
-    }
-    else {
+    } else {
       update(MongoDBObject("_id" -> dataSet._id), $set("state.name" -> state.name) ++ $unset("errorMessage"))
       DataSetEvent ! DataSetEvent.StateChanged(dataSet.orgId, dataSet.spec, state, userName)
     }
