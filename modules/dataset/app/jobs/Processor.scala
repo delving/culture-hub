@@ -6,6 +6,8 @@ import play.api.Logger
 import controllers.ErrorReporter
 import util.OrganizationConfigurationHandler
 import processing.DataSetCollectionProcessor
+import scala.Some
+import jobs.ProcessDataSet
 
 /**
  *
@@ -29,6 +31,7 @@ class Processor extends Actor {
         if(currentState == DataSetState.PROCESSING_QUEUED) {
           DataSet.dao(set.orgId).updateState(set, DataSetState.PROCESSING)
           DataSetCollectionProcessor.process(set, {
+            DataSet.dao(set.orgId).updateProcessingInstanceIdentifier(set, None)
             val state = DataSet.dao.getState(set.orgId, set.spec)
             if(state == DataSetState.PROCESSING) {
               DataSet.dao.updateState(set, DataSetState.ENABLED)
@@ -48,6 +51,7 @@ class Processor extends Actor {
             t.printStackTrace()
             log.error("Error while processing DataSet %s".format(set.spec), t)
             ErrorReporter.reportError(getClass.getName, "Error during processing of DataSet")
+            DataSet.dao(set.orgId).updateProcessingInstanceIdentifier(set, None)
             DataSet.dao(set.orgId).updateState(set, DataSetState.ERROR, None, Some(t.getMessage))
           } catch {
             case t1: Throwable =>
