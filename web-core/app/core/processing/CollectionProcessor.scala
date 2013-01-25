@@ -12,7 +12,7 @@ import akka.actor.{Actor, Props}
 import akka.pattern.ask
 import core.HubId
 import akka.util.duration._
-import akka.dispatch.Future
+import akka.dispatch.{Await, Future}
 import akka.util.Timeout
 
 /**
@@ -105,23 +105,40 @@ class CollectionProcessor(collection: Collection with OrganizationCollectionInfo
                   val sourceRecord: String = (record \ "document" \ "input" \*).mkString("\n")
                   val schemas = targetSchemas.filter(targetSchema => targetSchema.isValidRecord(recordIndex) && targetSchema.sourceSchema == "raw")
 
-                  val command = ProcessRecord(index, hubId, sourceRecord, schemas.map(_.schemaVersion))
+                  supervisor ! ProcessRecord(index, hubId, sourceRecord, schemas.map(_.schemaVersion))
+
+                  val processed = recordsProcessed.incrementAndGet()
+
+                  if (processed % 100 == 0) {
+                    interruptedFlag.set(interrupted)
+                  }
+
 
                   implicit val timeout = Timeout(5 seconds)
 
-                  var maybeQueueSize: Future[Any] = supervisor ? command
+                  // dynamic throttling of the messages we send off to Akka
+                  // we might not be able to process the data coming from the database fast enough, and fill the memory with dozens of messages as a consequence
+                  // hence we check here what the estimated queue size is and sleep if necessary
+                  def throttleRecords() {
+                    val maybeQueueSize: Future[Any] = supervisor ? GetQueueSize
 
-                  maybeQueueSize.map { queueSize =>
-                    while (queueSize.asInstanceOf[Int] > 5000) {
-                      log.debug("Current queue size is %s, sleeping".format(queueSize))
-                      Thread.sleep(2000)
-                      maybeQueueSize = supervisor ? command
+                    try {
+                      val size = Await.result(maybeQueueSize, 5 seconds)
+                      if (size.asInstanceOf[Int] > 5000) {
+                        log.debug("Current queue size is %s, sleeping".format(size))
+                        Thread.sleep(5000)
+                        throttleRecords()
+                      }
+                    } catch {
+                      case t: Throwable =>
+                        throttleRecords()
+
                     }
+
                   }
 
-                  val processed = recordsProcessed.incrementAndGet()
-                  if (processed % 100 == 0) {
-                    interruptedFlag.set(interrupted)
+                  if (processed % 200 == 0) {
+                    throttleRecords()
                   }
 
                 }
