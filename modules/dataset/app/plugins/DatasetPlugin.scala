@@ -237,26 +237,27 @@ class DataSetPlugin(app: Application) extends CultureHubPlugin(app) {
     // ~~~ cleanup set states
 
     if (!Play.isTest) {
-      DataSet.all.foreach {
-        dataSetDAO =>
-          dataSetDAO.findByState(DataSetState.PROCESSING, DataSetState.CANCELLED, DataSetState.PROCESSING_QUEUED).foreach {
-            set =>
-              dataSetDAO.updateState(set, DataSetState.CANCELLED)
-              try {
-                implicit val configuration = OrganizationConfigurationHandler.getByOrgId(set.orgId)
-                IndexingService.deleteBySpec(set.orgId, set.spec)
-              } catch {
-                case t: Throwable => error(
-                  "Couldn't delete SOLR index for cancelled set %s:%s at startup".format(
-                    set.orgId,
-                    set.spec
-                  ),
-                  t
-                )
-              } finally {
-                dataSetDAO.updateState(set, DataSetState.UPLOADED)
-              }
-          }
+      val instanceIdentifier = Play.current.configuration.getString("cultureHub.instanceIdentifier").getOrElse("default")
+      DataSet.all.foreach { dataSetDAO =>
+        dataSetDAO.findByState(DataSetState.PROCESSING, DataSetState.CANCELLED, DataSetState.PROCESSING_QUEUED).
+          filter(_.processingInstanceIdentifier == Some(instanceIdentifier)).
+          foreach { set =>
+            dataSetDAO.updateState(set, DataSetState.CANCELLED)
+            try {
+              implicit val configuration = OrganizationConfigurationHandler.getByOrgId(set.orgId)
+              IndexingService.deleteBySpec(set.orgId, set.spec)
+            } catch {
+              case t: Throwable => error(
+                "Couldn't delete SOLR index for cancelled set %s:%s at startup".format(
+                  set.orgId,
+                  set.spec
+                ),
+                t
+              )
+            } finally {
+              dataSetDAO.updateState(set, DataSetState.UPLOADED)
+            }
+        }
       }
     }
   }
@@ -399,6 +400,7 @@ class DataSetPlugin(app: Application) extends CultureHubPlugin(app) {
         val dataSet = DataSet.dao.findBySpecAndOrgId(boot.spec, boot.org).get
         DataSet.dao.updateState(dataSet, DataSetState.QUEUED)
         DataSetCollectionProcessor.process(dataSet, {
+          DataSet.dao.updateProcessingInstanceIdentifier(dataSet, None)
           DataSet.dao.updateState(dataSet, DataSetState.ENABLED)
         })
       }
