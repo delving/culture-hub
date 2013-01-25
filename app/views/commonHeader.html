@@ -10,8 +10,10 @@
     <title>#{get 'title' /}</title>
     <link rel="stylesheet" type="text/css" href="@{routes.Assets.at("common/stylesheets/media/media.css")}"/>
     <link rel="stylesheet" type="text/css" href="@{routes.Assets.at("common/stylesheets/plugins/token-input.css")}"/>
-    *{<link rel="stylesheet" type="text/css" href="@{routes.Assets.at("common/stylesheets/bootstrap.css")}"/>}*
     <link rel="stylesheet" type="text/css" href="@{routes.Assets.at("common/stylesheets/common.css")}"/>
+    <!--[if lt IE 10]>
+    <link type="text/css" rel="stylesheet" href="@{routes.Assets.at("common/stylesheets/ie-lt-10.css")}"" media="all" />
+    <![endif]-->
     #{if themeInfo.get('responsiveLayout') == "true" }
     <link rel="stylesheet" type="text/css" href="@{routes.Assets.at("common/stylesheets/bootstrap-responsive.css")}"/>
     #{/if}

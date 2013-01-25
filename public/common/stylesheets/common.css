@@ -1476,9 +1476,9 @@ table .span24 {
   margin-left: 0;
 }
 @font-face {
-  font-family: 'Elusive-Icons';
   src: url('font/Elusive-Icons.eot');
   src: url('font/Elusive-Icons.eot?#iefix') format('embedded-opentype'), url('font/Elusive-Icons.svg#Elusive-Icons') format('svg'), url('font/Elusive-Icons.woff') format('woff'), url('font/Elusive-Icons.ttf') format('truetype');
+  font-family: 'Elusive-Icons';
   font-weight: normal;
   font-style: normal;
 }
@@ -5155,6 +5155,7 @@ select[name=searchIn] {
   margin: auto;
   float: none;
 }
+#object-media #zoom-container,
 #object-media #zoom-viewer {
   height: 350px;
 }
