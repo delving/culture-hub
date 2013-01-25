@@ -55,6 +55,8 @@ class ProcessingSupervisor(
     case ProcessRecord(index, hubId, sourceRecord, targetSchemas) =>
       numSourceRecords = numSourceRecords + 1
       recordMapper ! MapRecord(index, hubId, sourceRecord, targetSchemas)
+
+    case GetQueueSize =>
       sender ! (numSourceRecords - numMappingResults)
 
     case RecordMappingResult(index, hubId, results) =>
@@ -169,7 +171,7 @@ class ProcessingSupervisor(
 }
 
 case class ProcessRecord(index: Int, hubId: HubId, sourceRecord: String, targetSchemas: Seq[SchemaVersion])
-case object RecordProcessing
+case object GetQueueSize
 
 case object ProcessingDone
 case object CancelProcessing
