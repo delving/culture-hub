@@ -657,6 +657,7 @@ plugin.musip.collections=Collecties
 
 plugin.statistics.statistics=Statistieken
 plugin.statistics.dataset=DataSet
+plugin.statistics.geoData=Met geographische data
 plugin.statistics.history=Geschiedenies
 plugin.statistics.withObjects=Met objecten
 plugin.statistics.withoutObjects=Zonder objecten
