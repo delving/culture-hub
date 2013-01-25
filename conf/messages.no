@@ -758,6 +758,7 @@ plugin.musip.returnToCollection=Return to collection
 
 plugin.statistics.statistics=Statistics
 plugin.statistics.dataset=DataSet
+plugin.statistics.geoData=With geographical data
 plugin.statistics.history=History
 plugin.statistics.withObjects=With objects
 plugin.statistics.withoutObjects=Without objects

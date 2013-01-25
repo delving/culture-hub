@@ -14,6 +14,7 @@
                             <th>&{'plugin.statistics.nrRecords'}</th>
                             <th>&{'plugin.statistics.withObjects'}</th>
                             <th>&{'plugin.statistics.landingPages'}</th>
+                            <th>&{'plugin.statistics.geoData'}</th>
                         </tr>
                         </thead>
                         <tbody data-bind="foreach: entries">
@@ -22,6 +23,7 @@
                             <td><span data-bind="text: total"></span></td>
                             <td><span class="badge badge-info" rel="tooltip" data-bind="text: digitalObjectsPercentage() + ' %', attr: { title: digitalObjects() + ' records' }"></span></td>
                             <td><span class="badge badge-info" rel="tooltip" data-bind="text: landingPagesPercentage() + ' %', attr: { title: landingPages() + ' records' }"></span></td>
+                            <td><span class="badge badge-info" rel="tooltip" data-bind="text: GeoRecordsPercentage() + ' %', attr: { title: GeoRecords() + ' records' }"></span></td>
                         </tr>
                         </tbody>
                     </table>
