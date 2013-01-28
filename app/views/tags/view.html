@@ -23,7 +23,7 @@ switch (_view.nodeType) {
                 propClass = ""
         }}%
 
-        <div class="${_view.nodeType} ${propClass}">
+        <div class="${_view.nodeType}${propClass ? propClass : ""}">
         #{list items: _view.content(), as: 'item'}
             #{view view: item /}
         #{/list}
@@ -34,7 +34,7 @@ switch (_view.nodeType) {
     case "container":}%
 
     #{if (!_view.isLeaf() && !(_view.content().length() == 1 && _view.content().apply(0).nodeType() == "list" && _view.content().apply(0).content().length() == 0)) || _view.attr("type") == "placeholder"}
-        <div #{if _view.attr("id")}id="${_view.attr("id")}"#{/if} #{if _view.attr("class")}class="${_view.attr("class")}"#{/if}>
+        <div#{if _view.attr("id")} id="${_view.attr("id")}"#{/if}#{if _view.attr("class")} class="${_view.attr("class")}"#{/if}>
 
             #{if _view.attr("label")}
                 <h5>&{_view.attr("label")} #{if _view.attr("role")}<span class="label">${_view.attr("role")}</span>#{/if}</h5>

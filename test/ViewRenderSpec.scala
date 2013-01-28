@@ -55,15 +55,15 @@ class ViewRenderSpec extends Specs2TestContext {
         val expected: String =
 
 
-          """<div class="root ">
-            |<div class="row ">
-            |<div class="column ">
-            |<div  >
+          """<div class="root">
+            |<div class="row">
+            |<div class="column">
+            |<div>
             |<h5>Description </h5>            <p>This is a test record</p>
             |</div>
             |</div>
-            |<div class="column ">
-            |<div  >
+            |<div class="column">
+            |<div>
             |<h5>random</h5>
             |<p>A test hierarchical record, Wood</p>
             |<h5>Purchase Price  <span class="label">blabla</span></h5>            <p>5000</p>
@@ -71,8 +71,8 @@ class ViewRenderSpec extends Specs2TestContext {
             |<p><a href="http://foo.bar.com" data-type="" rel="nofollow">Blablabla</a></p>
             |</div>
             |</div>
-            |<div class="column ">
-            |<div  >
+            |<div class="column">
+            |<div>
             |<h5>metadata.icn.placeName </h5>            <p>Paris</p>
             |<h5>metadata.icn.placeName </h5>            <p>Berlin</p>
             |<h5>metadata.icn.placeName </h5>            <p>Amsterdam</p>
@@ -84,29 +84,6 @@ class ViewRenderSpec extends Specs2TestContext {
 
         rendered must be equalTo(expected)
       }
-    }
-
-    "render an AFF record as HTML" in {
-      withTestConfig {
-
-        val configuration = OrganizationConfigurationHandler.getByOrgId("delving")
-
-        val namespaces = Map("aff" -> "http://schemas.delving.eu/aff/aff_1.0.xsd")
-
-        val affTestRecord = Source.fromFile(new File(Play.application.path, "test/resource/aff-example.xml")).getLines().mkString("\n")
-
-        val renderer = new ViewRenderer("aff", ViewType.HTML, configuration)
-        val view = renderer.renderRecord(affTestRecord, List.empty[Role], namespaces, Lang("en"))
-
-        val template = GenericTemplateLoader.load(Play2VirtualFile.fromFile(Play.getFile("test/view.html")))
-        val args: java.util.Map[String, Object] = new java.util.HashMap[String, Object]()
-        args.put("view", view.toViewTree)
-        args.put("lang", "en")
-        val rendered: String = template.render(args).replaceAll("""(?m)^\s+""", "")
-
-        1 must equalTo(1)
-      }
-
     }
 
     "render a record as XML" in {
