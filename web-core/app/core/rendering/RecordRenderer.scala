@@ -28,6 +28,7 @@ object RecordRenderer {
    */
   def getRenderedFullView(id: String,
                           idType: DelvingIdType,
+                          viewType: ViewType,
                           lang: Lang,
                           schema: Option[String] = None,
                           renderRelatedItems: Boolean,
@@ -53,7 +54,7 @@ object RecordRenderer {
           case DelvingIdType.INDEX_ITEM =>
             renderIndexItem(id)
           case _ =>
-            renderMetadataRecord(prefix, URLDecoder.decode(hubId, "utf-8"), ViewType.API, lang, renderRelatedItems, relatedItems)
+            renderMetadataRecord(prefix, URLDecoder.decode(hubId, "utf-8"), viewType, lang, renderRelatedItems, relatedItems)
         }
       case None =>
         Left("Could not resolve identifier for hubId '%s' and idType '%s'".format(id, idType.idType))
@@ -247,4 +248,6 @@ case class ViewType(name: String)
 object ViewType {
   val API = ViewType("api")
   val HTML = ViewType("html")
+
+  def fromName(name: String) = if(name == "html") HTML else API
 }
