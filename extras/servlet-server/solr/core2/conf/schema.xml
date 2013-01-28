@@ -920,6 +920,9 @@
    <field name="delving_collection" type="text_general" indexed="true" stored="true" multiValued="true"/>
    <field name="delving_fullText" type="text_general" indexed="true" stored="true" multiValued="true"/>
 
+   <!-- Category for hierarchical faceting -->
+   <field name="facetCategory" type="string" indexed="true" stored="true" multiValued="true"/>
+
 
    <!-- catchall field, containing all other searchable text fields (implemented
         via copyField further on in this schema  -->

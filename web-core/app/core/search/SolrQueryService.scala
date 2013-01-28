@@ -147,6 +147,10 @@ object SolrQueryService extends SolrServer {
               queryParams setFields (values.mkString(","))
             case "facet.limit" =>
               queryParams setFacetLimit (values.head.toInt)
+            case "facet.prefix" =>
+              queryParams setFacetPrefix (values.head.toString)
+            case "facet.mincount" =>
+              queryParams setFacetMinCount  (values.head.toInt)
             case "sortBy" =>
               val sortOrder = if (params.hasKeyAndValue ("sortOrder", "desc")) SolrQuery.ORDER.desc else SolrQuery.ORDER.asc
               val sortField = if (values.head.equalsIgnoreCase("random")) createRandomSortKey else values.head
