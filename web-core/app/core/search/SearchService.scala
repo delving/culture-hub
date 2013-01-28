@@ -24,7 +24,8 @@ import play.api.mvc.Results._
 import play.api.http.ContentTypes._
 import play.api.i18n.{Lang, Messages}
 import collection.JavaConverters._
-import play.api.Logger
+import play.api.{Play, Logger}
+import Play.current
 import play.api.mvc.{PlainResult, RequestHeader}
 import core.ExplainItem
 import java.lang.String
@@ -36,6 +37,8 @@ import org.apache.solr.client.solrj.response.FacetField
 import net.liftweb.json.JsonAST._
 import net.liftweb.json.{Extraction, Printer}
 import scala.collection.immutable.ListMap
+import play.templates.GenericTemplateLoader
+import io.Source
 
 /**
  *
@@ -87,6 +90,18 @@ class SearchService(request: RequestHeader, hiddenQueryFilters: Seq[String] = Se
         case "simile" => getSimileResultResponse()
         case "similep" =>
           getSimileResultResponse(callback = params.getValueOrElse("callback", "delvingCallback"))
+        case "html" if params.valueIsNonEmpty("id") =>
+          getRenderedFullView("html", params.getFirst("schema"), false).fold(
+            error => errorResponse(error, format),
+            view => {
+              val template = GenericTemplateLoader.load("tags/view.html")
+              val args: java.util.Map[String, Object] = new java.util.HashMap[String, Object]()
+              args.put("view", view.toViewTree)
+              args.put("_view", view.toViewTree)
+              args.put("lang", apiLanguage)
+              Ok(template.render(args).replaceAll("""(?m)^\s+""", "")).as(HTML)
+            }
+          )
         case _ => getXMLResultResponse()
       }
     }
@@ -158,7 +173,8 @@ class SearchService(request: RequestHeader, hiddenQueryFilters: Seq[String] = Se
     val id = params.getValue("id")
     val idTypeParam = params.getValueOrElse("idType", HUB_ID.key)
     val mltCount = params.getValueOrElse("mlt.count", configuration.searchService.moreLikeThis.count.toString)
-    RecordRenderer.getRenderedFullView(id, DelvingIdType(idTypeParam), Lang(apiLanguage), schema, renderRelatedItems, mltCount.toInt)
+    val viewType = ViewType.fromName(viewName)
+    RecordRenderer.getRenderedFullView(id, DelvingIdType(idTypeParam), viewType, Lang(apiLanguage), schema, renderRelatedItems, mltCount.toInt)
   }
 
   def errorResponse(error: String = "Unable to respond to the API request",
