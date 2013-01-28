@@ -336,9 +336,11 @@ class ViewRenderer(val schema: String, viewType: ViewType, configuration: Organi
 
                 val url: String = evaluateParamExpression(urlValue, parameters) + urlExpr.getOrElse("")
 
-                val text: String = if (n.attribute("textExpr").isDefined) {
-                  Option(XPathWorking.selectText(n.attr("textExpr"), dataNode, namespaces.asJava)).getOrElse("")
-                } else if (n.attribute("textValue").isDefined) {
+                val text: String = if(n.attribute("textExpr").isDefined) {
+                  val textValues = fetchPaths(dataNode, n.attr("textExpr").split(",").map(_.trim).toList, namespaces)
+                  val sep = if (n.attribute("separator").isDefined) n.attr("separator") else ", "
+                  textValues.mkString(sep)
+                } else if(n.attribute("textValue").isDefined) {
                   evaluateParamExpression(n.attr("textValue"), parameters)
                 } else {
                   ""
