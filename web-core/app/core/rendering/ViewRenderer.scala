@@ -273,7 +273,7 @@ class ViewRenderer(val schema: String, viewType: ViewType, configuration: Organi
               case "column" => enterAndAppendOne(n, dataNode, "column", true, 'proportion -> n.attr("proportion"))
               case "container" => withAccessControl(roleList) {
                 role =>
-                  enterAndAppendOne(n, dataNode, "container", true, 'id -> n.attr("id"), 'class -> n.attr("class"), 'title -> n.attr("title"), 'label -> n.attr("label"), 'type -> n.attr("type"), 'role -> role.map(_.getDescription(lang)).getOrElse(""))
+                  enterAndAppendOne(n, dataNode, "container", true, 'id -> n.attr("id"), 'class -> n.attr("class"), 'title -> n.attr("title"), 'label -> label, 'type -> n.attr("type"), 'role -> role.map(_.getDescription(lang)).getOrElse(""))
               }
               case "image" => withAccessControl(roleList) {
                 role =>
@@ -318,7 +318,10 @@ class ViewRenderer(val schema: String, viewType: ViewType, configuration: Organi
                 val url: String = evaluateParamExpression(urlValue, parameters) + urlExpr.getOrElse("")
 
                 val text: String = if(n.attribute("textExpr").isDefined) {
-                  Option(XPath.selectText(n.attr("textExpr"), dataNode, namespaces.asJava)).getOrElse("")
+                  //Option(XPath.selectText(n.attr("textExpr"), dataNode, namespaces.asJava)).getOrElse("")
+                  val textValues = fetchPaths(dataNode, n.attr("textExpr").split(",").map(_.trim).toList, namespaces)
+                                    val sep = if (n.attribute("separator").isDefined) n.attr("separator") else ", "
+                                    textValues.mkString(sep)
                 } else if(n.attribute("textValue").isDefined) {
                   evaluateParamExpression(n.attr("textValue"), parameters)
                 } else {
