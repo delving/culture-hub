@@ -1,16 +1,16 @@
 package core.processing
 
-import akka.actor.{PoisonPill, Props, Actor}
+import akka.actor.{Props, Actor}
 import core.HubId
 import collection.mutable.ArrayBuffer
 import eu.delving.schema.SchemaVersion
 import models.OrganizationConfiguration
 import play.api.Logger
 import core.indexing.IndexingService
-import akka.util.Duration
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 import akka.routing.RoundRobinRouter
+import concurrent.duration.Duration
 
 /**
  * Supervises a processing run.

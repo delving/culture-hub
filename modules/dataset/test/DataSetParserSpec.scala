@@ -95,7 +95,7 @@ class DataSetParserSpec extends BootstrapAwareSpec {
       }
 
     } catch {
-      case t =>
+      case t: Throwable =>
         t.printStackTrace()
         Error(t)
     }

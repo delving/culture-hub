@@ -36,10 +36,10 @@ class MappedRecordCacher(processingContext: ProcessingContext, processingInterru
           }
         }
 
-        val serializedRecords = mappedRecords.flatMap { r =>
+        val serializedRecords: Map[String, Option[String]] = mappedRecords.map { r =>
           try {
             val serialized = MappingService.nodeTreeToXmlString(r._2.rootAugmented(), r._1.getPrefix != "raw")
-            Some((r._1.getPrefix -> serialized))
+            (r._1.getPrefix -> Some(serialized))
           } catch {
             case t: Throwable => {
   //            log.error(
@@ -50,13 +50,13 @@ class MappedRecordCacher(processingContext: ProcessingContext, processingInterru
   //              """.stripMargin.format(r._2.root()), t)
   //            throw t
               sender ! MappedRecordCachingFailure(index, hubId, r._1, r._2, t)
-              None
+              (r._1.getPrefix -> None)
             }
           }
         }.toMap
 
 
-        if (!serializedRecords.exists(_ == None)) {
+        if (!serializedRecords.values.exists(_ == None)) {
 
           val mappingResultSchemaVersions: Map[String, String] = serializedRecords.keys.
                   flatMap(schemaPrefix => processingContext.targetSchemas.find(_.prefix == schemaPrefix)).
@@ -67,7 +67,7 @@ class MappedRecordCacher(processingContext: ProcessingContext, processingInterru
             collection = processingContext.collection.spec,
             itemType = processingContext.collection.itemType.itemType,
             itemId = hubId.toString,
-            xml = serializedRecords,
+            xml = serializedRecords.map(r => (r._1 -> r._2.get)),
             schemaVersions = mappingResultSchemaVersions,
             systemFields = allSystemFields.getOrElse(Map.empty),
             index = index

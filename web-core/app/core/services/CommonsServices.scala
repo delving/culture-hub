@@ -5,8 +5,7 @@ import core.node._
 import play.api.libs.Crypto
 import play.api.libs.ws.{Response, WS}
 import play.api.libs.json._
-import play.api.libs.json.util._
-import play.api.libs.json.Writes._
+import play.api.libs.functional.syntax._
 import play.api.Logger
 import java.util.concurrent.TimeoutException
 import java.net.URLEncoder
@@ -30,54 +29,16 @@ class CommonsServices(commonsHost: String, orgId: String, apiToken: String, node
 
 
   // ~~~ JSON converters
+  implicit val organizationProfileReads = Json.reads[OrganizationProfile]
+  implicit val organizationProfileWrites = Json.writes[OrganizationProfile]
 
-  implicit val OrganizationProfileReads = (
-      (__ \ "orgId").read[String] and
-      (__ \ "name").read[Map[String, String]]
-    )(OrganizationProfile.apply _)
+  implicit val userProfileReads = Json.reads[UserProfile]
+  implicit val userProfileWrites = Json.writes[UserProfile]
 
-  implicit val OrganizationProfileWrites = (
-    (__ \ "orgId").write[String] and
-    (__ \ "name").write[Map[String, String]]
-  )(unlift(OrganizationProfile.unapply))
+  implicit val organizationEntryReads = Json.reads[OrganizationEntry]
+  implicit val organizationEntryWrites = Json.writes[OrganizationEntry]
 
-  implicit val UserProfileReads = (
-    (__ \ "isPublic").read[Boolean] and
-    (__ \ "firstName").read[String] and
-    (__ \ "lastName").read[String] and
-    (__ \ "email").read[String] and
-    (__ \ "description").readOpt[String] and
-    (__ \ "funFact").readOpt[String] and
-    (__ \ "websites").read[List[String]] and
-    (__ \ "twitter").readOpt[String] and
-    (__ \ "linkedIn").readOpt[String]
-  )(UserProfile.apply _)
-
-  implicit val UserProfileWrites = (
-    (__ \ "isPublic").write[Boolean] and
-    (__ \ "firstName").write[String] and
-    (__ \ "lastName").write[String] and
-    (__ \ "email").write[String] and
-    (__ \ "description").writeOpt[String] and
-    (__ \ "funFact").writeOpt[String] and
-    (__ \ "websites").write[List[String]] and
-    (__ \ "twitter").writeOpt[String] and
-    (__ \ "linkedIn").writeOpt[String]
-  )(unlift(UserProfile.unapply))
-
-  implicit val OrganizationEntryReads = (
-    (__ \ "uri").read[String] and
-    (__ \ "name").read[String] and
-    (__ \ "countryCode").read[String]
-  )(OrganizationEntry.apply _)
-
-  implicit val OrganizationEntryWrites = (
-    (__ \ "uri").write[String] and
-    (__ \ "name").write[String] and
-    (__ \ "countryCode").write[String]
-  )(unlift(OrganizationEntry.unapply))
-
-  implicit val NodeReads = (
+  implicit val nodeReads = (
     (__ \ "nodeId").read[String] and
     (__ \ "name").read[String] and
     (__ \ "orgId").read[String]
@@ -88,7 +49,7 @@ class CommonsServices(commonsHost: String, orgId: String, apiToken: String, node
     def isLocal: Boolean = false
   }})
 
-  implicit val NodeWrites = (
+  implicit val nodeWrites = (
     (__ \ "nodeId").write[String] and
     (__ \ "name").write[String] and
     (__ \ "orgId").write[String]

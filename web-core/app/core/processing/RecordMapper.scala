@@ -37,7 +37,7 @@ class RecordMapper(context: ProcessingContext, processingInterrupted: AtomicBool
     }
   }.toMap
 
-  protected def receive = {
+  def receive = {
 
     case MapRecord(index, hubId, sourceRecord, targetSchemas) =>
 

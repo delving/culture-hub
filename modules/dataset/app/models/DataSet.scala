@@ -33,7 +33,7 @@ import util.OrganizationConfigurationHandler
 import eu.delving.schema.SchemaVersion
 import java.io.StringReader
 import core.mapping.MappingService
-import org.scala_tools.subcut.inject.{BindingModule, Injectable}
+import com.escalatesoft.subcut.inject.{BindingModule, Injectable}
 import core.SchemaService
 import play.api.Play
 
@@ -218,16 +218,18 @@ object DataSet extends MultiModel[DataSet, DataSetDAO] {
   protected def initIndexes(collection: MongoCollection) {}
 
   protected def initDAO(collection: MongoCollection, connection: MongoDB)
-                       (implicit configuration: DomainConfiguration): DataSetDAO = new DataSetDAO(collection)(configuration, HubModule)
+                       (implicit configuration: OrganizationConfiguration): DataSetDAO = new DataSetDAO(collection)(configuration, HubModule)
 
   val RESOURCE_TYPE = ResourceType("dataSet")
 
 }
 
-class DataSetDAO(collection: MongoCollection)(implicit val configuration: DomainConfiguration, val bindingModule: BindingModule)
+class DataSetDAO(collection: MongoCollection)(implicit val configuration: OrganizationConfiguration, val bindingModule: BindingModule)
   extends SalatDAO[DataSet, ObjectId](collection) with Pager[DataSet] with Injectable {
 
   val organizationServiceLocator = inject [ DomainServiceLocator[OrganizationService] ]
+
+  val schemaService = inject [ SchemaService ]
 
   def getState(orgId: String, spec: String): DataSetState = {
 
@@ -397,11 +399,11 @@ class DataSetDAO(collection: MongoCollection)(implicit val configuration: Domain
   }
 
   def updateNamespaces(spec: String, namespaces: Map[String, String]) {
-    update(MongoDBObject("spec" -> spec), $set("namespaces" -> namespaces.asDBObject))
+    update(MongoDBObject("spec" -> spec), $set(Seq("namespaces" -> namespaces.asDBObject)))
   }
 
   def unlock(dataSet: DataSet, userName: String) {
-    update(MongoDBObject("_id" -> dataSet._id), $unset("lockedBy"))
+    update(MongoDBObject("_id" -> dataSet._id), $unset(Seq("lockedBy")))
     DataSetEvent ! DataSetEvent.Unlocked(dataSet.orgId, dataSet.spec, userName)
   }
 
@@ -423,21 +425,21 @@ class DataSetDAO(collection: MongoCollection)(implicit val configuration: Domain
 
   def updateProcessingInstanceIdentifier(dataSet: DataSet, instanceIdentifier: Option[String]) {
     if (instanceIdentifier == None) {
-      update(MongoDBObject("_id" -> dataSet._id), $unset ("processingInstanceIdentifier"))
+      update(MongoDBObject("_id" -> dataSet._id), $unset (Seq("processingInstanceIdentifier")))
     } else {
-      update(MongoDBObject("_id" -> dataSet._id), $set("processingInstanceIdentifier" -> instanceIdentifier.get))
+      update(MongoDBObject("_id" -> dataSet._id), $set(Seq("processingInstanceIdentifier" -> instanceIdentifier.get)))
     }
   }
 
   def updateState(dataSet: DataSet, state: DataSetState, userName: Option[String] = None, errorMessage: Option[String] = None) {
     if (errorMessage.isDefined) {
-      update(MongoDBObject("_id" -> dataSet._id), $set(
+      update(MongoDBObject("_id" -> dataSet._id), $set(Seq(
         "state.name" -> state.name, "errorMessage" -> errorMessage.get
-      ))
+      )))
       DataSetEvent ! DataSetEvent.StateChanged(dataSet.orgId, dataSet.spec, state, userName)
       DataSetEvent ! DataSetEvent.Error(dataSet.orgId, dataSet.spec, errorMessage.get, userName)
     } else {
-      update(MongoDBObject("_id" -> dataSet._id), $set("state.name" -> state.name) ++ $unset("errorMessage"))
+      update(MongoDBObject("_id" -> dataSet._id), $set(Seq("state.name" -> state.name) ++ $unset(Seq("errorMessage"))))
       DataSetEvent ! DataSetEvent.StateChanged(dataSet.orgId, dataSet.spec, state, userName)
     }
   }
@@ -447,10 +449,7 @@ class DataSetDAO(collection: MongoCollection)(implicit val configuration: Domain
   def updateIndexingControlState(dataSet: DataSet, mapping: String, facets: List[String], sortFields: List[String]) {
     update(
       MongoDBObject("_id" -> dataSet._id),
-      $addToSet("idxMappings" -> mapping) ++ $set(
-        "idxFacets" -> facets,
-        "idxSortFields" -> sortFields
-      )
+      $addToSet("idxMappings" -> mapping) ++ $set(Seq("idxFacets" -> facets, "idxSortFields" -> sortFields))
     )
   }
 
@@ -471,7 +470,7 @@ class DataSetDAO(collection: MongoCollection)(implicit val configuration: Domain
   }
 
   def invalidateHashes(dataSet: DataSet) {
-    update(MongoDBObject("_id" -> dataSet._id), $unset("hashes"))
+    update(MongoDBObject("_id" -> dataSet._id), $unset(Seq("hashes")))
     // TODO fire appropriate event or state change event
   }
 

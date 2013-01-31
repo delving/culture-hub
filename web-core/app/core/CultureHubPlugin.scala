@@ -293,12 +293,12 @@ class BroadcastingPluginActor(implicit configuration: OrganizationConfiguration)
     }
   }
 
-  protected def receive: BroadcastingPluginActor#Receive = {
+  def receive: BroadcastingPluginActor#Receive = {
     case message@_ =>
       routees.foreach { r => r ! message }
   }
 }
 
 class PluginActor(plugin: CultureHubPlugin) extends Actor {
-  protected def receive: PluginActor#Receive = plugin.receive
+  def receive: PluginActor#Receive = plugin.receive
 }

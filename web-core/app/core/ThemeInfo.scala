@@ -26,7 +26,7 @@ class ThemeInfo(configuration: OrganizationConfiguration) {
     }
 
     val INT = classOf[Int]
-    val result = mf.erasure match {
+    val result = mf.runtimeClass match {
       case INT => Integer.parseInt(value)
       case _ => value
     }

@@ -3,7 +3,7 @@ package core
 import _root_.core.node.{NodeDirectoryService, NodeSubscriptionService, NodeRegistrationService}
 import core.schema.SchemaProvider
 import _root_.core.services.{AggregatingNodeSubscriptionService, AggregatingOrganizationCollectionLookupService, AggregatingHarvestCollectionLookup}
-import org.scala_tools.subcut.inject.NewBindingModule
+import com.escalatesoft.subcut.inject.NewBindingModule
 
 /**
  * Experimenting with DI
