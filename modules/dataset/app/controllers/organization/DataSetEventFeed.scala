@@ -1,12 +1,12 @@
 package controllers.organization
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import _root_.util.OrganizationConfigurationHandler.
+import util.OrganizationConfigurationHandler
 import scala.concurrent.duration._
 import akka.actor._
 import akka.util.Timeout
 import akka.pattern.ask
-import _root_.core.indexing.IndexingService
+import core.indexing.IndexingService
 import play.api.libs.iteratee._
 import play.api.Play.current
 import models.{OrganizationConfiguration, DataSetEventLog, DataSetState, DataSet}

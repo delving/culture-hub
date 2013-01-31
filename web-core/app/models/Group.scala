@@ -8,7 +8,7 @@ import com.mongodb.casbah.Imports._
 import com.mongodb.casbah.WriteConcern
 import core.{OrganizationService, DomainServiceLocator, HubModule}
 import play.api.i18n.Lang
-import org.scala_tools.subcut.inject.{Injectable, BindingModule}
+import com.escalatesoft.subcut.inject.{Injectable, BindingModule}
 
 case class Group(_id: ObjectId = new ObjectId,
                  name: String,

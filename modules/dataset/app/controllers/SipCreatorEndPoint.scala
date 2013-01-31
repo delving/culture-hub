@@ -13,7 +13,6 @@ import core._
 import scala.{Either, Option}
 import storage.FileStorage
 import util.SimpleDataSetParser
-import akka.util.Duration
 import java.util.concurrent.TimeUnit
 import models._
 import play.api.libs.Files.TemporaryFile
@@ -33,6 +32,7 @@ import models.statistics.FieldFrequencies
 import models.statistics.FieldValues
 import play.api.libs.MimeTypes
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.duration._
 
 /**
  * This Controller is responsible for all the interaction with the SIP-Creator.

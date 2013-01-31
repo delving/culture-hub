@@ -6,11 +6,7 @@ import core.Constants._
 import core.search._
 import exceptions._
 import play.api.i18n.Messages
-import core.rendering.RecordRenderer
-import com.mongodb.casbah.Imports._
-import core.rendering.ViewType
-import eu.delving.schema.SchemaVersion
-import core.{SearchInService, CultureHubPlugin}
+import core.{RequestContext, SearchInService, CultureHubPlugin}
 import core.indexing.IndexField
 
 /**

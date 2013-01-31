@@ -6,8 +6,6 @@ import play.api.Logger
 import controllers.ErrorReporter
 import util.OrganizationConfigurationHandler
 import processing.DataSetCollectionProcessor
-import scala.Some
-import jobs.ProcessDataSet
 
 /**
  *

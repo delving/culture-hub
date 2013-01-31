@@ -2,7 +2,7 @@ package services
 
 import core.node.{NodeDirectoryService, Node, NodeSubscriptionService}
 import models.{HubNode, OrganizationConfiguration}
-import org.scala_tools.subcut.inject.{BindingModule, Injectable}
+import com.escalatesoft.subcut.inject.{BindingModule, Injectable}
 import core.{HubModule, DomainServiceLocator}
 
 /**
