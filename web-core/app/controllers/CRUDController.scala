@@ -210,7 +210,7 @@ trait CRUDController[Model <: CaseClass { def id: ObjectId }, D <: SalatDAO[Mode
       items.map(contextualizer.get)
     } else {
       items
-    }
+    }.toSeq
 
     val (viewLink, viewLinkParams) = if (customViewLink.isDefined) {
       customViewLink.get

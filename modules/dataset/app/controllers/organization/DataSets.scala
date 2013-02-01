@@ -57,7 +57,7 @@ object DataSets extends OrganizationController {
           formats.isEmpty ||
           formats.toSet.subsetOf(set.getPublishableMappingSchemas.map(_.getPrefix).toSet)
         }
-        val asTokens = sets.map(set => Token(set.spec, set.spec))
+        val asTokens = sets.map(set => Token(set.spec, set.spec)).toList
         Json(asTokens)
     }
   }

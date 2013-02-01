@@ -19,6 +19,7 @@ class Processor extends Actor {
   def receive = {
 
     case ProcessDataSet(set) =>
+      log.debug("Received set to process ${set.spec}")
       implicit val configuration = OrganizationConfigurationHandler.getByOrgId(set.orgId)
 
       try {
