@@ -92,6 +92,13 @@ object FileStorage extends FileStoreService {
     }
   }
 
+  def renameBucketForFile(fileId: ObjectId, newBucketId: String)(implicit configuration: OrganizationConfiguration) {
+    fileStore(configuration).findOne(fileId).map { file =>
+      file.put(ITEM_POINTER_FIELD, newBucketId.asInstanceOf[AnyRef])
+      file.save()
+    }
+  }
+
   def setFileType(newFileType: Option[String], files: Seq[StoredFile])(implicit configuration: OrganizationConfiguration) {
     files.foreach { f =>
       fileStore(configuration).findOne(f.id).map { file =>
@@ -162,22 +169,19 @@ object FileUploadResponse {
 
     def hasThumbnail(f: StoredFile) = file.contentType.contains("image") || file.contentType.contains("pdf")
 
-    def thumbnailUrl(implicit configuration: OrganizationConfiguration) = if (hasThumbnail(file)) {
-      fileStore(configuration).findOne(MongoDBObject(FILE_POINTER_FIELD -> file.id)) match {
-        case Some(t) => Some(t.id.asInstanceOf[ObjectId])
-        case None => None
+    def thumbnailUrl(implicit configuration: OrganizationConfiguration): Option[String] = {
+      if (hasThumbnail(file)) {
+        Some("/thumbnail/" + file.id.toString + "/80")
+      } else {
+        None
       }
-    } else {
-      None
-    }.map { thumbnailId =>
-      "thumbnail/" + thumbnailId.toString
     }
 
     FileUploadResponse(
       name = file.name,
       size = file.length,
       url = "/file/" + file.id,
-      thumbnail_url = thumbnailUrl + "/80",
+      thumbnail_url = thumbnailUrl.getOrElse("/assets/common/images/dummy-object.png"),
       delete_url = "/file/" + file.id,
       id = file.id.toString
     )
