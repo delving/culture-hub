@@ -35,7 +35,8 @@ object Mails {
 
   def newUser(subject: String, hub: String, userName: String, fullName: String, email: String)(implicit configuration: OrganizationConfiguration, lang: Lang) {
     Email(configuration.emailTarget.systemFrom, subject).
-      to(configuration.emailTarget.exceptionTo).
+      to(configuration.emailTarget.registerTo).
+      bcc(configuration.emailTarget.exceptionTo).
       withContent(
       """
         |Master,
