@@ -138,18 +138,18 @@
                 <attr prefix="xmlns" name="icn" value="http://www.icn.nl/"/>
             </attrs>
             <elem name="layout">
-                <list name="fields" path="/icn:record/*[fn:not(fn:contains('relatedItems currentLocation previousLocation acquisitionMeans acquiredWithHelpFrom purchasePrice legalStatus stateAcceptsCharges expulsionFromStateYear meansOfExpulsion physicalState', local-name()))]" distinct="name">
+                <list name="fields" path="/icn:record/*[not(contains('relatedItems currentLocation previousLocation acquisitionMeans acquiredWithHelpFrom purchasePrice legalStatus stateAcceptsCharges expulsionFromStateYear meansOfExpulsion physicalState', local-name()))]" distinct="name">
                     <auto-layout-field/>
                 </list>
             </elem>
             <elem name="item">
-                <list name="fields" path="/icn:record/*[fn:not(fn:contains('relatedItems currentLocation previousLocation acquisitionMeans acquiredWithHelpFrom purchasePrice legalStatus stateAcceptsCharges expulsionFromStateYear meansOfExpulsion physicalState', local-name()))]">
+                <list name="fields" path="/icn:record/*[not(contains('relatedItems currentLocation previousLocation acquisitionMeans acquiredWithHelpFrom purchasePrice legalStatus stateAcceptsCharges expulsionFromStateYear meansOfExpulsion physicalState', local-name()))]">
                     <auto-field/>
                 </list>
             </elem>
-            <list name="relatedItems" path="//*[local-name()='record']/*[fn:contains('relatedItems', local-name())]/*">
+            <list name="relatedItems" path="//*[local-name()='record']/*[contains('relatedItems', local-name())]/*">
                 <elem name="item">
-                    <list name="fields" path="fields/*[fn:not(fn:contains('relatedItems currentLocation previousLocation acquisitionMeans acquiredWithHelpFrom purchasePrice legalStatus stateAcceptsCharges expulsionFromStateYear meansOfExpulsion physicalState', local-name()))]">
+                    <list name="fields" path="fields/*[not(contains('relatedItems currentLocation previousLocation acquisitionMeans acquiredWithHelpFrom purchasePrice legalStatus stateAcceptsCharges expulsionFromStateYear meansOfExpulsion physicalState', local-name()))]">
                         <auto-field/>
                     </list>
                 </elem>
