@@ -84,20 +84,20 @@
                 <attr prefix="xmlns" name="abm" value="http://samlinger.kulturnett.no/"/>
             </attrs>
             <elem name="layout">
-                <list name="fields" path="/abm:record/*[fn:not(fn:contains('relatedItems currentLocation previousLocation acquisitionMeans acquiredWithHelpFrom purchasePrice legalStatus stateAcceptsCharges expulsionFromStateYear meansOfExpulsion physicalState', local-name()))]" distinct="name">
+                <list name="fields" path="/abm:record/*[not(contains('relatedItems currentLocation previousLocation acquisitionMeans acquiredWithHelpFrom purchasePrice legalStatus stateAcceptsCharges expulsionFromStateYear meansOfExpulsion physicalState', local-name()))]" distinct="name">
                     <auto-layout-field/>
                 </list>
             </elem>
             <elem name="item">
-                <list name="fields" path="/abm:record/*[fn:not(fn:contains('relatedItems currentLocation previousLocation acquisitionMeans acquiredWithHelpFrom purchasePrice legalStatus stateAcceptsCharges expulsionFromStateYear meansOfExpulsion physicalState', local-name()))]">
+                <list name="fields" path="/abm:record/*[not(contains('relatedItems currentLocation previousLocation acquisitionMeans acquiredWithHelpFrom purchasePrice legalStatus stateAcceptsCharges expulsionFromStateYear meansOfExpulsion physicalState', local-name()))]">
                     <auto-field/>
                 </list>
             </elem>
-            <list name="relatedItems" path="//*[local-name()='record']/*[fn:contains('relatedItems', local-name())]/*">
+            <list name="relatedItems" path="//*[local-name()='record']/*[contains('relatedItems', local-name())]/*">
                 <elem name="item">
-                    <elem prefix="delving" name="title" expr=".//*[fn:contains('title', local-name())]" />
-                    <elem prefix="delving" name="thumbnail" expr=".//*[fn:contains('thumbnail', local-name())]" />
-                    <elem prefix="delving" name="hubId" expr=".//*[fn:contains('hubId', local-name())]" />
+                    <elem prefix="delving" name="title" expr=".//*[contains('title', local-name())]" />
+                    <elem prefix="delving" name="thumbnail" expr=".//*[contains('thumbnail', local-name())]" />
+                    <elem prefix="delving" name="hubId" expr=".//*[contains('hubId', local-name())]" />
                 </elem>
             </list>
         </elem>
