@@ -581,6 +581,8 @@ object OrganizationConfiguration {
       }
     }.toMap
 
+    log.debug("Found following plugin configurations: " + pluginConfigurations.keys.map(_._1).mkString(", "))
+
     val groupedPluginConfigurations: Map[String, Map[OrganizationConfiguration, Option[Configuration]]] = pluginConfigurations.groupBy(_._1._1).map { g =>
       (g._1 -> {
         g._2.map(group => (group._1._2 -> group._2))
@@ -588,7 +590,10 @@ object OrganizationConfiguration {
     }.toMap
 
     groupedPluginConfigurations.foreach { pluginConfig =>
-      CultureHubPlugin.hubPlugins.find(_.pluginKey == pluginConfig._1).map(_.onBuildConfiguration(pluginConfig._2))
+      CultureHubPlugin.hubPlugins.find(_.pluginKey == pluginConfig._1).map { plugin =>
+        log.debug(s"Loading configuration for plugin ${plugin.pluginKey}")
+        plugin.onBuildConfiguration(pluginConfig._2)
+      }
     }
 
     configs

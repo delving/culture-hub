@@ -58,6 +58,9 @@ object Global extends GlobalSettings {
       // routes access logger
       Akka.system.actorOf(Props[RouteLogger], name = "routeLogger")
 
+    } else {
+      // workaround
+      System.setProperty("config.file", "saas.conf")
     }
 
     // ~~~ load test data

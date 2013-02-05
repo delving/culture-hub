@@ -21,7 +21,6 @@ POST       /login                                                               
 GET        /logout                                                                 controllers.Authentication.logout
 
 # OAuth2
-GET        /authorize                                                              controllers.OAuth2Authenticator.authenticate
 GET        /token                                                                  controllers.OAuth2TokenEndpoint.token
 
 # Demo space
