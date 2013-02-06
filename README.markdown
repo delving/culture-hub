@@ -54,3 +54,11 @@ This is how:
 - you also need to run a connector for FastCGI. Normally this happens in a web server but for convenience you can also do this without additional
 installation by running `cd extras/servlet-server && java -jar start.jar`
 - now you are ready to go and use the advanced image viewer
+
+### Selenium tests on a build server
+
+In order to run the selenium tests that use the Chrome driver, you'll need to do the following on a build-server (debian / ubuntu):
+
+- install chromium and xvfb: `aptitude install chromium-browser xvfb`
+- edit `/etc/chromium-browser/default` and set `CHROMIUM_FLAGS="--display:1"`
+- for Jenkins, install the xvfb plugin and use it in your build
