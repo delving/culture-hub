@@ -177,7 +177,7 @@ object ImageDisplay extends Controller with RespondWithDefaultImage with Organiz
         try {
           Integer.parseInt(w)
         } catch {
-          case _ => DEFAULT_THUMBNAIL_WIDTH
+          case t: Throwable => DEFAULT_THUMBNAIL_WIDTH
         }
     }
   }
