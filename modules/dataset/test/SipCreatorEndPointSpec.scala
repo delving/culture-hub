@@ -175,6 +175,8 @@ class SipCreatorEndPointSpec extends BootstrapAwareSpec {
 
         implicit val configuration = OrganizationConfigurationHandler.getByOrgId("delving")
         while (DataSet.dao.getState(dataSet.orgId, dataSet.spec) == DataSetState.PARSING) Thread.sleep(100)
+        // BaseX needs some time to flush the data to disk
+        Thread.sleep(1000)
 
         DataSet.dao(bootstrap.org).getSourceRecordCount(dataSet) must equalTo(8)
       }
