@@ -95,7 +95,7 @@ object GMThumbnailCreationProcessor extends ThumbnailCreationProcessor with Thum
           error(task, "Error creating thumbnail for image '%s': %s".format(image.getAbsolutePath, e.mkString("\n")), Some(image.getAbsolutePath))
         }
       } catch {
-        case t =>
+        case t: Throwable =>
           t.printStackTrace()
           error(task, "Error creating thumbnail for image '%s': %s".format(image.getAbsolutePath, t.getMessage), Some(image.getAbsolutePath))
       } finally {
