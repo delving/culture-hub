@@ -51,6 +51,8 @@ class DataSetCollectionProcessorImpl extends DataSetCollectionProcessor {
 
   def process(dataSet: DataSet, whenDone: => Unit)(implicit configuration: OrganizationConfiguration) {
 
+    log.info(s"Starting DataSet collection processing for set ${dataSet.spec}")
+
     val invalidRecords = DataSet.dao.getInvalidRecords(dataSet)
 
     val selectedSchemas: Seq[RecordDefinition] = dataSet.mappings.flatMap(mapping => RecordDefinition.getRecordDefinition(mapping._2.schemaPrefix, mapping._2.schemaVersion)).toSeq
