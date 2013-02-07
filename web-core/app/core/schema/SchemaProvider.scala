@@ -2,7 +2,7 @@ package core.schema
 
 import akka.actor._
 import scala.concurrent.duration._
-import scala.concurrent.ExecutionContext.Implicits.global
+import play.api.libs.concurrent.Execution.Implicits._
 import akka.pattern.ask
 import scala.concurrent.Await
 import core.schema.SchemaProvider._

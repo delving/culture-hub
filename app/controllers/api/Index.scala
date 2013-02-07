@@ -13,7 +13,7 @@ import org.joda.time.format.ISODateTimeFormat
 import collection.mutable.{ArrayBuffer, ListBuffer}
 import com.mongodb.casbah.commons.MongoDBObject
 import play.api.Logger
-import scala.concurrent.ExecutionContext.Implicits.global
+import play.api.libs.concurrent.Execution.Implicits._
 
 /**
  *

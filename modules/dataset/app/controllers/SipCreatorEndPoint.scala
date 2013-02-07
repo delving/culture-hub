@@ -31,7 +31,7 @@ import models.statistics.DataSetStatisticsContext
 import models.statistics.FieldFrequencies
 import models.statistics.FieldValues
 import play.api.libs.MimeTypes
-import scala.concurrent.ExecutionContext.Implicits.global
+import play.api.libs.concurrent.Execution.Implicits._
 import scala.concurrent.duration._
 
 /**

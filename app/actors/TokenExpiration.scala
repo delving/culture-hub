@@ -5,7 +5,7 @@ import models.HubUser
 import play.api.libs.concurrent.Akka
 import scala.concurrent.duration._
 import play.api.Play.current
-import scala.concurrent.ExecutionContext.Implicits.global
+import play.api.libs.concurrent.Execution.Implicits._
 
 /**
  * Authentication stuff.
