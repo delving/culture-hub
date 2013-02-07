@@ -6,7 +6,7 @@ import play.api.Logger
 import processors._
 import scala.concurrent.duration._
 import play.api.Play.current
-import scala.concurrent.ExecutionContext.Implicits.global
+import play.api.libs.concurrent.Execution.Implicits._
 
 
 /**

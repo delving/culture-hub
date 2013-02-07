@@ -11,7 +11,7 @@ import java.util.concurrent.atomic.{AtomicBoolean, AtomicInteger}
 import akka.actor.{Actor, Props}
 import akka.pattern.ask
 import core.HubId
-import scala.concurrent.ExecutionContext.Implicits.global
+import play.api.libs.concurrent.Execution.Implicits._
 import scala.concurrent.duration._
 import concurrent.{Await, Future}
 import akka.util.Timeout

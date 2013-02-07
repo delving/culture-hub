@@ -15,7 +15,7 @@ import com.mongodb.casbah.commons.MongoDBObject
 import play.api.Logger
 import core.{ItemType, OrganizationCollectionLookupService}
 import core.collection.OrganizationCollection
-import scala.concurrent.ExecutionContext.Implicits.global
+import play.api.libs.concurrent.Execution.Implicits._
 
 /**
  *

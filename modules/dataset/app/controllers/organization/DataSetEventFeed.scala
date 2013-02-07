@@ -1,6 +1,6 @@
 package controllers.organization
 
-import scala.concurrent.ExecutionContext.Implicits.global
+import play.api.libs.concurrent.Execution.Implicits._
 import util.OrganizationConfigurationHandler
 import scala.concurrent.duration._
 import akka.actor._
@@ -118,7 +118,7 @@ object DataSetEventFeed {
   case class Subscribe(orgId: String, userName: String, configuration: String, clientId: String, spec: Option[String] = None)
   case class Unsubscribe(clientId: String)
 
-  case class Connected(enumerator: PushEnumerator[JsValue])
+  case class Connected(enumerator: Enumerator[JsValue])
   case class CannotConnect(msg: String)
 
   case object StartPolling
@@ -239,7 +239,7 @@ class DataSetEventFeed extends Actor {
     case Subscribe(orgId, userName, configuration, clientId, spec) => {
       // Create an Enumerator to write to this socket
 
-      val channel = Enumerator.imperative[JsValue]()
+      val (enumerator, channel) = Concurrent.broadcast[JsValue]
 
       if (subscribers.contains(clientId)) {
         log.warn("Duplicate clientId connection attempt from " + clientId)
@@ -249,8 +249,8 @@ class DataSetEventFeed extends Actor {
          // if there was no subscriber before, start the polling
          self ! StartPolling
         }
-        subscribers = subscribers + (clientId -> Subscriber(orgId, userName, configuration, spec, channel))
-        sender ! Connected(channel)
+        subscribers = subscribers + (clientId -> Subscriber(orgId, userName, configuration, spec, enumerator, channel))
+        sender ! Connected(enumerator)
       }
 
     }
@@ -557,11 +557,11 @@ class DataSetEventFeed extends Actor {
       case (_, subscriber) =>
         val msg = default ++ message
         log.debug("Pushing messag to subscriber: " + msg)
-        subscriber.channel.push(msg)
+        subscriber.channel push (msg)
     }
   }
 
-  case class Subscriber(orgId: String, userName: String, configuration: String, spec: Option[String], channel: PushEnumerator[JsValue])
+  case class Subscriber(orgId: String, userName: String, configuration: String, spec: Option[String], enumerator: Enumerator[JsValue], channel: Concurrent.Channel[JsValue])
 
 }
 
