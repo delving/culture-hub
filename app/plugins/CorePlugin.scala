@@ -6,6 +6,7 @@ import models._
 import core.MainMenuEntry
 import core.MenuElement
 import core.search.BasicSearchInService
+import controllers.api.IndexItemOrganizationCollectionLookupService
 
 
 /**
@@ -31,7 +32,8 @@ class CorePlugin(app: Application) extends CultureHubPlugin(app) {
 
 
   override def services: Seq[Any] = Seq(
-    new BasicSearchInService
+    new BasicSearchInService,
+    new IndexItemOrganizationCollectionLookupService
   )
 
   override def organizationMenuEntries(configuration: OrganizationConfiguration, lang: String, roles: Seq[String]): Seq[MainMenuEntry] = Seq(

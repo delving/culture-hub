@@ -49,6 +49,14 @@ object MetadataCache {
     new MongoMetadataCache(orgId, col, itemType, mongoCollection)
   }
 
+  def getItemTypes(orgId: String, col: String): Seq[ItemType] = {
+    val configuration = OrganizationConfigurationHandler.getByOrgId(orgId)
+    val mongoConnection = mongoConnections(configuration)
+    val mongoCollection: MongoCollection = mongoConnection(getMongoCollectionName(configuration.orgId))
+    val types: Seq[Any] = mongoCollection.distinct("itemType", MongoDBObject("collection" -> col))
+    types.map(t => ItemType(t.toString))
+  }
+
 }
 
 class MongoMetadataCache(orgId: String, col: String, itemType: String, mongoCollection: MongoCollection) extends SalatDAO[MetadataItem, ObjectId](mongoCollection) with core.MetadataCache {
