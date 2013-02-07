@@ -307,10 +307,12 @@ case class SearchSummary(result: BriefItemView, language: String = "en", chRespo
       renderStrong("Soort object", "dc_type", output)
       renderStrong("Vervaardigingsdatum", "dc_date", output)
       renderStrong("Vervaardiging plaats", "dc_coverage", output)
+      renderStrong("vindplaats", "icn_location", output)
+      renderStrong("Onderwerp trefwoord", "dc_subject", output)
+      renderStrong("Associatie trefwoord", "dcterms_spatial", output)
       renderStrong("Afmeting", "dc_format", output)
       renderStrong("Materiaal", "icn_material", output)
-      renderStrong("Trefwoorden", "dc_subject", output)
-      renderStrong("Identificatie", "dc_identifier", output)
+      renderStrong("Objectnummer", "dc_identifier", output)
       output append ("</br>")
       output append (item.getAsString("delving_description"))
       output.toString
@@ -332,7 +334,9 @@ case class SearchSummary(result: BriefItemView, language: String = "en", chRespo
         </description>
         <ExtendedData>
           {renderData("delving_title", "titel", item)}
-          {renderData("delving_landingPage", "bron", item, cdata = true, """<a href="%s" target="_blank">Naar collectiewebsite Friesmuseum</a>""")}
+          {renderData("dcterms_spatial", "ondertitel", item)}
+          {renderData("delving_landingPage", "bron", item, cdata = true,
+          """<a href="%s" target="_blank">Naar online collectie %s</a>""".format(item.getAsString("delving_landingPage"), item.getAsString("delving_owner")))}
           {renderData("delving_thumbnail", "thumbnail", item)}
           {renderData("europeana_isShownBy", "image", item)}
         </ExtendedData>
@@ -415,7 +419,7 @@ case class SearchSummary(result: BriefItemView, language: String = "en", chRespo
       <results xmlns:delving="http://www.delving.eu/schemas/" xmlns:aff="http://schemas.delving.eu/aff/"
                xmlns:icn="http://www.icn.nl/" xmlns:europeana="http://www.europeana.eu/schemas/ese/" xmlns:dc="http://purl.org/dc/elements/1.1/"
                xmlns:raw="http://delving.eu/namespaces/raw" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:ese="http://www.europeana.eu/schemas/ese/"
-               xmlns:abm="http://to_be_decided/abm/" xmlns:abc="http://www.ab-c.nl/" xmlns:drup="http://www.itin.nl/drupal"
+               xmlns:abm="http://schemas.delving.eu/abm/" xmlns:abc="http://www.ab-c.nl/" xmlns:drup="http://www.itin.nl/drupal"
                xmlns:itin="http://www.itin.nl/namespace" xmlns:tib="http://www.thuisinbrabant.nl/namespace"
                xmlns:musip="http://www.musip.nl/" xmlns:custom="http://www.delving.eu/namespaces/custom">
         <query numFound={pagination.getNumFound.toString} firstYear="0" lastYear="0">
