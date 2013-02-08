@@ -97,7 +97,9 @@ trait Logging extends Secured { self: Controller with OrganizationConfigurationA
     }
   }
 
-  private def withContext(msg: String)(implicit request: RequestHeader) = "[%s] While accessing %s %s: %s".format(request.session.get("userName").getOrElse("Unknown"), request.method, request.uri, msg)
+  private def withContext(msg: String)(implicit request: RequestHeader) = {
+    "[%s] While accessing %s %s: %s".format(request.session.get("userName").getOrElse("Unknown") + "@" + configuration.orgId, request.method, request.uri, msg)
+  }
 
   private def securitySubject(implicit request: RequestHeader) = "***[CultureHub] Security alert on %s".format(request.domain)
 
