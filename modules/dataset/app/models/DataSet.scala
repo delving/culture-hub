@@ -435,7 +435,7 @@ class DataSetDAO(collection: MongoCollection)(implicit val configuration: Organi
     if (errorMessage.isDefined) {
       update(MongoDBObject("_id" -> dataSet._id), $set(Seq(
         "state.name" -> state.name, "errorMessage" -> errorMessage.get
-      )), , false, false, WriteConcern.Safe)
+      )))
       DataSetEvent ! DataSetEvent.StateChanged(dataSet.orgId, dataSet.spec, state, userName)
       DataSetEvent ! DataSetEvent.Error(dataSet.orgId, dataSet.spec, errorMessage.get, userName)
     } else {
