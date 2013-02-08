@@ -37,6 +37,7 @@ import models.FormatAccessControl
 import models.Mapping
 import models.FactDefinition
 import controllers.ShortDataSet
+import play.api.i18n.Messages
 
 /**
  *
@@ -100,7 +101,20 @@ object DataSetCreationViewModel {
     if (o == Some("raw")) Invalid(ValidationError("error.notRaw")) else Valid
   }
 
-  val dataSetForm = Form(
+  def specTaken(implicit configuration: OrganizationConfiguration) = Constraint[DataSetCreationViewModel]("plugin.dataSet.specTaken") {
+    case r =>
+      val maybeOne = DataSet.dao.findBySpecAndOrgId(r.spec, configuration.orgId)
+      if (maybeOne.isDefined && r.id.isDefined) {
+        Valid
+      } else if (maybeOne == None) {
+        Valid
+      } else {
+        Invalid(ValidationError(Messages("plugin.dataSet.specTaken")))
+      }
+  }
+
+
+  def dataSetForm(implicit configuration: OrganizationConfiguration) = Form(
     mapping(
       "id" -> optional(of[ObjectId]),
       "spec" -> nonEmptyText.verifying(Constraints.pattern("^[A-Za-z0-9-]{3,40}$".r, "constraint.validSpec", "Invalid spec format")),
@@ -126,7 +140,7 @@ object DataSetCreationViewModel {
         )(SchemaProcessingConfiguration.apply)(SchemaProcessingConfiguration.unapply)
       ),
       "indexingMappingPrefix" -> optional(text).verifying(notRaw)
-    )(DataSetCreationViewModel.apply)(DataSetCreationViewModel.unapply)
+    )(DataSetCreationViewModel.apply)(DataSetCreationViewModel.unapply).verifying(specTaken)
   )
 
 
@@ -283,6 +297,11 @@ trait DataSetControl extends OrganizationController { this: BoundController =>
                   return Action {
                     implicit request => Forbidden("You have no rights to edit this DataSet")
                   }
+                }
+
+                if (existing.spec != dataSetForm.spec) {
+                  log.info(s"Renaming DataSet spec ${existing.spec} to ${dataSetForm.spec}")
+                  HubServices.basexStorage(configuration).renameCollection(existing, dataSetForm.spec)
                 }
 
                 val updatedDetails = existing.details.copy(name = dataSetForm.facts.name, facts = factsObject)
