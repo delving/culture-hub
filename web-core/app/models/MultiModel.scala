@@ -21,6 +21,7 @@ trait MultiModel[A <: salat.CaseClass, B <: SalatDAO[A, ObjectId]] {
       config => {
         val connection = mongoConnections(config)
         val collection = connection(connectionName)
+        collection.setWriteConcern(WriteConcern.Safe)
         initIndexes(collection)
         val dao = initDAO(collection, connection)(config)
         (config -> dao)
