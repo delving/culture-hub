@@ -11,8 +11,9 @@ import java.util.concurrent.atomic.{AtomicBoolean, AtomicInteger}
 import akka.actor.{Actor, Props}
 import akka.pattern.ask
 import core.HubId
-import akka.util.duration._
-import akka.dispatch.{Await, Future}
+import play.api.libs.concurrent.Execution.Implicits._
+import scala.concurrent.duration._
+import concurrent.{Await, Future}
 import akka.util.Timeout
 
 /**
@@ -114,7 +115,7 @@ class CollectionProcessor(collection: Collection with OrganizationCollectionInfo
                   }
 
 
-                  implicit val timeout = Timeout(5 seconds)
+                  implicit val timeout: Timeout = 5 seconds
 
                   // dynamic throttling of the messages we send off to Akka
                   // we might not be able to process the data coming from the database fast enough, and fill the memory with dozens of messages as a consequence

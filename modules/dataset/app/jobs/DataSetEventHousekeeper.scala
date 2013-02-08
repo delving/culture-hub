@@ -1,6 +1,7 @@
 package jobs
 
-import akka.util.duration._
+import play.api.libs.concurrent.Execution.Implicits._
+import scala.concurrent.duration._
 import models.DataSetEventLog
 import akka.actor.{Cancellable, Actor}
 import play.api.libs.concurrent.Akka

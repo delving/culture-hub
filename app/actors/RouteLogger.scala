@@ -8,9 +8,10 @@ import collection.mutable.HashMap
 import collection.mutable.ArrayBuffer
 import models.{OrganizationConfiguration, RouteAccess}
 import util.OrganizationConfigurationHandler
-import akka.util.duration._
+import scala.concurrent.duration._
 import play.api.libs.concurrent.Akka
 import play.api.Play.current
+import play.api.libs.concurrent.Execution.Implicits._
 
 /**
  *

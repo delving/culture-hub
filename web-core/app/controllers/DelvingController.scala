@@ -75,7 +75,7 @@ trait ApplicationController extends Controller with GroovyTemplates with Control
             val r = res.asInstanceOf[PlainResult]
             if (languageChanged) {
               Logger("CultureHub").trace("Composing session after language change")
-              r.withCookies(Cookie(name = LANG_COOKIE, value = requestLanguage, maxAge = Time.parseDuration("30d")))
+              r.withCookies(Cookie(name = LANG_COOKIE, value = requestLanguage, maxAge = Some(Time.parseDuration("30d"))))
             } else {
               r
             }

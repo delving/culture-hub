@@ -13,7 +13,6 @@ import core._
 import scala.{Either, Option}
 import storage.FileStorage
 import util.SimpleDataSetParser
-import akka.util.Duration
 import java.util.concurrent.TimeUnit
 import models._
 import play.api.libs.Files.TemporaryFile
@@ -32,6 +31,8 @@ import models.statistics.DataSetStatisticsContext
 import models.statistics.FieldFrequencies
 import models.statistics.FieldValues
 import play.api.libs.MimeTypes
+import play.api.libs.concurrent.Execution.Implicits._
+import scala.concurrent.duration._
 
 /**
  * This Controller is responsible for all the interaction with the SIP-Creator.
@@ -391,7 +392,7 @@ trait SipCreatorEndPoint extends Controller with OrganizationConfigurationAware 
       }
 
     } catch {
-      case t =>
+      case t: Throwable =>
         t.printStackTrace()
         Left("Error receiving source statistics: " + t.getMessage)
     }
@@ -424,7 +425,7 @@ trait SipCreatorEndPoint extends Controller with OrganizationConfigurationAware 
               val updatedDataSet = dataSet.copy(lockedBy = Some(connectedUser))
               DataSet.dao.save(updatedDataSet)
 
-              val dataContent: Enumerator[Array[Byte]] = Enumerator.fromFile(getSipStream(dataSet))
+              val dataContent: Enumerator[Array[Byte]] = Enumerator.fromFile(getSipStream(updatedDataSet))
               Right(dataContent)
             }
           }.map {
@@ -626,7 +627,7 @@ class ReceiveSource extends Actor {
 
   var tempFileRef: TemporaryFile = null
 
-  protected def receive = {
+  def receive = {
     case SourceStream(dataSet, userName, inputStream, tempFile, conf) =>
       implicit val configuration = conf
       val now = System.currentTimeMillis()

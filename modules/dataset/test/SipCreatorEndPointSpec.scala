@@ -36,7 +36,7 @@ class SipCreatorEndPointSpec extends BootstrapAwareSpec {
     "unlock a DataSet" in {
 
       import com.mongodb.casbah.Imports._
-      DataSet.dao(bootstrap.org).update(MongoDBObject("spec" -> bootstrap.spec), $set("lockedBy" -> "bob"))
+      DataSet.dao(bootstrap.org).update(MongoDBObject("spec" -> bootstrap.spec), $set(Seq("lockedBy" -> "bob")))
 
       withTestConfig {
         val result = controllers.SipCreatorEndPoint.unlock(
@@ -62,7 +62,7 @@ class SipCreatorEndPointSpec extends BootstrapAwareSpec {
             method = "POST",
             body = new AnyContentAsText(lines.stripMargin),
             uri = "",
-            headers = FakeHeaders(Map(CONTENT_TYPE -> Seq("text/plain")))
+            headers = FakeHeaders(Seq(CONTENT_TYPE -> Seq("text/plain")))
           ))
         status(result) must equalTo(OK)
         contentAsString(result) must equalTo(lines)
@@ -83,7 +83,7 @@ class SipCreatorEndPointSpec extends BootstrapAwareSpec {
           FakeRequest(
             method = "POST",
             uri = "",
-            headers = FakeHeaders(Map(CONTENT_TYPE -> Seq("text/plain"))),
+            headers = FakeHeaders(Seq(CONTENT_TYPE -> Seq("text/plain"))),
             body = TemporaryFile(hintsFile)
           )
         )
@@ -109,7 +109,7 @@ class SipCreatorEndPointSpec extends BootstrapAwareSpec {
           FakeRequest(
             method = "POST",
             uri = "",
-            headers = FakeHeaders(Map(CONTENT_TYPE -> Seq("text/plain"))),
+            headers = FakeHeaders(Seq(CONTENT_TYPE -> Seq("text/plain"))),
             body = TemporaryFile(mappingFile)
           )
         )
@@ -136,7 +136,7 @@ class SipCreatorEndPointSpec extends BootstrapAwareSpec {
           FakeRequest(
             method = "POST",
             uri = "",
-            headers = FakeHeaders(Map(CONTENT_TYPE -> Seq("application/octet-stream"))),
+            headers = FakeHeaders(Seq(CONTENT_TYPE -> Seq("application/octet-stream"))),
             body = TemporaryFile(intFile)
           )
         )
@@ -165,7 +165,7 @@ class SipCreatorEndPointSpec extends BootstrapAwareSpec {
           FakeRequest(
             method = "POST",
             uri = "",
-            headers = FakeHeaders(Map(CONTENT_TYPE -> Seq("application/x-gzip"))),
+            headers = FakeHeaders(Seq(CONTENT_TYPE -> Seq("application/x-gzip"))),
             body = TemporaryFile(sourceFile)
           )
         )
@@ -175,6 +175,8 @@ class SipCreatorEndPointSpec extends BootstrapAwareSpec {
 
         implicit val configuration = OrganizationConfigurationHandler.getByOrgId("delving")
         while (DataSet.dao.getState(dataSet.orgId, dataSet.spec) == DataSetState.PARSING) Thread.sleep(100)
+        // BaseX needs some time to flush the data to disk
+        Thread.sleep(1000)
 
         DataSet.dao(bootstrap.org).getSourceRecordCount(dataSet) must equalTo(8)
       }
@@ -193,7 +195,7 @@ class SipCreatorEndPointSpec extends BootstrapAwareSpec {
             method = "POST",
             body = new AnyContentAsText(lines),
             uri = "",
-            headers = FakeHeaders(Map(CONTENT_TYPE -> Seq("text/plain")))
+            headers = FakeHeaders(Seq(CONTENT_TYPE -> Seq("text/plain")))
           ))
         status(result) must equalTo(OK)
         contentAsString(result) must equalTo("")
@@ -213,7 +215,7 @@ class SipCreatorEndPointSpec extends BootstrapAwareSpec {
           FakeRequest(
             method = "POST",
             uri = "",
-            headers = FakeHeaders(Map(CONTENT_TYPE -> Seq("text/plain"))), // ????
+            headers = FakeHeaders(Seq(CONTENT_TYPE -> Seq("text/plain"))), // ????
             body = TemporaryFile(intFile)
           )
         )

@@ -51,7 +51,7 @@ trait Admin extends DelvingController { this: BoundController =>
         ProfileViewModel.profileForm.bind(request.body.asJson.get).fold(
           formWithErrors => handleValidationError(formWithErrors),
           profileModel => {
-            def StrictOption(s: String) = Option(s).filter(_.trim.nonEmpty)
+            def StrictOption(s: String) = Option(s).filter(e => e.trim.length > 0)
 
             // update local
             HubUser.dao.updateProfile(connectedUser, profileModel.firstName, profileModel.lastName, profileModel.email, UserProfile(

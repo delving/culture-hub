@@ -1,4 +1,5 @@
 import core.HubServices
+import org.openqa.selenium.chrome.ChromeDriver
 import play.api.i18n.{Messages, Lang}
 import play.api.test._
 import play.api.test.Helpers._
@@ -19,7 +20,9 @@ class RegistrationSpec extends Specs2TestContext {
 
     "work" in {
 
-      running(TestServer(3333, FakeApplication(path = applicationPath)), classOf[FirefoxHtmlUnitDriver]) {
+      System.setProperty("webdriver.chrome.driver", System.getProperty("user.home") + "/chromedriver")
+
+      running(TestServer(3333, FakeApplication(path = applicationPath)), classOf[ChromeDriver]) {
         browser =>
           registerAlice(browser)
           activateAlice(browser)

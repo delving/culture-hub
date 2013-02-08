@@ -121,7 +121,7 @@ class ViewRenderSpec extends Specs2TestContext {
 
         val expected =
 """<?xml version="1.0" encoding="utf-8" ?>
- <record xmlns:delving="http://www.delving.eu/schemas/delving-1.0.xsd" xmlns:dc="http://dublincore.org/schemas/xmls/qdc/dc.xsd">
+ <record xmlns:dc="http://dublincore.org/schemas/xmls/qdc/dc.xsd" xmlns:delving="http://www.delving.eu/schemas/delving-1.0.xsd">
    <item id="42">
       <dc:title>A test hierarchical record</dc:title>
       <delving:description>This is a test record</delving:description>

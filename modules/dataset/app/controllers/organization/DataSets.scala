@@ -8,7 +8,7 @@ import controllers.{Token, OrganizationController}
 import java.util.regex.Pattern
 import play.api.libs.json.{JsString, JsValue}
 import play.api.libs.concurrent.Promise
-import play.api.libs.iteratee.{Enumerator, Done, Input}
+import play.api.libs.iteratee.{Concurrent, Enumerator, Done, Input}
 import util.OrganizationConfigurationHandler
 
 /**
@@ -45,7 +45,7 @@ object DataSets extends OrganizationController {
     } else {
       // return a fake pair
       // TODO perhaps a better way here ?
-      Promise.pure((Done[JsValue, JsValue](JsString(""), Input.Empty), Enumerator.imperative()))
+      Promise.pure((Done[JsValue, JsValue](JsString(""), Input.Empty), Concurrent.broadcast._1))
     }
   }
 
@@ -57,7 +57,7 @@ object DataSets extends OrganizationController {
           formats.isEmpty ||
           formats.toSet.subsetOf(set.getPublishableMappingSchemas.map(_.getPrefix).toSet)
         }
-        val asTokens = sets.map(set => Token(set.spec, set.spec))
+        val asTokens = sets.map(set => Token(set.spec, set.spec)).toList
         Json(asTokens)
     }
   }

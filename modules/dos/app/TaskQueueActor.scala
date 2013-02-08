@@ -4,8 +4,10 @@ import models.dos.{TaskType, TaskState, Task}
 import play.api.libs.concurrent.Akka
 import play.api.Logger
 import processors._
-import akka.util.duration._
+import scala.concurrent.duration._
 import play.api.Play.current
+import play.api.libs.concurrent.Execution.Implicits._
+
 
 /**
  * Scheduled actor that processes queued tasks, one at a time

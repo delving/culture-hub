@@ -1,4 +1,6 @@
+import akka.util.Timeout
 import com.gargoylesoftware.htmlunit.BrowserVersion
+import concurrent.Await
 import core.HubServices
 import core.indexing.IndexingService
 import core.services.AggregatingOrganizationCollectionLookupService
@@ -11,7 +13,7 @@ import play.api.test._
 import play.api.test.Helpers._
 import _root_.util.{TestDataLoader, OrganizationConfigurationHandler}
 import xml.XML
-
+import scala.concurrent.duration._
 /**
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
@@ -22,7 +24,7 @@ trait TestContext {
   val SAMPLE_A = "sample-a"
   val SAMPLE_B = "sample-b"
 
-  def asyncToResult(response: Result) = response.asInstanceOf[AsyncResult].result.await.get
+  def asyncToResult(response: Result) = Await.result(response.asInstanceOf[AsyncResult].result, 3 seconds)
 
   def contentAsXML(response: Result) = XML.loadString(contentAsString(response))
 

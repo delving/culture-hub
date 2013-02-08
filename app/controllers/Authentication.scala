@@ -56,7 +56,7 @@ trait Authentication extends ApplicationController { this: BoundController =>
   }
 
   def logout = Action {
-    Redirect(routes.Authentication.login).withNewSession.discardingCookies(REMEMBER_COOKIE).flashing(
+    Redirect(routes.Authentication.login).withNewSession.discardingCookies(DiscardingCookie(REMEMBER_COOKIE)).flashing(
       "success" -> Messages("authentication.logout")
     )
   }
@@ -104,7 +104,7 @@ trait Authentication extends ApplicationController { this: BoundController =>
                 action.withCookies(Cookie(
                   name = REMEMBER_COOKIE,
                   value = Crypto.sign(user._1) + "-" + user._1,
-                  maxAge = Time.parseDuration("30d")
+                  maxAge = Some(Time.parseDuration("30d"))
                 ))
               } else {
                 action

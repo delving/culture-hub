@@ -26,7 +26,7 @@ object SipCreator extends OrganizationController {
     Action {
       implicit request =>
 
-        val host = request.domain + ":9000"
+        val host = request.domain
         val home = "http://" + host + "/" + user
         val codebase = "http://" + host + "/assets/sip-creator/"
 

@@ -24,10 +24,13 @@ trait DataSetCollectionProcessor {
 
 object DataSetCollectionProcessor extends DataSetCollectionProcessor {
 
+  val log = Logger("CultureHub")
 
   // TODO return a promise
   def process(dataSet: DataSet, whenDone: => Unit)(implicit configuration: OrganizationConfiguration) {
+    log.debug("About to start typed actor for DataSetCollectionProcessor")
     val processor: DataSetCollectionProcessor = TypedActor(Akka.system).typedActorOf(TypedProps[DataSetCollectionProcessorImpl])
+    log.debug("We started the typed actor DataSetCollectionProcessor")
     var processing = true
     processor.process(dataSet, {
       whenDone
@@ -50,6 +53,8 @@ class DataSetCollectionProcessorImpl extends DataSetCollectionProcessor {
   val AFF_PREFIX = "aff"
 
   def process(dataSet: DataSet, whenDone: => Unit)(implicit configuration: OrganizationConfiguration) {
+
+    log.info(s"Starting DataSet collection processing for set ${dataSet.spec}")
 
     val invalidRecords = DataSet.dao.getInvalidRecords(dataSet)
 

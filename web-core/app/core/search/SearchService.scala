@@ -298,7 +298,7 @@ case class SearchSummary(result: BriefItemView, language: String = "en", chRespo
     def renderComposedDescription(item: BriefDocItem): String = {
       def renderStrong(label: String, field: String, out: StringBuffer) {
         val fv = item.getFieldValue(field)
-        if (fv.isNotEmpty) out append ("<strong>%s</strong>: %s </br>".format(label, fv.getArrayAsString(", "))) else "ss"
+        if (fv.isNotEmpty) out append ("<strong>%s</strong>: %s </br>".format(label, fv.getArrayAsString(", ")))
       }
 
       val output = new StringBuffer()
@@ -528,7 +528,7 @@ case class FacetAutoComplete(params: Params, configuration: OrganizationConfigur
     params.getValueOrElse("rows", "10").toInt
   }
   catch {
-    case _ => 10
+    case t: Throwable => 10
   }
 
   val autocomplete: Seq[Count] =  if (facet != "listAll")

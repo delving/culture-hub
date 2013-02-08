@@ -26,9 +26,10 @@ import org.apache.commons.lang.StringEscapeUtils
 import xml.{NodeSeq, Node, XML}
 import play.api.{Play, Logger}
 import play.api.Play.current
-import org.w3c.dom.{Text, Node => WNode}
+import org.w3c.dom.{Node => WNode, NodeList, Text}
 import java.net.URLEncoder
 import collection.mutable.{HashMap, ArrayBuffer, Stack}
+import util.XPathWorking
 
 /**
  * View Rendering mechanism. Reads a ViewDefinition from a given record definition, and applies it onto the input data (a node tree).
@@ -65,7 +66,21 @@ object ViewRenderer {
 }
 
 class ViewRenderer(val schema: String, viewType: ViewType, configuration: OrganizationConfiguration) {
-  
+
+  implicit class RichNodeList(nodeList: NodeList) {
+    def asIterator: Iterator[org.w3c.dom.Node] = new Iterator[org.w3c.dom.Node] {
+      var index = 0
+
+      def hasNext: Boolean = index < nodeList.getLength
+
+      def next(): org.w3c.dom.Node = {
+       val item = nodeList.item(index)
+       index = index + 1
+       item
+      }
+    }
+  }
+
   val log = Logger("CultureHub")
 
   val viewDef: Option[Node] = ViewRenderer.getViewDefinition(schema, viewType)
@@ -126,13 +141,13 @@ class ViewRenderer(val schema: String, viewType: ViewType, configuration: Organi
           val ifNotExpr = n.attr("ifNot")
 
           val ifValue = if(!ifExpr.isEmpty) {
-            val v = XPath.selectText(ifExpr, dataNode, namespaces.asJava)
+            val v = XPathWorking.selectText(ifExpr, dataNode, namespaces.asJava)
             v != null && !v.isEmpty
           } else {
             true
           }
           val ifNotValue = if(!ifNotExpr.isEmpty) {
-            val v = XPath.selectText(ifNotExpr, dataNode, namespaces.asJava)
+            val v = XPathWorking.selectText(ifNotExpr, dataNode, namespaces.asJava)
             v != null && !v.isEmpty
           } else {
             false
@@ -141,7 +156,7 @@ class ViewRenderer(val schema: String, viewType: ViewType, configuration: Organi
           if (n.label != "#PCDATA" && ifValue && !ifNotValue) {
 
             // common attributes
-            val label = if(n.attr("labelExpr").isEmpty) n.attr("label") else XPath.selectText(n.attr("labelExpr"), dataNode, namespaces.asJava)
+            val label = if(n.attr("labelExpr").isEmpty) n.attr("label") else XPathWorking.selectText(n.attr("labelExpr"), dataNode, namespaces.asJava)
 
             val role = n.attr("role")
             val path = n.attr("path")
@@ -173,7 +188,7 @@ class ViewRenderer(val schema: String, viewType: ViewType, configuration: Organi
                   val attrs = fetchNestedAttributes(n, dataNode)
 
                   val elemValue = if(!n.attr("expr").isEmpty) {
-                    Some(XPath.selectText(n.attr("expr"), dataNode, namespaces.asJava))
+                    Some(XPathWorking.selectText(n.attr("expr"), dataNode, namespaces.asJava))
                   } else if(!n.attr("value").isEmpty) {
                     Some(n.attr("value"))
                   } else {
@@ -219,7 +234,7 @@ class ViewRenderer(val schema: String, viewType: ViewType, configuration: Organi
 
                   arrays += stackPath.toList.drop(1) // drop root
 
-                  val allChildren = XPath.selectNodes(path, dataNode, namespaces.asJava).asScala
+                  val allChildren = XPathWorking.selectNodes(path, dataNode, namespaces.asJava).asIterator.toSeq
                   val children = if(distinct == "name") {
                     val distinctNames = allChildren.map(c => c.getPrefix + c.getLocalName).distinct
                     distinctNames.flatMap(n => allChildren.find(c => (c.getPrefix + c.getLocalName) == n))
@@ -253,12 +268,12 @@ class ViewRenderer(val schema: String, viewType: ViewType, configuration: Organi
               // ~~~ legacy support
 
               case "auto-field" =>
-                val current = XPath.selectNode(".", dataNode, namespaces.asJava)
+                val current = XPathWorking.selectNode(".", dataNode, namespaces.asJava)
                 val renderNode = RenderNode(current.getNodeName, Some(current.getTextContent))
                 appendNode(renderNode)
 
               case "auto-layout-field" =>
-                val current = XPath.selectNode(".", dataNode, namespaces.asJava)
+                val current = XPathWorking.selectNode(".", dataNode, namespaces.asJava)
                 val internationalizationKey = "metadata." + current.getNodeName.replaceAll(":", ".")
 
                 val renderNode = RenderNode("field", None)
@@ -312,13 +327,13 @@ class ViewRenderer(val schema: String, viewType: ViewType, configuration: Organi
                   }
                 }
               case "link" =>
-                val urlExpr = n.attribute("urlExpr").map(e => XPath.selectText(e.text, dataNode, namespaces.asJava))
+                val urlExpr = n.attribute("urlExpr").map(e => XPathWorking.selectText(e.text, dataNode, namespaces.asJava))
                 val urlValue = n.attr("urlValue")
 
                 val url: String = evaluateParamExpression(urlValue, parameters) + urlExpr.getOrElse("")
 
                 val text: String = if(n.attribute("textExpr").isDefined) {
-                  Option(XPath.selectText(n.attr("textExpr"), dataNode, namespaces.asJava)).getOrElse("")
+                  Option(XPathWorking.selectText(n.attr("textExpr"), dataNode, namespaces.asJava)).getOrElse("")
                 } else if(n.attribute("textValue").isDefined) {
                   evaluateParamExpression(n.attr("textValue"), parameters)
                 } else {
@@ -348,7 +363,7 @@ class ViewRenderer(val schema: String, viewType: ViewType, configuration: Organi
 
         val attrName = if(prefix.isEmpty) name else prefix + ":" + name
         val attrValue = if(!a.attr("expr").isEmpty) {
-          XPath.selectText(a.attr("expr"), dataNode, namespaces.asJava)
+          XPathWorking.selectText(a.attr("expr"), dataNode, namespaces.asJava)
         } else if(!a.attr("value").isEmpty) {
           a.attr("value")
         } else {
@@ -440,7 +455,7 @@ class ViewRenderer(val schema: String, viewType: ViewType, configuration: Organi
 
   def fetchPaths(dataNode: Object, paths: Seq[String], namespaces: Map[String, String]): Seq[String] = {
     (for (path <- paths) yield {
-      XPath.selectNodes(path, dataNode, namespaces.asJava).asScala.toSeq.flatMap {
+      XPathWorking.selectNodes(path, dataNode, namespaces.asJava).asIterator.toSeq.flatMap {
         node =>
           var rnode = node
           try {

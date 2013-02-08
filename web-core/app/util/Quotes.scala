@@ -31,7 +31,7 @@ object Quotes {
           }
         }
       } catch {
-        case t => t.printStackTrace()
+        case t: Throwable => t.printStackTrace()
       }
       quotes.toList
     }

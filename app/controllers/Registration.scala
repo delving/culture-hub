@@ -168,9 +168,7 @@ trait Registration extends ApplicationController { this: BoundController =>
     implicit val contentTypeOf_captcha = ContentTypeOf[Captcha](Some("image/png"))
 
     // there must be a way to stream this tough
-    implicit val wCaptcha: Writeable[Captcha] = Writeable[Captcha](
-        c => Stream.continually(c.read).takeWhile(-1 !=).map(_.toByte).toArray
-    )
+    implicit val wCaptcha: Writeable[Captcha] = Writeable[Captcha] { c: Captcha => Stream.continually(c.read).takeWhile(-1 !=).map(_.toByte).toArray }
 
     def captcha(id: String) = Action {
         implicit request =>

@@ -28,7 +28,7 @@ import java.net.URLEncoder
 import core.Constants._
 import models._
 import core.collection.{OrganizationCollectionInformation, Harvestable}
-import org.scala_tools.subcut.inject.{Injectable, BindingModule}
+import com.escalatesoft.subcut.inject.{Injectable, BindingModule}
 import models.MetadataItem
 import models.Namespace
 import xml.NamespaceBinding
