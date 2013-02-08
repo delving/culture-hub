@@ -2,11 +2,11 @@ package plugins
 
 import _root_.services.{DataSetLookupService, MetadataRecordResolverService}
 import jobs._
-import play.api.{Logger, Play, Application}
+import play.api.{Play, Application}
 import Play.current
 import models._
 import _root_.processing.DataSetCollectionProcessor
-import util.DomainConfigurationHandler
+import util.OrganizationConfigurationHandler
 import java.util.zip.GZIPInputStream
 import com.mongodb.BasicDBObject
 import io.Source
@@ -30,8 +30,6 @@ import java.io.FileInputStream
 class DataSetPlugin(app: Application) extends CultureHubPlugin(app) {
 
   val pluginKey: String = "dataSet"
-
-  private val log = Logger("CultureHub")
 
   private val dataSetHarvestCollectionLookup = new DataSetLookupService
 
@@ -131,7 +129,7 @@ class DataSetPlugin(app: Application) extends CultureHubPlugin(app) {
    * @param roles the roles of the current user
    * @return a sequence of [[core.MainMenuEntry]] for the organization menu
    */
-  override def organizationMenuEntries(configuration: DomainConfiguration, lang: String, roles: Seq[String]): Seq[MainMenuEntry] = Seq(
+  override def organizationMenuEntries(configuration: OrganizationConfiguration, lang: String, roles: Seq[String]): Seq[MainMenuEntry] = Seq(
     MainMenuEntry(
       key = "datasets",
       titleKey = "thing.datasets",
@@ -173,7 +171,7 @@ class DataSetPlugin(app: Application) extends CultureHubPlugin(app) {
        * @return a sequence of resources matching the query
        */
       def findResources(orgId: String, query: String): Seq[Resource] = {
-        implicit val configuration = DomainConfigurationHandler.getByOrgId(orgId)
+        implicit val configuration = OrganizationConfigurationHandler.getByOrgId(orgId)
         DataSet.dao.find(MongoDBObject(
           "orgId" -> orgId,
           "spec" -> Pattern.compile(query, Pattern.CASE_INSENSITIVE))
@@ -187,7 +185,7 @@ class DataSetPlugin(app: Application) extends CultureHubPlugin(app) {
        * @return the resource of the given key, if found
        */
       def findResourceByKey(orgId: String, resourceKey: String): Option[Resource] = {
-        implicit val configuration = DomainConfigurationHandler.getByOrgId(orgId)
+        implicit val configuration = OrganizationConfigurationHandler.getByOrgId(orgId)
         DataSet.dao.findOne(MongoDBObject("orgId" -> orgId, "spec" -> resourceKey))
       }
     }
@@ -239,26 +237,27 @@ class DataSetPlugin(app: Application) extends CultureHubPlugin(app) {
     // ~~~ cleanup set states
 
     if (!Play.isTest) {
-      DataSet.all.foreach {
-        dataSetDAO =>
-          dataSetDAO.findByState(DataSetState.PROCESSING, DataSetState.CANCELLED, DataSetState.PROCESSING_QUEUED).foreach {
-            set =>
-              dataSetDAO.updateState(set, DataSetState.CANCELLED)
-              try {
-                implicit val configuration = DomainConfigurationHandler.getByOrgId(set.orgId)
-                IndexingService.deleteBySpec(set.orgId, set.spec)
-              } catch {
-                case t: Throwable => Logger("CultureHub").error(
-                  "Couldn't delete SOLR index for cancelled set %s:%s at startup".format(
-                    set.orgId,
-                    set.spec
-                  ),
-                  t
-                )
-              } finally {
-                dataSetDAO.updateState(set, DataSetState.UPLOADED)
-              }
-          }
+      val instanceIdentifier = Play.current.configuration.getString("cultureHub.instanceIdentifier").getOrElse("default")
+      DataSet.all.foreach { dataSetDAO =>
+        dataSetDAO.findByState(DataSetState.PROCESSING, DataSetState.CANCELLED, DataSetState.PROCESSING_QUEUED).
+          filter(_.processingInstanceIdentifier == Some(instanceIdentifier)).
+          foreach { set =>
+            dataSetDAO.updateState(set, DataSetState.CANCELLED)
+            try {
+              implicit val configuration = OrganizationConfigurationHandler.getByOrgId(set.orgId)
+              IndexingService.deleteBySpec(set.orgId, set.spec)
+            } catch {
+              case t: Throwable => error(
+                "Couldn't delete SOLR index for cancelled set %s:%s at startup".format(
+                  set.orgId,
+                  set.spec
+                ),
+                t
+              )
+            } finally {
+              dataSetDAO.updateState(set, DataSetState.UPLOADED)
+            }
+        }
       }
     }
   }
@@ -292,7 +291,7 @@ class DataSetPlugin(app: Application) extends CultureHubPlugin(app) {
     })
 
     if (missingVersions.exists(missing => !missing._2.isEmpty)) {
-      log.error(
+      error(
         """
           |The SchemaRepository does not provide some of the versions in use by the stored DataSets. Fix this before starting the hub!
           |
@@ -349,7 +348,7 @@ class DataSetPlugin(app: Application) extends CultureHubPlugin(app) {
   def bootstrapDataset(boot: BootstrapSource) {
     if (DataSet.dao(boot.org).count(MongoDBObject("spec" -> boot.spec)) == 0) {
 
-      implicit val configuration = DomainConfigurationHandler.getByOrgId(("delving"))
+      implicit val configuration = OrganizationConfigurationHandler.getByOrgId(("delving"))
 
       val factMap = new BasicDBObject()
       factMap.put("spec", boot.spec)
@@ -400,9 +399,10 @@ class DataSetPlugin(app: Application) extends CultureHubPlugin(app) {
       if (Play.isTest) {
         val dataSet = DataSet.dao.findBySpecAndOrgId(boot.spec, boot.org).get
         DataSet.dao.updateState(dataSet, DataSetState.QUEUED)
-        DataSetCollectionProcessor.process(dataSet)
-        while (DataSet.dao.getState(dataSet.orgId, dataSet.spec) == DataSetState.PROCESSING) Thread.sleep(500)
-        DataSet.dao.updateState(dataSet, DataSetState.ENABLED)
+        DataSetCollectionProcessor.process(dataSet, {
+          DataSet.dao.updateProcessingInstanceIdentifier(dataSet, None)
+          DataSet.dao.updateState(dataSet, DataSetState.ENABLED)
+        })
       }
 
       boot.init()

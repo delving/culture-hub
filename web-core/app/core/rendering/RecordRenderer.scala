@@ -3,7 +3,7 @@ package core.rendering
 import core.Constants._
 import core.HubId
 import core.search.{DelvingIdType, BriefDocItem, DocItemReference, SolrQueryService}
-import models.{Role, RecordDefinition, MetadataCache, DomainConfiguration}
+import models.{Role, RecordDefinition, MetadataCache, OrganizationConfiguration}
 import java.net.{URLDecoder, URLEncoder}
 import play.api.Logger
 import xml._
@@ -28,10 +28,11 @@ object RecordRenderer {
    */
   def getRenderedFullView(id: String,
                           idType: DelvingIdType,
+                          viewType: ViewType,
                           lang: Lang,
                           schema: Option[String] = None,
                           renderRelatedItems: Boolean,
-                          relatedItemsCount: Int)(implicit configuration: DomainConfiguration): Either[String, RenderedView] = {
+                          relatedItemsCount: Int)(implicit configuration: OrganizationConfiguration): Either[String, RenderedView] = {
 
 
     SolrQueryService.getSolrItemReference(URLEncoder.encode(id, "utf-8"), idType, renderRelatedItems, relatedItemsCount) match {
@@ -53,7 +54,7 @@ object RecordRenderer {
           case DelvingIdType.INDEX_ITEM =>
             renderIndexItem(id)
           case _ =>
-            renderMetadataRecord(prefix, URLDecoder.decode(hubId, "utf-8"), ViewType.API, lang, renderRelatedItems, relatedItems)
+            renderMetadataRecord(prefix, URLDecoder.decode(hubId, "utf-8"), viewType, lang, renderRelatedItems, relatedItems)
         }
       case None =>
         Left("Could not resolve identifier for hubId '%s' and idType '%s'".format(id, idType.idType))
@@ -100,7 +101,7 @@ object RecordRenderer {
     }
   }
 
-  private def renderMetadataRecord(prefix: String, hubId: String, viewType: ViewType, lang: Lang, renderRelatedItems: Boolean, relatedItems: Seq[BriefDocItem])(implicit configuration: DomainConfiguration): Either[String, RenderedView] = {
+  private def renderMetadataRecord(prefix: String, hubId: String, viewType: ViewType, lang: Lang, renderRelatedItems: Boolean, relatedItems: Seq[BriefDocItem])(implicit configuration: OrganizationConfiguration): Either[String, RenderedView] = {
     if(hubId.split("_").length < 3) return Left("Invalid hubId " + hubId)
     val id = HubId(hubId)
     val cache = MetadataCache.get(id.orgId, id.spec, ITEM_TYPE_MDR)
@@ -137,7 +138,7 @@ object RecordRenderer {
    * @param lang rendering languages
    * @param renderRelatedItems whether to render related items
    * @param relatedItems the related items
-   * @param configuration DomainConfiguration
+   * @param configuration OrganizationConfiguration
    * @return a rendered view if successful, or an error message
    */
   def renderMetadataRecord(hubId: String,
@@ -149,7 +150,7 @@ object RecordRenderer {
                            renderRelatedItems: Boolean = false,
                            relatedItems: Seq[NodeSeq] = Seq.empty,
                            roles: Seq[Role] = Seq.empty,
-                           parameters: Map[String, String] = Map.empty)(implicit configuration: DomainConfiguration): Either[String, RenderedView]  = {
+                           parameters: Map[String, String] = Map.empty)(implicit configuration: OrganizationConfiguration): Either[String, RenderedView]  = {
 
       // let's do some rendering
       RecordDefinition.getRecordDefinition(schema) match {
@@ -182,9 +183,11 @@ object RecordRenderer {
 
                 val (resolved, missing) = namespaces.partition(_._2.isDefined)
 
-                log.warn("While rendering full view for item %s: following prefixes for related items are unknown: %s".format(
-                  hubId, missing.map(_._1).mkString(", ")
-                ))
+                if (!missing.isEmpty) {
+                  log.warn("While rendering full view for item %s: following prefixes for related items are unknown: %s".format(
+                    hubId, missing.map(_._1).mkString(", ")
+                  ))
+                }
 
                 resolved.map(r => (r._1 -> r._2.get))
               }
@@ -245,4 +248,6 @@ case class ViewType(name: String)
 object ViewType {
   val API = ViewType("api")
   val HTML = ViewType("html")
+
+  def fromName(name: String) = if(name == "html") HTML else API
 }

@@ -39,19 +39,19 @@ object HubUser extends MultiModel[HubUser, HubUserDAO] {
     collection.ensureIndex(MongoDBObject("userName" -> 1, "isActive" -> 1))
   }
 
-  protected def initDAO(collection: MongoCollection, connection: MongoDB)(implicit configuration: DomainConfiguration): HubUserDAO = new HubUserDAO(collection)
+  protected def initDAO(collection: MongoCollection, connection: MongoDB)(implicit configuration: OrganizationConfiguration): HubUserDAO = new HubUserDAO(collection)
 
 
   // ~~~ OAuth 2
 
   val OAUTH2_TOKEN_TIMEOUT = 3600
 
-  def isValidToken(token: String)(implicit configuration: DomainConfiguration): Boolean = {
+  def isValidToken(token: String)(implicit configuration: OrganizationConfiguration): Boolean = {
     if ((Play.isTest || Play.isDev) && token == "TEST") return true
     HubUser.dao.isValidAccessToken(token, OAUTH2_TOKEN_TIMEOUT)
   }
 
-  def getUserByToken(token: String)(implicit configuration: DomainConfiguration) = HubUser.dao.findByAccessToken(token)
+  def getUserByToken(token: String)(implicit configuration: OrganizationConfiguration) = HubUser.dao.findByAccessToken(token)
 
 }
 
@@ -74,7 +74,7 @@ class HubUserDAO(collection: MongoCollection) extends SalatDAO[HubUser, ObjectId
     true
   }
 
-  def removeFromOrganization(userName: String, orgId: String)(implicit configuration: DomainConfiguration): Boolean = {
+  def removeFromOrganization(userName: String, orgId: String)(implicit configuration: OrganizationConfiguration): Boolean = {
     try {
       update(MongoDBObject("userName" -> userName), $pull ("organizations" -> orgId), false, false, WriteConcern.Safe)
 

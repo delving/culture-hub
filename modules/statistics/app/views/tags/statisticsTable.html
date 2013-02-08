@@ -1,3 +1,7 @@
+#{set 'moreScripts'}
+<script type="text/javascript" src="@{routes.Assets.at("common/javascripts/jquery.tablesorter.min.js")}"></script>
+#{/set}
+
 <div class="row">
     <div class="span12">
         <h3 class="page-header">&{'plugin.statistics.statistics'}</h3>
@@ -7,13 +11,14 @@
             </ul>
             <div class="tab-content" data-bind="foreach: facets">
                 <div class="tab-pane" data-bind="css: { active: $root.selected() === $data.name() }">
-                    <table class="table">
+                    <table class="table table-striped sortable" id="statistics-table">
                         <thead>
                         <tr>
-                            <th>&{'thing.name'}</th>
-                            <th>&{'plugin.statistics.nrRecords'}</th>
-                            <th>&{'plugin.statistics.withObjects'}</th>
-                            <th>&{'plugin.statistics.landingPages'}</th>
+                            <th class="sort">&{'thing.name'}</th>
+                            <th class="sort">&{'plugin.statistics.nrRecords'}</th>
+                            <th class="sort">&{'plugin.statistics.withObjects'}</th>
+                            <th class="sort">&{'plugin.statistics.landingPages'}</th>
+                            <th class="sort">&{'plugin.statistics.geoData'}</th>
                         </tr>
                         </thead>
                         <tbody data-bind="foreach: entries">
@@ -22,6 +27,7 @@
                             <td><span data-bind="text: total"></span></td>
                             <td><span class="badge badge-info" rel="tooltip" data-bind="text: digitalObjectsPercentage() + ' %', attr: { title: digitalObjects() + ' records' }"></span></td>
                             <td><span class="badge badge-info" rel="tooltip" data-bind="text: landingPagesPercentage() + ' %', attr: { title: landingPages() + ' records' }"></span></td>
+                            <td><span class="badge badge-info" rel="tooltip" data-bind="text: GeoRecordsPercentage() + ' %', attr: { title: GeoRecords() + ' records' }"></span></td>
                         </tr>
                         </tbody>
                     </table>
@@ -46,9 +52,12 @@
           var name = viewModel.facets()[0].name();
           viewModel.selected(name);
           $('span[rel=tooltip]').tooltip();
+          $("#statistics-table").tablesorter();
         });
 
       });
+
+//        $("#statistics-table").tablesorter();
 
     })
 </script>

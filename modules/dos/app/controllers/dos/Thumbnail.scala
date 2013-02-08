@@ -24,11 +24,17 @@ trait Thumbnail {
 
   val logger = Logger("CultureHub")
 
+  protected def createThumbnailsFromStream(imageStream: InputStream, fileIdentifier: String, filename: String, contentType: String, store: GridFS, params: Map[String, String] = Map.empty[String, String]): Map[Int, ObjectId] = {
+    thumbnailSizes.map { size =>
+      logger.info("Creating thumbnail for file " + filename)
+      createThumbnailFromStream(imageStream, filename, contentType, size._2, store, params + (FILE_POINTER_FIELD -> fileIdentifier))
+    }
+  }
+
   protected def createThumbnails(image: GridFSDBFile, store: GridFS, globalParams: Map[String, String] = Map.empty[String, String]): Map[Int, ObjectId] = {
-    thumbnailSizes.map {
-      size =>
-        logger.info("Creating thumbnail for file " + image.filename)
-        createThumbnailFromStream(image.inputStream, image.filename.getOrElse(""), image.contentType.getOrElse("unknown/unknown"), size._2, store, globalParams + (FILE_POINTER_FIELD -> image._id.get))
+    thumbnailSizes.map { size =>
+      logger.info("Creating thumbnail for file " + image.filename)
+      createThumbnailFromStream(image.inputStream, image.filename.getOrElse(""), image.contentType.getOrElse("unknown/unknown"), size._2, store, globalParams + (FILE_POINTER_FIELD -> image._id.get))
     }
   }
 

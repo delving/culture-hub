@@ -1,6 +1,6 @@
 import models.DataSet
 import org.specs2.mutable.Specification
-import util.DomainConfigurationHandler
+import util.OrganizationConfigurationHandler
 import play.api.test._
 import play.api.test.Helpers._
 
@@ -17,7 +17,7 @@ class BaseXStorageSpec extends BootstrapAwareSpec {
 
       withTestData(SAMPLE_A) {
         // data is loaded at bootstrap time of the DataSet plugin
-        implicit val configuration = DomainConfigurationHandler.getByOrgId("delving")
+        implicit val configuration = OrganizationConfigurationHandler.getByOrgId("delving")
 
         val dataSet = DataSet.dao.findBySpecAndOrgId(spec, "delving").get
         DataSet.dao.getSourceRecordCount(dataSet) must equalTo(8)

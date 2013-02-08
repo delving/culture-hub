@@ -1,7 +1,5 @@
 $(document).ready(function () {
 
-    $("#dataset-table").tablesorter();
-
     var theTable = $('#dataset-table');
 
     theTable.find("tbody > tr").find("td:eq(1)").mousedown(function () {

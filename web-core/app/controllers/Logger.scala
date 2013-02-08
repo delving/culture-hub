@@ -20,7 +20,7 @@ import java.io.{PrintWriter, StringWriter}
 import play.api.Logger
 import play.api.Play.current
 import play.api.mvc.{Controller, RequestHeader, Results, Result}
-import models.DomainConfiguration
+import models.OrganizationConfiguration
 import extensions.Email
 import core.ThemeInfo
 import util.Quotes
@@ -31,7 +31,7 @@ import util.Quotes
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-trait Logging extends Secured { self: Controller with DomainConfigurationAware =>
+trait Logging extends Secured { self: Controller with OrganizationConfigurationAware =>
 
   protected val log = Logger("CultureHub")
 
@@ -74,12 +74,12 @@ trait Logging extends Secured { self: Controller with DomainConfigurationAware =
   def warning(message: String, args: String*)(implicit request: RequestHeader) {
     log.warn(withContext(m(message, args)))
   }
-  def logError(message: String, args: String*)(implicit request: RequestHeader, configuration: DomainConfiguration) {
+  def logError(message: String, args: String*)(implicit request: RequestHeader, configuration: OrganizationConfiguration) {
     log.error(withContext(m(message, args)))
     reportError(request, if(message != null) message.format(args) else "")
   }
 
-  def logError(e: Throwable, message: String, args: String*)(implicit request: RequestHeader, configuration: DomainConfiguration) {
+  def logError(e: Throwable, message: String, args: String*)(implicit request: RequestHeader, configuration: OrganizationConfiguration) {
     log.error(withContext(m(message, args)), e)
     reportError(request, if(message != null) message.format(args) else "")
   }
@@ -106,18 +106,18 @@ trait Logging extends Secured { self: Controller with DomainConfigurationAware =
 
 object ErrorReporter {
 
-  def reportError(request: RequestHeader, message: String)(implicit configuration: DomainConfiguration) {
+  def reportError(request: RequestHeader, message: String)(implicit configuration: OrganizationConfiguration) {
     reportError(subject(request), toReport(message, request))
   }
-  def reportError(request: RequestHeader, e: Throwable, message: String)(implicit configuration: DomainConfiguration) {
+  def reportError(request: RequestHeader, e: Throwable, message: String)(implicit configuration: OrganizationConfiguration) {
     reportError(subject(request), toReport(message, e, request))
   }
 
-  def reportError(job: String, t: Throwable, message: String)(implicit configuration: DomainConfiguration) {
+  def reportError(job: String, t: Throwable, message: String)(implicit configuration: OrganizationConfiguration) {
     reportError("[CultureHub] An error occured on node %s".format(configuration.commonsService.nodeName), toReport(job, message, t))
   }
 
-  def reportError(subject: String, report: String)(implicit configuration: DomainConfiguration) {
+  def reportError(subject: String, report: String)(implicit configuration: OrganizationConfiguration) {
     val themeInfo = new ThemeInfo(configuration)
     Email(configuration.emailTarget.systemFrom, subject)
       .to(configuration.emailTarget.exceptionTo)

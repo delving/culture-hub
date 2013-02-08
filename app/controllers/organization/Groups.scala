@@ -180,7 +180,7 @@ trait Groups extends OrganizationController { this: BoundController =>
   }
 
 
-  private def resourceLookup(resourceType: String)(implicit configuration: DomainConfiguration) = {
+  private def resourceLookup(resourceType: String)(implicit configuration: OrganizationConfiguration) = {
     CultureHubPlugin.
       getEnabledPlugins.
       flatMap(plugin => plugin.resourceLookups).
@@ -188,7 +188,7 @@ trait Groups extends OrganizationController { this: BoundController =>
 
   }
 
-  private def load(orgId: String, groupId: Option[ObjectId])(implicit configuration: DomainConfiguration): String = {
+  private def load(orgId: String, groupId: Option[ObjectId])(implicit configuration: OrganizationConfiguration): String = {
     val resourceRoles = Role.allPrimaryRoles(configuration).filterNot(_.resourceType.isEmpty)
     val defaultGroupViewModel = GroupViewModel(
       roleKey = Role.allPrimaryRoles(configuration).head.key,

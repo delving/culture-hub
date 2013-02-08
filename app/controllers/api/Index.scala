@@ -1,25 +1,27 @@
 package controllers.api
 
-import controllers.{DomainConfigurationAware, RenderingExtensions}
+import controllers.{OrganizationConfigurationAware, RenderingExtensions}
 import play.api.mvc._
 import play.api.libs.concurrent.Promise
 import scala.xml._
 import core.Constants._
 import core.indexing.IndexField._
 import core.indexing.IndexingService
-import models.{MetadataItem, MetadataCache}
+import models.{OrganizationConfiguration, MetadataItem, MetadataCache}
 import org.apache.solr.common.SolrInputDocument
 import org.joda.time.format.ISODateTimeFormat
 import collection.mutable.{ArrayBuffer, ListBuffer}
 import com.mongodb.casbah.commons.MongoDBObject
 import play.api.Logger
+import core.{ItemType, OrganizationCollectionLookupService}
+import core.collection.OrganizationCollection
 
 /**
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-object Index extends Controller with DomainConfigurationAware with RenderingExtensions {
+object Index extends Controller with OrganizationConfigurationAware with RenderingExtensions {
 
   val CACHE_COLLECTION = "indexApiItems"
 
@@ -79,7 +81,7 @@ object Index extends Controller with DomainConfigurationAware with RenderingExte
       Ok
   }
 
-  def submit(orgId: String) = DomainConfigured {
+  def submit(orgId: String) = OrganizationConfigured {
     Action(parse.tolerantXml) {
       implicit request => {
         Async {
@@ -265,4 +267,18 @@ case class IndexItem(orgId: String,
 
 case object IndexItem {
   def apply(orgId: String, item: MetadataItem): IndexItem = IndexItem(orgId, item.itemId, item.itemType, item.xml("raw"), false)
+}
+
+class IndexItemOrganizationCollectionLookupService extends OrganizationCollectionLookupService {
+
+  def findAll(implicit configuration: OrganizationConfiguration): Seq[OrganizationCollection] = MetadataCache.getItemTypes(configuration.orgId, Index.CACHE_COLLECTION).map { t =>
+    new OrganizationCollection {
+      def getCreator: String = "system"
+      def getOwner: String = configuration.orgId
+      val itemType: ItemType = t
+      val spec: String = "indexApiItems_" + itemType.itemType
+    }
+  }
+
+  def findBySpecAndOrgId(spec: String, orgId: String)(implicit configuration: OrganizationConfiguration): Option[OrganizationCollection] = findAll.find(_.spec == spec)
 }

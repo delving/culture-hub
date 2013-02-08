@@ -13,8 +13,8 @@ import org.apache.commons.httpclient.Header
 import extensions.HTTPClient
 import com.mongodb.casbah.commons.MongoDBObject
 import java.net.URLDecoder
-import controllers.DomainConfigurationAware
-import models.DomainConfiguration
+import controllers.OrganizationConfigurationAware
+import models.OrganizationConfiguration
 
 
 /**
@@ -22,11 +22,11 @@ import models.DomainConfiguration
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-object ImageCache extends Controller with RespondWithDefaultImage with DomainConfigurationAware {
+object ImageCache extends Controller with RespondWithDefaultImage with OrganizationConfigurationAware {
 
   val imageCacheService = new ImageCacheService
 
-  def image(id: String, withDefaultFromUrl: Boolean) = DomainConfigured {
+  def image(id: String, withDefaultFromUrl: Boolean) = OrganizationConfigured {
     Action {
     implicit request =>
       val url = URLDecoder.decode(id, "utf-8")
@@ -39,7 +39,7 @@ object ImageCache extends Controller with RespondWithDefaultImage with DomainCon
     }
   }
 
-  def thumbnail(id: String, width: Option[String], withDefaultFromUrl: Boolean) = DomainConfigured {
+  def thumbnail(id: String, width: Option[String], withDefaultFromUrl: Boolean) = OrganizationConfigured {
     Action {
       implicit request =>
         val url = URLDecoder.decode(id, "utf-8")
@@ -57,7 +57,7 @@ class ImageCacheService extends HTTPClient with Thumbnail {
 
   private val log: Logger = Logger("ImageCacheService")
 
-  def retrieveImageFromCache(request: Request[AnyContent], url: String, thumbnail: Boolean, thumbnailWidth: Option[String] = None)(implicit configuration: DomainConfiguration): Result = {
+  def retrieveImageFromCache(request: Request[AnyContent], url: String, thumbnail: Boolean, thumbnailWidth: Option[String] = None)(implicit configuration: OrganizationConfiguration): Result = {
       // catch try block to harden the application and always give back a 404 for the application
       try {
         require(url != null)
@@ -89,7 +89,7 @@ class ImageCacheService extends HTTPClient with Thumbnail {
       }
   }
 
-  def checkOrInsert(url: String)(implicit configuration: DomainConfiguration): Boolean = {
+  def checkOrInsert(url: String)(implicit configuration: OrganizationConfiguration): Boolean = {
     if(isImageCached(url)) true else {
       log.debug("Image not found, attempting to store it in the cache based on URL: '" + url + "'")
       val stored = storeImage(url)
@@ -103,7 +103,7 @@ class ImageCacheService extends HTTPClient with Thumbnail {
     }
   }
 
-  private def isImageCached(url: String)(implicit configuration: DomainConfiguration): Boolean = {
+  private def isImageCached(url: String)(implicit configuration: OrganizationConfiguration): Boolean = {
     log.debug("Attempting to retrieve image for URL " + url)
     imageCacheStore(configuration).findOne(MongoDBObject("filename" -> url)) != None
   }
@@ -118,7 +118,7 @@ class ImageCacheService extends HTTPClient with Thumbnail {
       replaceAll("\\+", "%2B")
   }
 
-  private def storeImage(url: String)(implicit configuration: DomainConfiguration): Boolean = {
+  private def storeImage(url: String)(implicit configuration: OrganizationConfiguration): Boolean = {
     val image = retrieveImageFromUrl(url)
     if (image.storable) {
       val inputFile = imageCacheStore(configuration).createFile(image.dataAsStream, image.url)

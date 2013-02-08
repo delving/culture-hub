@@ -51,7 +51,7 @@ object Log extends MultiModel[Log, LogDAO] {
 
   protected def initIndexes(collection: MongoCollection) {}
 
-  protected def initDAO(collection: MongoCollection, connection: MongoDB)(implicit configuration: DomainConfiguration): LogDAO = new LogDAO(collection)
+  protected def initDAO(collection: MongoCollection, connection: MongoDB)(implicit configuration: OrganizationConfiguration): LogDAO = new LogDAO(collection)
 }
 
 class LogDAO(collection: MongoCollection) extends SalatDAO[Log, ObjectId](collection)
@@ -97,7 +97,7 @@ object Task extends MultiModel[Task, TaskDAO] {
 
   protected def initIndexes(collection: MongoCollection) {}
 
-  protected def initDAO(collection: MongoCollection, connection: MongoDB)(implicit configuration: DomainConfiguration): TaskDAO = new TaskDAO(collection)
+  protected def initDAO(collection: MongoCollection, connection: MongoDB)(implicit configuration: OrganizationConfiguration): TaskDAO = new TaskDAO(collection)
 }
 
 class TaskDAO(collection: MongoCollection) extends SalatDAO[Task, ObjectId](collection) {
@@ -135,9 +135,9 @@ case class TaskType(name: String)
 object TaskType {
   val THUMBNAILS_CREATE = TaskType("createThumbnails")
   val THUMBNAILS_DELETE = TaskType("deleteThumbnails")
-  val FLATTEN = TaskType("flatten")
+  val NORMALIZE = TaskType("normalize")
   val TILES = TaskType("tiles")
-  val values = List(THUMBNAILS_CREATE, THUMBNAILS_DELETE, FLATTEN, TILES)
+  val values = List(THUMBNAILS_CREATE, THUMBNAILS_DELETE, NORMALIZE, TILES)
 
   def valueOf(what: String) = values find { _.name == what }
 }

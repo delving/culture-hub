@@ -33,11 +33,11 @@ object HubNode extends MultiModel[HubNode, HubNodeDAO] {
     addIndexes(collection, Seq(MongoDBObject("nodeId" -> 1)))
   }
 
-  protected def initDAO(collection: MongoCollection, connection: MongoDB)(implicit configuration: DomainConfiguration): HubNodeDAO = {
+  protected def initDAO(collection: MongoCollection, connection: MongoDB)(implicit configuration: OrganizationConfiguration): HubNodeDAO = {
     new HubNodeDAO(collection)
   }
 
-  def addContact(to: HubNode, contact: Node)(implicit configuration: DomainConfiguration) {
+  def addContact(to: HubNode, contact: Node)(implicit configuration: OrganizationConfiguration) {
     if (!to.contacts.exists(contact.nodeId == _)) {
       val updated = to.copy(contacts = to.contacts ++ Seq(contact.nodeId))
       dao.save(updated)

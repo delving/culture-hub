@@ -26,7 +26,7 @@ import play.api.test._
 import play.api.test.Helpers._
 import play.templates.GenericTemplateLoader
 import core.rendering._
-import util.DomainConfigurationHandler
+import util.OrganizationConfigurationHandler
 
 /**
  *
@@ -40,7 +40,7 @@ class ViewRenderSpec extends Specs2TestContext {
     "render a record as HTML" in {
       withTestConfig {
 
-        val configuration = DomainConfigurationHandler.getByOrgId("delving")
+        val configuration = OrganizationConfigurationHandler.getByOrgId("delving")
 
         val namespaces = Map("delving" -> "http://www.delving.eu/schemas/delving-1.0.xsd", "dc" -> "http://dublincore.org/schemas/xmls/qdc/dc.xsd", "icn" -> "http://www.icn.nl/schemas/ICN-V3.2.xsd")
 
@@ -89,7 +89,7 @@ class ViewRenderSpec extends Specs2TestContext {
     "render an AFF record as HTML" in {
       withTestConfig {
 
-        val configuration = DomainConfigurationHandler.getByOrgId("delving")
+        val configuration = OrganizationConfigurationHandler.getByOrgId("delving")
 
         val namespaces = Map("aff" -> "http://schemas.delving.eu/aff/aff_1.0.xsd")
 
@@ -111,7 +111,7 @@ class ViewRenderSpec extends Specs2TestContext {
 
     "render a record as XML" in {
       withTestConfig {
-        implicit val configuration = DomainConfigurationHandler.getByOrgId("delving")
+        implicit val configuration = OrganizationConfigurationHandler.getByOrgId("delving")
 
         val namespaces = Map("delving" -> "http://www.delving.eu/schemas/delving-1.0.xsd", "dc" -> "http://dublincore.org/schemas/xmls/qdc/dc.xsd", "icn" -> "http://www.icn.nl/schemas/ICN-V3.2.xsd")
 
@@ -146,7 +146,7 @@ class ViewRenderSpec extends Specs2TestContext {
 
     "render a record as JSON" in {
       withTestConfig {
-        val configuration = DomainConfigurationHandler.getByOrgId("delving")
+        val configuration = OrganizationConfigurationHandler.getByOrgId("delving")
 
         val namespaces = Map("delving" -> "http://www.delving.eu/schemas/delving-1.0.xsd", "dc" -> "http://dublincore.org/schemas/xmls/qdc/dc.xsd", "icn" -> "http://www.icn.nl/schemas/ICN-V3.2.xsd")
         val renderer = new ViewRenderer("aff", ViewType("api"), configuration)
@@ -171,7 +171,7 @@ class ViewRenderSpec extends Specs2TestContext {
 
     "render a legacy record as JSON" in {
       withTestConfig {
-        val configuration = DomainConfigurationHandler.getByOrgId("delving")
+        val configuration = OrganizationConfigurationHandler.getByOrgId("delving")
 
         val testRecord = legacyRecord()
         val renderer = new ViewRenderer("legacy", ViewType("api"), configuration)
@@ -189,7 +189,7 @@ class ViewRenderSpec extends Specs2TestContext {
     "render a legacy record as XML" in {
       withTestConfig {
 
-        val configuration = DomainConfigurationHandler.getByOrgId("delving")
+        val configuration = OrganizationConfigurationHandler.getByOrgId("delving")
 
         val testRecord = legacyRecord()
         val renderer = new ViewRenderer("legacy", ViewType.API, configuration)

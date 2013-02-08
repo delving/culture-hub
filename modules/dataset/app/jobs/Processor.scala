@@ -4,8 +4,10 @@ import akka.actor._
 import models._
 import play.api.Logger
 import controllers.ErrorReporter
-import util.DomainConfigurationHandler
+import util.OrganizationConfigurationHandler
 import processing.DataSetCollectionProcessor
+import scala.Some
+import jobs.ProcessDataSet
 
 /**
  *
@@ -19,7 +21,7 @@ class Processor extends Actor {
   def receive = {
 
     case ProcessDataSet(set) =>
-      implicit val configuration = DomainConfigurationHandler.getByOrgId(set.orgId)
+      implicit val configuration = OrganizationConfigurationHandler.getByOrgId(set.orgId)
 
       try {
 
@@ -27,16 +29,16 @@ class Processor extends Actor {
         val currentState = DataSet.dao.getState(set.orgId, set.spec)
 
         if(currentState == DataSetState.PROCESSING_QUEUED) {
-
           DataSet.dao(set.orgId).updateState(set, DataSetState.PROCESSING)
-          DataSetCollectionProcessor.process(set)
-
-          val state = DataSet.dao.getState(set.orgId, set.spec)
-          if(state == DataSetState.PROCESSING) {
-            DataSet.dao.updateState(set, DataSetState.ENABLED)
-          } else if(state == DataSetState.CANCELLED) {
-            DataSet.dao.updateState(set, DataSetState.UPLOADED)
-          }
+          DataSetCollectionProcessor.process(set, {
+            DataSet.dao(set.orgId).updateProcessingInstanceIdentifier(set, None)
+            val state = DataSet.dao.getState(set.orgId, set.spec)
+            if(state == DataSetState.PROCESSING) {
+              DataSet.dao.updateState(set, DataSetState.ENABLED)
+            } else if(state == DataSetState.CANCELLED) {
+              DataSet.dao.updateState(set, DataSetState.UPLOADED)
+            }
+          })
         } else if(currentState != DataSetState.CANCELLED) {
           log.warn("Trying to process set %s which is not in PROCESSING_QUEUED state but in state %s".format(
             set.spec, currentState
@@ -49,6 +51,7 @@ class Processor extends Actor {
             t.printStackTrace()
             log.error("Error while processing DataSet %s".format(set.spec), t)
             ErrorReporter.reportError(getClass.getName, "Error during processing of DataSet")
+            DataSet.dao(set.orgId).updateProcessingInstanceIdentifier(set, None)
             DataSet.dao(set.orgId).updateState(set, DataSetState.ERROR, None, Some(t.getMessage))
           } catch {
             case t1: Throwable =>

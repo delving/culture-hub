@@ -5,16 +5,16 @@ import com.mongodb.casbah.Imports._
 import play.api.mvc._
 import extensions.Extensions
 import com.novus.salat.dao.SalatMongoCursor
-import controllers.DomainConfigurationAware
+import controllers.OrganizationConfigurationAware
 
 /**
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-object Logs extends Controller with Extensions with DomainConfigurationAware {
+object Logs extends Controller with Extensions with OrganizationConfigurationAware {
 
-  def list(taskId: ObjectId, lastCount: Option[Int]) = DomainConfigured {
+  def list(taskId: ObjectId, lastCount: Option[Int]) = OrganizationConfigured {
     Action {
         implicit request =>
           val cursor: SalatMongoCursor[Log] = Log.dao.find(MongoDBObject("task_id" -> taskId)).sort(MongoDBObject("date" -> 1))
@@ -35,7 +35,7 @@ object Logs extends Controller with Extensions with DomainConfigurationAware {
       }
   }
 
-  def view(taskId: ObjectId) = DomainConfigured {
+  def view(taskId: ObjectId) = OrganizationConfigured {
     Action {
       implicit request => {
         val cursor: SalatMongoCursor[Log] = Log.dao.find(MongoDBObject("task_id" -> taskId)).sort(MongoDBObject("date" -> 1))

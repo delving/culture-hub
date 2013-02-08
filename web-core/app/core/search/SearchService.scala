@@ -24,18 +24,21 @@ import play.api.mvc.Results._
 import play.api.http.ContentTypes._
 import play.api.i18n.{Lang, Messages}
 import collection.JavaConverters._
-import play.api.Logger
+import play.api.{Play, Logger}
+import Play.current
 import play.api.mvc.{PlainResult, RequestHeader}
 import core.ExplainItem
 import java.lang.String
 import core.rendering._
-import models.DomainConfiguration
-import xml.{PrettyPrinter, Elem}
+import models.OrganizationConfiguration
+import xml.{PCData, PrettyPrinter, Elem}
 import org.apache.solr.client.solrj.response.FacetField.Count
 import org.apache.solr.client.solrj.response.FacetField
 import net.liftweb.json.JsonAST._
 import net.liftweb.json.{Extraction, Printer}
 import scala.collection.immutable.ListMap
+import play.templates.GenericTemplateLoader
+import io.Source
 
 /**
  *
@@ -44,7 +47,7 @@ import scala.collection.immutable.ListMap
  */
 object SearchService {
 
-  def getApiResult(request: RequestHeader, hiddenQueryFilters: Seq[String] = Seq.empty)(implicit configuration: DomainConfiguration): PlainResult =
+  def getApiResult(request: RequestHeader, hiddenQueryFilters: Seq[String] = Seq.empty)(implicit configuration: OrganizationConfiguration): PlainResult =
     new SearchService(request, hiddenQueryFilters)(configuration).getApiResult
 
 
@@ -54,7 +57,7 @@ object SearchService {
   }
 }
 
-class SearchService(request: RequestHeader, hiddenQueryFilters: Seq[String] = Seq.empty)(implicit configuration: DomainConfiguration) {
+class SearchService(request: RequestHeader, hiddenQueryFilters: Seq[String] = Seq.empty)(implicit configuration: OrganizationConfiguration) {
 
   val log = Logger("CultureHub")
 
@@ -70,12 +73,13 @@ class SearchService(request: RequestHeader, hiddenQueryFilters: Seq[String] = Se
   def getApiResult: PlainResult = {
 
     val response = try {
-      if (configuration.searchService.apiWsKey) {
-        val wskey = params.getValueOrElse("wskey", "unknown") //paramMap.getOrElse("wskey", Array[String]("unknown")).head
-        // todo add proper wskey checking
-        if (!wskey.toString.equalsIgnoreCase("unknown")) {
-          Logger.warn(String.format("Service Access Key %s invalid!", wskey));
-          throw new AccessKeyException(String.format("Access Key %s not accepted", wskey));
+      if (configuration.searchService.apiWsKeyEnabled) {
+        val wsKey = params.getValueOrElse("wskey", "unknown")
+        val wsKeyProvided = !wsKey.equalsIgnoreCase("unknown")
+        if ((configuration.searchService.apiWsKeyEnabled && !wsKeyProvided) ||
+            (configuration.searchService.apiWsKeyEnabled && wsKeyProvided && !configuration.searchService.apiWsKeys.exists(_ == wsKey.trim))) {
+          Logger("CultureHub").warn("[%s] Service Access Key %s invalid!".format(configuration.orgId, wsKey))
+          throw new AccessKeyException(String.format("Access Key %s not accepted", wsKey))
         }
       }
       format match {
@@ -86,6 +90,18 @@ class SearchService(request: RequestHeader, hiddenQueryFilters: Seq[String] = Se
         case "simile" => getSimileResultResponse()
         case "similep" =>
           getSimileResultResponse(callback = params.getValueOrElse("callback", "delvingCallback"))
+        case "html" if params.valueIsNonEmpty("id") =>
+          getRenderedFullView("html", params.getFirst("schema"), false).fold(
+            error => errorResponse(error, format),
+            view => {
+              val template = GenericTemplateLoader.load("tags/view.html")
+              val args: java.util.Map[String, Object] = new java.util.HashMap[String, Object]()
+              args.put("view", view.toViewTree)
+              args.put("_view", view.toViewTree)
+              args.put("lang", apiLanguage)
+              Ok(template.render(args).replaceAll("""(?m)^\s+""", "")).as(HTML)
+            }
+          )
         case _ => getXMLResultResponse()
       }
     }
@@ -157,7 +173,8 @@ class SearchService(request: RequestHeader, hiddenQueryFilters: Seq[String] = Se
     val id = params.getValue("id")
     val idTypeParam = params.getValueOrElse("idType", HUB_ID.key)
     val mltCount = params.getValueOrElse("mlt.count", configuration.searchService.moreLikeThis.count.toString)
-    RecordRenderer.getRenderedFullView(id, DelvingIdType(idTypeParam), Lang(apiLanguage), schema, renderRelatedItems, mltCount.toInt)
+    val viewType = ViewType.fromName(viewName)
+    RecordRenderer.getRenderedFullView(id, DelvingIdType(idTypeParam), viewType, Lang(apiLanguage), schema, renderRelatedItems, mltCount.toInt)
   }
 
   def errorResponse(error: String = "Unable to respond to the API request",
@@ -270,44 +287,75 @@ case class SearchSummary(result: BriefItemView, language: String = "en", chRespo
   }
 
   def renderAsABCKML(authorized: Boolean): Elem = {
-    def renderData(field: String, fieldName: String, item: BriefDocItem, cdata: Boolean = false): Elem = {
+    def renderData(field: String, fieldName: String, item: BriefDocItem, cdata: Boolean = false, customString: String = "%s"): Elem = {
       if (cdata)
-        <Data name={fieldName}><value>{"<![CDATA[%s]]>".format(item.getAsString(field))}</value></Data>
+        <Data name={fieldName}><value>{PCData(customString.format(item.getAsString(field)))}</value></Data>
       else
         <Data name={fieldName}><value>{item.getAsString(field)}</value></Data>
 
     }
+
+    def renderComposedDescription(item: BriefDocItem): String = {
+      def renderStrong(label: String, field: String, out: StringBuffer) {
+        val fv = item.getFieldValue(field)
+        if (fv.isNotEmpty) out append ("<strong>%s</strong>: %s </br>".format(label, fv.getArrayAsString(", "))) else "ss"
+      }
+
+      val output = new StringBuffer()
+      output append (item.getAsString("dc_title")) append ("</br></br>")
+      renderStrong("Vervaardiger", "dc_creator", output)
+      renderStrong("Soort object", "dc_type", output)
+      renderStrong("Vervaardigingsdatum", "dc_date", output)
+      renderStrong("Vervaardiging plaats", "dc_coverage", output)
+      renderStrong("vindplaats", "icn_location", output)
+      renderStrong("Onderwerp trefwoord", "dc_subject", output)
+      renderStrong("Associatie trefwoord", "dcterms_spatial", output)
+      renderStrong("Afmeting", "dc_format", output)
+      renderStrong("Materiaal", "icn_material", output)
+      renderStrong("Objectnummer", "dc_identifier", output)
+      output append ("</br>")
+      output append (item.getAsString("delving_description"))
+      output.toString
+    }
+
+    def renderDoc(item: BriefDocItem, crd: String) = {
+      <Placemark id={item.getAsString(HUB_ID.key)}>
+        <name>{item.getAsString("delving_title")}</name>
+        <Point>
+          <coordinates>{crd.split(",").reverse.mkString(",")}</coordinates>
+        </Point>
+        {if (item.getFieldValue(ADDRESS.key).isNotEmpty) {
+        <address>
+          {item.getAsString(ADDRESS.key)}
+        </address>
+      }}
+        <description>
+          {PCData(renderComposedDescription(item))}
+        </description>
+        <ExtendedData>
+          {renderData("delving_title", "titel", item)}
+          {renderData("dcterms_spatial", "ondertitel", item)}
+          {renderData("delving_landingPage", "bron", item, cdata = true,
+          """<a href="%s" target="_blank">Naar online collectie %s</a>""".format(item.getAsString("delving_landingPage"), item.getAsString("delving_owner")))}
+          {renderData("delving_thumbnail", "thumbnail", item)}
+          {renderData("europeana_isShownBy", "image", item)}
+        </ExtendedData>
+      </Placemark>
+    }
+
     val response: Elem =
       <kml xmlns="http://earth.google.com/kml/2.0">
         <Document>
           {briefDocs.map(
           (item: BriefDocItem) =>
-            <Placemark id={item.getAsString(HUB_ID.key)}>
-              <name>{item.getAsString("delving_title")}</name>
-              <Point>
-                <coordinates>{item.getAsString(GEOHASH.key).split(",").reverse.mkString(",")}</coordinates>
-              </Point>
-              {if (item.getFieldValue(ADDRESS.key).isNotEmpty) {
-              <address>
-                {item.getAsString(ADDRESS.key)}
-              </address>
-            }}
-              {if (item.getFieldValue("delving_description").isNotEmpty) {
-              <description>
-                {"<![CDATA[%s]]".format(item.getAsString("delving_description"))}
-              </description>
-            }}
-              <ExtendedData>
-                {renderData("delving_title", "titel", item)}
-                {renderData("delving_landingPage", "bron", item, cdata = false)}
-                {renderData("delving_description", "text", item)}
-                {renderData("delving_thumbnail", "thumbnail", item)}
-                {renderData("europeana_isShownBy", "image", item)}
-              </ExtendedData>
-            </Placemark>
+            {
+              val coordinates: Array[String] = item.getFieldValue(GEOHASH.key).getValueAsArray
+              coordinates.map(crd => renderDoc(item, crd))
+            }
           )
         }
-        </Document></kml>
+        </Document>
+      </kml>
     response
   }
 
@@ -371,7 +419,7 @@ case class SearchSummary(result: BriefItemView, language: String = "en", chRespo
       <results xmlns:delving="http://www.delving.eu/schemas/" xmlns:aff="http://schemas.delving.eu/aff/"
                xmlns:icn="http://www.icn.nl/" xmlns:europeana="http://www.europeana.eu/schemas/ese/" xmlns:dc="http://purl.org/dc/elements/1.1/"
                xmlns:raw="http://delving.eu/namespaces/raw" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:ese="http://www.europeana.eu/schemas/ese/"
-               xmlns:abm="http://to_be_decided/abm/" xmlns:abc="http://www.ab-c.nl/" xmlns:drup="http://www.itin.nl/drupal"
+               xmlns:abm="http://schemas.delving.eu/abm/" xmlns:abc="http://www.ab-c.nl/" xmlns:drup="http://www.itin.nl/drupal"
                xmlns:itin="http://www.itin.nl/namespace" xmlns:tib="http://www.thuisinbrabant.nl/namespace"
                xmlns:musip="http://www.musip.nl/" xmlns:custom="http://www.delving.eu/namespaces/custom">
         <query numFound={pagination.getNumFound.toString} firstYear="0" lastYear="0">
@@ -472,7 +520,7 @@ case class SearchSummary(result: BriefItemView, language: String = "en", chRespo
   }
 }
 
-case class FacetAutoComplete(params: Params, configuration: DomainConfiguration) {
+case class FacetAutoComplete(params: Params, configuration: OrganizationConfiguration) {
   require(params._contains("field"))
   val facet = params.getValueOrElse("field", "nothing")
   val query = params.getValueOrElse("value", "")
@@ -513,7 +561,7 @@ case class FacetAutoComplete(params: Params, configuration: DomainConfiguration)
 
 }
 
-case class ExplainResponse(params: Params, configuration: DomainConfiguration) {
+case class ExplainResponse(params: Params, configuration: OrganizationConfiguration) {
 
   val excludeList = List("europeana_unstored", "europeana_source", "europeana_userTag", "europeana_collectionTitle")
 

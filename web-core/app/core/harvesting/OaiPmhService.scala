@@ -44,7 +44,7 @@ import collection.mutable.ArrayBuffer
  * @since Jun 16, 2010 12:06:56 AM
  */
 class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, orgId: String, format: Option[String], accessKey: Option[String])
-                   (implicit configuration: DomainConfiguration, val bindingModule: BindingModule) extends Injectable {
+                   (implicit configuration: OrganizationConfiguration, val bindingModule: BindingModule) extends Injectable {
 
   private val log = Logger("CultureHub")
   val prettyPrinter = new PrettyPrinter(300, 5)
@@ -266,9 +266,7 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/ http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd">
         <responseDate>{OaiPmhService.currentDate}</responseDate>
-        <request verb="ListIdentifiers" from={from} until={to}
-                 metadataPrefix={metadataFormat}
-                 set={setName}>{requestURL}</request>
+        <request verb="ListIdentifiers" from={from} until={to} metadataPrefix={metadataFormat} set={setName}>{requestURL}</request>
         <ListIdentifiers>
           { for (record <- recordList) yield
           <header status={recordStatus(record)}>
@@ -295,7 +293,7 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
     val pmhRequest = pmhRequestEntry.pmhRequestItem
     // get identifier and format from map else throw BadArgument Error
     if (pmhRequest.identifier.isEmpty || pmhRequest.metadataPrefix.isEmpty) return createErrorResponse("badArgument")
-    if(pmhRequest.identifier.split(":").length < 3) return createErrorResponse("idDoesNotExist")
+    if(pmhRequest.identifier.split(":").length < 2) return createErrorResponse("idDoesNotExist")
 
     val identifier = fromPmhIdToHubId(pmhRequest.identifier)
     val metadataFormat = pmhRequest.metadataPrefix
@@ -306,7 +304,7 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
     // check access rights
     val c = harvestCollectionLookupService.findBySpecAndOrgId(hubId.spec, orgId)
     if (c == None) return createErrorResponse("noRecordsMatch")
-    if (!c.get.getVisibleMetadataSchemas(accessKey).contains(metadataFormat)) {
+    if (!c.get.getVisibleMetadataSchemas(accessKey).exists(_.prefix == metadataFormat)) {
       return createErrorResponse("idDoesNotExist")
     }
 
@@ -323,16 +321,9 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
       <OAI-PMH xmlns="http://www.openarchives.org/OAI/2.0/"
                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/ http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd">
-        <responseDate>
-          {OaiPmhService.currentDate}
-        </responseDate>
-        <request verb="GetRecord" identifier={OaiPmhService.toPmhId(record.itemId)}
-                 metadataPrefix={metadataFormat}>
-          {requestURL}
-        </request>
-        <GetRecord>
-          {renderRecord(record, metadataFormat, identifier.split("_")(1))}
-        </GetRecord>
+        <responseDate>{OaiPmhService.currentDate}</responseDate>
+        <request verb="GetRecord" identifier={OaiPmhService.toPmhId(record.itemId)} metadataPrefix={metadataFormat}>{requestURL}</request>
+        <GetRecord>{renderRecord(record, metadataFormat, identifier.split("_")(1))}</GetRecord>
       </OAI-PMH>
 
     prependNamespaces(metadataFormat, record.schemaVersions.get(metadataFormat).getOrElse("1.0.0"), collection, elem)

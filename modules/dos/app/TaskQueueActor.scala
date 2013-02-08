@@ -46,11 +46,11 @@ class TaskQueueActor extends Actor with Logging {
                 task.taskType match {
                   case TaskType.THUMBNAILS_CREATE => GMThumbnailCreationProcessor.process(task, Map("sizes" -> controllers.dos.thumbnailSizes.values.toList))
                   case TaskType.THUMBNAILS_DELETE => ThumbnailDeletionProcessor.process(task)
-                  case TaskType.FLATTEN => TIFFlatteningProcessor.process(task)
+                  case TaskType.NORMALIZE => TIFFNormalizationProcessor.process(task)
                   case TaskType.TILES => PTIFTilingProcessor.process(task)
                 }
               } catch {
-                case t =>
+                case t: Throwable =>
                   t.printStackTrace()
                   error(task, "Error running task of kind '%s' on path '%s': %s".format(task.taskType.name, task.path, t.getMessage))
               } finally {

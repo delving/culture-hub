@@ -2,7 +2,7 @@ package core
 
 import core.collection.OrganizationCollection
 
-import models.DomainConfiguration
+import models.OrganizationConfiguration
 
 /**
  * Lookup for organization collections
@@ -15,11 +15,11 @@ trait OrganizationCollectionLookupService {
   /**
    * Find all collections
    */
-  def findAll(implicit configuration: DomainConfiguration): Seq[OrganizationCollection]
+  def findAll(implicit configuration: OrganizationConfiguration): Seq[OrganizationCollection]
 
   /**
    * Find a sepcific collection
    */
-  def findBySpecAndOrgId(spec: String, orgId: String)(implicit configuration: DomainConfiguration): Option[OrganizationCollection]
+  def findBySpecAndOrgId(spec: String, orgId: String)(implicit configuration: OrganizationConfiguration): Option[OrganizationCollection]
 
 }
