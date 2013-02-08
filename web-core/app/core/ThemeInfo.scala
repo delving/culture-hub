@@ -21,12 +21,12 @@ class ThemeInfo(configuration: OrganizationConfiguration) {
       case None =>
         ThemeInfoReader.get(property, "default", "default") match {
           case Some(prop) => prop
-          case None => throw PlayException("Programmer Exceptions", "No default value, nor actual value, defined for property '%s' in application.conf".format(property))
+          case None => throw new PlayException("Programmer Exceptions", "No default value, nor actual value, defined for property '%s' in application.conf".format(property))
         }
     }
 
     val INT = classOf[Int]
-    val result = mf.erasure match {
+    val result = mf.runtimeClass match {
       case INT => Integer.parseInt(value)
       case _ => value
     }

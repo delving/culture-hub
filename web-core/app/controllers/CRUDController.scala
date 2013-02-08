@@ -10,17 +10,14 @@ import json.{StringObjectIdStrategy, JSONConfig}
 import models.OrganizationConfiguration
 import com.mongodb.casbah.commons.MongoDBObject
 import play.api.data.Form
-import net.liftweb.json._
-import net.liftweb.json.Extraction._
 import scala.collection.JavaConverters._
 import models.HubMongoContext._
 import com.novus.salat.StringTypeHintStrategy
-import scala.Some
-import scala.Right
-import net.liftweb.json.JsonAST.JField
 import extensions.MissingLibs
 import play.api.i18n.Messages
-
+import org.json4s._
+import org.json4s.native.JsonMethods._
+import org.json4s.native.{JsonMethods, Printer}
 
 /**
  * Experimental CRUD controller, for the admin part of the site.
@@ -213,7 +210,7 @@ trait CRUDController[Model <: CaseClass { def id: ObjectId }, D <: SalatDAO[Mode
       items.map(contextualizer.get)
     } else {
       items
-    }
+    }.toSeq
 
     val (viewLink, viewLinkParams) = if (customViewLink.isDefined) {
       customViewLink.get
@@ -221,7 +218,7 @@ trait CRUDController[Model <: CaseClass { def id: ObjectId }, D <: SalatDAO[Mode
       (baseUrl + "/_id_", Seq("id"))
     }
 
-    if (acceptsJson) {
+    if (request.queryString.get("format").map(_.exists(_ == "json")).getOrElse(false)) {
       Json(Map("items" -> contextualizedItems)).withHeaders(CACHE_CONTROL -> "no-cache")
     } else {
 
@@ -278,7 +275,7 @@ trait CRUDController[Model <: CaseClass { def id: ObjectId }, D <: SalatDAO[Mode
       val serializedItem: JObject = grater[Model].toJSON(item)
       val files: Option[JObject] = if (fileUploadEnabled) {
         val files = core.storage.FileStorage.listFiles(item.id.toString).map(f => FileUploadResponse(f))
-        val serializedFiles = JObject(List(JField("files", decompose(files))))
+        val serializedFiles = JObject(List(JField("files", Extraction.decompose(files))))
         Some(serializedFiles)
       } else {
         None
@@ -286,7 +283,7 @@ trait CRUDController[Model <: CaseClass { def id: ObjectId }, D <: SalatDAO[Mode
       val creationTag: Option[JObject] = if(isCreated) Some(JObject(List(JField("_created_", JBool(true))))) else None
 
       val merged = Seq(files, creationTag).filterNot(_.isEmpty).map(_.get).foldLeft(serializedItem) { _ merge _ }
-      Printer.compact(render(merged))
+      Printer.compact(JsonMethods.render(merged))
     }
 
     id.map { _id =>
@@ -344,15 +341,13 @@ trait CRUDController[Model <: CaseClass { def id: ObjectId }, D <: SalatDAO[Mode
     Ok
   }
 
-  protected def acceptsJson(implicit request: RequestHeader) = request.accepts("application/json") && !request.accepts(HTML)
-
   private def title(titleKey: String)(implicit mom: Manifest[Model]) = if (titleKey.isEmpty) {
     splitCamelCase(className) + "s"
   } else {
     Messages(titleKey)
   }
 
-  private def className(implicit mom: Manifest[Model]) = mom.erasure.getName.split("\\.").lastOption.getOrElse(mom.erasure.getName)
+  private def className(implicit mom: Manifest[Model]) = mom.runtimeClass.getName.split("\\.").lastOption.getOrElse(mom.runtimeClass.getName)
 
   // ~~ misc
 

@@ -71,22 +71,22 @@ trait ControllerBase extends Extensions with OrganizationConfigurationAware with
                 try {
                   update(boundViewModel, existingModel) match {
                     case Right(updatedViewModel) =>
-                      info("Updated '%s' with identifier %s".format(mf.erasure.getName, id))
+                      info("Updated '%s' with identifier %s".format(mf.runtimeClass.getName, id))
                       Json(updatedViewModel)
                     case Left(errorMessage) =>
-                      warning("Problem while updating '%s' with identifier %s: %s".format(mf.erasure.getName, id, errorMessage))
+                      warning("Problem while updating '%s' with identifier %s: %s".format(mf.runtimeClass.getName, id, errorMessage))
                       // TODO see if there's a way to abstract the copy method and return the full initial object.
                       Json(Map("errors" -> Map("global" -> errorMessage)))
                   }
                 } catch {
                   case t: Throwable =>
-                    logError(t, "Problem while updating '%s' with identifier %s".format(mf.erasure.getName, id))
+                    logError(t, "Problem while updating '%s' with identifier %s".format(mf.runtimeClass.getName, id))
                     // Json(boundForm.copy(errors = Map("global" -> t.getMessage)))
                     // TODO see if there's a way to abstract the copy method and return the full initial object.
                     Json(Map("errors" -> Map("global" -> t.getMessage)))
                 }
               case None =>
-                Error("Model of type '%s' was not found for identifier %s".format(mf.erasure.getName, id))
+                Error("Model of type '%s' was not found for identifier %s".format(mf.runtimeClass.getName, id))
             }
           case None => doCreate()
           case Some(defaultId)  => doCreate()

@@ -59,7 +59,7 @@ trait OAuth2TokenEndpoint extends Controller with OrganizationConfigurationAware
                     Right(HubUser.dao.findByUsername(oauthRequest.getUsername).get)
                   }
                 case GrantType.REFRESH_TOKEN => {
-                  val maybeUser = HubUser.dao.findByRefreshToken(oauthRequest.getRefreshToken)
+                  val maybeUser = HubUser.dao.findByRefreshToken(oauthRequest.getParam(OAuth.OAUTH_REFRESH_TOKEN))
                   if (maybeUser == None) {
                     Left(errorResponse(OAuthError.ResourceResponse.INVALID_TOKEN, "Invalid refresh token"))
                   } else {
@@ -67,7 +67,7 @@ trait OAuth2TokenEndpoint extends Controller with OrganizationConfigurationAware
                   }
                 }
                 // TODO
-                case GrantType.AUTHORIZATION_CODE | GrantType.ASSERTION | GrantType.NONE => Left(errorResponse(OAuthError.TokenResponse.UNSUPPORTED_GRANT_TYPE, "unsupported grant type"))
+                case GrantType.AUTHORIZATION_CODE | GrantType.CLIENT_CREDENTIALS => Left(errorResponse(OAuthError.TokenResponse.UNSUPPORTED_GRANT_TYPE, "unsupported grant type"))
               }
 
               if (mayUser.isLeft) {
@@ -133,7 +133,6 @@ class PlayOAuthTokenRequest(request: RequestHeader) extends OAuthRequest {
 
   def initValidator() = {
     validators.put(GrantType.PASSWORD.toString, classOf[PasswordValidator])
-    validators.put(GrantType.ASSERTION.toString, classOf[AssertionValidator])
     validators.put(GrantType.AUTHORIZATION_CODE.toString, classOf[AuthorizationCodeValidator])
     validators.put(GrantType.REFRESH_TOKEN.toString, classOf[RefreshTokenValidator])
     val requestTypeValue: String = getParam(OAuth.OAUTH_GRANT_TYPE).asInstanceOf[String]

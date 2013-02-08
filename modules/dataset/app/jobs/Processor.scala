@@ -6,8 +6,6 @@ import play.api.Logger
 import controllers.ErrorReporter
 import util.OrganizationConfigurationHandler
 import processing.DataSetCollectionProcessor
-import scala.Some
-import jobs.ProcessDataSet
 
 /**
  *
@@ -21,6 +19,7 @@ class Processor extends Actor {
   def receive = {
 
     case ProcessDataSet(set) =>
+      log.debug(s"Received set to process ${set.spec}")
       implicit val configuration = OrganizationConfigurationHandler.getByOrgId(set.orgId)
 
       try {

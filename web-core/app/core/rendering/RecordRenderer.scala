@@ -235,7 +235,7 @@ object RecordRenderer {
   }
 
   private def addChild(n: Node, newChild: Node): Option[Elem] = n match {
-    case Elem(prefix, label, attribs, scope, child @ _*) => Some(Elem(prefix, label, attribs, scope, child ++ newChild : _*))
+    case Elem(prefix, label, attribs, scope, child @ _*) => Some(Elem(prefix, label, attribs, scope, true, child ++ newChild : _*))
     case _ =>
       Logger("CultureHub").error("Can only add children to elements!")
       None

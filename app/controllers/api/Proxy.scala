@@ -9,7 +9,7 @@ import controllers.{OrganizationConfigurationAware, RenderingExtensions}
 import core.ExplainItem
 import play.api.{Logger, Play}
 import controllers.RenderingExtensions
-import java.net.URLDecoder
+import play.api.libs.concurrent.Execution.Implicits._
 
 /**
  * FIXME adjust namespace rendering in proxy responses. Also support JSON.

@@ -7,7 +7,7 @@
     <div class="mod">
         <form method="GET" action="/@dos/browse">
             <label for="path" class="contrast">Set the path to your images:</label>
-            <input id="path" name="path" type="text" value="${params.path ? params.path.apply(0) : ""}" class="path"/>
+            <input id="path" name="path" type="text" value="${params.path ? params.path[0] : ""}" class="path"/>
             <button type="submit" class="button">
                 Refresh
             </button>

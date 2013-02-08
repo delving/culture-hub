@@ -82,7 +82,7 @@ class BaseXStorage(configuration: BaseXConfiguration) {
             val sanitizedId = if(next._1.id.endsWith(".")) next._1.id + DEFAUL_BASEX_PATH_EXTENSION else next._1.id
             session.add(sanitizedId, buildRecord(next._1, 0, namespaces, next._2))
           } catch {
-            case t =>
+            case t: Throwable =>
               Logger("CultureHub").error(next._1.toString)
               throw new StorageInsertionException(next._1.toString, t)
           }

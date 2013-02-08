@@ -1,8 +1,10 @@
 package core.schema
 
 import akka.actor._
-import akka.util.duration._
+import scala.concurrent.duration._
+import play.api.libs.concurrent.Execution.Implicits._
 import akka.pattern.ask
+import scala.concurrent.Await
 import core.schema.SchemaProvider._
 import core.SchemaService
 import play.api.Play.current
@@ -11,8 +13,6 @@ import eu.delving.schema._
 import play.api.libs.ws.WS
 import java.util.concurrent.TimeUnit
 import play.api.{Play, Logger}
-import java.io.File
-import io.Source
 import scala.collection.JavaConverters._
 import akka.util.Timeout
 import models.OrganizationConfiguration
@@ -43,32 +43,38 @@ class SchemaProvider extends SchemaService {
     getAllSchemas.filter(s => configuration.schemas.contains(s.prefix))
   }
 
-  override def getAllSchemas: Seq[eu.delving.schema.xml.Schema] = (repository ? GetSchemas).asPromise.map {
-    case Schemas(schemas) => schemas.filterNot(s => s.versions.isEmpty)
-  }.await.fold(
-    { t => throw t },
-    { r => r }
-  )
+  override def getAllSchemas: Seq[eu.delving.schema.xml.Schema] = {
+    try {
+      val future = (repository ? GetSchemas)
+      Await.result(future, timeout.duration).asInstanceOf[Schemas].schemas.filterNot(s => s.versions.isEmpty)
+    } catch {
+      case t: Throwable =>
+        log.error("Error while retrieving all schemas", t)
+        Seq.empty
+    }
+  }
 
-  override def getSchema(prefix: String, version: String, schemaType: SchemaType): Option[String] = (repository ? GetSchema(new SchemaVersion(prefix, version), schemaType)).asPromise.map {
-    case SchemaContent(schemaContent) =>
-      log.trace("Retrieved schema %s %s %s: ".format(prefix, version, schemaType.toString) + schemaContent)
-      Option(schemaContent)
-    case SchemaError(error: Throwable) =>
-      log.error("Error while trying to retrieve schema %s of type %s: %s".format(
-        version, schemaType.fileName, error.getMessage
-      ), error)
-      None
-  }.await.fold(
-    { t =>
-      log.error("Timeout while trying to retrieve schema %s of type %s: timed out after %s ms".format(
-        version, schemaType.fileName, timeout
-      ))
-      throw t
-    },
-    { r => r }
-  )
+  override def getSchema(prefix: String, version: String, schemaType: SchemaType): Option[String] = {
 
+    val future = repository ? GetSchema(new SchemaVersion(prefix, version), schemaType)
+
+    try {
+      Await.result(future, timeout.duration) match {
+        case SchemaContent(schemaContent) =>
+          log.trace(s"Retrieved schema $prefix $version $schemaType: $schemaContent")
+          Option(schemaContent)
+        case SchemaError(error: Throwable) =>
+          log.error("Error while trying to retrieve schema %s of type %s: %s".format(
+            version, schemaType.fileName, error.getMessage
+          ), error)
+          None
+      }
+    } catch {
+      case t: Throwable =>
+        log.error(s"Error while retrieving schema $prefix:$version from repository", t)
+        None
+    }
+  }
 }
 
 object SchemaProvider {
@@ -105,7 +111,7 @@ class SchemaRepositoryWrapper extends Actor {
     scheduler.cancel()
   }
 
-  protected def receive = {
+  def receive = {
 
     case SchemaProvider.Refresh =>
       refresh()

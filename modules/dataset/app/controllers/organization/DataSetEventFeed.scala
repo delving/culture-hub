@@ -1,18 +1,20 @@
 package controllers.organization
 
+import play.api.libs.concurrent.Execution.Implicits._
+import util.OrganizationConfigurationHandler
+import scala.concurrent.duration._
 import akka.actor._
-import akka.util.duration._
 import akka.util.Timeout
 import akka.pattern.ask
-import _root_.core.indexing.IndexingService
-import play.api.libs.json._
+import core.indexing.IndexingService
 import play.api.libs.iteratee._
-import play.api.libs.concurrent._
 import play.api.Play.current
 import models.{OrganizationConfiguration, DataSetEventLog, DataSetState, DataSet}
 import play.api.Logger
 import models.DataSetState._
-import util.OrganizationConfigurationHandler
+import play.api.libs.json._
+import scala.concurrent.Future
+import play.api.libs.concurrent.Akka
 
 
 /**
@@ -76,13 +78,13 @@ object DataSetEventFeed {
     Akka.system.actorOf(Props[DataSetEventFeed])
   }
 
-  def subscribe(orgId: String, clientId: String, userName: String, configuration: String, spec: Option[String]): Promise[(Iteratee[JsValue, _], Enumerator[JsValue])] = {
+  def subscribe(orgId: String, clientId: String, userName: String, configuration: String, spec: Option[String]): Future[(Iteratee[JsValue, _], Enumerator[JsValue])] = {
 
     log.debug("Client %s of org %s requesting subscribtion to DataSetList feed".format(clientId, orgId))
 
     implicit val timeout = Timeout(1 second)
 
-    (default ? Subscribe(orgId, userName, configuration, clientId, spec)).asPromise.map {
+    (default ? Subscribe(orgId, userName, configuration, clientId, spec)).map {
 
       case Connected(enumerator) =>
 
@@ -116,7 +118,7 @@ object DataSetEventFeed {
   case class Subscribe(orgId: String, userName: String, configuration: String, clientId: String, spec: Option[String] = None)
   case class Unsubscribe(clientId: String)
 
-  case class Connected(enumerator: PushEnumerator[JsValue])
+  case class Connected(enumerator: Enumerator[JsValue])
   case class CannotConnect(msg: String)
 
   case object StartPolling
@@ -237,7 +239,7 @@ class DataSetEventFeed extends Actor {
     case Subscribe(orgId, userName, configuration, clientId, spec) => {
       // Create an Enumerator to write to this socket
 
-      val channel = Enumerator.imperative[JsValue]()
+      val (enumerator, channel) = Concurrent.broadcast[JsValue]
 
       if (subscribers.contains(clientId)) {
         log.warn("Duplicate clientId connection attempt from " + clientId)
@@ -247,8 +249,8 @@ class DataSetEventFeed extends Actor {
          // if there was no subscriber before, start the polling
          self ! StartPolling
         }
-        subscribers = subscribers + (clientId -> Subscriber(orgId, userName, configuration, spec, channel))
-        sender ! Connected(channel)
+        subscribers = subscribers + (clientId -> Subscriber(orgId, userName, configuration, spec, enumerator, channel))
+        sender ! Connected(enumerator)
       }
 
     }
@@ -355,7 +357,7 @@ class DataSetEventFeed extends Actor {
                         DataSet.dao.updateState(set, DataSetState.DISABLED, Some(userName))
                         send(s, ok)
                       } catch {
-                        case t =>
+                        case t: Throwable =>
                           log.warn("Error while trying to remove cancelled set from index", t)
                           DataSet.dao.updateState(set, DataSetState.ERROR, Some(userName), Some(t.getMessage))
                           send(s, error("Cannot disable set that is not enabled"))
@@ -392,7 +394,7 @@ class DataSetEventFeed extends Actor {
                       try {
                         IndexingService.deleteBySpec(set.orgId, set.spec)
                       } catch {
-                        case t =>
+                        case t: Throwable =>
                           log.warn("Error while trying to remove cancelled set from index", t)
                           DataSet.dao.updateState(set, DataSetState.ERROR, Some(userName), Some(t.getMessage))
                       }
@@ -555,11 +557,11 @@ class DataSetEventFeed extends Actor {
       case (_, subscriber) =>
         val msg = default ++ message
         log.debug("Pushing messag to subscriber: " + msg)
-        subscriber.channel.push(msg)
+        subscriber.channel push (msg)
     }
   }
 
-  case class Subscriber(orgId: String, userName: String, configuration: String, spec: Option[String], channel: PushEnumerator[JsValue])
+  case class Subscriber(orgId: String, userName: String, configuration: String, spec: Option[String], enumerator: Enumerator[JsValue], channel: Concurrent.Channel[JsValue])
 
 }
 

@@ -48,7 +48,7 @@ class OAuth2TokenEndPointSpec extends Specs2TestContext {
         val oNTokenResponse = OAuthClientResponseFactory.createJSONTokenResponse(content, contentType.get, status(resp)).asInstanceOf[OAuthJSONAccessTokenResponse]
 
         oNTokenResponse.getAccessToken must not equalTo (null)
-        oNTokenResponse.getExpiresIn must equalTo("3600")
+        oNTokenResponse.getExpiresIn must equalTo(3600l)
         oNTokenResponse.getRefreshToken must not equalTo (null)
       }
 
