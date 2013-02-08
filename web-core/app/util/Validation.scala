@@ -63,7 +63,7 @@ object Validation {
           case Some("constraint.email") =>
             rules += "email: true"
             messages.put("email", Messages("error.email"))
-          case _ => Logger("CultureHub").warn("Could not generate client-side validation rule for constraint %s of field %s".format(c.name, f._1))
+          case _ => // ignore this for the time being
         }
       }
 
