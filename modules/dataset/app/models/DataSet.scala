@@ -19,7 +19,6 @@ package models
 import core.access.{Resource, ResourceType}
 import models.HubMongoContext._
 import com.mongodb.casbah.Imports._
-import com.novus.salat.dao._
 import exceptions.MetaRepoSystemException
 import core.{OrganizationService, DomainServiceLocator, HubModule, HubServices}
 import eu.delving.metadata.RecMapping
@@ -36,6 +35,7 @@ import core.mapping.MappingService
 import com.escalatesoft.subcut.inject.{BindingModule, Injectable}
 import core.SchemaService
 import play.api.Play
+import com.novus.salat.dao.SalatDAO
 
 /**
  * DataSet model
@@ -439,7 +439,7 @@ class DataSetDAO(collection: MongoCollection)(implicit val configuration: Organi
       DataSetEvent ! DataSetEvent.StateChanged(dataSet.orgId, dataSet.spec, state, userName)
       DataSetEvent ! DataSetEvent.Error(dataSet.orgId, dataSet.spec, errorMessage.get, userName)
     } else {
-      update(MongoDBObject("_id" -> dataSet._id), $set(Seq("state.name" -> state.name) ++ $unset(Seq("errorMessage"))))
+      update(MongoDBObject("_id" -> dataSet._id), $set(Seq("state.name" -> state.name)) ++ $unset(Seq("errorMessage")), false, false, WriteConcern.Safe)
       DataSetEvent ! DataSetEvent.StateChanged(dataSet.orgId, dataSet.spec, state, userName)
     }
   }
