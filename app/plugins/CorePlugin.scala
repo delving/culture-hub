@@ -6,6 +6,7 @@ import models._
 import core.MainMenuEntry
 import core.MenuElement
 import core.search.BasicSearchInService
+import controllers.api.IndexItemOrganizationCollectionLookupService
 
 
 /**
@@ -19,9 +20,9 @@ class CorePlugin(app: Application) extends CultureHubPlugin(app) {
 
   override def enabled: Boolean = true
 
-  override def isEnabled(configuration: DomainConfiguration): Boolean = true
+  override def isEnabled(configuration: OrganizationConfiguration): Boolean = true
 
-  override def mainMenuEntries(configuration: DomainConfiguration, lang: String): Seq[MainMenuEntry] = Seq(
+  override def mainMenuEntries(configuration: OrganizationConfiguration, lang: String): Seq[MainMenuEntry] = Seq(
     MainMenuEntry(
       key = "home",
       titleKey = "site.nav.home",
@@ -31,10 +32,11 @@ class CorePlugin(app: Application) extends CultureHubPlugin(app) {
 
 
   override def services: Seq[Any] = Seq(
-    new BasicSearchInService
+    new BasicSearchInService,
+    new IndexItemOrganizationCollectionLookupService
   )
 
-  override def organizationMenuEntries(configuration: DomainConfiguration, lang: String, roles: Seq[String]): Seq[MainMenuEntry] = Seq(
+  override def organizationMenuEntries(configuration: OrganizationConfiguration, lang: String, roles: Seq[String]): Seq[MainMenuEntry] = Seq(
     MainMenuEntry(
       key = "overview",
       titleKey = "ui.label.overview",

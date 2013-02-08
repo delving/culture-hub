@@ -2,7 +2,7 @@ import core.HubServices
 import play.api.i18n.{Messages, Lang}
 import play.api.test._
 import play.api.test.Helpers._
-import util.DomainConfigurationHandler
+import util.OrganizationConfigurationHandler
 
 /**
  * Testing the registration work-flow
@@ -53,7 +53,7 @@ class RegistrationSpec extends Specs2TestContext {
     val msg = Messages("ui.message.activation.success")(Lang("en"))
     browser.$(".alert-success").first.getText must equalTo(msg)
 
-    implicit val configuration = DomainConfigurationHandler.getByOrgId("delving")
+    implicit val configuration = OrganizationConfigurationHandler.getByOrgId("delving")
     HubServices.registrationServiceLocator.byDomain.isAccountActive("alice@smith.com") must beTrue
   }
 

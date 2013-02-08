@@ -7,7 +7,7 @@ import play.api.libs.Crypto
 import play.libs.Time
 import play.api.i18n.Messages
 import extensions.MissingLibs
-import models.{DomainConfiguration, HubUser}
+import models.{OrganizationConfiguration, HubUser}
 import core._
 import play.api.mvc.Cookie
 
@@ -28,7 +28,7 @@ trait Authentication extends ApplicationController { this: BoundController =>
 
   case class Auth(userName: String, password: String)
 
-  def loginForm(implicit configuration: DomainConfiguration) = Form(
+  def loginForm(implicit configuration: OrganizationConfiguration) = Form(
     tuple(
       "userName" -> nonEmptyText,
       "password" -> nonEmptyText,
@@ -38,7 +38,7 @@ trait Authentication extends ApplicationController { this: BoundController =>
         authenticationServiceLocator.byDomain.connect(resolveEmail(u), p)
     }))
 
-  private def resolveEmail(userName: String)(implicit configuration: DomainConfiguration) = if (userName.contains("@")) {
+  private def resolveEmail(userName: String)(implicit configuration: OrganizationConfiguration) = if (userName.contains("@")) {
       HubUser.dao.findOneByEmail(userName).map(_.userName).getOrElse(userName)
     } else {
       userName

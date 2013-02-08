@@ -25,16 +25,16 @@ import play.api.Play
 import play.api.Logger
 import play.api.Play.current
 import eu.delving.templates.scala.GroovyTemplates
-import controllers.DomainConfigurationAware
+import controllers.OrganizationConfigurationAware
 
 /**
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-object Tasks extends Controller with Extensions with DomainConfigurationAware with GroovyTemplates {
+object Tasks extends Controller with Extensions with OrganizationConfigurationAware with GroovyTemplates {
 
-  def add(path: String, taskType: String) = DomainConfigured {
+  def add(path: String, taskType: String) = OrganizationConfigured {
     Action(parse.tolerantFormUrlEncoded) {
       implicit request =>
 
@@ -55,7 +55,7 @@ object Tasks extends Controller with Extensions with DomainConfigurationAware wi
     }
   }
 
-  def cancel(id: ObjectId) = DomainConfigured {
+  def cancel(id: ObjectId) = OrganizationConfigured {
     Action {
       implicit request =>
         val task = Task.dao.findOneById(id)
@@ -68,7 +68,7 @@ object Tasks extends Controller with Extensions with DomainConfigurationAware wi
     }
   }
 
-  def list(what: String) = DomainConfigured {
+  def list(what: String) = OrganizationConfigured {
     Action {
       implicit request =>
         val tasks = TaskState.valueOf(what) match {
@@ -82,14 +82,14 @@ object Tasks extends Controller with Extensions with DomainConfigurationAware wi
     }
   }
 
-  def listAll() = DomainConfigured {
+  def listAll() = OrganizationConfigured {
     Action {
       implicit request =>
         Json(Map("running" -> Task.dao.list(RUNNING), "queued" -> Task.dao.list(QUEUED), "finished" -> Task.dao.list(FINISHED)))
     }
   }
 
-  def status(id: ObjectId) = DomainConfigured {
+  def status(id: ObjectId) = OrganizationConfigured {
     Action {
       implicit request =>
         val task = Task.dao.findOneById(id)

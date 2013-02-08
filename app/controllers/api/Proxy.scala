@@ -5,7 +5,7 @@ import collection.immutable.Map
 import play.api.libs.ws.{Response, WS}
 import xml.{NodeSeq, TopScope, Elem}
 import play.api.mvc._
-import controllers.{DomainConfigurationAware, RenderingExtensions}
+import controllers.{OrganizationConfigurationAware, RenderingExtensions}
 import core.ExplainItem
 import play.api.{Logger, Play}
 import controllers.RenderingExtensions
@@ -17,7 +17,7 @@ import java.net.URLDecoder
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-object Proxy extends Controller with DomainConfigurationAware with RenderingExtensions {
+object Proxy extends Controller with OrganizationConfigurationAware with RenderingExtensions {
 
   val proxies = List[ProxyConfiguration](europeana, wikipediaEn, wikipediaNl, wikipediaNo, wikipediaNn, amsterdamMetadataCollection)
 
@@ -39,7 +39,7 @@ object Proxy extends Controller with DomainConfigurationAware with RenderingExte
     case _ => None
   }
 
-  def list(orgId: String) = DomainConfigured {
+  def list(orgId: String) = OrganizationConfigured {
     Action {
       implicit request =>
 

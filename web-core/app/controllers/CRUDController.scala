@@ -1,13 +1,13 @@
 package controllers
 
-import core.storage.FileStorage
+import core.storage.{FileUploadResponse, FileStorage}
 import play.api.mvc._
 import com.mongodb.casbah.Imports._
 import com.novus.salat._
 import dao.SalatDAO
 import com.novus.salat.{TypeHintFrequency, Context}
 import json.{StringObjectIdStrategy, JSONConfig}
-import models.DomainConfiguration
+import models.OrganizationConfiguration
 import com.mongodb.casbah.commons.MongoDBObject
 import play.api.data.Form
 import net.liftweb.json._
@@ -56,12 +56,12 @@ trait CRUDController[Model <: CaseClass { def id: ObjectId }, D <: SalatDAO[Mode
   /**
    * Returns an empty model class, for entity creation
    */
-  def emptyModel(implicit request: RequestHeader, configuration: DomainConfiguration): Model
+  def emptyModel(implicit request: RequestHeader, configuration: OrganizationConfiguration): Model
 
   /**
    * The DAO used to persist the domain model
    */
-  def dao(implicit configuration: DomainConfiguration): D
+  def dao(implicit configuration: OrganizationConfiguration): D
 
 
   // ~~~ override the following to customize
@@ -69,7 +69,7 @@ trait CRUDController[Model <: CaseClass { def id: ObjectId }, D <: SalatDAO[Mode
   def fileUploadEnabled = false
 
   def updateHandler(onUpdate: Option[(Model, Model) => Model])(submitted: Model, persisted: Model)
-                   (implicit request: Request[AnyContent], configuration: DomainConfiguration,
+                   (implicit request: Request[AnyContent], configuration: OrganizationConfiguration,
                              mom: Manifest[Model], mod: Manifest[D]) = {
 
     log.debug("Update handler invoked")
@@ -87,7 +87,7 @@ trait CRUDController[Model <: CaseClass { def id: ObjectId }, D <: SalatDAO[Mode
   }
 
   def creationHandler(onCreate: Option[Model => Model])(model: Model)
-                     (implicit request: Request[AnyContent], configuration: DomainConfiguration,
+                     (implicit request: Request[AnyContent], configuration: OrganizationConfiguration,
                                mom: Manifest[Model], mod: Manifest[D]) = {
     onCreate.map { c =>
       val contextualized = c(model)
@@ -102,7 +102,7 @@ trait CRUDController[Model <: CaseClass { def id: ObjectId }, D <: SalatDAO[Mode
   /**
    * Base URL of all actions for this CRUD model
    */
-  def baseUrl(implicit configuration: DomainConfiguration): String = "/organizations/%s/%s".format(configuration.orgId, urlPath)
+  def baseUrl(implicit configuration: OrganizationConfiguration): String = "/organizations/%s/%s".format(configuration.orgId, urlPath)
 
   // ~~~ default actions, override if necessary
 
@@ -171,7 +171,7 @@ trait CRUDController[Model <: CaseClass { def id: ObjectId }, D <: SalatDAO[Mode
                titleKey: String = "",
                viewTemplate: String = "organization/crudView.html",
                fields: Seq[(String, String)] = Seq(("thing.name" -> "name"))
-              )(implicit request: RequestHeader, configuration: DomainConfiguration,
+              )(implicit request: RequestHeader, configuration: OrganizationConfiguration,
                          mom: Manifest[Model], mod: Manifest[D]): Result = {
 
     dao.findOneById(id).map { item =>
@@ -204,7 +204,7 @@ trait CRUDController[Model <: CaseClass { def id: ObjectId }, D <: SalatDAO[Mode
                filter: Seq[(String, Any)] = Seq.empty,
                contextualizer: Option[Model => CaseClass] = None,
                customViewLink: Option[(String, Seq[String])] = None)
-              (implicit request: RequestHeader, configuration: DomainConfiguration,
+              (implicit request: RequestHeader, configuration: OrganizationConfiguration,
                         mom: Manifest[Model], mod: Manifest[D]): Result = {
 
     val items = dao.find(MongoDBObject(filter : _*)).toSeq
@@ -247,7 +247,7 @@ trait CRUDController[Model <: CaseClass { def id: ObjectId }, D <: SalatDAO[Mode
   }
 
   def crudUpdate(id: Option[ObjectId], templateName: Option[String] = None, additionalTemplateData: Option[(Option[Model] => Seq[(Symbol, AnyRef)])])
-                (implicit request: RequestHeader, configuration: DomainConfiguration,
+                (implicit request: RequestHeader, configuration: OrganizationConfiguration,
                           mom: Manifest[Model], mod: Manifest[D]): Result = {
 
     implicit val formats = DefaultFormats
@@ -277,8 +277,7 @@ trait CRUDController[Model <: CaseClass { def id: ObjectId }, D <: SalatDAO[Mode
     def serializeToJson(item: Model, isCreated: Boolean): String = {
       val serializedItem: JObject = grater[Model].toJSON(item)
       val files: Option[JObject] = if (fileUploadEnabled) {
-        def notSelected(id: ObjectId) = false
-        val files = core.storage.FileStorage.getFilesForItemId(item.id.toString).map(_.asFileUploadResponse(notSelected))
+        val files = core.storage.FileStorage.listFiles(item.id.toString).map(f => FileUploadResponse(f))
         val serializedFiles = JObject(List(JField("files", decompose(files))))
         Some(serializedFiles)
       } else {
@@ -310,14 +309,14 @@ trait CRUDController[Model <: CaseClass { def id: ObjectId }, D <: SalatDAO[Mode
 
   def crudSubmit(onUpdate: Option[(Model, Model) => Model] = None,
                  onCreate: Option[Model => Model] = None)
-                (implicit request: Request[AnyContent], configuration: DomainConfiguration,
+                (implicit request: Request[AnyContent], configuration: OrganizationConfiguration,
                           mom: Manifest[Model], mod: Manifest[D]): Result = {
 
     handleSubmit(form, dao.findOneById, updateHandler(onUpdate), creationHandler(onCreate))
 
   }
 
-  def crudDelete(id: ObjectId, onDelete: Option[Model => Unit] = None)(implicit request: Request[AnyContent], configuration: DomainConfiguration,
+  def crudDelete(id: ObjectId, onDelete: Option[Model => Unit] = None)(implicit request: Request[AnyContent], configuration: OrganizationConfiguration,
                                         mom: Manifest[Model], mod: Manifest[D]): Result = {
 
     dao.findOneById(id).map { item =>
@@ -328,8 +327,8 @@ trait CRUDController[Model <: CaseClass { def id: ObjectId }, D <: SalatDAO[Mode
 
 
       if(fileUploadEnabled) {
-        val files = FileStorage.getFilesForItemId(id.toString)
-        files.foreach { f => FileStorage.deleteFileById(f.id) }
+        val files = FileStorage.listFiles(id.toString)
+        files.foreach { f => FileStorage.deleteFile(f.id.toString) }
       }
 
       Ok
@@ -339,7 +338,7 @@ trait CRUDController[Model <: CaseClass { def id: ObjectId }, D <: SalatDAO[Mode
 
   }
 
-  def crudUpload(id: String, uid: String)(implicit configuration: DomainConfiguration): Result = {
+  def crudUpload(id: String, uid: String)(implicit configuration: OrganizationConfiguration): Result = {
     log.debug("Attaching upload with UID %s to item with ID %s".format(uid, id))
     FileStorage.markFilesAttached(uid, id)
     Ok

@@ -18,7 +18,7 @@ package util
 
 import core.CultureHubPlugin
 import collection.immutable.HashMap
-import models.DomainConfiguration
+import models.OrganizationConfiguration
 
 /**
  * Takes care of loading domain-specific configuration
@@ -27,41 +27,41 @@ import models.DomainConfiguration
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  * @since 3/9/11 3:25 PM
  */
-object DomainConfigurationHandler {
+object OrganizationConfigurationHandler {
 
-  private var domainConfigurationsMap: Seq[(String, DomainConfiguration)] = Seq.empty
-  private var domainLookupCache: HashMap[String, DomainConfiguration] = HashMap.empty
+  private var organizationConfigurationsMap: Seq[(String, OrganizationConfiguration)] = Seq.empty
+  private var domainLookupCache: HashMap[String, OrganizationConfiguration] = HashMap.empty
 
-  var domainConfigurations: Seq[DomainConfiguration] = Seq.empty
+  var organizationConfigurations: Seq[OrganizationConfiguration] = Seq.empty
 
   def getConfigurationNames: java.util.Set[String] = {
     val set: java.util.Set[String] = new java.util.TreeSet[String]
-    domainConfigurations.foreach(configuration => set.add(configuration.name))
+    organizationConfigurations.foreach(configuration => set.add(configuration.name))
     set
   }
 
   def startup(plugins: Seq[CultureHubPlugin]) {
-    domainConfigurations = DomainConfiguration.startup(plugins)
-    domainConfigurationsMap = toDomainList(domainConfigurations)
+    organizationConfigurations = OrganizationConfiguration.startup(plugins)
+    organizationConfigurationsMap = toDomainList(organizationConfigurations)
     domainLookupCache = HashMap.empty
   }
 
   def getByName(name: String) = {
-    domainConfigurations.find(_.name.equalsIgnoreCase(name)).getOrElse(throw new RuntimeException("No configuration for name " + name))
+    organizationConfigurations.find(_.name.equalsIgnoreCase(name)).getOrElse(throw new RuntimeException("No configuration for name " + name))
   }
 
   def getByOrgId(orgId: String) = {
-    domainConfigurations.find(_.orgId == orgId).getOrElse(throw new RuntimeException("No configuration for orgId " + orgId))
+    organizationConfigurations.find(_.orgId == orgId).getOrElse(throw new RuntimeException("No configuration for orgId " + orgId))
   }
 
-  def hasConfiguration(domain: String) = domainConfigurations.exists(_.domains.exists(domain.startsWith(_)))
+  def hasConfiguration(domain: String) = organizationConfigurations.exists(_.domains.exists(domain.startsWith(_)))
 
-  def getByDomain(domain: String): DomainConfiguration = {
+  def getByDomain(domain: String): OrganizationConfiguration = {
     // FIXME - this is, of course, vulnerable. Implement correct algorithmic solution not relying on fold.
     if(!domainLookupCache.contains(domain)) {
       // fetch by longest matching domain
-      val configuration = domainConfigurationsMap.foldLeft(("#", domainConfigurations.head)) {
-        (r: (String, DomainConfiguration), c: (String, DomainConfiguration)) => {
+      val configuration = organizationConfigurationsMap.foldLeft(("#", organizationConfigurations.head)) {
+        (r: (String, OrganizationConfiguration), c: (String, OrganizationConfiguration)) => {
           val rMatches = domain.startsWith(r._1)
           val cMatches = domain.startsWith(c._1)
           val rLonger = r._1.length() > c._1.length()
@@ -78,7 +78,7 @@ object DomainConfigurationHandler {
     domainLookupCache(domain)
   }
 
-  private def toDomainList(domainList: Seq[DomainConfiguration]) = domainList.flatMap(t => t.domains.map((_, t))).sortBy(_._1.length)
+  private def toDomainList(domainList: Seq[OrganizationConfiguration]) = domainList.flatMap(t => t.domains.map((_, t))).sortBy(_._1.length)
 
 }
 

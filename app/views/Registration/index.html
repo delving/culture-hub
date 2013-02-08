@@ -8,46 +8,46 @@
     <form id="registrationForm" action="@{controllers.routes.Registration.register()}" method="POST" class="form-delving">
 
     *{#{authenticityToken /}}*
-        <div class="row">
-    <div class="span6">
-        #{if views.Helpers.hasErrors(registrationForm)}
-        <div class="alert alert-error">
-            <p class="error">Error creating your account, please correct the errors</p>
-            <ul>
-                #{list views.Helpers.listGlobalErrors(registrationForm), as: 'e'}
-                    <li>${e}</li>
-                #{/list}
-            </ul>
+    <div class="row">
+        <div class="span6">
+            #{if views.Helpers.hasErrors(registrationForm)}
+            <div class="alert alert-error">
+                <p class="error">Error creating your account, please correct the errors</p>
+                <ul>
+                    #{list views.Helpers.listGlobalErrors(registrationForm), as: 'e'}
+                        <li>${e}</li>
+                    #{/list}
+                </ul>
+            </div>
+            #{/if}
+
+            #{form.textField form: registrationForm, name:"firstName", label: messages.get('ui.label.firstname') , required: true /}
+            #{form.textField form: registrationForm, name:"lastName", label: messages.get('ui.label.lastname') , required: true /}
+            #{form.textField form: registrationForm, name:"email", label: messages.get('ui.label.email') , required: true /}
+            #{form.textField form: registrationForm, name:"userName", label:  messages.get('ui.label.username') , required: true /}
         </div>
-        #{/if}
 
-        #{form.textField form: registrationForm, name:"firstName", label: messages.get('ui.label.firstname') , required: true /}
-        #{form.textField form: registrationForm, name:"lastName", label: messages.get('ui.label.lastname') , required: true /}
-        #{form.textField form: registrationForm, name:"email", label: messages.get('ui.label.email') , required: true /}
-        #{form.textField form: registrationForm, name:"userName", label:  messages.get('ui.label.username') , required: true /}
-    </div>
-
-    <div class="span6">
-        #{form.passwordField form: registrationForm, name:"password1", label: messages.get('ui.label.password') , required: true /}
-        #{form.passwordField form: registrationForm, name:"password2", label: messages.get('ui.label.passwordrepeat') , required: true /}
-        <div class="control-group">
-            <label class="" for="code">&{'ui.label.captcha'}</label>
-            <div class="controls">
-                <input type="text" name="code" id="code" size="18" value="" class="textinput  #{if views.Helpers.showError('code', registrationForm)}required #{/if}">
-                <input type="hidden" name="randomId" value="${randomId}">
-                <span class="error">${views.Helpers.showError("code", registrationForm)}</span>
-                <span class="help-inline"><strong>&{'ui.label.required'}</strong></span>
-                <div class="extra">
-                    <img src="@{controllers.routes.Registration.captcha(randomId)}" align="top"/>
+        <div class="span6">
+            #{form.passwordField form: registrationForm, name:"password1", label: messages.get('ui.label.password') , required: true /}
+            #{form.passwordField form: registrationForm, name:"password2", label: messages.get('ui.label.passwordrepeat') , required: true /}
+            <div class="control-group">
+                <label class="" for="code">&{'ui.label.captcha'}</label>
+                <div class="controls">
+                    <input type="text" name="code" id="code" size="18" value="" class="textinput  #{if views.Helpers.showError('code', registrationForm)}required #{/if}">
+                    <input type="hidden" name="randomId" value="${randomId}">
+                    <span class="error">${views.Helpers.showError("code", registrationForm)}</span>
+                    <span class="help-inline"><strong>&{'ui.label.required'}</strong></span>
+                    <div class="extra">
+                        <img src="@{controllers.routes.Registration.captcha(randomId)}" align="top"/>
+                    </div>
                 </div>
             </div>
-        </div>
-        <div class="well">
-            #{btnButton label: messages.get('ui.label.register'), id:"submit", extraClass:"btn-primary btn-prominent"/}
-            #{btnButton label: messages.get('ui.label.cancel'), extraClass:"cancelButton pull-right"/}
+            <div class="well">
+                #{btnButton label: messages.get('ui.label.register'), id:"submit", extraClass:"btn-primary btn-prominent"/}
+                #{btnButton label: messages.get('ui.label.cancel'), extraClass:"cancelButton pull-right"/}
+            </div>
         </div>
     </div>
-
 
 
 

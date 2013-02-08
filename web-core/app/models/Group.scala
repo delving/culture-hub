@@ -1,6 +1,6 @@
 package models
 
-import _root_.util.DomainConfigurationHandler
+import _root_.util.OrganizationConfigurationHandler
 import core.access.{ResourceType, Resource}
 import com.novus.salat.dao.SalatDAO
 import HubMongoContext._
@@ -18,7 +18,7 @@ case class Group(_id: ObjectId = new ObjectId,
                  users: Seq[String] = Seq.empty[String],
                  systemGroup: Option[Boolean] = None) {
 
-  def description(lang: String)(implicit configuration: DomainConfiguration) = Role.get(roleKey).getDescription(Lang(lang))
+  def description(lang: String)(implicit configuration: OrganizationConfiguration) = Role.get(roleKey).getDescription(Lang(lang))
 
   def isSystemGroup = systemGroup.getOrElse(false)
 
@@ -30,7 +30,7 @@ object Group extends MultiModel[Group, GroupDAO] {
 
   def initIndexes(collection: MongoCollection) { }
 
-  def initDAO(collection: MongoCollection, connection: MongoDB)(implicit configuration: DomainConfiguration): GroupDAO =
+  def initDAO(collection: MongoCollection, connection: MongoDB)(implicit configuration: OrganizationConfiguration): GroupDAO =
     new GroupDAO(collection)(configuration, HubModule)
 
 }
@@ -38,7 +38,7 @@ object Group extends MultiModel[Group, GroupDAO] {
 /**
  * Access rights management. Some of this should move to a better location, or be easier to find
  */
-class GroupDAO(collection: MongoCollection)(implicit configuration: DomainConfiguration, val bindingModule: BindingModule)
+class GroupDAO(collection: MongoCollection)(implicit configuration: OrganizationConfiguration, val bindingModule: BindingModule)
   extends SalatDAO[Group, ObjectId](collection) with Injectable {
 
   val organizationServiceLocator = inject [ DomainServiceLocator[OrganizationService] ]
@@ -49,7 +49,7 @@ class GroupDAO(collection: MongoCollection)(implicit configuration: DomainConfig
   /** finds all users that have access to a specific resource within a given role **/
   def findUsersWithAccess(orgId: String, role: Role, resource: Resource): Seq[String] = {
     Role.
-            allPrimaryRoles(DomainConfigurationHandler.getByOrgId(orgId)).
+            allPrimaryRoles(OrganizationConfigurationHandler.getByOrgId(orgId)).
             filter(_.key == role.key).
             flatMap(role => find(MongoDBObject("orgId" -> orgId, "roleKey" -> role.key))).
             filter(group => group.resources.exists(p => p.getResourceKey == resource.getResourceKey && p.getResourceType == resource.getResourceType)).
@@ -94,7 +94,7 @@ class GroupDAO(collection: MongoCollection)(implicit configuration: DomainConfig
   /** finds all administrators for a given ResourceType **/
   def findResourceAdministrators(orgId: String, resourceType: ResourceType): Seq[String] = {
     Role.
-            allPrimaryRoles(DomainConfigurationHandler.getByOrgId(orgId)).
+            allPrimaryRoles(OrganizationConfigurationHandler.getByOrgId(orgId)).
             filter(r => r.resourceType == Some(resourceType) && r.isResourceAdmin).
             flatMap(role => find(MongoDBObject("orgId" -> orgId, "roleKey" -> role.key))).
             flatMap(group => group.users).

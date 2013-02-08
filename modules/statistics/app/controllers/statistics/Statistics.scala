@@ -2,7 +2,7 @@ package controllers.statistics
 
 import controllers.OrganizationController
 import play.api.mvc.Action
-import models.{Role, Group, DomainConfiguration, DataSet}
+import models.{Role, Group, OrganizationConfiguration, DataSet}
 import collection.JavaConverters._
 import models.statistics.DataSetStatistics
 import collection.immutable.ListMap
@@ -76,7 +76,7 @@ object Statistics extends OrganizationController {
    *  The purpose of this fu
    */
 
-  def legacyStatistics(orgId: String) = DomainConfigured {
+  def legacyStatistics(orgId: String) = OrganizationConfigured {
       Action {
         implicit request =>
 
@@ -117,7 +117,7 @@ case class StatisticsCounter(name: String, total: Int, withNr: Int = 0)  {
 
 }
 
-case class CombinedStatisticEntry(name: String, total: Int, digitalObject: StatisticsCounter, landingPage: StatisticsCounter) {
+case class CombinedStatisticEntry(name: String, total: Int, digitalObject: StatisticsCounter, landingPage: StatisticsCounter, geoRecords: StatisticsCounter) {
 
   def asListMap = {
     ListMap(
@@ -130,7 +130,11 @@ case class CombinedStatisticEntry(name: String, total: Int, digitalObject: Stati
       "landingPages" -> landingPage.withNr,
       "landingPagesPercentage" -> landingPage.withPercentage,
       "nolandingPages" -> landingPage.withoutNr,
-      "nolandingPagesPercentage" -> landingPage.withOutPercentage
+      "nolandingPagesPercentage" -> landingPage.withOutPercentage,
+      "GeoRecords" -> geoRecords.withNr,
+      "GeoRecordsPercentage" -> geoRecords.withPercentage,
+      "noGeoRecords" -> geoRecords.withoutNr,
+      "noGeoRecordsPercentage" -> geoRecords.withOutPercentage
     )
   }
 }
@@ -147,7 +151,7 @@ case class StatisticsHeader(name: String, label: String = "", entries: Seq[Combi
   }
 }
 
-class SolrFacetBasedStatistics(orgId: String, facets: Map[String, String], filter: Option[String], facetLimit: Int = 100, queryString: String = "*:*")(implicit configuration: DomainConfiguration, lang: Lang) {
+class SolrFacetBasedStatistics(orgId: String, facets: Map[String, String], filter: Option[String], facetLimit: Int = 100, queryString: String = "*:*")(implicit configuration: OrganizationConfiguration, lang: Lang) {
 
     val orgIdFilter = "%s:%s".format(IndexField.ORG_ID.key, orgId)
 
@@ -181,6 +185,14 @@ class SolrFacetBasedStatistics(orgId: String, facets: Map[String, String], filte
     val landingPages = SolrBindingService.createFacetStatistics(landingPagesResponse.getFacetFields.asScala.toList)
     val totalLandingPages = landingPagesResponse.getResults.getNumFound
 
+    // query with coordinates
+    query setFilterQueries("%s:true".format("delving_hasGeoHash"), orgIdFilter)
+    filter foreach { f => query addFilterQuery f }
+    val geoResponse = SolrQueryService.getSolrResponseFromServer(solrQuery = query)
+    val geoRecords = SolrBindingService.createFacetStatistics(geoResponse.getFacetFields.asScala.toList)
+    val totalGeoRecords = geoResponse.getResults.getNumFound
+
+
 
   def createHeader(facet: (String, String)): StatisticsHeader = {
     StatisticsHeader(
@@ -198,6 +210,7 @@ class SolrFacetBasedStatistics(orgId: String, facets: Map[String, String], filte
   def createEntries(name: String): Seq[CombinedStatisticEntry] = {
     val digitalObjectFacet = digitalObjects.getFacet(name)
     val landingPageFacet = landingPages.getFacet(name)
+    val geoFacet = geoRecords.getFacet(name)
 
     allRecords.getFacet(name).map{
       count => {
@@ -205,7 +218,8 @@ class SolrFacetBasedStatistics(orgId: String, facets: Map[String, String], filte
           name = count.getName,
           total = count.getCount.toInt,
           digitalObject = StatisticsCounter(name = count.getName, total = count.getCount.toInt, withNr = getCountForFacet(count.getName, digitalObjectFacet)),
-          landingPage = StatisticsCounter(name = count.getName, total = count.getCount.toInt, withNr = getCountForFacet(count.getName, landingPageFacet))
+          landingPage = StatisticsCounter(name = count.getName, total = count.getCount.toInt, withNr = getCountForFacet(count.getName, landingPageFacet)),
+          geoRecords = StatisticsCounter(name = count.getName, total = count.getCount.toInt, withNr = getCountForFacet(count.getName, geoFacet))
         )
       }
     }
@@ -227,6 +241,7 @@ class SolrFacetBasedStatistics(orgId: String, facets: Map[String, String], filte
           "totalRecords" -> totalRecords,
           "totalRecordsWithDigitalObjects" -> totalDigitalObjects,
           "totalRecordsWithLandingPages" -> totalLandingPages,
+          "totalRecordsWithCoordinates" -> totalGeoRecords,
           "facetCounts" -> entryCounts
         )
         if (displayFacetDetail) {

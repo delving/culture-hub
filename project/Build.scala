@@ -15,7 +15,7 @@ object Build extends sbt.Build {
   val cultureHubPath = ""
 
   val appName = "culture-hub"
-  val cultureHubVersion = "12.12"
+  val cultureHubVersion = "13.01"
   val sipAppVersion = "1.1.0-SNAPSHOT"
   val sipCoreVersion = "1.1.0-SNAPSHOT"
   val schemaRepoVersion = "1.1.0-SNAPSHOT"
@@ -34,6 +34,7 @@ object Build extends sbt.Build {
   val commonResolvers = Seq(
     "sonatype snapshots" at "https://oss.sonatype.org/content/repositories/snapshots/",
     "sonatype releases" at "https://oss.sonatype.org/content/repositories/releases/",
+    "Local Maven" at Path.userHome.asFile.toURI.toURL + ".m2/repository",
     delvingSnapshots,
     delvingReleases,
     delvingThirdParty
@@ -92,6 +93,7 @@ object Build extends sbt.Build {
     buildInfoPackage := "eu.delving.culturehub"
   )
 
+
   val dosDependencies = Seq(
     "eu.delving"                %% "play2-extensions"                 % playExtensionsVersion,
     "org.imgscalr"               %  "imgscalr-lib"                    % "4.2"
@@ -102,19 +104,27 @@ object Build extends sbt.Build {
     publish := { }
   ).dependsOn(webCore % "test->test;compile->compile")
 
+  val thumbnail = PlayProject("thumbnail", "1.0-SNAPSHOT", Seq.empty, path = file(cultureHubPath + "modules/thumbnail")).settings(
+    resolvers ++= commonResolvers,
+    publish := { }
+  ).dependsOn(webCore % "test->test;compile->compile", dos)
+
+  val deepZoom = PlayProject("deepZoom", "1.0-SNAPSHOT", Seq.empty, path = file(cultureHubPath + "modules/deepZoom")).settings(
+    resolvers ++= commonResolvers,
+    publish := { }
+  ).dependsOn(webCore % "test->test;compile->compile", dos)
+
   val hubNode = PlayProject("hubNode", "1.0-SNAPSHOT", Seq.empty, path = file(cultureHubPath + "modules/hubNode")).settings(
     resolvers ++= commonResolvers,
     publish := {}
   ).dependsOn(webCore % "test->test;compile->compile")
 
   val dataSet = PlayProject("dataset", "1.0-SNAPSHOT", Seq.empty, path = file(cultureHubPath + "modules/dataset"), settings = Defaults.defaultSettings ++ buildInfoSettings).settings(
+    libraryDependencies += "eu.delving" % "sip-core" % sipCoreVersion,
     resolvers ++= commonResolvers,
     sipApp := sipAppVersion,
     sipCore := sipCoreVersion,
     schemaRepo := schemaRepoVersion,
-    sourceGenerators in Compile <+= buildInfo,
-    buildInfoKeys := Seq[Scoped](name, version, scalaVersion, sbtVersion, sipApp, sipCore, schemaRepo),
-    buildInfoPackage := "eu.delving.culturehub",
     publish := { }
   ).dependsOn(webCore % "test->test;compile->compile")
 
@@ -155,6 +165,8 @@ object Build extends sbt.Build {
     ).settings :_*
   ).dependsOn(
     webCore                 % "test->test;compile->compile",
+    thumbnail               % "test->test;compile->compile",
+    deepZoom                % "test->test;compile->compile",
     hubNode                 % "test->test;compile->compile",
     dataSet                 % "test->test;compile->compile",
     dos                     % "test->test;compile->compile",
@@ -162,6 +174,8 @@ object Build extends sbt.Build {
     statistics              % "test->test;compile->compile"
   ).aggregate(
     webCore,
+    thumbnail,
+    deepZoom,
     hubNode,
     dataSet,
     dos,

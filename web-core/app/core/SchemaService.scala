@@ -1,6 +1,6 @@
 package core
 
-import models.DomainConfiguration
+import models.OrganizationConfiguration
 import eu.delving.schema.xml.Schema
 import eu.delving.schema.SchemaType
 
@@ -19,10 +19,10 @@ trait SchemaService {
   /**
    * Retrieves all Schemas that are active for the current configuration
    *
-   * @param configuration the active DomainConfiguration
+   * @param configuration the active OrganizationConfiguration
    * @return a sequence of Schema
    */
-  def getSchemas(implicit configuration: DomainConfiguration): Seq[Schema]
+  def getSchemas(implicit configuration: OrganizationConfiguration): Seq[Schema]
 
   /**
    * Retrieves all Schemas the repository knows about

@@ -17,7 +17,6 @@
 package models
 
 import core.access.{Resource, ResourceType}
-import org.bson.types.ObjectId
 import models.HubMongoContext._
 import com.mongodb.casbah.Imports._
 import com.novus.salat.dao._
@@ -26,15 +25,17 @@ import core.{OrganizationService, DomainServiceLocator, HubModule, HubServices}
 import eu.delving.metadata.RecMapping
 import models.statistics.DataSetStatistics
 import core.ItemType
-import core.collection.{Indexable, OrganizationCollection, OrganizationCollectionInformation, Harvestable}
+import core.collection.{OrganizationCollection, OrganizationCollectionInformation, Harvestable}
 import controllers.organization.DataSetEvent
 import plugins.DataSetPlugin
 import java.util.Date
-import util.DomainConfigurationHandler
+import util.OrganizationConfigurationHandler
 import eu.delving.schema.SchemaVersion
 import java.io.StringReader
 import core.mapping.MappingService
 import org.scala_tools.subcut.inject.{BindingModule, Injectable}
+import core.SchemaService
+import play.api.Play
 
 /**
  * DataSet model
@@ -56,6 +57,7 @@ case class DataSet(
   // state
   state: DataSetState,
   errorMessage: Option[String] = None,
+  processingInstanceIdentifier: Option[String] = None,
 
   // not used, fixed to public. We'll see in the future whether this is still necessary to have or should be removed.
   visibility: Visibility = Visibility.PUBLIC,
@@ -98,9 +100,9 @@ case class DataSet(
   // the sort fields selected for indexing, at the moment derived from configuration
   idxSortFields: List[String] = List.empty[String]
 
-  ) extends OrganizationCollection with OrganizationCollectionInformation with Harvestable with Indexable with Resource {
+  ) extends OrganizationCollection with OrganizationCollectionInformation with Harvestable with Resource {
 
-  implicit val configuration = DomainConfigurationHandler.getByOrgId(orgId)
+  implicit val configuration = OrganizationConfigurationHandler.getByOrgId(orgId)
   val organizationServiceLocator = HubModule.inject[DomainServiceLocator[OrganizationService]](name = None)
 
   val itemType: ItemType = DataSetPlugin.ITEM_TYPE
@@ -216,16 +218,18 @@ object DataSet extends MultiModel[DataSet, DataSetDAO] {
   protected def initIndexes(collection: MongoCollection) {}
 
   protected def initDAO(collection: MongoCollection, connection: MongoDB)
-                       (implicit configuration: DomainConfiguration): DataSetDAO = new DataSetDAO(collection)(configuration, HubModule)
+                       (implicit configuration: OrganizationConfiguration): DataSetDAO = new DataSetDAO(collection)(configuration, HubModule)
 
   val RESOURCE_TYPE = ResourceType("dataSet")
 
 }
 
-class DataSetDAO(collection: MongoCollection)(implicit val configuration: DomainConfiguration, val bindingModule: BindingModule)
+class DataSetDAO(collection: MongoCollection)(implicit val configuration: OrganizationConfiguration, val bindingModule: BindingModule)
   extends SalatDAO[DataSet, ObjectId](collection) with Pager[DataSet] with Injectable {
 
   val organizationServiceLocator = inject [ DomainServiceLocator[OrganizationService] ]
+
+  val schemaService = inject [ SchemaService ]
 
   def getState(orgId: String, spec: String): DataSetState = {
 
@@ -239,22 +243,23 @@ class DataSetDAO(collection: MongoCollection)(implicit val configuration: Domain
     DataSetState(name)
   }
 
-  def findCollectionForProcessing(): Option[DataSet] = {
+  def findCollectionForProcessing: Option[DataSet] = {
     val allProcessingSets: List[DataSet] = findByState(DataSetState.PROCESSING).sort(MongoDBObject("spec" -> 1)).toList
-    if (allProcessingSets.length < Runtime.getRuntime.availableProcessors()) {
-      val queuedIndexing = findByState(DataSetState.QUEUED).sort(MongoDBObject("spec" -> 1)).toList
-      queuedIndexing.headOption
-    }
-    else {
+    val instanceIdentifier = Play.current.configuration.getString("cultureHub.instanceIdentifier").getOrElse("default")
+    val localProcessingSets = allProcessingSets.filter(_.processingInstanceIdentifier == instanceIdentifier)
+
+    if (localProcessingSets.length < Runtime.getRuntime.availableProcessors()) {
+      val allQueuedForProcessing = findByState(DataSetState.QUEUED).sort(MongoDBObject("spec" -> 1)).toList
+      val availableQueuedProcessing = allQueuedForProcessing.filterNot(set => set.processingInstanceIdentifier.isDefined && set.processingInstanceIdentifier.get != instanceIdentifier)
+      availableQueuedProcessing.headOption
+    } else {
       None
     }
   }
 
   // ~~~ finders
 
-  def findBySpecAndOrgId(
-    spec: String, orgId: String
-    ): Option[DataSet] = findOne(MongoDBObject("spec" -> spec, "orgId" -> orgId, "deleted" -> false))
+  def findBySpecAndOrgId(spec: String, orgId: String): Option[DataSet] = findOne(MongoDBObject("spec" -> spec, "orgId" -> orgId, "deleted" -> false))
 
   def findByState(states: DataSetState*) = {
     find("state.name" $in (states.map(_.name)) ++ MongoDBObject("deleted" -> false))
@@ -266,7 +271,7 @@ class DataSetDAO(collection: MongoCollection)(implicit val configuration: Domain
 
   // TODO generify, move to Group
   def findAllForUser(userName: String, orgId: String, role: Role)
-                    (implicit configuration: DomainConfiguration): Seq[DataSet] = {
+                    (implicit configuration: OrganizationConfiguration): Seq[DataSet] = {
 
     val userGroups: Seq[Group] = Group.dao.find(MongoDBObject("users" -> userName)).toSeq
     val userRoles: Seq[Role] = userGroups.map(group => Role.get(group.roleKey))
@@ -291,7 +296,7 @@ class DataSetDAO(collection: MongoCollection)(implicit val configuration: Domain
 
   // TODO generify, move to Group... (see above)
   // FIXME TODO use view rights. no rights are used at all here...
-  def findAllCanSee(orgId: String, userName: String)(implicit configuration: DomainConfiguration): List[DataSet] = {
+  def findAllCanSee(orgId: String, userName: String)(implicit configuration: OrganizationConfiguration): List[DataSet] = {
 
     if (organizationServiceLocator.byDomain.isAdmin(orgId, userName)) {
       findAllByOrgId(orgId).toList
@@ -309,11 +314,11 @@ class DataSetDAO(collection: MongoCollection)(implicit val configuration: Domain
 
   def findAllByOrgId(orgId: String) = find(MongoDBObject("orgId" -> orgId, "deleted" -> false))
 
-  def canEdit(ds: DataSet, userName: String)(implicit configuration: DomainConfiguration) = {
+  def canEdit(ds: DataSet, userName: String)(implicit configuration: OrganizationConfiguration) = {
     findAllForUser(userName, configuration.orgId, DataSetPlugin.ROLE_DATASET_EDITOR).contains(ds)
   }
 
-  def canAdministrate(userName: String)(implicit configuration: DomainConfiguration) = {
+  def canAdministrate(userName: String)(implicit configuration: OrganizationConfiguration) = {
     Group.dao.findResourceAdministrators(configuration.orgId, DataSet.RESOURCE_TYPE).contains(userName) ||
       organizationServiceLocator.byDomain.isAdmin(configuration.orgId, userName)
   }
@@ -360,8 +365,8 @@ class DataSetDAO(collection: MongoCollection)(implicit val configuration: Domain
     // TODO fire off appropriate state change event
   }
 
-  def updateMapping(dataSet: DataSet, mappingString: String)(implicit configuration: DomainConfiguration): DataSet = {
-    val mapping = RecMapping.read(new StringReader(mappingString), MappingService.recDefModel)
+  def updateMapping(dataSet: DataSet, mappingString: String)(implicit configuration: OrganizationConfiguration): DataSet = {
+    val mapping = RecMapping.read(new StringReader(mappingString), MappingService.recDefModel(schemaService))
     val recordDefinition: Option[RecordDefinition] = RecordDefinition.getRecordDefinition(
       mapping.getPrefix,
       mapping.getSchemaVersion.getVersion
@@ -418,17 +423,22 @@ class DataSetDAO(collection: MongoCollection)(implicit val configuration: Domain
 
   // ~~~ dataSet control
 
-  def updateState(
-    dataSet: DataSet, state: DataSetState, userName: Option[String] = None, errorMessage: Option[String] = None
-    ) {
+  def updateProcessingInstanceIdentifier(dataSet: DataSet, instanceIdentifier: Option[String]) {
+    if (instanceIdentifier == None) {
+      update(MongoDBObject("_id" -> dataSet._id), $unset ("processingInstanceIdentifier"))
+    } else {
+      update(MongoDBObject("_id" -> dataSet._id), $set("processingInstanceIdentifier" -> instanceIdentifier.get))
+    }
+  }
+
+  def updateState(dataSet: DataSet, state: DataSetState, userName: Option[String] = None, errorMessage: Option[String] = None) {
     if (errorMessage.isDefined) {
       update(MongoDBObject("_id" -> dataSet._id), $set(
         "state.name" -> state.name, "errorMessage" -> errorMessage.get
       ))
       DataSetEvent ! DataSetEvent.StateChanged(dataSet.orgId, dataSet.spec, state, userName)
       DataSetEvent ! DataSetEvent.Error(dataSet.orgId, dataSet.spec, errorMessage.get, userName)
-    }
-    else {
+    } else {
       update(MongoDBObject("_id" -> dataSet._id), $set("state.name" -> state.name) ++ $unset("errorMessage"))
       DataSetEvent ! DataSetEvent.StateChanged(dataSet.orgId, dataSet.spec, state, userName)
     }
@@ -485,7 +495,7 @@ class DataSetDAO(collection: MongoCollection)(implicit val configuration: Domain
 
   // statistics
 
-  def getMostRecentDataSetStatistics(implicit configuration: DomainConfiguration) = {
+  def getMostRecentDataSetStatistics(implicit configuration: OrganizationConfiguration) = {
     DataSetStatistics.dao.find(MongoDBObject()).$orderby(MongoDBObject("_id" -> -1)).limit(1).toList.headOption
   }
 

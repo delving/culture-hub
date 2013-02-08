@@ -16,7 +16,7 @@
 
 package core.indexing
 
-import core.collection.{Indexable, OrganizationCollectionInformation}
+import core.collection.{Collection, OrganizationCollectionInformation}
 import extensions.HTTPClient
 import org.apache.solr.common.SolrInputDocument
 import play.api.Logger
@@ -31,8 +31,9 @@ import core.search.SolrServer
 import org.apache.tika.parser.ParseContext
 import org.apache.tika.metadata.Metadata
 import java.net.URLEncoder
-import models.{DomainConfiguration, Visibility, MetadataItem}
+import models.{OrganizationConfiguration, Visibility}
 import org.apache.commons.lang.StringEscapeUtils
+import core.HubId
 
 
 /**
@@ -42,11 +43,11 @@ import org.apache.commons.lang.StringEscapeUtils
 
 object Indexing extends SolrServer {
 
-  type IndexableCollection = Indexable with OrganizationCollectionInformation
+  type IndexableCollection = Collection with OrganizationCollectionInformation
 
-  def indexOne(dataSet: IndexableCollection, mdr: MetadataItem, mapped: Map[String, List[Any]], metadataFormatForIndexing: String)(implicit configuration: DomainConfiguration): Either[Throwable, String] = {
+  def indexOne(collection: IndexableCollection, hubId: HubId, mapped: Map[String, List[Any]], metadataFormatForIndexing: String)(implicit configuration: OrganizationConfiguration): Either[Throwable, String] = {
     val doc = createSolrInputDocument(mapped)
-    addDelvingHouseKeepingFields(doc, dataSet, mdr, metadataFormatForIndexing)
+    addDelvingHouseKeepingFields(doc, collection, hubId, metadataFormatForIndexing)
     try {
       IndexingService.stageForIndexing(doc)
     } catch {
@@ -70,12 +71,12 @@ object Indexing extends SolrServer {
     doc
   }
 
-  def addDelvingHouseKeepingFields(inputDoc: SolrInputDocument, dataSet: IndexableCollection, record: MetadataItem, schemaPrefix: String)(implicit configuration: DomainConfiguration) {
+  def addDelvingHouseKeepingFields(inputDoc: SolrInputDocument, dataSet: IndexableCollection, hubId: HubId, schemaPrefix: String)(implicit configuration: OrganizationConfiguration) {
     import scala.collection.JavaConversions._
 
     // mandatory fields
     inputDoc += (ORG_ID -> dataSet.getOwner)
-    inputDoc += (HUB_ID -> URLEncoder.encode(record.itemId, "utf-8"))
+    inputDoc += (HUB_ID -> URLEncoder.encode(hubId.toString, "utf-8"))
     inputDoc += (SCHEMA -> schemaPrefix)
     inputDoc += (RECORD_TYPE -> dataSet.itemType.itemType)
     inputDoc += (VISIBILITY -> Visibility.PUBLIC.value.toString)
@@ -84,7 +85,7 @@ object Indexing extends SolrServer {
     inputDoc.addField(COLLECTION.tag, "%s".format(dataSet.getName))
 
     // for backwards-compatibility
-    inputDoc += (PMH_ID -> URLEncoder.encode(record.itemId, "utf-8"))
+    inputDoc += (PMH_ID -> URLEncoder.encode(hubId.toString, "utf-8"))
 
     // force the provider and dataProvider configured in the DataSet
     if(inputDoc.containsKey(PROVIDER.tag)) {
@@ -133,7 +134,7 @@ object Indexing extends SolrServer {
     }
 
     if (inputDoc.containsKey(ID.key)) inputDoc.remove(ID.key)
-    inputDoc += (ID -> record.itemId)
+    inputDoc += (ID -> hubId.toString)
 
     // TODO remove this hack
     val uriWithTypeSuffix = EUROPEANA_URI.key + "_string"
@@ -148,7 +149,10 @@ object Indexing extends SolrServer {
       inputDoc.addField(EUROPEANA_URI.key, uriValue)
     }
 
-    dataSet.getIndexingMappingPrefix.foreach(prefix => inputDoc += (ALL_SCHEMAS -> prefix))
+    // ALL_SCHEMAS used to contain all the public schemas for a set
+    // however now, it is only the indexing schema
+    // we may want to expose this again at some point, just now we need to be aware of its true meaning
+    inputDoc += (ALL_SCHEMAS -> schemaPrefix)
   }
 
 }

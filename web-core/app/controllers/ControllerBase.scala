@@ -15,7 +15,7 @@ import play.api.data.FormError
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
-trait ControllerBase extends Extensions with DomainConfigurationAware with Logging { self: Controller =>
+trait ControllerBase extends Extensions with OrganizationConfigurationAware with Logging { self: Controller =>
 
   /**
    * Handles the submission of a form for creation or update
@@ -63,12 +63,6 @@ trait ControllerBase extends Extensions with DomainConfigurationAware with Loggi
             warning("Failed to create new item because of the following errors: " + errorMessage)
             Json(Map("errors" -> Map("global" -> errorMessage)))
         }
-
-        // TODO we may not need this
-        def files: List[StoredFile] = maybeId.map { id =>
-          FileStorage.getFilesForItemId(id.toString)
-        }.getOrElse(List.empty)
-
 
         maybeId match {
           case Some(id) if !isNew =>

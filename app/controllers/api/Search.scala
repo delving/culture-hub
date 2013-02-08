@@ -5,7 +5,7 @@ import core.Constants._
 import core.indexing.IndexField._
 import core.search.SearchService
 import play.api.libs.concurrent.Promise
-import controllers.{BoundController, DomainConfigurationAware}
+import controllers.{BoundController, OrganizationConfigurationAware}
 import play.api.Logger
 import core.{OrganizationCollectionLookupService, HubModule}
 import play.api.cache.Cache
@@ -19,11 +19,11 @@ import play.api.Play.current
 
 object Search extends BoundController(HubModule) with Search
 
-trait Search extends Controller with DomainConfigurationAware { this: Controller with BoundController with DomainConfigurationAware =>
+trait Search extends Controller with OrganizationConfigurationAware { this: Controller with BoundController with OrganizationConfigurationAware =>
 
   val organizationCollectionLookupService = inject [ OrganizationCollectionLookupService ]
 
-  def searchApi(orgId: String, provider: Option[String], dataProvider: Option[String], collection: Option[String]) = DomainConfigured {
+  def searchApi(orgId: String, provider: Option[String], dataProvider: Option[String], collection: Option[String]) = OrganizationConfigured {
     Action {
       implicit request =>
         Async {

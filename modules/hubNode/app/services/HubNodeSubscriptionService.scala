@@ -1,7 +1,7 @@
 package services
 
 import core.node.{NodeDirectoryService, Node, NodeSubscriptionService}
-import models.{HubNode, DomainConfiguration}
+import models.{HubNode, OrganizationConfiguration}
 import org.scala_tools.subcut.inject.{BindingModule, Injectable}
 import core.{HubModule, DomainServiceLocator}
 
@@ -14,15 +14,15 @@ class HubNodeSubscriptionService(implicit val bindingModule: BindingModule) exte
   private val nodeDirectoryServiceLocator = inject [ DomainServiceLocator[NodeDirectoryService] ]
   private val broadcastingNodeSubscriptionService: NodeSubscriptionService = HubModule.inject[NodeSubscriptionService](name = None)
 
-  def generateSubscriptionRequest(to: Node, from: Node)(implicit configuration: DomainConfiguration) {
+  def generateSubscriptionRequest(to: Node, from: Node)(implicit configuration: OrganizationConfiguration) {
     broadcastingNodeSubscriptionService.processSubscriptionRequest(to, from)
   }
 
-  def generateSubscriptionResponse(to: Node, from: Node, accepted: Boolean)(implicit configuration: DomainConfiguration) {
+  def generateSubscriptionResponse(to: Node, from: Node, accepted: Boolean)(implicit configuration: OrganizationConfiguration) {
     broadcastingNodeSubscriptionService.processSubscriptionResponse(to, from, accepted)
   }
 
-  def processSubscriptionRequest(to: Node, from: Node)(implicit configuration: DomainConfiguration) {
+  def processSubscriptionRequest(to: Node, from: Node)(implicit configuration: OrganizationConfiguration) {
     // for the moment, accept blindly
     HubNode.dao.findOne(to).foreach { receiver =>
       HubNode.addContact(receiver, from)
@@ -30,7 +30,7 @@ class HubNodeSubscriptionService(implicit val bindingModule: BindingModule) exte
     }
   }
 
-  def processSubscriptionResponse(to: Node, from: Node, accepted: Boolean)(implicit configuration: DomainConfiguration) {
+  def processSubscriptionResponse(to: Node, from: Node, accepted: Boolean)(implicit configuration: OrganizationConfiguration) {
     if (accepted) {
       HubNode.dao.findOne(to).foreach { receiver =>
         HubNode.addContact(receiver, from)
@@ -38,7 +38,7 @@ class HubNodeSubscriptionService(implicit val bindingModule: BindingModule) exte
     }
   }
 
-  def listActiveSubscriptions(node: Node)(implicit configuration: DomainConfiguration): Seq[Node] = {
+  def listActiveSubscriptions(node: Node)(implicit configuration: OrganizationConfiguration): Seq[Node] = {
     HubNode.dao.findOne(node).map { node =>
       node.contacts.flatMap { contact =>
         if (contact == configuration.node.nodeId) {

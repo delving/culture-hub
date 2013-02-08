@@ -3,11 +3,8 @@ package controllers.dos
 import play.api.mvc._
 
 import org.bson.types.ObjectId
-import com.mongodb.gridfs.GridFSDBFile
-import com.mongodb.casbah.commons.MongoDBObject
 import play.api.libs.iteratee.Enumerator
-import controllers.DomainConfigurationAware
-import models.DomainConfiguration
+import controllers.OrganizationConfigurationAware
 
 /**
  * Common controller for handling files, no matter from where.
@@ -15,11 +12,11 @@ import models.DomainConfiguration
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-object FileStore extends Controller with DomainConfigurationAware {
+object FileStore extends Controller with OrganizationConfigurationAware {
 
   // ~~~ public HTTP API
 
-  def get(id: String): Action[AnyContent] = DomainConfigured {
+  def get(id: String): Action[AnyContent] = OrganizationConfigured {
     Action {
       implicit request =>
         if (!ObjectId.isValid(id)) {

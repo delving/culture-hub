@@ -17,7 +17,7 @@ import collection.mutable.ArrayBuffer
  * @author Sjoerd Siebinga <sjoerd.siebinga@gmail.com>
  */
 
-case class DomainConfiguration(
+case class OrganizationConfiguration(
 
   // ~~~ core
   name:                        String,
@@ -38,6 +38,7 @@ case class DomainConfiguration(
   oaiPmhService:               OaiPmhServiceConfiguration,
   searchService:               SearchServiceConfiguration,
   directoryService:            DirectoryServiceConfiguration,
+  processingService:           ProcessingServiceConfiguration,
 
   plugins:                     Seq[String],
 
@@ -50,10 +51,8 @@ case class DomainConfiguration(
 
   // ~~~ access control
   registeredUsersAddedToOrg:   Boolean = false,
-  roles:                       Seq[Role],
+  roles:                       Seq[Role]
 
-  // ~~~ search
-  apiWsKey:                    Boolean = false
 
 ) {
 
@@ -154,9 +153,14 @@ case class SearchServiceConfiguration(
   sortFields:                   String, // dc_creator,dc_provider:desc
   moreLikeThis:                 MoreLikeThis,
   searchIn:                     Map[String, String],
-  apiWsKey:                     Boolean = false,
+  apiWsKeyEnabled:              Boolean = false,
+  apiWsKeys:                    Seq[String] = Seq.empty,
   pageSize:                     Int,
   showResultsWithoutThumbnails: Boolean = false
+)
+
+case class ProcessingServiceConfiguration(
+  mappingCpuProportion:         Double = 0.5
 )
 
 /** See http://wiki.apache.org/solr/MoreLikeThis **/
@@ -188,7 +192,7 @@ case class EmailTarget(adminTo: String = "test-user@delving.eu",
                        systemFrom: String = "noreply@delving.eu",
                        feedbackFrom: String = "noreply@delving.eu")
 
-object DomainConfiguration {
+object OrganizationConfiguration {
 
   val log = Logger("CultureHub")
 
@@ -220,11 +224,14 @@ object DomainConfiguration {
   val SEARCH_HQF = "services.search.hiddenQueryFilter"
   val SEARCH_FACETS = "services.search.facets"
   val SEARCH_SORTFIELDS = "services.search.sortFields"
-  val SEARCH_APIWSKEY = "services.search.apiWsKey"
+  val SEARCH_APIWSKEYENABLED = "services.search.apiWsKeyEnabled"
+  val SEARCH_APIWSKEYS = "services.search.apiWsKeys"
   val SEARCH_MORELIKETHIS = "services.search.moreLikeThis"
   val SEARCH_SEARCHIN = "services.search.searchIn"
   val SEARCH_PAGE_SIZE = "services.search.pageSize"
   val SHOW_ITEMS_WITHOUT_THUMBNAIL = "services.search.showItemsWithoutThumbnail"
+
+  val PROCESSING_MAPPING_CPU_PROPORTION = "services.processing.mappingCpuProportion"
 
   val OAI_REPO_NAME = "services.pmh.repositoryName"
   val OAI_ADMIN_EMAIL = "services.pmh.adminEmail"
@@ -253,7 +260,7 @@ object DomainConfiguration {
     COMMONS_HOST, COMMONS_NODE_NAME,
     IMAGE_CACHE_DATABASE, FILESTORE_DATABASE, TILES_WORKING_DIR, TILES_OUTPUT_DIR,
     OAI_REPO_NAME, OAI_ADMIN_EMAIL, OAI_EARLIEST_TIMESTAMP, OAI_REPO_IDENTIFIER, OAI_SAMPLE_IDENTIFIER, OAI_RESPONSE_LIST_SIZE, OAI_ALLOW_RAW_HARVESTING,
-    SEARCH_FACETS, SEARCH_SORTFIELDS, SEARCH_APIWSKEY,
+    SEARCH_FACETS, SEARCH_SORTFIELDS,
     BASEX_HOST, BASEX_PORT, BASEX_EPORT, BASEX_USER, BASEX_PASSWORD,
     PROVIDER_DIRECTORY_URL,
     EMAIL_ADMINTO, EMAIL_EXCEPTIONTO, EMAIL_FEEDBACKTO, EMAIL_REGISTERTO, EMAIL_SYSTEMFROM, EMAIL_FEEDBACKFROM
@@ -270,8 +277,8 @@ object DomainConfiguration {
       var missingKeys = new collection.mutable.HashMap[String, Seq[String]]
 
       val config = Play.configuration.getConfig("configurations").get
-      val allDomainConfigurations: Seq[String] = config.keys.filterNot(_.indexOf(".") < 0).map(_.split("\\.").head).toList.distinct
-      val configurations: Seq[DomainConfiguration] = allDomainConfigurations.flatMap {
+      val allOrganizationConfigurations: Seq[String] = config.keys.filterNot(_.indexOf(".") < 0).map(_.split("\\.").head).toList.distinct
+      val configurations: Seq[OrganizationConfiguration] = allOrganizationConfigurations.flatMap {
         configurationKey => {
           val configuration = config.getConfig(configurationKey).get
 
@@ -297,7 +304,7 @@ object DomainConfiguration {
             None
           } else {
             Some(
-              DomainConfiguration(
+              OrganizationConfiguration(
                 name = configurationKey,
                 orgId = configuration.getString(ORG_ID).get,
                 domains = configuration.underlying.getStringList("domains").asScala.toList,
@@ -338,7 +345,8 @@ object DomainConfiguration {
                   hiddenQueryFilter = getOptionalString(configuration, SEARCH_HQF).getOrElse(""),
                   facets = getString(configuration, SEARCH_FACETS),
                   sortFields = getString(configuration, SEARCH_SORTFIELDS),
-                  apiWsKey = getBoolean(configuration, SEARCH_APIWSKEY),
+                  apiWsKeyEnabled = getOptionalBoolean(configuration, SEARCH_APIWSKEYENABLED).getOrElse(false),
+                  apiWsKeys = getOptionalStringList(configuration, SEARCH_APIWSKEYS).getOrElse(Seq.empty),
                   moreLikeThis = {
                     val mlt = configuration.getConfig(SEARCH_MORELIKETHIS)
                     val default = MoreLikeThis()
@@ -374,6 +382,9 @@ object DomainConfiguration {
                   },
                   pageSize = getOptionalInt(configuration, SEARCH_PAGE_SIZE).getOrElse(20),
                   showResultsWithoutThumbnails = getOptionalBoolean(configuration, SHOW_ITEMS_WITHOUT_THUMBNAIL).getOrElse(false)
+                ),
+                processingService = ProcessingServiceConfiguration(
+                  mappingCpuProportion = if (configuration.underlying.hasPath(PROCESSING_MAPPING_CPU_PROPORTION)) configuration.underlying.getDouble(PROCESSING_MAPPING_CPU_PROPORTION) else 0.5
                 ),
                 plugins = configuration.underlying.getStringList(PLUGINS).asScala.toSeq,
                 schemas = configuration.underlying.getStringList(SCHEMAS).asScala.toList,
@@ -467,7 +478,7 @@ object DomainConfiguration {
     }
 
     if (!Play.isTest) {
-      val invalidPluginKeys: Seq[(DomainConfiguration, String, Option[CultureHubPlugin])] = configurations.flatMap { configuration =>
+      val invalidPluginKeys: Seq[(OrganizationConfiguration, String, Option[CultureHubPlugin])] = configurations.flatMap { configuration =>
         configuration.plugins.map(key => Tuple3(configuration, key, plugins.find(_.pluginKey == key))).filter(_._3.isEmpty)
       }
       if(!invalidPluginKeys.isEmpty) {
@@ -483,12 +494,19 @@ object DomainConfiguration {
     // access control subsystem: check roles and resource handlers defined by plugins
 
     val duplicateRoleKeys = plugins.flatMap(plugin => plugin.roles.map(r => (r -> plugin.pluginKey))).groupBy(_._1.key).filter(_._2.size > 1)
-    if(!duplicateRoleKeys.isEmpty) {
+    if (!duplicateRoleKeys.isEmpty) {
       val error = "Found two or more roles with the same key: " +
                     duplicateRoleKeys.map(r => r._1 + ": " + r._2.map(pair => "Plugin " + pair._2).mkString(", ")).mkString(", ")
 
       log.error(error)
       throw new RuntimeException("Role definition inconsistency. No can do.\n\n" + error)
+    }
+
+    val undescribedRoles = plugins.flatMap(_.roles).filter(role => !role.isUnitRole && role.description.isEmpty)
+    if (!undescribedRoles.isEmpty) {
+      val error = "Found roles without a description: " + undescribedRoles.mkString(", ")
+      log.error(error)
+      throw new RuntimeException("Roles without description\n\n: " + error)
     }
 
     // make sure that if a Role defines a ResourceType, its declaring plugin also provides a ResourceLookup
@@ -557,13 +575,13 @@ object DomainConfiguration {
 
     // when everything else is ready, do the plugin configuration, per plugin
 
-    val pluginConfigurations: Map[(String, DomainConfiguration), Option[Configuration]] = configs.flatMap { configuration =>
+    val pluginConfigurations: Map[(String, OrganizationConfiguration), Option[Configuration]] = configs.flatMap { configuration =>
       configuration.plugins.map { pluginKey =>
         ((pluginKey -> configuration) -> config.getConfig("%s.plugin.%s".format(configuration.name, pluginKey)))
       }
     }.toMap
 
-    val groupedPluginConfigurations: Map[String, Map[DomainConfiguration, Option[Configuration]]] = pluginConfigurations.groupBy(_._1._1).map { g =>
+    val groupedPluginConfigurations: Map[String, Map[OrganizationConfiguration, Option[Configuration]]] = pluginConfigurations.groupBy(_._1._1).map { g =>
       (g._1 -> {
         g._2.map(group => (group._1._2 -> group._2))
       })
@@ -583,6 +601,13 @@ object DomainConfiguration {
 
   private def getOptionalString(configuration: Configuration, key: String): Option[String] =
     configuration.getString(key).orElse(Play.configuration.getString(key))
+
+  private def getOptionalStringList(configuration: Configuration, key: String): Option[Seq[String]] =
+    if (configuration.underlying.hasPath(key))
+      Some(configuration.underlying.getStringList(key).asScala.toSeq)
+   else
+      None
+
 
   private def getInt(configuration: Configuration, key: String): Int =
     configuration.getInt(key).getOrElse(Play.configuration.getInt(key).get)

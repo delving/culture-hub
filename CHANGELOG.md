@@ -2,6 +2,37 @@
 
 This is the changelog of the CultureHub. It documents changes of the main platform, without modules.
 
+# 13.01
+
+### New features
+
+- manu: adding phone number to user profile
+- manu: parallelized collection processing using Akka
+- manu: Configuration-based API key mechanism
+- sjoerd: add geo info to statistics view
+- manu: reviving multi-instance capability
+
+### Fixes and refactoring
+
+- manu: Fixing detection of related item
+- manu: Fixing rendering of namespaces for MLT items
+- eric: add dc:description field to icn view def
+- eric: hide return-to-results nav tab if view object from direct link
+- sjoerd: Hardened the indexing of the delving_geoHash field to ensure less illegal coordinates are passed onto solr for indexing
+- sjoerd: fix with custom formating of the description field in kml-a
+- sjoerd: important fix to kml rendering and usage of query filters
+- sjoerd: small fix for using curly quotes in a-href
+- manu: Convenience method for getting boolean values from body
+- manu: Checking if a role has a description at startup
+- manu: Introducing FileStoreService, and subsequent refactoring
+- manu: Using normalization for media files to lower problems with DeepZoom image rendering via IIP
+- manu: Renaming DomainConfiguration to OrganizationConfiguration. Fixes #770
+- eric: Improved deepZoom fallback: 1. flash > 2. seadragon.js > 3. regular image
+- manu: Passing the list of schema versions to the Sip-Creator
+- manu: Notifications of new users go to registration
+- manu: Allowing to display IndexApi items
+- sjoerd: Updated the KML output on the basis of the updated layout documents.
+
 # 12.12
 
 ### New features

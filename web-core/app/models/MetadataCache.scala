@@ -1,6 +1,6 @@
 package models
 
-import _root_.util.DomainConfigurationHandler
+import _root_.util.OrganizationConfigurationHandler
 import com.mongodb.casbah.Imports._
 import core.{ItemType, SystemField}
 import org.bson.types.ObjectId
@@ -39,7 +39,7 @@ object MetadataCache {
   def get(orgId: String, col: String, itemType: ItemType): core.MetadataCache = get(orgId, col, itemType.itemType)
 
   def get(orgId: String, col: String, itemType: String): core.MetadataCache = {
-    val configuration = DomainConfigurationHandler.getByOrgId(orgId)
+    val configuration = OrganizationConfigurationHandler.getByOrgId(orgId)
     val mongoConnection = mongoConnections(configuration)
     val mongoCollection: MongoCollection = mongoConnection(getMongoCollectionName(configuration.orgId))
     mongoCollection.ensureIndex(MongoDBObject("collection" -> 1, "itemType" -> 1, "itemId" -> 1))
@@ -47,6 +47,14 @@ object MetadataCache {
     mongoCollection.ensureIndex(MongoDBObject("collection" -> 1, "itemType" -> 1, "index" -> 1))
 
     new MongoMetadataCache(orgId, col, itemType, mongoCollection)
+  }
+
+  def getItemTypes(orgId: String, col: String): Seq[ItemType] = {
+    val configuration = OrganizationConfigurationHandler.getByOrgId(orgId)
+    val mongoConnection = mongoConnections(configuration)
+    val mongoCollection: MongoCollection = mongoConnection(getMongoCollectionName(configuration.orgId))
+    val types: Seq[Any] = mongoCollection.distinct("itemType", MongoDBObject("collection" -> col))
+    types.map(t => ItemType(t.toString))
   }
 
 }

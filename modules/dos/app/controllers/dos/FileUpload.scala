@@ -22,16 +22,16 @@ import org.bson.types.ObjectId
 import extensions.Extensions
 import java.io.File
 import play.api.libs.MimeTypes
-import models.DomainConfiguration
-import controllers.DomainConfigurationAware
-import core.storage.{FileUploadResponse, FileStorage}
+import models.OrganizationConfiguration
+import controllers.OrganizationConfigurationAware
+import core.storage.{StoredFile, FileUploadResponse, FileStorage}
 
 /**
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-object FileUpload extends Controller with Extensions with Thumbnail with DomainConfigurationAware {
+object FileUpload extends Controller with Extensions with Thumbnail with OrganizationConfigurationAware {
 
   // ~~ public HTTP API
 
@@ -40,7 +40,7 @@ object FileUpload extends Controller with Extensions with Thumbnail with DomainC
    * If the uploaded file is an image, thumbnails are created for it.
    * The response contains a JSON-Encoded array of objects representing the uploaded file.
    */
-  def uploadFile(uid: String) = DomainConfigured {
+  def uploadFile(uid: String) = OrganizationConfigured {
     Action(parse.multipartFormData) {
       implicit request =>
         val uploaded = uploadFileInternal(uid, request.body.file("files[]").map {
@@ -64,22 +64,31 @@ object FileUpload extends Controller with Extensions with Thumbnail with DomainC
    */
   def deleteFile(id: String) = Action {
     implicit request =>
-      if (!ObjectId.isValid(id)) {
-        InternalServerError("Invalid file ID " + id)
-      } else {
-        val oid = new ObjectId(id)
-        FileStorage.deleteFileById(oid)
-        Ok
-      }
+      FileStorage.deleteFile(id)
+      Ok
   }
+
+  // ~~~ Scala API
+
+  /**
+   * Attaches all files to an object, given the upload UID
+   */
+  def markFilesAttached(uid: String, objectIdentifier: String)(implicit configuration: OrganizationConfiguration) {
+    val files = FileStorage.listFiles(uid, Some(FILE_TYPE_UNATTACHED))
+    FileStorage.renameBucket(uid, objectIdentifier)
+    FileStorage.setFileType(None, files)
+  }
+
+
 
   // ~~~ PRIVATE
 
 
-  private def uploadFileInternal(uid: String, uploads: Seq[Upload])(implicit configuration: DomainConfiguration): Seq[FileUploadResponse] = {
-    val uploadedFiles = for (upload <- uploads) yield {
-      val (f, thumbnailUrl) = storeFile(upload.file, upload.fileName, upload.contentType, uid)
-      FileUploadResponse(upload.fileName, upload.length, "/file/" + f._id.get, thumbnailUrl, "/file/" + f._id.get)
+  private def uploadFileInternal(uid: String, uploads: Seq[Upload])(implicit configuration: OrganizationConfiguration): Seq[FileUploadResponse] = {
+    val uploadedFiles = uploads.flatMap { upload =>
+      storeFile(upload.file, upload.fileName, upload.contentType, uid) map { pair =>
+        FileUploadResponse(upload.fileName, upload.length, "/file/" + pair._1.id, pair._2, "/file/" + pair._1.id)
+      }
     }
     uploadedFiles
   }
@@ -87,16 +96,12 @@ object FileUpload extends Controller with Extensions with Thumbnail with DomainC
   /**
    * Stores a file
    */
-  def storeFile(file: File, fileName: String, contentType: String, uid: String)(implicit configuration: DomainConfiguration) = {
-    val f = fileStore(configuration).createFile(file)
-    f.filename = fileName
-    f.contentType = contentType
-    f.put(UPLOAD_UID_FIELD, uid)
-    f.save
+  def storeFile(file: File, fileName: String, contentType: String, uid: String)(implicit configuration: OrganizationConfiguration): Option[(StoredFile, String)] = {
+    FileStorage.storeFile(file, contentType, fileName, uid, Some(FILE_TYPE_UNATTACHED), advertise = false).map { f =>
 
     // if this is an image, create a thumbnail for it so we can display it on the fly in the upload widget
-    val thumbnailUrl: String = if (f.contentType.map(c => c.contains("image") || c.contains("pdf")).getOrElse(false)) {
-      fileStore(configuration).findOne(f._id.get) match {
+    val thumbnailUrl: String = if (f.contentType.contains("image") || f.contentType.contains("pdf")) {
+      fileStore(configuration).findOne(f.id) match {
         case Some(storedFile) =>
           val thumbnails = createThumbnails(storedFile, fileStore(configuration))
           if (thumbnails.size > 0) "/thumbnail/" + f.id.toString + "/80" else emptyThumbnailUrl
@@ -105,6 +110,8 @@ object FileUpload extends Controller with Extensions with Thumbnail with DomainC
     } else emptyThumbnailUrl
 
     (f, thumbnailUrl)
+
+    }
   }
 
 }

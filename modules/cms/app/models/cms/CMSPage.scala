@@ -22,7 +22,7 @@ import org.bson.types.ObjectId
 import com.novus.salat.dao.SalatDAO
 import models.HubMongoContext._
 import com.mongodb.casbah.commons.MongoDBObject
-import models.{DomainConfiguration, MultiModel}
+import models.{OrganizationConfiguration, MultiModel}
 
 /**
  *
@@ -68,10 +68,10 @@ object CMSPage extends MultiModel[CMSPage, CMSPageDAO] {
     addIndexes(collection, Seq(MongoDBObject("_id" -> 1, "language" -> 1)))
   }
 
-  def initDAO(collection: MongoCollection, connection: MongoDB)(implicit configuration: DomainConfiguration): CMSPageDAO = new CMSPageDAO(collection)
+  def initDAO(collection: MongoCollection, connection: MongoDB)(implicit configuration: OrganizationConfiguration): CMSPageDAO = new CMSPageDAO(collection)
 }
 
-class CMSPageDAO(collection: MongoCollection)(implicit configuration: DomainConfiguration) extends SalatDAO[CMSPage, ObjectId](collection) {
+class CMSPageDAO(collection: MongoCollection)(implicit configuration: OrganizationConfiguration) extends SalatDAO[CMSPage, ObjectId](collection) {
 
   def list(orgId: String, lang: String, menuKey: Option[String]): List[CMSPage] = {
     val list = if (menuKey == None) {
@@ -110,7 +110,7 @@ object MenuEntry extends MultiModel[MenuEntry, MenuEntryDAO] {
     addIndexes(collection, Seq(MongoDBObject("orgId" -> 1, "menuKey" -> 1, "parentKey" -> 1)))
   }
 
-  def initDAO(collection: MongoCollection, connection: MongoDB)(implicit configuration: DomainConfiguration): MenuEntryDAO = new MenuEntryDAO(collection)
+  def initDAO(collection: MongoCollection, connection: MongoDB)(implicit configuration: OrganizationConfiguration): MenuEntryDAO = new MenuEntryDAO(collection)
 }
 
 class MenuEntryDAO(collection: MongoCollection) extends SalatDAO[MenuEntry, ObjectId](collection) {

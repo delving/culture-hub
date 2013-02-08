@@ -16,7 +16,7 @@
 
 package core.rendering
 
-import models.{DomainConfiguration, Role}
+import models.{OrganizationConfiguration, Role}
 import play.libs.XPath
 import collection.JavaConverters._
 import javax.xml.parsers.DocumentBuilderFactory
@@ -43,7 +43,7 @@ import collection.mutable.{HashMap, ArrayBuffer, Stack}
 
 object ViewRenderer {
 
-  def fromDefinition(schema: String, viewType: ViewType)(implicit configuration: DomainConfiguration) = {
+  def fromDefinition(schema: String, viewType: ViewType)(implicit configuration: OrganizationConfiguration) = {
     val definition = getViewDefinition(schema, viewType)
     if(definition.isDefined) {
       Some(new ViewRenderer(schema, viewType, configuration))
@@ -64,7 +64,7 @@ object ViewRenderer {
 
 }
 
-class ViewRenderer(val schema: String, viewType: ViewType, configuration: DomainConfiguration) {
+class ViewRenderer(val schema: String, viewType: ViewType, configuration: OrganizationConfiguration) {
   
   val log = Logger("CultureHub")
 

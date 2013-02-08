@@ -5,7 +5,7 @@ import core.search.BriefItemView
 import core.search.CHResponse
 import core.search.Params
 import play.api.mvc.RequestHeader
-import models.{Visibility, DomainConfiguration}
+import models.{Visibility, OrganizationConfiguration}
 
 /**
  * Temporary shared controller, until search is a plugin and all dependencies match
@@ -15,7 +15,7 @@ import models.{Visibility, DomainConfiguration}
 
 object CommonSearch extends DelvingController {
 
-  def search(user: Option[String], query: List[String])(implicit request: RequestHeader, configuration: DomainConfiguration) = {
+  def search(user: Option[String], query: List[String])(implicit request: RequestHeader, configuration: OrganizationConfiguration) = {
     val chQuery = SolrQueryService.createCHQuery(request, user, query)
     val queryResponse = SolrQueryService.getSolrResponseFromServer(chQuery.solrQuery, true)
     val chResponse = CHResponse(Params(request.queryString), queryResponse, chQuery, configuration)
@@ -26,7 +26,7 @@ object CommonSearch extends DelvingController {
     (items, briefItemView)
   }
 
-  def toListItems(briefDocs: Seq[BriefDocItem])(implicit configuration: DomainConfiguration) = briefDocs.map {
+  def toListItems(briefDocs: Seq[BriefDocItem])(implicit configuration: OrganizationConfiguration) = briefDocs.map {
     bd =>
       ListItem(id = bd.getHubId,
         itemType = bd.getItemType,
