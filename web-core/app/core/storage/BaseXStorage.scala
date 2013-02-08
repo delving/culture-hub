@@ -36,6 +36,10 @@ class BaseXStorage(configuration: BaseXConfiguration) {
     collection
   }
 
+  def renameCollection(collection: Collection, newName: String) {
+    storage.alter(storageName(collection), storageName(collection, newName))
+  }
+
   def openCollection(collection: Collection): Option[Collection] = {
     try {
       storage.openDatabase(storageName(collection))
@@ -145,6 +149,7 @@ class BaseXStorage(configuration: BaseXConfiguration) {
     session.findRaw("for $i in /*:record[@version = %s] order by number($i/system/index) return $i/*:document/*:input".format(currentVersion))
   }
 
+  private def storageName(c: Collection, newName: String) = c.getOwner + "____" + newName
   private def storageName(c: Collection) = c.getOwner + "____" + c.spec
 
 }
