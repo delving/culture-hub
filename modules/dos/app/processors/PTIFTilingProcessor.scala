@@ -63,7 +63,7 @@ object PTIFTilingProcessor extends Processor {
       })
 
       val orgPath = new File(tilesOutputBasePath, orgId)
-      if(!orgPath.exists() && !orgPath.mkdir()) {
+      if (!orgPath.exists() && !orgPath.mkdir()) {
         error(task, "Could not create tile org path " + orgPath.getAbsolutePath, Some(orgPath.getAbsolutePath))
         return
       }

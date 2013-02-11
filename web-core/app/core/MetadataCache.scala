@@ -1,13 +1,12 @@
 package core
 
-import models.{MongoMetadataCache, MetadataItem}
+import models.{ MongoMetadataCache, MetadataItem }
 import java.util.Date
-
 
 /**
  * A generic storage API for metadata items. We call it a cache because long-term persistent storage should be carried
  * out by another layer, more adapted to that purpose.
-
+ *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 

@@ -58,20 +58,21 @@ object OrganizationConfigurationHandler {
 
   def getByDomain(domain: String): OrganizationConfiguration = {
     // FIXME - this is, of course, vulnerable. Implement correct algorithmic solution not relying on fold.
-    if(!domainLookupCache.contains(domain)) {
+    if (!domainLookupCache.contains(domain)) {
       // fetch by longest matching domain
       val configuration = organizationConfigurationsMap.foldLeft(("#", organizationConfigurations.head)) {
-        (r: (String, OrganizationConfiguration), c: (String, OrganizationConfiguration)) => {
-          val rMatches = domain.startsWith(r._1)
-          val cMatches = domain.startsWith(c._1)
-          val rLonger = r._1.length() > c._1.length()
+        (r: (String, OrganizationConfiguration), c: (String, OrganizationConfiguration)) =>
+          {
+            val rMatches = domain.startsWith(r._1)
+            val cMatches = domain.startsWith(c._1)
+            val rLonger = r._1.length() > c._1.length()
 
-          if (rMatches && cMatches && rLonger) r
-          else if (rMatches && cMatches && !rLonger) c
-          else if (rMatches && !cMatches) r
-          else if (cMatches && !rMatches) c
-          else r // default
-        }
+            if (rMatches && cMatches && rLonger) r
+            else if (rMatches && cMatches && !rLonger) c
+            else if (rMatches && !cMatches) r
+            else if (cMatches && !rMatches) c
+            else r // default
+          }
       }._2
       domainLookupCache = domainLookupCache + (domain -> configuration)
     }
@@ -81,5 +82,4 @@ object OrganizationConfigurationHandler {
   private def toDomainList(domainList: Seq[OrganizationConfiguration]) = domainList.flatMap(t => t.domains.map((_, t))).sortBy(_._1.length)
 
 }
-
 

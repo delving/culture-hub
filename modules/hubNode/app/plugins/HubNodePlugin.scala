@@ -1,9 +1,9 @@
 package plugins
 
 import _root_.services.HubNodeSubscriptionService
-import play.api.{Logger, Play, Application}
+import play.api.{ Logger, Play, Application }
 import play.api.Play.current
-import models.{OrganizationConfiguration, HubNode, Role}
+import models.{ OrganizationConfiguration, HubNode, Role }
 import scala.collection.immutable.ListMap
 import scala.util.matching.Regex
 import play.api.mvc.Handler
@@ -11,10 +11,10 @@ import org.bson.types.ObjectId
 import util.OrganizationConfigurationHandler
 import core.services.MemoryServices
 import core._
-import node.{NodeDirectoryService, NodeRegistrationService, NodeSubscriptionService}
+import node.{ NodeDirectoryService, NodeRegistrationService, NodeSubscriptionService }
 
 /**
- * 
+ *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 class HubNodePlugin(app: Application) extends CultureHubPlugin(app) {
@@ -71,7 +71,6 @@ class HubNodePlugin(app: Application) extends CultureHubPlugin(app) {
 
     val nodeDirectoryServiceLocator = HubModule.inject[DomainServiceLocator[NodeDirectoryService]](name = None)
     val nodeRegistrationServiceLocator = HubModule.inject[DomainServiceLocator[NodeRegistrationService]](name = None)
-
 
     // check if we have a HubNode for the hub itself, and create it if necessary
     OrganizationConfigurationHandler.organizationConfigurations.foreach { implicit configuration =>

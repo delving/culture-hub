@@ -21,7 +21,7 @@ object Api extends DelvingController with RenderingExtensions {
 
   def explanations(orgId: String, path: String): Action[AnyContent] = {
     val pathList = path.split("/").drop(1).toList
-    if(pathList.isEmpty) {
+    if (pathList.isEmpty) {
       api(orgId)
     } else {
       val explanation = pathList(0) match {
@@ -62,12 +62,12 @@ object Api extends DelvingController with RenderingExtensions {
           ApiItem("collections", "Collections list")
         )
 
-        if(wantsXml) {
+        if (wantsXml) {
           val xml = <explain>
-            <description>{apiDescription}</description>
-            <global-parameters>{globalParams.map(_.toXml)}</global-parameters>
-            <api-list>{apis.map(_.toXml)}</api-list>
-          </explain>
+                      <description>{ apiDescription }</description>
+                      <global-parameters>{ globalParams.map(_.toXml) }</global-parameters>
+                      <api-list>{ apis.map(_.toXml) }</api-list>
+                    </explain>
           Ok(xml)
         } else {
           val json = Map(
@@ -93,19 +93,18 @@ object Api extends DelvingController with RenderingExtensions {
   def noDocumentation(orgId: String, path: String) = Action {
     implicit request =>
       val sorry = "Sorry, no documentation found for path " + path
-      if(wantsXml) {
+      if (wantsXml) {
         Ok(<explain>
-          <error>{sorry}</error>
-        </explain>)
+             <error>{ sorry }</error>
+           </explain>)
       } else {
         Ok(JJson.generate(Map("error" -> sorry))).as(JSON)
       }
   }
 
-
   private def renderExplanation(explanation: Description) = Action {
     implicit request =>
-      if(wantsXml) {
+      if (wantsXml) {
         Ok(explanation.toXml)
       } else {
         Ok(JJson.generate(explanation.toJson)).as(JSON)
@@ -122,8 +121,8 @@ abstract class Description {
 case class ApiDescription(description: String, apiItems: List[ApiItem] = List.empty) extends Description {
   def toXml(implicit request: RequestHeader) =
     <explain>
-      <description>{StringEscapeUtils.escapeXml(description)}</description>
-      <api-list>{apiItems.map(_.toXml)}</api-list>
+      <description>{ StringEscapeUtils.escapeXml(description) }</description>
+      <api-list>{ apiItems.map(_.toXml) }</api-list>
     </explain>
 
   def toJson(implicit request: RequestHeader) = Map(
@@ -135,8 +134,8 @@ case class ApiDescription(description: String, apiItems: List[ApiItem] = List.em
 case class ApiCallDescription(description: String, explainItems: List[ExplainItem] = List.empty) extends Description {
   def toXml(implicit request: RequestHeader) =
     <explain>
-      <description>{StringEscapeUtils.escapeXml(description)}</description>
-      <parameters>{explainItems.map(_.toXml)}</parameters>
+      <description>{ StringEscapeUtils.escapeXml(description) }</description>
+      <parameters>{ explainItems.map(_.toXml) }</parameters>
     </explain>
 
   def toJson(implicit request: RequestHeader) = Map(
@@ -155,19 +154,22 @@ case class ApiItem(path: String, description: String, example: String = "") {
   def exampleUrl(implicit request: RequestHeader) = "http://" + request.host + request.path + "/" + example
 
   def toXml(implicit request: RequestHeader) = <api>
-                <url>{url}</url>
-                <description>{description}</description>
-                {if(!example.isEmpty) {
-                <example>{exampleUrl}</example>
-                } else {
-                <example />}}
-              </api>
+                                                 <url>{ url }</url>
+                                                 <description>{ description }</description>
+                                                 {
+                                                   if (!example.isEmpty) {
+                                                     <example>{ exampleUrl }</example>
+                                                   } else {
+                                                     <example/>
+                                                   }
+                                                 }
+                                               </api>
 
   def toJson(implicit request: RequestHeader) = Map(
-                "url" -> url,
-                "description" -> description,
-                "example" -> (if(!example.isEmpty) exampleUrl else "")
-               )
+    "url" -> url,
+    "description" -> description,
+    "example" -> (if (!example.isEmpty) exampleUrl else "")
+  )
 
 }
 

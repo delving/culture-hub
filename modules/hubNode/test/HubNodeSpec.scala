@@ -1,11 +1,10 @@
 import core.services.AggregatingNodeSubscriptionService
 import models.HubNode
-import play.api.libs.json.{JsString, JsObject}
+import play.api.libs.json.{ JsString, JsObject }
 import play.api.mvc.AnyContentAsJson
 import play.api.test._
 import play.api.test.Helpers._
 import util.OrganizationConfigurationHandler
-
 
 /**
  *
@@ -87,9 +86,8 @@ class HubNodeSpec extends Specs2TestContext {
       )
     )
   ).withSession(
-    ("userName" -> "bob")
-  )
-
+      ("userName" -> "bob")
+    )
 
   step {
     cleanup()

@@ -2,7 +2,7 @@ package controllers
 
 import core._
 import play.api.mvc._
-import core.rendering.{ViewType, RecordRenderer}
+import core.rendering.{ ViewType, RecordRenderer }
 import core.Constants._
 import com.mongodb.BasicDBList
 import com.mongodb.casbah.Imports._
@@ -46,7 +46,7 @@ trait FullView extends DelvingController {
               parameters = r.parameters
             )
 
-            if(renderedRecord.isRight) {
+            if (renderedRecord.isRight) {
 
               val navigateFromSearch = request.headers.get(REFERER) != None && request.headers.get(REFERER).get.contains("search")
               val navigateFromRelatedItem = request.queryString.getFirst("mlt").getOrElse("false").toBoolean
@@ -64,9 +64,9 @@ trait FullView extends DelvingController {
               // TODO SystemFields should be replaced by a case class
 
               val titleField = r.systemFields.get("delving_title")
-              val title: String = if(titleField.isDefined && titleField.get.isInstanceOf[scala.collection.immutable.List[String]]) {
+              val title: String = if (titleField.isDefined && titleField.get.isInstanceOf[scala.collection.immutable.List[String]]) {
                 titleField.get.headOption.getOrElse("")
-              } else if(titleField.isDefined) {
+              } else if (titleField.isDefined) {
                 val values = titleField.get.asInstanceOf[BasicDBList]
                 if (values.size() > 0) values.get(0).toString else ""
               } else {
@@ -111,12 +111,9 @@ trait FullView extends DelvingController {
                 )
               ).withSession(updatedSession)
 
-
             } else {
               NotFound("Record with ID %s could not be displayed: ".format(hubId) + renderedRecord.left.get)
             }
-
-
 
         }.getOrElse {
           NotFound("Record with ID %s could not be found".format(hubId))
@@ -124,6 +121,5 @@ trait FullView extends DelvingController {
     }
 
   }
-
 
 }

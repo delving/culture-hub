@@ -7,7 +7,7 @@ import java.io.File
 import play.api.Logger
 
 /**
- * 
+ *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 object PTIFTiling {

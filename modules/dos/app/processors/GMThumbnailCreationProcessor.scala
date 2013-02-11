@@ -22,8 +22,8 @@ import play.api.Play.current
 import org.apache.commons.io.FileUtils
 import controllers.dos._
 import java.io._
-import org.im4java.process.{ErrorConsumer}
-import org.im4java.core.{ImageCommand, IMOperation}
+import org.im4java.process.{ ErrorConsumer }
+import org.im4java.core.{ ImageCommand, IMOperation }
 
 /**
  *
@@ -32,10 +32,9 @@ import org.im4java.core.{ImageCommand, IMOperation}
 
 object GMThumbnailCreationProcessor extends ThumbnailCreationProcessor with Thumbnail {
 
-
   protected def createThumbnailsForSize(images: Seq[File], width: Int, task: Task, orgId: String, collectionId: String) {
 
-    val gmCommand = getGMCommand(task) getOrElse (return)
+    val gmCommand = getGMCommand(task) getOrElse (return )
     val gmCommandPath = new File(gmCommand)
     if (!gmCommandPath.exists()) {
       error(task, "Could not find GM executable at '%s'".format(gmCommand))

@@ -18,8 +18,8 @@ package processors
 
 import models.dos.Task
 import org.im4java.process.OutputConsumer
-import org.im4java.core.{ImageCommand, IMOperation}
-import java.io.{File, InputStreamReader, BufferedReader, InputStream}
+import org.im4java.core.{ ImageCommand, IMOperation }
+import java.io.{ File, InputStreamReader, BufferedReader, InputStream }
 import libs.Normalizer
 import org.apache.commons.io.FileUtils
 

@@ -57,7 +57,6 @@ class SimpleDataSetParser(is: InputStream, dataSet: DataSet) extends Iterator[Re
 
   def namespaces = ns.toMap
 
-
   def hasNext: Boolean = !isDone
 
   def next(): Record = {
@@ -104,7 +103,7 @@ class SimpleDataSetParser(is: InputStream, dataSet: DataSet) extends Iterator[Re
           recordId = null
           recordCounter += 1
           hasParsedOne = true
-        case elemStart@Left(Elem(qname, attrs, ns)) if (inRecord) =>
+        case elemStart @ Left(Elem(qname, attrs, ns)) if (inRecord) =>
           recordXml.append(elemStartToString(qname, attrs, ns))
           elementHasContent = false
         case Left(Text(txt)) if (inRecord) =>
@@ -117,7 +116,7 @@ class SimpleDataSetParser(is: InputStream, dataSet: DataSet) extends Iterator[Re
           val d = """<![CDATA[%s]]>""".format(data)
           recordXml.append(d)
           fieldValueXml.append(d)
-        case elemEnd@Right(EndElem(qname, _)) if (inRecord) =>
+        case elemEnd @ Right(EndElem(qname, _)) if (inRecord) =>
           if (!elementHasContent) {
             val rollback = recordXml.substring(0, recordXml.length - ">".length())
             recordXml.clear()
@@ -126,7 +125,7 @@ class SimpleDataSetParser(is: InputStream, dataSet: DataSet) extends Iterator[Re
             recordXml.append(elemEndToString(qname))
           }
           fieldValueXml.clear()
-        case some@_ =>
+        case some @ _ =>
       }
     }
     Some(record)

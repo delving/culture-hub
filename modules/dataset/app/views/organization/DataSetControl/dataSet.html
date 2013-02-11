@@ -66,6 +66,7 @@
 <form method="post" action="" id="collectionForm" class="form-delving">
     <div class="row">
         <div class="dataset-info span6">
+            <div class="error" style="margin-bottom: 12px;" data-bind="text: errors().global"></div>
 
             #{form.textField name:"spec", form: dataSetForm, label: messages.get('organization.dataset.label.identifier'), dataBind:"value: spec", help: messages.get('organization.dataset.help.identifier') /}
 

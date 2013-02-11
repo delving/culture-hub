@@ -1,8 +1,8 @@
 package plugins
 
-import _root_.services.{DataSetLookupService, MetadataRecordResolverService}
+import _root_.services.{ DataSetLookupService, MetadataRecordResolverService }
 import jobs._
-import play.api.{Play, Application}
+import play.api.{ Play, Application }
 import Play.current
 import models._
 import _root_.processing.DataSetCollectionProcessor
@@ -14,14 +14,14 @@ import play.api.libs.concurrent.Akka
 import akka.actor.Props
 import akka.routing.RoundRobinRouter
 import akka.actor.SupervisorStrategy.Restart
-import controllers.{organization, ReceiveSource}
+import controllers.{ organization, ReceiveSource }
 import core.indexing.IndexingService
 import scala.collection.immutable.ListMap
 import scala.collection.JavaConverters._
 import scala.util.matching.Regex
 import play.api.mvc.Handler
 import core._
-import core.access.{ResourceType, Resource, ResourceLookup}
+import core.access.{ ResourceType, Resource, ResourceLookup }
 import akka.actor.OneForOneStrategy
 import com.mongodb.casbah.commons.MongoDBObject
 import java.util.regex.Pattern
@@ -36,24 +36,24 @@ class DataSetPlugin(app: Application) extends CultureHubPlugin(app) {
   val schemaService: SchemaService = HubModule.inject[SchemaService](name = None)
 
   /**
-
-        GET         /:user/sip-creator.jnlp                                           controllers.organization.SipCreator.jnlp(user)
-
-        GET         /organizations/:orgId/dataset                                     controllers.organization.DataSets.list(orgId)
-        GET         /organizations/:orgId/dataset/feed                                controllers.organization.DataSets.feed(orgId, clientId: String, spec: Option[String])
-        GET         /organizations/:orgId/dataset/add                                 controllers.organization.DataSetControl.dataSet(orgId, spec: Option[String] = None)
-        GET         /organizations/:orgId/dataset/:spec/update                        controllers.organization.DataSetControl.dataSet(orgId, spec: Option[String])
-        POST        /organizations/:orgId/dataset/submit                              controllers.organization.DataSetControl.dataSetSubmit(orgId)
-        GET         /organizations/:orgId/dataset/:spec                               controllers.organization.DataSets.dataSet(orgId, spec)
-
-        GET         /organizations/:orgId/sip-creator                                 controllers.organization.SipCreator.index(orgId)
-
-        GET         /api/sip-creator/list                                             controllers.SipCreatorEndPoint.listAll(accessKey: Option[String] ?= None)
-        GET         /api/sip-creator/unlock/:orgId/:spec                              controllers.SipCreatorEndPoint.unlock(orgId, spec, accessKey: Option[String] ?= None)
-        POST        /api/sip-creator/submit/:orgId/:spec                              controllers.SipCreatorEndPoint.acceptFileList(orgId, spec, accessKey: Option[String] ?= None)
-        POST        /api/sip-creator/submit/:orgId/:spec/:fileName                    controllers.SipCreatorEndPoint.acceptFile(orgId, spec, fileName, accessKey: Option[String] ?= None)
-        GET         /api/sip-creator/fetch/:orgId/:spec-sip.zip                       controllers.SipCreatorEndPoint.fetchSIP(orgId, spec, accessKey: Option[String] ?= None)
-
+   *
+   * GET         /:user/sip-creator.jnlp                                           controllers.organization.SipCreator.jnlp(user)
+   *
+   * GET         /organizations/:orgId/dataset                                     controllers.organization.DataSets.list(orgId)
+   * GET         /organizations/:orgId/dataset/feed                                controllers.organization.DataSets.feed(orgId, clientId: String, spec: Option[String])
+   * GET         /organizations/:orgId/dataset/add                                 controllers.organization.DataSetControl.dataSet(orgId, spec: Option[String] = None)
+   * GET         /organizations/:orgId/dataset/:spec/update                        controllers.organization.DataSetControl.dataSet(orgId, spec: Option[String])
+   * POST        /organizations/:orgId/dataset/submit                              controllers.organization.DataSetControl.dataSetSubmit(orgId)
+   * GET         /organizations/:orgId/dataset/:spec                               controllers.organization.DataSets.dataSet(orgId, spec)
+   *
+   * GET         /organizations/:orgId/sip-creator                                 controllers.organization.SipCreator.index(orgId)
+   *
+   * GET         /api/sip-creator/list                                             controllers.SipCreatorEndPoint.listAll(accessKey: Option[String] ?= None)
+   * GET         /api/sip-creator/unlock/:orgId/:spec                              controllers.SipCreatorEndPoint.unlock(orgId, spec, accessKey: Option[String] ?= None)
+   * POST        /api/sip-creator/submit/:orgId/:spec                              controllers.SipCreatorEndPoint.acceptFileList(orgId, spec, accessKey: Option[String] ?= None)
+   * POST        /api/sip-creator/submit/:orgId/:spec/:fileName                    controllers.SipCreatorEndPoint.acceptFile(orgId, spec, fileName, accessKey: Option[String] ?= None)
+   * GET         /api/sip-creator/fetch/:orgId/:spec-sip.zip                       controllers.SipCreatorEndPoint.fetchSIP(orgId, spec, accessKey: Option[String] ?= None)
+   *
    */
 
   override val routes: ListMap[(String, Regex), (List[String], Map[String, String]) => Handler] = ListMap(
@@ -159,7 +159,7 @@ class DataSetPlugin(app: Application) extends CultureHubPlugin(app) {
   /**
    * Override this to provide the necessary lookup for a [[core.access.Resource]] depicted by a [[models.Role]]
    * @return
-   **/
+   */
   override val resourceLookups: Seq[core.access.ResourceLookup] = Seq(
     new ResourceLookup {
 
@@ -213,8 +213,7 @@ class DataSetPlugin(app: Application) extends CultureHubPlugin(app) {
     // Play can't do multi-threading in DEV mode...
     if (Play.isDev) {
       Akka.system.actorOf(Props[Processor], name = "dataSetProcessor")
-    }
-    else {
+    } else {
       Akka.system.actorOf(
         Props[Processor].withRouter(
           RoundRobinRouter(
@@ -257,7 +256,7 @@ class DataSetPlugin(app: Application) extends CultureHubPlugin(app) {
             } finally {
               dataSetDAO.updateState(set, DataSetState.UPLOADED)
             }
-        }
+          }
       }
     }
   }
@@ -299,7 +298,7 @@ class DataSetPlugin(app: Application) extends CultureHubPlugin(app) {
           |
           |%s
         """.stripMargin.format(
-          missingVersions.map( missing =>
+          missingVersions.map(missing =>
             "%s -> %s".format(
               missing._1, missing._2.map("'%s'".format(_)).mkString(", ")
             )
@@ -408,7 +407,7 @@ class DataSetPlugin(app: Application) extends CultureHubPlugin(app) {
       boot.init()
     }
 
-    }
+  }
 }
 
 object DataSetPlugin {

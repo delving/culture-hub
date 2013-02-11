@@ -1,9 +1,9 @@
 package libs
 
-import org.im4java.core.{ConvertCmd, IdentifyCmd, IMOperation, ImageCommand}
+import org.im4java.core.{ ConvertCmd, IdentifyCmd, IMOperation, ImageCommand }
 import org.im4java.process.OutputConsumer
-import java.io.{File, InputStreamReader, BufferedReader, InputStream}
-import play.api.{Logger, Play}
+import java.io.{ File, InputStreamReader, BufferedReader, InputStream }
+import play.api.{ Logger, Play }
 import org.apache.commons.io.FileUtils
 
 /**
@@ -73,7 +73,7 @@ object Normalizer {
         val Array(width: Int, height: Int) = line.split(" ")(2).split("\\+")(0).split("x").map(Integer.parseInt(_))
         (width, height)
       }.zipWithIndex.foldLeft((0, 0), 0) { (r: ((Int, Int), Int), c: ((Int, Int), Int)) =>
-          if (c._1._1 * c._1._2 > r._1._1 * r._1._2) c else r
+        if (c._1._1 * c._1._2 > r._1._1 * r._1._2) c else r
       }
       val largestIndex = largestLayer._2
       Some(largestIndex)

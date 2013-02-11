@@ -19,8 +19,6 @@ class PlatformSpec extends Specs2TestContext {
     "load configurations from disk into memory" in {
       withTestConfig {
 
-
-
         organizationConfigurationHandler.startup(CultureHubPlugin.hubPlugins)
         OrganizationConfiguration.startup(CultureHubPlugin.hubPlugins).size should not equalTo (0)
       }

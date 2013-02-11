@@ -1,13 +1,13 @@
 package core.processing
 
 import eu.delving.schema.SchemaVersion
-import akka.actor.{PoisonPill, Actor}
-import eu.delving.{MappingResult, MappingEngineFactory, MappingEngine}
-import play.api.{Logger, Play}
+import akka.actor.{ PoisonPill, Actor }
+import eu.delving.{ MappingResult, MappingEngineFactory, MappingEngine }
+import play.api.{ Logger, Play }
 import play.api.Play.current
 import core.mapping.MappingService
 import scala.collection.JavaConverters._
-import core.{SchemaService, HubModule, HubId}
+import core.{ SchemaService, HubModule, HubId }
 import java.util.concurrent.atomic.AtomicBoolean
 
 /**
@@ -22,16 +22,16 @@ class RecordMapper(context: ProcessingContext, processingInterrupted: AtomicBool
   private val schemaService = HubModule.inject[SchemaService](name = None)
 
   private val engines: Map[SchemaVersion, MappingEngine] = {
-//    val factory = new MappingEngineFactory(
-//      Play.classloader,
-//      Executors.newSingleThreadExecutor(),
-//      MappingService.recDefModel
-//    )
-//    val engine = factory.createEngine(context.sourceNamespaces.asJava)
-//    context.targetSchemas.filter(_.mapping.isDefined).foreach { schema =>
-//      engine.addMappingRunner(schema.schemaVersion, schema.mapping.get)
-//    }
-//    engine
+    //    val factory = new MappingEngineFactory(
+    //      Play.classloader,
+    //      Executors.newSingleThreadExecutor(),
+    //      MappingService.recDefModel
+    //    )
+    //    val engine = factory.createEngine(context.sourceNamespaces.asJava)
+    //    context.targetSchemas.filter(_.mapping.isDefined).foreach { schema =>
+    //      engine.addMappingRunner(schema.schemaVersion, schema.mapping.get)
+    //    }
+    //    engine
     context.targetSchemas.filter(_.mapping.isDefined).map { schema =>
       (schema.schemaVersion -> MappingEngineFactory.newInstance(Play.classloader, context.sourceNamespaces.asJava, MappingService.recDefModel(schemaService), schema.mapping.get))
     }
@@ -58,17 +58,17 @@ class RecordMapper(context: ProcessingContext, processingInterrupted: AtomicBool
 
         sender ! RecordMappingResult(index, hubId, results)
 
-//        engine.mapRecord(index, hubId.localId, sourceRecord, targetSchemas.toArray, new MappingCompletion {
-//
-//          def onFailure(index: Int, throwable: Throwable) {
-//            sender ! RecordMappingFailure(index, hubId, sourceRecord, throwable)
-//          }
-//
-//          def onSuccess(index: Int, results: java.util.Map[SchemaVersion, MappingResult]) {
-//            sender ! RecordMappingResult(index, hubId, results.asScala.toMap)
-//          }
-//
-//        })
+        //        engine.mapRecord(index, hubId.localId, sourceRecord, targetSchemas.toArray, new MappingCompletion {
+        //
+        //          def onFailure(index: Int, throwable: Throwable) {
+        //            sender ! RecordMappingFailure(index, hubId, sourceRecord, throwable)
+        //          }
+        //
+        //          def onSuccess(index: Int, results: java.util.Map[SchemaVersion, MappingResult]) {
+        //            sender ! RecordMappingResult(index, hubId, results.asScala.toMap)
+        //          }
+        //
+        //        })
       }
 
   }

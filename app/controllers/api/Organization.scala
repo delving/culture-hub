@@ -1,7 +1,7 @@
 package controllers.api
 
-import controllers.{RenderingExtensions, OrganizationConfigurationAware, BoundController}
-import play.api.mvc.{Controller, Action}
+import controllers.{ RenderingExtensions, OrganizationConfigurationAware, BoundController }
+import play.api.mvc.{ Controller, Action }
 import core._
 import play.api.i18n.Messages
 import models.OrganizationConfiguration
@@ -17,10 +17,9 @@ object Organization extends BoundController(HubModule) with Organization
 
 trait Organization extends Controller with OrganizationConfigurationAware with RenderingExtensions {
   this: BoundController with Controller with OrganizationConfigurationAware with RenderingExtensions =>
-  
-  val organizationCollectionLookupService = inject [OrganizationCollectionLookupService]
-  val organizationServiceLocator = inject [ DomainServiceLocator[OrganizationService] ]
 
+  val organizationCollectionLookupService = inject[OrganizationCollectionLookupService]
+  val organizationServiceLocator = inject[DomainServiceLocator[OrganizationService]]
 
   def providers(orgId: String) = OrganizationConfigured {
     Action {
@@ -31,11 +30,12 @@ trait Organization extends Controller with OrganizationConfigurationAware with R
 
           val xmlResponse =
             <providers>
-              {for (p <- providers) yield
-              <provider>
-                <id>{toIdentifier(p)}</id>
-                <name>{p}</name>
-              </provider>}
+              {
+                for (p <- providers) yield <provider>
+                                             <id>{ toIdentifier(p) }</id>
+                                             <name>{ p }</name>
+                                           </provider>
+              }
             </providers>
 
           DOk(xmlResponse, List("providers"))
@@ -55,11 +55,12 @@ trait Organization extends Controller with OrganizationConfigurationAware with R
 
           val xmlResponse =
             <dataProviders>
-              {for (p <- dataProviders) yield
-              <dataProvider>
-                <id>{toIdentifier(p)}</id>
-                <name>{p}</name>
-              </dataProvider>}
+              {
+                for (p <- dataProviders) yield <dataProvider>
+                                                 <id>{ toIdentifier(p) }</id>
+                                                 <name>{ p }</name>
+                                               </dataProvider>
+              }
             </dataProviders>
 
           DOk(xmlResponse, List("dataProviders"))
@@ -78,11 +79,15 @@ trait Organization extends Controller with OrganizationConfigurationAware with R
 
           val xmlResponse =
             <collections>
-              {for (c <- collections) yield
-              <collection>
-                <id>{toIdentifier(c.spec)}</id>{if (c.isInstanceOf[OrganizationCollectionInformation]) {
-                <name>{c.asInstanceOf[OrganizationCollectionInformation].getName}</name>}}
-              </collection>}
+              {
+                for (c <- collections) yield <collection>
+                                               <id>{ toIdentifier(c.spec) }</id>{
+                                                 if (c.isInstanceOf[OrganizationCollectionInformation]) {
+                                                   <name>{ c.asInstanceOf[OrganizationCollectionInformation].getName }</name>
+                                                 }
+                                               }
+                                             </collection>
+              }
             </collections>
 
           DOk(xmlResponse, List("collection"))
@@ -94,7 +99,7 @@ trait Organization extends Controller with OrganizationConfigurationAware with R
   }
 
   private def getAllOrganiztationCollectionInformation(implicit configuration: OrganizationConfiguration) = organizationCollectionLookupService.findAll.flatMap { collection =>
-    if(collection.isInstanceOf[OrganizationCollectionInformation]) {
+    if (collection.isInstanceOf[OrganizationCollectionInformation]) {
       Some(collection.asInstanceOf[OrganizationCollectionInformation])
     } else {
       None
@@ -102,6 +107,5 @@ trait Organization extends Controller with OrganizationConfigurationAware with R
   }
 
   private def toIdentifier(name: String) = name.replaceAll(" ", "_")
-
 
 }

@@ -20,14 +20,13 @@ import _root_.util.OrganizationConfigurationHandler
 import org.apache.solr.client.solrj.SolrQuery
 import xml.XML
 import xml.Node
-import org.apache.solr.client.solrj.response.{FacetField, QueryResponse}
+import org.apache.solr.client.solrj.response.{ FacetField, QueryResponse }
 import collection.JavaConverters._
 import play.api.cache.Cache
-import org.apache.solr.client.solrj.impl.{ConcurrentUpdateSolrServer, HttpSolrServer}
+import org.apache.solr.client.solrj.impl.{ ConcurrentUpdateSolrServer, HttpSolrServer }
 import java.net.URL
 import models.OrganizationConfiguration
 import play.api.Play.current
-
 
 /**
  * REFACTORME:
@@ -39,7 +38,7 @@ import play.api.Play.current
  *
  * @author Sjoerd Siebinga <sjoerd.siebinga@gmail.com>
  * @author Manuel Bernhardt <ernhardt.manuel@gmail.com>
- * @since 7/7/11 1:18 AM  
+ * @since 7/7/11 1:18 AM
  */
 
 trait SolrServer {
@@ -108,25 +107,26 @@ object SolrServer {
     val fields = XML.load(lukeUrl) \\ "lst"
 
     fields.filter(node => node.attribute("name") != None && node.attribute("name").get.text.equalsIgnoreCase("fields")).head.nonEmptyChildren.map {
-      field => {
-        val fieldName = field.attribute("name").get.text
-        val fields = field.nonEmptyChildren
-        fields.foldLeft(SolrDynamicField(name = fieldName))((sds, f) => {
-          val text = f.attribute("name")
-          text match {
-            case Some(fieldtype) if (fieldtype.text == ("type")) => sds.copy(fieldType = f.text)
-            case Some(fieldtype) if (fieldtype.text == ("index")) => sds.copy(index = f.text)
-            case Some(fieldtype) if (fieldtype.text == ("schema")) => sds.copy(schema = f.text)
-            case Some(fieldtype) if (fieldtype.text == ("dynamicBase")) => sds.copy(dynamicBase = f.text)
-            case Some(fieldtype) if (fieldtype.text == "docs") => sds.copy(docs = f.text.toInt)
-            case Some(fieldtype) if (fieldtype.text == "distinct") => sds.copy(distinct = f.text.toInt)
-            case Some(fieldtype) if (fieldtype.text == "topTerms") => sds.copy(topTerms = getSolrFrequencyItemList(f))
-            case Some(fieldtype) if (fieldtype.text == "histogram") => sds.copy(histogram = getSolrFrequencyItemList(f))
-            case _ => sds
+      field =>
+        {
+          val fieldName = field.attribute("name").get.text
+          val fields = field.nonEmptyChildren
+          fields.foldLeft(SolrDynamicField(name = fieldName))((sds, f) => {
+            val text = f.attribute("name")
+            text match {
+              case Some(fieldtype) if (fieldtype.text == ("type")) => sds.copy(fieldType = f.text)
+              case Some(fieldtype) if (fieldtype.text == ("index")) => sds.copy(index = f.text)
+              case Some(fieldtype) if (fieldtype.text == ("schema")) => sds.copy(schema = f.text)
+              case Some(fieldtype) if (fieldtype.text == ("dynamicBase")) => sds.copy(dynamicBase = f.text)
+              case Some(fieldtype) if (fieldtype.text == "docs") => sds.copy(docs = f.text.toInt)
+              case Some(fieldtype) if (fieldtype.text == "distinct") => sds.copy(distinct = f.text.toInt)
+              case Some(fieldtype) if (fieldtype.text == "topTerms") => sds.copy(topTerms = getSolrFrequencyItemList(f))
+              case Some(fieldtype) if (fieldtype.text == "histogram") => sds.copy(histogram = getSolrFrequencyItemList(f))
+              case _ => sds
+            }
           }
+          )
         }
-        )
-      }
     }.toList
 
   }
@@ -139,7 +139,7 @@ object SolrServer {
     query setFacetLimit facetLimit
     query setFacetMinCount 1
     query addFacetField (facetName)
-    query setFacetPrefix(facetName, facetQuery.capitalize)
+    query setFacetPrefix (facetName, facetQuery.capitalize)
     query setRows 0
     val response = solrServer(configuration) query (query)
     val facetValues = (response getFacetField (facetName))

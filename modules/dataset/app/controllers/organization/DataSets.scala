@@ -1,14 +1,14 @@
 package controllers.organization
 
-import play.api.mvc.{WebSocket, Action}
+import play.api.mvc.{ WebSocket, Action }
 import models.DataSet
 import play.api.i18n.Messages
 import com.mongodb.casbah.Imports._
-import controllers.{Token, OrganizationController}
+import controllers.{ Token, OrganizationController }
 import java.util.regex.Pattern
-import play.api.libs.json.{JsString, JsValue}
+import play.api.libs.json.{ JsString, JsValue }
 import play.api.libs.concurrent.Promise
-import play.api.libs.iteratee.{Concurrent, Enumerator, Done, Input}
+import play.api.libs.iteratee.{ Concurrent, Enumerator, Done, Input }
 import util.OrganizationConfigurationHandler
 
 /**
@@ -38,8 +38,8 @@ object DataSets extends OrganizationController {
     }
   }
 
-  def feed(orgId: String, clientId: String, spec: Option[String]) = WebSocket.async[JsValue] { implicit request  =>
-    if(request.session.get("userName").isDefined) {
+  def feed(orgId: String, clientId: String, spec: Option[String]) = WebSocket.async[JsValue] { implicit request =>
+    if (request.session.get("userName").isDefined) {
       val organizationConfiguration = OrganizationConfigurationHandler.getByDomain(request.domain)
       DataSetEventFeed.subscribe(orgId, clientId, session.get("userName").get, organizationConfiguration.name, spec)
     } else {
@@ -55,13 +55,12 @@ object DataSets extends OrganizationController {
         val query = MongoDBObject("spec" -> Pattern.compile(q, Pattern.CASE_INSENSITIVE))
         val sets = DataSet.dao.find(query).filter { set =>
           formats.isEmpty ||
-          formats.toSet.subsetOf(set.getPublishableMappingSchemas.map(_.getPrefix).toSet)
+            formats.toSet.subsetOf(set.getPublishableMappingSchemas.map(_.getPrefix).toSet)
         }
         val asTokens = sets.map(set => Token(set.spec, set.spec)).toList
         Json(asTokens)
     }
   }
-
 
 }
 

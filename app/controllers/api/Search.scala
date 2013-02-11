@@ -5,9 +5,9 @@ import core.Constants._
 import core.indexing.IndexField._
 import core.search.SearchService
 import play.api.libs.concurrent.Promise
-import controllers.{BoundController, OrganizationConfigurationAware}
+import controllers.{ BoundController, OrganizationConfigurationAware }
 import play.api.Logger
-import core.{OrganizationCollectionLookupService, HubModule}
+import core.{ OrganizationCollectionLookupService, HubModule }
 import play.api.cache.Cache
 import play.api.Play.current
 import play.api.libs.concurrent.Execution.Implicits._
@@ -22,7 +22,7 @@ object Search extends BoundController(HubModule) with Search
 
 trait Search extends Controller with OrganizationConfigurationAware { this: Controller with BoundController with OrganizationConfigurationAware =>
 
-  val organizationCollectionLookupService = inject [ OrganizationCollectionLookupService ]
+  val organizationCollectionLookupService = inject[OrganizationCollectionLookupService]
 
   def searchApi(orgId: String, provider: Option[String], dataProvider: Option[String], collection: Option[String]) = OrganizationConfigured {
     Action {
@@ -30,7 +30,7 @@ trait Search extends Controller with OrganizationConfigurationAware { this: Cont
         Async {
           Promise.pure {
 
-            if(!request.path.contains("api")) {
+            if (!request.path.contains("api")) {
               Logger("CultureHub").warn("Using deprecated API call " + request.uri)
             }
 
@@ -41,7 +41,7 @@ trait Search extends Controller with OrganizationConfigurationAware { this: Cont
             val hiddenQueryFilters = List(
               "(%s)".format(
                 itemTypes.map(t =>
-                 "%s:%s".format(RECORD_TYPE.key, t.itemType)
+                  "%s:%s".format(RECORD_TYPE.key, t.itemType)
                 ).mkString(" OR ")
               ),
               "%s:%s".format(ORG_ID.key, configuration.orgId)
@@ -51,13 +51,14 @@ trait Search extends Controller with OrganizationConfigurationAware { this: Cont
 
           } map {
             // CORS - see http://www.w3.org/TR/cors/
-            result => result.withHeaders(
-              ("Access-Control-Allow-Origin" -> "*"),
-              ("Access-Control-Allow-Methods" -> "GET, POST, OPTIONS"),
-              ("Access-Control-Allow-Headers" -> "X-Requested-With"),
-              ("Access-Control-Max-Age" -> "86400")
+            result =>
+              result.withHeaders(
+                ("Access-Control-Allow-Origin" -> "*"),
+                ("Access-Control-Allow-Methods" -> "GET, POST, OPTIONS"),
+                ("Access-Control-Allow-Headers" -> "X-Requested-With"),
+                ("Access-Control-Max-Age" -> "86400")
 
-            )
+              )
           }
         }
     }

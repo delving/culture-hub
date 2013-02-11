@@ -1,7 +1,7 @@
 package controllers
 
 import org.bson.types.ObjectId
-import play.api.mvc.{JavascriptLitteral, PathBindable}
+import play.api.mvc.{ JavascriptLitteral, PathBindable }
 
 object Binders {
 
@@ -16,7 +16,7 @@ object Binders {
 
     def unbind(key: String, value: ObjectId) = value.toString
   }
-  
+
   implicit def bindableJavascriptLitteral = new JavascriptLitteral[ObjectId] {
     def to(value: ObjectId) = value.toString
   }

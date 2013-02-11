@@ -1,6 +1,6 @@
 package core.collection
 
-import models.{RecordDefinition, MetadataItem}
+import models.{ RecordDefinition, MetadataItem }
 import java.util.Date
 
 /**

@@ -22,7 +22,7 @@ import core.indexing.IndexField._
 import core.SystemField._
 import org.bson.types.ObjectId
 import views.Helpers.thumbnailUrl
-import java.net.{URLEncoder, URLDecoder}
+import java.net.{ URLEncoder, URLDecoder }
 
 /**
  *
@@ -37,18 +37,18 @@ abstract class MetadataAccessors {
   // TODO cleanup, unify, decide, conquer
 
   // ~~~ identifiers
-  def getHubId : String = URLDecoder.decode(assign(HUB_ID.key), "utf-8")
+  def getHubId: String = URLDecoder.decode(assign(HUB_ID.key), "utf-8")
 
   def getSplitHubId = HubId(getHubId)
 
-  def getOrgId : String =  getSplitHubId.orgId
-  def getSpec : String = getSplitHubId.spec
-  def getRecordId : String = getSplitHubId.localId
+  def getOrgId: String = getSplitHubId.orgId
+  def getSpec: String = getSplitHubId.spec
+  def getRecordId: String = getSplitHubId.localId
 
   // ~~~ well-known, always provided, meta-data fields
   def getItemType: String = assign(RECORD_TYPE.key)
   def getRecordSchema: String = assign(SCHEMA.key)
-  def getTitle : String = assign(TITLE.tag)
+  def getTitle: String = assign(TITLE.tag)
   def getDescription: String = assign(DESCRIPTION.tag)
   def getOwner: String = assign(OWNER.tag)
   def getVisibility: String = assign(VISIBILITY.key)
@@ -67,7 +67,7 @@ abstract class MetadataAccessors {
         val mongoId = Some(new ObjectId(id))
         thumbnailUrl(mongoId, size)
       case url if url.startsWith("http") =>
-        if(configuration.objectService.imageCacheEnabled) {
+        if (configuration.objectService.imageCacheEnabled) {
           "/thumbnail/cache?id=%s&width=%s".format(URLEncoder.encode(url, "utf-8"), size)
         } else {
           url
@@ -83,23 +83,4 @@ abstract class MetadataAccessors {
   }
 
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

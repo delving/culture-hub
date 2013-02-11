@@ -18,14 +18,15 @@ trait MultiModel[A <: salat.CaseClass, B <: SalatDAO[A, ObjectId]] {
 
   private lazy val multiDAOs: Map[OrganizationConfiguration, B] = {
     OrganizationConfigurationHandler.organizationConfigurations.map {
-      config => {
-        val connection = mongoConnections(config)
-        val collection = connection(connectionName)
-        collection.setWriteConcern(WriteConcern.Safe)
-        initIndexes(collection)
-        val dao = initDAO(collection, connection)(config)
-        (config -> dao)
-      }
+      config =>
+        {
+          val connection = mongoConnections(config)
+          val collection = connection(connectionName)
+          collection.setWriteConcern(WriteConcern.FsyncSafe)
+          initIndexes(collection)
+          val dao = initDAO(collection, connection)(config)
+          (config -> dao)
+        }
     }.toMap
   }
 

@@ -1,8 +1,8 @@
 package services
 
-import core.{HarvestCollectionLookupService, OrganizationCollectionLookupService}
-import core.collection.{OrganizationCollection, Harvestable}
-import models.{OrganizationConfiguration, RecordDefinition, DataSetState, DataSet}
+import core.{ HarvestCollectionLookupService, OrganizationCollectionLookupService }
+import core.collection.{ OrganizationCollection, Harvestable }
+import models.{ OrganizationConfiguration, RecordDefinition, DataSetState, DataSet }
 
 /**
  *

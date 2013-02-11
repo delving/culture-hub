@@ -25,6 +25,5 @@ class ThumbnailPlugin(app: Application) extends CultureHubPlugin(app) with Thumb
         }
       }
 
-
   }
 }

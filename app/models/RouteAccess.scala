@@ -13,9 +13,9 @@ import scala.util.matching.Regex
  */
 
 case class RouteAccess(_id: ObjectId = new ObjectId,
-                       date: Date = new Date(),
-                       uri: String,
-                       queryString: Map[String, Seq[String]])
+  date: Date = new Date(),
+  uri: String,
+  queryString: Map[String, Seq[String]])
 
 object RouteAccess extends MultiModel[RouteAccess, RouteAccessDAO] {
 

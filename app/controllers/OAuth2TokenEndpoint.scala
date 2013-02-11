@@ -1,6 +1,6 @@
 package controllers
 
-import org.apache.amber.oauth2.as.issuer.{MD5Generator, OAuthIssuerImpl, OAuthIssuer}
+import org.apache.amber.oauth2.as.issuer.{ MD5Generator, OAuthIssuerImpl, OAuthIssuer }
 import org.apache.amber.oauth2.common.OAuth
 import org.apache.amber.oauth2.common.message.OAuthResponse
 import org.apache.amber.oauth2.as.response.OAuthASResponse
@@ -10,12 +10,12 @@ import org.apache.amber.oauth2.common.validators.OAuthValidator
 import org.apache.amber.oauth2.common.message.types.GrantType
 import org.apache.amber.oauth2.common.utils.OAuthUtils
 import org.apache.amber.oauth2.as.request.OAuthRequest
-import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
+import javax.servlet.http.{ HttpServletRequest, HttpServletResponse }
 import org.apache.amber.oauth2.as.validator._
 import play.api._
 import play.api.Play.current
 import mvc._
-import core.{AuthenticationService, DomainServiceLocator, HubModule}
+import core.{ AuthenticationService, DomainServiceLocator, HubModule }
 import models.HubUser
 import scala.Left
 import scala.Right
@@ -34,7 +34,7 @@ object OAuth2TokenEndpoint extends BoundController(HubModule) with OAuth2TokenEn
 
 trait OAuth2TokenEndpoint extends Controller with OrganizationConfigurationAware { this: BoundController with Controller with OrganizationConfigurationAware =>
 
-  val authenticationServiceLocator = inject [ DomainServiceLocator[AuthenticationService] ]
+  val authenticationServiceLocator = inject[DomainServiceLocator[AuthenticationService]]
 
   def token: Action[AnyContent] = OrganizationConfigured {
     Action {
@@ -109,7 +109,6 @@ trait OAuth2TokenEndpoint extends Controller with OrganizationConfigurationAware
           case iae: IllegalArgumentException => errorResponse(OAuthError.TokenResponse.INVALID_REQUEST, "invalid grant_type provided")
         }
 
-
     }
   }
 
@@ -122,7 +121,6 @@ trait OAuth2TokenEndpoint extends Controller with OrganizationConfigurationAware
 
   /**ensure that some content is set, so that there will always be a Content-Length in the response **/
   def WrappedJson(payload: String) = if (payload == null) Ok("").as(JSON) else Ok(payload).as(JSON)
-
 
 }
 

@@ -2,12 +2,11 @@ package core.services
 
 import _root_.core._
 import _root_.core.node._
-import scala.collection.mutable.{ArrayBuffer, HashMap}
+import scala.collection.mutable.{ ArrayBuffer, HashMap }
 import extensions.MissingLibs
 import play.api.Play
 import play.api.Play.current
 import eu.delving.definitions.OrganizationEntry
-
 
 /**
  *
@@ -15,12 +14,10 @@ import eu.delving.definitions.OrganizationEntry
  */
 
 class MemoryServices(val users: HashMap[String, MemoryUser] = new HashMap[String, MemoryUser],
-                     val organizations: HashMap[String, MemoryOrganization] = new HashMap[String, MemoryOrganization],
-                     val nodes: ArrayBuffer[MemoryNode] = new ArrayBuffer[MemoryNode]
-                    ) extends AuthenticationService with RegistrationService with UserProfileService
-                      with OrganizationService with DirectoryService with NodeRegistrationService
-                      with NodeDirectoryService {
-
+  val organizations: HashMap[String, MemoryOrganization] = new HashMap[String, MemoryOrganization],
+  val nodes: ArrayBuffer[MemoryNode] = new ArrayBuffer[MemoryNode]) extends AuthenticationService with RegistrationService with UserProfileService
+    with OrganizationService with DirectoryService with NodeRegistrationService
+    with NodeDirectoryService {
 
   // ~~~ authentication
 
@@ -49,11 +46,12 @@ class MemoryServices(val users: HashMap[String, MemoryUser] = new HashMap[String
   }
 
   def preparePasswordReset(email: String) = users.values.find(_.email == email).map {
-    user: MemoryUser => {
-      val resetUser = user.copy(passwordResetToken = Some(MissingLibs.UUID))
-      users += (resetUser.userName -> resetUser)
-      resetUser.passwordResetToken
-    }
+    user: MemoryUser =>
+      {
+        val resetUser = user.copy(passwordResetToken = Some(MissingLibs.UUID))
+        users += (resetUser.userName -> resetUser)
+        resetUser.passwordResetToken
+      }
   }.getOrElse(None)
 
   def resetPassword(resetToken: String, newPassword: String): Boolean = {
@@ -65,10 +63,11 @@ class MemoryServices(val users: HashMap[String, MemoryUser] = new HashMap[String
   // ~~~ user profile
 
   def getUserProfile(userName: String) = users.get(userName).map {
-    u => {
-      val p = u.profile
-      UserProfile(p.isPublic, u.firstName, u.lastName, u.email, p.fixedPhone, p.description, p.funFact, p.websites, p.twitter, p.linkedIn)
-    }
+    u =>
+      {
+        val p = u.profile
+        UserProfile(p.isPublic, u.firstName, u.lastName, u.email, p.fixedPhone, p.description, p.funFact, p.websites, p.twitter, p.linkedIn)
+      }
   }
 
   def updateUserProfile(userName: String, profile: UserProfile): Boolean = {
@@ -144,7 +143,6 @@ class MemoryServices(val users: HashMap[String, MemoryUser] = new HashMap[String
     }
   }
 
-
   // node directory
 
   def listEntries: Seq[Node] = {
@@ -153,34 +151,33 @@ class MemoryServices(val users: HashMap[String, MemoryUser] = new HashMap[String
 
   def findOneById(nodeId: String): Option[Node] = nodes.find(_.nodeId == nodeId)
 
-
   // directory
 
   private val dummyDelving = OrganizationEntry("http://id.delving.org/org/1", "Delving", "NL")
 
   def findOrganization(query: String): List[OrganizationEntry] = List(dummyDelving)
 
-  def findOrganizationByName(name: String): Option[OrganizationEntry] = if(name.toLowerCase == "delving") Some(dummyDelving) else None
+  def findOrganizationByName(name: String): Option[OrganizationEntry] = if (name.toLowerCase == "delving") Some(dummyDelving) else None
 }
 
 case class MemoryUser(userName: String,
-                      firstName: String,
-                      lastName: String,
-                      email: String,
-                      password: String,
-                      profile: models.UserProfile,
-                      isActive: Boolean = false,
-                      activationToken: String = MissingLibs.UUID,
-                      passwordResetToken: Option[String] = None)
+  firstName: String,
+  lastName: String,
+  email: String,
+  password: String,
+  profile: models.UserProfile,
+  isActive: Boolean = false,
+  activationToken: String = MissingLibs.UUID,
+  passwordResetToken: Option[String] = None)
 
 case class MemoryOrganization(orgId: String,
-                              name: Map[String, String],
-                              admins: List[String])
+  name: Map[String, String],
+  admins: List[String])
 
 case class MemoryNode(orgId: String,
-                      nodeId: String,
-                      name: String,
-                      members: Seq[String]) extends Node {
+    nodeId: String,
+    name: String,
+    members: Seq[String]) extends Node {
 
   def isLocal: Boolean = true
 }

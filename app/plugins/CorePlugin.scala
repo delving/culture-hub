@@ -8,7 +8,6 @@ import core.MenuElement
 import core.search.BasicSearchInService
 import controllers.api.IndexItemOrganizationCollectionLookupService
 
-
 /**
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
@@ -29,7 +28,6 @@ class CorePlugin(app: Application) extends CultureHubPlugin(app) {
       mainEntry = Some(MenuElement(url = "/", titleKey = "site.nav.home"))
     )
   )
-
 
   override def services: Seq[Any] = Seq(
     new BasicSearchInService,
@@ -58,6 +56,5 @@ class CorePlugin(app: Application) extends CultureHubPlugin(app) {
       )
     )
   )
-
 
 }

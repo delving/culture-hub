@@ -396,6 +396,7 @@
         <thead>
         <tr>
             <th>State</th>
+            <th>Locked by</th>
             <th>Total records</th>
             {{each validRecords}}
             <th>Valid <span class="label" data-bind="text: schema"></span></th>
@@ -405,6 +406,7 @@
         <tbody>
         <tr>
             <td><span class="badge" data-bind="text: dataSetState, attr: { class: 'badge badge-' + stateToClass(dataSetState()) } "></span></td>
+            <td><span data-bind="text: lockedBy"></span></td>
             <td><span data-bind="text: totalRecords"></span></td>
             {{each validRecords}}
             <td><span data-bind="text: valid"></span></td>
