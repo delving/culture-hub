@@ -87,13 +87,8 @@ trait Admin extends OrganizationController { this: BoundController =>
     Action {
       implicit request =>
         val id = request.body.getFirstAsString("id").get
-        HubUser.dao.findByUsername(id).map { user =>
-          val success = organizationServiceLocator.byDomain.removeAdmin(orgId, id)
-          // TODO logging
-          if (success) Ok else Error
-        }.getOrElse {
-          Error(Messages("organizations.admin.userNotFound", id))
-        }
+        val success = organizationServiceLocator.byDomain.removeAdmin(orgId, id)
+        if (success) Ok else Error
     }
   }
 
