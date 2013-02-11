@@ -416,7 +416,8 @@ trait SipCreatorEndPoint extends Controller with OrganizationConfigurationAware 
               val dataSet = maybeDataSet.get
 
               // lock it right away
-              val updatedDataSet = dataSet.copy(lockedBy = Some(connectedUser))
+              DataSet.dao.lock(dataSet, connectedUser)
+              val updatedDataSet = DataSet.dao.findBySpecAndOrgId(spec, orgId).get
               DataSet.dao.save(updatedDataSet)
 
               val dataContent: Enumerator[Array[Byte]] = Enumerator.fromFile(getSipStream(updatedDataSet))

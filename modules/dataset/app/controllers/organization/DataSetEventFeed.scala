@@ -65,7 +65,7 @@ object DataSetEventFeed {
     processedRecords = ds.details.processedRecordCount,
     state = ds.state.name,
     lockState = if (ds.lockedBy.isDefined) "locked" else "unlocked",
-    lockedBy = if (ds.lockedBy.isDefined) ds.lockedBy.get else "",
+    lockedBy = if (ds.lockedBy.isDefined) ds.lockedBy.get else "Nobody",
     harvestingConfiguration = ds.formatAccessControl.map(f => (f._1 -> f._2.accessType)).toSeq,
     indexingSchema = ds.getIndexingMappingPrefix.getOrElse(""),
     errorMessage = ds.errorMessage

@@ -395,6 +395,11 @@ class DataSetDAO(collection: MongoCollection)(implicit val configuration: Organi
     update(MongoDBObject("spec" -> spec), $set(Seq("namespaces" -> namespaces.asDBObject)))
   }
 
+  def lock(dataSet: DataSet, userName: String) {
+    update(MongoDBObject("_id" -> dataSet._id), $set(Seq("lockedBy" -> userName)))
+    DataSetEvent ! DataSetEvent.Locked(dataSet.orgId, dataSet.spec, userName)
+  }
+
   def unlock(dataSet: DataSet, userName: String) {
     update(MongoDBObject("_id" -> dataSet._id), $unset(Seq("lockedBy")))
     DataSetEvent ! DataSetEvent.Unlocked(dataSet.orgId, dataSet.spec, userName)
