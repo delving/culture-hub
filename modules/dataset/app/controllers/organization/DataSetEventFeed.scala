@@ -9,12 +9,14 @@ import akka.pattern.ask
 import core.indexing.IndexingService
 import play.api.libs.iteratee._
 import play.api.Play.current
-import models.{ OrganizationConfiguration, DataSetEventLog, DataSetState, DataSet }
+import models.{ OrganizationConfiguration, DataSetEventLog, DataSetState, DataSet, HubUser }
 import play.api.Logger
 import models.DataSetState._
 import play.api.libs.json._
 import scala.concurrent.Future
 import play.api.libs.concurrent.Akka
+import extensions.Email
+import play.api.libs.json._
 
 /**
  * TODO access control
@@ -423,7 +425,25 @@ class DataSetEventFeed extends Actor {
               case "unlockSet" =>
                 withEditableSet {
                   set =>
-                    DataSet.dao.unlock(DataSet.dao.findBySpecAndOrgId(spec, orgId).get, userName)
+                    val user = HubUser.dao.findByUsername(userName)
+                    DataSet.dao.findBySpecAndOrgId(spec, orgId).map { locked =>
+                      locked.getLockedBy.map { lockedBy =>
+                        DataSet.dao.unlock(locked, userName)
+                        Email(configuration.emailTarget.systemFrom, "Your DataSet has been unlocked by another user").
+                          to(lockedBy.email).
+                          cc(user.map(_.email).getOrElse("")).
+                          withContent(
+                            s"""
+                            |Hello,
+                            |
+                            |this email is to inform you that the DataSet with identifier "${locked.spec}" has been unlocked by ${user.map(_.fullname).getOrElse("")}
+                            |
+                            |Yours truthfully,
+                            |
+                            |The CultureHub robot
+                          """.stripMargin).send()
+                      }
+                    }
                 }
 
               case "deleteSet" =>

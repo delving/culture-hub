@@ -115,7 +115,7 @@ case class DataSet(
 
   def getCreator: String = userName
 
-  def getLockedBy: Option[HubUser] = if (lockedBy == None) None else HubUser.dao(orgId).findByUsername(lockedBy.get)
+  def getLockedBy: Option[HubUser] = lockedBy.flatMap(u => HubUser.dao.findByUsername(u))
 
   def getStoredFacts: Map[String, String] = {
     (for (fact <- details.facts) yield (fact._1, fact._2.toString)).toMap[String, String]
