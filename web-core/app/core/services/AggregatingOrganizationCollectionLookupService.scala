@@ -1,7 +1,7 @@
 package core.services
 
 import core.collection.OrganizationCollection
-import core.{OrganizationCollectionLookupService, CultureHubPlugin}
+import core.{ OrganizationCollectionLookupService, CultureHubPlugin }
 import models.OrganizationConfiguration
 
 /**

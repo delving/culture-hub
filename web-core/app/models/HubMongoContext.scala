@@ -30,7 +30,7 @@ trait HubMongoContext extends models.MongoContext {
   geonamesCollection.ensureIndex(MongoDBObject("name" -> 1))
 
   def addIndexes(collection: MongoCollection, indexes: Seq[DBObject], indexNames: Seq[String] = Seq.empty) {
-    if(indexNames.size == indexes.size) {
+    if (indexNames.size == indexes.size) {
       indexes.zipWithIndex.foreach {
         item => collection.ensureIndex(item._1, indexNames(item._2))
       }
@@ -44,8 +44,8 @@ trait HubMongoContext extends models.MongoContext {
   }.toMap
 
   lazy val imageCacheStoreCache: Map[String, GridFS] = OrganizationConfigurationHandler.organizationConfigurations.map { dc =>
-      (dc.objectService.imageCacheDatabaseName -> GridFS(createConnection(dc.objectService.imageCacheDatabaseName)))
-    }.toMap
+    (dc.objectService.imageCacheDatabaseName -> GridFS(createConnection(dc.objectService.imageCacheDatabaseName)))
+  }.toMap
 
   def imageCacheStore(configuration: OrganizationConfiguration) = imageCacheStoreCache(configuration.objectService.imageCacheDatabaseName)
   def fileStore(configuration: OrganizationConfiguration) = fileStoreCache(configuration.objectService.fileStoreDatabaseName)
@@ -68,8 +68,6 @@ trait HubMongoContext extends models.MongoContext {
   )
   val dataSetStatisticsContextIndexNames = Seq("context", "contextDataProvider", "contextProvider")
 
-
-
   // ~~~ DoS identifiers
 
   // ~~ images uploaded directly via culturehub
@@ -85,6 +83,5 @@ trait HubMongoContext extends models.MongoContext {
 
   // ~~~ types
   val FILE_TYPE_UNATTACHED = "unattached"
-
 
 }

@@ -37,14 +37,12 @@ object SipCreator extends OrganizationController {
           new Date(url.openConnection().getLastModified)
         }
 
-
-
         Ok(jnlp).
           as("application/x-java-jnlp-file").
           withHeaders(
-          (CACHE_CONTROL, "no-cache"),
-          (LAST_MODIFIED, format.format(lastModified))
-        )
+            (CACHE_CONTROL, "no-cache"),
+            (LAST_MODIFIED, format.format(lastModified))
+          )
     }
   }
 

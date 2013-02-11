@@ -1,10 +1,10 @@
 package plugins
 
-import play.api.{Logger, Configuration, Application}
+import play.api.{ Logger, Configuration, Application }
 import scala.util.matching.Regex
 import play.api.mvc.Handler
-import models.{OrganizationConfiguration, Role}
-import core.{RequestContext, MenuElement, MainMenuEntry, CultureHubPlugin}
+import models.{ OrganizationConfiguration, Role }
+import core.{ RequestContext, MenuElement, MainMenuEntry, CultureHubPlugin }
 import collection.immutable.ListMap
 import collection.JavaConverters._
 
@@ -32,18 +32,18 @@ class StatisticsPlugin(app: Application) extends CultureHubPlugin(app) {
       val facets = config._2.map { c =>
 
         c.underlying.getStringList("facets").asScala.map { facet =>
-            val s: Array[String] = facet.split(':')
-            if (s.length == 1) {
-              (facet -> facet)
-            } else if (s.length == 2) {
-              (s(0) -> s(1))
-            } else {
-              Logger("CultureHub").warn("Invalid configuration key for statistic facets in configuration %s: %s".format(config._1.name, facet))
-              (s(0) -> s(0))
-            }
+          val s: Array[String] = facet.split(':')
+          if (s.length == 1) {
+            (facet -> facet)
+          } else if (s.length == 2) {
+            (s(0) -> s(1))
+          } else {
+            Logger("CultureHub").warn("Invalid configuration key for statistic facets in configuration %s: %s".format(config._1.name, facet))
+            (s(0) -> s(0))
+          }
         }.toMap
 
-       }.getOrElse {
+      }.getOrElse {
         Map(
           "delving_owner_facet" -> "metadata.delving.owner",
           "delving_provider_facet" -> "metadata.delving.provider"
@@ -51,7 +51,7 @@ class StatisticsPlugin(app: Application) extends CultureHubPlugin(app) {
       }
 
       (config._1 -> facets)
-    
+
     }.toMap
 
   }
@@ -78,9 +78,11 @@ class StatisticsPlugin(app: Application) extends CultureHubPlugin(app) {
 
   override def homePageSnippet: Option[(String, (RequestContext) => Unit)] = Some(
     "/homePageSnippet.html",
-    { context => {
+    { context =>
+      {
         context.renderArgs += ("orgId" -> context.configuration.orgId)
-    }}
+      }
+    }
   )
 
   override def roles: Seq[Role] = Seq(StatisticsPlugin.UNIT_ROLE_STATISTICS_VIEW)

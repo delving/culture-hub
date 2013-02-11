@@ -1,12 +1,12 @@
 package actors
 
-import akka.actor.{Cancellable, Actor}
+import akka.actor.{ Cancellable, Actor }
 import play.api.mvc.RequestHeader
 import play.api.Logger
 import collection.mutable.Map
 import collection.mutable.HashMap
 import collection.mutable.ArrayBuffer
-import models.{OrganizationConfiguration, RouteAccess}
+import models.{ OrganizationConfiguration, RouteAccess }
 import util.OrganizationConfigurationHandler
 import scala.concurrent.duration._
 import play.api.libs.concurrent.Akka
@@ -22,7 +22,6 @@ class RouteLogger extends Actor {
 
   private var scheduler: Cancellable = null
 
-
   override def preStart() {
     scheduler = Akka.system.scheduler.schedule(
       0 seconds,
@@ -31,7 +30,6 @@ class RouteLogger extends Actor {
       PersistRouteAccess
     )
   }
-
 
   override def postStop() {
     scheduler.cancel()
@@ -48,23 +46,23 @@ class RouteLogger extends Actor {
       val configuration = OrganizationConfigurationHandler.getByDomain(request.domain)
       fileLog.info("%s %s".format(request.path, request.rawQueryString))
       val routeAccess = RouteAccess(uri = request.path, queryString = request.queryString.map(a => (a._1.replaceAll("\\.", "_dot_") -> a._2)))
-      if(mongoLogBuffer.contains(configuration)) {
+      if (mongoLogBuffer.contains(configuration)) {
         mongoLogBuffer(configuration).append(routeAccess)
       } else {
-        val arr =  new ArrayBuffer[RouteAccess]()
+        val arr = new ArrayBuffer[RouteAccess]()
         arr.append(routeAccess)
         mongoLogBuffer += (configuration -> arr)
       }
 
     case PersistRouteAccess =>
       mongoLogBuffer.foreach {
-        access => {
-          implicit val configuration = access._1
-          RouteAccess.dao.insert(access._2)
-        }
+        access =>
+          {
+            implicit val configuration = access._1
+            RouteAccess.dao.insert(access._2)
+          }
       }
       mongoLogBuffer.clear()
-
 
     case _ => // do nothing
 

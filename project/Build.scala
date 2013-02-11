@@ -2,6 +2,7 @@ import sbt._
 import scala._
 import play.Project._
 import sbt.Keys._
+import com.typesafe.sbt._
 import sbtbuildinfo.Plugin._
 import eu.delving.templates.Plugin._
 
@@ -66,6 +67,9 @@ object Build extends sbt.Build {
 
   )
 
+
+  val scalarifromSettings = SbtScalariform.scalariformSettings
+
   val webCore = play.Project("web-core", webCoreVersion, webCoreDependencies, file(cultureHubPath + "web-core/"), settings = Defaults.defaultSettings ++ buildInfoSettings).settings(
     organization := "eu.delving",
     version := webCoreVersion,
@@ -84,8 +88,7 @@ object Build extends sbt.Build {
     buildInfoKeys := Seq(name, cultureHub, scalaVersion, sbtVersion, sipApp, sipCore, schemaRepo),
     buildInfoPackage := "eu.delving.culturehub",
     scalaVersion in (ThisBuild) := buildScalaVersion
-
-  )
+  ).settings(scalarifromSettings :_*)
 
 
   val dosDependencies = Seq(
@@ -96,22 +99,22 @@ object Build extends sbt.Build {
   val dos = play.Project("dos", dosVersion, dosDependencies, path = file(cultureHubPath + "modules/dos")).settings(
     resolvers ++= commonResolvers,
     publish := { }
-  ).dependsOn(webCore % "test->test;compile->compile")
+  ).dependsOn(webCore % "test->test;compile->compile").settings(scalarifromSettings :_*)
 
   val thumbnail = play.Project("thumbnail", "1.0-SNAPSHOT", Seq.empty, path = file(cultureHubPath + "modules/thumbnail")).settings(
     resolvers ++= commonResolvers,
     publish := { }
-  ).dependsOn(webCore % "test->test;compile->compile", dos)
+  ).dependsOn(webCore % "test->test;compile->compile", dos).settings(scalarifromSettings :_*)
 
   val deepZoom = play.Project("deepZoom", "1.0-SNAPSHOT", Seq.empty, path = file(cultureHubPath + "modules/deepZoom")).settings(
     resolvers ++= commonResolvers,
     publish := { }
-  ).dependsOn(webCore % "test->test;compile->compile", dos)
+  ).dependsOn(webCore % "test->test;compile->compile", dos).settings(scalarifromSettings :_*)
 
   val hubNode = play.Project("hubNode", "1.0-SNAPSHOT", Seq.empty, path = file(cultureHubPath + "modules/hubNode")).settings(
     resolvers ++= commonResolvers,
     publish := {}
-  ).dependsOn(webCore % "test->test;compile->compile")
+  ).dependsOn(webCore % "test->test;compile->compile").settings(scalarifromSettings :_*)
 
   val dataSet = play.Project("dataset", "1.0-SNAPSHOT", Seq.empty, path = file(cultureHubPath + "modules/dataset"), settings = Defaults.defaultSettings ++ buildInfoSettings).settings(
     libraryDependencies += "eu.delving" % "sip-core" % sipCoreVersion,
@@ -120,17 +123,17 @@ object Build extends sbt.Build {
     sipCore := sipCoreVersion,
     schemaRepo := schemaRepoVersion,
     publish := { }
-  ).dependsOn(webCore % "test->test;compile->compile")
+  ).dependsOn(webCore % "test->test;compile->compile").settings(scalarifromSettings :_*)
 
   val cms = play.Project("cms", "1.0-SNAPSHOT", Seq.empty, path = file(cultureHubPath + "modules/cms")).settings(
     resolvers ++= commonResolvers,
     publish := {}
-  ).dependsOn(webCore % "test->test;compile->compile", dos)
+  ).dependsOn(webCore % "test->test;compile->compile", dos).settings(scalarifromSettings :_*)
 
   val statistics = play.Project("statistics", "1.0-SNAPSHOT", Seq.empty, path = file(cultureHubPath + "modules/statistics")).settings(
     resolvers ++= commonResolvers,
     publish := { }
-  ).dependsOn(webCore, dataSet)
+  ).dependsOn(webCore, dataSet).settings(scalarifromSettings :_*)
 
   val root = play.Project(appName, cultureHubVersion, appDependencies, settings = Defaults.defaultSettings ++ groovyTemplatesSettings, path = file(cultureHubPath)).settings(
 
@@ -152,7 +155,7 @@ object Build extends sbt.Build {
 
     scalaVersion in (ThisBuild) := buildScalaVersion
 
-  ) // .settings(addArtifact(Artifact((appName + "-" + cultureHubVersion), "zip", "zip"), dist).settings :_*)
+  ).settings(scalarifromSettings :_*) // .settings(addArtifact(Artifact((appName + "-" + cultureHubVersion), "zip", "zip"), dist).settings :_*)
    .dependsOn(
     webCore                 % "test->test;compile->compile",
     thumbnail               % "test->test;compile->compile",

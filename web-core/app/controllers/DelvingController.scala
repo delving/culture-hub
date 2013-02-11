@@ -3,13 +3,13 @@ package controllers
 import play.api.Logger
 import play.api.mvc._
 import play.api.Play.current
-import play.api.i18n.{Lang, Messages}
+import play.api.i18n.{ Lang, Messages }
 import play.libs.Time
 import eu.delving.templates.scala.GroovyTemplates
 import collection.JavaConverters._
 import org.bson.types.ObjectId
 import core._
-import models.{OrganizationConfiguration, Role, Group, HubUser}
+import models.{ OrganizationConfiguration, Role, Group, HubUser }
 
 /**
  * TODO document the default renderArgs attributes available to templates
@@ -19,7 +19,6 @@ import models.{OrganizationConfiguration, Role, Group, HubUser}
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
-
 
 trait ApplicationController extends Controller with GroovyTemplates with ControllerBase {
 
@@ -38,57 +37,57 @@ trait ApplicationController extends Controller with GroovyTemplates with Control
   def ApplicationAction[A](action: Action[A]): Action[A] = {
     OrganizationConfigured {
       Action(action.parser) {
-        implicit request: Request[A] => {
+        implicit request: Request[A] =>
+          {
 
-          renderArgs += ("themeInfo" -> new ThemeInfo(configuration))
+            renderArgs += ("themeInfo" -> new ThemeInfo(configuration))
 
-          val langParam = request.queryString.get(LANG)
+            val langParam = request.queryString.get(LANG)
 
-          val requestLanguage = if (langParam.isDefined) {
-            Logger("CultureHub").trace("Setting language from parameter to " + langParam.get(0))
-            langParam.get(0)
-          } else if (request.cookies.get(LANG_COOKIE).isEmpty) {
-            // if there is no language for this cookie / user set, set the default one from the configuration
-            Logger("CultureHub").trace("Setting language from domain configuration to " + configuration.ui.defaultLanguage)
-            configuration.ui.defaultLanguage
-          } else {
-            Logger("CultureHub").trace("Setting language from cookie to " + request.cookies.get(LANG_COOKIE).get.value)
-            request.cookies.get(LANG_COOKIE).get.value
-          }
-
-          val languageChanged = request.cookies.get(LANG_COOKIE).map(_.value) != Some(requestLanguage)
-
-          // just to be clear, this is a feature of the play2 groovy template engine to override the language. due to our
-          // action composition being applied after the template has been rendered, we need to pass it in this way
-          renderArgs += (__LANG -> requestLanguage)
-
-          // main navigation
-          val menu = CultureHubPlugin.getEnabledPlugins.map(
-            plugin => plugin.mainMenuEntries(configuration, getLang).map(_.asJavaMap)
-          ).flatten.asJava
-
-          renderArgs += ("menu" -> menu)
-
-          // ignore AsyncResults for these things for the moment
-          val res = action(request)
-          if(res.isInstanceOf[PlainResult]) {
-            val r = res.asInstanceOf[PlainResult]
-            if (languageChanged) {
-              Logger("CultureHub").trace("Composing session after language change")
-              r.withCookies(Cookie(name = LANG_COOKIE, value = requestLanguage, maxAge = Some(Time.parseDuration("30d"))))
+            val requestLanguage = if (langParam.isDefined) {
+              Logger("CultureHub").trace("Setting language from parameter to " + langParam.get(0))
+              langParam.get(0)
+            } else if (request.cookies.get(LANG_COOKIE).isEmpty) {
+              // if there is no language for this cookie / user set, set the default one from the configuration
+              Logger("CultureHub").trace("Setting language from domain configuration to " + configuration.ui.defaultLanguage)
+              configuration.ui.defaultLanguage
             } else {
-              r
+              Logger("CultureHub").trace("Setting language from cookie to " + request.cookies.get(LANG_COOKIE).get.value)
+              request.cookies.get(LANG_COOKIE).get.value
             }
-          } else {
-            res
+
+            val languageChanged = request.cookies.get(LANG_COOKIE).map(_.value) != Some(requestLanguage)
+
+            // just to be clear, this is a feature of the play2 groovy template engine to override the language. due to our
+            // action composition being applied after the template has been rendered, we need to pass it in this way
+            renderArgs += (__LANG -> requestLanguage)
+
+            // main navigation
+            val menu = CultureHubPlugin.getEnabledPlugins.map(
+              plugin => plugin.mainMenuEntries(configuration, getLang).map(_.asJavaMap)
+            ).flatten.asJava
+
+            renderArgs += ("menu" -> menu)
+
+            // ignore AsyncResults for these things for the moment
+            val res = action(request)
+            if (res.isInstanceOf[PlainResult]) {
+              val r = res.asInstanceOf[PlainResult]
+              if (languageChanged) {
+                Logger("CultureHub").trace("Composing session after language change")
+                r.withCookies(Cookie(name = LANG_COOKIE, value = requestLanguage, maxAge = Some(Time.parseDuration("30d"))))
+              } else {
+                r
+              }
+            } else {
+              res
+            }
           }
-        }
       }
     }
   }
 
   //def getAuthenticityToken[A](implicit request: Request[A]) = request.session.get(Authentication.AT_KEY)
-
 
   // ~~~ convenience methods - Play's new API around the whole body thing is too fucking verbose
 
@@ -121,7 +120,6 @@ trait ApplicationController extends Controller with GroovyTemplates with Control
 
 }
 
-
 case class RichBody[A <: AnyContent](body: A) {
 
   def getFirstAsString(key: String): Option[String] = body.asFormUrlEncoded match {
@@ -152,13 +150,14 @@ trait OrganizationController extends DelvingController with Secured {
   def OrganizationAdmin[A](action: Action[A]): Action[A] = {
     OrganizationMember {
       Action(action.parser) {
-        implicit request => {
-          if (isAdmin) {
-            action(request)
-          } else {
-            Forbidden(Messages("user.secured.noAccess"))
+        implicit request =>
+          {
+            if (isAdmin) {
+              action(request)
+            } else {
+              Forbidden(Messages("user.secured.noAccess"))
+            }
           }
-        }
       }
     }
   }
@@ -167,13 +166,14 @@ trait OrganizationController extends DelvingController with Secured {
     OrganizationBrowsing {
       Authenticated {
         Action(action.parser) {
-          implicit request => {
-            if (!HubUser.dao.findByUsername(connectedUser).map(_.organizations.contains(configuration.orgId)).getOrElse(false)) {
-              Forbidden(Messages("user.secured.noAccess"))
-            } else {
-              action(request)
+          implicit request =>
+            {
+              if (!HubUser.dao.findByUsername(connectedUser).map(_.organizations.contains(configuration.orgId)).getOrElse(false)) {
+                Forbidden(Messages("user.secured.noAccess"))
+              } else {
+                action(request)
+              }
             }
-          }
         }
       }
     }
@@ -189,64 +189,65 @@ trait DelvingController extends ApplicationController {
   def Root[A](action: Action[A]): Action[A] = {
     ApplicationAction {
       Action(action.parser) {
-        implicit request: Request[A] => {
+        implicit request: Request[A] =>
+          {
 
-          val additionalSessionParams = new scala.collection.mutable.HashMap[String, String]
+            val additionalSessionParams = new scala.collection.mutable.HashMap[String, String]
 
-          // CSRF check
-          // TODO FIXME
-//          if (request.method == "POST" && Play.isTest) {
-//            val params = request.body match {
-//              case body: play.api.mvc.AnyContent if body.asFormUrlEncoded.isDefined => body.asFormUrlEncoded.get
-//              case _ => Map.empty[String, Seq[String]] // TODO
-//            }
-//            val authenticityTokenParam = params.get(key = "authenticityToken")
-//            val CSRFHeader = request.headers.get("x-csrf-token")
-//            if ((authenticityTokenParam == null && CSRFHeader == null) || (authenticityTokenParam != null && !(Some(authenticityTokenParam) == getAuthenticityToken)) || (CSRFHeader != null && !(CSRFHeader == getAuthenticityToken)))
-//            // TODO MIGRATION - PLAY 2 FIXME this does not work!!
-//              Forbidden("Bad authenticity token")
-//          }
+            // CSRF check
+            // TODO FIXME
+            //          if (request.method == "POST" && Play.isTest) {
+            //            val params = request.body match {
+            //              case body: play.api.mvc.AnyContent if body.asFormUrlEncoded.isDefined => body.asFormUrlEncoded.get
+            //              case _ => Map.empty[String, Seq[String]] // TODO
+            //            }
+            //            val authenticityTokenParam = params.get(key = "authenticityToken")
+            //            val CSRFHeader = request.headers.get("x-csrf-token")
+            //            if ((authenticityTokenParam == null && CSRFHeader == null) || (authenticityTokenParam != null && !(Some(authenticityTokenParam) == getAuthenticityToken)) || (CSRFHeader != null && !(CSRFHeader == getAuthenticityToken)))
+            //            // TODO MIGRATION - PLAY 2 FIXME this does not work!!
+            //              Forbidden("Bad authenticity token")
+            //          }
 
-          // orgId
-          renderArgs += ("orgId" -> configuration.orgId)
+            // orgId
+            renderArgs += ("orgId" -> configuration.orgId)
 
-          // admin
-          val isAdmin = organizationServiceLocator.byDomain.isAdmin(configuration.orgId, userName)
-          renderArgs += ("isAdmin" -> isAdmin.asInstanceOf[AnyRef])
+            // admin
+            val isAdmin = organizationServiceLocator.byDomain.isAdmin(configuration.orgId, userName)
+            renderArgs += ("isAdmin" -> isAdmin.asInstanceOf[AnyRef])
 
-          // Connected user
-          HubUser.dao.findByUsername(userName).foreach { u =>
-            renderArgs +=("fullName" -> u.fullname)
-            renderArgs +=("userName" -> u.userName)
-            renderArgs +=("userId" -> u._id)
-            //        renderArgs += ("authenticityToken", session.getAuthenticityToken)
-            renderArgs +=("organization" -> u.organizations.headOption.getOrElse(""))
-            renderArgs +=("email" -> u.email)
-          }
-
-          // SearchIn
-
-          val searchIn: Map[String, String] = CultureHubPlugin.getEnabledPlugins.flatMap { p =>
-            p.getServices(classOf[SearchInService]).map { service =>
-              service.getSearchInTargets(Option(connectedUser))
+            // Connected user
+            HubUser.dao.findByUsername(userName).foreach { u =>
+              renderArgs += ("fullName" -> u.fullname)
+              renderArgs += ("userName" -> u.userName)
+              renderArgs += ("userId" -> u._id)
+              //        renderArgs += ("authenticityToken", session.getAuthenticityToken)
+              renderArgs += ("organization" -> u.organizations.headOption.getOrElse(""))
+              renderArgs += ("email" -> u.email)
             }
-          }.foldLeft(Map.empty[String, String]) { _ ++ _ }
 
-          renderArgs += ("searchIn" -> searchIn.asJava)
+            // SearchIn
 
-          // breadcrumbs
-          renderArgs += ("breadcrumbs" -> Breadcrumbs.crumble())
+            val searchIn: Map[String, String] = CultureHubPlugin.getEnabledPlugins.flatMap { p =>
+              p.getServices(classOf[SearchInService]).map { service =>
+                service.getSearchInTargets(Option(connectedUser))
+              }
+            }.foldLeft(Map.empty[String, String]) { _ ++ _ }
 
-          // ignore AsyncResults for these things for the moment
-          val res = action(request)
-          if(res.isInstanceOf[PlainResult]) {
-            val r = res.asInstanceOf[PlainResult]
-            Logger("CultureHub").trace("DelvingController composing session with additional parameters " + additionalSessionParams.toMap)
-            composeSession(r, Session(additionalSessionParams.toMap))
-          } else {
-            res
+            renderArgs += ("searchIn" -> searchIn.asJava)
+
+            // breadcrumbs
+            renderArgs += ("breadcrumbs" -> Breadcrumbs.crumble())
+
+            // ignore AsyncResults for these things for the moment
+            val res = action(request)
+            if (res.isInstanceOf[PlainResult]) {
+              val r = res.asInstanceOf[PlainResult]
+              Logger("CultureHub").trace("DelvingController composing session with additional parameters " + additionalSessionParams.toMap)
+              composeSession(r, Session(additionalSessionParams.toMap))
+            } else {
+              res
+            }
           }
-        }
       }
     }
   }
@@ -261,9 +262,9 @@ trait DelvingController extends ApplicationController {
           val maybeUser = HubUser.dao.findByUsername(user)
           maybeUser match {
             case Some(u) =>
-              renderArgs +=("browsedFullName" -> u.fullname)
-              renderArgs +=("browsedUserId" -> u._id)
-              renderArgs +=("browsedUserName" -> u.userName)
+              renderArgs += ("browsedFullName" -> u.fullname)
+              renderArgs += ("browsedUserId" -> u._id)
+              renderArgs += ("browsedUserName" -> u.userName)
               action(request)
             case None => NotFound(Messages("delvingcontroller.userNotFound", user))
           }
@@ -289,13 +290,14 @@ trait DelvingController extends ApplicationController {
     UserAction(user) {
       Authenticated {
         Action(action.parser) {
-          implicit request => {
-            if (connectedUser != user) {
-              Forbidden(Messages("user.secured.noAccess"))
-            } else {
-              action(request)
+          implicit request =>
+            {
+              if (connectedUser != user) {
+                Forbidden(Messages("user.secured.noAccess"))
+              } else {
+                action(request)
+              }
             }
-          }
         }
       }
     }
@@ -311,19 +313,19 @@ trait DelvingController extends ApplicationController {
             u => Group.dao.findDirectMemberships(userName).map(g => g.roleKey).toSeq
           }.getOrElse {
             List.empty
-          }) ++ (if(renderArgs("isAdmin").map(_.asInstanceOf[Boolean]).getOrElse(false)) Seq(Role.OWN.key) else Seq.empty)
-
+          }) ++ (if (renderArgs("isAdmin").map(_.asInstanceOf[Boolean]).getOrElse(false)) Seq(Role.OWN.key) else Seq.empty)
 
           renderArgs += ("roles" -> roles.asJava)
 
           val navigation = CultureHubPlugin.getEnabledPlugins.map {
-            plugin => plugin.
-              getOrganizationNavigation(
-                orgId = configuration.orgId,
-                lang = getLang,
-                roles = roles,
-                isMember = HubUser.dao.findByUsername(connectedUser).map(u => u.organizations.contains(configuration.orgId)).getOrElse(false)
-            ).map(_.asJavaMap)
+            plugin =>
+              plugin.
+                getOrganizationNavigation(
+                  orgId = configuration.orgId,
+                  lang = getLang,
+                  roles = roles,
+                  isMember = HubUser.dao.findByUsername(connectedUser).map(u => u.organizations.contains(configuration.orgId)).getOrElse(false)
+                ).map(_.asJavaMap)
           }.flatten.asJava
 
           renderArgs += ("navigation" -> navigation)
@@ -354,7 +356,7 @@ trait DelvingController extends ApplicationController {
       val isAdmin = organizationServiceLocator.byDomain.isAdmin(orgId, userName)
       val groups: Seq[Role] = Group.dao.findDirectMemberships(userName).map(_.roleKey).toSeq.distinct.map(Role.get(_))
       // TODO make this cleaner
-      if(isAdmin) {
+      if (isAdmin) {
         groups ++ Seq(Role.get("own"))
       } else {
         groups

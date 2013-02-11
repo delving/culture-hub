@@ -22,9 +22,9 @@ trait RecordResolverService {
 }
 
 case class RenderableRecord(recordXml: String,
-                            systemFields: Map[String, List[String]],
-                            schemaVersion: SchemaVersion,
-                            viewType: ViewType = ViewType.HTML,
-                            parameters: Map[String, String] = Map.empty,
-                            hasRelatedItems: Boolean = false,
-                            resolveRefererLink: Option[String => (String, String)] = None)
+  systemFields: Map[String, List[String]],
+  schemaVersion: SchemaVersion,
+  viewType: ViewType = ViewType.HTML,
+  parameters: Map[String, String] = Map.empty,
+  hasRelatedItems: Boolean = false,
+  resolveRefererLink: Option[String => (String, String)] = None)

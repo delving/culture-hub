@@ -27,18 +27,18 @@ class Processor extends Actor {
         // sanity check
         val currentState = DataSet.dao.getState(set.orgId, set.spec)
 
-        if(currentState == DataSetState.PROCESSING_QUEUED) {
+        if (currentState == DataSetState.PROCESSING_QUEUED) {
           DataSet.dao(set.orgId).updateState(set, DataSetState.PROCESSING)
           DataSetCollectionProcessor.process(set, {
             DataSet.dao(set.orgId).updateProcessingInstanceIdentifier(set, None)
             val state = DataSet.dao.getState(set.orgId, set.spec)
-            if(state == DataSetState.PROCESSING) {
+            if (state == DataSetState.PROCESSING) {
               DataSet.dao.updateState(set, DataSetState.ENABLED)
-            } else if(state == DataSetState.CANCELLED) {
+            } else if (state == DataSetState.CANCELLED) {
               DataSet.dao.updateState(set, DataSetState.UPLOADED)
             }
           })
-        } else if(currentState != DataSetState.CANCELLED) {
+        } else if (currentState != DataSetState.CANCELLED) {
           log.warn("Trying to process set %s which is not in PROCESSING_QUEUED state but in state %s".format(
             set.spec, currentState
           ))
@@ -55,12 +55,12 @@ class Processor extends Actor {
           } catch {
             case t1: Throwable =>
               t1.printStackTrace()
-              // not reporting here, since reporting probably happened
+            // not reporting here, since reporting probably happened
           }
         }
       }
 
-    case a@_ => log.warn("Processor: What what ? ==> " + a)
+    case a @ _ => log.warn("Processor: What what ? ==> " + a)
 
   }
 

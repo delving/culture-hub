@@ -10,11 +10,11 @@ import core.node.Node
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 case class HubNode(
-  _id: ObjectId = new ObjectId,
-  nodeId: String,
-  name: String,
-  orgId: String,
-  contacts: Seq[String] = Seq.empty) extends Node {
+    _id: ObjectId = new ObjectId,
+    nodeId: String,
+    name: String,
+    orgId: String,
+    contacts: Seq[String] = Seq.empty) extends Node {
 
   val isLocal: Boolean = true
 

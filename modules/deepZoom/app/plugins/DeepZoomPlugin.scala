@@ -1,6 +1,6 @@
 package plugins
 
-import _root_.libs.{PTIFTiling, Normalizer}
+import _root_.libs.{ PTIFTiling, Normalizer }
 import play.api._
 import core.CultureHubPlugin
 import core.storage.FileStorage
@@ -31,7 +31,6 @@ class DeepZoomPlugin(app: Application) extends CultureHubPlugin(app) with Thumbn
           val sourceFile = new File(normalizationWorkingDir + File.separator + fileName)
           file.writeTo(sourceFile)
 
-
           info("%s: normalizing image for file %s".format(configuration.orgId, fileName))
           val tileSource = Normalizer.normalize(sourceFile, new File(normalizationWorkingDir)).getOrElse(sourceFile)
 
@@ -39,7 +38,6 @@ class DeepZoomPlugin(app: Application) extends CultureHubPlugin(app) with Thumbn
           PTIFTiling.createTile(tilesWorkingDir, tilesOutputDir, tileSource)
         }
       }
-
 
   }
 }

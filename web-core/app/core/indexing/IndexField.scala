@@ -58,4 +58,3 @@ case object IndexField {
 
 }
 
-

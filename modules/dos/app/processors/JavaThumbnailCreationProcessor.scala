@@ -18,7 +18,7 @@ package processors
 
 import org.bson.types.ObjectId
 import controllers.dos._
-import java.io.{FileInputStream, File}
+import java.io.{ FileInputStream, File }
 import models.dos.Task
 
 /**
@@ -28,9 +28,8 @@ import models.dos.Task
 
 object JavaThumbnailCreationProcessor extends ThumbnailCreationProcessor with Thumbnail {
 
-
   protected def createThumbnailsForSize(images: Seq[File], width: Int, task: Task, orgId: String, collectionId: String) {
-    for (image <- images; if(!task.isCancelled)) {
+    for (image <- images; if (!task.isCancelled)) {
       try {
         val id = createThumbnailFromFile(image, width, task._id, orgId, collectionId)
         info(task, "Created thumbnail of size '%s' for image '%s'".format(width, image.getAbsolutePath), Some(image.getAbsolutePath), Some(id.toString))

@@ -8,7 +8,7 @@ import core.CultureHubPlugin
 import play.api.libs.concurrent._
 import akka.actor._
 import play.api._
-import mvc.{Handler, RequestHeader}
+import mvc.{ Handler, RequestHeader }
 import play.api.Play.current
 import util.OrganizationConfigurationHandler
 import eu.delving.culturehub.BuildInfo
@@ -73,9 +73,9 @@ object Global extends GlobalSettings {
 
   override def onStop(app: Application) {
     if (!Play.isTest) {
-    // close all Mongo connections
-    import models.HubMongoContext._
-    close()
+      // close all Mongo connections
+      import models.HubMongoContext._
+      close()
     }
   }
 
@@ -90,7 +90,7 @@ object Global extends GlobalSettings {
 
   override def onHandlerNotFound(request: RequestHeader) = {
 
-    if(Play.isProd) {
+    if (Play.isProd) {
       InternalServerError(views.html.errors.notFound(request, "", None))
     } else {
       super.onHandlerNotFound(request)
@@ -119,7 +119,7 @@ object Global extends GlobalSettings {
         routeLogger ! RouteRequest(request)
 
         // TODO proper routing for search
-        if(request.queryString.contains("explain") && request.queryString("explain").head == "true" && !request.path.contains("search")) {
+        if (request.queryString.contains("explain") && request.queryString("explain").head == "true" && !request.path.contains("search")) {
           // redirect to the standard explain response
           return Some(controllers.api.Api.explainPath(matcher.group(1), request.path))
         }
@@ -131,7 +131,7 @@ object Global extends GlobalSettings {
       val matches = routes.flatMap(r => {
         val matcher = r._1._2.pattern.matcher(request.path)
         if (request.method == r._1._1 && matcher.matches()) {
-          val pathElems = for(i <- 1 until matcher.groupCount() + 1) yield matcher.group(i)
+          val pathElems = for (i <- 1 until matcher.groupCount() + 1) yield matcher.group(i)
           Some((pathElems.toList, r._2))
         } else {
           None

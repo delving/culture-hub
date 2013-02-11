@@ -2,9 +2,9 @@ package jobs
 
 import play.api.libs.concurrent.Execution.Implicits._
 import scala.concurrent.duration._
-import akka.actor.{Cancellable, Actor}
+import akka.actor.{ Cancellable, Actor }
 import play.libs.Akka
-import models.{DataSetState, DataSet}
+import models.{ DataSetState, DataSet }
 import play.api.Play
 
 /**
@@ -20,7 +20,6 @@ class ProcessingQueueWatcher extends Actor {
   override def preStart() {
     scheduledTask = Akka.system.scheduler.schedule(10 seconds, 10 seconds, self, PollDataSets)
   }
-
 
   override def postStop() {
     scheduledTask.cancel()

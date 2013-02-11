@@ -5,13 +5,13 @@ import util.OrganizationConfigurationHandler
 import core.mapping.MappingService
 import core.schema.SchemaRepositoryWrapper
 import core._
-import play.api.{Play, Application}
+import play.api.{ Play, Application }
 import Play.current
-import models.{Group, HubUser}
+import models.{ Group, HubUser }
 import org.bson.types.ObjectId
 import com.mongodb.casbah.Imports._
 import play.api.libs.concurrent.Akka
-import akka.actor.{PoisonPill, ActorRef, Props}
+import akka.actor.{ PoisonPill, ActorRef, Props }
 import models.UserProfile
 
 /**
@@ -73,7 +73,6 @@ class ConfigurationPlugin(app: Application) extends CultureHubPlugin(app) {
     }
 
   }
-
 
   override def onStop() {
     pluginBroadcastActors foreach { actor =>

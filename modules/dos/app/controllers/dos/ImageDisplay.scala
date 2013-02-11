@@ -28,7 +28,6 @@ import play.api.libs.iteratee.Enumerator
 import extensions.MissingLibs
 import controllers.OrganizationConfigurationAware
 
-
 /**
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
@@ -70,14 +69,13 @@ object ImageDisplay extends Controller with RespondWithDefaultImage with Organiz
   // ~~ PRIVATE
 
   private[dos] def renderImage(id: String,
-                               orgId: String = "",
-                               collectionId: String = "",
-                               thumbnail: Boolean,
-                               thumbnailWidth: Int = DEFAULT_THUMBNAIL_WIDTH,
-                               store: GridFS,
-                               browse: Boolean = false,
-                               isFileId: Boolean = false)
-                              (implicit request: Request[AnyContent]): Result = {
+    orgId: String = "",
+    collectionId: String = "",
+    thumbnail: Boolean,
+    thumbnailWidth: Int = DEFAULT_THUMBNAIL_WIDTH,
+    store: GridFS,
+    browse: Boolean = false,
+    isFileId: Boolean = false)(implicit request: Request[AnyContent]): Result = {
 
     val baseQuery: MongoDBObject = if (ObjectId.isValid(id)) {
       // here we can have different combinations:
@@ -87,9 +85,9 @@ object ImageDisplay extends Controller with RespondWithDefaultImage with Organiz
       // - we want an image, and pass in the mongo ObjectId of an associated item that can be used to lookup the image (the image is "active" for that item id)
       val f: String = if (isFileId && thumbnail) {
         FILE_POINTER_FIELD
-      } else if(isFileId && !thumbnail) {
+      } else if (isFileId && !thumbnail) {
         "_id"
-      } else if(thumbnail && !isFileId) {
+      } else if (thumbnail && !isFileId) {
         THUMBNAIL_ITEM_POINTER_FIELD
       } else {
         IMAGE_ITEM_POINTER_FIELD
@@ -104,21 +102,19 @@ object ImageDisplay extends Controller with RespondWithDefaultImage with Organiz
 
       val idIsUrl = id.startsWith("http://")
       var incomplete = false
-      if(!idIsUrl && !browse && (orgId == null || orgId.isEmpty)) {
+      if (!idIsUrl && !browse && (orgId == null || orgId.isEmpty)) {
         Logger("DoS").warn("Attempting to display image '%s' with string identifier without orgId".format(id))
         incomplete = true
       }
-      if(!idIsUrl && !browse && (collectionId == null || collectionId.isEmpty)) {
+      if (!idIsUrl && !browse && (collectionId == null || collectionId.isEmpty)) {
         Logger("DoS").warn("Attempting to display image '%s' with string identifier without collectionId".format(id))
         incomplete = true
       }
-      if(browse) {
+      if (browse) {
         MongoDBObject(ORIGIN_PATH_FIELD -> id)
-      }
-      else if(idIsUrl || incomplete) {
+      } else if (idIsUrl || incomplete) {
         MongoDBObject(IMAGE_ID_FIELD -> id)
-      }
-      else {
+      } else {
         MongoDBObject(IMAGE_ID_FIELD -> id, ORGANIZATION_IDENTIFIER_FIELD -> orgId, COLLECTION_IDENTIFIER_FIELD -> collectionId)
       }
     }
@@ -128,7 +124,7 @@ object ImageDisplay extends Controller with RespondWithDefaultImage with Organiz
     val additionalHeaders = new collection.mutable.HashMap[String, String]
     val image: Option[GridFSDBFile] = store.findOne(query) match {
       case Some(file) => {
-        if(isNotExpired(etag, file.underlying)) {
+        if (isNotExpired(etag, file.underlying)) {
           return NotModified
         } else {
           additionalHeaders += (LAST_MODIFIED -> MissingLibs.getHttpDateFormatter.format(new Date()))
@@ -139,7 +135,7 @@ object ImageDisplay extends Controller with RespondWithDefaultImage with Organiz
         // try to find the next fitting size
         store.find(baseQuery).sortWith((a, b) => a.get(THUMBNAIL_WIDTH_FIELD).asInstanceOf[Int] > b.get(THUMBNAIL_WIDTH_FIELD).asInstanceOf[Int]).headOption match {
           case Some(t) =>
-            if(isNotExpired(etag, t)) {
+            if (isNotExpired(etag, t)) {
               return NotModified
             } else {
               additionalHeaders += (LAST_MODIFIED -> MissingLibs.getHttpDateFormatter.format(new Date()))
@@ -156,9 +152,9 @@ object ImageDisplay extends Controller with RespondWithDefaultImage with Organiz
         withDefaultFromRequest(NotFound(request.rawQueryString), thumbnail, Some(thumbnailWidth.toString), false)(request)
       case Some(t) =>
         // cache control
-//        val maxAge: String = Play.configuration.getProperty("http.cacheControl", "3600")
-//        val cacheControl = if (maxAge == "0") "no-cache" else "max-age=" + maxAge
-//        response.setHeader("Cache-Control", cacheControl)
+        //        val maxAge: String = Play.configuration.getProperty("http.cacheControl", "3600")
+        //        val cacheControl = if (maxAge == "0") "no-cache" else "max-age=" + maxAge
+        //        response.setHeader("Cache-Control", cacheControl)
         additionalHeaders += ("ETag" -> t.get("_id").toString)
 
         val stream = Enumerator.fromStream(t.getInputStream)

@@ -17,18 +17,18 @@ package core.search
  */
 
 import core.indexing.IndexField
-import org.apache.solr.client.solrj.response.{QueryResponse, FacetField}
+import org.apache.solr.client.solrj.response.{ QueryResponse, FacetField }
 import scala.collection.JavaConverters._
 import exceptions.SolrConnectionException
 import play.api.Logger
 import play.api.mvc.RequestHeader
 import core.indexing.IndexField._
-import collection.immutable.{List, Map}
+import collection.immutable.{ List, Map }
 import models.OrganizationConfiguration
 import scala.xml.XML
 import scala.xml.Elem
 import org.apache.solr.client.solrj.SolrQuery
-import java.net.{URLDecoder, URLEncoder}
+import java.net.{ URLDecoder, URLEncoder }
 import org.apache.commons.lang.StringEscapeUtils
 import org.apache.solr.common.SolrDocumentList
 import org.apache.solr.client.solrj.SolrServerException
@@ -44,11 +44,10 @@ import core.Constants._
 
 object SolrQueryService extends SolrServer {
 
-
   val FACET_PROMPT: String = "&qf="
   val QUERY_PROMPT: String = "query="
 
-  def renderXMLFields(field : FieldValue): (Seq[Elem], Seq[(String, String, Throwable)]) = {
+  def renderXMLFields(field: FieldValue): (Seq[Elem], Seq[(String, String, Throwable)]) = {
     val keyAsXml = field.getKeyAsXml
     val values = field.getValueAsArray.map(value => {
       val cleanValue = if (value.startsWith("http")) value.replaceAll("&(?!amp;)", "&amp;") else StringEscapeUtils.escapeXml(value)
@@ -63,7 +62,7 @@ object SolrQueryService extends SolrServer {
     (values.filter(_.isRight).map(_.right.get), values.filter(_.isLeft).map(_.left.get))
   }
 
-  def renderHighLightXMLFields(field : FieldValue) : (Seq[Elem], Seq[(String, String, Throwable)]) = {
+  def renderHighLightXMLFields(field: FieldValue): (Seq[Elem], Seq[(String, String, Throwable)]) = {
     val values = field.getHighLightValuesAsArray.map(value =>
       try {
         Right(XML.loadString("<%s><![CDATA[%s]]></%s>\n".format(field.getKeyAsXml, value, field.getKeyAsXml)))
@@ -95,7 +94,7 @@ object SolrQueryService extends SolrServer {
     query addHighlightField ("*_snippet")
   }
 
-  def parseSolrQueryFromParams(params: Params)(implicit configuration: OrganizationConfiguration) : SolrQuery = {
+  def parseSolrQueryFromParams(params: Params)(implicit configuration: OrganizationConfiguration): SolrQuery = {
     import scala.collection.JavaConversions._
 
     val queryParams = getSolrQueryWithDefaults
@@ -105,7 +104,7 @@ object SolrQueryService extends SolrServer {
 
     params.put("facet.field", facetFields)
 
-    def addGeoParams(hasGeoType: Boolean)  {
+    def addGeoParams(hasGeoType: Boolean) {
       if (!hasGeoType) queryParams setFilterQueries ("{!%s}".format("geofilt"))
       // set defaults
       queryParams setParam ("d", "5")
@@ -122,16 +121,15 @@ object SolrQueryService extends SolrServer {
                   queryParams setFilterQueries ("{!%s}".format("gh_geofilt"))
               }
             case "d" =>
-              queryParams setParam("d", item._2)
+              queryParams setParam ("d", item._2)
             case "sfield" =>
-              queryParams setParam("sfield", item._2)
+              queryParams setParam ("sfield", item._2)
             case _ =>
           }
       }
     }
 
-
-    params.allNonEmpty.foreach{
+    params.allNonEmpty.foreach {
       entry =>
         val values = entry._2
         try {
@@ -148,12 +146,12 @@ object SolrQueryService extends SolrServer {
             case "facet.limit" =>
               queryParams setFacetLimit (values.head.toInt)
             case "sortBy" =>
-              val sortOrder = if (params.hasKeyAndValue ("sortOrder", "desc")) SolrQuery.ORDER.desc else SolrQuery.ORDER.asc
+              val sortOrder = if (params.hasKeyAndValue("sortOrder", "desc")) SolrQuery.ORDER.desc else SolrQuery.ORDER.asc
               val sortField = if (values.head.equalsIgnoreCase("random")) createRandomSortKey else values.head
               queryParams setSortField (sortField, sortOrder)
             case "facet.field" | "facet.field[]" =>
               values foreach (facet => {
-                queryParams addFacetField ("{!ex=%s}%s".format(values.indexOf(facet).toString,facet))
+                queryParams addFacetField ("{!ex=%s}%s".format(values.indexOf(facet).toString, facet))
               })
             case "group.field" =>
               // add the params stuff now
@@ -168,8 +166,7 @@ object SolrQueryService extends SolrServer {
               addGeoParams(params._contains("geoType"))
             case _ =>
           }
-        }
-        catch {
+        } catch {
           case ex: Exception =>
             Logger("CultureHub") error ("Unable to process parameter %s with values %s".format(entry._1, values.mkString(",")), ex)
         }
@@ -204,31 +201,33 @@ object SolrQueryService extends SolrServer {
       val FacetExtractor = """\{!ex=(.*)\}(.*)""".r
 
       val solrFacetFields = query.getFacetFields
-      val facetFieldMap = if (solrFacetFields == null) Map[String,String]()
+      val facetFieldMap = if (solrFacetFields == null) Map[String, String]()
       else {
         solrFacetFields.map {
-          field => field match {
-            case FacetExtractor(prefix, facetName) => (facetName, prefix)
-            case _ => (field, "p%i".format(solrFacetFields.indexOf(field)))
-          }
+          field =>
+            field match {
+              case FacetExtractor(prefix, facetName) => (facetName, prefix)
+              case _ => (field, "p%i".format(solrFacetFields.indexOf(field)))
+            }
         }.toMap
       }
       fqs.groupBy(_.field) foreach {
-        item => {
-          val prefix = facetFieldMap.get(item._1)
-          val facetQueriesValues = item._2.map(_.value)
-          val multiSelect = params.hasKeyAndValue("facetBoolType", "OR")
-          val orString = if (!facetQueriesValues.filter(_.startsWith("[")).isEmpty)
-            "%s:%s".format(item._1, facetQueriesValues.head.mkString(""))
-          else if (!multiSelect)
-            "%s:(%s)".format(item._1, facetQueriesValues.mkString("\"", "\" AND \"" ,"\""))
-          else
-            "%s:(%s)".format(item._1, facetQueriesValues.mkString("\"", "\" OR \"" ,"\""))
-          prefix match {
-            case Some(tag) => query addFilterQuery (if (multiSelect) "{!tag=%s}%s".format(tag, orString) else orString)
-            case None => query addFilterQuery (orString)
+        item =>
+          {
+            val prefix = facetFieldMap.get(item._1)
+            val facetQueriesValues = item._2.map(_.value)
+            val multiSelect = params.hasKeyAndValue("facetBoolType", "OR")
+            val orString = if (!facetQueriesValues.filter(_.startsWith("[")).isEmpty)
+              "%s:%s".format(item._1, facetQueriesValues.head.mkString(""))
+            else if (!multiSelect)
+              "%s:(%s)".format(item._1, facetQueriesValues.mkString("\"", "\" AND \"", "\""))
+            else
+              "%s:(%s)".format(item._1, facetQueriesValues.mkString("\"", "\" OR \"", "\""))
+            prefix match {
+              case Some(tag) => query addFilterQuery (if (multiSelect) "{!tag=%s}%s".format(tag, orString) else orString)
+              case None => query addFilterQuery (orString)
+            }
           }
-        }
       }
     }
 
@@ -242,19 +241,17 @@ object SolrQueryService extends SolrServer {
 
     val query = parseSolrQueryFromParams(params)
 
-
-    addPrefixedFilterQueries (filterQueries ++ hiddenQueryFilters, query)
+    addPrefixedFilterQueries(filterQueries ++ hiddenQueryFilters, query)
 
     // manu: deactivated this query since we don't have this kind of access rights any longer
     // val defaultSystemHQFs = if (connectedUser.isEmpty) List("%s:10".format(VISIBILITY)) else List("%s:10 OR %s:\"%s\"".format(VISIBILITY, OWNER, connectedUser.get))
 
     val defaultSystemHQFs = List("""delving_orgId:%s""".format(configuration.orgId)) // always filter by organization
 
-    val systemHQFs =  defaultSystemHQFs ++ additionalSystemHQFs
+    val systemHQFs = defaultSystemHQFs ++ additionalSystemHQFs
     systemHQFs.foreach(fq => query addFilterQuery (fq))
     CHQuery(query, format, filterQueries, hiddenQueryFilters, systemHQFs)
   }
-
 
   def getSolrItemReference(id: String, idType: DelvingIdType, findRelatedItems: Boolean, relatedItemsCount: Int)(implicit configuration: OrganizationConfiguration): Option[DocItemReference] = {
     val t = idType.resolve(id)
@@ -282,17 +279,17 @@ object SolrQueryService extends SolrServer {
       query.set("mlt.interestingTerms", "details")
     }
     val response = SolrQueryService.getSolrResponseFromServer(query)
-    if(response.getResults.size() == 0) {
+    if (response.getResults.size() == 0) {
       Logger("Search").info("Didn't find record for query:  %s".format(solrQuery))
       None
     } else {
       val first = response.getResults.get(0)
-      val currentFormat = if(first.containsKey(SCHEMA.key)) first.getFirstValue(SCHEMA.key).toString else ""
-      val publicFormats = if(first.containsKey(ALL_SCHEMAS.key)) first.getFieldValues(ALL_SCHEMAS.key).asScala.map(_.toString).toSeq else Seq.empty
+      val currentFormat = if (first.containsKey(SCHEMA.key)) first.getFirstValue(SCHEMA.key).toString else ""
+      val publicFormats = if (first.containsKey(ALL_SCHEMAS.key)) first.getFieldValues(ALL_SCHEMAS.key).asScala.map(_.toString).toSeq else Seq.empty
 
-      val relatedItems = if(findRelatedItems) {
+      val relatedItems = if (findRelatedItems) {
         val moreLikeThis = response.getResponse.get("moreLikeThis").asInstanceOf[SimpleOrderedMap[Any]].asScala.head.getValue.asInstanceOf[SolrDocumentList]
-         if (moreLikeThis != null && !moreLikeThis.isEmpty) {
+        if (moreLikeThis != null && !moreLikeThis.isEmpty) {
           SolrBindingService.getBriefDocsWithIndexFromSolrDocumentList(moreLikeThis)
         } else Seq.empty
       } else {
@@ -324,8 +321,7 @@ object SolrQueryService extends SolrServer {
     try {
       Logger.debug(solrQuery.toString)
       runQuery(solrQuery)
-    }
-    catch {
+    } catch {
       case e: SolrServerException if e.getMessage.contains("returned non ok status:400") => {
         Logger.error("Unable to fetch result", e)
         throw new MalformedQueryException("Malformed Query", e)
@@ -346,9 +342,9 @@ object SolrQueryService extends SolrServer {
   }
 
   def createRandomNumber: Int = scala.util.Random.nextInt(1000)
-  def createRandomSortKey : String = "random_%d".format(createRandomNumber)
+  def createRandomSortKey: String = "random_%d".format(createRandomNumber)
 
-  def createBreadCrumbList(chQuery: CHQuery) : List[BreadCrumb] = {
+  def createBreadCrumbList(chQuery: CHQuery): List[BreadCrumb] = {
     import scala.collection.mutable.ListBuffer
     val solrQueryString = chQuery.solrQuery.getQuery
     val hrefBuilder = new ListBuffer[String]()
@@ -371,15 +367,14 @@ object SolrQueryService extends SolrServer {
     }
     if (fqCrumbs.isEmpty) {
       List(breadCrumbs.head.copy(isLast = true))
-    }
-    else {
+    } else {
       val breadCrumb = fqCrumbs.last.copy(isLast = true)
       breadCrumbs ::: fqCrumbs.init ::: List(breadCrumb)
     }
   }
 
   def booleanOperatorsToUpperCase(query: String): String = {
-    query.split(" ").map{
+    query.split(" ").map {
       item =>
         item match {
           case "and" | "or" | "not" => item.toUpperCase
@@ -404,7 +399,7 @@ object SolrQueryService extends SolrServer {
   }
 
   def createFacetQueryLinks(chResponse: CHResponse): List[FacetQueryLinks] = {
-    chResponse.response.getFacetFields.asScala.map{
+    chResponse.response.getFacetFields.asScala.map {
       facetField =>
         FacetQueryLinks(
           facetName = facetField.getName,
@@ -415,11 +410,11 @@ object SolrQueryService extends SolrServer {
     }.toList
   }
 
-  def buildFacetCountLinks(facetField: FacetField, filterQueries: List[FilterQuery]) : List[FacetCountLink] = {
+  def buildFacetCountLinks(facetField: FacetField, filterQueries: List[FilterQuery]): List[FacetCountLink] = {
     if (facetField.getValues == null)
       List.empty
     else
-      facetField.getValues.asScala.map{
+      facetField.getValues.asScala.map {
         facetCount =>
           val remove = !filterQueries.filter(_.field.equalsIgnoreCase(facetField.getName)).filter(_.value.equalsIgnoreCase(facetCount.getName)).isEmpty
           FacetCountLink(
@@ -439,7 +434,7 @@ object SolrQueryService extends SolrServer {
       case false =>
         (facetTerms ::: List("%s:%s".format(facetCount.getFacetField.getName, facetCount.getName)))
     }
-    if (!href.isEmpty) href.mkString(FACET_PROMPT,FACET_PROMPT,"") else ""
+    if (!href.isEmpty) href.mkString(FACET_PROMPT, FACET_PROMPT, "") else ""
   }
 
 }
@@ -497,7 +492,7 @@ case class Params(queryString: Map[String, Seq[String]]) {
       ((k._1, if (k._1.equalsIgnoreCase("query")) k._2 else k._2.map(SolrQueryService.decodeUrl(_))))
   ).toSeq: _*)
 
-  def put(key: String, values: Seq[String]) {params put (key, values)}
+  def put(key: String, values: Seq[String]) { params put (key, values) }
 
   def all = params
 
@@ -517,7 +512,7 @@ case class Params(queryString: Map[String, Seq[String]]) {
 
   def hasKeyAndValue(key: String, value: String) = _contains(key) && getValue(key).equalsIgnoreCase(value)
 
-  def getValueOrElse(key: String,  default: String): String = params.get(key).getOrElse(return default).headOption.getOrElse(default).toString
+  def getValueOrElse(key: String, default: String): String = params.get(key).getOrElse(return default).headOption.getOrElse(default).toString
 
   def keys = params.keys.toList
 
@@ -584,7 +579,7 @@ case class Pager(numFound: Int, start: Int = 1, rows: Int, pageSize: Int = 12) {
   val lastViewableRecord = if (hasNextPage) scala.math.min(nextPageNumber, numFound) - 1 else numFound
 }
 
-case class ResultPagination (chResponse: CHResponse) {
+case class ResultPagination(chResponse: CHResponse) {
 
   lazy val pager = SolrQueryService.createPager(chResponse)(chResponse.configuration)
 
@@ -641,7 +636,7 @@ case class PresentationQuery(chResponse: CHResponse) {
   }
 
   private def createQueryForPresentation(solrQuery: SolrQuery): String = {
-    "query=%s%s".format(SolrQueryService.encodeUrl(solrQuery.getQuery),chResponse.chQuery.filterQueries.mkString("&qf=","&qf=", ""))
+    "query=%s%s".format(SolrQueryService.encodeUrl(solrQuery.getQuery), chResponse.chQuery.filterQueries.mkString("&qf=", "&qf=", ""))
   }
 
 }
@@ -662,5 +657,5 @@ case class DocItemReference(hubId: String, defaultSchema: String, publicSchemas:
 // todo implement the traits as case classes
 
 case class MalformedQueryException(s: String, throwable: Throwable) extends Exception(s, throwable) {
-  def this(s: String) = this (s, null)
+  def this(s: String) = this(s, null)
 }

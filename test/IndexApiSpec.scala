@@ -3,7 +3,7 @@ import core.search.SolrQueryService
 import models.MetadataCache
 import org.apache.solr.client.solrj.SolrQuery
 import play.api.test.Helpers._
-import play.api.test.{FakeHeaders, FakeRequest}
+import play.api.test.{ FakeHeaders, FakeRequest }
 import util.OrganizationConfigurationHandler
 import xml.XML
 import scala.xml.Utility.trim
@@ -16,17 +16,17 @@ import scala.xml.Utility.trim
 class IndexApiSpec extends Specs2TestContext {
 
   val testItems = <indexRequest>
-                      <indexItem itemId="123" itemType="book">
-                        <field name="title" fieldType="string">The Hitchhiker's Guide to the Galaxy</field>
-                        <field name="author" fieldType="string" facet="true">Douglas Adams</field>
-                        <systemField name="thumbnail">http://upload.wikimedia.org/wikipedia/en/b/bd/H2G2_UK_front_cover.jpg</systemField>
-                      </indexItem>
-                      <indexItem itemId="456" itemType="movie">
-                        <field name="title" fieldType="string">The Hitchhiker's Guide to the Galaxy</field>
-                        <field name="director" fieldType="string" facet="true">Garth Jennings</field>
-                        <systemField name="thumbnail">http://upload.wikimedia.org/wikipedia/en/7/7a/Hitchhikers_guide_to_the_galaxy.jpg</systemField>
-                      </indexItem>
-                    </indexRequest>
+                    <indexItem itemId="123" itemType="book">
+                      <field name="title" fieldType="string">The Hitchhiker's Guide to the Galaxy</field>
+                      <field name="author" fieldType="string" facet="true">Douglas Adams</field>
+                      <systemField name="thumbnail">http://upload.wikimedia.org/wikipedia/en/b/bd/H2G2_UK_front_cover.jpg</systemField>
+                    </indexItem>
+                    <indexItem itemId="456" itemType="movie">
+                      <field name="title" fieldType="string">The Hitchhiker's Guide to the Galaxy</field>
+                      <field name="director" fieldType="string" facet="true">Garth Jennings</field>
+                      <systemField name="thumbnail">http://upload.wikimedia.org/wikipedia/en/7/7a/Hitchhikers_guide_to_the_galaxy.jpg</systemField>
+                    </indexItem>
+                  </indexRequest>
 
   "The Index Api" should {
 
@@ -40,19 +40,19 @@ class IndexApiSpec extends Specs2TestContext {
           method = "POST",
           uri = "delving.localhost",
           headers = FakeHeaders(Seq(CONTENT_TYPE -> Seq("application/xml"))),
-          body =  testItems
+          body = testItems
         )
 
         val result = asyncToResult(controllers.api.Index.submit("delving")(fakeRequest))
         status(result) must equalTo(OK)
 
         val expected = <indexResponse>
-                        <totalItemCount>2</totalItemCount>
-                        <indexedItemCount>2</indexedItemCount>
-                        <deletedItemCount>0</deletedItemCount>
-                        <invalidItemCount>0</invalidItemCount>
-                        <invalidItems />
-                      </indexResponse>
+                         <totalItemCount>2</totalItemCount>
+                         <indexedItemCount>2</indexedItemCount>
+                         <deletedItemCount>0</deletedItemCount>
+                         <invalidItemCount>0</invalidItemCount>
+                         <invalidItems/>
+                       </indexResponse>
 
         trim(XML.loadString(contentAsString(result))) must equalTo(trim(expected))
 
@@ -67,7 +67,7 @@ class IndexApiSpec extends Specs2TestContext {
 
         queryByType.getResults.size() must equalTo(1)
         queryById.getResults.size() must equalTo(1)
-        queryById.getResults.get(0).get("delving_thumbnail") must not equalTo(null)
+        queryById.getResults.get(0).get("delving_thumbnail") must not equalTo (null)
       }
     }
 
@@ -79,16 +79,16 @@ class IndexApiSpec extends Specs2TestContext {
           method = "POST",
           uri = "delving.localhost",
           headers = FakeHeaders(Seq(CONTENT_TYPE -> Seq("application/xml"))),
-          body =  <indexRequest>
-                    <indexItem itemId="123" itemType="book">
-                      <field name="title" fieldType="string">The Hitchhiker's Guide to the Galaxy</field>
-                      <field name="author" fieldType="string" facet="true">Douglas Adams</field>
-                    </indexItem>
-                    <indexItem itemType="movie">
-                      <field name="title" fieldType="string">The Hitchhiker's Guide to the Galaxy</field>
-                      <field name="director" fieldType="string" facet="true">Garth Jennings</field>
-                    </indexItem>
-                  </indexRequest>
+          body = <indexRequest>
+                   <indexItem itemId="123" itemType="book">
+                     <field name="title" fieldType="string">The Hitchhiker's Guide to the Galaxy</field>
+                     <field name="author" fieldType="string" facet="true">Douglas Adams</field>
+                   </indexItem>
+                   <indexItem itemType="movie">
+                     <field name="title" fieldType="string">The Hitchhiker's Guide to the Galaxy</field>
+                     <field name="director" fieldType="string" facet="true">Garth Jennings</field>
+                   </indexItem>
+                 </indexRequest>
 
         )
 
@@ -96,22 +96,22 @@ class IndexApiSpec extends Specs2TestContext {
         status(result) must equalTo(OK)
 
         val expected = <indexResponse>
-                        <totalItemCount>2</totalItemCount>
-                        <indexedItemCount>1</indexedItemCount>
-                        <deletedItemCount>0</deletedItemCount>
-                        <invalidItemCount>1</invalidItemCount>
-                        <invalidItems>
-                          <invalidItem>
-                            <error>Item misses required attributes 'itemId' or 'itemType'</error>
-                            <item>
-                              <indexItem itemType="movie">
-                                <field name="title" fieldType="string">The Hitchhiker's Guide to the Galaxy</field>
-                                <field name="director" fieldType="string" facet="true">Garth Jennings</field>
-                              </indexItem>
-                            </item>
-                          </invalidItem>
-                        </invalidItems>
-                      </indexResponse>
+                         <totalItemCount>2</totalItemCount>
+                         <indexedItemCount>1</indexedItemCount>
+                         <deletedItemCount>0</deletedItemCount>
+                         <invalidItemCount>1</invalidItemCount>
+                         <invalidItems>
+                           <invalidItem>
+                             <error>Item misses required attributes 'itemId' or 'itemType'</error>
+                             <item>
+                               <indexItem itemType="movie">
+                                 <field name="title" fieldType="string">The Hitchhiker's Guide to the Galaxy</field>
+                                 <field name="director" fieldType="string" facet="true">Garth Jennings</field>
+                               </indexItem>
+                             </item>
+                           </invalidItem>
+                         </invalidItems>
+                       </indexResponse>
 
         trim(XML.loadString(contentAsString(result))) must equalTo(trim(expected))
 
@@ -122,40 +122,39 @@ class IndexApiSpec extends Specs2TestContext {
 
       withTestConfig {
 
-          val fakeRequest: FakeRequest[scala.xml.NodeSeq] = FakeRequest(
-            method = "POST",
-            uri = "delving.localhost",
-            headers = FakeHeaders(Seq(CONTENT_TYPE -> Seq("application/xml"))),
-            body = testItems
+        val fakeRequest: FakeRequest[scala.xml.NodeSeq] = FakeRequest(
+          method = "POST",
+          uri = "delving.localhost",
+          headers = FakeHeaders(Seq(CONTENT_TYPE -> Seq("application/xml"))),
+          body = testItems
 
-          )
-          val result = asyncToResult(controllers.api.Index.submit("delving")(fakeRequest))
-          status(result) must equalTo(OK)
+        )
+        val result = asyncToResult(controllers.api.Index.submit("delving")(fakeRequest))
+        status(result) must equalTo(OK)
 
-          val fakeDeleteRequest: FakeRequest[scala.xml.NodeSeq] = FakeRequest(
-            method = "POST",
-            uri = "delving.localhost",
-            headers = FakeHeaders(Seq(CONTENT_TYPE -> Seq("application/xml"))),
-            body = <indexRequest>
-                     <indexItem itemId="123" itemType="book" delete="true" />
-                   </indexRequest>)
+        val fakeDeleteRequest: FakeRequest[scala.xml.NodeSeq] = FakeRequest(
+          method = "POST",
+          uri = "delving.localhost",
+          headers = FakeHeaders(Seq(CONTENT_TYPE -> Seq("application/xml"))),
+          body = <indexRequest>
+                   <indexItem itemId="123" itemType="book" delete="true"/>
+                 </indexRequest>)
 
-          val deleteResult = asyncToResult(controllers.api.Index.submit("delving")(fakeDeleteRequest))
-          status(deleteResult) must equalTo(OK)
+        val deleteResult = asyncToResult(controllers.api.Index.submit("delving")(fakeDeleteRequest))
+        status(deleteResult) must equalTo(OK)
 
+        val expected = <indexResponse>
+                         <totalItemCount>1</totalItemCount>
+                         <indexedItemCount>0</indexedItemCount>
+                         <deletedItemCount>1</deletedItemCount>
+                         <invalidItemCount>0</invalidItemCount>
+                         <invalidItems/>
+                       </indexResponse>
 
-          val expected = <indexResponse>
-                          <totalItemCount>1</totalItemCount>
-                          <indexedItemCount>0</indexedItemCount>
-                          <deletedItemCount>1</deletedItemCount>
-                          <invalidItemCount>0</invalidItemCount>
-                          <invalidItems />
-                        </indexResponse>
+        trim(XML.loadString(contentAsString(deleteResult))) must equalTo(trim(expected))
 
-          trim(XML.loadString(contentAsString(deleteResult))) must equalTo(trim(expected))
-
-        }
       }
+    }
   }
 
   "process a request with thumbnail systemFields" in {
@@ -168,32 +167,32 @@ class IndexApiSpec extends Specs2TestContext {
         method = "POST",
         uri = "delving.localhost",
         headers = FakeHeaders(Seq(CONTENT_TYPE -> Seq("application/xml"))),
-        body =  <indexRequest>
-                  <indexItem itemId="123" itemType="foo">
-                    <systemField name="thumbnail"></systemField>
-                    <systemField name="thumbnail">blablabla</systemField>
-                    <field name="title" fieldType="string">FooBar</field>
-                  </indexItem>
-                </indexRequest>
+        body = <indexRequest>
+                 <indexItem itemId="123" itemType="foo">
+                   <systemField name="thumbnail"></systemField>
+                   <systemField name="thumbnail">blablabla</systemField>
+                   <field name="title" fieldType="string">FooBar</field>
+                 </indexItem>
+               </indexRequest>
       )
 
       val result = asyncToResult(controllers.api.Index.submit("delving")(fakeRequest))
       status(result) must equalTo(OK)
 
       val expected = <indexResponse>
-                      <totalItemCount>1</totalItemCount>
-                      <indexedItemCount>1</indexedItemCount>
-                      <deletedItemCount>0</deletedItemCount>
-                      <invalidItemCount>0</invalidItemCount>
-                      <invalidItems />
-                    </indexResponse>
+                       <totalItemCount>1</totalItemCount>
+                       <indexedItemCount>1</indexedItemCount>
+                       <deletedItemCount>0</deletedItemCount>
+                       <invalidItemCount>0</invalidItemCount>
+                       <invalidItems/>
+                     </indexResponse>
 
       trim(XML.loadString(contentAsString(result))) must equalTo(trim(expected))
 
       val queryByHasDigitalObject = SolrQueryService.getSolrResponseFromServer(new SolrQuery("delving_orgId:delving delving_recordType:foo delving_hasDigitalObject:true"))
 
-      queryByHasDigitalObject.getResults.size() must equalTo (1)
-      queryByHasDigitalObject.getResults.get(0).getFirstValue("custom_title_string") must equalTo ("FooBar")
+      queryByHasDigitalObject.getResults.size() must equalTo(1)
+      queryByHasDigitalObject.getResults.get(0).getFirstValue("custom_title_string") must equalTo("FooBar")
     }
   }
 
@@ -203,43 +202,40 @@ class IndexApiSpec extends Specs2TestContext {
         method = "POST",
         uri = "delving.localhost",
         headers = FakeHeaders(Seq(CONTENT_TYPE -> Seq("application/xml"))),
-        body =  <indexRequest>
-                  <indexItem itemId="123456" itemType="test" delete="false">
-                    <field name="custom:creationDate" fieldType="date">2012-05-03 15:44:28</field>
-                  </indexItem>
-                  <indexItem itemId="654321" itemType="test" delete="false">
-                    <field name="custom:creationDate" fieldType="date">1995-12-31T23:59:59.9Z</field>
-                    </indexItem>
-                </indexRequest>
+        body = <indexRequest>
+                 <indexItem itemId="123456" itemType="test" delete="false">
+                   <field name="custom:creationDate" fieldType="date">2012-05-03 15:44:28</field>
+                 </indexItem>
+                 <indexItem itemId="654321" itemType="test" delete="false">
+                   <field name="custom:creationDate" fieldType="date">1995-12-31T23:59:59.9Z</field>
+                 </indexItem>
+               </indexRequest>
       )
 
       val result = asyncToResult(controllers.api.Index.submit("delving")(fakeRequest))
       status(result) must equalTo(OK)
 
       val expected = <indexResponse>
-                      <totalItemCount>2</totalItemCount>
-                      <indexedItemCount>1</indexedItemCount>
-                      <deletedItemCount>0</deletedItemCount>
-                      <invalidItemCount>1</invalidItemCount>
-                      <invalidItems>
-                        <invalidItem>
-                          <error>Invalid date field 'custom:creationDate' with value '2012-05-03 15:44:28'</error>
-                          <item>
-                            <indexItem itemId="123456" itemType="test" delete="false">
-                            <field name="custom:creationDate" fieldType="date">2012-05-03 15:44:28</field>
-                            </indexItem>
-                          </item>
-                        </invalidItem>
-                      </invalidItems>
-                    </indexResponse>
+                       <totalItemCount>2</totalItemCount>
+                       <indexedItemCount>1</indexedItemCount>
+                       <deletedItemCount>0</deletedItemCount>
+                       <invalidItemCount>1</invalidItemCount>
+                       <invalidItems>
+                         <invalidItem>
+                           <error>Invalid date field 'custom:creationDate' with value '2012-05-03 15:44:28'</error>
+                           <item>
+                             <indexItem itemId="123456" itemType="test" delete="false">
+                               <field name="custom:creationDate" fieldType="date">2012-05-03 15:44:28</field>
+                             </indexItem>
+                           </item>
+                         </invalidItem>
+                       </invalidItems>
+                     </indexResponse>
 
       trim(XML.loadString(contentAsString(result))) must equalTo(trim(expected))
 
     }
   }
-
-
-
 
   step {
     withTestConfig {

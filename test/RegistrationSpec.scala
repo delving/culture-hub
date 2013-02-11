@@ -1,6 +1,6 @@
 import core.HubServices
 import org.openqa.selenium.chrome.ChromeDriver
-import play.api.i18n.{Messages, Lang}
+import play.api.i18n.{ Messages, Lang }
 import play.api.test._
 import play.api.test.Helpers._
 import util.OrganizationConfigurationHandler

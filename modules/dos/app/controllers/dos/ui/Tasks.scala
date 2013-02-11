@@ -16,7 +16,7 @@
 
 package controllers.dos.ui
 
-import models.dos.{TaskType, TaskState, Task}
+import models.dos.{ TaskType, TaskState, Task }
 import extensions.Extensions
 import TaskState._
 import org.bson.types.ObjectId

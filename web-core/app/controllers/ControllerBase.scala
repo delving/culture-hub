@@ -1,7 +1,7 @@
 package controllers
 
 import com.novus.salat
-import core.storage.{FileStorage, StoredFile}
+import core.storage.{ FileStorage, StoredFile }
 import play.api.data.Form
 import org.bson.types.ObjectId
 import play.api.mvc._
@@ -27,12 +27,10 @@ trait ControllerBase extends Extensions with OrganizationConfigurationAware with
    * @tparam Model the type of the domain Model
    * @return a [[play.api.mvc.Result]]
    */
-  def handleSubmit[ViewModel <: salat.CaseClass, Model <: salat.CaseClass]
-                  (form: Form[ViewModel],
-                   findOneById: ObjectId => Option[Model],
-                   update: (ViewModel, Model) => Either[String, ViewModel],
-                   create: ViewModel => Either[String, ViewModel])
-                  (implicit request: Request[AnyContent], mf: Manifest[Model]): Result = {
+  def handleSubmit[ViewModel <: salat.CaseClass, Model <: salat.CaseClass](form: Form[ViewModel],
+    findOneById: ObjectId => Option[Model],
+    update: (ViewModel, Model) => Either[String, ViewModel],
+    create: ViewModel => Either[String, ViewModel])(implicit request: Request[AnyContent], mf: Manifest[Model]): Result = {
 
     log.debug("Invoked submit handler")
 
@@ -89,7 +87,7 @@ trait ControllerBase extends Extensions with OrganizationConfigurationAware with
                 Error("Model of type '%s' was not found for identifier %s".format(mf.runtimeClass.getName, id))
             }
           case None => doCreate()
-          case Some(defaultId)  => doCreate()
+          case Some(defaultId) => doCreate()
         }
       }
     )
@@ -105,14 +103,12 @@ trait ControllerBase extends Extensions with OrganizationConfigurationAware with
     Json(Map("errors" -> (fieldErrors ++ globalErrors)), BAD_REQUEST)
   }
 
-
   // ~~~ Utilities
 
   def slugify(str: String): String = {
     import java.text.Normalizer
     Normalizer.normalize(str, Normalizer.Form.NFD).replaceAll("[^\\w ]", "").replace(" ", "-").toLowerCase
   }
-
 
   // ~~~ Form utilities
   import extensions.Formatters._
@@ -123,7 +119,7 @@ trait ControllerBase extends Extensions with OrganizationConfigurationAware with
       "name" -> text,
       "tokenType" -> optional(text),
       "data" -> optional(of[Map[String, String]])
-      )(Token.apply)(Token.unapply)
-    )
+    )(Token.apply)(Token.unapply)
+  )
 
 }

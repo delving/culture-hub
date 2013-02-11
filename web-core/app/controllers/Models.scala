@@ -16,26 +16,26 @@
 
 package controllers
 
-import models.{Visibility, ViewableItem}
+import models.{ Visibility, ViewableItem }
 
 // ~~ short models, mainly for browsing & displaying things view full rendering
 
 case class Fact(name: String, prompt: String, value: String)
 
 case class Token(id: String,
-                 name: String,
-                 tokenType: Option[String] = None,
-                 data: Option[Map[String, String]] = None)
+  name: String,
+  tokenType: Option[String] = None,
+  data: Option[Map[String, String]] = None)
 
 case class ListItem(id: String,
-                    itemType: String,
-                    title: String,
-                    description: String = "",
-                    thumbnailUrl: String = "",
-                    mimeType: String = "unknown/unknown",
-                    userName: String,
-                    isPrivate: Boolean,
-                    url: String) extends ViewableItem {
+    itemType: String,
+    title: String,
+    description: String = "",
+    thumbnailUrl: String = "",
+    mimeType: String = "unknown/unknown",
+    userName: String,
+    isPrivate: Boolean,
+    url: String) extends ViewableItem {
 
   def getHubId = id
   def getItemType = itemType
@@ -43,7 +43,7 @@ case class ListItem(id: String,
   def getDescription = description
   def getOwner = userName
   def getCreator = userName
-  def getVisibility = if(isPrivate) Visibility.PRIVATE.value.toString else Visibility.PUBLIC.value.toString
+  def getVisibility = if (isPrivate) Visibility.PRIVATE.value.toString else Visibility.PUBLIC.value.toString
   def getUri = url
   def getLandingPage = url
   def getThumbnailUri = thumbnailUrl

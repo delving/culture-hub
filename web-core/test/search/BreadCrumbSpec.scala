@@ -91,7 +91,6 @@ class BreadCrumbSpec extends FunSpec with ShouldMatchers {
         }
       }
 
-
       it("should have all filterQueries marked as true for filterQueries and field + value should be non-empty") {
         list.head.field.isEmpty should be(true)
         list.tail.forall(_.field.isEmpty) should be(false)

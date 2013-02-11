@@ -4,24 +4,24 @@ import play.api.mvc._
 import play.api.data.Form
 import play.api.data.Forms._
 import extensions.Formatters._
-import models.{OrganizationConfiguration, HubNode}
+import models.{ OrganizationConfiguration, HubNode }
 import extensions.JJson
 import org.bson.types.ObjectId
-import controllers.{BoundController, OrganizationController}
+import controllers.{ BoundController, OrganizationController }
 import play.api.data.validation._
 import play.api.i18n.Messages
 import play.api.data.validation.ValidationError
-import core.{DomainServiceLocator, HubModule}
-import core.node.{NodeDirectoryService, NodeSubscriptionService, NodeRegistrationService}
+import core.{ DomainServiceLocator, HubModule }
+import core.node.{ NodeDirectoryService, NodeSubscriptionService, NodeRegistrationService }
 
 object HubNodes extends BoundController(HubModule) with HubNodes
 
 trait HubNodes extends OrganizationController { self: BoundController =>
 
-  val nodeRegistrationServiceLocator = inject [ DomainServiceLocator[NodeRegistrationService] ]
-  val nodeDirectoryServiceLocator = inject [ DomainServiceLocator[NodeDirectoryService] ]
+  val nodeRegistrationServiceLocator = inject[DomainServiceLocator[NodeRegistrationService]]
+  val nodeDirectoryServiceLocator = inject[DomainServiceLocator[NodeDirectoryService]]
 
-  val broadcastingNodeSubscriptionService = inject [ NodeSubscriptionService ]
+  val broadcastingNodeSubscriptionService = inject[NodeSubscriptionService]
 
   def list = OrganizationAdmin {
     Action {
@@ -54,15 +54,15 @@ trait HubNodes extends OrganizationController { self: BoundController =>
   def delete(id: ObjectId) = OrganizationAdmin {
     Action {
       implicit request =>
-          HubNode.dao.findOneById(id).map { node =>
-            try {
-              nodeRegistrationServiceLocator.byDomain.removeNode(node)
-              HubNode.dao.removeById(id)
-              Ok
-            } catch {
-             case t: Throwable =>
-               BadRequest
-            }
+        HubNode.dao.findOneById(id).map { node =>
+          try {
+            nodeRegistrationServiceLocator.byDomain.removeNode(node)
+            HubNode.dao.removeById(id)
+            Ok
+          } catch {
+            case t: Throwable =>
+              BadRequest
+          }
         }.getOrElse {
           NotFound
         }
@@ -74,13 +74,13 @@ trait HubNodes extends OrganizationController { self: BoundController =>
       implicit request =>
 
         def update(viewModel: HubNodeViewModel, existingNode: HubNode) = {
-            // only update the node name, not the ID!
-            val updatedNode = existingNode.copy(
-              name = viewModel.name
-            )
-            nodeRegistrationServiceLocator.byDomain.updateNode(updatedNode)
-            HubNode.dao.save(updatedNode)
-            Right(viewModel)
+          // only update the node name, not the ID!
+          val updatedNode = existingNode.copy(
+            name = viewModel.name
+          )
+          nodeRegistrationServiceLocator.byDomain.updateNode(updatedNode)
+          HubNode.dao.save(updatedNode)
+          Right(viewModel)
         }
 
         def create(viewModel: HubNodeViewModel) = {
@@ -100,7 +100,6 @@ trait HubNodes extends OrganizationController { self: BoundController =>
         }
 
         handleSubmit[HubNodeViewModel, HubNode](HubNodeViewModel.virtualNodeForm, HubNode.dao.findOneById, update, create)
-
 
     }
   }
@@ -135,8 +134,7 @@ trait HubNodes extends OrganizationController { self: BoundController =>
     id: Option[ObjectId] = None,
     nodeId: String = "",
     orgId: String = "",
-    name: String = ""
-  )
+    name: String = "")
 
   object HubNodeViewModel {
 
@@ -169,6 +167,5 @@ trait HubNodes extends OrganizationController { self: BoundController =>
       )(HubNodeViewModel.apply)(HubNodeViewModel.unapply).verifying(nodeIdTaken)
     )
   }
-
 
 }

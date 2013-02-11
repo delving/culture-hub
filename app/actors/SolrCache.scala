@@ -1,6 +1,6 @@
 package actors
 
-import akka.actor.{Cancellable, Actor}
+import akka.actor.{ Cancellable, Actor }
 import core.search.SolrServer
 import play.api.cache.Cache
 import play.api.Play.current
@@ -18,7 +18,6 @@ class SolrCache extends Actor {
 
   private var scheduler: Cancellable = null
 
-
   override def preStart() {
     scheduler = Akka.system.scheduler.schedule(
       30 seconds,
@@ -27,7 +26,6 @@ class SolrCache extends Actor {
       CacheSolrFields
     )
   }
-
 
   override def postStop() {
     scheduler.cancel()

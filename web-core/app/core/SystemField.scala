@@ -34,7 +34,7 @@ object SystemField {
   object CREATOR extends SystemField("creator")
   object LANDING_PAGE extends SystemField("landingPage")
   object DEEP_ZOOM_URL extends SystemField("deepZoomUrl")
-  object OWNER extends SystemField("owner")  // dataProvider
+  object OWNER extends SystemField("owner") // dataProvider
   object PROVIDER extends SystemField("provider")
 
   object COLLECTION extends SystemField("collection")

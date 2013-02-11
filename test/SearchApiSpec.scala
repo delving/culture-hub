@@ -15,7 +15,7 @@ import util.OrganizationConfigurationHandler
 
 class SearchApiSpec extends Specs2TestContext {
 
-  args(skipAll=true)
+  args(skipAll = true)
 
   step {
     loadStandalone(SAMPLE_A, SAMPLE_B)

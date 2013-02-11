@@ -1,6 +1,6 @@
 package core.processing
 
-import akka.actor.{PoisonPill, Actor}
+import akka.actor.{ PoisonPill, Actor }
 import core.HubId
 import eu.delving.schema.SchemaVersion
 import core.indexing.Indexing
@@ -8,7 +8,7 @@ import models.OrganizationConfiguration
 import java.util.concurrent.atomic.AtomicBoolean
 
 /**
- * 
+ *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 class RecordIndexer(processingContext: ProcessingContext, processingInterrupted: AtomicBoolean, configuration: OrganizationConfiguration) extends Actor {

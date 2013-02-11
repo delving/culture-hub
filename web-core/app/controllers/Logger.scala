@@ -16,10 +16,10 @@
 
 package controllers
 
-import java.io.{PrintWriter, StringWriter}
+import java.io.{ PrintWriter, StringWriter }
 import play.api.Logger
 import play.api.Play.current
-import play.api.mvc.{Controller, RequestHeader, Results, Result}
+import play.api.mvc.{ Controller, RequestHeader, Results, Result }
 import models.OrganizationConfiguration
 import extensions.Email
 import core.ThemeInfo
@@ -37,34 +37,33 @@ trait Logging extends Secured { self: Controller with OrganizationConfigurationA
 
   import ErrorReporter._
 
-  def Forbidden(implicit request: RequestHeader): Result                                                 = {
+  def Forbidden(implicit request: RequestHeader): Result = {
     warning("Forbidden")
     Results.Forbidden
   }
-  def Forbidden(why: String)(implicit request: RequestHeader)                                            = {
+  def Forbidden(why: String)(implicit request: RequestHeader) = {
     warning(why)
     Results.Forbidden(why)
   }
-  def NotFound(why: String)(implicit request: RequestHeader)                                             = {
+  def NotFound(why: String)(implicit request: RequestHeader) = {
     info(why)
     Results.NotFound(views.html.errors.notFound(request, why, None))
   }
-  def Error(implicit request: RequestHeader)        = {
+  def Error(implicit request: RequestHeader) = {
     log.error(withContext("Internal server error"))
     reportError(request, "Internal server error")
     Results.InternalServerError(views.html.errors.error(None, None))
   }
-  def Error(why: String)(implicit request: RequestHeader)                              = {
+  def Error(why: String)(implicit request: RequestHeader) = {
     log.error(withContext(why))
     reportError(request, why)
     Results.InternalServerError(views.html.errors.error(None, Some(why)))
   }
-  def Error(why: String, t: Throwable)(implicit request: RequestHeader)                              = {
+  def Error(why: String, t: Throwable)(implicit request: RequestHeader) = {
     log.error(withContext(why), t)
     reportError(request, t, why)
     Results.InternalServerError(views.html.errors.error(None, Some(why)))
   }
-
 
   // ~~~ Logger wrappers, with more context
 
@@ -76,31 +75,32 @@ trait Logging extends Secured { self: Controller with OrganizationConfigurationA
   }
   def logError(message: String, args: String*)(implicit request: RequestHeader, configuration: OrganizationConfiguration) {
     log.error(withContext(m(message, args)))
-    reportError(request, if(message != null) message.format(args) else "")
+    reportError(request, if (message != null) message.format(args) else "")
   }
 
   def logError(e: Throwable, message: String, args: String*)(implicit request: RequestHeader, configuration: OrganizationConfiguration) {
     log.error(withContext(m(message, args)), e)
-    reportError(request, if(message != null) message.format(args) else "")
+    reportError(request, if (message != null) message.format(args) else "")
   }
 
-  def reportSecurity(message: String)(implicit request: RequestHeader)  {
+  def reportSecurity(message: String)(implicit request: RequestHeader) {
     log.error("Attempted security breach: " + message)
     ErrorReporter.reportError(securitySubject, toReport(message, request))
   }
-  
+
   private def m(message: String, args: Seq[String]) = {
-    if(args.length > 0) {
-      message.format(args : _ *)
+    if (args.length > 0) {
+      message.format(args: _*)
     } else {
       message
     }
   }
 
-  private def withContext(msg: String)(implicit request: RequestHeader) = "[%s] While accessing %s %s: %s".format(request.session.get("userName").getOrElse("Unknown"), request.method, request.uri, msg)
+  private def withContext(msg: String)(implicit request: RequestHeader) = {
+    "[%s] While accessing %s %s: %s".format(request.session.get("userName").getOrElse("Unknown") + "@" + configuration.orgId, request.method, request.uri, msg)
+  }
 
   private def securitySubject(implicit request: RequestHeader) = "***[CultureHub] Security alert on %s".format(request.domain)
-
 
 }
 
@@ -122,7 +122,7 @@ object ErrorReporter {
     Email(configuration.emailTarget.systemFrom, subject)
       .to(configuration.emailTarget.exceptionTo)
       .withContent(
-      """
+        """
         |Master,
         |
         |an error has happened:
@@ -199,9 +199,9 @@ object ErrorReporter {
        |%s
        |HTTP HEADERS:
        |%s""".stripMargin.format(
-                request.uri,
-                request.method,
-                request.queryString.map(pair =>         "          " + pair._1 + ": " + pair._2.mkString(", ")).mkString("\n"),
-                request.headers.toMap.map(pair =>       "          " + pair._1 + ": " + pair._2.mkString(", ")).mkString("\n"))
+      request.uri,
+      request.method,
+      request.queryString.map(pair => "          " + pair._1 + ": " + pair._2.mkString(", ")).mkString("\n"),
+      request.headers.toMap.map(pair => "          " + pair._1 + ": " + pair._2.mkString(", ")).mkString("\n"))
   }
 }

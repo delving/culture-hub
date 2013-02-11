@@ -44,6 +44,4 @@ trait ResourceLookup {
 
 }
 
-
-
 case class ResourceType(resourceType: String)
