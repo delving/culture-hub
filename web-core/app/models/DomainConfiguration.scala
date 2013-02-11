@@ -165,7 +165,7 @@ case class ProcessingServiceConfiguration(
 
 /** See http://wiki.apache.org/solr/MoreLikeThis **/
 case class MoreLikeThis(
-  fieldList: Seq[String] = Seq(SystemField.DESCRIPTION.tag, "dc_creator_text"),
+  fieldList: Seq[String] = Seq(SystemField.DESCRIPTION.tag, "dc_creator_text", "dc_subject_text"),
   minTermFrequency: Int = 1,
   minDocumentFrequency: Int = 2,
   minWordLength: Int = 0,
