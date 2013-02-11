@@ -12,7 +12,7 @@ import play.api.libs.concurrent._
 import eu.delving.schema._
 import play.api.libs.ws.WS
 import java.util.concurrent.TimeUnit
-import play.api.{Play, Logger}
+import play.api.{ Play, Logger }
 import scala.collection.JavaConverters._
 import akka.util.Timeout
 import models.OrganizationConfiguration
@@ -100,12 +100,11 @@ class SchemaRepositoryWrapper extends Actor {
   private var scheduler: Cancellable = null
   private var schemaRepository: SchemaRepository = null
 
-  private lazy val fetcher = if(Play.isDev || Play.isTest) new FileSystemFetcher(false) else new RemoteFetcher
+  private lazy val fetcher = if (Play.isDev || Play.isTest) new FileSystemFetcher(false) else new RemoteFetcher
 
   override def preStart() {
     scheduler = Akka.system.scheduler.schedule(5 minutes, 5 minutes, self, SchemaProvider.Refresh)
   }
-
 
   override def postStop() {
     scheduler.cancel()
@@ -154,7 +153,6 @@ class RemoteFetcher extends Fetcher {
 
   private val SCHEMA_REPO = "http://schemas.delving.eu"
 
-
   def isValidating: java.lang.Boolean = true
 
   def fetchList(): String = WS.url(SCHEMA_REPO + "/schema-repository.xml").get().await(5, TimeUnit.SECONDS).fold(
@@ -170,8 +168,8 @@ class RemoteFetcher extends Fetcher {
   }
 
   def fetchSchema(version: SchemaVersion, schemaType: SchemaType): String = WS.url(SCHEMA_REPO + version.getPath(schemaType)).get().await(5, TimeUnit.SECONDS).fold(
-      { t: Throwable => log.error("RemoteFetcher: could not retrieve schema", t); "" },
-      { r: Response => r.getAHCResponse.getResponseBody("UTF-8") }
-    )
+    { t: Throwable => log.error("RemoteFetcher: could not retrieve schema", t); "" },
+    { r: Response => r.getAHCResponse.getResponseBody("UTF-8") }
+  )
 
 }

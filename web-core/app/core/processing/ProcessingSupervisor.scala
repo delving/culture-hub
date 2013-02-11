@@ -1,6 +1,6 @@
 package core.processing
 
-import akka.actor.{Props, Actor}
+import akka.actor.{ Props, Actor }
 import core.HubId
 import collection.mutable.ArrayBuffer
 import eu.delving.schema.SchemaVersion
@@ -21,15 +21,14 @@ import concurrent.duration.Duration
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 class ProcessingSupervisor(
-  totalSourceRecords: Int,
-  updateCount: Long => Unit,
-  interrupted: => Boolean,
-  onProcessingDone: ProcessingContext => Unit,
-  whenDone: => Unit,
-  onError: Throwable => Unit,
-  processingContext: ProcessingContext,
-  configuration: OrganizationConfiguration
-) extends Actor {
+    totalSourceRecords: Int,
+    updateCount: Long => Unit,
+    interrupted: => Boolean,
+    onProcessingDone: ProcessingContext => Unit,
+    whenDone: => Unit,
+    onError: Throwable => Unit,
+    processingContext: ProcessingContext,
+    configuration: OrganizationConfiguration) extends Actor {
 
   private val log = Logger("CultureHub")
 
@@ -49,7 +48,6 @@ class ProcessingSupervisor(
 
   private val modulo = math.round(totalSourceRecords / 100)
 
-
   def receive = {
 
     case ProcessRecord(index, hubId, sourceRecord, targetSchemas) =>
@@ -62,7 +60,7 @@ class ProcessingSupervisor(
     case RecordMappingResult(index, hubId, results) =>
       numMappingResults = numMappingResults + 1
 
-      val tick = numMappingResults % (if(modulo == 0) 100 else modulo) == 0
+      val tick = numMappingResults % (if (modulo == 0) 100 else modulo) == 0
 
       if (tick && interrupted) {
         log.info("Processing of collection %s of organization %s interrupted after %s seconds".format(
@@ -100,7 +98,7 @@ class ProcessingSupervisor(
         )
       }
 
-    case f@RecordMappingFailure(index, hubId, sourceRecord, throwable) =>
+    case f @ RecordMappingFailure(index, hubId, sourceRecord, throwable) =>
       mappingFailures += ((index, hubId, sourceRecord, throwable))
       handleError(f)
 

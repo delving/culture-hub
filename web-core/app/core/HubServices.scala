@@ -1,10 +1,10 @@
 package core
 
-import _root_.core.node.{NodeDirectoryService, NodeRegistrationService}
+import _root_.core.node.{ NodeDirectoryService, NodeRegistrationService }
 import _root_.util.OrganizationConfigurationHandler
 import scala.collection.mutable.HashMap
 import services._
-import models.{OrganizationConfiguration, HubUser}
+import models.{ OrganizationConfiguration, HubUser }
 import play.api.Play
 import play.api.Play.current
 import storage.BaseXStorage
@@ -41,7 +41,7 @@ object HubServices {
     def byDomain(implicit configuration: OrganizationConfiguration): NodeDirectoryService = baseServices(configuration)
   }
 
-  val basexStorage =  new HashMap[OrganizationConfiguration, BaseXStorage]
+  val basexStorage = new HashMap[OrganizationConfiguration, BaseXStorage]
 
   var baseServices: Map[OrganizationConfiguration, AuthenticationService with RegistrationService with UserProfileService with OrganizationService with DirectoryService with NodeRegistrationService with NodeDirectoryService] = Map.empty
 
@@ -61,17 +61,18 @@ object HubServices {
           // in development mode, load all hubUsers as basis for the remote ones
           val users = HubUser.all.flatMap { users =>
             users.findAll.map {
-              u => {
-                MemoryUser(
-                  u.userName,
-                  u.firstName,
-                  u.lastName,
-                  u.email,
-                  "secret",
-                  u.userProfile,
-                  true
-                )
-              }
+              u =>
+                {
+                  MemoryUser(
+                    u.userName,
+                    u.firstName,
+                    u.lastName,
+                    u.email,
+                    "secret",
+                    u.userProfile,
+                    true
+                  )
+                }
             }
           }.map(u => (u.userName -> u)).toMap
 
@@ -91,7 +92,6 @@ object HubServices {
           memoryServices
         }
 
-
         case _ => throw new RuntimeException("The remote services are not configured. You need to specify 'services.commons.host' and 'services.commons.apiToken")
       }
 
@@ -102,6 +102,5 @@ object HubServices {
     }.toMap
 
   }
-
 
 }

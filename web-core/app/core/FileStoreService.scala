@@ -49,7 +49,7 @@ trait FileStoreService {
    * @return a [[ StoredFile ]] if the storage is successful, None otherwise
    */
   def storeFile(file: File, contentType: String, fileName: String, bucketId: String, fileType: Option[String] = None,
-                params: Map[String, AnyRef] = Map.empty, advertise: Boolean)(implicit configuration: OrganizationConfiguration): Option[StoredFile]
+    params: Map[String, AnyRef] = Map.empty, advertise: Boolean)(implicit configuration: OrganizationConfiguration): Option[StoredFile]
 
   /**
    * Retrieves a single file given its identifier

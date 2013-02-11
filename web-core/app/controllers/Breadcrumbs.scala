@@ -5,7 +5,6 @@ import play.api.mvc.RequestHeader
 import models.OrganizationConfiguration
 import play.api.i18n.Lang
 
-
 /**
  * Breadcrumb computation based on URL. Context data is passed in through a map of maps, the inner map containing (url, label)
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
@@ -52,7 +51,6 @@ object Breadcrumbs {
         }
 
       case "rijks" :: "search" :: Nil => List(("/rijks", Messages("plugin.rijks.rijks")), ("NOLINK", Messages("ui.label.search")))
-
 
       case "organizations" :: orgName :: Nil => List(("NOLINK", Messages("thing.organizations")), ("/organizations/" + orgName, orgName))
       case "organizations" :: orgName :: "admin" :: Nil => List(("NOLINK", Messages("thing.organizations")), ("/organizations/" + orgName, orgName), ("/organizations/" + orgName + "/admin", Messages("org.admin.index.title")))

@@ -1,8 +1,6 @@
-logLevel := Level.Warn
+logLevel := Level.Info
 
 resolvers ++= Seq(
-    DefaultMavenRepository,
-    Resolver.url("Play", url("http://download.playframework.org/ivy-releases/"))(Resolver.ivyStylePatterns),
     Resolver.file("local-ivy-repo", file(Path.userHome + "/.ivy2/local"))(Resolver.ivyStylePatterns),
     "Typesafe Repository" at "http://repo.typesafe.com/typesafe/releases/",
     "Delving Releases Repository" at "http://development.delving.org:8081/nexus/content/groups/public",
@@ -10,8 +8,10 @@ resolvers ++= Seq(
     Resolver.url("sbt-buildinfo-resolver-0", url("http://scalasbt.artifactoryonline.com/scalasbt/sbt-plugin-releases"))(Resolver.ivyStylePatterns)
 )
 
-addSbtPlugin("com.eed3si9n" %% "sbt-buildinfo" % "0.1.2")
+addSbtPlugin("com.eed3si9n" % "sbt-buildinfo" % "0.2.0")
 
-addSbtPlugin("eu.delving" %% "groovy-templates-sbt-plugin" % "1.5.2")
+addSbtPlugin("com.typesafe.sbt" % "sbt-scalariform" % "1.0.1")
 
-addSbtPlugin("play" % "sbt-plugin" % "2.0.3")
+addSbtPlugin("eu.delving" % "groovy-templates-sbt-plugin" % "1.6-SNAPSHOT")
+
+addSbtPlugin("play" % "sbt-plugin" % "2.1.0")

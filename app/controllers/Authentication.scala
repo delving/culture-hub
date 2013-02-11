@@ -7,7 +7,7 @@ import play.api.libs.Crypto
 import play.libs.Time
 import play.api.i18n.Messages
 import extensions.MissingLibs
-import models.{OrganizationConfiguration, HubUser}
+import models.{ OrganizationConfiguration, HubUser }
 import core._
 import play.api.mvc.Cookie
 
@@ -20,8 +20,8 @@ object Authentication extends BoundController(HubModule) with Authentication
 
 trait Authentication extends ApplicationController { this: BoundController =>
 
-  val authenticationServiceLocator = inject [ DomainServiceLocator[AuthenticationService] ]
-  val userProfileServiceLocator = inject [ DomainServiceLocator[UserProfileService] ]
+  val authenticationServiceLocator = inject[DomainServiceLocator[AuthenticationService]]
+  val userProfileServiceLocator = inject[DomainServiceLocator[UserProfileService]]
 
   val REMEMBER_COOKIE = "rememberme"
   val AT_KEY = "___AT" // authenticity token
@@ -33,21 +33,21 @@ trait Authentication extends ApplicationController { this: BoundController =>
       "userName" -> nonEmptyText,
       "password" -> nonEmptyText,
       "remember" -> boolean
-    ) verifying(Messages("authentication.error"), result => result match {
-      case (u, p, r) =>
-        authenticationServiceLocator.byDomain.connect(resolveEmail(u), p)
-    }))
+    ) verifying (Messages("authentication.error"), result => result match {
+        case (u, p, r) =>
+          authenticationServiceLocator.byDomain.connect(resolveEmail(u), p)
+      }))
 
   private def resolveEmail(userName: String)(implicit configuration: OrganizationConfiguration) = if (userName.contains("@")) {
-      HubUser.dao.findOneByEmail(userName).map(_.userName).getOrElse(userName)
-    } else {
-      userName
-    }
+    HubUser.dao.findOneByEmail(userName).map(_.userName).getOrElse(userName)
+  } else {
+    userName
+  }
 
   def login = ApplicationAction {
     Action {
       implicit request =>
-        if(session.get("userName").isDefined) {
+        if (session.get("userName").isDefined) {
           Redirect(controllers.routes.Application.index)
         } else {
           Ok(Template('loginForm -> loginForm))

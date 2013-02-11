@@ -16,9 +16,9 @@ import com.mongodb.casbah.Imports._
  */
 
 case class DataSetStatistics(_id: ObjectId = new ObjectId,
-                             context: DataSetStatisticsContext,
-                             recordCount: Int,
-                             fieldCount: Histogram) {
+    context: DataSetStatisticsContext,
+    recordCount: Int,
+    fieldCount: Histogram) {
 
   def getStatisticsFile = {
     hubFileStore(OrganizationConfigurationHandler.getByOrgId(context.orgId)).findOne(MongoDBObject("orgId" -> context.orgId, "spec" -> context.spec, "uploadDate" -> context.uploadDate))
@@ -31,20 +31,20 @@ case class DataSetStatistics(_id: ObjectId = new ObjectId,
 }
 
 case class FieldFrequencies(_id: ObjectId = new ObjectId,
-                            parentId: ObjectId,
-                            context: DataSetStatisticsContext,
-                            path: String,
-                            histogram: Histogram)
+  parentId: ObjectId,
+  context: DataSetStatisticsContext,
+  path: String,
+  histogram: Histogram)
 
 case class FieldValues(_id: ObjectId = new ObjectId,
-                       parentId: ObjectId,
-                       context: DataSetStatisticsContext,
-                       path: String,
-                       valueStats: ValueStats)
+  parentId: ObjectId,
+  context: DataSetStatisticsContext,
+  path: String,
+  valueStats: ValueStats)
 
 case class Histogram(present: Int,
-                     absent: Int,
-                     counterMap: Map[String, Counter] = Map.empty)
+  absent: Int,
+  counterMap: Map[String, Counter] = Map.empty)
 
 object Histogram {
 
@@ -52,38 +52,38 @@ object Histogram {
     present = histogram.present,
     absent = histogram.absent
   // TODO if we need this we have to think about how to store these things, since the values don't perform too well as keys
-//    counterMap = histogram.counterMap.asScala.map(h => (h._1 -> Counter(h._2.count, h._2.percentage, h._2.value, h._2.proportion))).toMap
+  //    counterMap = histogram.counterMap.asScala.map(h => (h._1 -> Counter(h._2.count, h._2.percentage, h._2.value, h._2.proportion))).toMap
   )
 }
 
 case class Counter(count: Int,
-                   percentage: String,
-                   value: String,
-                   proportion: Double)
+  percentage: String,
+  value: String,
+  proportion: Double)
 
 case class ValueStats(total: Int,
-                      unique: Boolean,
-                      values: Option[Histogram],
-                      wordCounts: Option[Histogram])
+  unique: Boolean,
+  values: Option[Histogram],
+  wordCounts: Option[Histogram])
 
 object ValueStats {
 
   def apply(s: Stats.ValueStats): ValueStats = ValueStats(
     total = s.total,
-    unique = if(s.unique == null) false else s.unique,
+    unique = if (s.unique == null) false else s.unique,
     values = Option(s.values).map(Histogram(_)),
     wordCounts = Option(s.wordCounts).map(Histogram(_))
   )
 }
 
 case class DataSetStatisticsContext(orgId: String,
-                            spec: String,
-                            schema: String,
-                            provider: String,
-                            dataProvider: String,
-                            providerUri: String,
-                            dataProviderUri: String,
-                            uploadDate: Date)
+  spec: String,
+  schema: String,
+  provider: String,
+  dataProvider: String,
+  providerUri: String,
+  dataProviderUri: String,
+  uploadDate: Date)
 
 object DataSetStatistics extends MultiModel[DataSetStatistics, DataSetStatisticsDAO] {
 

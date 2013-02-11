@@ -22,7 +22,7 @@ import org.bson.types.ObjectId
 import com.novus.salat.dao.SalatDAO
 import models.HubMongoContext._
 import com.mongodb.casbah.commons.MongoDBObject
-import models.{OrganizationConfiguration, MultiModel}
+import models.{ OrganizationConfiguration, MultiModel }
 
 /**
  *
@@ -39,7 +39,7 @@ case class CMSPage(
   content: String, // actual page content (text)
   isSnippet: Boolean = false, // is this a snippet in the welcome page or not
   published: Boolean = false // is this page published, i.e. visible?
-)
+  )
 
 case class MenuEntry(
   _id: ObjectId = new ObjectId(),
@@ -52,14 +52,13 @@ case class MenuEntry(
   targetMenuKey: Option[String] = None, // key of the target menu this entry links to, if any
   targetUrl: Option[String] = None, // URL this menu entry links to, if any
   published: Boolean = false // is this entry published, i.e. visible ?
-)
+  )
 
 /** Represents a menu, which is not persisted at the time being **/
 case class Menu(
   key: String,
   parentMenuKey: Option[String],
-  title: Map[String, String]
-)
+  title: Map[String, String])
 
 object CMSPage extends MultiModel[CMSPage, CMSPageDAO] {
   def connectionName: String = "CMSPages"
@@ -129,7 +128,7 @@ class MenuEntryDAO(collection: MongoCollection) extends SalatDAO[MenuEntry, Obje
 
   def findOneByKey(menuKey: String) = findOne(MongoDBObject("menuKey" -> menuKey))
 
-  def findOneByMenuKeyAndTargetMenuKey(menuKey: String, targetMenuKey: String) = findOne(MongoDBObject("menuKey" -> menuKey,"targetMenuKey" -> targetMenuKey))
+  def findOneByMenuKeyAndTargetMenuKey(menuKey: String, targetMenuKey: String) = findOne(MongoDBObject("menuKey" -> menuKey, "targetMenuKey" -> targetMenuKey))
 
   def findOneByTargetPageKey(targetPageKey: String) = findOne(MongoDBObject("targetPageKey" -> targetPageKey))
 
@@ -169,6 +168,5 @@ class MenuEntryDAO(collection: MongoCollection) extends SalatDAO[MenuEntry, Obje
       case None => // nothing
     }
   }
-
 
 }

@@ -1,6 +1,6 @@
 package controllers.organization
 
-import controllers.{BoundController, OrganizationController}
+import controllers.{ BoundController, OrganizationController }
 import extensions.JJson
 import play.api.i18n.Messages
 import play.api.mvc.Action
@@ -91,7 +91,6 @@ trait Admin extends OrganizationController { this: BoundController =>
         if (success) Ok else Error
     }
   }
-
 
   def solrSearchProxy(orgId: String) = OrganizationAdmin {
     Action {

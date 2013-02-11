@@ -1,8 +1,8 @@
 package controllers
 
-import exceptions.{StorageInsertionException, AccessKeyException}
+import exceptions.{ StorageInsertionException, AccessKeyException }
 import play.api.mvc._
-import java.util.zip.{ZipEntry, ZipOutputStream, GZIPInputStream}
+import java.util.zip.{ ZipEntry, ZipOutputStream, GZIPInputStream }
 import java.io._
 import org.apache.commons.io.IOUtils
 import play.api.libs.iteratee.Enumerator
@@ -10,7 +10,7 @@ import play.libs.Akka
 import akka.actor.Actor
 import play.api.Logger
 import core._
-import scala.{Either, Option}
+import scala.{ Either, Option }
 import storage.FileStorage
 import util.SimpleDataSetParser
 import java.util.concurrent.TimeUnit
@@ -59,33 +59,29 @@ trait SipCreatorEndPoint extends Controller with OrganizationConfigurationAware 
 
   def AuthenticatedAction[A](accessToken: Option[String])(action: Action[A]): Action[A] = OrganizationConfigured {
     Action(action.parser) {
-      implicit request => {
-        if (accessToken.isEmpty) {
-          Unauthorized("No access token provided")
+      implicit request =>
+        {
+          if (accessToken.isEmpty) {
+            Unauthorized("No access token provided")
+          } else if (!HubUser.isValidToken(accessToken.get)) {
+            Unauthorized("Access Key %s not accepted".format(accessToken.get))
+          } else {
+            connectedUserObject = HubUser.getUserByToken(accessToken.get)
+            action(request)
+          }
         }
-        else if (!HubUser.isValidToken(accessToken.get)) {
-          Unauthorized("Access Key %s not accepted".format(accessToken.get))
-        }
-        else {
-          connectedUserObject = HubUser.getUserByToken(accessToken.get)
-          action(request)
-        }
-      }
     }
   }
 
-  def OrganizationAction[A](orgId: String, accessToken: Option[String])
-    (action: Action[A]): Action[A] = AuthenticatedAction(accessToken) {
+  def OrganizationAction[A](orgId: String, accessToken: Option[String])(action: Action[A]): Action[A] = AuthenticatedAction(accessToken) {
     Action(action.parser) {
       implicit request =>
         if (orgId == null || orgId.isEmpty) {
           BadRequest("No orgId provided")
-        }
-        else {
+        } else {
           if (!organizationServiceLocator.byDomain.exists(orgId)) {
             NotFound("Unknown organization " + orgId)
-          }
-          else {
+          } else {
             action(request)
           }
         }
@@ -109,40 +105,50 @@ trait SipCreatorEndPoint extends Controller with OrganizationConfigurationAware 
         )
 
         val dataSetsXml = <data-set-list>{
-                    dataSets.map {
-                      ds =>
-                        val creator = HubUser.dao.findByUsername(ds.getCreator)
-                        val lockedBy = ds.getLockedBy
-                            <data-set>
-                              <spec>{ds.spec}</spec>
-                              <name>{ds.details.name}</name>
-                              <orgId>{ds.orgId}</orgId>
-                              {if (creator.isDefined) {
-                              <createdBy>
-                                <username>{creator.get.userName}</username>
-                                <fullname>{creator.get.fullname}</fullname>
-                                <email>{creator.get.email}</email>
-                              </createdBy>}
-                            else {
-                              <createdBy>
-                                <username>{ds.getCreator}</username>
-                              </createdBy>}}{if (lockedBy != None) {
-                              <lockedBy>
-                                <username>{lockedBy.get.userName}</username>
-                                <fullname>{lockedBy.get.fullname}</fullname>
-                                <email>{lockedBy.get.email}</email>
-                              </lockedBy>}}
-                              <state>{ds.state.name}</state>
-                              <schemaVersions>{ds.getAllMappingSchemas.map { schema =>
-                                <schemaVersion>
-                                  <prefix>{schema.getPrefix}</prefix>
-                                  <version>{schema.getVersion}</version>
-                                </schemaVersion>}}
-                              </schemaVersions>
-                              <recordCount>{ds.details.total_records}</recordCount>
-                            </data-set>
+          dataSets.map {
+            ds =>
+              val creator = HubUser.dao.findByUsername(ds.getCreator)
+              val lockedBy = ds.getLockedBy
+              <data-set>
+                <spec>{ ds.spec }</spec>
+                <name>{ ds.details.name }</name>
+                <orgId>{ ds.orgId }</orgId>
+                {
+                  if (creator.isDefined) {
+                    <createdBy>
+                      <username>{ creator.get.userName }</username>
+                      <fullname>{ creator.get.fullname }</fullname>
+                      <email>{ creator.get.email }</email>
+                    </createdBy>
+                  } else {
+                    <createdBy>
+                      <username>{ ds.getCreator }</username>
+                    </createdBy>
+                  }
+                }{
+                  if (lockedBy != None) {
+                    <lockedBy>
+                      <username>{ lockedBy.get.userName }</username>
+                      <fullname>{ lockedBy.get.fullname }</fullname>
+                      <email>{ lockedBy.get.email }</email>
+                    </lockedBy>
+                  }
+                }
+                <state>{ ds.state.name }</state>
+                <schemaVersions>
+                  {
+                    ds.getAllMappingSchemas.map { schema =>
+                      <schemaVersion>
+                        <prefix>{ schema.getPrefix }</prefix>
+                        <version>{ schema.getVersion }</version>
+                      </schemaVersion>
                     }
-                }</data-set-list>
+                  }
+                </schemaVersions>
+                <recordCount>{ ds.details.total_records }</recordCount>
+              </data-set>
+          }
+        }</data-set-list>
         Ok(dataSetsXml)
     }
   }
@@ -155,17 +161,14 @@ trait SipCreatorEndPoint extends Controller with OrganizationConfigurationAware 
           if (dataSet.isEmpty) {
             val msg = "Unknown spec %s".format(spec)
             NotFound(msg)
-          }
-          else {
+          } else {
             if (dataSet.get.lockedBy == None) {
               Ok
-            }
-            else if (dataSet.get.lockedBy.get == connectedUser) {
+            } else if (dataSet.get.lockedBy.get == connectedUser) {
               val updated = dataSet.get.copy(lockedBy = None)
               DataSet.dao.save(updated)
               Ok
-            }
-            else {
+            } else {
               Error("You cannot unlock a DataSet locked by someone else")
             }
           }
@@ -189,8 +192,7 @@ trait SipCreatorEndPoint extends Controller with OrganizationConfigurationAware 
           if (dataSet.isEmpty) {
             val msg = "DataSet with spec %s not found".format(spec)
             NotFound(msg)
-          }
-          else {
+          } else {
             val fileList: String = request.body.asText.getOrElse("")
 
             log.debug("Receiving file upload request, possible files to receive are: \n" + fileList)
@@ -220,22 +222,18 @@ trait SipCreatorEndPoint extends Controller with OrganizationConfigurationAware 
           if (dataSet.isEmpty) {
             val msg = "DataSet with spec %s not found".format(spec)
             NotFound(msg)
-          }
-          else {
+          } else {
             val FileName(hash, kind, prefix, extension) = fileName
             if (hash.isEmpty) {
               val msg = "No hash available for file name " + fileName
               Error(msg)
-            }
-            else if (request.contentType == None) {
+            } else if (request.contentType == None) {
               BadRequest("Request has no content type")
-            }
-            else if (!DataSet.dao.canEdit(dataSet.get, connectedUser)) {
+            } else if (!DataSet.dao.canEdit(dataSet.get, connectedUser)) {
               log.warn("User %s tried to edit dataSet %s without the necessary rights"
-                       .format(connectedUser, dataSet.get.spec))
+                .format(connectedUser, dataSet.get.spec))
               Forbidden("You are not allowed to modify this DataSet")
-            }
-            else {
+            } else {
               val inputStream = if (request.contentType == Some("application/x-gzip"))
                 new GZIPInputStream(new FileInputStream(request.body.file))
               else
@@ -251,8 +249,7 @@ trait SipCreatorEndPoint extends Controller with OrganizationConfigurationAware 
                 case "source" if extension == "xml.gz" => {
                   if (dataSet.get.state == DataSetState.PROCESSING) {
                     Left("%s: Cannot upload source while the set is being processed".format(spec))
-                  }
-                  else {
+                  } else {
                     val receiveActor = Akka.system.actorFor("akka://application/user/dataSetParser")
                     receiveActor ! SourceStream(
                       dataSet.get, connectedUser, inputStream, request.body, configuration
@@ -277,10 +274,10 @@ trait SipCreatorEndPoint extends Controller with OrganizationConfigurationAware 
                     Some("sourceImage"),
                     Map("spec" -> dataSet.get.spec, "orgId" -> dataSet.get.orgId)
                   ).map { f =>
-                    Right("Ok")
-                  }.getOrElse(
-                    Left("Couldn't store file " + fileName)
-                  )
+                      Right("Ok")
+                    }.getOrElse(
+                      Left("Couldn't store file " + fileName)
+                    )
 
                 case _ => {
                   val msg = "Unknown file type %s".format(kind)
@@ -313,16 +310,14 @@ trait SipCreatorEndPoint extends Controller with OrganizationConfigurationAware 
     Right("All clear")
   }
 
-  private def receiveMapping(dataSet: DataSet, inputStream: InputStream, spec: String, hash: String)
-    (implicit configuration: OrganizationConfiguration): Either[String, String] = {
+  private def receiveMapping(dataSet: DataSet, inputStream: InputStream, spec: String, hash: String)(implicit configuration: OrganizationConfiguration): Either[String, String] = {
     val mappingString = IOUtils.toString(inputStream, "UTF-8")
     DataSet.dao(dataSet.orgId).updateMapping(dataSet, mappingString)
     Right("Good news everybody")
   }
 
   private def receiveSourceStats(
-    dataSet: DataSet, inputStream: InputStream, schemaPrefix: String, fileName: String, file: File
-    )(implicit configuration: OrganizationConfiguration): Either[String, String] = {
+    dataSet: DataSet, inputStream: InputStream, schemaPrefix: String, fileName: String, file: File)(implicit configuration: OrganizationConfiguration): Either[String, String] = {
     try {
       val f = hubFileStore(configuration).createFile(file)
 
@@ -361,32 +356,33 @@ trait SipCreatorEndPoint extends Controller with OrganizationConfigurationAware 
       )
 
       DataSetStatistics.dao.insert(dss).map {
-        dssId => {
+        dssId =>
+          {
 
-          stats.fieldValueMap.asScala.foreach {
-            fv =>
-              val fieldValues = FieldValues(
-                parentId = dssId,
-                context = context,
-                path = fv._1.toString,
-                valueStats = ValueStats(fv._2)
-              )
-              DataSetStatistics.dao.values.insert(fieldValues)
+            stats.fieldValueMap.asScala.foreach {
+              fv =>
+                val fieldValues = FieldValues(
+                  parentId = dssId,
+                  context = context,
+                  path = fv._1.toString,
+                  valueStats = ValueStats(fv._2)
+                )
+                DataSetStatistics.dao.values.insert(fieldValues)
+            }
+
+            stats.recordStats.frequencies.asScala.foreach {
+              ff =>
+                val frequencies = FieldFrequencies(
+                  parentId = dssId,
+                  context = context,
+                  path = ff._1.toString,
+                  histogram = Histogram(ff._2)
+                )
+                DataSetStatistics.dao.frequencies.insert(frequencies)
+            }
+
+            Right("Good")
           }
-
-          stats.recordStats.frequencies.asScala.foreach {
-            ff =>
-              val frequencies = FieldFrequencies(
-                parentId = dssId,
-                context = context,
-                path = ff._1.toString,
-                histogram = Histogram(ff._2)
-              )
-              DataSetStatistics.dao.frequencies.insert(frequencies)
-          }
-
-          Right("Good")
-        }
       }.getOrElse {
         Left("Could not store DataSetStatistics")
       }
@@ -413,12 +409,10 @@ trait SipCreatorEndPoint extends Controller with OrganizationConfigurationAware 
             val maybeDataSet = DataSet.dao.findBySpecAndOrgId(spec, orgId)
             if (maybeDataSet.isEmpty) {
               Left(NotFound("Unknown spec %s".format(spec)))
-            }
-            else if (maybeDataSet.isDefined && maybeDataSet.get.state == DataSetState.PARSING) {
+            } else if (maybeDataSet.isDefined && maybeDataSet.get.state == DataSetState.PARSING) {
               Left(Error("DataSet %s is being uploaded at the moment, so you cannot download it at the same time"
-                         .format(spec)))
-            }
-            else {
+                .format(spec)))
+            } else {
               val dataSet = maybeDataSet.get
 
               // lock it right away
@@ -432,8 +426,7 @@ trait SipCreatorEndPoint extends Controller with OrganizationConfigurationAware 
             result =>
               if (result.isLeft) {
                 result.left.get
-              }
-              else {
+              } else {
                 Ok.stream(result.right.get)
               }
           }
@@ -459,7 +452,7 @@ trait SipCreatorEndPoint extends Controller with OrganizationConfigurationAware 
     def buildNamespaces(attrs: Map[String, String]): String = {
       val attrBuilder = new StringBuilder
       attrs.filterNot(_._1.isEmpty).toSeq.sortBy(_._1).foreach(
-        ns => attrBuilder.append( """xmlns:%s="%s"""".format(ns._1, ns._2)).append(" ")
+        ns => attrBuilder.append("""xmlns:%s="%s"""".format(ns._1, ns._2)).append(" ")
       )
       attrBuilder.mkString.trim
     }
@@ -495,13 +488,12 @@ trait SipCreatorEndPoint extends Controller with OrganizationConfigurationAware 
     // do not use StringEscapeUtils.escapeXml because it also escapes UTF-8 characters, which are however valid and would break source identity
     def escapeXml(s: String): String = {
       s.
-      replaceAll("&", "&amp;").
-      replaceAll("<", "&lt;").
-      replaceAll("&gt;", ">").
-      replaceAll("\"", "&quot;").
-      replaceAll("'", "&apos;")
+        replaceAll("&", "&amp;").
+        replaceAll("<", "&lt;").
+        replaceAll("&gt;", ">").
+        replaceAll("\"", "&quot;").
+        replaceAll("'", "&apos;")
     }
-
 
     val tagContentMatcher = """>([^<]+)<""".r
     val inputTagMatcher = """<input (.*) id="(.*)">""".r
@@ -524,12 +516,12 @@ trait SipCreatorEndPoint extends Controller with OrganizationConfigurationAware 
               basexStorage.findAllCurrentDocuments foreach {
                 record =>
 
-                // the output coming from BaseX differs from the original source as follows:
-                // - the <input> tags contain the namespace declarations
-                // - the formatted XML escapes all entities including UTF-8 characters
-                // the following lines fix this
+                  // the output coming from BaseX differs from the original source as follows:
+                  // - the <input> tags contain the namespace declarations
+                  // - the formatted XML escapes all entities including UTF-8 characters
+                  // the following lines fix this
                   val noNamespaces = inputTagMatcher.replaceSomeIn(record, {
-                    m => Some( """<input id="%s">""".format(m.group(2)))
+                    m => Some("""<input id="%s">""".format(m.group(2)))
                   })
 
                   def cleanup: Match => String = {
@@ -551,7 +543,7 @@ trait SipCreatorEndPoint extends Controller with OrganizationConfigurationAware 
                   if (count % 10000 == 0) pw.flush()
                   if (count % 10000 == 0) {
                     log.info("%s: Prepared %s of %s records for download".format(dataSet
-                                                                                 .spec, count, total))
+                      .spec, count, total))
                   }
                   count += 1
               }
@@ -561,7 +553,6 @@ trait SipCreatorEndPoint extends Controller with OrganizationConfigurationAware 
           }
       }
     }
-
 
     for (mapping <- dataSet.mappings) {
       if (mapping._2.recordMapping != None) {
@@ -600,8 +591,7 @@ trait SipCreatorEndPoint extends Controller with OrganizationConfigurationAware 
     val collection = if (mayCollection.isDefined) {
       basexStorage.deleteCollection(mayCollection.get)
       basexStorage.createCollection(dataSet)
-    }
-    else {
+    } else {
       basexStorage.createCollection(dataSet)
     }
 
@@ -640,7 +630,7 @@ class ReceiveSource extends Actor {
           case Left(t) =>
             DataSet.dao(configuration).invalidateHashes(dataSet)
             val message = if (t.isInstanceOf[StorageInsertionException]) {
-              Some( """Error while inserting record:
+              Some("""Error while inserting record:
                       |
                       |%s
                       |
@@ -649,8 +639,7 @@ class ReceiveSource extends Actor {
                       |%s
                       | """.stripMargin.format(t.getMessage, t.getCause.getMessage)
               )
-            }
-            else {
+            } else {
               Some(t.getMessage)
             }
             DataSet.dao(configuration).updateState(dataSet, DataSetState.ERROR, Some(userName), message)
@@ -671,9 +660,9 @@ class ReceiveSource extends Actor {
             val duration = Duration(System.currentTimeMillis() - now, TimeUnit.MILLISECONDS)
             Logger("CultureHub").info(
               "Finished parsing source for DataSet %s of organization %s. %s records inserted in %s seconds."
-              .format(
-                dataSet.spec, dataSet.orgId, inserted, duration.toSeconds
-              )
+                .format(
+                  dataSet.spec, dataSet.orgId, inserted, duration.toSeconds
+                )
             )
         }
 
@@ -696,8 +685,7 @@ class ReceiveSource extends Actor {
       }
   }
 
-  private def receiveSource(dataSet: DataSet, userName: String, inputStream: InputStream)
-    (implicit configuration: OrganizationConfiguration): Either[Throwable, Long] = {
+  private def receiveSource(dataSet: DataSet, userName: String, inputStream: InputStream)(implicit configuration: OrganizationConfiguration): Either[Throwable, Long] = {
 
     try {
       val uploadedRecords = SipCreatorEndPoint.loadSourceData(dataSet, inputStream)
@@ -716,5 +704,4 @@ case class SourceStream(
   userName: String,
   stream: InputStream,
   temporaryFile: TemporaryFile,
-  configuration: OrganizationConfiguration
-  )
+  configuration: OrganizationConfiguration)

@@ -10,7 +10,7 @@ import play.api.data.format.Formats._
 import extensions.Formatters._
 import play.api.i18n._
 import extensions.JJson
-import core.{UserProfileService, DomainServiceLocator, HubModule}
+import core.{ UserProfileService, DomainServiceLocator, HubModule }
 
 /**
  *
@@ -21,8 +21,7 @@ object Admin extends BoundController(HubModule) with Admin
 
 trait Admin extends DelvingController { this: BoundController =>
 
-  val userProfileServiceLocator = inject [ DomainServiceLocator[UserProfileService] ]
-
+  val userProfileServiceLocator = inject[DomainServiceLocator[UserProfileService]]
 
   def profile(user: String) = SecuredUserAction(user) {
     Action {
@@ -62,7 +61,7 @@ trait Admin extends DelvingController { this: BoundController =>
               websites = profileModel.websites,
               twitter = StrictOption(profileModel.twitter),
               linkedIn = StrictOption(profileModel.linkedIn
-            )))
+              )))
 
             // update remote
             val updated = userProfileServiceLocator.byDomain.updateUserProfile(connectedUser, core.UserProfile(
@@ -91,15 +90,15 @@ trait Admin extends DelvingController { this: BoundController =>
 }
 
 case class ProfileViewModel(isPublic: Boolean = false,
-                            firstName: String = "",
-                            lastName: String = "",
-                            email: String = "",
-                            fixedPhone: String = "",
-                            description: String = "",
-                            funFact: String = "",
-                            websites: List[String] = List.empty[String],
-                            twitter: String = "",
-                            linkedIn: String = "")
+  firstName: String = "",
+  lastName: String = "",
+  email: String = "",
+  fixedPhone: String = "",
+  description: String = "",
+  funFact: String = "",
+  websites: List[String] = List.empty[String],
+  twitter: String = "",
+  linkedIn: String = "")
 
 object ProfileViewModel {
 

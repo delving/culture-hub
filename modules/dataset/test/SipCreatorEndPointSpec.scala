@@ -1,7 +1,7 @@
-import collection.mutable.{Buffer, ListBuffer}
+import collection.mutable.{ Buffer, ListBuffer }
 import controllers.SipCreatorEndPoint
 import java.io._
-import java.util.zip.{ZipInputStream, GZIPInputStream}
+import java.util.zip.{ ZipInputStream, GZIPInputStream }
 import org.apache.commons.io.IOUtils
 import collection.JavaConverters._
 import play.api.test._
@@ -58,12 +58,12 @@ class SipCreatorEndPointSpec extends BootstrapAwareSpec {
           bootstrap.spec,
           Some("TEST")
         )(
-          FakeRequest(
-            method = "POST",
-            body = new AnyContentAsText(lines.stripMargin),
-            uri = "",
-            headers = FakeHeaders(Seq(CONTENT_TYPE -> Seq("text/plain")))
-          ))
+            FakeRequest(
+              method = "POST",
+              body = new AnyContentAsText(lines.stripMargin),
+              uri = "",
+              headers = FakeHeaders(Seq(CONTENT_TYPE -> Seq("text/plain")))
+            ))
         status(result) must equalTo(OK)
         contentAsString(result) must equalTo(lines)
       }
@@ -80,13 +80,13 @@ class SipCreatorEndPointSpec extends BootstrapAwareSpec {
           hintsFile.getName,
           Some("TEST")
         )(
-          FakeRequest(
-            method = "POST",
-            uri = "",
-            headers = FakeHeaders(Seq(CONTENT_TYPE -> Seq("text/plain"))),
-            body = TemporaryFile(hintsFile)
+            FakeRequest(
+              method = "POST",
+              uri = "",
+              headers = FakeHeaders(Seq(CONTENT_TYPE -> Seq("text/plain"))),
+              body = TemporaryFile(hintsFile)
+            )
           )
-        )
         status(result) must equalTo(OK)
 
         val stored = DataSet.dao(bootstrap.org).findBySpecAndOrgId(bootstrap.spec, bootstrap.org).get.hints
@@ -106,17 +106,17 @@ class SipCreatorEndPointSpec extends BootstrapAwareSpec {
           mappingFile.getName,
           Some("TEST")
         )(
-          FakeRequest(
-            method = "POST",
-            uri = "",
-            headers = FakeHeaders(Seq(CONTENT_TYPE -> Seq("text/plain"))),
-            body = TemporaryFile(mappingFile)
+            FakeRequest(
+              method = "POST",
+              uri = "",
+              headers = FakeHeaders(Seq(CONTENT_TYPE -> Seq("text/plain"))),
+              body = TemporaryFile(mappingFile)
+            )
           )
-        )
         status(result) must equalTo(OK)
 
         val mapping: String = DataSet.dao(bootstrap.org).findBySpecAndOrgId(bootstrap.spec, bootstrap.org)
-                              .get.mappings("icn").recordMapping.getOrElse(throw new RuntimeException)
+          .get.mappings("icn").recordMapping.getOrElse(throw new RuntimeException)
         val original = FileUtils.readFileToString(mappingFile)
 
         mapping.trim must equalTo(original.trim)
@@ -133,13 +133,13 @@ class SipCreatorEndPointSpec extends BootstrapAwareSpec {
           intFile.getName,
           Some("TEST")
         )(
-          FakeRequest(
-            method = "POST",
-            uri = "",
-            headers = FakeHeaders(Seq(CONTENT_TYPE -> Seq("application/octet-stream"))),
-            body = TemporaryFile(intFile)
+            FakeRequest(
+              method = "POST",
+              uri = "",
+              headers = FakeHeaders(Seq(CONTENT_TYPE -> Seq("application/octet-stream"))),
+              body = TemporaryFile(intFile)
+            )
           )
-        )
         status(result) must equalTo(OK)
 
         val original = readIntFile(intFile)
@@ -162,13 +162,13 @@ class SipCreatorEndPointSpec extends BootstrapAwareSpec {
           sourceFile.getName,
           Some("TEST")
         )(
-          FakeRequest(
-            method = "POST",
-            uri = "",
-            headers = FakeHeaders(Seq(CONTENT_TYPE -> Seq("application/x-gzip"))),
-            body = TemporaryFile(sourceFile)
+            FakeRequest(
+              method = "POST",
+              uri = "",
+              headers = FakeHeaders(Seq(CONTENT_TYPE -> Seq("application/x-gzip"))),
+              body = TemporaryFile(sourceFile)
+            )
           )
-        )
         status(result) must equalTo(OK)
 
         val dataSet = DataSet.dao(bootstrap.org).findBySpecAndOrgId(bootstrap.spec, bootstrap.org).get
@@ -191,12 +191,12 @@ class SipCreatorEndPointSpec extends BootstrapAwareSpec {
           bootstrap.spec,
           Some("TEST")
         )(
-          FakeRequest(
-            method = "POST",
-            body = new AnyContentAsText(lines),
-            uri = "",
-            headers = FakeHeaders(Seq(CONTENT_TYPE -> Seq("text/plain")))
-          ))
+            FakeRequest(
+              method = "POST",
+              body = new AnyContentAsText(lines),
+              uri = "",
+              headers = FakeHeaders(Seq(CONTENT_TYPE -> Seq("text/plain")))
+            ))
         status(result) must equalTo(OK)
         contentAsString(result) must equalTo("")
       }
@@ -212,13 +212,13 @@ class SipCreatorEndPointSpec extends BootstrapAwareSpec {
           intFile.getName,
           Some("TEST")
         )(
-          FakeRequest(
-            method = "POST",
-            uri = "",
-            headers = FakeHeaders(Seq(CONTENT_TYPE -> Seq("text/plain"))), // ????
-            body = TemporaryFile(intFile)
+            FakeRequest(
+              method = "POST",
+              uri = "",
+              headers = FakeHeaders(Seq(CONTENT_TYPE -> Seq("text/plain"))), // ????
+              body = TemporaryFile(intFile)
+            )
           )
-        )
         status(result) must equalTo(OK)
 
         val original = readIntFile(intFile)
@@ -254,8 +254,8 @@ class SipCreatorEndPointSpec extends BootstrapAwareSpec {
           bootstrap.spec,
           Some("TEST")
         )(
-          FakeRequest()
-        ))
+            FakeRequest()
+          ))
         status(result) must equalTo(OK)
 
         // check locking
@@ -313,8 +313,7 @@ class SipCreatorEndPointSpec extends BootstrapAwareSpec {
     var counter = 0
     if (length == 0) {
       List()
-    }
-    else {
+    } else {
       while (counter < length) {
         counter += 1
         b += originalStream.readInt()

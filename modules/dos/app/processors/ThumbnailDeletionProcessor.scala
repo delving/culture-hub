@@ -24,7 +24,7 @@ import org.bson.types.ObjectId
 import com.mongodb.casbah.commons.MongoDBObject
 
 /**
- * 
+ *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
@@ -41,12 +41,13 @@ object ThumbnailDeletionProcessor extends Processor with Thumbnail {
       val thumbs = store.find(MongoDBObject(ORIGIN_PATH_FIELD -> task.path.r, COLLECTION_IDENTIFIER_FIELD -> task.params(COLLECTION_IDENTIFIER_FIELD).toString, ORGANIZATION_IDENTIFIER_FIELD -> task.params(ORGANIZATION_IDENTIFIER_FIELD).toString))
       Task.dao(task.orgId).setTotalItems(task, thumbs.size)
       thumbs foreach {
-        t => {
-          val origin = t.get(ORIGIN_PATH_FIELD).toString
-          info(task, "Removing thumbnails for image " + origin, Some(origin))
-          Task.dao(task.orgId).incrementProcessedItems(task, 1)
-          store.remove(t.getId.asInstanceOf[ObjectId])
-        }
+        t =>
+          {
+            val origin = t.get(ORIGIN_PATH_FIELD).toString
+            info(task, "Removing thumbnails for image " + origin, Some(origin))
+            Task.dao(task.orgId).incrementProcessedItems(task, 1)
+            store.remove(t.getId.asInstanceOf[ObjectId])
+          }
       }
     }
   }

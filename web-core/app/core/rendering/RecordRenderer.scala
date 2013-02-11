@@ -2,9 +2,9 @@ package core.rendering
 
 import core.Constants._
 import core.HubId
-import core.search.{DelvingIdType, BriefDocItem, DocItemReference, SolrQueryService}
-import models.{Role, RecordDefinition, MetadataCache, OrganizationConfiguration}
-import java.net.{URLDecoder, URLEncoder}
+import core.search.{ DelvingIdType, BriefDocItem, DocItemReference, SolrQueryService }
+import models.{ Role, RecordDefinition, MetadataCache, OrganizationConfiguration }
+import java.net.{ URLDecoder, URLEncoder }
 import play.api.Logger
 import xml._
 import play.api.i18n.Lang
@@ -27,19 +27,18 @@ object RecordRenderer {
    * This is complex because we have to cater for legacy deployments with special idTypes
    */
   def getRenderedFullView(id: String,
-                          idType: DelvingIdType,
-                          viewType: ViewType,
-                          lang: Lang,
-                          schema: Option[String] = None,
-                          renderRelatedItems: Boolean,
-                          relatedItemsCount: Int)(implicit configuration: OrganizationConfiguration): Either[String, RenderedView] = {
-
+    idType: DelvingIdType,
+    viewType: ViewType,
+    lang: Lang,
+    schema: Option[String] = None,
+    renderRelatedItems: Boolean,
+    relatedItemsCount: Int)(implicit configuration: OrganizationConfiguration): Either[String, RenderedView] = {
 
     SolrQueryService.getSolrItemReference(URLEncoder.encode(id, "utf-8"), idType, renderRelatedItems, relatedItemsCount) match {
       case Some(DocItemReference(hubId, defaultSchema, publicSchemas, relatedItems, item)) =>
-        val prefix = if(schema.isDefined && publicSchemas.contains(schema.get)) {
+        val prefix = if (schema.isDefined && publicSchemas.contains(schema.get)) {
           schema.get
-        } else if(schema.isDefined && !publicSchemas.contains(schema.get)) {
+        } else if (schema.isDefined && !publicSchemas.contains(schema.get)) {
           val m = "Schema '%s' not available for hubId '%s'".format(schema.get, hubId)
           Logger("Search").info(m)
           return Left(m)
@@ -63,18 +62,10 @@ object RecordRenderer {
 
   private def renderItinItem(item: Option[BriefDocItem], relatedItems: Seq[BriefDocItem]) = {
 
-    val document = <result xmlns:delving="http://www.delving.eu/schemas/"
-                           xmlns:icn="http://www.icn.nl/"
-                           xmlns:dc="http://purl.org/dc/elements/1.1/"
-                           xmlns:custom="http://www.delving.eu/schemas/"
-                           xmlns:dcterms="http://purl.org/dc/termes/"
-                           xmlns:itin="http://www.itin.nl/namespace"
-                           xmlns:drup="http://www.itin.nl/drupal"
-                           xmlns:europeana="http://www.europeana.eu/schemas/ese/">
-
-      { item.map { i => {i.toXml()} }.getOrElse(<item/>) }
-      <relatedItems>{ relatedItems.map { ri => {ri.toXml()} }}</relatedItems>
-    </result>
+    val document = <result xmlns:delving="http://www.delving.eu/schemas/" xmlns:icn="http://www.icn.nl/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:custom="http://www.delving.eu/schemas/" xmlns:dcterms="http://purl.org/dc/termes/" xmlns:itin="http://www.itin.nl/namespace" xmlns:drup="http://www.itin.nl/drupal" xmlns:europeana="http://www.europeana.eu/schemas/ese/">
+                     { item.map { i => { i.toXml() } }.getOrElse(<item/>) }
+                     <relatedItems>{ relatedItems.map { ri => { ri.toXml() } } }</relatedItems>
+                   </result>
 
     Right(new RenderedView {
       def toXml: NodeSeq = document
@@ -86,7 +77,7 @@ object RecordRenderer {
   }
 
   private def renderIndexItem(id: String): Either[String, RenderedView] = {
-    if(id.split("_").length < 3) {
+    if (id.split("_").length < 3) {
       Left("Invalid hubId")
     } else {
       val hubId = HubId(id)
@@ -102,7 +93,7 @@ object RecordRenderer {
   }
 
   private def renderMetadataRecord(prefix: String, hubId: String, viewType: ViewType, lang: Lang, renderRelatedItems: Boolean, relatedItems: Seq[BriefDocItem])(implicit configuration: OrganizationConfiguration): Either[String, RenderedView] = {
-    if(hubId.split("_").length < 3) return Left("Invalid hubId " + hubId)
+    if (hubId.split("_").length < 3) return Left("Invalid hubId " + hubId)
     val id = HubId(hubId)
     val cache = MetadataCache.get(id.orgId, id.spec, ITEM_TYPE_MDR)
     val record = cache.findOne(hubId)
@@ -116,9 +107,9 @@ object RecordRenderer {
       val legacyApiFormats = List("tib", "abm", "ese", "abc")
       val legacyHtmlFormats = List("abm", "ese", "abc")
       val viewDefinitionFormatName = if (viewType == ViewType.API) {
-        if(legacyApiFormats.contains(prefix)) "legacy" else prefix
+        if (legacyApiFormats.contains(prefix)) "legacy" else prefix
       } else {
-        if(legacyHtmlFormats.contains(prefix)) "legacy" else prefix
+        if (legacyHtmlFormats.contains(prefix)) "legacy" else prefix
       }
 
       val schemaVersion = record.get.schemaVersions(prefix)
@@ -142,100 +133,99 @@ object RecordRenderer {
    * @return a rendered view if successful, or an error message
    */
   def renderMetadataRecord(hubId: String,
-                           recordXml: String,
-                           schema: SchemaVersion,
-                           viewDefinitionFormatName: String,
-                           viewType: ViewType,
-                           lang: Lang,
-                           renderRelatedItems: Boolean = false,
-                           relatedItems: Seq[NodeSeq] = Seq.empty,
-                           roles: Seq[Role] = Seq.empty,
-                           parameters: Map[String, String] = Map.empty)(implicit configuration: OrganizationConfiguration): Either[String, RenderedView]  = {
+    recordXml: String,
+    schema: SchemaVersion,
+    viewDefinitionFormatName: String,
+    viewType: ViewType,
+    lang: Lang,
+    renderRelatedItems: Boolean = false,
+    relatedItems: Seq[NodeSeq] = Seq.empty,
+    roles: Seq[Role] = Seq.empty,
+    parameters: Map[String, String] = Map.empty)(implicit configuration: OrganizationConfiguration): Either[String, RenderedView] = {
 
-      // let's do some rendering
-      RecordDefinition.getRecordDefinition(schema) match {
-        case Some(definition) =>
-          val viewRenderer = ViewRenderer.fromDefinition(viewDefinitionFormatName, viewType)
-          if (viewRenderer.isEmpty) {
-            log.warn("Tried rendering full record with id '%s' for non-existing view type '%s'".format(hubId, viewType.name))
-            Left("Could not render full record with hubId '%s' for view type '%s': view type does not exist".format(hubId, viewType.name))
-          } else {
-            try {
+    // let's do some rendering
+    RecordDefinition.getRecordDefinition(schema) match {
+      case Some(definition) =>
+        val viewRenderer = ViewRenderer.fromDefinition(viewDefinitionFormatName, viewType)
+        if (viewRenderer.isEmpty) {
+          log.warn("Tried rendering full record with id '%s' for non-existing view type '%s'".format(hubId, viewType.name))
+          Left("Could not render full record with hubId '%s' for view type '%s': view type does not exist".format(hubId, viewType.name))
+        } else {
+          try {
 
-              val defaultNamespaces = Seq(
-                "delving" -> "http://schemas.delving.eu/",
-                "xml" -> "http://www.w3.org/XML/1998/namespace",
-                "xsi" -> "http://www.w3.org/2001/XMLSchema-instance"
-              )
+            val defaultNamespaces = Seq(
+              "delving" -> "http://schemas.delving.eu/",
+              "xml" -> "http://www.w3.org/XML/1998/namespace",
+              "xsi" -> "http://www.w3.org/2001/XMLSchema-instance"
+            )
 
-              val relatedItemsNamespaces: Seq[(String, String)] = {
-                val namespaces = relatedItems.flatMap { item =>
-                  (item \\ "fields").flatMap { field =>
-                    field.child.map { field =>
-                      field.prefix
-                    }
-                  }.distinct
-                   .filterNot(_.trim.isEmpty)
-                   .map { prefix =>
-                     (prefix -> RecordDefinition.getNamespaceURI(prefix))
-                   }
-                }
-
-                val (resolved, missing) = namespaces.partition(_._2.isDefined)
-
-                if (!missing.isEmpty) {
-                  log.warn("While rendering full view for item %s: following prefixes for related items are unknown: %s".format(
-                    hubId, missing.map(_._1).mkString(", ")
-                  ))
-                }
-
-                resolved.map(r => (r._1 -> r._2.get))
-              }
-
-
-              val cleanRawRecord = {
-                val record = scala.xml.XML.loadString(recordXml)
-                var mutableRecord: Elem = if (renderRelatedItems) {
-                  // mix the related items to the cached record coming from mongo
-                  val relatedItemsXml = <relatedItems>{relatedItems}</relatedItems>
-                  addChild(record, relatedItemsXml).get // we know what we're doing here
-                } else {
-                  record
-                }
-
-                val additionalNamespaces: Map[String, String] = definition.getNamespaces ++ relatedItemsNamespaces ++ defaultNamespaces
-
-                additionalNamespaces.foreach { ns =>
-
-                  // prepend missing namespaces to the declaration if they ain't there
-                  // and yes this check is ugly but Scala's XML <-> namespace support ain't pretty to say the least
-                  if (!recordXml.contains("xmlns:" + ns._1)) {
-                    mutableRecord = mutableRecord % new UnprefixedAttribute("xmlns:" + ns._1, ns._2, Null)
-                    }
+            val relatedItemsNamespaces: Seq[(String, String)] = {
+              val namespaces = relatedItems.flatMap { item =>
+                (item \\ "fields").flatMap { field =>
+                  field.child.map { field =>
+                    field.prefix
                   }
-
-                mutableRecord.toString().replaceFirst("<\\?xml.*?>", "")
+                }.distinct
+                  .filterNot(_.trim.isEmpty)
+                  .map { prefix =>
+                    (prefix -> RecordDefinition.getNamespaceURI(prefix))
+                  }
               }
 
-              log.debug(cleanRawRecord)
+              val (resolved, missing) = namespaces.partition(_._2.isDefined)
 
-              val rendered: RenderedView = viewRenderer.get.renderRecord(cleanRawRecord, roles, definition.getNamespaces ++ relatedItemsNamespaces ++ defaultNamespaces, lang, parameters)
-              Right(rendered)
-            } catch {
-              case t: Throwable =>
-                log.error("Exception while rendering view %s for record %s".format(schema, hubId), t)
-                Left("Error while rendering view '%s' for record with hubId '%s'".format(schema, hubId))
+              if (!missing.isEmpty) {
+                log.warn("While rendering full view for item %s: following prefixes for related items are unknown: %s".format(
+                  hubId, missing.map(_._1).mkString(", ")
+                ))
+              }
+
+              resolved.map(r => (r._1 -> r._2.get))
             }
+
+            val cleanRawRecord = {
+              val record = scala.xml.XML.loadString(recordXml)
+              var mutableRecord: Elem = if (renderRelatedItems) {
+                // mix the related items to the cached record coming from mongo
+                val relatedItemsXml = <relatedItems>{ relatedItems }</relatedItems>
+                addChild(record, relatedItemsXml).get // we know what we're doing here
+              } else {
+                record
+              }
+
+              val additionalNamespaces: Map[String, String] = definition.getNamespaces ++ relatedItemsNamespaces ++ defaultNamespaces
+
+              additionalNamespaces.foreach { ns =>
+
+                // prepend missing namespaces to the declaration if they ain't there
+                // and yes this check is ugly but Scala's XML <-> namespace support ain't pretty to say the least
+                if (!recordXml.contains("xmlns:" + ns._1)) {
+                  mutableRecord = mutableRecord % new UnprefixedAttribute("xmlns:" + ns._1, ns._2, Null)
+                }
+              }
+
+              mutableRecord.toString().replaceFirst("<\\?xml.*?>", "")
+            }
+
+            log.debug(cleanRawRecord)
+
+            val rendered: RenderedView = viewRenderer.get.renderRecord(cleanRawRecord, roles, definition.getNamespaces ++ relatedItemsNamespaces ++ defaultNamespaces, lang, parameters)
+            Right(rendered)
+          } catch {
+            case t: Throwable =>
+              log.error("Exception while rendering view %s for record %s".format(schema, hubId), t)
+              Left("Error while rendering view '%s' for record with hubId '%s'".format(schema, hubId))
           }
-        case None =>
-          val m = "Error while rendering view '%s' for record with hubId '%s': could not find record definition with prefix '%s'".format(schema, hubId, schema)
-          log.error(m)
-          Left(m)
-      }
+        }
+      case None =>
+        val m = "Error while rendering view '%s' for record with hubId '%s': could not find record definition with prefix '%s'".format(schema, hubId, schema)
+        log.error(m)
+        Left(m)
+    }
   }
 
   private def addChild(n: Node, newChild: Node): Option[Elem] = n match {
-    case Elem(prefix, label, attribs, scope, child @ _*) => Some(Elem(prefix, label, attribs, scope, true, child ++ newChild : _*))
+    case Elem(prefix, label, attribs, scope, child @ _*) => Some(Elem(prefix, label, attribs, scope, true, child ++ newChild: _*))
     case _ =>
       Logger("CultureHub").error("Can only add children to elements!")
       None
@@ -249,5 +239,5 @@ object ViewType {
   val API = ViewType("api")
   val HTML = ViewType("html")
 
-  def fromName(name: String) = if(name == "html") HTML else API
+  def fromName(name: String) = if (name == "html") HTML else API
 }

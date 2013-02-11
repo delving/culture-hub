@@ -8,10 +8,10 @@ import java.io.File
 import models.HubMongoContext._
 import org.openqa.selenium.htmlunit.HtmlUnitDriver
 import org.specs2.mutable.Specification
-import play.api.mvc.{AsyncResult, Result}
+import play.api.mvc.{ AsyncResult, Result }
 import play.api.test._
 import play.api.test.Helpers._
-import _root_.util.{TestDataLoader, OrganizationConfigurationHandler}
+import _root_.util.{ TestDataLoader, OrganizationConfigurationHandler }
 import xml.XML
 import scala.concurrent.duration._
 /**
@@ -63,10 +63,11 @@ trait TestContext {
           (new AggregatingOrganizationCollectionLookupService()).findBySpecAndOrgId(spec, "delving").map {
             set =>
               HubServices.basexStorage(configuration).withSession(set) {
-                session => {
-                  val r = session.execute("drop database delving____" + spec)
-                  println(r)
-                }
+                session =>
+                  {
+                    val r = session.execute("drop database delving____" + spec)
+                    println(r)
+                  }
               }
           }
         )

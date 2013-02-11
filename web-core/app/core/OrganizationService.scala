@@ -51,5 +51,5 @@ trait OrganizationService {
    * @param language the ISO two-letter code of the language
    */
   def getName(orgId: String, language: String): Option[String]
-  
+
 }

@@ -24,7 +24,7 @@ import java.io.File
 import play.api.libs.MimeTypes
 import models.OrganizationConfiguration
 import controllers.OrganizationConfigurationAware
-import core.storage.{StoredFile, FileUploadResponse, FileStorage}
+import core.storage.{ StoredFile, FileUploadResponse, FileStorage }
 
 /**
  *
@@ -44,9 +44,10 @@ object FileUpload extends Controller with Extensions with Thumbnail with Organiz
     Action(parse.multipartFormData) {
       implicit request =>
         val uploaded = uploadFileInternal(uid, request.body.file("files[]").map {
-          file => {
-            Seq(Upload(file.ref.file, file.contentType.getOrElse(MimeTypes.forFileName(file.filename).getOrElse("unknown/unknown")), file.filename, file.ref.file.length()))
-          }
+          file =>
+            {
+              Seq(Upload(file.ref.file, file.contentType.getOrElse(MimeTypes.forFileName(file.filename).getOrElse("unknown/unknown")), file.filename, file.ref.file.length()))
+            }
         }.getOrElse(Seq()))
 
         if (uploaded.isEmpty) {
@@ -79,10 +80,7 @@ object FileUpload extends Controller with Extensions with Thumbnail with Organiz
     FileStorage.setFileType(None, files)
   }
 
-
-
   // ~~~ PRIVATE
-
 
   private def uploadFileInternal(uid: String, uploads: Seq[Upload])(implicit configuration: OrganizationConfiguration): Seq[FileUploadResponse] = {
     val uploadedFiles = uploads.flatMap { upload =>
@@ -99,17 +97,17 @@ object FileUpload extends Controller with Extensions with Thumbnail with Organiz
   def storeFile(file: File, fileName: String, contentType: String, uid: String)(implicit configuration: OrganizationConfiguration): Option[(StoredFile, String)] = {
     FileStorage.storeFile(file, contentType, fileName, uid, Some(FILE_TYPE_UNATTACHED), advertise = false).map { f =>
 
-    // if this is an image, create a thumbnail for it so we can display it on the fly in the upload widget
-    val thumbnailUrl: String = if (f.contentType.contains("image") || f.contentType.contains("pdf")) {
-      fileStore(configuration).findOne(f.id) match {
-        case Some(storedFile) =>
-          val thumbnails = createThumbnails(storedFile, fileStore(configuration))
-          if (thumbnails.size > 0) "/thumbnail/" + f.id.toString + "/80" else emptyThumbnailUrl
-        case None => emptyThumbnailUrl
-      }
-    } else emptyThumbnailUrl
+      // if this is an image, create a thumbnail for it so we can display it on the fly in the upload widget
+      val thumbnailUrl: String = if (f.contentType.contains("image") || f.contentType.contains("pdf")) {
+        fileStore(configuration).findOne(f.id) match {
+          case Some(storedFile) =>
+            val thumbnails = createThumbnails(storedFile, fileStore(configuration))
+            if (thumbnails.size > 0) "/thumbnail/" + f.id.toString + "/80" else emptyThumbnailUrl
+          case None => emptyThumbnailUrl
+        }
+      } else emptyThumbnailUrl
 
-    (f, thumbnailUrl)
+      (f, thumbnailUrl)
 
     }
   }

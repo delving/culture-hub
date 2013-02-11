@@ -33,7 +33,7 @@ class BootstrapSource(dataDirectory: File) {
 
   def file(name: String): File =
     fileList().filter(file => file.getName.endsWith(name))
-    .headOption.getOrElse(throw new RuntimeException("Could not find " + name))
+      .headOption.getOrElse(throw new RuntimeException("Could not find " + name))
 }
 
 object BootstrapSource {
@@ -42,8 +42,7 @@ object BootstrapSource {
 
   val baseDirectory = if (here.listFiles().exists(f => f.isDirectory && f.getName == "conf")) {
     here
-  }
-  else {
+  } else {
     new File(here, "culture-hub")
   }
 

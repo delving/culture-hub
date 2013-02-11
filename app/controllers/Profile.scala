@@ -23,6 +23,6 @@ object Profile extends DelvingController {
           'user -> u,
           'isVisible -> (u.userProfile.isPublic || isConnected)
         ))
-      }
     }
+  }
 }

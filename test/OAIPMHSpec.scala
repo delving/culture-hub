@@ -52,7 +52,6 @@ class OAIPMHSpec extends Specs2TestContext {
 
         status(response) must equalTo(OK)
 
-
         val xml = contentAsXML(response)
         val error = xml \ "error"
         if (error.length != 0) println(error)
@@ -121,7 +120,6 @@ class OAIPMHSpec extends Specs2TestContext {
       }
     }
 
-
     "list records with an 'until' datestamp using YYYYMMDD format" in {
       withTestConfig {
         val today = OaiPmhService.dateFormat.format(new Date())
@@ -138,7 +136,6 @@ class OAIPMHSpec extends Specs2TestContext {
         (error \ "@code").text must equalTo("noRecordsMatch")
       }
     }
-
 
     "list no records with a 'from' datestamp using a future YYYYMMDD format" in {
       withTestConfig {
@@ -176,10 +173,8 @@ class OAIPMHSpec extends Specs2TestContext {
       }
     }
 
-
   }
 
   step(cleanup())
-
 
 }

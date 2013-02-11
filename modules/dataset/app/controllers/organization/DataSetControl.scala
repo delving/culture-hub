@@ -21,7 +21,7 @@ import controllers._
 import extensions.JJson
 import extensions.Formatters._
 import com.mongodb.casbah.Imports._
-import play.api.mvc.{AnyContent, Action}
+import play.api.mvc.{ AnyContent, Action }
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.data.validation._
@@ -59,17 +59,16 @@ case class SchemaProcessingConfiguration(
   availableVersions: Seq[String],
   version: String,
   accessType: String = "none",
-  accessKey: String = ""
-)
+  accessKey: String = "")
 
 case class HardcodedFacts(
-  name: String = "",
-  language: String = "",
-  country: String = "",
-  provider: String = "",
-  dataProvider: String = "",
-  rights: String = "",
-  `type`: String = "") {
+    name: String = "",
+    language: String = "",
+    country: String = "",
+    provider: String = "",
+    dataProvider: String = "",
+    rights: String = "",
+    `type`: String = "") {
 
   def asMap = Map(
     "name" -> name,
@@ -113,7 +112,6 @@ object DataSetCreationViewModel {
       }
   }
 
-
   def dataSetForm(implicit configuration: OrganizationConfiguration) = Form(
     mapping(
       "id" -> optional(of[ObjectId]),
@@ -143,7 +141,6 @@ object DataSetCreationViewModel {
     )(DataSetCreationViewModel.apply)(DataSetCreationViewModel.unapply).verifying(specTaken)
   )
 
-
 }
 
 object DataSetControl extends BoundController(HubModule) with DataSetControl
@@ -151,7 +148,7 @@ object DataSetControl extends BoundController(HubModule) with DataSetControl
 trait DataSetControl extends OrganizationController { this: BoundController =>
 
   val schemaService = inject[SchemaService]
-  val directoryServiceLocator = inject [ DomainServiceLocator[DirectoryService] ]
+  val directoryServiceLocator = inject[DomainServiceLocator[DirectoryService]]
 
   lazy val factDefinitionList = parseFactDefinitionList
   lazy val initialFacts = factDefinitionList.map(factDef => (factDef.name, "")).toMap[String, String]
@@ -182,15 +179,15 @@ trait DataSetControl extends OrganizationController { this: BoundController =>
 
         val allSchemaPrefixes: Seq[String] = schemas.map(_.prefix) ++
           (if (configuration.oaiPmhService.allowRawHarvesting) Seq("raw") else Seq.empty)
-        
+
         val versions: Map[String, Seq[String]] = schemas.map { schema =>
           (schema.prefix -> schema.versions.asScala.map(_.number))
         }.toMap ++
-          (if(configuration.oaiPmhService.allowRawHarvesting) Map("raw" -> Seq("1.0.0")) else Map.empty)
+          (if (configuration.oaiPmhService.allowRawHarvesting) Map("raw" -> Seq("1.0.0")) else Map.empty)
 
         if (dataSet != None && !DataSet.dao.canEdit(dataSet.get, connectedUser)) {
           Forbidden("You are not allowed to edit DataSet %s".format(spec.get))
-        } else if(dataSet == None && !DataSet.dao.canAdministrate(connectedUser)) {
+        } else if (dataSet == None && !DataSet.dao.canAdministrate(connectedUser)) {
           Forbidden("You are not allowed to create DataSets")
         } else {
           val data = if (dataSet == None) {
@@ -227,18 +224,18 @@ trait DataSetControl extends OrganizationController { this: BoundController =>
                     accessKey = acl(prefix)._2.getOrElse("")
                   )
                 },
-                indexingMappingPrefix = if(dS.getIndexingMappingPrefix.isEmpty) Some("None") else dS.getIndexingMappingPrefix
+                indexingMappingPrefix = if (dS.getIndexingMappingPrefix.isEmpty) Some("None") else dS.getIndexingMappingPrefix
               )
             )
           }
 
-        Ok(Template(
-          'spec -> spec,
-          'data -> data,
-          'dataSetForm -> DataSetCreationViewModel.dataSetForm,
-          'factDefinitions -> factDefinitionList.filterNot(factDef => factDef.automatic || factDef.name == "spec").toList
-        ))
-      }
+          Ok(Template(
+            'spec -> spec,
+            'data -> data,
+            'dataSetForm -> DataSetCreationViewModel.dataSetForm,
+            'factDefinitions -> factDefinitionList.filterNot(factDef => factDef.automatic || factDef.name == "spec").toList
+          ))
+        }
     }
   }
 
@@ -289,7 +286,6 @@ trait DataSetControl extends OrganizationController { this: BoundController =>
 
             factsObject.append("schemaVersions", submittedSchemaConfigurations.map(c => "%s_%s".format(c.prefix, c.version)).mkString(", "))
 
-
             dataSetForm.id match {
               case Some(id) => {
                 val existing = DataSet.dao.findOneById(id).get
@@ -306,13 +302,13 @@ trait DataSetControl extends OrganizationController { this: BoundController =>
 
                 val updatedDetails = existing.details.copy(name = dataSetForm.facts.name, facts = factsObject)
                 val updated = existing.copy(
-                    spec = dataSetForm.spec,
-                    description = strToOpt(dataSetForm.description),
-                    details = updatedDetails,
-                    mappings = updateMappings(submittedSchemaConfigurations, existing.mappings),
-                    formatAccessControl = formatAccessControl,
-                    idxMappings = dataSetForm.indexingMappingPrefix.map(List(_)).getOrElse(List.empty)
-                  )
+                  spec = dataSetForm.spec,
+                  description = strToOpt(dataSetForm.description),
+                  details = updatedDetails,
+                  mappings = updateMappings(submittedSchemaConfigurations, existing.mappings),
+                  formatAccessControl = formatAccessControl,
+                  idxMappings = dataSetForm.indexingMappingPrefix.map(List(_)).getOrElse(List.empty)
+                )
                 DataSet.dao.save(updated)
                 DataSetEvent ! DataSetEvent.Updated(orgId, dataSetForm.spec, connectedUser)
               }
@@ -355,7 +351,6 @@ trait DataSetControl extends OrganizationController { this: BoundController =>
     }
   }
 
-
   // ~~~
 
   private def parseFactDefinitionList: Seq[FactDefinition] = {
@@ -374,8 +369,6 @@ trait DataSetControl extends OrganizationController { this: BoundController =>
       for (option <- (node \ "options" \ "string")) yield (option text)
     )
   }
-
-
 
 }
 

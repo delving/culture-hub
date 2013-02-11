@@ -1,16 +1,16 @@
 package core.processing
 
-import akka.actor.{PoisonPill, Actor}
-import core.{SystemField, HubId}
+import akka.actor.{ PoisonPill, Actor }
+import core.{ SystemField, HubId }
 import eu.delving.schema.SchemaVersion
 import core.mapping.MappingService
-import models.{MetadataCache, MetadataItem}
+import models.{ MetadataCache, MetadataItem }
 import eu.delving.MappingResult
 import scala.collection.JavaConverters._
 import java.util.concurrent.atomic.AtomicBoolean
 
 /**
- * 
+ *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 class MappedRecordCacher(processingContext: ProcessingContext, processingInterrupted: AtomicBoolean) extends Actor {
@@ -42,26 +42,25 @@ class MappedRecordCacher(processingContext: ProcessingContext, processingInterru
             (r._1.getPrefix -> Some(serialized))
           } catch {
             case t: Throwable => {
-  //            log.error(
-  //              """While attempting to serialize the following output document:
-  //                |
-  //                |%s
-  //                |
-  //              """.stripMargin.format(r._2.root()), t)
-  //            throw t
+              //            log.error(
+              //              """While attempting to serialize the following output document:
+              //                |
+              //                |%s
+              //                |
+              //              """.stripMargin.format(r._2.root()), t)
+              //            throw t
               sender ! MappedRecordCachingFailure(index, hubId, r._1, r._2, t)
               (r._1.getPrefix -> None)
             }
           }
         }.toMap
 
-
         if (!serializedRecords.values.exists(_ == None)) {
 
           val mappingResultSchemaVersions: Map[String, String] = serializedRecords.keys.
-                  flatMap(schemaPrefix => processingContext.targetSchemas.find(_.prefix == schemaPrefix)).
-                  map(processingSchema => (processingSchema.definition.prefix -> processingSchema.definition.schemaVersion)).
-                  toMap
+            flatMap(schemaPrefix => processingContext.targetSchemas.find(_.prefix == schemaPrefix)).
+            map(processingSchema => (processingSchema.definition.prefix -> processingSchema.definition.schemaVersion)).
+            toMap
 
           val cachedRecord = MetadataItem(
             collection = processingContext.collection.spec,
@@ -88,7 +87,6 @@ class MappedRecordCacher(processingContext: ProcessingContext, processingInterru
   private def getOtherFields(mappingResult: MappingResult): MultiMap = {
     getCopyFields(mappingResult).filterNot(f => SystemField.isValid(f._1))
   }
-
 
 }
 

@@ -2,7 +2,7 @@ package models
 
 import core.access.ResourceType
 import play.api.Play.current
-import play.api.i18n.{Messages, Lang}
+import play.api.i18n.{ Messages, Lang }
 
 /**
  * A role, granting rights to a resource.
@@ -16,12 +16,11 @@ import play.api.i18n.{Messages, Lang}
  */
 
 case class Role(key: String,
-                description: Map[String, String],
-                isResourceAdmin: Boolean = false,
-                resourceType: Option[ResourceType] = None,
-                isUnitRole: Boolean = false,
-                unitRoles: Seq[Role] = Seq.empty
-               ) {
+    description: Map[String, String],
+    isResourceAdmin: Boolean = false,
+    resourceType: Option[ResourceType] = None,
+    isUnitRole: Boolean = false,
+    unitRoles: Seq[Role] = Seq.empty) {
 
   def getDescription(lang: Lang) = {
     if (description.isEmpty) println(key)
@@ -36,7 +35,7 @@ object Role {
   def illegal(key: String) = throw new IllegalArgumentException("Illegal key %s for Role".format(key))
 
   def descriptions(key: String) = Lang.availables.map { lang =>
-      (lang.language -> Messages(key))
+    (lang.language -> Messages(key))
   }.toMap
 
   val OWN = Role("own", descriptions("org.group.grantType.own"), false)

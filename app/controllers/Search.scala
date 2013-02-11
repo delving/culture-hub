@@ -6,7 +6,7 @@ import core.Constants._
 import core.search._
 import exceptions._
 import play.api.i18n.Messages
-import core.{RequestContext, SearchInService, CultureHubPlugin}
+import core.{ RequestContext, SearchInService, CultureHubPlugin }
 import core.indexing.IndexField
 
 /**
@@ -24,7 +24,7 @@ object Search extends DelvingController {
         try {
 
           val solrQuery = request.queryString.getFirst("searchIn").map { searchIn =>
-            if(searchIn == "all") {
+            if (searchIn == "all") {
               List(query)
             } else {
               val searchInQuery = CultureHubPlugin.getEnabledPlugins.flatMap { p =>
@@ -51,10 +51,9 @@ object Search extends DelvingController {
             snippet._2(RequestContext(request, configuration, renderArgs(), getLang))
           }
 
-
           val (items, briefItemView) = CommonSearch.search(Option(connectedUser), solrQuery)
           // method checks if facet is for "HasDigitalObject" - used later on (filterNot) to filter out the facet from the display list
-          def isFacetHasDigitalObject(link:FacetQueryLinks) = link.facetName == IndexField.HAS_DIGITAL_OBJECT.key+"_facet"
+          def isFacetHasDigitalObject(link: FacetQueryLinks) = link.facetName == IndexField.HAS_DIGITAL_OBJECT.key + "_facet"
 
           Ok(Template("/Search/index.html",
             'briefDocs -> items,
@@ -71,8 +70,8 @@ object Search extends DelvingController {
           case MalformedQueryException(s, t) => BadRequest(Template("/Search/invalidQuery.html", 'query -> query))
           case c: SolrConnectionException => Error(Messages("search.backendConnectionError"))
         }
-      }
-
     }
+
+  }
 
 }

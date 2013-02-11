@@ -7,17 +7,16 @@ import play.api.data.Forms._
 import play.api.data.format.Formats._
 import play.api.data.validation.Constraints._
 import extensions.Formatters._
-import controllers.{BoundController, ViewModel, OrganizationController}
-import extensions.{MissingLibs, JJson}
+import controllers.{ BoundController, ViewModel, OrganizationController }
+import extensions.{ MissingLibs, JJson }
 import models._
-import cms.{MenuEntry, CMSPage}
+import cms.{ MenuEntry, CMSPage }
 import com.mongodb.casbah.Imports._
 import core.HubModule
 import plugins.CMSPlugin
 import scala.collection.JavaConverters._
-import core.storage.{FileUploadResponse, FileStorage}
+import core.storage.{ FileUploadResponse, FileStorage }
 import controllers.dos.FileUpload
-
 
 /**
  *
@@ -31,13 +30,14 @@ trait CMS extends OrganizationController { this: BoundController =>
   def CMSAction[A](orgId: String)(action: Action[A]): Action[A] = {
     OrganizationMember {
       Action(action.parser) {
-        implicit request => {
-          if (organizationServiceLocator.byDomain.isAdmin(orgId, connectedUser) || Group.dao.count(MongoDBObject("users" -> connectedUser, "grantType" -> CMSPlugin.ROLE_CMS_ADMIN.key)) > 0) {
-            action(request)
-          } else {
-            Forbidden(Messages("user.secured.noAccess"))
+        implicit request =>
+          {
+            if (organizationServiceLocator.byDomain.isAdmin(orgId, connectedUser) || Group.dao.count(MongoDBObject("users" -> connectedUser, "grantType" -> CMSPlugin.ROLE_CMS_ADMIN.key)) > 0) {
+              action(request)
+            } else {
+              Forbidden(Messages("user.secured.noAccess"))
+            }
           }
-        }
       }
     }
   }
@@ -171,16 +171,15 @@ trait CMS extends OrganizationController { this: BoundController =>
 }
 
 case class CMSPageViewModel(dateCreated: Long,
-                            key: String, // the key of this page (unique across all version sets of pages)
-                            lang: String, // 2-letters ISO code of the page language
-                            title: String, // title of the page in this language
-                            userName: String, // creator / editor
-                            content: String, // actual page content (text)
-                            isSnippet: Boolean = false, // is this a snippet in the welcome page or not
-                            published: Boolean,
-                            position: Int,
-                            menu: String)
-
+  key: String, // the key of this page (unique across all version sets of pages)
+  lang: String, // 2-letters ISO code of the page language
+  title: String, // title of the page in this language
+  userName: String, // creator / editor
+  content: String, // actual page content (text)
+  isSnippet: Boolean = false, // is this a snippet in the welcome page or not
+  published: Boolean,
+  position: Int,
+  menu: String)
 
 object CMSPageViewModel {
 

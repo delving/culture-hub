@@ -1,16 +1,16 @@
 package services
 
-import core.{HubId, RenderableRecord, RecordResolverService}
+import core.{ HubId, RenderableRecord, RecordResolverService }
 import eu.delving.schema.SchemaVersion
 import core.Constants._
-import models.{OrganizationConfiguration, DataSet, MetadataCache}
+import models.{ OrganizationConfiguration, DataSet, MetadataCache }
 import com.mongodb.casbah.Imports._
 import core.rendering.ViewType
 import plugins.DataSetPlugin
 import play.api.mvc.RequestHeader
 
 /**
- * 
+ *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 class MetadataRecordResolverService extends RecordResolverService {
@@ -31,7 +31,7 @@ class MetadataRecordResolverService extends RecordResolverService {
 
         // TODO this is a workaround for not yet having a resolver for directory entries
         if (facts.contains("providerUri")) {
-          facts.put("resolvedProviderUri", configuration.directoryService.providerDirectoryUrl +  facts("providerUri").split("/").reverse.head)
+          facts.put("resolvedProviderUri", configuration.directoryService.providerDirectoryUrl + facts("providerUri").split("/").reverse.head)
         }
         if (facts.contains("dataProviderUri")) {
           facts.put("resolvedDataProviderUri", configuration.directoryService.providerDirectoryUrl + facts("dataProviderUri").split("/").reverse.head)
