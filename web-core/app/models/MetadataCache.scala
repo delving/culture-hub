@@ -41,6 +41,7 @@ object MetadataCache {
   def get(orgId: String, col: String, itemType: String): core.MetadataCache = {
     val configuration = OrganizationConfigurationHandler.getByOrgId(orgId)
     val mongoConnection = mongoConnections(configuration)
+    mongoConnection.setWriteConcern(WriteConcern.FsyncSafe)
     val mongoCollection: MongoCollection = mongoConnection(getMongoCollectionName(configuration.orgId))
     mongoCollection.ensureIndex(MongoDBObject("collection" -> 1, "itemType" -> 1, "itemId" -> 1))
     mongoCollection.ensureIndex(MongoDBObject("collection" -> 1, "itemType" -> 1))

@@ -95,6 +95,18 @@ class CMSPageDAO(collection: MongoCollection)(implicit configuration: Organizati
     page.copy(_id = inserted.get)
   }
 
+  val MAX_VERSIONS = 20
+
+  def removeOldVersions(key: String, lang: String) {
+    val versions = findByKeyAndLanguage(key, lang)
+    if (versions.length > MAX_VERSIONS) {
+      val id = versions(MAX_VERSIONS - 1)._id
+
+      find("_id" $lt id).foreach(remove)
+
+    }
+  }
+
   def delete(orgId: String, key: String, lang: String) {
     remove(MongoDBObject("orgId" -> orgId, "key" -> key, "lang" -> lang))
   }

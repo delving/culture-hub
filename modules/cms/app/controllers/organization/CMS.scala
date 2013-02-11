@@ -139,6 +139,7 @@ trait CMS extends OrganizationController { this: BoundController =>
             // create / update the entry before we create / update the page since in the implicit conversion above we'll query for that page's position.
             MenuEntry.dao.savePage(orgId, pageModel.menu, pageModel.key, pageModel.position, pageModel.title, pageModel.lang, pageModel.published)
             val page: CMSPageViewModel = CMSPageViewModel(CMSPage.dao.create(orgId, pageModel.key, pageModel.lang, connectedUser, pageModel.title, pageModel.content, pageModel.published), pageModel.menu)
+            CMSPage.dao.removeOldVersions(pageModel.key, pageModel.lang)
             Json(page)
           }
         )
