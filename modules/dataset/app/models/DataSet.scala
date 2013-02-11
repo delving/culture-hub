@@ -304,7 +304,7 @@ class DataSetDAO(collection: MongoCollection)(implicit val configuration: Organi
     }
   }
 
-  def findAllByOrgId(orgId: String) = find(MongoDBObject("orgId" -> orgId, "deleted" -> false))
+  def findAllByOrgId(orgId: String): Seq[DataSet] = find(MongoDBObject("orgId" -> orgId, "deleted" -> false)).$orderby(MongoDBObject("details.name" -> 1)).toSeq
 
   def canEdit(ds: DataSet, userName: String)(implicit configuration: OrganizationConfiguration) = {
     findAllForUser(userName, configuration.orgId, DataSetPlugin.ROLE_DATASET_EDITOR).contains(ds)

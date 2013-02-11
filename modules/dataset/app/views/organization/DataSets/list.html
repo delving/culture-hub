@@ -114,6 +114,7 @@
             applyPopover: function(element) {
                 $(element).parent().prev().popover({
                     trigger: 'hover',
+                    html: true,
                     content: $(element).html()
                 });
             }
@@ -185,10 +186,46 @@
 
         ko.applyBindings(viewModel);
 
+        var dataSetTable = $('#dataset-table');
+
+        dataSetTable.find("tbody > tr").find("td:eq(1)").mousedown(function () {
+            $(this).prev().find(":checkbox").click();
+        });
+
+        $("#filter").keyup(function () {
+            $.uiTableFilter(dataSetTable, this.value);
+        });
+
+        $('#filter-form').submit(
+            function () {
+                dataSetTable.find("tbody > tr:visible > td:eq(1)").mousedown();
+                return false;
+            }).focus(); //Give focus to input field
+
+        // Check to see if there is a filter cookie. If so filter the table
+        if ($.cookie("ds-filter")) {
+            $.uiTableFilter(dataSetTable, $.cookie("ds-filter"));
+            $('input#filter').val($.cookie("ds-filter"));
+        }
+
+
+        $('.badge-error').popover({
+            placement: 'right'
+        });
+
     });
 
+    function resetFilter() {
+        $.uiTableFilter($('#dataset-table'), '');
+        $('input#filter').val('');
+        $.cookie("ds-filter", null);
+    }
+
+    function saveFilter() {
+        $.cookie("ds-filter",$('input#filter').val(),"/");
+    }
+
 </script>
-<script type="text/javascript" src="@{routes.Assets.at("common/javascripts/organizations/datasets-list.js")}"></script>
 <script type="text/html" id="validRecordCountTemplate">
     <div>
         <table class="table table-condensed">

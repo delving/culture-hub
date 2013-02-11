@@ -303,7 +303,7 @@ class DataSetEventFeed extends Actor {
 
               case "sendList" =>
                 log.debug("About to send complete list of sets to client " + clientId)
-                val sets: Seq[ListDataSetViewModel] = DataSet.dao.findAllByOrgId(orgId).toSeq
+                val sets: Seq[ListDataSetViewModel] = DataSet.dao.findAllByOrgId(orgId)
                 val jsonList = sets.map(_.toJson).toSeq
                 val msg = JsObject(
                   Seq(
