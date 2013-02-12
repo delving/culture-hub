@@ -1,5 +1,7 @@
 package core.access
 
+import models.OrganizationConfiguration
+
 /**
  * A Resource made accessible by a [[models.Role]]
  *
@@ -25,6 +27,12 @@ trait Resource {
 trait ResourceLookup {
 
   def resourceType: ResourceType
+
+  /**
+   * The total number of resources of this type
+   * @return the number of resources for this ResourceType
+   */
+  def totalResourceCount(implicit configuration: OrganizationConfiguration): Int
 
   /**
    * Queries resources name

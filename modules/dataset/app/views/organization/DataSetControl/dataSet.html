@@ -63,10 +63,12 @@
     <h2>${spec.isEmpty() ? messages.get('organization.dataset.create') : messages.get('organization.dataset.update') }</h2>
 </div>
 
+#{if !creationQuotaExceeded}
 <form method="post" action="" id="collectionForm" class="form-delving">
     <div class="row">
         <div class="dataset-info span6">
             <div class="error" style="margin-bottom: 12px;" data-bind="text: errors().global"></div>
+
 
             #{form.textField name:"spec", form: dataSetForm, label: messages.get('organization.dataset.label.identifier'), dataBind:"value: spec", help: messages.get('organization.dataset.help.identifier') /}
 
@@ -87,68 +89,67 @@
 
         </div>
         <div class="dataset-schemas span6">
+            <div class="control-group">
+                <label class="control-label">Target Schemas</label>
+                <div class="controls">
+                    <table class="table">
+                    <thead><th width="150">Schema</th><th>Version</th><th>OAI-PMH Access</th></thead>
+                    <tbody data-bind="foreach: schemaProcessingConfigurations">
+                        <tr>
+                            <td align="left">
+                              <div class="control-group">
+                                <span data-bind="text: prefix"></span>
+                                <div class="controls">
+                                  <input type="checkbox" data-bind="attr: { value: prefix }, checked: $root.selectedSchemas">
+                                </div>
+                              </div>
+                            </td>
+                            <td align="left">
+                              <span data-bind="visible: $root.selectedSchemas().indexOf(prefix()) > -1">
+                                <select data-bind="options: availableVersions, value: version"></select>
+                              </span>
+                            </td>
+                            <td align="left">
+                              <span data-bind="visible: $root.selectedSchemas().indexOf(prefix()) > -1">
+                                  <select data-bind="value: accessType">
+                                      <option value="none">No access</option>
+                                      <option value="public">Public access</option>
+                                      <option value="protected">Protected access</option>
+                                  </select>
+                                  <span data-bind="visible: accessType() == 'protected'">
+                                      <span>Access key</span>
+                                      <input type="text" data-bind="value: accessKey">
+                                  </span>
+                              </span>
+                            </td>
+                        </tr>
+                    </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="control-group">
+                <label class="control-label">Indexing and Rendering Schema</label>
+                <div class="controls">
+                    <select id="mapping-prefix" name="mapping-prefix" data-bind="options: selectedSchemas, optionsCaption: 'None', value: indexingMappingPrefix"></select>
+                    <span class="help-inline">Select a schema for indexing so that this set can be searchable and displayable in the hub</span>
+                    <span class="error" data-bind="text: errors().indexingMappingPrefix"></span>
+                </div>
+            </div>
 
-                        <div class="control-group">
-                            <label class="control-label">Target Schemas</label>
-                            <div class="controls">
-                                <table class="table">
-                                <thead><th width="150">Schema</th><th>Version</th><th>OAI-PMH Access</th></thead>
-                                <tbody data-bind="foreach: schemaProcessingConfigurations">
-                                    <tr>
-                                        <td align="left">
-                                          <div class="control-group">
-                                            <span data-bind="text: prefix"></span>
-                                            <div class="controls">
-                                              <input type="checkbox" data-bind="attr: { value: prefix }, checked: $root.selectedSchemas">
-                                            </div>
-                                          </div>
-                                        </td>
-                                        <td align="left">
-                                          <span data-bind="visible: $root.selectedSchemas().indexOf(prefix()) > -1">
-                                            <select data-bind="options: availableVersions, value: version"></select>
-                                          </span>
-                                        </td>
-                                        <td align="left">
-                                          <span data-bind="visible: $root.selectedSchemas().indexOf(prefix()) > -1">
-                                              <select data-bind="value: accessType">
-                                                  <option value="none">No access</option>
-                                                  <option value="public">Public access</option>
-                                                  <option value="protected">Protected access</option>
-                                              </select>
-                                              <span data-bind="visible: accessType() == 'protected'">
-                                                  <span>Access key</span>
-                                                  <input type="text" data-bind="value: accessKey">
-                                              </span>
-                                          </span>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                                </table>
-                            </div>
-                        </div>
-                        <div class="control-group">
-                            <label class="control-label">Indexing and Rendering Schema</label>
-                            <div class="controls">
-                                <select id="mapping-prefix" name="mapping-prefix" data-bind="options: selectedSchemas, optionsCaption: 'None', value: indexingMappingPrefix"></select>
-                                <span class="help-inline">Select a schema for indexing so that this set can be searchable and displayable in the hub</span>
-                                <span class="error" data-bind="text: errors().indexingMappingPrefix"></span>
-                            </div>
-                        </div>
-
-                        <hr/>
-                        <div class="well">
-                            <div class="row">
-                                #{btnHref id:"saveButton", name:"saveButton", label:messages.get('organization.dataset.save'), extraClass:"btn-success btn-large span4", iconClass:"icon-ok-circle icon-white", rel:"nofollow"/}
-                                <button type="reset" class="btn btn-large pull-right">Reset</button>
-                            </div>
-                        </div>
-                    </div>
-     </div>
-
+            <hr/>
+            <div class="well">
+                <div class="row">
+                    #{btnHref id:"saveButton", name:"saveButton", label:messages.get('organization.dataset.save'), extraClass:"btn-success btn-large span4", iconClass:"icon-ok-circle icon-white", rel:"nofollow"/}
+                    <button type="reset" class="btn btn-large pull-right">Reset</button>
+                </div>
+            </div>
+        </div>
+        </div>
 </form>
-<script type="text/html" id="schemaProcessingConfiguration">
-
-</script>
+#{/if}
+#{if creationQuotaExceeded}
+    &{'plugin.dataSet.creationQuotaExceeded'}
+#{/if}
 
 <script type="text/javascript">
     $(document).ready(function() {
