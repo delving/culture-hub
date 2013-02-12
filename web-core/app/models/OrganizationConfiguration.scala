@@ -40,6 +40,10 @@ package models {
       directoryService: DirectoryServiceConfiguration,
       processingService: ProcessingServiceConfiguration,
 
+      // ~~~ quotas
+      // the quota key in the configuration should be the ResourceType key being set
+      quotas: Map[String, Int] = Map.empty,
+
       plugins: Seq[String],
 
       // ~~~ schema
@@ -375,6 +379,15 @@ package models {
                   processingService = ProcessingServiceConfiguration(
                     mappingCpuProportion = if (configuration.underlying.hasPath(PROCESSING_MAPPING_CPU_PROPORTION)) configuration.underlying.getDouble(PROCESSING_MAPPING_CPU_PROPORTION) else 0.5
                   ),
+                  quotas = {
+                    configuration.getConfig("quotas").map { quotas =>
+                      quotas.subKeys.map { key =>
+                        (key -> quotas.getInt(key + ".limit").getOrElse(-1))
+                      }.toMap
+                    }.getOrElse {
+                      Map.empty
+                    }
+                  },
                   plugins = configuration.underlying.getStringList(PLUGINS).asScala.toSeq,
                   schemas = configuration.underlying.getStringList(SCHEMAS).asScala.toList,
                   crossWalks = configuration.underlying.getStringList(CROSSWALKS).asScala.toList,
