@@ -166,6 +166,14 @@ class DataSetPlugin(app: Application) extends CultureHubPlugin(app) {
       def resourceType: ResourceType = DataSet.RESOURCE_TYPE
 
       /**
+       * The total number of resources of this type
+       * @return the number of resources for this ResourceType
+       */
+      def totalResourceCount(implicit configuration: OrganizationConfiguration): Int = {
+        DataSet.dao.count().toInt
+      }
+
+      /**
        * Queries resources by type and name
        * @param query the query on the resource name
        * @return a sequence of resources matching the query

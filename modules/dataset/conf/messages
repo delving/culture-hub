@@ -1,1 +1,2 @@
 plugin.dataSet.specTaken=This DataSet identifier is already in use
+plugin.dataSet.creationQuotaExceeded=The quota of allowed DataSets for this organization is exceeded

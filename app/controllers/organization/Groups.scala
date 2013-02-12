@@ -12,7 +12,7 @@ import play.api.data.Forms._
 import extensions.Formatters._
 import play.api.data.Form
 import core.{ HubModule, CultureHubPlugin, HubServices }
-import core.access.Resource
+import core.access.{ ResourceType, Resource }
 import collection.JavaConverters._
 import play.api.Logger
 import scala.Some
@@ -139,7 +139,7 @@ trait Groups extends OrganizationController { this: BoundController =>
                         case _ =>
 
                           val resources: Seq[Resource] = role.resourceType.map { resourceType =>
-                            val lookup = resourceLookup(role.resourceType.get.resourceType).get
+                            val lookup = CultureHubPlugin.getResourceLookup(role.resourceType.get).get
                             groupForm.resources.flatMap { resourceToken =>
                               lookup.findResourceByKey(orgId, resourceToken.id)
                             }
@@ -166,7 +166,7 @@ trait Groups extends OrganizationController { this: BoundController =>
   def searchResourceTokens(orgId: String, resourceType: String, q: String) = OrganizationMember {
     Action {
       implicit request =>
-        val maybeLookup = resourceLookup(resourceType)
+        val maybeLookup = CultureHubPlugin.getResourceLookup(ResourceType(resourceType))
         maybeLookup.map { lookup =>
           val tokens = lookup.findResources(orgId, q).map { resource =>
             Token(resource.getResourceKey, resource.getResourceKey, Some(resource.getResourceType.resourceType))
@@ -176,14 +176,6 @@ trait Groups extends OrganizationController { this: BoundController =>
           Json(Seq.empty)
         )
     }
-  }
-
-  private def resourceLookup(resourceType: String)(implicit configuration: OrganizationConfiguration) = {
-    CultureHubPlugin.
-      getEnabledPlugins.
-      flatMap(plugin => plugin.resourceLookups).
-      find(lookup => lookup.resourceType.resourceType == resourceType)
-
   }
 
   private def load(orgId: String, groupId: Option[ObjectId])(implicit configuration: OrganizationConfiguration): String = {

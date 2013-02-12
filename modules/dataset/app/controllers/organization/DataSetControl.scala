@@ -112,6 +112,15 @@ object DataSetCreationViewModel {
       }
   }
 
+  def creationQuotaExceeded(implicit configuration: OrganizationConfiguration) = Constraint[DataSetCreationViewModel]("plugin.dataSet.creationQuotaExceeded") {
+    case r =>
+      if (CultureHubPlugin.isQuotaExceeded(DataSet.RESOURCE_TYPE)) {
+        Invalid(ValidationError(Messages("plugin.dataSet.creationQuotaExceeded")))
+      } else {
+        Valid
+      }
+  }
+
   def dataSetForm(implicit configuration: OrganizationConfiguration) = Form(
     mapping(
       "id" -> optional(of[ObjectId]),
@@ -138,7 +147,7 @@ object DataSetCreationViewModel {
         )(SchemaProcessingConfiguration.apply)(SchemaProcessingConfiguration.unapply)
       ),
       "indexingMappingPrefix" -> optional(text).verifying(notRaw)
-    )(DataSetCreationViewModel.apply)(DataSetCreationViewModel.unapply).verifying(specTaken)
+    )(DataSetCreationViewModel.apply)(DataSetCreationViewModel.unapply).verifying(specTaken, creationQuotaExceeded)
   )
 
 }
@@ -190,8 +199,9 @@ trait DataSetControl extends OrganizationController { this: BoundController =>
         } else if (dataSet == None && !DataSet.dao.canAdministrate(connectedUser)) {
           Forbidden("You are not allowed to create DataSets")
         } else {
-          val data = if (dataSet == None) {
-            JJson.generate(DataSetCreationViewModel(
+          val (data, quotaExceeded) = if (dataSet == None) {
+
+            (JJson.generate(DataSetCreationViewModel(
               allAvailableSchemas = allSchemaPrefixes,
               schemaProcessingConfigurations = allSchemaPrefixes.map { prefix =>
                 SchemaProcessingConfiguration(
@@ -201,13 +211,13 @@ trait DataSetControl extends OrganizationController { this: BoundController =>
                 )
               },
               indexingMappingPrefix = Some("None")
-            ))
+            )), CultureHubPlugin.isQuotaExceeded(DataSet.RESOURCE_TYPE))
           } else {
             val dS = dataSet.get
 
             def acl(prefix: String) = dS.formatAccessControl.get(prefix).map(f => (f.accessType, f.accessKey)).getOrElse(("none", None))
 
-            JJson.generate(
+            (JJson.generate(
               DataSetCreationViewModel(
                 id = Some(dS._id),
                 spec = dS.spec,
@@ -226,12 +236,13 @@ trait DataSetControl extends OrganizationController { this: BoundController =>
                 },
                 indexingMappingPrefix = if (dS.getIndexingMappingPrefix.isEmpty) Some("None") else dS.getIndexingMappingPrefix
               )
-            )
+            ), false)
           }
 
           Ok(Template(
             'spec -> spec,
             'data -> data,
+            'creationQuotaExceeded -> quotaExceeded,
             'dataSetForm -> DataSetCreationViewModel.dataSetForm,
             'factDefinitions -> factDefinitionList.filterNot(factDef => factDef.automatic || factDef.name == "spec").toList
           ))

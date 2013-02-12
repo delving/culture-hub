@@ -1,7 +1,7 @@
 package core
 
 import _root_.util.OrganizationConfigurationHandler
-import core.access.ResourceLookup
+import access.{ ResourceType, ResourceLookup }
 import scala.collection.immutable.ListMap
 import scala.util.matching.Regex
 import play.api._
@@ -253,6 +253,35 @@ object CultureHubPlugin {
     }.getOrElse {
       Logger("CultureHub").warn("Could not broadcast message %s to plugins of organization %s: no actor found".format(message, configuration.orgId))
     }
+  }
+
+  /**
+   * Find the ResourceLookup for a given ResourceType
+   * @param resourceType the [[ ResourceType ]] for this lookup
+   * @param configuration the [[models.OrganizationConfiguration]] being accessed
+   * @return an optional [[ ResourceLookup]]
+   */
+  def getResourceLookup(resourceType: ResourceType)(implicit configuration: OrganizationConfiguration): Option[ResourceLookup] = {
+    CultureHubPlugin.
+      getEnabledPlugins.
+      flatMap(plugin => plugin.resourceLookups).
+      find(lookup => lookup.resourceType == resourceType)
+  }
+
+  /**
+   * Whether the quota for this resource has been reached or exceeded
+   * @param resourceType the [[ ResourceType ]] for which to check the quota
+   * @param configuration the [[models.OrganizationConfiguration]] being accessed
+   * @return whether the quota has been reached or exceeded
+   */
+  def isQuotaExceeded(resourceType: ResourceType)(implicit configuration: OrganizationConfiguration): Boolean = {
+    configuration.quotas.get(resourceType.resourceType).map { limit =>
+      limit > -1 && (
+        getResourceLookup(resourceType).map { lookup =>
+          lookup.totalResourceCount >= limit
+        }.getOrElse(false)
+      )
+    }.getOrElse(false)
   }
 
 }
