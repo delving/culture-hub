@@ -6,7 +6,7 @@ test-result
 .idea
 /logs
 /out
-/dist
+dist/
 /system.out
 /conf/production.conf
 /conf/*_themes.xml
