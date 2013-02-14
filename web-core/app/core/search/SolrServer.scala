@@ -17,6 +17,7 @@
 package core.search
 
 import _root_.util.OrganizationConfigurationHandler
+import exceptions.SolrConnectionException
 import org.apache.solr.client.solrj.SolrQuery
 import xml.XML
 import xml.Node
@@ -47,7 +48,18 @@ trait SolrServer {
 
   def getStreamingUpdateServer(configuration: OrganizationConfiguration) = SolrServer.streamingUpdateServer(configuration)
 
-  def runQuery(query: SolrQuery)(implicit configuration: OrganizationConfiguration): QueryResponse = SolrServer.solrServer(configuration).query(query)
+  def runQuery(query: SolrQuery, retries: Int = 0)(implicit configuration: OrganizationConfiguration): QueryResponse = {
+    try {
+      SolrServer.solrServer(configuration).query(query)
+    } catch {
+      case e: SolrConnectionException =>
+        if (retries < 3) {
+          runQuery(query, retries + 1)
+        } else {
+          throw e
+        }
+    }
+  }
 
 }
 
