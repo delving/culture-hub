@@ -173,3 +173,6 @@ GET         /organizations/:orgId/directory/organizationLookup                co
 
 
 GET          /:orgId/:spec/:recordId                                          controllers.FullView.render(orgId, spec, recordId, format: Option[String])
+
+
+#->           /                                                                cms.Routes
