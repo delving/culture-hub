@@ -44,6 +44,8 @@ import core.Constants._
 
 object SolrQueryService extends SolrServer {
 
+  val log = Logger("CultureHub")
+
   val FACET_PROMPT: String = "&qf="
   val QUERY_PROMPT: String = "query="
 
@@ -168,7 +170,7 @@ object SolrQueryService extends SolrServer {
           }
         } catch {
           case ex: Exception =>
-            Logger("CultureHub") error ("Unable to process parameter %s with values %s".format(entry._1, values.mkString(",")), ex)
+            log.error("Unable to process parameter %s with values %s".format(entry._1, values.mkString(",")), ex)
         }
     }
     queryParams
@@ -280,7 +282,7 @@ object SolrQueryService extends SolrServer {
     }
     val response = SolrQueryService.getSolrResponseFromServer(query)
     if (response.getResults.size() == 0) {
-      Logger("Search").info("Didn't find record for query:  %s".format(solrQuery))
+      log.info("Didn't find record for query:  %s".format(solrQuery))
       None
     } else {
       val first = response.getResults.get(0)
@@ -313,29 +315,29 @@ object SolrQueryService extends SolrServer {
     // solr is 0 based so we need to decrement from our page start
     if (solrQuery.getStart != null && solrQuery.getStart.intValue() < 0) {
       solrQuery.setStart(0)
-      Logger.warn("Solr Start cannot be negative")
+      log.warn("Solr Start cannot be negative")
     }
     if (decrementStart && solrQuery.getStart != null && solrQuery.getStart.intValue() > 0) {
       solrQuery.setStart(solrQuery.getStart.intValue() - 1)
     }
     try {
-      Logger.debug(solrQuery.toString)
+      log.debug(solrQuery.toString)
       runQuery(solrQuery)
     } catch {
       case e: SolrServerException if e.getMessage.contains("returned non ok status:400") => {
-        Logger.error("Unable to fetch result", e)
+        log.error("Unable to fetch result", e)
         throw new MalformedQueryException("Malformed Query", e)
       }
       case e: SolrServerException if e.getMessage.contains("Server refused connection") => {
-        Logger.error("Unable to connect to Solr Server", e)
+        log.error("Unable to connect to Solr Server", e)
         throw new SolrConnectionException("SOLR_UNREACHABLE", e)
       }
       case e: SolrServerException if e.getMessage.contains("Timeout occured while waiting response from server") => {
-        Logger.error("Timeout while waiting for SOLR server to respond")
+        log.error("Timeout while waiting for SOLR server to respond")
         throw new SolrConnectionException("SOLR connection timeout", e)
       }
       case e: Throwable => {
-        Logger.error("unable to execute SolrQuery", e)
+        log.error("unable to execute SolrQuery", e)
         throw new SolrConnectionException("Unknown SOLR error", e)
       }
     }
