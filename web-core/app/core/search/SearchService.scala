@@ -297,14 +297,16 @@ case class SearchSummary(result: BriefItemView, language: String = "en", chRespo
       }
 
       val output = new StringBuffer()
-      output append (item.getAsString("dc_title")) append ("</br></br>")
+      output append ("<strong>%s</strong>".format(item.getAsString("dc_title"))) append ("</br></br>")
       renderStrong("Vervaardiger", "dc_creator", output)
       renderStrong("Soort object", "dc_type", output)
       renderStrong("Vervaardigingsdatum", "dc_date", output)
       renderStrong("Vervaardiging plaats", "dc_coverage", output)
       renderStrong("vindplaats", "icn_location", output)
-      renderStrong("Onderwerp trefwoord", "dc_subject", output)
-      renderStrong("Associatie trefwoord", "dcterms_spatial", output)
+      renderStrong("Afgebeelde plaats", "dc_subject", output)
+      if (!item.getAsString("icn_location").equalsIgnoreCase(item.getAsString("dterms_spatial"))) {
+        renderStrong("Geassocieerde plaats", "dcterms_spatial", output)
+      }
       renderStrong("Afmeting", "dc_format", output)
       renderStrong("Materiaal", "icn_material", output)
       renderStrong("Objectnummer", "dc_identifier", output)
