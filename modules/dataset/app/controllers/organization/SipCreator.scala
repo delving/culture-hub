@@ -26,7 +26,7 @@ object SipCreator extends OrganizationController {
     Action {
       implicit request =>
 
-        val host = request.domain
+        val host = request.domain + ":80" // we need the port for the sip-creator
         val home = "http://" + host + "/" + user
         val codebase = "http://" + host + "/assets/sip-creator/"
 
