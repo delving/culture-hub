@@ -9,6 +9,7 @@ import play.api.Logger
 import xml._
 import play.api.i18n.Lang
 import eu.delving.schema.SchemaVersion
+import transform.{RewriteRule, RuleTransformer}
 
 /**
  * Renders a single record, with or without related items. Makes use of the search engine to retrieve related records and IDs.
@@ -204,7 +205,15 @@ object RecordRenderer {
                 }
               }
 
-              mutableRecord.toString().replaceFirst("<\\?xml.*?>", "")
+              // remove other geoNames for usages with proper KML pop-up links
+              val cleanRecord = if (parameters.get("pt") != None) {
+                filterGeoTags(mutableRecord, "delving:geoHash", parameters.getOrElse("pt", "0,0"))
+              }
+              else {
+                mutableRecord
+              }
+
+              cleanRecord.toString().replaceFirst("<\\?xml.*?>", "")
             }
 
             log.debug(cleanRawRecord)
@@ -222,6 +231,17 @@ object RecordRenderer {
         log.error(m)
         Left(m)
     }
+  }
+
+  private def filterGeoTags(record: Elem, fieldName: String, crd: String): NodeSeq = {
+    val removeIt = new RewriteRule {
+      override def transform(n: Node): NodeSeq = n match {
+        case e: Elem if "%s:%s".format(e.prefix, e.label) == fieldName && e.text != crd => NodeSeq.Empty
+        case n => n
+      }
+    }
+
+    new RuleTransformer(removeIt).transform(record)
   }
 
   private def addChild(n: Node, newChild: Node): Option[Elem] = n match {

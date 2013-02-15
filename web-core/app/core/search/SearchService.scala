@@ -316,7 +316,7 @@ case class SearchSummary(result: BriefItemView, language: String = "en", chRespo
     }
 
     def renderDoc(item: BriefDocItem, crd: String) = {
-      <Placemark id={ item.getAsString(HUB_ID.key) }>
+      <Placemark id={ "%s&amp;pt=%s".format(item.getAsString(HUB_ID.key), crd) }>
         <name>{ item.getAsString("delving_title") }</name>
         <Point>
           <coordinates>{ crd.split(",").reverse.mkString(",") }</coordinates>
