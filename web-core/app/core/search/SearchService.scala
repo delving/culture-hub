@@ -304,7 +304,7 @@ case class SearchSummary(result: BriefItemView, language: String = "en", chRespo
       renderStrong("Vervaardiging plaats", "dc_coverage", output)
       renderStrong("vindplaats", "icn_location", output)
       renderStrong("Afgebeelde plaats", "dc_subject", output)
-      if (!item.getAsString("icn_location").equalsIgnoreCase(item.getAsString("dterms_spatial"))) {
+      if (item.getFieldValue("dc_coverage").isNotEmpty || item.getFieldValue("icn_location").isNotEmpty) {
         renderStrong("Geassocieerde plaats", "dcterms_spatial", output)
       }
       renderStrong("Afmeting", "dc_format", output)
@@ -315,8 +315,8 @@ case class SearchSummary(result: BriefItemView, language: String = "en", chRespo
       output.toString
     }
 
-    def renderDoc(item: BriefDocItem, crd: String) = {
-      <Placemark id={ item.getAsString(HUB_ID.key) }>
+    def renderDoc(item: BriefDocItem, crd: String, crdNr: String) = {
+      <Placemark id={ "%s-%s".format(item.getAsString(HUB_ID.key), crdNr) }>
         <name>{ item.getAsString("delving_title") }</name>
         <Point>
           <coordinates>{ crd.split(",").reverse.mkString(",") }</coordinates>
@@ -352,7 +352,7 @@ case class SearchSummary(result: BriefItemView, language: String = "en", chRespo
               (item: BriefDocItem) =>
                 {
                   val coordinates: Array[String] = item.getFieldValue(GEOHASH.key).getValueAsArray
-                  coordinates.map(crd => renderDoc(item, crd))
+                  coordinates.map(crd => renderDoc(item, crd, coordinates.indexOf(crd).toString))
                 }
             )
           }
