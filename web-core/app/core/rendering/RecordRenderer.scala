@@ -204,7 +204,15 @@ object RecordRenderer {
                 }
               }
 
-              mutableRecord.toString().replaceFirst("<\\?xml.*?>", "")
+              // apply transformer chain
+              // TODO plug-in plugins into the chain
+              val baseRecord: NodeSeq = mutableRecord
+
+              val cleanRecord = DefaultRecordTransformers.transformers.foldLeft(baseRecord) { (record: NodeSeq, transformer) =>
+                transformer.transformRecord(record, RenderingContext(parameters))
+              }
+
+              cleanRecord.toString().replaceFirst("<\\?xml.*?>", "")
             }
 
             log.debug(cleanRawRecord)
