@@ -35,9 +35,6 @@ trait TestContext {
   else new File("culture-hub")
 
   def withTestConfig[T](block: => T) = {
-    println
-    println("I am in " + applicationPath)
-    println
     running(FakeApplication(path = applicationPath, withoutPlugins = Seq("play.api.db.BoneCPPlugin", "play.db.ebean.EbeanPlugin", "play.db.jpa.JPAPlugin", "play.api.db.evolutions.EvolutionsPlugin"))) {
       block
     }
