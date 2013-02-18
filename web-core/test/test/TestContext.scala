@@ -1,3 +1,5 @@
+package test
+
 import akka.util.Timeout
 import com.gargoylesoftware.htmlunit.BrowserVersion
 import concurrent.Await
@@ -29,7 +31,7 @@ trait TestContext {
   def contentAsXML(response: Result) = XML.loadString(contentAsString(response))
 
   def applicationPath = if (new File(".").listFiles().exists(
-    f => f.isDirectory && f.getName == "conf")) new File(".")
+    f => f.isDirectory && f.getName == "conf")) new File(".").getAbsoluteFile
   else new File("culture-hub")
 
   def withTestConfig[T](block: => T) = {

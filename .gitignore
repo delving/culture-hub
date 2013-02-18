@@ -2,6 +2,7 @@ tmp
 *.pyc
 *.iws
 test-result
+chromedriver.log
 .DS_Store
 .idea
 /logs

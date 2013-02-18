@@ -176,16 +176,21 @@ abstract class CultureHubPlugin(app: Application) extends play.api.Plugin {
 
   /** finds out whether this plugin is enabled at all, for the whole hub **/
   override def enabled: Boolean = {
-    val config = app.configuration.getConfig("configurations").get
-    val allOrganizationConfigurations: Seq[String] = config.keys.filterNot(_.indexOf(".") < 0).map(_.split("\\.").head).toList.distinct
-    val plugins: Seq[String] = allOrganizationConfigurations.flatMap {
-      key =>
-        {
-          val configuration = config.getConfig(key).get
-          configuration.underlying.getStringList("plugins").asScala.toSeq
-        }
+    app.configuration.getConfig("configurations").map { config =>
+      val allOrganizationConfigurations: Seq[String] = config.keys.filterNot(_.indexOf(".") < 0).map(_.split("\\.").head).toList.distinct
+      val plugins: Seq[String] = allOrganizationConfigurations.flatMap {
+        key =>
+          {
+            val configuration = config.getConfig(key).get
+            configuration.underlying.getStringList("plugins").asScala.toSeq
+          }
+      }
+      plugins.distinct.contains(pluginKey)
+    }.getOrElse {
+      log.error("Fatal error: could not read plugin configurations, config is:\n" + app.configuration.underlying.origin())
+      System.exit(-1)
+      false
     }
-    plugins.distinct.contains(pluginKey)
   }
 
   override def hashCode(): Int = pluginKey.hashCode

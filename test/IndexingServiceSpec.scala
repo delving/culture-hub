@@ -1,4 +1,5 @@
 import core.indexing.IndexingService
+import test.Specs2TestContext
 
 /**
  *

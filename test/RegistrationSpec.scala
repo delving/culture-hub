@@ -3,6 +3,7 @@ import org.openqa.selenium.chrome.ChromeDriver
 import play.api.i18n.{ Messages, Lang }
 import play.api.test._
 import play.api.test.Helpers._
+import test.Specs2TestContext
 import util.OrganizationConfigurationHandler
 
 /**
@@ -14,7 +15,7 @@ import util.OrganizationConfigurationHandler
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
-class RegistrationSpec extends Specs2TestContext {
+class RegistrationSpec extends test.Specs2TestContext {
 
   "The Registration" should {
 

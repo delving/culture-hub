@@ -4,6 +4,7 @@ import models.MetadataCache
 import org.apache.solr.client.solrj.SolrQuery
 import play.api.test.Helpers._
 import play.api.test.{ FakeHeaders, FakeRequest }
+import test.Specs2TestContext
 import util.OrganizationConfigurationHandler
 import xml.XML
 import scala.xml.Utility.trim
