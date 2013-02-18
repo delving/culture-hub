@@ -8,6 +8,7 @@ import play.api.mvc.Results.EmptyContent
 import play.api.mvc.{ AnyContentAsEmpty, AnyContent, AnyContentAsText }
 import play.api.test._
 import play.api.test.Helpers._
+import test.Specs2TestContext
 
 /**
  *

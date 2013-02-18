@@ -69,8 +69,8 @@ class HubNodePlugin(app: Application) extends CultureHubPlugin(app) {
       }
     }
 
-    val nodeDirectoryServiceLocator = HubModule.inject[DomainServiceLocator[NodeDirectoryService]](name = None)
-    val nodeRegistrationServiceLocator = HubModule.inject[DomainServiceLocator[NodeRegistrationService]](name = None)
+    lazy val nodeDirectoryServiceLocator = HubModule.inject[DomainServiceLocator[NodeDirectoryService]](name = None)
+    lazy val nodeRegistrationServiceLocator = HubModule.inject[DomainServiceLocator[NodeRegistrationService]](name = None)
 
     // check if we have a HubNode for the hub itself, and create it if necessary
     OrganizationConfigurationHandler.organizationConfigurations.foreach { implicit configuration =>

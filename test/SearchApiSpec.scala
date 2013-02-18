@@ -1,5 +1,6 @@
 import play.api.test.Helpers._
 import play.api.test.FakeRequest
+import test.Specs2TestContext
 import util.OrganizationConfigurationHandler
 
 /**

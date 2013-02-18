@@ -4,13 +4,14 @@ import play.api.libs.json.{ JsString, JsObject }
 import play.api.mvc.AnyContentAsJson
 import play.api.test._
 import play.api.test.Helpers._
+import test.Specs2TestContext
 import util.OrganizationConfigurationHandler
 
 /**
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
-class HubNodeSpec extends Specs2TestContext {
+class HubNodeSpec extends test.Specs2TestContext {
 
   step {
     loadStandalone()

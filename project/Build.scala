@@ -28,13 +28,13 @@ object Build extends sbt.Build {
 
   val buildScalaVersion = "2.10.0"
 
-  val delvingReleases = "Delving Releases Repository" at "http://development.delving.org:8081/nexus/content/repositories/releases"
-  val delvingSnapshots = "Delving Snapshot Repository" at "http://development.delving.org:8081/nexus/content/repositories/snapshots"
+  val delvingReleases = "Delving Releases Repository" at "http://nexus.delving.org/nexus/content/repositories/releases"
+  val delvingSnapshots = "Delving Snapshot Repository" at "http://nexus.delving.org/nexus/content/repositories/snapshots"
 
   def delvingRepository(version: String) = if (version.endsWith("SNAPSHOT")) delvingSnapshots else delvingReleases
 
   val commonResolvers = Seq(
-    "Delving Proxy repository" at "http://development.delving.org:8081/nexus/content/groups/public/"
+    "Delving Proxy repository" at "http://nexus.delving.org/nexus/content/groups/public/"
   )
 
   val appDependencies = Seq(
@@ -150,6 +150,8 @@ object Build extends sbt.Build {
     credentials += Credentials(Path.userHome / ".ivy2" / ".credentials"),
 
     routesImport += "extensions.Binders._",
+
+    testOptions in Test := Nil, // Required to use scalatest.
 
     parallelExecution in (ThisBuild) := false,
 
