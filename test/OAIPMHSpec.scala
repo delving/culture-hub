@@ -5,6 +5,7 @@ import org.joda.time.format.ISODateTimeFormat
 import org.specs2.mutable._
 import play.api.test._
 import play.api.test.Helpers._
+import test.Specs2TestContext
 
 /**
  * TODO actually test the things we get back
@@ -12,7 +13,7 @@ import play.api.test.Helpers._
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-class OAIPMHSpec extends Specs2TestContext {
+class OAIPMHSpec extends test.Specs2TestContext {
 
   step {
     loadStandalone(SAMPLE_A)

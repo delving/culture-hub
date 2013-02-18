@@ -33,7 +33,7 @@ import util.OrganizationConfigurationHandler
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-class ViewRenderSpec extends Specs2TestContext {
+class ViewRenderSpec extends test.Specs2TestContext {
 
   "The ViewRenderer" should {
 

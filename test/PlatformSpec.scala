@@ -1,5 +1,6 @@
 import core.CultureHubPlugin
 import models.OrganizationConfiguration
+import test.Specs2TestContext
 import util.OrganizationConfigurationHandler
 
 import play.api.test._

@@ -1,3 +1,5 @@
+package test
+
 import akka.util.Timeout
 import com.gargoylesoftware.htmlunit.BrowserVersion
 import concurrent.Await
@@ -29,10 +31,13 @@ trait TestContext {
   def contentAsXML(response: Result) = XML.loadString(contentAsString(response))
 
   def applicationPath = if (new File(".").listFiles().exists(
-    f => f.isDirectory && f.getName == "conf")) new File(".")
+    f => f.isDirectory && f.getName == "conf")) new File(".").getAbsoluteFile
   else new File("culture-hub")
 
   def withTestConfig[T](block: => T) = {
+    println
+    println("I am in " + applicationPath)
+    println
     running(FakeApplication(path = applicationPath, withoutPlugins = Seq("play.api.db.BoneCPPlugin", "play.db.ebean.EbeanPlugin", "play.db.jpa.JPAPlugin", "play.api.db.evolutions.EvolutionsPlugin"))) {
       block
     }
