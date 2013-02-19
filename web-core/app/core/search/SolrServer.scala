@@ -84,7 +84,7 @@ object SolrServer {
   private lazy val solrUpdateServers: Map[String, ConcurrentUpdateSolrServer] = OrganizationConfigurationHandler.organizationConfigurations.map {
     configuration =>
       (configuration.solrBaseUrl -> {
-        new ConcurrentUpdateSolrServer(configuration.solrBaseUrl, 1000, 5)
+        new ConcurrentUpdateSolrServer(configuration.solrBaseUrl, 1000, 2)
       })
   }.toMap
 
