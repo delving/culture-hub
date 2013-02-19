@@ -126,7 +126,7 @@ class CollectionProcessor(collection: Collection with OrganizationCollectionInfo
                       try {
                         val size = Await.result(maybeQueueSize, 5 seconds)
                         if (size.asInstanceOf[Int] > 5000) {
-                          log.info(s"[CollectionProcessor ${collection.spec}}] Source records queued, current queue size is $size, sleeping")
+                          log.debug(s"[CollectionProcessor ${collection.spec}] Source records queued, current queue size is $size, sleeping")
                           Thread.sleep(5000)
                           throttleRecords()
                         }

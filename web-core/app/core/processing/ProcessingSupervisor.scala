@@ -42,7 +42,9 @@ class ProcessingSupervisor(
   private val recordCacher = context.actorOf(Props(new MappedRecordCacher(processingContext, processingInterrupted)).withRouter(
     RoundRobinRouter(nrOfInstances = math.round(numCores / 2))
   ))
-  private val recordIndexer = context.actorOf(Props(new RecordIndexer(processingContext, processingInterrupted, configuration)))
+  private val recordIndexer = context.actorOf(Props(new RecordIndexer(processingContext, processingInterrupted, configuration)).withRouter(
+    RoundRobinRouter(nrOfInstances = math.round(numCores / 2))
+  ))
 
   private var numSourceRecords: Int = 0
   private var numMappingResults: Int = 0
