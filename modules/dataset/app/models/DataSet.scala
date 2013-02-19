@@ -242,7 +242,8 @@ class DataSetDAO(collection: MongoCollection)(implicit val configuration: Organi
     val instanceIdentifier = Play.current.configuration.getString("cultureHub.instanceIdentifier").getOrElse("default")
     val localProcessingSets = allProcessingSets.filter(_.processingInstanceIdentifier == instanceIdentifier)
 
-    if (localProcessingSets.length < Runtime.getRuntime.availableProcessors()) {
+    // only process one set at a time, since we now make optimal use of CPU cores
+    if (localProcessingSets.length < 1) {
       val allQueuedForProcessing = findByState(DataSetState.QUEUED).sort(MongoDBObject("spec" -> 1)).toList
       val availableQueuedProcessing = allQueuedForProcessing.filterNot(set => set.processingInstanceIdentifier.isDefined && set.processingInstanceIdentifier.get != instanceIdentifier)
       availableQueuedProcessing.headOption
