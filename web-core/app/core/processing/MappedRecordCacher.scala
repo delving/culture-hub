@@ -8,19 +8,34 @@ import models.{ MetadataCache, MetadataItem }
 import eu.delving.MappingResult
 import scala.collection.JavaConverters._
 import java.util.concurrent.atomic.AtomicBoolean
+import com.yammer.metrics.scala.Instrumented
+import play.api.Logger
+import java.util.concurrent.TimeUnit
 
 /**
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
-class MappedRecordCacher(processingContext: ProcessingContext, processingInterrupted: AtomicBoolean) extends Actor {
+class MappedRecordCacher(processingContext: ProcessingContext, processingInterrupted: AtomicBoolean) extends Actor with Instrumented {
 
   type MultiMap = Map[String, List[String]]
+
+  val counter = metrics.counter("recordCacherCounter")
+  val meter = metrics.meter("recordCacherMeter", "cached records", unit = TimeUnit.SECONDS)
+  val serializationTimer = metrics.timer(processingContext.collection.getOwner + ".recordCacherSerializationTimer", durationUnit = TimeUnit.MILLISECONDS, rateUnit = TimeUnit.SECONDS)
+  val cachingTimer = metrics.timer(processingContext.collection.getOwner + ".recordCacherCachingTimer", durationUnit = TimeUnit.MILLISECONDS, rateUnit = TimeUnit.SECONDS)
+
+  val log = Logger("CultureHub")
 
   private val cache = MetadataCache.get(
     processingContext.collection.getOwner,
     processingContext.collection.spec,
     processingContext.collection.itemType)
+
+  override def postStop() {
+    counter.clear()
+    serializationTimer.clear()
+  }
 
   def receive = {
 
@@ -29,6 +44,7 @@ class MappedRecordCacher(processingContext: ProcessingContext, processingInterru
       if (processingInterrupted.get()) {
         self ! PoisonPill
       } else {
+        meter.mark()
 
         val allSystemFields: Option[MultiMap] = processingContext.renderingSchema.flatMap { s =>
           mappedRecords.get(s).map { r: MappingResult =>
@@ -36,24 +52,21 @@ class MappedRecordCacher(processingContext: ProcessingContext, processingInterru
           }
         }
 
-        val serializedRecords: Map[String, Option[String]] = mappedRecords.map { r =>
-          try {
-            val serialized = MappingService.nodeTreeToXmlString(r._2.rootAugmented(), r._1.getPrefix != "raw")
-            (r._1.getPrefix -> Some(serialized))
-          } catch {
-            case t: Throwable => {
-              //            log.error(
-              //              """While attempting to serialize the following output document:
-              //                |
-              //                |%s
-              //                |
-              //              """.stripMargin.format(r._2.root()), t)
-              //            throw t
-              sender ! MappedRecordCachingFailure(index, hubId, r._1, r._2, t)
-              (r._1.getPrefix -> None)
+        val serializedRecords: Map[String, Option[String]] = serializationTimer.time {
+
+          mappedRecords.map { r =>
+            try {
+              val serialized = MappingService.nodeTreeToXmlString(r._2.rootAugmented(), r._1.getPrefix != "raw")
+              (r._1.getPrefix -> Some(serialized))
+            } catch {
+              case t: Throwable => {
+                sender ! MappedRecordCachingFailure(index, hubId, r._1, r._2, t)
+                (r._1.getPrefix -> None)
+              }
             }
-          }
-        }.toMap
+          }.toMap
+
+        }
 
         if (!serializedRecords.values.exists(_ == None)) {
 
@@ -62,16 +75,34 @@ class MappedRecordCacher(processingContext: ProcessingContext, processingInterru
             map(processingSchema => (processingSchema.definition.prefix -> processingSchema.definition.schemaVersion)).
             toMap
 
-          val cachedRecord = MetadataItem(
-            collection = processingContext.collection.spec,
-            itemType = processingContext.collection.itemType.itemType,
-            itemId = hubId.toString,
-            xml = serializedRecords.map(r => (r._1 -> r._2.get)),
-            schemaVersions = mappingResultSchemaVersions,
-            systemFields = allSystemFields.getOrElse(Map.empty),
-            index = index
-          )
-          cache.saveOrUpdate(cachedRecord)
+          cachingTimer.time {
+            val cachedRecord = MetadataItem(
+              collection = processingContext.collection.spec,
+              itemType = processingContext.collection.itemType.itemType,
+              itemId = hubId.toString,
+              xml = serializedRecords.map(r => (r._1 -> r._2.get)),
+              schemaVersions = mappingResultSchemaVersions,
+              systemFields = allSystemFields.getOrElse(Map.empty),
+              index = index
+            )
+            cache.saveOrUpdate(cachedRecord)
+          }
+
+        }
+
+        sender ! MappedRecordCachingSuccess
+        counter += 1
+
+        if (log.isDebugEnabled) {
+          if (counter.count % 1000 == 0) {
+            log.debug(
+              s"""Processing metrics from MappedRecordCacher:
+                |- cached records: ${counter.count}
+                |- caching rate: ${meter.meanRate} records / second
+                |- serialization time: ${serializationTimer.mean} ms
+                |- caching time: ${cachingTimer.mean} ms
+              """.stripMargin)
+          }
         }
       }
   }
@@ -92,4 +123,5 @@ class MappedRecordCacher(processingContext: ProcessingContext, processingInterru
 
 case class CacheMappedRecord(index: Int, hubId: HubId, records: Map[SchemaVersion, MappingResult])
 
+case object MappedRecordCachingSuccess
 case class MappedRecordCachingFailure(index: Int, hubId: HubId, schema: SchemaVersion, result: MappingResult, throwable: Throwable)

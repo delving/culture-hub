@@ -34,20 +34,22 @@ class ProcessingSupervisor(
 
   private val processingInterrupted = new AtomicBoolean(false)
 
-  private val numCores = (math.round(Runtime.getRuntime.availableProcessors() * configuration.processingService.mappingCpuProportion)).toInt
+  private val numInstances = (math.round(Runtime.getRuntime.availableProcessors() * configuration.processingService.mappingCpuProportion)).toInt
 
   private val recordMapper = context.actorOf(Props(new RecordMapper(processingContext, processingInterrupted)).withRouter(
-    RoundRobinRouter(nrOfInstances = numCores))
+    RoundRobinRouter(nrOfInstances = numInstances))
   )
   private val recordCacher = context.actorOf(Props(new MappedRecordCacher(processingContext, processingInterrupted)).withRouter(
-    RoundRobinRouter(nrOfInstances = math.round(numCores / 2))
+    RoundRobinRouter(nrOfInstances = math.round(numInstances / 2))
   ))
   private val recordIndexer = context.actorOf(Props(new RecordIndexer(processingContext, processingInterrupted, configuration)).withRouter(
-    RoundRobinRouter(nrOfInstances = math.round(numCores / 2))
+    RoundRobinRouter(nrOfInstances = math.round(numInstances / 2))
   ))
 
   private var numSourceRecords: Int = 0
   private var numMappingResults: Int = 0
+  private var numCachingResults: Int = 0
+  private var numCachingFailures: Int = 0
   private val mappingFailures = new ArrayBuffer[(Int, HubId, String, Throwable)]
 
   private val modulo = math.round(totalSourceRecords / 100)
@@ -86,25 +88,45 @@ class ProcessingSupervisor(
           }
         }
 
-        if (numMappingResults == totalSourceRecords) {
-          self ! ProcessingDone
-        }
-
       }
+
+    case f @ RecordMappingFailure(index, hubId, sourceRecord, throwable) =>
+      mappingFailures += ((index, hubId, sourceRecord, throwable))
+      handleError(f)
+
+    case MappedRecordCachingSuccess =>
+      numCachingResults += 1
+
+      val tick = numCachingResults % (if (modulo == 0) 100 else modulo) == 0
 
       if (tick) {
         updateCount(numMappingResults)
       }
 
       if (numMappingResults % 2000 == 0) {
-        log.info("%s:%s: processed %s of %s records, for schemas '%s'".format(
-          processingContext.collection.getOwner, processingContext.collection.spec, numMappingResults, totalSourceRecords, processingContext.targetSchemasString)
+        log.info("%s:%s: processed %s of %s records, for schemas '%s' (with %s instances)".format(
+          processingContext.collection.getOwner, processingContext.collection.spec, numMappingResults, totalSourceRecords, processingContext.targetSchemasString, numInstances)
         )
       }
 
-    case f @ RecordMappingFailure(index, hubId, sourceRecord, throwable) =>
-      mappingFailures += ((index, hubId, sourceRecord, throwable))
-      handleError(f)
+      if (log.isDebugEnabled) {
+        if (numCachingResults % 5000 == 0) {
+          log.debug(
+            s"""Processing metrics from ProcessingSupervisor:
+              |- source records: $numSourceRecords
+              |- mapped records: $numMappingResults
+              |- cached records: $numCachingResults
+              |- caching failures: $numCachingFailures
+            """.stripMargin)
+        }
+      }
+
+      if ((numCachingResults + numCachingFailures) == totalSourceRecords) {
+        self ! ProcessingDone
+      }
+
+    case MappedRecordCachingFailure =>
+      numCachingFailures += 1
 
     case ProcessingDone =>
       if (interrupted) {
