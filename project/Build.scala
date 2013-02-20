@@ -49,9 +49,11 @@ object Build extends sbt.Build {
     "eu.delving"                %  "definitions"                     % "1.0",
     "eu.delving"                %  "sip-core"                        % sipCoreVersion,
     "eu.delving"                %  "schema-repo"                     % schemaRepoVersion,
-    "eu.delving"                %% "basex-scala-client"              % "0.6",
+    "eu.delving"                %% "basex-scala-client"              % "0.6.1",
 
     "com.escalatesoft.subcut"   %% "subcut"                          % "2.0-SNAPSHOT" exclude ("org.scalatest", "scalatest"),
+    "com.yammer.metrics"        %  "metrics-core"                    % "2.2.0",
+    "nl.grons"                  %% "metrics-scala"                   % "2.2.0",
 
     "org.apache.solr"           %  "solr-solrj"                      % "3.6.0",
     "org.apache.httpcomponents" %  "httpclient"                      % "4.1.2",
