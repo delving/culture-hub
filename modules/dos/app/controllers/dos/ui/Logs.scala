@@ -31,7 +31,7 @@ object Logs extends Controller with Extensions with OrganizationConfigurationAwa
             (cursor, false)
           }
         }
-        Json(Map("logs" -> logs, "skipped" -> skipped))
+        Json(Map("logs" -> logs.toList, "skipped" -> skipped))
     }
   }
 
