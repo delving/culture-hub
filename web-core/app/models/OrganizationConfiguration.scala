@@ -262,13 +262,13 @@ package models {
     val MANDATORY_DOMAIN_KEYS = Seq(ORG_ID, MONGO_DATABASE, COMMONS_API_TOKEN, IMAGE_CACHE_ENABLED, SCHEMAS, CROSSWALKS, PLUGINS)
 
     /**
-     * Computes all domain configurations based on the default Play configuration mechanism.
+     * Computes all domain configurations based on the Play configuration mechanism.
      */
-    def startup(plugins: Seq[CultureHubPlugin]) = {
+    def startup(mainConfig: Configuration, plugins: Seq[CultureHubPlugin]) = {
 
       var missingKeys = new collection.mutable.HashMap[String, Seq[String]]
 
-      val config = Play.configuration.getConfig("configurations").get
+      val config: Configuration = mainConfig.getConfig("configurations").get
       val allOrganizationConfigurations: Seq[String] = config.keys.filterNot(_.indexOf(".") < 0).map(_.split("\\.").head).toList.distinct
       val configurations: Seq[OrganizationConfiguration] = allOrganizationConfigurations.flatMap {
         configurationKey =>
@@ -276,11 +276,9 @@ package models {
             val configuration = config.getConfig(configurationKey).get
 
             // check if all mandatory values are provided
-            val missing = MANDATORY_OVERRIDABLE_KEYS.filter(
-              key =>
-                !configuration.keys.contains(key) &&
-                  !Play.configuration.keys.contains(key)
-            ) ++ MANDATORY_DOMAIN_KEYS.filter(!configuration.keys.contains(_))
+            val missing = MANDATORY_OVERRIDABLE_KEYS.filter { key =>
+              !configuration.keys.contains(key) && !mainConfig.keys.contains(key)
+            } ++ MANDATORY_DOMAIN_KEYS.filter(!configuration.keys.contains(_))
 
             // more checks
             val domains = configuration.underlying.getStringList("domains").asScala
