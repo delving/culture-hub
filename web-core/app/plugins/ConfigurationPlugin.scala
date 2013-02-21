@@ -45,7 +45,7 @@ class ConfigurationPlugin(app: Application) extends CultureHubPlugin(app) {
 
       checkPluginSystem()
 
-      OrganizationConfigurationHandler.startup(CultureHubPlugin.hubPlugins)
+      OrganizationConfigurationHandler.configure(CultureHubPlugin.hubPlugins, isStartup = true)
 
     } catch {
       case t: Throwable =>
