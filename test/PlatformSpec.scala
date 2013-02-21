@@ -22,7 +22,7 @@ class PlatformSpec extends Specs2TestContext {
     "load configurations from disk into memory" in {
       withTestConfig {
 
-        organizationConfigurationHandler.startup(CultureHubPlugin.hubPlugins)
+        organizationConfigurationHandler.configure(CultureHubPlugin.hubPlugins)
         val (configurations, errors) = OrganizationConfiguration.buildConfigurations(Play.application.configuration, CultureHubPlugin.hubPlugins)
         configurations.size should not equalTo (0)
         errors.size should equalTo (0)
