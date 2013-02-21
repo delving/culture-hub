@@ -34,16 +34,24 @@ class ProcessingSupervisor(
 
   private val processingInterrupted = new AtomicBoolean(false)
 
-  private val numInstances = (math.round(Runtime.getRuntime.availableProcessors() * configuration.processingService.mappingCpuProportion)).toInt
+  private val numInstances = {
+    val round = (math.round(Runtime.getRuntime.availableProcessors() * configuration.processingService.mappingCpuProportion)).toInt
+    if (round == 0) 1 else round
+  }
+
+  private val halfNumInstances = {
+    val round = math.round(numInstances / 2)
+    if (round == 0) 1 else round
+  }
 
   private val recordMapper = context.actorOf(Props(new RecordMapper(processingContext, processingInterrupted)).withRouter(
     RoundRobinRouter(nrOfInstances = numInstances))
   )
   private val recordCacher = context.actorOf(Props(new MappedRecordCacher(processingContext, processingInterrupted)).withRouter(
-    RoundRobinRouter(nrOfInstances = math.round(numInstances / 2))
+    RoundRobinRouter(nrOfInstances = halfNumInstances)
   ))
   private val recordIndexer = context.actorOf(Props(new RecordIndexer(processingContext, processingInterrupted, configuration)).withRouter(
-    RoundRobinRouter(nrOfInstances = math.round(numInstances / 2))
+    RoundRobinRouter(nrOfInstances = halfNumInstances)
   ))
 
   private var numSourceRecords: Int = 0
