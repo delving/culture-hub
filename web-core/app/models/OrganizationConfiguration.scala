@@ -1,7 +1,6 @@
 package models {
 
   import _root_.core.node.Node
-  import core.access.ResourceType
   import core.{ SystemField, CultureHubPlugin }
   import org.apache.solr.client.solrj.SolrQuery
   import core.search.{ SolrSortElement, SolrFacetElement }
@@ -262,183 +261,51 @@ package models {
     val MANDATORY_DOMAIN_KEYS = Seq(ORG_ID, MONGO_DATABASE, COMMONS_API_TOKEN, IMAGE_CACHE_ENABLED, SCHEMAS, CROSSWALKS, PLUGINS)
 
     /**
-     * Computes all domain configurations based on the Play configuration mechanism.
+     * Computes all domain configurations based on a Typesafe configuration and the set of available plugins
      */
-    def startup(mainConfig: Configuration, plugins: Seq[CultureHubPlugin]) = {
+    def buildConfigurations(mainConfig: Configuration, plugins: Seq[CultureHubPlugin]): (Seq[OrganizationConfiguration], Seq[(String, String)]) = {
 
-      var missingKeys = new collection.mutable.HashMap[String, Seq[String]]
+      val allErrors = new ArrayBuffer[(String, String)]()
 
       val config: Configuration = mainConfig.getConfig("configurations").get
       val allOrganizationConfigurations: Seq[String] = config.keys.filterNot(_.indexOf(".") < 0).map(_.split("\\.").head).toList.distinct
-      val configurations: Seq[OrganizationConfiguration] = allOrganizationConfigurations.flatMap {
-        configurationKey =>
-          {
-            val configuration = config.getConfig(configurationKey).get
 
-            // check if all mandatory values are provided
-            val missing = MANDATORY_OVERRIDABLE_KEYS.filter { key =>
-              !configuration.keys.contains(key) && !mainConfig.keys.contains(key)
-            } ++ MANDATORY_DOMAIN_KEYS.filter(!configuration.keys.contains(_))
+      val parsedConfigurations: Seq[Either[(String, Seq[String]), OrganizationConfiguration]] = allOrganizationConfigurations.map { configurationKey =>
+        val configuration = config.getConfig(configurationKey).get
 
-            // more checks
-            val domains = configuration.underlying.getStringList("domains").asScala
-            if (domains.isEmpty) {
-              missingKeys += (
-                configurationKey -> (
-                  missingKeys.get(configurationKey).map(list => list ++ Seq("domains")).getOrElse(Seq("domains"))
-                )
-              )
-            }
+        // check if all mandatory values are provided
+        val missingMandatory: Seq[String] = MANDATORY_OVERRIDABLE_KEYS.filter { key =>
+          !configuration.keys.contains(key) && !mainConfig.keys.contains(key)
+        } ++ MANDATORY_DOMAIN_KEYS.filter(!configuration.keys.contains(_))
 
-            if (!missing.isEmpty) {
-              missingKeys += (configurationKey -> missing)
-              None
-            } else {
-              Some(
-                OrganizationConfiguration(
-                  name = configurationKey,
-                  orgId = configuration.getString(ORG_ID).get,
-                  domains = configuration.underlying.getStringList("domains").asScala.toList,
-                  mongoDatabase = configuration.getString(MONGO_DATABASE).get,
-                  baseXConfiguration = BaseXConfiguration(
-                    host = getString(configuration, BASEX_HOST),
-                    port = getInt(configuration, BASEX_PORT),
-                    eport = getInt(configuration, BASEX_EPORT),
-                    user = getString(configuration, BASEX_USER),
-                    password = getString(configuration, BASEX_PASSWORD)
-                  ),
-                  solrBaseUrl = getString(configuration, SOLR_BASE_URL),
-                  commonsService = CommonsServiceConfiguration(
-                    commonsHost = getString(configuration, COMMONS_HOST),
-                    nodeName = configuration.getString(COMMONS_NODE_NAME).get,
-                    apiToken = configuration.getString(COMMONS_API_TOKEN).get
-                  ),
-                  oaiPmhService = OaiPmhServiceConfiguration(
-                    repositoryName = getString(configuration, OAI_REPO_NAME),
-                    adminEmail = getString(configuration, OAI_ADMIN_EMAIL),
-                    earliestDateStamp = getString(configuration, OAI_EARLIEST_TIMESTAMP),
-                    repositoryIdentifier = getString(configuration, OAI_REPO_IDENTIFIER),
-                    sampleIdentifier = getString(configuration, OAI_SAMPLE_IDENTIFIER),
-                    responseListSize = getInt(configuration, OAI_RESPONSE_LIST_SIZE),
-                    allowRawHarvesting = getBoolean(configuration, OAI_ALLOW_RAW_HARVESTING)
-                  ),
-                  objectService = ObjectServiceConfiguration(
-                    fileStoreDatabaseName = getString(configuration, FILESTORE_DATABASE),
-                    imageCacheDatabaseName = getString(configuration, IMAGE_CACHE_DATABASE),
-                    imageCacheEnabled = configuration.getBoolean(IMAGE_CACHE_ENABLED).getOrElse(false),
-                    tilesWorkingBaseDir = getString(configuration, TILES_WORKING_DIR),
-                    tilesOutputBaseDir = getString(configuration, TILES_OUTPUT_DIR)
-                  ),
-                  directoryService = DirectoryServiceConfiguration(
-                    providerDirectoryUrl = configuration.getString(PROVIDER_DIRECTORY_URL).getOrElse("")
-                  ),
-                  searchService = SearchServiceConfiguration(
-                    hiddenQueryFilter = getOptionalString(configuration, SEARCH_HQF).getOrElse(""),
-                    facets = getString(configuration, SEARCH_FACETS),
-                    sortFields = getString(configuration, SEARCH_SORTFIELDS),
-                    apiWsKeyEnabled = getOptionalBoolean(configuration, SEARCH_APIWSKEYENABLED).getOrElse(false),
-                    apiWsKeys = getOptionalStringList(configuration, SEARCH_APIWSKEYS).getOrElse(Seq.empty),
-                    moreLikeThis = {
-                      val mlt = configuration.getConfig(SEARCH_MORELIKETHIS)
-                      val default = MoreLikeThis()
-                      if (mlt.isEmpty) {
-                        default
-                      } else {
-                        MoreLikeThis(
-                          fieldList = mlt.get.underlying.getStringList("fieldList").asScala,
-                          minTermFrequency = mlt.get.getInt("minimumTermFrequency").getOrElse(default.minTermFrequency),
-                          minDocumentFrequency = mlt.get.getInt("minimumDocumentFrequency").getOrElse(default.minDocumentFrequency),
-                          minWordLength = mlt.get.getInt("minWordLength").getOrElse(default.minWordLength),
-                          maxWordLength = mlt.get.getInt("maxWordLength").getOrElse(default.maxWordLength),
-                          maxQueryTerms = mlt.get.getInt("maxQueryTerms").getOrElse(default.maxQueryTerms),
-                          maxNumToken = mlt.get.getInt("maxNumToken").getOrElse(default.maxNumToken),
-                          boost = mlt.get.getBoolean("boost").getOrElse(default.boost),
-                          count = mlt.get.getInt("count").getOrElse(default.count),
-                          queryFields = mlt.get.underlying.getStringList("queryFields").asScala
-                        )
-                      }
-                    },
-                    searchIn = {
-                      configuration.getConfig(SEARCH_SEARCHIN).map { searchIn =>
-                        searchIn.keys.map { field =>
-                          (field -> searchIn.getString(field).getOrElse(""))
-                        }.toMap
-                      }.getOrElse {
-                        Map(
-                          "dc_title" -> "metadata.dc.title",
-                          "dc_creator" -> "metadata.dc.creator",
-                          "dc_subject" -> "metadata.dc.subject"
-                        )
-                      }
-                    },
-                    pageSize = getOptionalInt(configuration, SEARCH_PAGE_SIZE).getOrElse(20),
-                    showResultsWithoutThumbnails = getOptionalBoolean(configuration, SHOW_ITEMS_WITHOUT_THUMBNAIL).getOrElse(false)
-                  ),
-                  processingService = ProcessingServiceConfiguration(
-                    mappingCpuProportion = if (configuration.underlying.hasPath(PROCESSING_MAPPING_CPU_PROPORTION)) configuration.underlying.getDouble(PROCESSING_MAPPING_CPU_PROPORTION) else 0.5
-                  ),
-                  quotas = {
-                    configuration.getConfig("quotas").map { quotas =>
-                      quotas.subKeys.map { key =>
-                        (key -> quotas.getInt(key + ".limit").getOrElse(-1))
-                      }.toMap
-                    }.getOrElse {
-                      Map.empty
-                    }
-                  },
-                  plugins = configuration.underlying.getStringList(PLUGINS).asScala.toSeq,
-                  schemas = configuration.underlying.getStringList(SCHEMAS).asScala.toList,
-                  crossWalks = configuration.underlying.getStringList(CROSSWALKS).asScala.toList,
-                  ui = UserInterfaceConfiguration(
-                    themeDir = configuration.getString("ui.themeDir").getOrElse("default"),
-                    defaultLanguage = configuration.getString("ui.defaultLanguage").getOrElse("en"),
-                    siteName = configuration.getString("ui.siteName"),
-                    siteSlogan = configuration.getString("ui.siteSlogan").orElse(Some("Delving CultureHub")),
-                    footer = configuration.getString("ui.footer").orElse(Some("")),
-                    addThisTrackingCode = configuration.getString("ui.addThisTrackingCode").orElse(None),
-                    googleAnalyticsTrackingCode = configuration.getString("ui.googleAnalyticsTrackingCode").orElse(None),
-                    showLogin = configuration.getBoolean("ui.showLogin").getOrElse(false),
-                    showRegistration = configuration.getBoolean("ui.showRegistration").getOrElse(false),
-                    showAllObjects = configuration.getBoolean("ui.showAllObjects").getOrElse(false)
-                  ),
-                  emailTarget = {
-                    EmailTarget(
-                      adminTo = getString(configuration, EMAIL_ADMINTO),
-                      exceptionTo = getString(configuration, EMAIL_EXCEPTIONTO),
-                      feedbackTo = getString(configuration, EMAIL_FEEDBACKTO),
-                      registerTo = getString(configuration, EMAIL_REGISTERTO),
-                      systemFrom = getString(configuration, EMAIL_SYSTEMFROM),
-                      feedbackFrom = getString(configuration, EMAIL_FEEDBACKFROM)
-                    )
-                  },
-                  roles = configuration.getConfig("roles").map {
-                    roles =>
-                      roles.keys.map {
-                        key =>
-                          {
-                            val roleKey = key.split("\\.").head
-                            // TODO parse all kind of languages
-                            val roleDescriptions: Map[String, String] = roles.keys.filter(_.startsWith(roleKey + ".description.")).map {
-                              descriptionKey => (descriptionKey.split("\\.").reverse.head -> roles.getString(descriptionKey).getOrElse(""))
-                            }.toMap
-                            Role(roleKey, roleDescriptions)
-                          }
-                      }.toSeq
-                  }.getOrElse(Seq.empty),
-                  registeredUsersAddedToOrg = getOptionalBoolean(configuration, REGISTRATION_USERS_ADDED_TO_ORG).getOrElse(false)
-                )
-              )
-            }
-          }
-      }.toList
+        // more checks
+        val domains = configuration.underlying.getStringList("domains").asScala
+        val missingDomains = if (domains.isEmpty) {
+          Seq("domains")
+        } else {
+          Seq.empty
+        }
 
-      // if there's anything wrong, we promptly refuse to start
-      if (!missingKeys.isEmpty) {
+        val missing = missingMandatory ++ missingDomains
+
+        if (!missing.isEmpty) {
+          Left((configurationKey -> missing))
+        } else {
+          Right(buildConfiguration(configurationKey, configuration))
+        }
+
+      }.toSeq
+
+      val (naughty, nice) = parsedConfigurations.partition(_.isLeft)
+
+      if (!naughty.isEmpty) {
+        val errorPairs = naughty.map(_.left.get)
         log.error(
-          """Invalid configuration(s), hence we won't start:
+          """Invalid configuration(s):
           |%s
         """.stripMargin.format(
-            missingKeys.map { config =>
+            errorPairs.map { config =>
+              config
               """
               |== %s:
               |Missing keys: %s
@@ -449,34 +316,21 @@ package models {
             }.mkString("\n")
           )
         )
-        throw new RuntimeException("Invalid configuration. ¿Satan, is this you?")
+        allErrors ++= errorPairs.map(pair => (pair._1 -> ("Missing mandatory keys: " + pair._2.mkString(", "))))
       }
+
+      val configurations = nice.map(_.right.get)
 
       val duplicateOrgIds = configurations.groupBy(_.orgId).filter(_._2.size > 1)
       if (!duplicateOrgIds.isEmpty) {
         log.error(
           "Found domain configurations that use the same orgId: " +
             duplicateOrgIds.map(t => t._1 + ": " + t._2.map(_.name).mkString(", ")).mkString(", "))
-        throw new RuntimeException("Invalid configuration. Come back tomorrow.")
-      }
 
-      if (configurations.isEmpty) {
-        log.error("No domain configuration found. You need to have at least one configured in order to start.")
-        throw new RuntimeException("Invalid configuration. No can do.")
+        allErrors ++= duplicateOrgIds.map(duplicate => (duplicate._1, s"Configuration with key ${duplicate._1} is present more than once, second definition dropped"))
       }
 
       // plugin time! now that we read all the configuration, enrich it with things provided by the plugins
-
-      // start by doing sanity check on plugins
-
-      val duplicatePluginKeys = plugins.groupBy(_.pluginKey).filter(_._2.size > 1)
-      if (!duplicatePluginKeys.isEmpty) {
-        log.error(
-          "Found two or more plugins with the same pluginKey: " +
-            duplicatePluginKeys.map(t => t._1 + ": " + t._2.map(_.getClass).mkString(", ")).mkString(", ")
-        )
-        throw new RuntimeException("Plugin inconsistency. No can do.")
-      }
 
       if (!Play.isTest) {
         val invalidPluginKeys: Seq[(OrganizationConfiguration, String, Option[CultureHubPlugin])] = configurations.flatMap { configuration =>
@@ -485,59 +339,12 @@ package models {
         if (!invalidPluginKeys.isEmpty) {
 
           val error = "Found two or more configurations that reference non-existing plugins:\n" +
-            invalidPluginKeys.map(r => "Configuration " + r._1.name + ": " + r._2 + " does not exist or is not available").mkString("\n")
+            invalidPluginKeys.map(r => "Configuration " + r._1.name + ": plugin " + r._2 + " does not exist or is not available").mkString("\n")
 
           log.error(error)
-          throw new RuntimeException("Role definition inconsistency. No can do.\n\n" + error)
+
+          allErrors ++= invalidPluginKeys.map(invalid => (invalid._1.orgId -> s"Plugin ${invalid._2} does not exist"))
         }
-      }
-
-      // access control subsystem: check roles and resource handlers defined by plugins
-
-      val duplicateRoleKeys = plugins.flatMap(plugin => plugin.roles.map(r => (r -> plugin.pluginKey))).groupBy(_._1.key).filter(_._2.size > 1)
-      if (!duplicateRoleKeys.isEmpty) {
-        val error = "Found two or more roles with the same key: " +
-          duplicateRoleKeys.map(r => r._1 + ": " + r._2.map(pair => "Plugin " + pair._2).mkString(", ")).mkString(", ")
-
-        log.error(error)
-        throw new RuntimeException("Role definition inconsistency. No can do.\n\n" + error)
-      }
-
-      val undescribedRoles = plugins.flatMap(_.roles).filter(role => !role.isUnitRole && role.description.isEmpty)
-      if (!undescribedRoles.isEmpty) {
-        val error = "Found roles without a description: " + undescribedRoles.mkString(", ")
-        log.error(error)
-        throw new RuntimeException("Roles without description\n\n: " + error)
-      }
-
-      // make sure that if a Role defines a ResourceType, its declaring plugin also provides a ResourceLookup
-      val triplets = new ArrayBuffer[(CultureHubPlugin, Role, ResourceType)]()
-      plugins.foreach { plugin =>
-        plugin.roles.foreach { role =>
-          if (role.resourceType.isDefined) {
-            val isResourceLookupProvided = plugin.resourceLookups.exists(lookup => lookup.resourceType == role.resourceType.get)
-            if (!isResourceLookupProvided) {
-              triplets += Tuple3(plugin, role, role.resourceType.get)
-            }
-          }
-        }
-      }
-      if (!triplets.isEmpty) {
-        log.error(
-          """Found plugin-defined role(s) that do not provide a ResourceLookup for their ResourceType:
-          |
-          |Plugin\t\tRole\t\tResourceType
-          |
-          |%s
-        """.stripMargin.format(
-            triplets.map { t =>
-              """%s\t\t%s\t\t%s""".format(
-                t._1.pluginKey, t._2.key, t._3.resourceType
-              )
-            }.mkString("\n")
-          )
-        )
-        throw new RuntimeException("Resource definition inconsistency. No can do.")
       }
 
       // now we're good to go...
@@ -552,7 +359,9 @@ package models {
               configuration.name, duplicateRolesDefinition.map(_.key).mkString(", ")
             )
           )
-          throw new RuntimeException("Configuration Roles + Plugin Roles clash.")
+          allErrors += (configuration.orgId ->
+            ("Duplicate role definition, role already provided via plugin: " + duplicateRolesDefinition.map(_.key).mkString(", "))
+          )
         }
 
         configuration.copy(roles = configuration.roles ++ pluginRoles)
@@ -596,9 +405,142 @@ package models {
         }
       }
 
-      configs
+      (configs, allErrors.toSeq)
 
     }
+
+    private def buildConfiguration(configurationKey: String, configuration: Configuration) = OrganizationConfiguration(
+      name = configurationKey,
+      orgId = configuration.getString(ORG_ID).get,
+      domains = configuration.underlying.getStringList("domains").asScala.toList,
+      mongoDatabase = configuration.getString(MONGO_DATABASE).get,
+      baseXConfiguration = BaseXConfiguration(
+        host = getString(configuration, BASEX_HOST),
+        port = getInt(configuration, BASEX_PORT),
+        eport = getInt(configuration, BASEX_EPORT),
+        user = getString(configuration, BASEX_USER),
+        password = getString(configuration, BASEX_PASSWORD)
+      ),
+      solrBaseUrl = getString(configuration, SOLR_BASE_URL),
+      commonsService = CommonsServiceConfiguration(
+        commonsHost = getString(configuration, COMMONS_HOST),
+        nodeName = configuration.getString(COMMONS_NODE_NAME).get,
+        apiToken = configuration.getString(COMMONS_API_TOKEN).get
+      ),
+      oaiPmhService = OaiPmhServiceConfiguration(
+        repositoryName = getString(configuration, OAI_REPO_NAME),
+        adminEmail = getString(configuration, OAI_ADMIN_EMAIL),
+        earliestDateStamp = getString(configuration, OAI_EARLIEST_TIMESTAMP),
+        repositoryIdentifier = getString(configuration, OAI_REPO_IDENTIFIER),
+        sampleIdentifier = getString(configuration, OAI_SAMPLE_IDENTIFIER),
+        responseListSize = getInt(configuration, OAI_RESPONSE_LIST_SIZE),
+        allowRawHarvesting = getBoolean(configuration, OAI_ALLOW_RAW_HARVESTING)
+      ),
+      objectService = ObjectServiceConfiguration(
+        fileStoreDatabaseName = getString(configuration, FILESTORE_DATABASE),
+        imageCacheDatabaseName = getString(configuration, IMAGE_CACHE_DATABASE),
+        imageCacheEnabled = configuration.getBoolean(IMAGE_CACHE_ENABLED).getOrElse(false),
+        tilesWorkingBaseDir = getString(configuration, TILES_WORKING_DIR),
+        tilesOutputBaseDir = getString(configuration, TILES_OUTPUT_DIR)
+      ),
+      directoryService = DirectoryServiceConfiguration(
+        providerDirectoryUrl = configuration.getString(PROVIDER_DIRECTORY_URL).getOrElse("")
+      ),
+      searchService = SearchServiceConfiguration(
+        hiddenQueryFilter = getOptionalString(configuration, SEARCH_HQF).getOrElse(""),
+        facets = getString(configuration, SEARCH_FACETS),
+        sortFields = getString(configuration, SEARCH_SORTFIELDS),
+        apiWsKeyEnabled = getOptionalBoolean(configuration, SEARCH_APIWSKEYENABLED).getOrElse(false),
+        apiWsKeys = getOptionalStringList(configuration, SEARCH_APIWSKEYS).getOrElse(Seq.empty),
+        moreLikeThis = {
+          val mlt = configuration.getConfig(SEARCH_MORELIKETHIS)
+          val default = MoreLikeThis()
+          if (mlt.isEmpty) {
+            default
+          } else {
+            MoreLikeThis(
+              fieldList = mlt.get.underlying.getStringList("fieldList").asScala,
+              minTermFrequency = mlt.get.getInt("minimumTermFrequency").getOrElse(default.minTermFrequency),
+              minDocumentFrequency = mlt.get.getInt("minimumDocumentFrequency").getOrElse(default.minDocumentFrequency),
+              minWordLength = mlt.get.getInt("minWordLength").getOrElse(default.minWordLength),
+              maxWordLength = mlt.get.getInt("maxWordLength").getOrElse(default.maxWordLength),
+              maxQueryTerms = mlt.get.getInt("maxQueryTerms").getOrElse(default.maxQueryTerms),
+              maxNumToken = mlt.get.getInt("maxNumToken").getOrElse(default.maxNumToken),
+              boost = mlt.get.getBoolean("boost").getOrElse(default.boost),
+              count = mlt.get.getInt("count").getOrElse(default.count),
+              queryFields = mlt.get.underlying.getStringList("queryFields").asScala
+            )
+          }
+        },
+        searchIn = {
+          configuration.getConfig(SEARCH_SEARCHIN).map { searchIn =>
+            searchIn.keys.map { field =>
+              (field -> searchIn.getString(field).getOrElse(""))
+            }.toMap
+          }.getOrElse {
+            Map(
+              "dc_title" -> "metadata.dc.title",
+              "dc_creator" -> "metadata.dc.creator",
+              "dc_subject" -> "metadata.dc.subject"
+            )
+          }
+        },
+        pageSize = getOptionalInt(configuration, SEARCH_PAGE_SIZE).getOrElse(20),
+        showResultsWithoutThumbnails = getOptionalBoolean(configuration, SHOW_ITEMS_WITHOUT_THUMBNAIL).getOrElse(false)
+      ),
+      processingService = ProcessingServiceConfiguration(
+        mappingCpuProportion = if (configuration.underlying.hasPath(PROCESSING_MAPPING_CPU_PROPORTION)) configuration.underlying.getDouble(PROCESSING_MAPPING_CPU_PROPORTION) else 0.5
+      ),
+      quotas = {
+        configuration.getConfig("quotas").map { quotas =>
+          quotas.subKeys.map { key =>
+            (key -> quotas.getInt(key + ".limit").getOrElse(-1))
+          }.toMap
+        }.getOrElse {
+          Map.empty
+        }
+      },
+      plugins = configuration.underlying.getStringList(PLUGINS).asScala.toSeq,
+      schemas = configuration.underlying.getStringList(SCHEMAS).asScala.toList,
+      crossWalks = configuration.underlying.getStringList(CROSSWALKS).asScala.toList,
+      ui = UserInterfaceConfiguration(
+        themeDir = configuration.getString("ui.themeDir").getOrElse("default"),
+        defaultLanguage = configuration.getString("ui.defaultLanguage").getOrElse("en"),
+        siteName = configuration.getString("ui.siteName"),
+        siteSlogan = configuration.getString("ui.siteSlogan").orElse(Some("Delving CultureHub")),
+        footer = configuration.getString("ui.footer").orElse(Some("")),
+        addThisTrackingCode = configuration.getString("ui.addThisTrackingCode").orElse(None),
+        googleAnalyticsTrackingCode = configuration.getString("ui.googleAnalyticsTrackingCode").orElse(None),
+        showLogin = configuration.getBoolean("ui.showLogin").getOrElse(false),
+        showRegistration = configuration.getBoolean("ui.showRegistration").getOrElse(false),
+        showAllObjects = configuration.getBoolean("ui.showAllObjects").getOrElse(false)
+      ),
+      emailTarget = {
+        EmailTarget(
+          adminTo = getString(configuration, EMAIL_ADMINTO),
+          exceptionTo = getString(configuration, EMAIL_EXCEPTIONTO),
+          feedbackTo = getString(configuration, EMAIL_FEEDBACKTO),
+          registerTo = getString(configuration, EMAIL_REGISTERTO),
+          systemFrom = getString(configuration, EMAIL_SYSTEMFROM),
+          feedbackFrom = getString(configuration, EMAIL_FEEDBACKFROM)
+        )
+      },
+      roles = configuration.getConfig("roles").map {
+        roles =>
+          roles.keys.map {
+            key =>
+              {
+                val roleKey = key.split("\\.").head
+                // TODO parse all kind of languages
+                val roleDescriptions: Map[String, String] = roles.keys.filter(_.startsWith(roleKey + ".description.")).map {
+                  descriptionKey => (descriptionKey.split("\\.").reverse.head -> roles.getString(descriptionKey).getOrElse(""))
+                }.toMap
+                Role(roleKey, roleDescriptions)
+              }
+          }.toSeq
+      }.getOrElse(Seq.empty),
+      registeredUsersAddedToOrg = getOptionalBoolean(configuration, REGISTRATION_USERS_ADDED_TO_ORG).getOrElse(false)
+    )
 
     private def getString(configuration: Configuration, key: String): String =
       configuration.getString(key).getOrElse(Play.configuration.getString(key).get)

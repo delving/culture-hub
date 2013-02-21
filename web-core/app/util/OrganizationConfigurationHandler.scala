@@ -24,7 +24,7 @@ import com.typesafe.config.ConfigFactory
 import play.api.Play.current
 
 /**
- * Takes care of loading domain-specific configuration
+ * Takes care of loading organisation-specific configuration
  *
  * @author Sjoerd Siebinga <sjoerd.siebinga@gmail.com>
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
@@ -57,7 +57,13 @@ object OrganizationConfigurationHandler {
 
     val config = Play.application.configuration ++ Configuration(ConfigFactory.parseString(databaseConfiguration))
 
-    organizationConfigurations = OrganizationConfiguration.startup(config, plugins)
+    val (configurations, errors) = OrganizationConfiguration.buildConfigurations(config, plugins)
+    organizationConfigurations = configurations
+
+    if (!errors.isEmpty) {
+      throw new RuntimeException("Invalid configuration(s). ¿Satan, is this you?\n\n" + errors.map(e => s"${e._1}: ${e._2}").mkString("\n"))
+    }
+
     organizationConfigurationsMap = toDomainList(organizationConfigurations)
     domainLookupCache = HashMap.empty
   }
