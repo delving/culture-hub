@@ -22,7 +22,6 @@ import models.{ ConfigDAO, HubMongoContext, OrganizationConfiguration }
 import play.api.{ Play, Configuration }
 import com.typesafe.config.ConfigFactory
 import play.api.Play.current
-import collection.mutable.ArrayBuffer
 
 /**
  * Takes care of loading organisation-specific configuration
