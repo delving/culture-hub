@@ -5,7 +5,7 @@ import util.OrganizationConfigurationHandler
 import core.mapping.MappingService
 import core.schema.SchemaRepositoryWrapper
 import core._
-import play.api.{ Play, Application }
+import play.api.{ Configuration, Play, Application }
 import Play.current
 import models.{ Group, HubUser }
 import org.bson.types.ObjectId

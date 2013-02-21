@@ -18,7 +18,10 @@ package util
 
 import core.CultureHubPlugin
 import collection.immutable.HashMap
-import models.OrganizationConfiguration
+import models.{ ConfigDAO, HubMongoContext, OrganizationConfiguration }
+import play.api.{ Play, Configuration }
+import com.typesafe.config.ConfigFactory
+import play.api.Play.current
 
 /**
  * Takes care of loading domain-specific configuration
@@ -41,7 +44,20 @@ object OrganizationConfigurationHandler {
   }
 
   def startup(plugins: Seq[CultureHubPlugin]) {
-    organizationConfigurations = OrganizationConfiguration.startup(plugins)
+
+    val databaseConfiguration = Play.application.configuration.getString(HubMongoContext.CONFIG_DB).map { configDb =>
+      ConfigDAO.findAll.map { config =>
+        s"""configurations.${config.orgId} {
+          ${config.rawConfiguration}
+        }"""
+      }.mkString("\n")
+    }.getOrElse("")
+
+    println(databaseConfiguration)
+
+    val config = Play.application.configuration ++ Configuration(ConfigFactory.parseString(databaseConfiguration))
+
+    organizationConfigurations = OrganizationConfiguration.startup(config, plugins)
     organizationConfigurationsMap = toDomainList(organizationConfigurations)
     domainLookupCache = HashMap.empty
   }
