@@ -1,5 +1,7 @@
 import core.CultureHubPlugin
 import models.OrganizationConfiguration
+import play.api.Play
+import play.api.Play.current
 import test.Specs2TestContext
 import util.OrganizationConfigurationHandler
 
@@ -21,7 +23,9 @@ class PlatformSpec extends Specs2TestContext {
       withTestConfig {
 
         organizationConfigurationHandler.startup(CultureHubPlugin.hubPlugins)
-        OrganizationConfiguration.startup(CultureHubPlugin.hubPlugins).size should not equalTo (0)
+        val (configurations, errors) = OrganizationConfiguration.buildConfigurations(Play.application.configuration, CultureHubPlugin.hubPlugins)
+        configurations.size should not equalTo (0)
+        errors.size should equalTo (0)
       }
     }
 
