@@ -10,7 +10,7 @@ import com.mongodb.casbah.commons.MongoDBObject
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
-case class Config(orgId: String, rawConfiguration: String)
+case class Config(orgId: String, rawConfiguration: String, error: Option[String] = None)
 
 object ConfigDAO extends SalatDAO[Config, ObjectId](configurationCollection) {
 
