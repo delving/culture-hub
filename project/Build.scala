@@ -157,7 +157,13 @@ object Build extends sbt.Build {
 
     parallelExecution in (ThisBuild) := false,
 
-    scalaVersion in (ThisBuild) := buildScalaVersion
+    scalaVersion in (ThisBuild) := buildScalaVersion,
+
+    watchTransitiveSources <<= watchTransitiveSources map { (sources: Seq[java.io.File]) =>
+      sources
+        .filterNot(source => source.isFile && source.getPath.contains("app/views") && !source.getName.endsWith(".scala.html") && source.getName.endsWith(".html"))
+        .filterNot(source => source.isDirectory && source.getPath.contains("app/views"))
+    }
 
   ).settings(scalarifromSettings :_*) // .settings(addArtifact(Artifact((appName + "-" + cultureHubVersion), "zip", "zip"), dist).settings :_*)
    .dependsOn(
