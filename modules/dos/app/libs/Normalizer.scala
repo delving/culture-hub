@@ -61,20 +61,20 @@ object Normalizer {
   }
 
   private def convertColorspace(targetDirectory: File, source: File, destination: File, colorspace: String) {
-     val converted = new File(targetDirectory, colorspace + "_" + source.getName)
-     val convertCmd = new ConvertCmd
-     val convertOp = new IMOperation
-     convertOp.colorspace(colorspace)
-     convertOp.addImage(source.getAbsolutePath)
-     convertOp.addImage(converted.getAbsolutePath)
-     convertCmd.run(convertOp)
-     if (converted.exists()) {
-       if (converted.getParentFile.getAbsolutePath == targetDirectory.getAbsoluteFile) {
-         FileUtils.deleteQuietly(source)
-       }
-       FileUtils.moveFile(converted, destination)
-     }
-   }
+    val converted = new File(targetDirectory, colorspace + "_" + source.getName)
+    val convertCmd = new ConvertCmd
+    val convertOp = new IMOperation
+    convertOp.colorspace(colorspace)
+    convertOp.addImage(source.getAbsolutePath)
+    convertOp.addImage(converted.getAbsolutePath)
+    convertCmd.run(convertOp)
+    if (converted.exists()) {
+      if (converted.getParentFile.getAbsolutePath == targetDirectory.getAbsoluteFile) {
+        FileUtils.deleteQuietly(source)
+      }
+      FileUtils.moveFile(converted, destination)
+    }
+  }
 
   private def identifyLargestLayer(sourceImage: File): Option[Int] = {
     val identified = identify(sourceImage, { op => })
@@ -104,7 +104,6 @@ object Normalizer {
     val colorspace = identify(sourceImage, { _.format("%r") })
     colorspace.headOption.map(_.contains("Grayscale")).getOrElse(false)
   }
-
 
   private def identify(sourceImage: File, addParameters: IMOperation => Unit): Seq[String] = {
     val identifyCmd = new IdentifyCmd

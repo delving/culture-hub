@@ -20,4 +20,4 @@ trait RecordTransformer {
 }
 
 case class RenderingContext(
-  parameters: Map[String, String])
+  parameters: Map[String, Seq[String]])
