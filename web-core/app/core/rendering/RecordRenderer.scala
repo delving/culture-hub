@@ -32,7 +32,8 @@ object RecordRenderer {
     lang: Lang,
     schema: Option[String] = None,
     renderRelatedItems: Boolean,
-    relatedItemsCount: Int)(implicit configuration: OrganizationConfiguration): Either[String, RenderedView] = {
+    relatedItemsCount: Int,
+    requestParameters: Map[String, Seq[String]])(implicit configuration: OrganizationConfiguration): Either[String, RenderedView] = {
 
     SolrQueryService.getSolrItemReference(URLEncoder.encode(id, "utf-8"), idType, renderRelatedItems, relatedItemsCount) match {
       case Some(DocItemReference(hubId, defaultSchema, publicSchemas, relatedItems, item)) =>
@@ -53,7 +54,7 @@ object RecordRenderer {
           case DelvingIdType.INDEX_ITEM =>
             renderIndexItem(id)
           case _ =>
-            renderMetadataRecord(prefix, URLDecoder.decode(hubId, "utf-8"), viewType, lang, renderRelatedItems, relatedItems)
+            renderMetadataRecord(prefix, URLDecoder.decode(hubId, "utf-8"), viewType, lang, renderRelatedItems, relatedItems, requestParameters)
         }
       case None =>
         Left("Could not resolve identifier for hubId '%s' and idType '%s'".format(id, idType.idType))
@@ -92,14 +93,21 @@ object RecordRenderer {
     }
   }
 
-  private def renderMetadataRecord(prefix: String, hubId: String, viewType: ViewType, lang: Lang, renderRelatedItems: Boolean, relatedItems: Seq[BriefDocItem])(implicit configuration: OrganizationConfiguration): Either[String, RenderedView] = {
+  private def renderMetadataRecord(prefix: String,
+    hubId: String,
+    viewType: ViewType,
+    lang: Lang,
+    renderRelatedItems: Boolean,
+    relatedItems: Seq[BriefDocItem],
+    parameters: Map[String, Seq[String]])(implicit configuration: OrganizationConfiguration): Either[String, RenderedView] = {
+
     if (hubId.split("_").length < 3) return Left("Invalid hubId " + hubId)
     val id = HubId(hubId)
     val cache = MetadataCache.get(id.orgId, id.spec, ITEM_TYPE_MDR)
     val record = cache.findOne(hubId)
     val rawRecord: Option[String] = record.flatMap(_.xml.get(prefix))
     if (rawRecord.isEmpty) {
-      Logger("Search").info("Could not find cached record in mongo with format %s for hubId %s".format(prefix, hubId))
+      log.info("Could not find cached record in mongo with format %s for hubId %s".format(prefix, hubId))
       Left("Could not find full record with hubId '%s' for format '%s'".format(hubId, prefix))
     } else {
 
@@ -114,7 +122,7 @@ object RecordRenderer {
 
       val schemaVersion = record.get.schemaVersions(prefix)
 
-      renderMetadataRecord(hubId, rawRecord.get, new SchemaVersion(prefix, schemaVersion), viewDefinitionFormatName, viewType, lang, renderRelatedItems, relatedItems.map(_.toXml()))
+      renderMetadataRecord(hubId, rawRecord.get, new SchemaVersion(prefix, schemaVersion), viewDefinitionFormatName, viewType, lang, renderRelatedItems, relatedItems.map(_.toXml()), Seq.empty, parameters)
     }
   }
 
@@ -129,6 +137,8 @@ object RecordRenderer {
    * @param lang rendering languages
    * @param renderRelatedItems whether to render related items
    * @param relatedItems the related items
+   * @param roles the Roles available for the user requesting rendering
+   * @param parameters parameters that can be used during rendering
    * @param configuration OrganizationConfiguration
    * @return a rendered view if successful, or an error message
    */
@@ -141,7 +151,7 @@ object RecordRenderer {
     renderRelatedItems: Boolean = false,
     relatedItems: Seq[NodeSeq] = Seq.empty,
     roles: Seq[Role] = Seq.empty,
-    parameters: Map[String, String] = Map.empty)(implicit configuration: OrganizationConfiguration): Either[String, RenderedView] = {
+    parameters: Map[String, Seq[String]] = Map.empty)(implicit configuration: OrganizationConfiguration): Either[String, RenderedView] = {
 
     // let's do some rendering
     RecordDefinition.getRecordDefinition(schema) match {

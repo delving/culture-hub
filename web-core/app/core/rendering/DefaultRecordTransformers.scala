@@ -18,7 +18,7 @@ object DefaultRecordTransformers {
 
     def transformRecord(record: NodeSeq, context: RenderingContext): NodeSeq = {
       if (context.parameters.get("pt") != None) {
-        filterGeoTags(record, "delving:geoHash", context.parameters.getOrElse("pt", "0,0"))
+        filterGeoTags(record, "delving:geoHash", context.parameters.getOrElse("pt", Seq("0,0")).head)
       } else {
         record
       }
