@@ -55,7 +55,7 @@ class MetadataRecordResolverService extends RecordResolverService {
 
         renderingSchema.flatMap { s =>
           record.xml.get(s.getPrefix).map { recordXml =>
-            RenderableRecord(recordXml, record.systemFields, s, ViewType.HTML, facts.toMap, true)
+            RenderableRecord(recordXml, record.systemFields, s, ViewType.HTML, facts.map(fact => (fact._1 -> Seq(fact._2))).toMap, true)
           }
         }
       }

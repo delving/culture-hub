@@ -89,7 +89,7 @@ class ViewRenderer(val schema: String, viewType: ViewType, configuration: Organi
   dbFactory.setNamespaceAware(true)
   val dBuilder = dbFactory.newDocumentBuilder
 
-  def renderRecord(record: String, userRoles: Seq[Role], namespaces: Map[String, String], lang: Lang, parameters: Map[String, String] = Map.empty): RenderedView = {
+  def renderRecord(record: String, userRoles: Seq[Role], namespaces: Map[String, String], lang: Lang, parameters: Map[String, Seq[String]] = Map.empty): RenderedView = {
     viewDef match {
       case Some(viewDefinition) =>
         log.debug("Starting view rendering")
@@ -99,7 +99,14 @@ class ViewRenderer(val schema: String, viewType: ViewType, configuration: Organi
     }
   }
 
-  def renderRecordWithView(prefix: String, viewType: ViewType, viewDefinition: Node, rawRecord: String, userRoles: Seq[Role], namespaces: Map[String, String], lang: Lang, parameters: Map[String, String]): RenderedView = {
+  def renderRecordWithView(prefix: String,
+    viewType: ViewType,
+    viewDefinition: Node,
+    rawRecord: String,
+    userRoles: Seq[Role],
+    namespaces: Map[String, String],
+    lang: Lang,
+    parameters: Map[String, Seq[String]]): RenderedView = {
 
     val record = dBuilder.parse(new ByteArrayInputStream(rawRecord.getBytes("utf-8")))
 
@@ -477,8 +484,8 @@ class ViewRenderer(val schema: String, viewType: ViewType, configuration: Organi
     }).flatten
   }
 
-  def evaluateParamExpression(value: String, parameters: Map[String, String]): String = {
-    """\$\{(.*)\}""".r.replaceAllIn(value, m => parameters.get(m.group(1)).getOrElse {
+  def evaluateParamExpression(value: String, parameters: Map[String, Seq[String]]): String = {
+    """\$\{(.*)\}""".r.replaceAllIn(value, m => parameters.get(m.group(1)).map(_.headOption.getOrElse("")).getOrElse {
       log.warn("Could not find value for parameter %s while rendering view %s".format(m.group(1), viewType.name))
       ""
     })
