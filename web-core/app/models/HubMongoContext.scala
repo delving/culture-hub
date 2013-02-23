@@ -30,7 +30,7 @@ object HubMongoContext extends HubMongoContext {
 
 trait HubMongoContext extends models.MongoContext {
 
-  lazy val configurationConnection = createConnection(Play.application.configuration.getString(HubMongoContext.CONFIG_DB).getOrElse("culturehub-configurations"))
+  lazy val configurationConnection = createConnection(Play.application.configuration.getString(HubMongoContext.CONFIG_DB).getOrElse("culturehub-configuration"))
   lazy val configurationCollection = configurationConnection("configurations")
 
   val geonamesConnection = createConnection("geonames")
