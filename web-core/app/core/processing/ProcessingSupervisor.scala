@@ -108,12 +108,13 @@ class ProcessingSupervisor(
       val tick = numCachingResults % (if (modulo == 0) 100 else modulo) == 0
 
       if (tick) {
-        updateCount(numMappingResults)
+        updateCount(numCachingResults)
       }
 
-      if (numMappingResults % 2000 == 0) {
-        log.info("%s:%s: processed %s of %s records, for schemas '%s' (with %s instances)".format(
-          processingContext.collection.getOwner, processingContext.collection.spec, numMappingResults, totalSourceRecords, processingContext.targetSchemasString, numInstances)
+      if (numCachingResults % 2000 == 0) {
+        log.info(
+          s"${processingContext.collection.getOwner}:${processingContext.collection.spec}: " +
+          s"processed $numCachingResults of $totalSourceRecords records, for schemas '${processingContext.targetSchemasString}' (with $numInstances instances)"
         )
       }
 
