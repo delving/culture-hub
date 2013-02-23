@@ -54,6 +54,7 @@ trait SolrServer {
     } catch {
       case e: SolrConnectionException =>
         if (retries < 3) {
+          Thread.sleep(2000)
           runQuery(query, retries + 1)
         } else {
           throw e
