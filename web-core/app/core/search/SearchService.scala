@@ -302,7 +302,7 @@ case class SearchSummary(result: BriefItemView, language: String = "en", chRespo
       renderStrong("Soort object", "dc_type", output)
       renderStrong("Vervaardigingsdatum", "dc_date", output)
       renderStrong("Vervaardiging plaats", "dc_coverage", output)
-      renderStrong("vindplaats", "icn_location", output)
+      renderStrong("Vindplaats", "icn_location", output)
       renderStrong("Afgebeelde plaats", "dc_subject", output)
       if (item.getFieldValue("dc_coverage").isNotEmpty || item.getFieldValue("icn_location").isNotEmpty) {
         renderStrong("Geassocieerde plaats", "dcterms_spatial", output)

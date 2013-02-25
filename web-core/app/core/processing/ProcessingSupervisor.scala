@@ -114,7 +114,7 @@ class ProcessingSupervisor(
       if (numCachingResults % 2000 == 0) {
         log.info(
           s"${processingContext.collection.getOwner}:${processingContext.collection.spec}: " +
-          s"processed $numCachingResults of $totalSourceRecords records, for schemas '${processingContext.targetSchemasString}' (with $numInstances instances)"
+            s"processed $numCachingResults of $totalSourceRecords records, for schemas '${processingContext.targetSchemasString}' (with $numInstances instances)"
         )
       }
 

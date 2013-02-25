@@ -35,7 +35,17 @@ object RecordRenderer {
     relatedItemsCount: Int,
     requestParameters: Map[String, Seq[String]])(implicit configuration: OrganizationConfiguration): Either[String, RenderedView] = {
 
-    SolrQueryService.getSolrItemReference(URLEncoder.encode(id, "utf-8"), idType, renderRelatedItems, relatedItemsCount) match {
+    val hasFilterByDataOwnerKey: Boolean = requestParameters.contains("dataowner") && !requestParameters.get("dataowner").get.isEmpty
+
+    def filterByDataOwner(items: Seq[BriefDocItem], filterField: String, mltCount: Int) = {
+      if (hasFilterByDataOwnerKey) {
+        val filterKeys: Seq[String] = requestParameters.get("dataowner").get
+        items.filter(i => filterKeys.contains(i.getFieldValue(filterField).getFirst)).take(mltCount)
+      } else
+        items
+    }
+
+    SolrQueryService.getSolrItemReference(URLEncoder.encode(id, "utf-8"), idType, renderRelatedItems, if (hasFilterByDataOwnerKey) relatedItemsCount + 10 else relatedItemsCount) match {
       case Some(DocItemReference(hubId, defaultSchema, publicSchemas, relatedItems, item)) =>
         val prefix = if (schema.isDefined && publicSchemas.contains(schema.get)) {
           schema.get
@@ -54,7 +64,7 @@ object RecordRenderer {
           case DelvingIdType.INDEX_ITEM =>
             renderIndexItem(id)
           case _ =>
-            renderMetadataRecord(prefix, URLDecoder.decode(hubId, "utf-8"), viewType, lang, renderRelatedItems, relatedItems, requestParameters)
+            renderMetadataRecord(prefix, URLDecoder.decode(hubId, "utf-8"), viewType, lang, renderRelatedItems, filterByDataOwner(relatedItems, "delving_owner", relatedItemsCount), requestParameters)
         }
       case None =>
         Left("Could not resolve identifier for hubId '%s' and idType '%s'".format(id, idType.idType))
@@ -197,7 +207,7 @@ object RecordRenderer {
               val record = scala.xml.XML.loadString(recordXml)
               var mutableRecord: Elem = if (renderRelatedItems) {
                 // mix the related items to the cached record coming from mongo
-                val relatedItemsXml = <relatedItems>{ relatedItems }</relatedItems>
+                val relatedItemsXml = <relatedItems> { relatedItems } </relatedItems>
                 addChild(record, relatedItemsXml).get // we know what we're doing here
               } else {
                 record
