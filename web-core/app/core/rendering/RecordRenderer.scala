@@ -35,17 +35,17 @@ object RecordRenderer {
     relatedItemsCount: Int,
     requestParameters: Map[String, Seq[String]])(implicit configuration: OrganizationConfiguration): Either[String, RenderedView] = {
 
-    val hasMltFilterKey: Boolean = requestParameters.contains("dp") && !requestParameters.get("dp").get.isEmpty
+    val hasFilterByDataOwnerKey: Boolean = requestParameters.contains("dataowner") && !requestParameters.get("dataowner").get.isEmpty
 
-    def filterByProvider(items: Seq[BriefDocItem], filterField: String, mltCount: Int) = {
-      if (hasMltFilterKey) {
-        val filterKeys: Seq[String] = requestParameters.get("dp").get
+    def filterByDataOwner(items: Seq[BriefDocItem], filterField: String, mltCount: Int) = {
+      if (hasFilterByDataOwnerKey) {
+        val filterKeys: Seq[String] = requestParameters.get("dataowner").get
         items.filter(i => filterKeys.contains(i.getFieldValue(filterField).getFirst)).take(mltCount)
       } else
         items
     }
 
-    SolrQueryService.getSolrItemReference(URLEncoder.encode(id, "utf-8"), idType, renderRelatedItems, if (hasMltFilterKey) relatedItemsCount + 10 else relatedItemsCount) match {
+    SolrQueryService.getSolrItemReference(URLEncoder.encode(id, "utf-8"), idType, renderRelatedItems, if (hasFilterByDataOwnerKey) relatedItemsCount + 10 else relatedItemsCount) match {
       case Some(DocItemReference(hubId, defaultSchema, publicSchemas, relatedItems, item)) =>
         val prefix = if (schema.isDefined && publicSchemas.contains(schema.get)) {
           schema.get
@@ -64,7 +64,7 @@ object RecordRenderer {
           case DelvingIdType.INDEX_ITEM =>
             renderIndexItem(id)
           case _ =>
-            renderMetadataRecord(prefix, URLDecoder.decode(hubId, "utf-8"), viewType, lang, renderRelatedItems, filterByProvider(relatedItems, "delving_owner", relatedItemsCount), requestParameters)
+            renderMetadataRecord(prefix, URLDecoder.decode(hubId, "utf-8"), viewType, lang, renderRelatedItems, filterByDataOwner(relatedItems, "delving_owner", relatedItemsCount), requestParameters)
         }
       case None =>
         Left("Could not resolve identifier for hubId '%s' and idType '%s'".format(id, idType.idType))
