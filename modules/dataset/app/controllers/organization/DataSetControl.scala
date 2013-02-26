@@ -308,7 +308,7 @@ trait DataSetControl extends OrganizationController { this: BoundController =>
 
                 if (existing.spec != dataSetForm.spec) {
                   log.info(s"Renaming DataSet spec ${existing.spec} to ${dataSetForm.spec}")
-                  HubServices.basexStorage(configuration).renameCollection(existing, dataSetForm.spec)
+                  HubServices.basexStorages.getResource(configuration).renameCollection(existing, dataSetForm.spec)
                 }
 
                 val updatedDetails = existing.details.copy(name = dataSetForm.facts.name, facts = factsObject)

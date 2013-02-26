@@ -38,7 +38,7 @@ class StatisticsPlugin(app: Application) extends CultureHubPlugin(app) {
           } else if (s.length == 2) {
             (s(0) -> s(1))
           } else {
-            Logger("CultureHub").warn("Invalid configuration key for statistic facets in configuration %s: %s".format(config._1.name, facet))
+            Logger("CultureHub").warn("Invalid configuration key for statistic facets in configuration %s: %s".format(config._1.orgId, facet))
             (s(0) -> s(0))
           }
         }.toMap
