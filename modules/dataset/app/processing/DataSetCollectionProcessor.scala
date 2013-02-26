@@ -163,7 +163,7 @@ class DataSetCollectionProcessorImpl extends DataSetCollectionProcessor {
       indexOne,
       onProcessingDone,
       whenDone,
-      HubServices.basexStorage(configuration)
+      HubServices.basexStorages.getResource(configuration)
     ))
 
     val collectionProcessor = TypedActor.context.actorOf(collectionProcessorProps)

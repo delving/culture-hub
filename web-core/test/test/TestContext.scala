@@ -64,7 +64,7 @@ trait TestContext {
         specsToFix.foreach(spec =>
           (new AggregatingOrganizationCollectionLookupService()).findBySpecAndOrgId(spec, "delving").map {
             set =>
-              HubServices.basexStorage(configuration).withSession(set) {
+              HubServices.basexStorages.getResource(configuration).withSession(set) {
                 session =>
                   {
                     val r = session.execute("drop database delving____" + spec)

@@ -19,7 +19,6 @@ package models {
   case class OrganizationConfiguration(
 
       // ~~~ core
-      name: String,
       orgId: String,
       domains: List[String] = List.empty,
 
@@ -81,7 +80,7 @@ package models {
                   SolrFacetElement(k(0), k(1), k(2).toInt)
                 } catch {
                   case _: java.lang.NumberFormatException =>
-                    Logger("CultureHub").warn("Wrong value %s for facet display column number for theme %s".format(k(2), name))
+                    Logger("CultureHub").warn("Wrong value %s for facet display column number for theme %s".format(k(2), orgId))
                     SolrFacetElement(k(0), k(1))
                 }
             }
@@ -106,6 +105,12 @@ package models {
       }.toList
     }
 
+    // we compare these using only the orgId, as the configuration may change dynamically at runtime
+
+    override def hashCode(): Int = orgId.hashCode()
+
+    override def equals(other: Any): Boolean = other.isInstanceOf[OrganizationConfiguration] &&
+      other.asInstanceOf[OrganizationConfiguration].orgId.equals(orgId)
   }
 
   case class UserInterfaceConfiguration(
@@ -325,7 +330,7 @@ package models {
       if (!duplicateOrgIds.isEmpty) {
         log.error(
           "Found domain configurations that use the same orgId: " +
-            duplicateOrgIds.map(t => t._1 + ": " + t._2.map(_.name).mkString(", ")).mkString(", "))
+            duplicateOrgIds.map(t => t._1 + ": " + t._2.map(_.orgId).mkString(", ")).mkString(", "))
 
         allErrors ++= duplicateOrgIds.map(duplicate => (duplicate._1, s"Configuration with key ${duplicate._1} is present more than once, second definition dropped"))
       }
@@ -339,7 +344,7 @@ package models {
         if (!invalidPluginKeys.isEmpty) {
 
           val error = "Found two or more configurations that reference non-existing plugins:\n" +
-            invalidPluginKeys.map(r => "Configuration " + r._1.name + ": plugin " + r._2 + " does not exist or is not available").mkString("\n")
+            invalidPluginKeys.map(r => "Configuration " + r._1.orgId + ": plugin " + r._2 + " does not exist or is not available").mkString("\n")
 
           log.error(error)
 
@@ -356,7 +361,7 @@ package models {
         if (!duplicateRolesDefinition.isEmpty) {
           log.error(
             "Configuration %s defines role(s) that are already provided via plugins: %s".format(
-              configuration.name, duplicateRolesDefinition.map(_.key).mkString(", ")
+              configuration.orgId, duplicateRolesDefinition.map(_.key).mkString(", ")
             )
           )
           allErrors += (configuration.orgId ->
@@ -386,7 +391,7 @@ package models {
 
       val pluginConfigurations: Map[(String, OrganizationConfiguration), Option[Configuration]] = configs.flatMap { configuration =>
         configuration.plugins.map { pluginKey =>
-          ((pluginKey -> configuration) -> config.getConfig("%s.plugin.%s".format(configuration.name, pluginKey)))
+          ((pluginKey -> configuration) -> config.getConfig("%s.plugin.%s".format(configuration.orgId, pluginKey)))
         }
       }.toMap
 
@@ -410,7 +415,6 @@ package models {
     }
 
     private def buildConfiguration(configurationKey: String, configuration: Configuration) = OrganizationConfiguration(
-      name = configurationKey,
       orgId = configuration.getString(ORG_ID).get,
       domains = configuration.underlying.getStringList("domains").asScala.toList,
       mongoDatabase = configuration.getString(MONGO_DATABASE).get,

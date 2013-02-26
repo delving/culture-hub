@@ -6,14 +6,17 @@ import core.mapping.MappingService
 import core.schema.SchemaRepositoryWrapper
 import core._
 import access.ResourceType
+import access.ResourceType
 import play.api.{ Logger, Configuration, Play, Application }
 import Play.current
-import models.{ Role, Group, HubUser, UserProfile }
+import models._
 import org.bson.types.ObjectId
 import com.mongodb.casbah.Imports._
 import play.api.libs.concurrent.Akka
 import akka.actor.{ PoisonPill, ActorRef, Props }
 import scala.collection.mutable.ArrayBuffer
+import scala.Tuple3
+import models.UserProfile
 
 /**
  * This plugin runs before all others including GlobalPlugin and provides the configuration for the platform
@@ -28,25 +31,27 @@ class ConfigurationPlugin(app: Application) extends CultureHubPlugin(app) {
 
   override def enabled: Boolean = true
 
-  val schemaService: SchemaService = HubModule.inject[SchemaService](name = None)
-  val organizationServiceLocator = HubModule.inject[DomainServiceLocator[OrganizationService]](name = None)
+  lazy val schemaService: SchemaService = HubModule.inject[SchemaService](name = None)
+  lazy val organizationServiceLocator = HubModule.inject[DomainServiceLocator[OrganizationService]](name = None)
 
+  private var organizationConfigurationHandler: ActorRef = null
   private var pluginBroadcastActors: Seq[ActorRef] = Seq.empty
 
   override def onStart() {
 
-    // initialize schema repository to be available for plugins at configuration time
+    // initialize various resource holders
+    HubMongoContext.init()
 
+    // initialize schema repository to be available for plugins at configuration time
     Akka.system.actorOf(Props[SchemaRepositoryWrapper], name = "schemaRepository")
     schemaService.refresh()
 
     // ~~~ load configurations
+    organizationConfigurationHandler = Akka.system.actorOf(Props[OrganizationConfigurationHandler], name = "organizationConfigurationHandler")
+
     try {
-
       checkPluginSystem()
-
       OrganizationConfigurationHandler.configure(CultureHubPlugin.hubPlugins, isStartup = true)
-
     } catch {
       case t: Throwable =>
         t.printStackTrace()
@@ -54,18 +59,16 @@ class ConfigurationPlugin(app: Application) extends CultureHubPlugin(app) {
     }
 
     if (!Play.isTest) {
-      info("Using the following configurations: " + OrganizationConfigurationHandler.organizationConfigurations.map(_.name).mkString(", "))
+      info("Using the following configurations: " + OrganizationConfigurationHandler.getAllCurrentConfigurations.map(_.orgId).mkString(", "))
     } else {
       // now we cheat - load users before we initialize the HubServices in test mode
       onLoadTestData(Map.empty)
     }
 
-    // ~~~ bootstrap services
-
     HubServices.init()
 
     // ~~~ sanity check
-    OrganizationConfigurationHandler.organizationConfigurations.foreach { implicit configuration =>
+    OrganizationConfigurationHandler.getAllCurrentConfigurations.foreach { implicit configuration =>
       if (!organizationServiceLocator.byDomain.exists(configuration.orgId)) {
         error("Organization %s does not exist on the configured Organizations service!".format(configuration.orgId))
         System.exit(-1)
@@ -73,7 +76,7 @@ class ConfigurationPlugin(app: Application) extends CultureHubPlugin(app) {
     }
 
     // ~~~ bootstrap plugin messaging, one per organization
-    pluginBroadcastActors = OrganizationConfigurationHandler.organizationConfigurations.map { implicit configuration =>
+    pluginBroadcastActors = OrganizationConfigurationHandler.getAllCurrentConfigurations.map { implicit configuration =>
       val props = Props(new BroadcastingPluginActor)
       info("Starting Akka messaging sub-system for organization " + configuration.orgId)
       Akka.system.actorOf(props, "plugins-" + configuration.orgId)
@@ -149,6 +152,7 @@ class ConfigurationPlugin(app: Application) extends CultureHubPlugin(app) {
     pluginBroadcastActors foreach { actor =>
       actor ! PoisonPill
     }
+    OrganizationConfigurationHandler.teardown()
   }
 
   override def services: Seq[Any] = Seq(

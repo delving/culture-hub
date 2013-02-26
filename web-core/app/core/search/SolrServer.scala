@@ -16,7 +16,7 @@
 
 package core.search
 
-import _root_.util.OrganizationConfigurationHandler
+import util.{ OrganizationConfigurationResourceHolder, OrganizationConfigurationHandler }
 import exceptions.SolrConnectionException
 import org.apache.solr.client.solrj.SolrQuery
 import xml.XML
@@ -68,9 +68,12 @@ object SolrServer {
 
   val SOLR_FIELDS_CACHE_KEY_PREFIX = "solrFields"
 
-  private lazy val solrServers: Map[String, HttpSolrServer] = OrganizationConfigurationHandler.organizationConfigurations.map { configuration =>
-    (configuration.solrBaseUrl -> {
-      val solrServer = new HttpSolrServer(configuration.solrBaseUrl)
+  private val solrServers = new OrganizationConfigurationResourceHolder[String, HttpSolrServer]("solrServers") {
+
+    protected def resourceConfiguration(configuration: OrganizationConfiguration): String = configuration.solrBaseUrl
+
+    protected def onAdd(resourceConfiguration: String): Option[HttpSolrServer] = {
+      val solrServer = new HttpSolrServer(resourceConfiguration)
       solrServer.setSoTimeout(5000) // socket read timeout
       solrServer.setConnectionTimeout(5000)
       solrServer.setDefaultMaxConnectionsPerHost(64)
@@ -78,23 +81,33 @@ object SolrServer {
       solrServer.setFollowRedirects(false) // defaults to false
       solrServer.setAllowCompression(false)
       solrServer.setMaxRetries(1)
-      solrServer
-    })
-  }.toMap
+      Some(solrServer)
+    }
 
-  private lazy val solrUpdateServers: Map[String, ConcurrentUpdateSolrServer] = OrganizationConfigurationHandler.organizationConfigurations.map {
-    configuration =>
-      (configuration.solrBaseUrl -> {
-        new ConcurrentUpdateSolrServer(configuration.solrBaseUrl, 1000, 5)
-      })
-  }.toMap
+    protected def onRemove(removed: HttpSolrServer) {
+      removed.shutdown()
+    }
+  }
 
-  private[search] def solrServer(configuration: OrganizationConfiguration) = solrServers(configuration.solrBaseUrl)
+  val solrUpdateServers = new OrganizationConfigurationResourceHolder[String, ConcurrentUpdateSolrServer]("solrUpdateServers") {
 
-  private[search] def streamingUpdateServer(configuration: OrganizationConfiguration) = solrUpdateServers.get(configuration.solrBaseUrl).getOrElse(
-    throw new RuntimeException("Couldn't find cached SOLR update server for key '%s', available keys: %s".format(
-      configuration.solrBaseUrl, solrUpdateServers.map(_._1).mkString(", ")
-    )))
+    protected def resourceConfiguration(configuration: OrganizationConfiguration): String = configuration.solrBaseUrl
+
+    protected def onAdd(resourceConfiguration: String): Option[ConcurrentUpdateSolrServer] = {
+      Some(new ConcurrentUpdateSolrServer(resourceConfiguration, 1000, 5))
+    }
+
+    protected def onRemove(removed: ConcurrentUpdateSolrServer) {
+      removed.shutdown()
+    }
+  }
+
+  OrganizationConfigurationHandler.registerResourceHolder(solrServers)
+  OrganizationConfigurationHandler.registerResourceHolder(solrUpdateServers)
+
+  private[search] def solrServer(configuration: OrganizationConfiguration) = solrServers.getResource(configuration)
+
+  private[search] def streamingUpdateServer(configuration: OrganizationConfiguration) = solrUpdateServers.getResource(configuration)
 
   def deleteFromSolrByQuery(query: String)(implicit configuration: OrganizationConfiguration) = {
     val response = streamingUpdateServer(configuration).deleteByQuery(query)
@@ -109,7 +122,7 @@ object SolrServer {
   }
 
   def getSolrFields(configuration: OrganizationConfiguration): List[SolrDynamicField] = {
-    Cache.getOrElse(SOLR_FIELDS_CACHE_KEY_PREFIX + configuration.name, 120) {
+    Cache.getOrElse(SOLR_FIELDS_CACHE_KEY_PREFIX + configuration.orgId, 120) {
       computeSolrFields(configuration)
     }
 

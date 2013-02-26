@@ -25,7 +25,7 @@ class PlatformSpec extends Specs2TestContext {
         organizationConfigurationHandler.configure(CultureHubPlugin.hubPlugins)
         val (configurations, errors) = OrganizationConfiguration.buildConfigurations(Play.application.configuration, CultureHubPlugin.hubPlugins)
         configurations.size should not equalTo (0)
-        errors.size should equalTo (0)
+        errors.size should equalTo(0)
       }
     }
 

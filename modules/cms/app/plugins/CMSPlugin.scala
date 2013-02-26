@@ -10,7 +10,7 @@ import core.MenuElement
 import scala.util.matching.Regex
 import play.api.mvc.Handler
 import scala.collection.immutable.ListMap
-import util.OrganizationConfigurationHandler
+import util.{ OrganizationConfigurationResourceHolder, OrganizationConfigurationHandler }
 import play.api.i18n.{ Messages, Lang }
 import play.api.Play.current
 
@@ -137,13 +137,16 @@ class CMSPlugin(app: Application) extends CultureHubPlugin(app) {
     }
   }
 
-  override def onStart() {
+  lazy val cmsMenus = new OrganizationConfigurationResourceHolder[OrganizationConfiguration, MenuEntry]("cmsMenus") {
 
-    OrganizationConfigurationHandler.organizationConfigurations.foreach { implicit configuration =>
+    protected def resourceConfiguration(configuration: OrganizationConfiguration): OrganizationConfiguration = configuration
+
+    protected def onAdd(resourceConfiguration: OrganizationConfiguration): Option[MenuEntry] = {
+      implicit val configuration = resourceConfiguration
 
       // make sure that all the menu definitions in the configuration have an up-to-date menu entry for their parent menu
       // TODO sync removed entries
-      cmsPluginConfiguration.get(configuration).map { config =>
+      cmsPluginConfiguration.get(resourceConfiguration).map { config =>
         config.
           menuDefinitions.
           filterNot(_.parentMenuKey == None).
@@ -159,7 +162,7 @@ class CMSPlugin(app: Application) extends CultureHubPlugin(app) {
               MenuEntry.dao.save(updated)
             }.getOrElse {
               val entry = MenuEntry(
-                orgId = configuration.orgId,
+                orgId = resourceConfiguration.orgId,
                 menuKey = definition._1.parentMenuKey.get,
                 position = definition._2,
                 title = definition._1.title,
@@ -177,7 +180,7 @@ class CMSPlugin(app: Application) extends CultureHubPlugin(app) {
           val homePage = CMSPage(
             key = "homepage",
             userName = "system",
-            orgId = configuration.orgId,
+            orgId = resourceConfiguration.orgId,
             lang = lang.code,
             title = "Homepage",
             content = ""
@@ -188,7 +191,7 @@ class CMSPlugin(app: Application) extends CultureHubPlugin(app) {
 
       if (MenuEntry.dao.findOneByKey(CMSPlugin.HOME_PAGE).isEmpty) {
         val homePageEntry = MenuEntry(
-          orgId = configuration.orgId,
+          orgId = resourceConfiguration.orgId,
           menuKey = CMSPlugin.HOME_PAGE,
           parentMenuKey = None,
           position = 0,
@@ -199,15 +202,24 @@ class CMSPlugin(app: Application) extends CultureHubPlugin(app) {
         MenuEntry.dao.insert(homePageEntry)
       }
 
+      // TODO this makes no sense, the whole case here is just to be part of the lifecycle and not to return a value
+      MenuEntry.dao.findOneByKey(CMSPlugin.HOME_PAGE)
+
     }
+
+    protected def onRemove(removed: MenuEntry) {}
+  }
+
+  override def onStart() {
+    OrganizationConfigurationHandler.registerResourceHolder(cmsMenus)
   }
 
   override def mainMenuEntries(configuration: OrganizationConfiguration, lang: String): Seq[MainMenuEntry] = {
     def isVisible(entry: MenuEntry) = entry.title.contains(lang) && entry.published
-    models.cms.MenuEntry.dao(configuration).
+    models.cms.MenuEntry.dao(configuration.orgId).
       findEntries(configuration.orgId, CMSPlugin.MAIN_MENU).
       filter(isVisible).
-      filterNot(e => e.targetMenuKey.isDefined && models.cms.MenuEntry.dao(configuration).findEntries(e.orgId, e.targetMenuKey.get).filter(isVisible).isEmpty).
+      filterNot(e => e.targetMenuKey.isDefined && models.cms.MenuEntry.dao(configuration.orgId).findEntries(e.orgId, e.targetMenuKey.get).filter(isVisible).isEmpty).
       map { e =>
 
         val targetUrl = if (e.targetPageKey.isDefined && e.menuKey != CMSPlugin.MAIN_MENU) {
@@ -215,7 +227,7 @@ class CMSPlugin(app: Application) extends CultureHubPlugin(app) {
         } else if (e.targetPageKey.isDefined && e.menuKey == CMSPlugin.MAIN_MENU) {
           "/page/" + e.targetPageKey.get
         } else if (e.targetMenuKey.isDefined) {
-          val first = MenuEntry.dao(configuration).findEntries(configuration.orgId, e.targetMenuKey.get).toSeq.headOption
+          val first = MenuEntry.dao(configuration.orgId).findEntries(configuration.orgId, e.targetMenuKey.get).toSeq.headOption
           "/site/" + e.targetMenuKey.get + "/page/" + first.flatMap(_.targetPageKey).getOrElse("")
         } else if (e.targetUrl.isDefined) {
           e.targetUrl.get
@@ -272,7 +284,7 @@ class CMSPlugin(app: Application) extends CultureHubPlugin(app) {
     ("/CMS/homePageSnippet.html",
       { context =>
         {
-          val homePageEntries = CMSPage.dao(context.configuration).list(context.configuration.orgId, context.lang, Some(CMSPlugin.HOME_PAGE))
+          val homePageEntries = CMSPage.dao(context.configuration.orgId).list(context.configuration.orgId, context.lang, Some(CMSPlugin.HOME_PAGE))
           homePageEntries.headOption.map { page =>
             context.renderArgs += ("homepageCmsContent" -> page)
           }

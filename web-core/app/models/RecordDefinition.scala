@@ -151,7 +151,7 @@ object RecordDefinition {
     )
   }
 
-  private lazy val enabledCrosswalks: Map[OrganizationConfiguration, Seq[String]] = OrganizationConfigurationHandler.organizationConfigurations.
+  private lazy val enabledCrosswalks: Map[OrganizationConfiguration, Seq[String]] = OrganizationConfigurationHandler.getAllCurrentConfigurations.
     map(configuration => (configuration -> configuration.crossWalks)).toMap
 
 }

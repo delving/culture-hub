@@ -16,19 +16,29 @@ package models
  * limitations under the License.
  */
 
-import _root_.util.OrganizationConfigurationHandler
+import util.{ OrganizationConfigurationResourceHolder, OrganizationConfigurationHandler }
 import com.mongodb.casbah.Imports._
 import com.mongodb.DBObject
 import com.mongodb.casbah.gridfs.GridFS
-import play.api.Play
+import play.api.{ Logger, Play }
 import play.api.Play.current
 
 object HubMongoContext extends HubMongoContext {
 
   val CONFIG_DB = "configurationDatabaseName"
+
+  def init() {
+    OrganizationConfigurationHandler.registerResourceHolder(mongoConnections, 1000)
+    OrganizationConfigurationHandler.registerResourceHolder(fileStores)
+    OrganizationConfigurationHandler.registerResourceHolder(imageCacheStores)
+    OrganizationConfigurationHandler.registerResourceHolder(hubFileStores)
+  }
+
 }
 
 trait HubMongoContext extends models.MongoContext {
+
+  val log = Logger("CultureHub")
 
   lazy val configurationConnection = createConnection(Play.application.configuration.getString(HubMongoContext.CONFIG_DB).getOrElse("culturehub-configuration"))
   lazy val configurationCollection = configurationConnection("configurations")
@@ -47,25 +57,55 @@ trait HubMongoContext extends models.MongoContext {
     }
   }
 
-  lazy val fileStoreCache: Map[String, GridFS] = OrganizationConfigurationHandler.organizationConfigurations.map { dc =>
-    (dc.objectService.fileStoreDatabaseName -> GridFS(createConnection(dc.objectService.fileStoreDatabaseName)))
-  }.toMap
+  val fileStores = new OrganizationConfigurationResourceHolder[ObjectServiceConfiguration, GridFS]("fileStores") {
 
-  lazy val imageCacheStoreCache: Map[String, GridFS] = OrganizationConfigurationHandler.organizationConfigurations.map { dc =>
-    (dc.objectService.imageCacheDatabaseName -> GridFS(createConnection(dc.objectService.imageCacheDatabaseName)))
-  }.toMap
+    protected def resourceConfiguration(configuration: OrganizationConfiguration): ObjectServiceConfiguration = configuration.objectService
 
-  def imageCacheStore(configuration: OrganizationConfiguration) = imageCacheStoreCache(configuration.objectService.imageCacheDatabaseName)
-  def fileStore(configuration: OrganizationConfiguration) = fileStoreCache(configuration.objectService.fileStoreDatabaseName)
+    protected def onAdd(resourceConfiguration: ObjectServiceConfiguration): Option[GridFS] = Some(GridFS(createConnection(resourceConfiguration.fileStoreDatabaseName)))
 
-  lazy val hubFileStore: Map[OrganizationConfiguration, GridFS] = {
-    OrganizationConfigurationHandler.organizationConfigurations.map(c => (c -> GridFS(mongoConnections(c)))).toMap
+    protected def onRemove(removed: GridFS) {}
   }
 
-  lazy val mongoConnections: Map[OrganizationConfiguration, MongoDB] =
-    OrganizationConfigurationHandler.organizationConfigurations.map {
-      config => (config -> createConnection(config.mongoDatabase))
-    }.toMap
+  val imageCacheStores = new OrganizationConfigurationResourceHolder[ObjectServiceConfiguration, GridFS]("imageCacheStores") {
+
+    protected def resourceConfiguration(configuration: OrganizationConfiguration): ObjectServiceConfiguration = configuration.objectService
+
+    protected def onAdd(resourceConfiguration: ObjectServiceConfiguration): Option[GridFS] = Some(GridFS(createConnection(resourceConfiguration.imageCacheDatabaseName)))
+
+    protected def onRemove(removed: GridFS) {}
+  }
+
+  val mongoConnections = new OrganizationConfigurationResourceHolder[String, MongoDB]("mongoConnections") {
+
+    protected def resourceConfiguration(configuration: OrganizationConfiguration): String = configuration.mongoDatabase
+
+    protected def onAdd(resourceConfiguration: String): Option[MongoDB] = {
+      try {
+        Some(createConnection(resourceConfiguration))
+      } catch {
+        case t: Throwable =>
+          log.error(s"Couldn't open connection to MongoDB database $resourceConfiguration", t)
+          None
+      }
+    }
+
+    protected def onRemove(removed: MongoDB) {
+      // TODO find a way to close here!!
+    }
+  }
+
+  val hubFileStores = new OrganizationConfigurationResourceHolder[OrganizationConfiguration, GridFS]("hubFileStores") {
+
+    protected def resourceConfiguration(configuration: OrganizationConfiguration): OrganizationConfiguration = configuration
+    protected def onAdd(resourceConfiguration: OrganizationConfiguration): Option[GridFS] = {
+      Some(GridFS(mongoConnections.getResource(resourceConfiguration)))
+    }
+
+    protected def onRemove(removed: GridFS) {}
+  }
+
+  def imageCacheStore(configuration: OrganizationConfiguration) = HubMongoContext.imageCacheStores.getResource(configuration)
+  def fileStore(configuration: OrganizationConfiguration) = HubMongoContext.fileStores.getResource(configuration)
 
   // ~~~ shared indexes
 

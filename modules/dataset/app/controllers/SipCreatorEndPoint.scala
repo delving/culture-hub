@@ -20,7 +20,7 @@ import eu.delving.stats.Stats
 import scala.collection.JavaConverters._
 import java.util.Date
 import models.statistics._
-import HubMongoContext.hubFileStore
+import HubMongoContext.hubFileStores
 import xml.Node
 import play.api.libs.concurrent.Promise
 import org.apache.commons.lang.StringEscapeUtils
@@ -50,7 +50,7 @@ trait SipCreatorEndPoint extends Controller with OrganizationConfigurationAware 
 
   val DOT_PLACEHOLDER = "--"
 
-  private def basexStorage(implicit configuration: OrganizationConfiguration) = HubServices.basexStorage(configuration)
+  private def basexStorage(implicit configuration: OrganizationConfiguration) = HubServices.basexStorages.getResource(configuration)
 
   // HASH__type[_prefix].extension
   private val FileName = """([^_]*)__([^._]*)_?([^.]*).(.*)""".r
@@ -319,7 +319,7 @@ trait SipCreatorEndPoint extends Controller with OrganizationConfigurationAware 
   private def receiveSourceStats(
     dataSet: DataSet, inputStream: InputStream, schemaPrefix: String, fileName: String, file: File)(implicit configuration: OrganizationConfiguration): Either[String, String] = {
     try {
-      val f = hubFileStore(configuration).createFile(file)
+      val f = hubFileStores.getResource(configuration).createFile(file)
 
       val stats = Stats.read(inputStream)
 
@@ -629,7 +629,7 @@ class ReceiveSource extends Actor {
       try {
         receiveSource(dataSet, userName, inputStream) match {
           case Left(t) =>
-            DataSet.dao(configuration).invalidateHashes(dataSet)
+            DataSet.dao.invalidateHashes(dataSet)
             val message = if (t.isInstanceOf[StorageInsertionException]) {
               Some("""Error while inserting record:
                       |
@@ -643,7 +643,7 @@ class ReceiveSource extends Actor {
             } else {
               Some(t.getMessage)
             }
-            DataSet.dao(configuration).updateState(dataSet, DataSetState.ERROR, Some(userName), message)
+            DataSet.dao.updateState(dataSet, DataSetState.ERROR, Some(userName), message)
             Logger("CultureHub").error(
               "Error while parsing records for spec %s of org %s".format(
                 dataSet.spec, dataSet.orgId
@@ -675,8 +675,8 @@ class ReceiveSource extends Actor {
             ),
             t
           )
-          DataSet.dao(configuration).invalidateHashes(dataSet)
-          DataSet.dao(configuration).updateState(
+          DataSet.dao.invalidateHashes(dataSet)
+          DataSet.dao.updateState(
             dataSet, DataSetState.ERROR, Some(userName),
             Some("Error while parsing uploaded source: " + t.getMessage)
           )

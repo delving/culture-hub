@@ -274,7 +274,7 @@ class DataSetEventFeed extends Actor {
             val s = subscriber._2
             val orgId = subscriber._2.orgId
             val userName = subscriber._2.userName
-            implicit val configuration = OrganizationConfigurationHandler.getByName(subscriber._2.configuration)
+            implicit val configuration = OrganizationConfigurationHandler.getByOrgId(subscriber._2.configuration)
 
             def withAdministrableSet(block: DataSet => Unit) {
               withSet(block, (set, userName) => DataSet.dao.canAdministrate(userName))
