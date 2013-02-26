@@ -34,9 +34,9 @@ class SolrCache extends Actor {
   def receive = {
 
     case CacheSolrFields =>
-      OrganizationConfigurationHandler.organizationConfigurations.foreach { configuration =>
+      OrganizationConfigurationHandler.getAllCurrentConfigurations.foreach { configuration =>
         val fields = SolrServer.computeSolrFields(configuration)
-        Cache.set(SolrServer.SOLR_FIELDS_CACHE_KEY_PREFIX + configuration.name, fields)
+        Cache.set(SolrServer.SOLR_FIELDS_CACHE_KEY_PREFIX + configuration.orgId, fields)
       }
     case _ => // do nothing
   }

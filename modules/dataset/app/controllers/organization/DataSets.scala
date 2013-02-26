@@ -41,7 +41,7 @@ object DataSets extends OrganizationController {
   def feed(orgId: String, clientId: String, spec: Option[String]) = WebSocket.async[JsValue] { implicit request =>
     if (request.session.get("userName").isDefined) {
       val organizationConfiguration = OrganizationConfigurationHandler.getByDomain(request.domain)
-      DataSetEventFeed.subscribe(orgId, clientId, session.get("userName").get, organizationConfiguration.name, spec)
+      DataSetEventFeed.subscribe(orgId, clientId, session.get("userName").get, organizationConfiguration.orgId, spec)
     } else {
       // return a fake pair
       // TODO perhaps a better way here ?

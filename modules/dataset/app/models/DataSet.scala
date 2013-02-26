@@ -144,7 +144,7 @@ case class DataSet(
   def hasDetails: Boolean = details != null
 
   def hasRecords: Boolean = {
-    HubServices.basexStorage(configuration).openCollection(this)
+    HubServices.basexStorages.getResource(configuration).openCollection(this)
       .isDefined && DataSet.dao(orgId).getSourceRecordCount(this) != 0
   }
 
@@ -154,11 +154,11 @@ case class DataSet(
 
   def getResourceType = DataSet.RESOURCE_TYPE
 
-  def editors: Seq[String] = Group.dao(configuration).findUsersWithAccess(
+  def editors: Seq[String] = Group.dao.findUsersWithAccess(
     orgId, DataSetPlugin.ROLE_DATASET_EDITOR, this
   )
 
-  lazy val administrators: Seq[String] = (Group.dao(configuration).findResourceAdministrators(orgId, DataSet.RESOURCE_TYPE)
+  lazy val administrators: Seq[String] = (Group.dao.findResourceAdministrators(orgId, DataSet.RESOURCE_TYPE)
     ++ organizationServiceLocator.byDomain.listAdmins(orgId)
   ).distinct
 
@@ -412,13 +412,13 @@ class DataSetDAO(collection: MongoCollection)(implicit val configuration: Organi
 
   def delete(dataSet: DataSet) {
     MetadataCache.get(dataSet.orgId, dataSet.spec, DataSetPlugin.ITEM_TYPE).removeAll()
-    HubServices.basexStorage(dataSet.configuration).deleteCollection(dataSet)
+    HubServices.basexStorages.getResource(dataSet.configuration).deleteCollection(dataSet)
     remove(MongoDBObject("_id" -> dataSet._id))
   }
 
   // ~~~ record handling
 
-  def getSourceRecordCount(dataSet: DataSet): Long = HubServices.basexStorage(dataSet.configuration).count(dataSet)
+  def getSourceRecordCount(dataSet: DataSet): Long = HubServices.basexStorages.getResource(dataSet.configuration).count(dataSet)
 
   // ~~~ dataSet control
 

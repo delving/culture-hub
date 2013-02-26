@@ -1,6 +1,6 @@
 package core
 
-import _root_.util.OrganizationConfigurationHandler
+import util.{ OrganizationConfigurationResourceHolder, OrganizationConfigurationHandler }
 import access.{ ResourceType, ResourceLookup }
 import scala.collection.immutable.ListMap
 import scala.util.matching.Regex
@@ -201,11 +201,16 @@ abstract class CultureHubPlugin(app: Application) extends play.api.Plugin {
 
 object CultureHubPlugin {
 
-  lazy val broadcastingPluginActorReferences: Map[OrganizationConfiguration, ActorRef] = {
-    OrganizationConfigurationHandler.organizationConfigurations.map { implicit configuration =>
-      (configuration -> Akka.system.actorFor("akka://application/user/plugins-" + configuration.orgId))
-    }.toMap
+  val broadcastingPluginActorReferences = new OrganizationConfigurationResourceHolder[OrganizationConfiguration, ActorRef]("broadcastingPluginActorReferences") {
+
+    protected def resourceConfiguration(configuration: OrganizationConfiguration): OrganizationConfiguration = configuration
+
+    protected def onAdd(resourceConfiguration: OrganizationConfiguration): Option[ActorRef] = Some(Akka.system.actorFor("akka://application/user/plugins-" + resourceConfiguration.orgId))
+
+    protected def onRemove(removed: ActorRef) { Akka.system.stop(removed) }
   }
+
+  OrganizationConfigurationHandler.registerResourceHolder(broadcastingPluginActorReferences)
 
   /**
    * All available hub plugins to the application
@@ -253,11 +258,7 @@ object CultureHubPlugin {
    * @param configuration the [[models.OrganizationConfiguration]] being accessed
    */
   def broadcastMessage(message: Any)(implicit configuration: OrganizationConfiguration) {
-    broadcastingPluginActorReferences.get(configuration).map { ref =>
-      ref ! message
-    }.getOrElse {
-      Logger("CultureHub").warn("Could not broadcast message %s to plugins of organization %s: no actor found".format(message, configuration.orgId))
-    }
+    broadcastingPluginActorReferences.getResource(configuration) ! message
   }
 
   /**

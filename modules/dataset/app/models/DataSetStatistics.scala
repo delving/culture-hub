@@ -21,7 +21,7 @@ case class DataSetStatistics(_id: ObjectId = new ObjectId,
     fieldCount: Histogram) {
 
   def getStatisticsFile = {
-    hubFileStore(OrganizationConfigurationHandler.getByOrgId(context.orgId)).findOne(MongoDBObject("orgId" -> context.orgId, "spec" -> context.spec, "uploadDate" -> context.uploadDate))
+    hubFileStores.getResource(OrganizationConfigurationHandler.getByOrgId(context.orgId)).findOne(MongoDBObject("orgId" -> context.orgId, "spec" -> context.spec, "uploadDate" -> context.uploadDate))
   }
 
   def getHistogram(path: String)(implicit configuration: OrganizationConfiguration): Option[Histogram] = DataSetStatistics.dao.frequencies.

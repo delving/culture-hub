@@ -16,7 +16,7 @@ class ThemeInfo(configuration: OrganizationConfiguration) {
   }
 
   def themeProperty[T](property: String, clazz: Class[T] = classOf[String])(implicit mf: Manifest[T]): T = {
-    val value: String = ThemeInfoReader.get(property, configuration.name, configuration.ui.themeDir) match {
+    val value: String = ThemeInfoReader.get(property, configuration.orgId, configuration.ui.themeDir) match {
       case Some(prop) => prop
       case None =>
         ThemeInfoReader.get(property, "default", "default") match {

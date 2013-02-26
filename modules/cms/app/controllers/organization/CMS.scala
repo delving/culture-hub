@@ -81,7 +81,7 @@ trait CMS extends OrganizationController { this: BoundController =>
   def page(orgId: String, language: String, page: Option[String], menu: String): Action[AnyContent] = CMSAction(orgId) {
     Action {
       implicit request =>
-        def menuEntries = MenuEntry.dao.findEntries(orgId, configuration.name)
+        def menuEntries = MenuEntry.dao.findEntries(orgId, configuration.orgId)
 
         val (viewModel: Option[CMSPageViewModel], versions: List[CMSPageViewModel]) = page match {
           case None =>

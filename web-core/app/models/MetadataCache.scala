@@ -39,11 +39,11 @@ object MetadataCache {
 
   def get(orgId: String, col: String, itemType: String): core.MetadataCache = {
     val configuration = OrganizationConfigurationHandler.getByOrgId(orgId)
-    val mongoConnection = mongoConnections(configuration)
+    val mongoConnection = mongoConnections.getResource(configuration)
 
     // manu, 20.02.2012 - I'm fully aware that this may eventually lead to lost cached records
     //                    but a better fix involving batch inserts will eventually come later
-    //    mongoConnection.setWriteConcern(WriteConcern.FsyncSafe)
+    // mongoConnection.setWriteConcern(WriteConcern.FsyncSafe)
     val mongoCollection: MongoCollection = mongoConnection(getMongoCollectionName(configuration.orgId))
     mongoCollection.ensureIndex(MongoDBObject("collection" -> 1, "itemType" -> 1, "itemId" -> 1))
     mongoCollection.ensureIndex(MongoDBObject("collection" -> 1, "itemType" -> 1))
@@ -54,7 +54,7 @@ object MetadataCache {
 
   def getItemTypes(orgId: String, col: String): Seq[ItemType] = {
     val configuration = OrganizationConfigurationHandler.getByOrgId(orgId)
-    val mongoConnection = mongoConnections(configuration)
+    val mongoConnection = mongoConnections.getResource(configuration)
     val mongoCollection: MongoCollection = mongoConnection(getMongoCollectionName(configuration.orgId))
     val types: Seq[Any] = mongoCollection.distinct("itemType", MongoDBObject("collection" -> col))
     types.map(t => ItemType(t.toString))
