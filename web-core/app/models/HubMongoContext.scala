@@ -20,10 +20,18 @@ import _root_.util.OrganizationConfigurationHandler
 import com.mongodb.casbah.Imports._
 import com.mongodb.DBObject
 import com.mongodb.casbah.gridfs.GridFS
+import play.api.Play
+import play.api.Play.current
 
-object HubMongoContext extends HubMongoContext
+object HubMongoContext extends HubMongoContext {
+
+  val CONFIG_DB = "configurationDatabaseName"
+}
 
 trait HubMongoContext extends models.MongoContext {
+
+  lazy val configurationConnection = createConnection(Play.application.configuration.getString(HubMongoContext.CONFIG_DB).getOrElse("culturehub-configurations"))
+  lazy val configurationCollection = configurationConnection("configurations")
 
   val geonamesConnection = createConnection("geonames")
   lazy val geonamesCollection = geonamesConnection("geonames")

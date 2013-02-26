@@ -18,10 +18,13 @@ package util
 
 import core.CultureHubPlugin
 import collection.immutable.HashMap
-import models.OrganizationConfiguration
+import models.{ ConfigDAO, HubMongoContext, OrganizationConfiguration }
+import play.api.{ Play, Configuration }
+import com.typesafe.config.ConfigFactory
+import play.api.Play.current
 
 /**
- * Takes care of loading domain-specific configuration
+ * Takes care of loading organisation-specific configuration
  *
  * @author Sjoerd Siebinga <sjoerd.siebinga@gmail.com>
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
@@ -31,6 +34,7 @@ object OrganizationConfigurationHandler {
 
   private var organizationConfigurationsMap: Seq[(String, OrganizationConfiguration)] = Seq.empty
   private var domainLookupCache: HashMap[String, OrganizationConfiguration] = HashMap.empty
+  private var invalidConfigurations = Seq.empty[String]
 
   var organizationConfigurations: Seq[OrganizationConfiguration] = Seq.empty
 
@@ -40,8 +44,24 @@ object OrganizationConfigurationHandler {
     set
   }
 
-  def startup(plugins: Seq[CultureHubPlugin]) {
-    organizationConfigurations = OrganizationConfiguration.startup(plugins)
+  def configure(plugins: Seq[CultureHubPlugin], isStartup: Boolean = false) {
+
+    val databaseConfiguration = Play.application.configuration.getString(HubMongoContext.CONFIG_DB).map { configDb =>
+      ConfigDAO.findAll.map { config => s"""configurations.${config.orgId} { ${config.rawConfiguration} }""" }.mkString("\n")
+    }.getOrElse("")
+
+    println(databaseConfiguration)
+
+    val config = Play.application.configuration ++ Configuration(ConfigFactory.parseString(databaseConfiguration))
+
+    val (configurations, errors) = OrganizationConfiguration.buildConfigurations(config, plugins)
+    organizationConfigurations = configurations
+    invalidConfigurations = errors.map(_._1).toSeq
+
+    if (!errors.isEmpty && isStartup) {
+      throw new RuntimeException("Invalid configuration(s). ¿Satan, is this you?\n\n" + errors.map(e => s"${e._1}: ${e._2}").mkString("\n"))
+    }
+
     organizationConfigurationsMap = toDomainList(organizationConfigurations)
     domainLookupCache = HashMap.empty
   }
@@ -57,7 +77,8 @@ object OrganizationConfigurationHandler {
   def hasConfiguration(domain: String) = organizationConfigurations.exists(_.domains.exists(domain.startsWith(_)))
 
   def getByDomain(domain: String): OrganizationConfiguration = {
-    // FIXME - this is, of course, vulnerable. Implement correct algorithmic solution not relying on fold.
+    // note - this mechanism is vulnerable if you expose your server directly to the internet and pass on any kind of domains
+    // so you shouldn't do this, and have a DNS filter of sorts in front of it
     if (!domainLookupCache.contains(domain)) {
       // fetch by longest matching domain
       val configuration = organizationConfigurationsMap.foldLeft(("#", organizationConfigurations.head)) {

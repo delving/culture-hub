@@ -5,14 +5,15 @@ import util.OrganizationConfigurationHandler
 import core.mapping.MappingService
 import core.schema.SchemaRepositoryWrapper
 import core._
-import play.api.{ Play, Application }
+import access.ResourceType
+import play.api.{ Logger, Configuration, Play, Application }
 import Play.current
-import models.{ Group, HubUser }
+import models.{ Role, Group, HubUser, UserProfile }
 import org.bson.types.ObjectId
 import com.mongodb.casbah.Imports._
 import play.api.libs.concurrent.Akka
 import akka.actor.{ PoisonPill, ActorRef, Props }
-import models.UserProfile
+import scala.collection.mutable.ArrayBuffer
 
 /**
  * This plugin runs before all others including GlobalPlugin and provides the configuration for the platform
@@ -20,6 +21,8 @@ import models.UserProfile
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 class ConfigurationPlugin(app: Application) extends CultureHubPlugin(app) {
+
+  val log = Logger("CultureHub")
 
   val pluginKey: String = "configuration"
 
@@ -39,7 +42,11 @@ class ConfigurationPlugin(app: Application) extends CultureHubPlugin(app) {
 
     // ~~~ load configurations
     try {
-      OrganizationConfigurationHandler.startup(CultureHubPlugin.hubPlugins)
+
+      checkPluginSystem()
+
+      OrganizationConfigurationHandler.configure(CultureHubPlugin.hubPlugins, isStartup = true)
+
     } catch {
       case t: Throwable =>
         t.printStackTrace()
@@ -70,6 +77,70 @@ class ConfigurationPlugin(app: Application) extends CultureHubPlugin(app) {
       val props = Props(new BroadcastingPluginActor)
       info("Starting Akka messaging sub-system for organization " + configuration.orgId)
       Akka.system.actorOf(props, "plugins-" + configuration.orgId)
+    }
+
+  }
+
+  def checkPluginSystem() {
+
+    val plugins = CultureHubPlugin.hubPlugins
+
+    // first we do a sanity check on the plugins
+    val duplicatePluginKeys = plugins.groupBy(_.pluginKey).filter(_._2.size > 1)
+    if (!duplicatePluginKeys.isEmpty) {
+      log.error(
+        "Found two or more plugins with the same pluginKey: " +
+          duplicatePluginKeys.map(t => t._1 + ": " + t._2.map(_.getClass).mkString(", ")).mkString(", ")
+      )
+      throw new RuntimeException("Plugin inconsistency. No can do.")
+    }
+
+    // access control subsystem: check roles and resource handlers defined by plugins
+
+    val duplicateRoleKeys = plugins.flatMap(plugin => plugin.roles.map(r => (r -> plugin.pluginKey))).groupBy(_._1.key).filter(_._2.size > 1)
+    if (!duplicateRoleKeys.isEmpty) {
+      val error = "Found two or more roles with the same key: " +
+        duplicateRoleKeys.map(r => r._1 + ": " + r._2.map(pair => "Plugin " + pair._2).mkString(", ")).mkString(", ")
+
+      log.error(error)
+      throw new RuntimeException("Role definition inconsistency. No can do.\n\n" + error)
+    }
+
+    val undescribedRoles = plugins.flatMap(_.roles).filter(role => !role.isUnitRole && role.description.isEmpty)
+    if (!undescribedRoles.isEmpty) {
+      val error = "Found roles without a description: " + undescribedRoles.mkString(", ")
+      log.error(error)
+      throw new RuntimeException("Roles without description\n\n: " + error)
+    }
+
+    // make sure that if a Role defines a ResourceType, its declaring plugin also provides a ResourceLookup
+    val triplets = new ArrayBuffer[(CultureHubPlugin, Role, ResourceType)]()
+    plugins.foreach { plugin =>
+      plugin.roles.foreach { role =>
+        if (role.resourceType.isDefined) {
+          val isResourceLookupProvided = plugin.resourceLookups.exists(lookup => lookup.resourceType == role.resourceType.get)
+          if (!isResourceLookupProvided) {
+            triplets += Tuple3(plugin, role, role.resourceType.get)
+          }
+        }
+      }
+    }
+    if (!triplets.isEmpty) {
+      log.error(
+        """Found plugin-defined role(s) that do not provide a ResourceLookup for their ResourceType:
+        |
+        |Plugin\t\tRole\t\tResourceType
+        |
+        |%s
+      """.stripMargin.format(
+          triplets.map { t =>
+            """%s\t\t%s\t\t%s""".format(
+              t._1.pluginKey, t._2.key, t._3.resourceType
+            )
+          }.mkString("\n")
+        )
+      )
+      throw new RuntimeException("Resource definition inconsistency. No can do.")
     }
 
   }
