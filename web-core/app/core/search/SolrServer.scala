@@ -91,7 +91,7 @@ object SolrServer {
 
   val solrUpdateServers = new OrganizationConfigurationResourceHolder[String, ConcurrentUpdateSolrServer]("solrUpdateServers") {
 
-    protected def resourceConfiguration(configuration: OrganizationConfiguration): String = configuration.solrBaseUrl
+    protected def resourceConfiguration(configuration: OrganizationConfiguration): String = configuration.solrIndexerUrl.getOrElse(configuration.solrBaseUrl)
 
     protected def onAdd(resourceConfiguration: String): Option[ConcurrentUpdateSolrServer] = {
       Some(new ConcurrentUpdateSolrServer(resourceConfiguration, 1000, 5))

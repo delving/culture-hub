@@ -29,6 +29,7 @@ package models {
       mongoDatabase: String,
       baseXConfiguration: BaseXConfiguration,
       solrBaseUrl: String,
+      solrIndexerUrl: Option[String],
 
       // ~~~ services
       commonsService: CommonsServiceConfiguration,
@@ -198,6 +199,7 @@ package models {
     val ORG_ID = "orgId"
 
     val SOLR_BASE_URL = "solr.baseUrl"
+    val SOLR_INDEXER_URL = "solr.indexerUrl"
     val MONGO_DATABASE = "mongoDatabase"
 
     val COMMONS_HOST = "services.commons.host"
@@ -426,6 +428,7 @@ package models {
         password = getString(configuration, BASEX_PASSWORD)
       ),
       solrBaseUrl = getString(configuration, SOLR_BASE_URL),
+      solrIndexerUrl = getOptionalString(configuration, SOLR_INDEXER_URL),
       commonsService = CommonsServiceConfiguration(
         commonsHost = getString(configuration, COMMONS_HOST),
         nodeName = configuration.getString(COMMONS_NODE_NAME).get,
