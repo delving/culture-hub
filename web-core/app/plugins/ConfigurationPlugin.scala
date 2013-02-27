@@ -152,7 +152,7 @@ class ConfigurationPlugin(app: Application) extends CultureHubPlugin(app) {
     pluginBroadcastActors foreach { actor =>
       actor ! PoisonPill
     }
-    OrganizationConfigurationHandler.teardown()
+    OrganizationConfigurationHandler.tearDown()
   }
 
   override def services: Seq[Any] = Seq(
