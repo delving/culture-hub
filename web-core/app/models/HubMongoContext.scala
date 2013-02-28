@@ -28,7 +28,7 @@ object HubMongoContext extends HubMongoContext {
   val CONFIG_DB = "configurationDatabaseName"
 
   def init() {
-    OrganizationConfigurationHandler.registerResourceHolder(mongoConnections, 1000)
+    OrganizationConfigurationHandler.registerResourceHolder(mongoConnections, initFirst = true)
     OrganizationConfigurationHandler.registerResourceHolder(fileStores)
     OrganizationConfigurationHandler.registerResourceHolder(imageCacheStores)
     OrganizationConfigurationHandler.registerResourceHolder(hubFileStores)

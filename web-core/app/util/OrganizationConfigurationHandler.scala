@@ -48,39 +48,46 @@ object OrganizationConfigurationHandler {
   private val log = Logger("CultureHub")
   private def handler = Akka.system.actorFor("akka://application/user/organizationConfigurationHandler")
   private implicit val timeout = Timeout(5000 milliseconds)
-  private val resourceHolders = new ArrayBuffer[(Int, OrganizationConfigurationResourceHolder[_, _])]()
-  private var firstPassConfigurations: Seq[OrganizationConfiguration] = Seq.empty
+  private val resourceHolders = new ArrayBuffer[(OrganizationConfigurationResourceHolder[_, _], Boolean)]()
+  private var firstStageConfigurations: Seq[OrganizationConfiguration] = Seq.empty
 
-  var initializing: Boolean = false
-  var firstPassDone: Boolean = false
-  var secondPassDone: Boolean = false
+  var firstStageDone: Boolean = false
+  var secondStageDone: Boolean = false
 
-  def configure(plugins: Seq[CultureHubPlugin], isStartup: Boolean = false) {
+  /**
+   * Configures the system.
+   * Configuration happens in two stages:
+   * - first we parse & build the configuration for the various organizations
+   * - then we configure all resource handlers
+   *
+   * Because some resource handlers only manifest themselves when they are used the first time
+   * (e.g. because we didn't want to eagerly register all of them), we configure them on the fly based on the
+   * configurations made available by the first stage. However, given that some resource handlers have dependencies on others,
+   * we allow registration of prioritary resource handler to be initialized before the first stage is completed.
+   *
+   * @param isStartup whether this is startup time. Influences how errors are handled
+   */
+  def configure(isStartup: Boolean = false) {
 
-    initializing = true
-    secondPassDone = false
+    secondStageDone = false
 
-    def sortedHolders = resourceHolders.sortBy(_._1).reverse.map(_._2)
-
-    val secondPassCallback: () => Unit = { () =>
-      secondPassDone = true
+    val secondStageCallback: () => Unit = { () =>
+      secondStageDone = true
       log.info("Configuration successfully initialized")
-      handler ! ResourceHolders(sortedHolders)
+      handler ! ResourceHolders(resourceHolders)
     }
 
-    val eventuallyConfigured = handler ? Configure(sortedHolders, isStartup, secondPassCallback)
+    val eventuallyConfigured = handler ? Configure(resourceHolders, isStartup, secondStageCallback)
 
     Await.result(eventuallyConfigured, timeout.duration) match {
 
-      case FirstPassSuccess(configurations) =>
-        firstPassConfigurations = configurations
-        firstPassDone = true
-        initializing = false
+      case FirstStageSuccess(configurations) =>
+        firstStageConfigurations = configurations
+        firstStageDone = true
 
       case ConfigurationFailure(message) =>
-        firstPassDone = true
-        secondPassDone = true
-        initializing = false
+        firstStageDone = true
+        secondStageDone = true
         log.error(message)
         if (isStartup) {
           throw new RuntimeException(message)
@@ -89,21 +96,23 @@ object OrganizationConfigurationHandler {
   }
 
   def tearDown() {
-    initializing = false
-    firstPassDone = false
-    secondPassDone = false
-    firstPassConfigurations = Seq.empty
+    firstStageDone = false
+    secondStageDone = false
+    firstStageConfigurations = Seq.empty
     resourceHolders.clear()
     handler ! PoisonPill
   }
 
-  def registerResourceHolder[A, B](holder: OrganizationConfigurationResourceHolder[A, B], priority: Int = 0) {
-    resourceHolders += ((priority, holder))
+  def registerResourceHolder[A, B](holder: OrganizationConfigurationResourceHolder[A, B], initFirst: Boolean = false) {
+    if (!resourceHolders.exists(_._1 == holder)) {
+      resourceHolders += ((holder, initFirst))
 
-    // configure with the state we already know about
-    if (initializing || firstPassDone) {
-      holder.configure(getAllCurrentConfigurations)
+      // if we get registration requests after having started configuring, we need to do something with them
+      if (firstStageDone) {
+        holder.configure(firstStageConfigurations)
+      }
     }
+
   }
 
   def getByOrgId(orgId: String) = {
@@ -133,8 +142,8 @@ object OrganizationConfigurationHandler {
    * For those cases, implement a [[ OrganizationConfigurationResourceHolder ]] instead.
    */
   def getAllCurrentConfigurations: Seq[OrganizationConfiguration] = {
-    if (!secondPassDone) {
-      firstPassConfigurations
+    if (!secondStageDone) {
+      firstStageConfigurations
     } else {
       val future = handler ? GetAll
       Await.result(future, timeout.duration) match {
@@ -164,7 +173,7 @@ class OrganizationConfigurationHandler(plugins: Seq[CultureHubPlugin]) extends A
   private var organizationConfigurationsMap: Seq[(String, OrganizationConfiguration)] = Seq.empty
   private var domainLookupCache: HashMap[String, OrganizationConfiguration] = HashMap.empty
 
-  private var resourceHoldersCache: Seq[OrganizationConfigurationResourceHolder[_, _]] = Seq.empty
+  private var resourceHoldersCache: Seq[(OrganizationConfigurationResourceHolder[_, _], Boolean)] = Seq.empty
 
   var organizationConfigurations: Seq[OrganizationConfiguration] = Seq.empty
 
@@ -179,11 +188,15 @@ class OrganizationConfigurationHandler(plugins: Seq[CultureHubPlugin]) extends A
   def receive = {
     case Configure(holders, isStartup, secondPassCallback) =>
 
-      val databaseConfigurations: Map[String, String] = Play.application.configuration.getString(HubMongoContext.CONFIG_DB).map { configDb =>
-        Config.findAll.map { config =>
-          (config.orgId -> (s"""configurations.${config.orgId} { ${config.rawConfiguration} }"""))
-        }.toMap
-      }.getOrElse(Map.empty)
+      val databaseConfigurations: Map[String, String] = if (!Play.isTest) {
+        Play.application.configuration.getString(HubMongoContext.CONFIG_DB).map { configDb =>
+          Config.findAll.map { config =>
+            (config.orgId -> (s"""configurations.${config.orgId} { ${config.rawConfiguration} }"""))
+          }.toMap
+        }.getOrElse(Map.empty)
+      } else {
+        Map.empty
+      }
 
       val parsed: Map[String, config.Config] = databaseConfigurations flatMap { c =>
         try {
@@ -201,7 +214,8 @@ class OrganizationConfigurationHandler(plugins: Seq[CultureHubPlugin]) extends A
         sender ! ConfigurationFailure("Parse error for some configurations, aborting refresh")
       } else {
         val (configurations, errors: Seq[(String, String)]) = {
-          val merged = Play.application.configuration ++ Configuration(parsed.map(_._2).reduce(_.withFallback(_)))
+          val fromDatabase = if (!parsed.isEmpty) parsed.map(_._2).reduce(_.withFallback(_)) else ConfigFactory.empty()
+          val merged = Play.application.configuration ++ Configuration(fromDatabase)
           OrganizationConfiguration.buildConfigurations(merged, plugins)
         }
 
@@ -226,10 +240,13 @@ class OrganizationConfigurationHandler(plugins: Seq[CultureHubPlugin]) extends A
             Config.clearErrors(config.orgId)
           }
 
-          // already release the new configurations now, in order to avoid a chicken-and-egg situation
-          sender ! FirstPassSuccess(organizationConfigurations)
+          // initialize important resource holders
+          configureResourceHolders(holders.filter(_._2).map(_._1))
 
-          configureResourceHolders(holders)
+          // already release the new configurations now, in order to avoid a chicken-and-egg situation
+          sender ! FirstStageSuccess(organizationConfigurations)
+
+          configureResourceHolders(holders.map(_._1))
           secondPassCallback()
         }
       }
@@ -278,8 +295,8 @@ class OrganizationConfigurationHandler(plugins: Seq[CultureHubPlugin]) extends A
 
   private def configureResourceHolders(holders: Seq[OrganizationConfigurationResourceHolder[_, _]]) {
     try {
-      log.debug(s"Initializing ${holders.size} resource holders")
       holders foreach { holder => holder.configure(organizationConfigurations) }
+      log.debug(s"Initialized ${holders.size} resource holders")
     } catch {
       case t: Throwable =>
         t.printStackTrace()
@@ -291,10 +308,10 @@ class OrganizationConfigurationHandler(plugins: Seq[CultureHubPlugin]) extends A
 
 // ~~~ questions
 
-case class Configure(holders: Seq[OrganizationConfigurationResourceHolder[_, _]], isStartup: Boolean = false, secondPassCallback: () => Unit)
+case class Configure(holders: Seq[(OrganizationConfigurationResourceHolder[_, _], Boolean)], isStartup: Boolean = false, secondStageCallback: () => Unit)
 case class GetByOrgId(orgId: String)
 case class GetByDomain(domain: String)
-case class ResourceHolders(holders: Seq[OrganizationConfigurationResourceHolder[_, _]])
+case class ResourceHolders(holders: Seq[(OrganizationConfigurationResourceHolder[_, _], Boolean)])
 case object GetAll
 
 case object Refresh
@@ -302,6 +319,6 @@ case object Refresh
 // ~~~ answers
 
 case class ConfigurationLookupResponse(configuration: Option[OrganizationConfiguration])
-case class FirstPassSuccess(configurations: Seq[OrganizationConfiguration])
+case class FirstStageSuccess(configurations: Seq[OrganizationConfiguration])
 case class ConfigurationFailure(message: String)
 case class AllConfigurations(configurations: Seq[OrganizationConfiguration])
