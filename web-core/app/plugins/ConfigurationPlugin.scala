@@ -51,7 +51,7 @@ class ConfigurationPlugin(app: Application) extends CultureHubPlugin(app) {
       // ~~~ load configurations
       val props = Props(new OrganizationConfigurationHandler(CultureHubPlugin.hubPlugins))
       organizationConfigurationHandler = Akka.system.actorOf(props, name = "organizationConfigurationHandler")
-      OrganizationConfigurationHandler.configure(CultureHubPlugin.hubPlugins, isStartup = true)
+      OrganizationConfigurationHandler.configure(isStartup = true)
     } catch {
       case t: Throwable =>
         t.printStackTrace()

@@ -32,7 +32,7 @@ trait MultiModel[A <: salat.CaseClass, B <: SalatDAO[A, ObjectId]] {
       protected def onRemove(removed: B) {}
     }
 
-    OrganizationConfigurationHandler.registerResourceHolder(daos, 900)
+    OrganizationConfigurationHandler.registerResourceHolder(daos)
     daos
   }
 

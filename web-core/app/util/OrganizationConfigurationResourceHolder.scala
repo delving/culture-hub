@@ -11,9 +11,11 @@ import reflect.ClassTag
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
-abstract class OrganizationConfigurationResourceHolder[A, B](name: String) {
+abstract class OrganizationConfigurationResourceHolder[A, B](val name: String) {
 
   val log = Logger("CultureHub")
+
+  private var configuredFor = Seq.empty[OrganizationConfiguration]
 
   private val resources = new ConcurrentHashMap[OrganizationConfiguration, B]()
 
@@ -61,6 +63,8 @@ abstract class OrganizationConfigurationResourceHolder[A, B](name: String) {
       addResource(m)
     }
 
+    configuredFor = configurations
+
   }
 
   // ~~~ to implement
@@ -97,8 +101,8 @@ abstract class OrganizationConfigurationResourceHolder[A, B](name: String) {
   def getResource(configuration: OrganizationConfiguration)(implicit ct: ClassTag[B]): B = {
     val maybeResource = Option(resources.get(configuration))
     if (maybeResource == None) {
-      log.error(s"Could not retrieve resource of kid $name for organization ${configuration.orgId}")
-      throw new RuntimeException(s"Resource of kind $name unavailable")
+      log.error(s"Could not retrieve resource of kind $name for organization ${configuration.orgId}. This holder is configured for ${configuredFor.map(_.orgId).mkString(", ")}")
+      throw new RuntimeException(s"Resource of kind $name unavailable for organizations ${configuration.orgId}")
     } else {
       resources.get(configuration)
     }
