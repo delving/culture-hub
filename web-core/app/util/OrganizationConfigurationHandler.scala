@@ -18,18 +18,19 @@ package util
 
 import core.CultureHubPlugin
 import collection.immutable.HashMap
-import models.{ ConfigDAO, HubMongoContext, OrganizationConfiguration }
+import models.{ Config, HubMongoContext, OrganizationConfiguration }
 import play.api.{ Logger, Play, Configuration }
 import com.typesafe.config.ConfigFactory
 import play.api.Play.current
-import akka.actor.{ PoisonPill, Actor }
+import akka.actor.{ Cancellable, PoisonPill, Actor }
 import scala.concurrent.duration._
 import play.api.libs.concurrent.Execution.Implicits._
 import akka.pattern.ask
 import scala.concurrent.Await
-import play.api.libs.concurrent.Akka
 import akka.util.Timeout
 import collection.mutable.ArrayBuffer
+import play.api.libs.concurrent.Akka
+import com.typesafe.config
 
 /**
  * Takes care of loading organisation-specific configuration.
@@ -57,32 +58,37 @@ object OrganizationConfigurationHandler {
   def configure(plugins: Seq[CultureHubPlugin], isStartup: Boolean = false) {
 
     initializing = true
-    val eventuallyConfigured = handler ? Configure(plugins, resourceHolders.sortBy(_._1).reverse.map(_._2), isStartup)
+    secondPassDone = false
+
+    def sortedHolders = resourceHolders.sortBy(_._1).reverse.map(_._2)
+
+    val secondPassCallback: () => Unit = { () =>
+      secondPassDone = true
+      log.info("Configuration successfully initialized")
+      handler ! ResourceHolders(sortedHolders)
+    }
+
+    val eventuallyConfigured = handler ? Configure(sortedHolders, isStartup, secondPassCallback)
+
     Await.result(eventuallyConfigured, timeout.duration) match {
 
       case FirstPassSuccess(configurations) =>
         firstPassConfigurations = configurations
         firstPassDone = true
         initializing = false
-        // TODO find a better solution than this...
-        // we basically can't send a message here because others have been queued in the meanwhile
-        // yet we should only return from this method call after the second pass is done
-        // and at the same time we have to respond earlier with the first pass configurations in order to do the second pass
-        Thread.sleep(2000)
-        secondPassDone = true
-        log.info("Configuration successfully initialized")
-
-      case ConfigurationSuccess =>
-        initializing = false
-        log.info("Configuration successfully refreshed")
 
       case ConfigurationFailure(message) =>
+        firstPassDone = true
+        secondPassDone = true
         initializing = false
-        throw new RuntimeException(message)
+        log.error(message)
+        if (isStartup) {
+          throw new RuntimeException(message)
+        }
     }
   }
 
-  def teardown() {
+  def tearDown() {
     initializing = false
     firstPassDone = false
     secondPassDone = false
@@ -149,70 +155,96 @@ object OrganizationConfigurationHandler {
 
 }
 
-class OrganizationConfigurationHandler extends Actor {
+class OrganizationConfigurationHandler(plugins: Seq[CultureHubPlugin]) extends Actor {
 
   val log = Logger("CultureHub")
 
+  private var scheduledTask: Cancellable = null
+
   private var organizationConfigurationsMap: Seq[(String, OrganizationConfiguration)] = Seq.empty
   private var domainLookupCache: HashMap[String, OrganizationConfiguration] = HashMap.empty
-  private var invalidConfigurations = Seq.empty[String]
+
+  private var resourceHoldersCache: Seq[OrganizationConfigurationResourceHolder[_, _]] = Seq.empty
 
   var organizationConfigurations: Seq[OrganizationConfiguration] = Seq.empty
 
+  override def preStart() {
+    scheduledTask = Akka.system.scheduler.schedule(5 minutes, 5 minutes, self, Refresh)
+  }
+
+  override def postStop() {
+    scheduledTask.cancel()
+  }
+
   def receive = {
-    case Configure(plugins, holders, isStartup) =>
+    case Configure(holders, isStartup, secondPassCallback) =>
 
-      val databaseConfiguration = Play.application.configuration.getString(HubMongoContext.CONFIG_DB).map { configDb =>
-        ConfigDAO.findAll.map { config => s"""configurations.${config.orgId} { ${config.rawConfiguration} }""" }.mkString("\n")
-      }.getOrElse("")
+      val databaseConfigurations: Map[String, String] = Play.application.configuration.getString(HubMongoContext.CONFIG_DB).map { configDb =>
+        Config.findAll.map { config =>
+          (config.orgId -> (s"""configurations.${config.orgId} { ${config.rawConfiguration} }"""))
+        }.toMap
+      }.getOrElse(Map.empty)
 
-      println(databaseConfiguration)
-
-      val config = Play.application.configuration ++ Configuration(ConfigFactory.parseString(databaseConfiguration))
-
-      val (configurations, errors) = OrganizationConfiguration.buildConfigurations(config, plugins)
-      organizationConfigurations = configurations
-      invalidConfigurations = errors.map(_._1).toSeq
-
-      if (!errors.isEmpty && isStartup) {
-        sender ! ConfigurationFailure("Invalid configuration(s). ¿Satan, is this you?\n\n" + errors.map(e => s"${e._1}: ${e._2}").mkString("\n"))
+      val parsed: Map[String, config.Config] = databaseConfigurations flatMap { c =>
+        try {
+          val parsed = ConfigFactory.parseString(c._2)
+          Some((c._1 -> parsed))
+        } catch {
+          case t: Throwable =>
+            log.error(s"Error while parsing configuration for organization ${c._1}", t)
+            Config.addErrors(c._1, Seq(s"Error while parsing configuration: ${t.getMessage}"))
+            None
+        }
       }
 
-      organizationConfigurationsMap = toDomainList(organizationConfigurations)
-      domainLookupCache = HashMap.empty
+      if (parsed.size != databaseConfigurations.size) {
+        sender ! ConfigurationFailure("Parse error for some configurations, aborting refresh")
+      } else {
+        val (configurations, errors: Seq[(String, String)]) = {
+          val merged = Play.application.configuration ++ Configuration(parsed.map(_._2).reduce(_.withFallback(_)))
+          OrganizationConfiguration.buildConfigurations(merged, plugins)
+        }
 
-      if (isStartup) {
-        // already release the new configurations now, in order to avoid a chicken-and-egg situation
-        sender ! FirstPassSuccess(organizationConfigurations)
+        if (!errors.isEmpty) {
+
+          // dynamic change caused trouble
+          errors.groupBy(_._1) map { error =>
+            Config.addErrors(error._1, error._2.map(_._2))
+          }
+
+          sender ! ConfigurationFailure("Invalid configuration(s). ¿Satan, is this you?\n\n" + errors.map(e => s"${e._1}: ${e._2}").mkString("\n"))
+
+        } else if (errors.isEmpty && configurations.isEmpty) {
+          // whaaaat?
+          sender ! ConfigurationFailure("No configuration found! This is horrible! What should we do now?")
+        } else {
+          organizationConfigurations = configurations
+          organizationConfigurationsMap = toDomainList(organizationConfigurations)
+          domainLookupCache = HashMap.empty
+
+          organizationConfigurations foreach { config =>
+            Config.clearErrors(config.orgId)
+          }
+
+          // already release the new configurations now, in order to avoid a chicken-and-egg situation
+          sender ! FirstPassSuccess(organizationConfigurations)
+
+          configureResourceHolders(holders)
+          secondPassCallback()
+        }
       }
 
-      configureResourceHolders(holders)
-      sender ! ConfigurationSuccess
+    case ResourceHolders(holders) =>
+      resourceHoldersCache = holders
+
+    case Refresh =>
+      self ! Configure(resourceHoldersCache, false, { () => })
 
     case GetByOrgId(orgId) =>
       sender ! ConfigurationLookupResponse(organizationConfigurations.find(_.orgId == orgId))
 
     case GetByDomain(domain) =>
-      // note - this mechanism is vulnerable if you expose your server directly to the internet and pass on any kind of domains
-      // so you shouldn't do this, and have a DNS filter of sorts in front of it, not plug the server directly to a wildcard DNS
-      if (!domainLookupCache.contains(domain)) {
-        // fetch by longest matching domain
-        val configuration = organizationConfigurationsMap.foldLeft(("#", organizationConfigurations.head)) {
-          (r: (String, OrganizationConfiguration), c: (String, OrganizationConfiguration)) =>
-            {
-              val rMatches = domain.startsWith(r._1)
-              val cMatches = domain.startsWith(c._1)
-              val rLonger = r._1.length() > c._1.length()
-
-              if (rMatches && cMatches && rLonger) r
-              else if (rMatches && cMatches && !rLonger) c
-              else if (rMatches && !cMatches) r
-              else if (cMatches && !rMatches) c
-              else r // default
-            }
-        }._2
-        domainLookupCache = domainLookupCache + (domain -> configuration)
-      }
+      lookupDomain(domain)
       sender ! ConfigurationLookupResponse(domainLookupCache.get(domain))
 
     case GetAll =>
@@ -221,36 +253,55 @@ class OrganizationConfigurationHandler extends Actor {
 
   private def toDomainList(domainList: Seq[OrganizationConfiguration]) = domainList.flatMap(t => t.domains.map((_, t))).sortBy(_._1.length)
 
+  private def lookupDomain(domain: String) = {
+    // note - this mechanism is vulnerable if you expose your server directly to the internet and pass on any kind of domains
+    // so you shouldn't do this, and have a DNS filter of sorts in front of it, not plug the server directly to a wildcard DNS
+    if (!domainLookupCache.contains(domain)) {
+      // fetch by longest matching domain
+      val configuration = organizationConfigurationsMap.foldLeft(("#", organizationConfigurations.head)) {
+        (r: (String, OrganizationConfiguration), c: (String, OrganizationConfiguration)) =>
+          {
+            val rMatches = domain.startsWith(r._1)
+            val cMatches = domain.startsWith(c._1)
+            val rLonger = r._1.length() > c._1.length()
+
+            if (rMatches && cMatches && rLonger) r
+            else if (rMatches && cMatches && !rLonger) c
+            else if (rMatches && !cMatches) r
+            else if (cMatches && !rMatches) c
+            else r // default
+          }
+      }._2
+      domainLookupCache = domainLookupCache + (domain -> configuration)
+    }
+  }
+
   private def configureResourceHolders(holders: Seq[OrganizationConfigurationResourceHolder[_, _]]) {
     try {
       log.debug(s"Initializing ${holders.size} resource holders")
-      holders foreach { holder =>
-        {
-          val s = System.currentTimeMillis()
-          holder.configure(organizationConfigurations)
-        }
-      }
+      holders foreach { holder => holder.configure(organizationConfigurations) }
     } catch {
       case t: Throwable =>
         t.printStackTrace()
         sender ! ConfigurationFailure(t.getMessage)
     }
-
   }
 
 }
 
 // ~~~ questions
 
-case class Configure(plugins: Seq[CultureHubPlugin], holders: Seq[OrganizationConfigurationResourceHolder[_, _]], isStartup: Boolean = false)
+case class Configure(holders: Seq[OrganizationConfigurationResourceHolder[_, _]], isStartup: Boolean = false, secondPassCallback: () => Unit)
 case class GetByOrgId(orgId: String)
 case class GetByDomain(domain: String)
+case class ResourceHolders(holders: Seq[OrganizationConfigurationResourceHolder[_, _]])
 case object GetAll
+
+case object Refresh
 
 // ~~~ answers
 
 case class ConfigurationLookupResponse(configuration: Option[OrganizationConfiguration])
 case class FirstPassSuccess(configurations: Seq[OrganizationConfiguration])
-case object ConfigurationSuccess
 case class ConfigurationFailure(message: String)
 case class AllConfigurations(configurations: Seq[OrganizationConfiguration])

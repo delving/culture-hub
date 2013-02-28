@@ -46,11 +46,11 @@ class ConfigurationPlugin(app: Application) extends CultureHubPlugin(app) {
     Akka.system.actorOf(Props[SchemaRepositoryWrapper], name = "schemaRepository")
     schemaService.refresh()
 
-    // ~~~ load configurations
-    organizationConfigurationHandler = Akka.system.actorOf(Props[OrganizationConfigurationHandler], name = "organizationConfigurationHandler")
-
     try {
       checkPluginSystem()
+      // ~~~ load configurations
+      val props = Props(new OrganizationConfigurationHandler(CultureHubPlugin.hubPlugins))
+      organizationConfigurationHandler = Akka.system.actorOf(props, name = "organizationConfigurationHandler")
       OrganizationConfigurationHandler.configure(CultureHubPlugin.hubPlugins, isStartup = true)
     } catch {
       case t: Throwable =>
@@ -152,7 +152,7 @@ class ConfigurationPlugin(app: Application) extends CultureHubPlugin(app) {
     pluginBroadcastActors foreach { actor =>
       actor ! PoisonPill
     }
-    OrganizationConfigurationHandler.teardown()
+    OrganizationConfigurationHandler.tearDown()
   }
 
   override def services: Seq[Any] = Seq(
