@@ -187,9 +187,13 @@ abstract class CultureHubPlugin(app: Application) extends play.api.Plugin {
       }
       plugins.distinct.contains(pluginKey)
     }.getOrElse {
-      log.error("Fatal error: could not read plugin configurations, config is:\n" + app.configuration.underlying.origin())
-      System.exit(-1)
-      false
+      if (app.configuration.underlying.hasPath("cultureHub.plugins")) {
+        app.configuration.underlying.getStringList("cultureHub.plugins").asScala.contains(pluginKey)
+      } else {
+        log.error("Fatal error: could not read plugin configurations, config is:\n" + app.configuration.underlying.origin())
+        System.exit(-1)
+        false
+      }
     }
   }
 
