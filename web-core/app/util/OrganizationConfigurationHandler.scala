@@ -30,6 +30,7 @@ import scala.concurrent.Await
 import akka.util.Timeout
 import collection.mutable.ArrayBuffer
 import play.api.libs.concurrent.Akka
+import com.typesafe.config
 
 /**
  * Takes care of loading organisation-specific configuration.
@@ -57,6 +58,7 @@ object OrganizationConfigurationHandler {
   def configure(plugins: Seq[CultureHubPlugin], isStartup: Boolean = false) {
 
     initializing = true
+    secondPassDone = false
 
     def sortedHolders = resourceHolders.sortBy(_._1).reverse.map(_._2)
 
@@ -66,7 +68,7 @@ object OrganizationConfigurationHandler {
       handler ! ResourceHolders(sortedHolders)
     }
 
-    val eventuallyConfigured = handler ? Configure(plugins, sortedHolders, isStartup, if (isStartup) secondPassCallback else { () => })
+    val eventuallyConfigured = handler ? Configure(sortedHolders, isStartup, secondPassCallback)
 
     Await.result(eventuallyConfigured, timeout.duration) match {
 
@@ -76,6 +78,8 @@ object OrganizationConfigurationHandler {
         initializing = false
 
       case ConfigurationFailure(message) =>
+        firstPassDone = true
+        secondPassDone = true
         initializing = false
         log.error(message)
         if (isStartup) {
@@ -151,7 +155,7 @@ object OrganizationConfigurationHandler {
 
 }
 
-class OrganizationConfigurationHandler extends Actor {
+class OrganizationConfigurationHandler(plugins: Seq[CultureHubPlugin]) extends Actor {
 
   val log = Logger("CultureHub")
 
@@ -160,7 +164,6 @@ class OrganizationConfigurationHandler extends Actor {
   private var organizationConfigurationsMap: Seq[(String, OrganizationConfiguration)] = Seq.empty
   private var domainLookupCache: HashMap[String, OrganizationConfiguration] = HashMap.empty
 
-  private var pluginsCache: Seq[CultureHubPlugin] = Seq.empty
   private var resourceHoldersCache: Seq[OrganizationConfigurationResourceHolder[_, _]] = Seq.empty
 
   var organizationConfigurations: Seq[OrganizationConfiguration] = Seq.empty
@@ -174,9 +177,7 @@ class OrganizationConfigurationHandler extends Actor {
   }
 
   def receive = {
-    case Configure(plugins, holders, isStartup, secondPassCallback) =>
-
-      pluginsCache = plugins
+    case Configure(holders, isStartup, secondPassCallback) =>
 
       val databaseConfigurations: Map[String, String] = Play.application.configuration.getString(HubMongoContext.CONFIG_DB).map { configDb =>
         Config.findAll.map { config =>
@@ -184,42 +185,31 @@ class OrganizationConfigurationHandler extends Actor {
         }.toMap
       }.getOrElse(Map.empty)
 
-      log.debug(
-        s"""Database configurations:
-          |
-          |${databaseConfigurations.mkString("\n")}
-        """.stripMargin)
-
-      val (parsedDatabaseConfigurations, parsingErrors) = databaseConfigurations map { c =>
+      val parsed: Map[String, config.Config] = databaseConfigurations flatMap { c =>
         try {
-          Right(ConfigFactory.parseString(c._2))
+          val parsed = ConfigFactory.parseString(c._2)
+          Some((c._1 -> parsed))
         } catch {
           case t: Throwable =>
-            Left((c._1 -> t))
+            log.error(s"Error while parsing configuration for organization ${c._1}", t)
+            Config.addErrors(c._1, Seq(s"Error while parsing configuration: ${t.getMessage}"))
+            None
         }
-      } partition (_.isRight)
+      }
 
-      if (!parsingErrors.isEmpty) {
-        val errors = parsingErrors.map { e =>
-          val error = e.left.get
-          log.error(s"Error while parsing / building configuration for organization ${error._1}", error._2)
-          Config.addErrors(error._1, Seq(s"Error while parsing the configuration: ${error._2.getMessage}"))
-          error._1
-        }
-        sender ! ConfigurationFailure(s"Parse error of configurations for organizations ${errors.mkString(", ")}")
+      if (parsed.size != databaseConfigurations.size) {
+        sender ! ConfigurationFailure("Parse error for some configurations, aborting refresh")
       } else {
         val (configurations, errors: Seq[(String, String)]) = {
-          val merged = Play.application.configuration ++ Configuration(parsedDatabaseConfigurations.map(_.right.get).reduce(_.withFallback(_)))
+          val merged = Play.application.configuration ++ Configuration(parsed.map(_._2).reduce(_.withFallback(_)))
           OrganizationConfiguration.buildConfigurations(merged, plugins)
         }
 
         if (!errors.isEmpty) {
 
-          if (!isStartup) {
-            // dynamic change caused trouble
-            errors.groupBy(_._1) map { error =>
-              Config.addErrors(error._1, error._2.map(_._2))
-            }
+          // dynamic change caused trouble
+          errors.groupBy(_._1) map { error =>
+            Config.addErrors(error._1, error._2.map(_._2))
           }
 
           sender ! ConfigurationFailure("Invalid configuration(s). ¿Satan, is this you?\n\n" + errors.map(e => s"${e._1}: ${e._2}").mkString("\n"))
@@ -236,17 +226,11 @@ class OrganizationConfigurationHandler extends Actor {
             Config.clearErrors(config.orgId)
           }
 
-          if (isStartup) {
-            // already release the new configurations now, in order to avoid a chicken-and-egg situation
-            sender ! FirstPassSuccess(organizationConfigurations)
-          }
+          // already release the new configurations now, in order to avoid a chicken-and-egg situation
+          sender ! FirstPassSuccess(organizationConfigurations)
 
           configureResourceHolders(holders)
-          if (isStartup) {
-            secondPassCallback()
-          } else {
-            log.info("Configuration successfully refreshed")
-          }
+          secondPassCallback()
         }
       }
 
@@ -254,32 +238,13 @@ class OrganizationConfigurationHandler extends Actor {
       resourceHoldersCache = holders
 
     case Refresh =>
-      self ! Configure(pluginsCache, resourceHoldersCache, false, { () => })
+      self ! Configure(resourceHoldersCache, false, { () => })
 
     case GetByOrgId(orgId) =>
       sender ! ConfigurationLookupResponse(organizationConfigurations.find(_.orgId == orgId))
 
     case GetByDomain(domain) =>
-      // note - this mechanism is vulnerable if you expose your server directly to the internet and pass on any kind of domains
-      // so you shouldn't do this, and have a DNS filter of sorts in front of it, not plug the server directly to a wildcard DNS
-      if (!domainLookupCache.contains(domain)) {
-        // fetch by longest matching domain
-        val configuration = organizationConfigurationsMap.foldLeft(("#", organizationConfigurations.head)) {
-          (r: (String, OrganizationConfiguration), c: (String, OrganizationConfiguration)) =>
-            {
-              val rMatches = domain.startsWith(r._1)
-              val cMatches = domain.startsWith(c._1)
-              val rLonger = r._1.length() > c._1.length()
-
-              if (rMatches && cMatches && rLonger) r
-              else if (rMatches && cMatches && !rLonger) c
-              else if (rMatches && !cMatches) r
-              else if (cMatches && !rMatches) c
-              else r // default
-            }
-        }._2
-        domainLookupCache = domainLookupCache + (domain -> configuration)
-      }
+      lookupDomain(domain)
       sender ! ConfigurationLookupResponse(domainLookupCache.get(domain))
 
     case GetAll =>
@@ -287,6 +252,29 @@ class OrganizationConfigurationHandler extends Actor {
   }
 
   private def toDomainList(domainList: Seq[OrganizationConfiguration]) = domainList.flatMap(t => t.domains.map((_, t))).sortBy(_._1.length)
+
+  private def lookupDomain(domain: String) = {
+    // note - this mechanism is vulnerable if you expose your server directly to the internet and pass on any kind of domains
+    // so you shouldn't do this, and have a DNS filter of sorts in front of it, not plug the server directly to a wildcard DNS
+    if (!domainLookupCache.contains(domain)) {
+      // fetch by longest matching domain
+      val configuration = organizationConfigurationsMap.foldLeft(("#", organizationConfigurations.head)) {
+        (r: (String, OrganizationConfiguration), c: (String, OrganizationConfiguration)) =>
+          {
+            val rMatches = domain.startsWith(r._1)
+            val cMatches = domain.startsWith(c._1)
+            val rLonger = r._1.length() > c._1.length()
+
+            if (rMatches && cMatches && rLonger) r
+            else if (rMatches && cMatches && !rLonger) c
+            else if (rMatches && !cMatches) r
+            else if (cMatches && !rMatches) c
+            else r // default
+          }
+      }._2
+      domainLookupCache = domainLookupCache + (domain -> configuration)
+    }
+  }
 
   private def configureResourceHolders(holders: Seq[OrganizationConfigurationResourceHolder[_, _]]) {
     try {
@@ -297,14 +285,13 @@ class OrganizationConfigurationHandler extends Actor {
         t.printStackTrace()
         sender ! ConfigurationFailure(t.getMessage)
     }
-
   }
 
 }
 
 // ~~~ questions
 
-case class Configure(plugins: Seq[CultureHubPlugin], holders: Seq[OrganizationConfigurationResourceHolder[_, _]], isStartup: Boolean = false, secondPassCallback: () => Unit)
+case class Configure(holders: Seq[OrganizationConfigurationResourceHolder[_, _]], isStartup: Boolean = false, secondPassCallback: () => Unit)
 case class GetByOrgId(orgId: String)
 case class GetByDomain(domain: String)
 case class ResourceHolders(holders: Seq[OrganizationConfigurationResourceHolder[_, _]])

@@ -298,7 +298,13 @@ package models {
         if (!missing.isEmpty) {
           Left((configurationKey -> missing))
         } else {
-          Right(buildConfiguration(configurationKey, configuration))
+          try {
+            Right(buildConfiguration(configurationKey, configuration))
+          } catch {
+            case t: Throwable =>
+              log.error(s"Error while building configuration for organizations $configurationKey", t)
+              Left((configurationKey -> Seq(t.getMessage)))
+          }
         }
 
       }.toSeq
@@ -323,7 +329,7 @@ package models {
             }.mkString("\n")
           )
         )
-        allErrors ++= errorPairs.map(pair => (pair._1 -> ("Missing mandatory keys: " + pair._2.mkString(", "))))
+        allErrors ++= errorPairs.map(pair => (pair._1 -> ("Missing mandatory keys or other problem: " + pair._2.mkString(", "))))
       }
 
       val configurations = nice.map(_.right.get)
