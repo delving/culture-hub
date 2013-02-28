@@ -169,7 +169,7 @@ class OrganizationConfigurationHandler(plugins: Seq[CultureHubPlugin]) extends A
   var organizationConfigurations: Seq[OrganizationConfiguration] = Seq.empty
 
   override def preStart() {
-    scheduledTask = Akka.system.scheduler.schedule(10 seconds, 10 seconds, self, Refresh) // TODO change this once we are done developing
+    scheduledTask = Akka.system.scheduler.schedule(5 minutes, 5 minutes, self, Refresh)
   }
 
   override def postStop() {
