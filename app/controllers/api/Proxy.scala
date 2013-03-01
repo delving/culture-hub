@@ -2,14 +2,16 @@ package controllers.api
 
 import play.api.libs.concurrent.Promise
 import collection.immutable.Map
-import play.api.libs.ws.{ Response, WS }
+import play.api.libs.ws.WS
 import xml.{ NodeSeq, TopScope, Elem }
 import play.api.mvc._
-import controllers.{ OrganizationConfigurationAware, RenderingExtensions }
-import core.ExplainItem
+import controllers._
 import play.api.{ Logger, Play }
-import controllers.RenderingExtensions
 import play.api.libs.concurrent.Execution.Implicits._
+import controllers.ApiItem
+import play.api.libs.ws.Response
+import controllers.ApiDescription
+import core.ExplainItem
 
 /**
  * FIXME adjust namespace rendering in proxy responses. Also support JSON.

@@ -135,10 +135,6 @@ GET         /organizations/:orgId/api/providers                               co
 GET         /organizations/:orgId/api/dataProviders                           controllers.api.Organization.dataProviders(orgId)
 GET         /organizations/:orgId/api/collections                             controllers.api.Organization.collections(orgId)
 
-GET         /organizations/:orgId/api/index                                   controllers.api.Index.status(orgId)
-POST        /organizations/:orgId/api/index                                   controllers.api.Index.submit(orgId)
-POST        /organizations/:orgId/api/reIndex                                 controllers.api.Index.reIndex(orgId)
-
 ## Deprecated - legacy routes support
 GET         /organizations/:orgId/search                                      controllers.api.Search.searchApi(orgId, provider: Option[String] = None, dataProvider: Option[String] = None, collection: Option[String] = None)
 GET         /organizations/:orgId/oai-pmh                                     controllers.api.OaiPmh.oaipmh(orgId: String, format: Option[String] = None, accessKey: Option[String] = None)

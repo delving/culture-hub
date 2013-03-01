@@ -1,6 +1,6 @@
 package controllers.api
 
-import controllers.{ OrganizationConfigurationAware, RenderingExtensions }
+import controllers.{ ApiDescription, DelvingController, OrganizationConfigurationAware, RenderingExtensions }
 import play.api.mvc._
 import play.api.libs.concurrent.Promise
 import scala.xml._
@@ -26,7 +26,7 @@ object Index extends Controller with OrganizationConfigurationAware with Renderi
 
   val CACHE_COLLECTION = "indexApiItems"
 
-  val log = Logger("IndexApi")
+  val log = Logger("CultureHub")
 
   def explain(path: List[String]) = path match {
     case Nil =>
