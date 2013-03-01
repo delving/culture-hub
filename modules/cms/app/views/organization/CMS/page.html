@@ -177,8 +177,8 @@
         });
         $('#saveButton').click(function (event) {
             event.preventDefault();
-            handleSubmit('/organizations/${orgId}/site/page', pageModel, '#pageForm', null, function () {
-                document.location = '/organizations/${orgId}/site/' + pageModel.lang() + '/' + pageModel.menu();
+            handleSubmit('/admin/site/page', pageModel, '#pageForm', null, function () {
+                document.location = '/admin/site/' + pageModel.lang() + '/' + pageModel.menu();
             });
         });
 

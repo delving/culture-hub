@@ -5,6 +5,7 @@ import sbt.Keys._
 import com.typesafe.sbt._
 import sbtbuildinfo.Plugin._
 import eu.delving.templates.Plugin._
+import scala.Some
 
 object Build extends sbt.Build {
 
@@ -129,7 +130,8 @@ object Build extends sbt.Build {
 
   val cms = play.Project("cms", "1.0-SNAPSHOT", Seq.empty, path = file(cultureHubPath + "modules/cms")).settings(
     resolvers ++= commonResolvers,
-    publish := {}
+    publish := {},
+    routesImport += "extensions.Binders._"
   ).dependsOn(webCore % "test->test;compile->compile", dos).settings(scalarifromSettings :_*)
 
   val indexApi = play.Project("indexApi", "1.0-SNAPSHOT", Seq.empty, path = file(cultureHubPath + "modules/indexApi")).settings(
