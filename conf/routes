@@ -168,4 +168,7 @@ POST        /organizations/:orgId/groups/submit                               co
 GET         /organizations/:orgId/directory/organizationLookup                controllers.organization.DataSetControl.organizationLookup(orgId, term)
 
 
-GET          /:orgId/:spec/*recordId                                          controllers.FullView.render(orgId, spec, recordId, format: Option[String])
+GET          /:orgId/:spec/:recordId                                          controllers.FullView.render(orgId, spec, recordId, format: Option[String])
+
+
+#->           /                                                                cms.Routes

@@ -1,6 +1,6 @@
 package controllers
 
-import play.api.mvc.Action
+import play.api.mvc.{ AnyContent, Action }
 import models.cms.{ MenuEntry, CMSPage }
 import com.mongodb.casbah.Imports._
 import core.MenuElement
@@ -12,7 +12,7 @@ import scala.collection.JavaConverters._
  */
 object CMS extends DelvingController {
 
-  def page(key: String, menuKey: Option[String]) = Root {
+  def page(key: String, menuKey: Option[String]): Action[AnyContent] = Root {
     Action {
       implicit request =>
         CMSPage.dao.find(
