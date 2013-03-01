@@ -21,6 +21,7 @@ package models {
       // ~~~ core
       orgId: String,
       domains: List[String] = List.empty,
+      instances: List[String] = List.empty,
 
       // ~~~ mail
       emailTarget: EmailTarget = EmailTarget(),
@@ -198,6 +199,8 @@ package models {
     // ~~~ keys
     val ORG_ID = "orgId"
 
+    val INSTANCES = "instances"
+
     val SOLR_BASE_URL = "solr.baseUrl"
     val SOLR_INDEXER_URL = "solr.indexerUrl"
     val MONGO_DATABASE = "mongoDatabase"
@@ -254,8 +257,11 @@ package models {
     val EMAIL_SYSTEMFROM = "emailTarget.systemFrom"
     val EMAIL_FEEDBACKFROM = "emailTarget.feedbackFrom"
 
+    val CULTUREHUB_INSTANCE_IDENTIFIER = "cultureHub.instanceIdentifier"
+
     val MANDATORY_OVERRIDABLE_KEYS = Seq(
       SOLR_BASE_URL,
+      CULTUREHUB_INSTANCE_IDENTIFIER,
       COMMONS_HOST, COMMONS_NODE_NAME,
       IMAGE_CACHE_DATABASE, FILESTORE_DATABASE, TILES_WORKING_DIR, TILES_OUTPUT_DIR,
       OAI_REPO_NAME, OAI_ADMIN_EMAIL, OAI_EARLIEST_TIMESTAMP, OAI_REPO_IDENTIFIER, OAI_SAMPLE_IDENTIFIER, OAI_RESPONSE_LIST_SIZE, OAI_ALLOW_RAW_HARVESTING,
@@ -265,7 +271,7 @@ package models {
       EMAIL_ADMINTO, EMAIL_EXCEPTIONTO, EMAIL_FEEDBACKTO, EMAIL_REGISTERTO, EMAIL_SYSTEMFROM, EMAIL_FEEDBACKFROM
     )
 
-    val MANDATORY_DOMAIN_KEYS = Seq(ORG_ID, MONGO_DATABASE, COMMONS_API_TOKEN, IMAGE_CACHE_ENABLED, SCHEMAS, CROSSWALKS, PLUGINS)
+    val MANDATORY_DOMAIN_KEYS = Seq(ORG_ID, INSTANCES, MONGO_DATABASE, COMMONS_API_TOKEN, IMAGE_CACHE_ENABLED, SCHEMAS, CROSSWALKS, PLUGINS)
 
     /**
      * Computes all domain configurations based on a Typesafe configuration and the set of available plugins
@@ -425,6 +431,7 @@ package models {
     private def buildConfiguration(configurationKey: String, configuration: Configuration) = OrganizationConfiguration(
       orgId = configuration.getString(ORG_ID).get,
       domains = configuration.underlying.getStringList("domains").asScala.toList,
+      instances = configuration.underlying.getStringList(INSTANCES).asScala.toList,
       mongoDatabase = configuration.getString(MONGO_DATABASE).get,
       baseXConfiguration = BaseXConfiguration(
         host = getString(configuration, BASEX_HOST),

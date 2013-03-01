@@ -5,6 +5,7 @@ import com.novus.salat.dao.SalatDAO
 import org.bson.types.ObjectId
 import com.mongodb.casbah.commons.MongoDBObject
 import java.util.Date
+import com.mongodb.casbah.Imports._
 
 /**
  * Configuration stored in a mongo database
