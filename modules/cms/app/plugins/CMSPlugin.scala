@@ -178,10 +178,10 @@ class CMSPlugin(app: Application) extends CultureHubPlugin(app) {
             titleKey = "plugin.cms",
             roles = Seq(Role.OWN, CMSPlugin.ROLE_CMS_ADMIN),
             items = Seq(
-              MenuElement("/organizations/%s/site/%s/%s".format(configuration.orgId, lang, CMSPlugin.MAIN_MENU), "ui.label.list"),
-              MenuElement("/organizations/%s/site/%s/page/add".format(configuration.orgId, lang), "ui.label.new"),
-              MenuElement("/organizations/%s/site/%s/page/homepage/update".format(configuration.orgId, lang), "plugin.cms.updateHomePage"),
-              MenuElement("/organizations/%s/site/upload".format(configuration.orgId), "plugin.cms.upload.image")
+              MenuElement("/admin/site/%s/%s".format(lang, CMSPlugin.MAIN_MENU), "ui.label.list"),
+              MenuElement("/admin/site/%s/page/add".format(lang), "ui.label.new"),
+              MenuElement("/admin/site/%s/page/homepage/update".format(lang), "plugin.cms.updateHomePage"),
+              MenuElement("/admin/site/upload".format(configuration.orgId), "plugin.cms.upload.image")
             )
           )
         } else {
@@ -190,9 +190,9 @@ class CMSPlugin(app: Application) extends CultureHubPlugin(app) {
             titleKey = definition.title.get(lang).getOrElse(definition.title("en")),
             roles = Seq(Role.OWN, CMSPlugin.ROLE_CMS_ADMIN),
             items = Seq(
-              MenuElement("/organizations/%s/site/%s/%s".format(configuration.orgId, lang, definition.key), "ui.label.list"),
-              MenuElement("/organizations/%s/site/%s/page/add/%s".format(configuration.orgId, lang, definition.key), "ui.label.new"),
-              MenuElement("/organizations/%s/site/upload".format(configuration.orgId), "plugin.cms.upload.image")
+              MenuElement("/admin/site/%s/%s".format(lang, definition.key), "ui.label.list"),
+              MenuElement("/admin/site/%s/page/add/%s".format(lang, definition.key), "ui.label.new"),
+              MenuElement("/admin/site/upload", "plugin.cms.upload.image")
             )
           )
         }
