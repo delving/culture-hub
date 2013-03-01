@@ -213,6 +213,7 @@ class OrganizationConfigurationHandler(plugins: Seq[CultureHubPlugin]) extends A
       if (parsed.size != databaseConfigurations.size) {
         sender ! ConfigurationFailure("Parse error for some configurations, aborting refresh")
       } else {
+
         val (configurations, errors: Seq[(String, String)]) = {
           val fromDatabase = if (!parsed.isEmpty) parsed.map(_._2).reduce(_.withFallback(_)) else ConfigFactory.empty()
           val merged = Play.application.configuration ++ Configuration(fromDatabase)
@@ -232,7 +233,12 @@ class OrganizationConfigurationHandler(plugins: Seq[CultureHubPlugin]) extends A
           // whaaaat?
           sender ! ConfigurationFailure("No configuration found! This is horrible! What should we do now?")
         } else {
-          organizationConfigurations = configurations
+
+          // only pick the active ones
+          val instanceIdentifier = Play.current.configuration.getString("cultureHub.instanceIdentifier").getOrElse("default")
+          val activeConfigurations = configurations.filter(c => (c.instances.contains(instanceIdentifier)))
+
+          organizationConfigurations = activeConfigurations
           organizationConfigurationsMap = toDomainList(organizationConfigurations)
           domainLookupCache = HashMap.empty
 
