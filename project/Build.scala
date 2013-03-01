@@ -132,6 +132,11 @@ object Build extends sbt.Build {
     publish := {}
   ).dependsOn(webCore % "test->test;compile->compile", dos).settings(scalarifromSettings :_*)
 
+  val indexApi = play.Project("indexApi", "1.0-SNAPSHOT", Seq.empty, path = file(cultureHubPath + "modules/indexApi")).settings(
+    resolvers ++= commonResolvers,
+    publish := {}
+  ).dependsOn(webCore % "test->test;compile->compile", dos).settings(scalarifromSettings :_*)
+
   val statistics = play.Project("statistics", "1.0-SNAPSHOT", Seq.empty, path = file(cultureHubPath + "modules/statistics")).settings(
     resolvers ++= commonResolvers,
     publish := { }
@@ -174,6 +179,7 @@ object Build extends sbt.Build {
     dataSet                 % "test->test;compile->compile",
     dos                     % "test->test;compile->compile",
     cms                     % "test->test;compile->compile",
+    indexApi                % "test->test;compile->compile",
     statistics              % "test->test;compile->compile"
   ).aggregate(
     webCore,
@@ -183,6 +189,7 @@ object Build extends sbt.Build {
     dataSet,
     dos,
     cms,
+    indexApi,
     statistics
   )
 
