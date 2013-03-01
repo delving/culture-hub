@@ -65,7 +65,7 @@
                     No pages available
                 </td>
                 <td>
-                    <a class="btn btn-primary btn-mini" href="/organizations/${orgId}/site/${currentLanguage}/page/add/${menuKey}" rel="nofollow">${messages.get('ui.label.new')}</a>
+                    <a class="btn btn-primary btn-mini" href="/admin/site/${currentLanguage}/page/add/${menuKey}" rel="nofollow">${messages.get('ui.label.new')}</a>
                 </td>
             </tr>
             </tbody>
@@ -79,10 +79,10 @@
     $(document).ready(function () {
         var pagesModel = {
             editPage:function (page) {
-                document.location = "/organizations/${orgId}/site/" + page.lang() + "/page/" + page.key() + "/update"
+                document.location = "/admin/site/" + page.lang() + "/page/" + page.key() + "/update"
             },
             previewPage:function (page) {
-                var newWindow = window.open("/organizations/${orgId}/site/" + page.lang() + "/page/" + page.key() + "/preview")
+                var newWindow = window.open("/admin/site/" + page.lang() + "/page/" + page.key() + "/preview")
                 newWindow.focus();
                 return false;
             },
@@ -90,7 +90,7 @@
                 bootboxConfirm({
                     'type': 'DELETE',
                     'message' : '<h3 class="shout">'+page.key()+'</h3>&{'plugin.cms.list.deletePageConfirm'}',
-                    'action_url' : '/organizations/${orgId}/site/' + page.lang() + '/page/' + page.key(),
+                    'action_url' : '/admin/site/' + page.lang() + '/page/' + page.key(),
                     'success_callback' : function () {
                         pagesModel.pages.remove(function (item) {
                             return item.key === page.key;
@@ -103,7 +103,7 @@
 
         load(${data.raw()}, pagesModel, null, function () {
             $('#language').change(function () {
-                document.location = '/organizations/${orgId}/site/' + $('select#language').val();
+                document.location = '/admin/site/' + $('select#language').val();
             });
             $("body").css('visibility', 'visible');
         });
