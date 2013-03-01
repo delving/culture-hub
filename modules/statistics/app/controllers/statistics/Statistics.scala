@@ -11,8 +11,10 @@ import org.apache.solr.client.solrj.SolrQuery
 import core.{ SystemField, CultureHubPlugin, Constants }
 import org.apache.solr.client.solrj.response.FacetField.Count
 import play.api.i18n.{ Lang, Messages }
-import plugins.StatisticsPlugin
+import plugins.{ StatisticsPluginConfiguration, StatisticsPlugin }
 import core.indexing.IndexField
+import play.api.cache.Cache
+import play.api.Play.current
 
 /**
  * Prototype statistics plugin based on the statistics provided by the Sip-Creator.
@@ -26,56 +28,20 @@ import core.indexing.IndexField
 
 object Statistics extends OrganizationController {
 
-  def statistics(orgId: String) = OrganizationAdmin {
+  def statistics(orgId: String) = OrganizationBrowsing {
     Action {
       implicit request =>
-
-        val statistics = DataSet.dao.findAll().map {
-          ds =>
-            {
-
-              DataSetStatistics.dao.getMostRecent(ds.orgId, ds.spec, "icn").map {
-                stats =>
-                  val total = stats.recordCount
-
-                  // TODO generify this by generic mapping of sorts
-                  val hasDigitalObject = stats.getHistogram("/icn:record/europeana:object").map(_.present).getOrElse(0)
-                  val hasLandingPage = stats.getHistogram("/icn:record/europeana:isShownAt").map(_.present).getOrElse(0)
-
-                  Map(
-                    "spec" -> ds.spec,
-                    "total" -> total,
-                    "hasDigitalObjectCount" -> hasDigitalObject,
-                    "hasNoDigitalObjectCount" -> (total - hasDigitalObject),
-                    "hasLandingPageCount" -> hasLandingPage,
-                    "hasNoLandingPageCount" -> (total - hasLandingPage),
-                    "hasDigitalObjectPercentage" -> (if (total > 0) ((hasDigitalObject.toDouble / total) * 100).round else 0),
-                    "hasLandingPagePercentage" -> (if (total > 0) (((hasLandingPage.toDouble) / total) * 100).round else 0)
-                  )
-              }.getOrElse {
-                Map(
-                  "spec" -> ds.spec,
-                  "total" -> "N/A",
-                  "hasDigitalObjectCount" -> "N/A",
-                  "hasNoDigitalObjectCount" -> "N/A",
-                  "hasLandingPageCount" -> "N/A",
-                  "hasNoLandingPageCount" -> "N/A",
-                  "hasDigitalObjectPercentage" -> "N/A",
-                  "hasLandingPagePercentage" -> "N/A"
-                )
-              }
-            }
+        if (getStatisticsConfig.map(_.public).getOrElse(false)) {
+          Ok(Template("statistics.html"))
+        } else {
+          if (isMember && isAdmin) {
+            Ok(Template("statistics.html"))
+          } else {
+            Unauthorized
+          }
         }
-
-        val dataSetStatistics = statistics.map(_.asJava).asJava
-
-        Ok(Template("statistics.html", 'dataSetStatistics -> dataSetStatistics))
     }
   }
-
-  /**
-   *  The purpose of this fu
-   */
 
   def legacyStatistics(orgId: String) = OrganizationConfigured {
     Action {
@@ -87,9 +53,7 @@ object Statistics extends OrganizationController {
         val facets: Map[String, String] = requestFacets.map { facet =>
           facet.map(f => (f -> f)).toMap
         }.getOrElse {
-          CultureHubPlugin.getEnabledPlugins.find(_.pluginKey == "statistics").flatMap { p =>
-            p.asInstanceOf[StatisticsPlugin].getStatisticsFacets
-          }.getOrElse {
+          getStatisticsConfig.map(_.facets).getOrElse {
             Map.empty
           }
         }
@@ -98,12 +62,22 @@ object Statistics extends OrganizationController {
           f.headOption
         }
 
-        val canSeeFullStatistics = request.session.get(Constants.USERNAME).map { userName =>
+        val canSeeFullStatistics = getStatisticsConfig.map(_.public).getOrElse(false) || request.session.get(Constants.USERNAME).map { userName =>
           Group.dao.hasRole(userName, StatisticsPlugin.UNIT_ROLE_STATISTICS_VIEW) || Group.dao.hasRole(userName, Role.OWN)
         }.getOrElse(false)
 
-        val statistics = new SolrFacetBasedStatistics(orgId, facets, filter, facetLimit, query)
+        // cache stats for 3 hours
+        val statistics = Cache.getOrElse("facetStatistics", 10800) {
+          new SolrFacetBasedStatistics(orgId, facets, filter, facetLimit, query)
+        }
+
         Ok(statistics.renderAsJSON(canSeeFullStatistics)).as(JSON)
+    }
+  }
+
+  private def getStatisticsConfig(implicit configuration: OrganizationConfiguration): Option[StatisticsPluginConfiguration] = {
+    CultureHubPlugin.getEnabledPlugins.find(_.pluginKey == "statistics").flatMap { p =>
+      p.asInstanceOf[StatisticsPlugin].getStatisticsConfiguration
     }
   }
 
