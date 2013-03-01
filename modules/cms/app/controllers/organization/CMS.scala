@@ -27,12 +27,12 @@ object CMS extends BoundController(HubModule) with CMS
 
 trait CMS extends OrganizationController { this: BoundController =>
 
-  def CMSAction[A](orgId: String)(action: Action[A]): Action[A] = {
+  def CMSAction[A](action: Action[A]): Action[A] = {
     OrganizationMember {
       Action(action.parser) {
         implicit request =>
           {
-            if (organizationServiceLocator.byDomain.isAdmin(orgId, connectedUser) || Group.dao.count(MongoDBObject("users" -> connectedUser, "grantType" -> CMSPlugin.ROLE_CMS_ADMIN.key)) > 0) {
+            if (organizationServiceLocator.byDomain.isAdmin(configuration.orgId, connectedUser) || Group.dao.count(MongoDBObject("users" -> connectedUser, "grantType" -> CMSPlugin.ROLE_CMS_ADMIN.key)) > 0) {
               action(request)
             } else {
               Forbidden(Messages("user.secured.noAccess"))
@@ -42,35 +42,35 @@ trait CMS extends OrganizationController { this: BoundController =>
     }
   }
 
-  def list(orgId: String, language: Option[String], menu: Option[String]) = CMSAction(orgId) {
+  def list(language: Option[String], menu: Option[String]) = CMSAction {
     Action {
       implicit request =>
         val lang = language.getOrElse(getLang)
-        val pages = CMSPage.dao.list(orgId, lang, menu)
+        val pages = CMSPage.dao.list(configuration.orgId, lang, menu)
         Ok(Template('data -> JJson.generate(Map("pages" -> pages)), 'languages -> getLanguages, 'currentLanguage -> lang, 'menuKey -> menu.getOrElse("")))
     }
   }
 
-  def upload(orgId: String) = CMSAction(orgId) {
+  def upload = CMSAction {
     Action {
       implicit request =>
-        val files = FileStorage.listFiles(orgId).map(f => FileUploadResponse(f))
+        val files = FileStorage.listFiles(configuration.orgId).map(f => FileUploadResponse(f))
         Ok(Template('uid -> MissingLibs.UUID, 'files -> JJson.generate(files)))
     }
   }
 
-  def uploadSubmit(orgId: String, uid: String) = CMSAction(orgId) {
+  def uploadSubmit(uid: String) = CMSAction {
     Action {
       implicit request =>
-        FileUpload.markFilesAttached(uid, orgId)
-        Redirect("/organizations/%s/site/upload".format(orgId))
+        FileUpload.markFilesAttached(uid, configuration.orgId)
+        Redirect("/organizations/%s/site/upload".format(configuration.orgId))
     }
   }
 
-  def listImages(orgId: String) = CMSAction(orgId) {
+  def listImages = CMSAction {
     Action {
       implicit request =>
-        val images = FileStorage.listFiles(orgId).filter(_.contentType.contains("image"))
+        val images = FileStorage.listFiles(configuration.orgId).filter(_.contentType.contains("image"))
 
         // tinyMCE stoopidity
         val javascript = "var tinyMCEImageList = new Array(" + images.map(i => """["%s","%s"]""".format(i.name, "/file/image/%s".format(i.id))).mkString(", ") + ");"
@@ -78,10 +78,10 @@ trait CMS extends OrganizationController { this: BoundController =>
     }
   }
 
-  def page(orgId: String, language: String, page: Option[String], menu: String): Action[AnyContent] = CMSAction(orgId) {
+  def page(language: String, page: Option[String], menu: String): Action[AnyContent] = CMSAction {
     Action {
       implicit request =>
-        def menuEntries = MenuEntry.dao.findEntries(orgId, configuration.orgId)
+        def menuEntries = MenuEntry.dao.findEntries(configuration.orgId, menu)
 
         val (viewModel: Option[CMSPageViewModel], versions: List[CMSPageViewModel]) = page match {
           case None =>
@@ -130,15 +130,15 @@ trait CMS extends OrganizationController { this: BoundController =>
     }
   }
 
-  def pageSubmit(orgId: String) = CMSAction(orgId) {
+  def pageSubmit = CMSAction {
     Action {
       implicit request =>
         CMSPageViewModel.pageForm.bind(request.body.asJson.get).fold(
           formWithErrors => handleValidationError(formWithErrors),
           pageModel => {
             // create / update the entry before we create / update the page since in the implicit conversion above we'll query for that page's position.
-            MenuEntry.dao.savePage(orgId, pageModel.menu, pageModel.key, pageModel.position, pageModel.title, pageModel.lang, pageModel.published)
-            val page: CMSPageViewModel = CMSPageViewModel(CMSPage.dao.create(orgId, pageModel.key, pageModel.lang, connectedUser, pageModel.title, pageModel.content, pageModel.published), pageModel.menu)
+            MenuEntry.dao.savePage(configuration.orgId, pageModel.menu, pageModel.key, pageModel.position, pageModel.title, pageModel.lang, pageModel.published)
+            val page: CMSPageViewModel = CMSPageViewModel(CMSPage.dao.create(configuration.orgId, pageModel.key, pageModel.lang, connectedUser, pageModel.title, pageModel.content, pageModel.published), pageModel.menu)
             CMSPage.dao.removeOldVersions(pageModel.key, pageModel.lang)
             Json(page)
           }
@@ -146,19 +146,19 @@ trait CMS extends OrganizationController { this: BoundController =>
     }
   }
 
-  def pageDelete(orgId: String, key: String, language: String) = CMSAction(orgId) {
+  def pageDelete(key: String, language: String) = CMSAction {
     Action {
       implicit request =>
-        CMSPage.dao.delete(orgId, key, language)
+        CMSPage.dao.delete(configuration.orgId, key, language)
 
         // also delete menu entries that refer to that page, for now only from the main menu
-        MenuEntry.dao.removePage(orgId, key, language)
+        MenuEntry.dao.removePage(configuration.orgId, key, language)
 
         Ok
     }
   }
 
-  def pagePreview(orgId: String, langauge: String, key: String) = CMSAction(orgId) {
+  def pagePreview(language: String, key: String) = CMSAction {
     Action {
       implicit request =>
         CMSPage.dao.find(MongoDBObject("key" -> key, "lang" -> getLang, "orgId" -> configuration.orgId)).$orderby(MongoDBObject("_id" -> -1)).limit(1).toList.headOption match {

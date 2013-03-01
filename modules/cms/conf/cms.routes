@@ -1,0 +1,14 @@
+GET             /page/:key                                       controllers.CMS.page(key, menuKey: Option[String] = None)
+GET             /site/:menuKey/page/:key                         controllers.CMS.page(key, menuKey: Option[String])
+GET             /admin/site/upload                               controllers.organization.CMS.upload
+POST            /admin/site/upload/:uid                          controllers.organization.CMS.uploadSubmit(uid)
+GET             /admin/site/listImages                           controllers.organization.CMS.listImages
+GET             /admin/site                                      controllers.organization.CMS.list(language: Option[String] = None, menu: Option[String] = None)
+GET             /admin/site/:language                            controllers.organization.CMS.list(language: Option[String], menu: Option[String] = None)
+GET             /admin/site/:language/:menu                      controllers.organization.CMS.list(language: Option[String], menu: Option[String])
+GET             /admin/site/:language/page/add                   controllers.organization.CMS.page(language: String, page: Option[String] = None, menu = plugins.CMSPlugin.MAIN_MENU)
+GET             /admin/site/:language/page/add/:menu             controllers.organization.CMS.page(language: String, page: Option[String] = None, menu)
+GET             /admin/site/:language/page/:page/update          controllers.organization.CMS.page(language: String, page: Option[String], menu = plugins.CMSPlugin.MAIN_MENU)
+POST            /admin/site/page                                 controllers.organization.CMS.pageSubmit
+DELETE          /admin/site/:language/page/:key                  controllers.organization.CMS.pageDelete(key, language)
+GET             /admin/site/:language/page/:key/preview          controllers.organization.CMS.pagePreview(key, language)
