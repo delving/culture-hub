@@ -10,6 +10,8 @@ import collection.JavaConverters._
 import org.bson.types.ObjectId
 import core._
 import models.{ OrganizationConfiguration, Role, Group, HubUser }
+import xml.NodeSeq
+import org.apache.commons.lang.StringEscapeUtils
 
 /**
  * TODO document the default renderArgs attributes available to templates
@@ -368,3 +370,64 @@ trait DelvingController extends ApplicationController {
   }.getOrElse(Seq.empty)
 
 }
+
+abstract class Description {
+  def toXml(implicit request: RequestHeader): NodeSeq
+  def toJson(implicit request: RequestHeader): Map[String, Any]
+}
+
+case class ApiDescription(description: String, apiItems: List[ApiItem] = List.empty) extends Description {
+  def toXml(implicit request: RequestHeader) =
+    <explain>
+      <description>{ StringEscapeUtils.escapeXml(description) }</description>
+      <api-list>{ apiItems.map(_.toXml) }</api-list>
+    </explain>
+
+  def toJson(implicit request: RequestHeader) = Map(
+    "description" -> description,
+    "api-list" -> apiItems.map(_.toJson)
+  )
+}
+
+case class ApiCallDescription(description: String, explainItems: List[ExplainItem] = List.empty) extends Description {
+  def toXml(implicit request: RequestHeader) =
+    <explain>
+      <description>{ StringEscapeUtils.escapeXml(description) }</description>
+      <parameters>{ explainItems.map(_.toXml) }</parameters>
+    </explain>
+
+  def toJson(implicit request: RequestHeader) = Map(
+    "description" -> description,
+    "parameters" -> explainItems.map(_.toJson)
+  )
+
+}
+
+/**
+ * Describes an API path
+ */
+case class ApiItem(path: String, description: String, example: String = "") {
+
+  def url(implicit request: RequestHeader) = "http://" + request.host + request.path + "/" + path
+  def exampleUrl(implicit request: RequestHeader) = "http://" + request.host + request.path + "/" + example
+
+  def toXml(implicit request: RequestHeader) = <api>
+                                                 <url>{ url }</url>
+                                                 <description>{ description }</description>
+                                                 {
+                                                   if (!example.isEmpty) {
+                                                     <example>{ exampleUrl }</example>
+                                                   } else {
+                                                     <example/>
+                                                   }
+                                                 }
+                                               </api>
+
+  def toJson(implicit request: RequestHeader) = Map(
+    "url" -> url,
+    "description" -> description,
+    "example" -> (if (!example.isEmpty) exampleUrl else "")
+  )
+
+}
+
