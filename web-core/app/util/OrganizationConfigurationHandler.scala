@@ -31,6 +31,7 @@ import akka.util.Timeout
 import collection.mutable.ArrayBuffer
 import play.api.libs.concurrent.Akka
 import com.typesafe.config
+import collection.JavaConverters._
 
 /**
  * Takes care of loading organisation-specific configuration.
@@ -213,10 +214,16 @@ class OrganizationConfigurationHandler(plugins: Seq[CultureHubPlugin]) extends A
       if (parsed.size != databaseConfigurations.size) {
         sender ! ConfigurationFailure("Parse error for some configurations, aborting refresh")
       } else {
+        val instanceIdentifier = Play.current.configuration.getString("cultureHub.instanceIdentifier").getOrElse("default")
+        val active = parsed filter { c =>
+          c._2.hasPath("instances") && c._2.getStringList("instances").asScala.contains(instanceIdentifier)
+        }
 
         val (configurations, errors: Seq[(String, String)]) = {
-          val fromDatabase = if (!parsed.isEmpty) parsed.map(_._2).reduce(_.withFallback(_)) else ConfigFactory.empty()
+          val fromDatabase = if (!active.isEmpty) active.map(_._2).reduce(_.withFallback(_)) else ConfigFactory.empty()
           val merged = Play.application.configuration ++ Configuration(fromDatabase)
+
+
           OrganizationConfiguration.buildConfigurations(merged, plugins)
         }
 
@@ -235,10 +242,7 @@ class OrganizationConfigurationHandler(plugins: Seq[CultureHubPlugin]) extends A
         } else {
 
           // only pick the active ones
-          val instanceIdentifier = Play.current.configuration.getString("cultureHub.instanceIdentifier").getOrElse("default")
-          val activeConfigurations = configurations.filter(c => (c.instances.contains(instanceIdentifier)))
-
-          organizationConfigurations = activeConfigurations
+          organizationConfigurations = configurations
           organizationConfigurationsMap = toDomainList(organizationConfigurations)
           domainLookupCache = HashMap.empty
 
