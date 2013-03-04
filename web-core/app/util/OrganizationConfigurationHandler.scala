@@ -216,14 +216,13 @@ class OrganizationConfigurationHandler(plugins: Seq[CultureHubPlugin]) extends A
       } else {
         val instanceIdentifier = Play.current.configuration.getString("cultureHub.instanceIdentifier").getOrElse("default")
         val active = parsed filter { c =>
-          c._2.hasPath("instances") && c._2.getStringList("instances").asScala.contains(instanceIdentifier)
+          val instancesKey = s"configurations.${c._1}.instances"
+          c._2.hasPath(instancesKey) && c._2.getStringList(instancesKey).asScala.contains(instanceIdentifier)
         }
 
         val (configurations, errors: Seq[(String, String)]) = {
           val fromDatabase = if (!active.isEmpty) active.map(_._2).reduce(_.withFallback(_)) else ConfigFactory.empty()
           val merged = Play.application.configuration ++ Configuration(fromDatabase)
-
-
           OrganizationConfiguration.buildConfigurations(merged, plugins)
         }
 
