@@ -204,7 +204,7 @@ class CMSPlugin(app: Application) extends CultureHubPlugin(app) {
   }
 
   override def homePageSnippet: Option[(String, RequestContext => Unit)] = Some(
-    ("/CMS/homePageSnippet.html",
+    ("/cms/CMS/homePageSnippet.html",
       { context =>
         {
           val homePageEntries = CMSPage.dao(context.configuration.orgId).list(context.configuration.orgId, context.lang, Some(CMSPlugin.HOME_PAGE))

@@ -2,7 +2,7 @@ package controllers
 
 import play.api.mvc._
 import models._
-import cms.CMSPage
+import models.cms.CMSPage
 import com.mongodb.casbah.Imports._
 import core.{ RequestContext, CultureHubPlugin, ThemeInfo }
 import core.Constants._
