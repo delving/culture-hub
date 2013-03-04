@@ -122,7 +122,7 @@ object SolrServer {
   }
 
   def getSolrFields(configuration: OrganizationConfiguration): List[SolrDynamicField] = {
-    Cache.getOrElse(SOLR_FIELDS_CACHE_KEY_PREFIX + configuration.orgId, 120) {
+    Cache.getOrElse(SOLR_FIELDS_CACHE_KEY_PREFIX + configuration.orgId, 7200) {
       computeSolrFields(configuration)
     }
 
