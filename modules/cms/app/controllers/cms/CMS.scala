@@ -1,10 +1,11 @@
-package controllers
+package controllers.cms
 
 import play.api.mvc.{ AnyContent, Action }
 import models.cms.{ MenuEntry, CMSPage }
 import com.mongodb.casbah.Imports._
 import core.MenuElement
 import scala.collection.JavaConverters._
+import controllers.DelvingController
 
 /**
  *

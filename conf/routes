@@ -5,9 +5,6 @@
 GET         /favicon.ico                                                           controllers.Application.notFound(what = "favicon.ico")
 GET         /assets/themes/:theme/info.conf                                        controllers.Application.notFound(theme)
 
-# Map static resources from the /public folder to the /assets URL path
-GET         /assets/*file                                                          controllers.Assets.at(path="/public", file)
-
 GET         /robots.txt                                                            controllers.Assets.at(path="/public", file="robots.txt")
 
 # Home page
@@ -171,6 +168,8 @@ GET         /organizations/:orgId/directory/organizationLookup                co
 ->           /                                                                cms.Routes
 
 
+# Map static resources from the /public folder to the /assets URL path
+GET         /assets/*file                                                     controllers.Assets.at(path="/public", file)
 
 
 GET          /:orgId/:spec/:recordId                                          controllers.FullView.render(orgId, spec, recordId, format: Option[String])
