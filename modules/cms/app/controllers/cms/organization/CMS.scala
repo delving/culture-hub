@@ -1,4 +1,4 @@
-package controllers.organization
+package controllers.cms.organization
 
 import play.api.mvc._
 import play.api.i18n._
