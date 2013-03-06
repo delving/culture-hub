@@ -106,7 +106,7 @@ object Normalizer {
   }
 
   private def identify(sourceImage: File, addParameters: IMOperation => Unit): Seq[String] = {
-    val identifyCmd = new IdentifyCmd
+    val identifyCmd = new IdentifyCmd(false)
     val identifyOp = new IMOperation
     identifyOp.addImage(sourceImage.getAbsolutePath)
     var identified: List[String] = List()
