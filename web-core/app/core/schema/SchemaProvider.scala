@@ -33,7 +33,7 @@ class SchemaProvider extends SchemaService {
 
   private val log = Logger("CultureHub")
   private def repository = Akka.system.actorFor("akka://application/user/schemaRepository")
-  private implicit val timeout = Timeout(2000 milliseconds)
+  private implicit val timeout = Timeout(5000 milliseconds)
 
   override def refresh() {
     repository ! Refresh

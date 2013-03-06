@@ -6,6 +6,9 @@ import play.api.Logger
 import controllers.ErrorReporter
 import util.OrganizationConfigurationHandler
 import processing.DataSetCollectionProcessor
+import akka.actor.OneForOneStrategy
+import akka.actor.SupervisorStrategy._
+import scala.concurrent.duration._
 
 /**
  *
@@ -15,6 +18,18 @@ import processing.DataSetCollectionProcessor
 class Processor extends Actor {
 
   private val log = Logger("CultureHub")
+
+  override def postStop() {
+    log.error("Processor stopped. Doh!")
+  }
+
+  override def supervisorStrategy: SupervisorStrategy = {
+    OneForOneStrategy(maxNrOfRetries = 3, withinTimeRange = 20 seconds) {
+      case t: Throwable =>
+        log.error("No kidding! Processor had to be restarted, my goodness", t)
+        Restart
+    }
+  }
 
   def receive = {
 

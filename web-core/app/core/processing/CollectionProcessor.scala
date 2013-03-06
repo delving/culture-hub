@@ -8,13 +8,15 @@ import core.indexing.IndexingService
 import models._
 import xml.{ Elem, NodeSeq, Node }
 import java.util.concurrent.atomic.{ AtomicBoolean, AtomicInteger }
-import akka.actor.{ Actor, Props }
+import akka.actor.{ SupervisorStrategy, Actor, Props }
 import akka.pattern.ask
 import core.HubId
 import play.api.libs.concurrent.Execution.Implicits._
 import scala.concurrent.duration._
 import concurrent.{ Await, Future }
 import akka.util.Timeout
+import akka.actor.OneForOneStrategy
+import akka.actor.SupervisorStrategy._
 
 /**
  * CollectionProcessor, essentially taking care of:
@@ -52,6 +54,17 @@ class CollectionProcessor(collection: Collection with OrganizationCollectionInfo
   }
 
   implicit def nodeSeqIsChildSelectable(xml: NodeSeq) = new ChildSelectable(xml)
+
+  /**
+   * Because we are the child of a TypedActor created directly by the ActorSystem, we ought to be handling failures carefully.
+   * In this case when something goes wrong, we just stop and report back to the user.
+   */
+  override def supervisorStrategy: SupervisorStrategy = OneForOneStrategy(maxNrOfRetries = 3, withinTimeRange = 10 seconds) {
+    case t: Throwable =>
+      log.error("Fatal error: could not create CollectionSupervisor actor because: " + t.getMessage)
+      onError(t)
+      Stop
+  }
 
   def receive = {
 
