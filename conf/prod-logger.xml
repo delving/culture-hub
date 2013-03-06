@@ -5,11 +5,11 @@
     <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>${application.home}/../../logs/application.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>${application.home}/logs/logFile.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <fileNamePattern>${application.home}/../..//logs/logFile.%d{yyyy-MM-dd}.log</fileNamePattern>
             <maxHistory>30</maxHistory>
         </rollingPolicy>
         <encoder>
-            <pattern>%date - [%level] - %logger: %message%n%xException%n</pattern>
+            <pattern>%date - [%level] - %logger: %message%n%xException</pattern>
         </encoder>
     </appender>
 
@@ -26,7 +26,7 @@
 
     <logger name="play" level="INFO"/>
     <logger name="application" level="INFO"/>
-    <logger name="CulutureHub" level="INFO"/>
+    <logger name="CultureHub" level="INFO"/>
     <logger name="Search" level="INFO"/>
 
     <logger name="routes" level="INFO" additivity="false">
