@@ -42,10 +42,18 @@ object TIFFNormalizationProcessor extends Processor {
     Task.dao(task.orgId).setTotalItems(task, images.size)
 
     for (i <- images; if (!task.isCancelled)) {
-      Normalizer.normalize(i, workDir).map { file =>
-        i.renameTo(new File(originalDir, i.getName))
-        file.renameTo(new File(task.pathAsFile, i.getName))
-        info(task, """Image %s normalized succesfully, moved original to directory "_original"""".format(i.getName), Some(i.getAbsolutePath), Some(file.getAbsolutePath))
+      try {
+        Normalizer.normalize(i, workDir).map { file =>
+          i.renameTo(new File(originalDir, i.getName))
+          file.renameTo(new File(task.pathAsFile, i.getName))
+          info(task, """Image %s normalized succesfully, moved original to directory "_original"""".format(i.getName), Some(i.getAbsolutePath), Some(file.getAbsolutePath))
+        }
+      } catch {
+        case t: Throwable =>
+          t.printStackTrace()
+          error(task, s"Error while normalizing image ${i.getAbsolutePath}: ${t.getMessage}")
+          // abort
+          throw t
       }
       Task.dao(task.orgId).incrementProcessedItems(task, 1)
     }
