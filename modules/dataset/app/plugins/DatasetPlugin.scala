@@ -218,22 +218,7 @@ class DataSetPlugin(app: Application) extends CultureHubPlugin(app) {
     )
 
     // DataSet processing
-    // Play can't do multi-threading in DEV mode...
-    if (Play.isDev) {
-      Akka.system.actorOf(Props[Processor], name = "dataSetProcessor")
-    } else {
-      Akka.system.actorOf(
-        Props[Processor].withRouter(
-          RoundRobinRouter(
-            Runtime.getRuntime.availableProcessors(),
-            supervisorStrategy = OneForOneStrategy() {
-              case _ => Restart
-            }
-          )
-        ),
-        name = "dataSetProcessor"
-      )
-    }
+    Akka.system.actorOf(Props[Processor], name = "dataSetProcessor")
 
     // Processing queue watcher
     Akka.system.actorOf(Props[ProcessingQueueWatcher])
