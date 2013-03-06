@@ -44,15 +44,20 @@ class Processor extends Actor {
 
         if (currentState == DataSetState.PROCESSING_QUEUED) {
           DataSet.dao(set.orgId).updateState(set, DataSetState.PROCESSING)
-          DataSetCollectionProcessor.process(set, {
-            DataSet.dao(set.orgId).updateProcessingInstanceIdentifier(set, None)
-            val state = DataSet.dao.getState(set.orgId, set.spec)
-            if (state == DataSetState.PROCESSING) {
-              DataSet.dao.updateState(set, DataSetState.ENABLED)
-            } else if (state == DataSetState.CANCELLED) {
-              DataSet.dao.updateState(set, DataSetState.UPLOADED)
+          DataSetCollectionProcessor.process(set,
+            onSuccess = {
+              DataSet.dao(set.orgId).updateProcessingInstanceIdentifier(set, None)
+              val state = DataSet.dao.getState(set.orgId, set.spec)
+              if (state == DataSetState.PROCESSING) {
+                DataSet.dao.updateState(set, DataSetState.ENABLED)
+              } else if (state == DataSetState.CANCELLED) {
+                DataSet.dao.updateState(set, DataSetState.UPLOADED)
+              }
+            },
+            onFailure = { t =>
+              handleProcessingFailure(set, t)
             }
-          })
+          )
         } else if (currentState != DataSetState.CANCELLED) {
           log.warn("Trying to process set %s which is not in PROCESSING_QUEUED state but in state %s".format(
             set.spec, currentState
@@ -61,21 +66,26 @@ class Processor extends Actor {
 
       } catch {
         case t: Throwable => {
-          try {
-            t.printStackTrace()
-            log.error("Error while processing DataSet %s".format(set.spec), t)
-            ErrorReporter.reportError(getClass.getName, "Error during processing of DataSet")
-            DataSet.dao(set.orgId).updateProcessingInstanceIdentifier(set, None)
-            DataSet.dao(set.orgId).updateState(set, DataSetState.ERROR, None, Some(t.getMessage))
-          } catch {
-            case t1: Throwable =>
-              t1.printStackTrace()
-            // not reporting here, since reporting probably happened
-          }
+          handleProcessingFailure(set, t)
         }
       }
 
     case a @ _ => log.warn("Processor: What what ? ==> " + a)
+
+  }
+
+  private def handleProcessingFailure(set: DataSet, t: Throwable)(implicit configuration: OrganizationConfiguration) {
+    try {
+      t.printStackTrace()
+      log.error("Error while processing DataSet %s".format(set.spec), t)
+      ErrorReporter.reportError(getClass.getName, "Error during processing of DataSet")
+      DataSet.dao(set.orgId).updateProcessingInstanceIdentifier(set, None)
+      DataSet.dao(set.orgId).updateState(set, DataSetState.ERROR, None, Some(t.getMessage))
+    } catch {
+      case t1: Throwable =>
+        t1.printStackTrace()
+      // not reporting here, since reporting probably happened
+    }
 
   }
 

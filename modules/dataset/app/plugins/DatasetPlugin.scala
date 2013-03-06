@@ -394,7 +394,12 @@ class DataSetPlugin(app: Application) extends CultureHubPlugin(app) {
         DataSetCollectionProcessor.process(dataSet, {
           DataSet.dao.updateProcessingInstanceIdentifier(dataSet, None)
           DataSet.dao.updateState(dataSet, DataSetState.ENABLED)
-        })
+        },
+          { t =>
+            DataSet.dao.updateProcessingInstanceIdentifier(dataSet, None)
+            DataSet.dao.updateState(dataSet, DataSetState.ERROR, errorMessage = Some(t.getMessage))
+          }
+        )
       }
 
       boot.init()
