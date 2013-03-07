@@ -96,12 +96,12 @@ object Normalizer {
   }
 
   private def isRGB(sourceImage: File): Boolean = {
-    val colorspace = identify(sourceImage, { _.format("%r") })
+    val colorspace = identify(sourceImage, { _.format("%[colorspace]") })
     colorspace.headOption.map(_.contains("RGB")).getOrElse(false)
   }
 
   private def isGrayscale(sourceImage: File): Boolean = {
-    val colorspace = identify(sourceImage, { _.format("%r") })
+    val colorspace = identify(sourceImage, { _.format("%[colorspace]") })
     colorspace.headOption.map(_.contains("Grayscale")).getOrElse(false)
   }
 
