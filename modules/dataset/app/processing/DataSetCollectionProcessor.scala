@@ -7,68 +7,23 @@ import io.Source
 import core.indexing.{ IndexingService, Indexing }
 import core.{ HubId, HubServices }
 import core.processing.{ DoProcess, ProcessingContext, CollectionProcessor, ProcessingSchema }
-import akka.actor.{ Props, TypedProps, TypedActor }
-import play.api.libs.concurrent.Akka
-import play.api.Play.current
+import akka.actor.{ Actor, Props }
 
 /**
- * TODO re-think the whole construct involving the typed actor interface. we might do well without it.
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
-
-trait DataSetCollectionProcessor {
-
-  def process(dataSet: DataSet, onSuccess: => Unit, onFailure: Throwable => Unit)(implicit configuration: OrganizationConfiguration)
-
-}
-
-object DataSetCollectionProcessor extends DataSetCollectionProcessor {
-
-  val log = Logger("CultureHub")
-
-  // TODO return a promise
-  def process(dataSet: DataSet, onSuccess: => Unit, onFailure: Throwable => Unit)(implicit configuration: OrganizationConfiguration) {
-    log.debug("About to start typed actor for DataSetCollectionProcessor")
-    val processor: DataSetCollectionProcessor = TypedActor(Akka.system).typedActorOf(TypedProps[DataSetCollectionProcessorImpl])
-    log.debug("We started the typed actor DataSetCollectionProcessor")
-    var processing = true
-    try {
-      processor.process(
-        dataSet,
-        onSuccess = {
-          onSuccess
-          processing = false
-        },
-        onFailure = { t =>
-          onFailure(t)
-          processing = false
-        })
-
-      // TODO return promise and adapt client code
-      while (processing) {
-        Thread.sleep(500)
-      }
-
-    } catch {
-      case t: Throwable =>
-        log.error("Unexpected error during processing", t)
-        DataSet.dao.updateState(dataSet, DataSetState.ERROR, errorMessage = Some(t.getMessage))
-        processing = false
-    } finally {
-      TypedActor(Akka.system).stop(processor)
-    }
-  }
-
-}
-
-class DataSetCollectionProcessorImpl extends DataSetCollectionProcessor {
+class DataSetCollectionProcessor extends Actor {
 
   val log = Logger("CultureHub")
 
   val RAW_PREFIX = "raw"
   val AFF_PREFIX = "aff"
 
-  def process(dataSet: DataSet, onSuccess: => Unit, onFailure: Throwable => Unit)(implicit configuration: OrganizationConfiguration) {
+  def receive = {
+    case ProcessDataSetCollection(set, onSuccess, onFailure, configuration) => process(set, onSuccess, onFailure)(configuration)
+  }
+
+  def process(dataSet: DataSet, onSuccess: () => Unit, onFailure: Throwable => Unit)(implicit configuration: OrganizationConfiguration) {
 
     log.info(s"Starting DataSet collection processing for set ${dataSet.spec}")
 
@@ -183,7 +138,7 @@ class DataSetCollectionProcessorImpl extends DataSetCollectionProcessor {
     ))
 
     try {
-      val collectionProcessor = TypedActor.context.actorOf(collectionProcessorProps)
+      val collectionProcessor = context.actorOf(collectionProcessorProps)
       collectionProcessor ! DoProcess
     } catch {
       case t: Throwable =>
@@ -194,3 +149,5 @@ class DataSetCollectionProcessorImpl extends DataSetCollectionProcessor {
   }
 
 }
+
+case class ProcessDataSetCollection(set: DataSet, onSuccess: () => Unit, onFailure: Throwable => Unit, configuration: OrganizationConfiguration)

@@ -25,7 +25,7 @@ class ProcessingSupervisor(
     updateCount: Long => Unit,
     interrupted: => Boolean,
     onProcessingDone: ProcessingContext => Unit,
-    whenDone: => Unit,
+    whenDone: () => Unit,
     onError: Throwable => Unit,
     processingContext: ProcessingContext,
     configuration: OrganizationConfiguration) extends Actor {
@@ -151,7 +151,7 @@ class ProcessingSupervisor(
           processingContext.collection.getOwner,
           Duration(System.currentTimeMillis() - processingContext.startProcessing.toDate.getTime, TimeUnit.MILLISECONDS).toSeconds)
         )
-        whenDone
+        whenDone()
       }
 
   }
@@ -198,7 +198,7 @@ class ProcessingSupervisor(
       IndexingService.deleteBySpec(processingContext.collection.getOwner, processingContext.collection.spec)(configuration)
     }
 
-    whenDone
+    whenDone()
   }
 
 }
