@@ -108,7 +108,6 @@ object Normalizer {
   private def identify(sourceImage: File, addParameters: IMOperation => Unit): Seq[String] = {
     val identifyCmd = new IdentifyCmd(false)
     val identifyOp = new IMOperation
-    identifyOp.addImage(sourceImage.getAbsolutePath)
     var identified: List[String] = List()
     identifyCmd.setOutputConsumer(new OutputConsumer() {
       def consumeOutput(is: InputStream) {
@@ -116,8 +115,11 @@ object Normalizer {
         identified = Stream.continually(br.readLine()).takeWhile(_ != null).toList
       }
     })
-    identifyCmd.run(identifyOp)
 
+    addParameters(identifyOp)
+    identifyOp.addImage(sourceImage.getAbsolutePath)
+
+    identifyCmd.run(identifyOp)
     identified.toSeq
   }
 
