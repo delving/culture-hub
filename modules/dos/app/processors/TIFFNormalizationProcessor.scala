@@ -52,8 +52,6 @@ object TIFFNormalizationProcessor extends Processor {
         case t: Throwable =>
           t.printStackTrace()
           error(task, s"Error while normalizing image ${i.getAbsolutePath}: ${t.getMessage}")
-          // abort
-          throw t
       }
       Task.dao(task.orgId).incrementProcessedItems(task, 1)
     }
