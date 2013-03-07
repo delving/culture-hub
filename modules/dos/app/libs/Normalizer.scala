@@ -100,9 +100,9 @@ object Normalizer {
   private def isGrayscale(sourceImage: File): Boolean = isColorspace(sourceImage, "Grayscale")
 
   private def isColorspace(sourceImage: File, colorspace: String) = {
-    val colorspace = identify(sourceImage, { _.format("%[colorspace]") })
+    val identified = identify(sourceImage, { _.format("%[colorspace]") })
     log.info(s"Identified colorspace of image ${sourceImage.getAbsolutePath} as ${colorspace.mkString(", ")}")
-    colorspace.headOption.map(_.contains(colorspace)).getOrElse(false)
+    identified.headOption.map { c: String => c.contains(colorspace) }.getOrElse(false)
   }
 
   private def identify(sourceImage: File, addParameters: IMOperation => Unit): Seq[String] = {
