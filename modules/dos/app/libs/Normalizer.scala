@@ -14,6 +14,8 @@ import org.apache.commons.io.FileUtils
  */
 object Normalizer {
 
+  private val log = Logger("CultureHub")
+
   /**
    * Normalizes a file to be usable for tiling and presentation for DeepZoom
    * @param sourceImage the source image to be normalized
@@ -24,8 +26,6 @@ object Normalizer {
 
     var source: File = sourceImage
     val destination = new File(targetDirectory, sourceImage.getName)
-
-    val log = Logger("CultureHub")
 
     val hasBeenNormalized = identifyLargestLayer(source) != None || !isRGB(source)
 
@@ -95,14 +95,14 @@ object Normalizer {
     }
   }
 
-  private def isRGB(sourceImage: File): Boolean = {
-    val colorspace = identify(sourceImage, { _.format("%[colorspace]") })
-    colorspace.headOption.map(_.contains("RGB")).getOrElse(false)
-  }
+  private def isRGB(sourceImage: File): Boolean = isColorspace(sourceImage, "RGB")
 
-  private def isGrayscale(sourceImage: File): Boolean = {
+  private def isGrayscale(sourceImage: File): Boolean = isColorspace(sourceImage, "Grayscale")
+
+  private def isColorspace(sourceImage: File, colorspace: String) = {
     val colorspace = identify(sourceImage, { _.format("%[colorspace]") })
-    colorspace.headOption.map(_.contains("Grayscale")).getOrElse(false)
+    log.info(s"Identified colorspace of image ${sourceImage.getAbsolutePath} as ${colorspace.mkString(", ")}")
+    colorspace.headOption.map(_.contains(colorspace)).getOrElse(false)
   }
 
   private def identify(sourceImage: File, addParameters: IMOperation => Unit): Seq[String] = {
