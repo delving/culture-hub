@@ -1,28 +1,27 @@
 package plugins
 
-import _root_.services.{ DataSetLookupService, MetadataRecordResolverService }
+import services.{ DataSetLookupService, MetadataRecordResolverService }
 import jobs._
 import play.api.{ Play, Application }
+import play.api.mvc.Handler
 import Play.current
 import models._
-import _root_.processing.DataSetCollectionProcessor
+import processing.{ ProcessDataSetCollection, DataSetCollectionProcessor }
 import util.OrganizationConfigurationHandler
 import java.util.zip.GZIPInputStream
 import com.mongodb.BasicDBObject
 import io.Source
 import play.api.libs.concurrent.Akka
-import akka.actor.Props
-import akka.routing.RoundRobinRouter
-import akka.actor.SupervisorStrategy.Restart
+import akka.actor._
+import akka.routing._
+import akka.actor.SupervisorStrategy._
 import controllers.{ organization, ReceiveSource }
 import core.indexing.IndexingService
 import scala.collection.immutable.ListMap
 import scala.collection.JavaConverters._
 import scala.util.matching.Regex
-import play.api.mvc.Handler
 import core._
 import core.access.{ ResourceType, Resource, ResourceLookup }
-import akka.actor.OneForOneStrategy
 import com.mongodb.casbah.commons.MongoDBObject
 import java.util.regex.Pattern
 import java.io.FileInputStream
@@ -32,6 +31,9 @@ class DataSetPlugin(app: Application) extends CultureHubPlugin(app) {
   val pluginKey: String = "dataSet"
 
   private val dataSetHarvestCollectionLookup = new DataSetLookupService
+
+  // only for testing...
+  private var testDataProcessor: ActorRef = null
 
   val schemaService: SchemaService = HubModule.inject[SchemaService](name = None)
 
@@ -218,13 +220,20 @@ class DataSetPlugin(app: Application) extends CultureHubPlugin(app) {
     )
 
     // DataSet processing
-    Akka.system.actorOf(Props[Processor], name = "dataSetProcessor")
+    Akka.system.actorOf(Props[Processor].withRouter(
+      RoundRobinRouter(2, supervisorStrategy = OneForOneStrategy() {
+        case _ => Restart
+      })
+    ), name = "dataSetProcessor")
 
     // Processing queue watcher
     Akka.system.actorOf(Props[ProcessingQueueWatcher])
 
     // DataSet event log housekeeping
     Akka.system.actorOf(Props[DataSetEventHousekeeper])
+
+    // only for testing
+    testDataProcessor = Akka.system.actorOf(Props[DataSetCollectionProcessor])
 
     // ~~~ cleanup set states
 
@@ -390,16 +399,29 @@ class DataSetPlugin(app: Application) extends CultureHubPlugin(app) {
 
       if (Play.isTest) {
         val dataSet = DataSet.dao.findBySpecAndOrgId(boot.spec, boot.org).get
+
         DataSet.dao.updateState(dataSet, DataSetState.QUEUED)
-        DataSetCollectionProcessor.process(dataSet, {
-          DataSet.dao.updateProcessingInstanceIdentifier(dataSet, None)
-          DataSet.dao.updateState(dataSet, DataSetState.ENABLED)
-        },
-          { t =>
+        var processing = true
+        testDataProcessor ! ProcessDataSetCollection(
+          set = dataSet,
+          onSuccess = { () =>
+            DataSet.dao.updateProcessingInstanceIdentifier(dataSet, None)
+            DataSet.dao.updateState(dataSet, DataSetState.ENABLED)
+            processing = false
+          },
+          onFailure = { t =>
             DataSet.dao.updateProcessingInstanceIdentifier(dataSet, None)
             DataSet.dao.updateState(dataSet, DataSetState.ERROR, errorMessage = Some(t.getMessage))
-          }
+            processing = false
+          },
+          configuration
         )
+
+        while (processing) {
+          // we need to block because otherwise the test aren't prepared correctly
+          // of course something that would simulate and generate processing data would be the proper way to go here
+          Thread.sleep(500)
+        }
       }
 
       boot.init()

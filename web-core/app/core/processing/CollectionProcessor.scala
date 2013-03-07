@@ -37,7 +37,7 @@ class CollectionProcessor(collection: Collection with OrganizationCollectionInfo
     onError: Throwable => Unit,
     indexOne: (MetadataItem, MultiMap, String) => Either[Throwable, String],
     onProcessingDone: ProcessingContext => Unit,
-    whenDone: => Unit,
+    whenDone: () => Unit,
     basexStorage: BaseXStorage)(implicit configuration: OrganizationConfiguration) extends Actor {
 
   val log = Logger("CultureHub")

@@ -5,7 +5,7 @@ import models._
 import play.api.Logger
 import controllers.ErrorReporter
 import util.OrganizationConfigurationHandler
-import processing.DataSetCollectionProcessor
+import processing.{ ProcessDataSetCollection, DataSetCollectionProcessor }
 import akka.actor.OneForOneStrategy
 import akka.actor.SupervisorStrategy._
 import scala.concurrent.duration._
@@ -44,8 +44,10 @@ class Processor extends Actor {
 
         if (currentState == DataSetState.PROCESSING_QUEUED) {
           DataSet.dao(set.orgId).updateState(set, DataSetState.PROCESSING)
-          DataSetCollectionProcessor.process(set,
-            onSuccess = {
+          val dataSetCollectionProcessor = context.actorOf(Props[DataSetCollectionProcessor])
+
+          dataSetCollectionProcessor ! ProcessDataSetCollection(set,
+            onSuccess = { () =>
               DataSet.dao(set.orgId).updateProcessingInstanceIdentifier(set, None)
               val state = DataSet.dao.getState(set.orgId, set.spec)
               if (state == DataSetState.PROCESSING) {
@@ -56,8 +58,8 @@ class Processor extends Actor {
             },
             onFailure = { t =>
               handleProcessingFailure(set, t)
-            }
-          )
+            }, configuration)
+
         } else if (currentState != DataSetState.CANCELLED) {
           log.warn("Trying to process set %s which is not in PROCESSING_QUEUED state but in state %s".format(
             set.spec, currentState
