@@ -116,8 +116,6 @@ GET         /organizations/:orgId/api                                         co
 
 GET         /organizations/search                                             controllers.organization.Organizations.listAsTokens(q: String ?= "")
 
-GET         /organizations/:orgId/api/search                                  controllers.api.Search.searchApi(orgId, provider: Option[String] = None, dataProvider: Option[String] = None, collection: Option[String] = None)
-
 GET         /organizations/:orgId/api/oai-pmh                                 controllers.api.OaiPmh.oaipmh(orgId: String, format: Option[String] = None, accessKey: Option[String] = None)
 GET         /organizations/:orgId/api/oai-pmh/:accessKey                      controllers.api.OaiPmh.oaipmh(orgId: String, format: Option[String] = None, accessKey: Option[String])
 GET         /organizations/:orgId/api/oai-pmh/format/:format                  controllers.api.OaiPmh.oaipmh(orgId: String, format: Option[String], accessKey: Option[String] = None)
@@ -133,7 +131,6 @@ GET         /organizations/:orgId/api/dataProviders                           co
 GET         /organizations/:orgId/api/collections                             controllers.api.Organization.collections(orgId)
 
 ## Deprecated - legacy routes support
-GET         /organizations/:orgId/search                                      controllers.api.Search.searchApi(orgId, provider: Option[String] = None, dataProvider: Option[String] = None, collection: Option[String] = None)
 GET         /organizations/:orgId/oai-pmh                                     controllers.api.OaiPmh.oaipmh(orgId: String, format: Option[String] = None, accessKey: Option[String] = None)
 GET         /organizations/:orgId/oai-pmh/:accessKey                          controllers.api.OaiPmh.oaipmh(orgId: String, format: Option[String] = None, accessKey: Option[String])
 GET         /organizations/:orgId/proxy/list                                  controllers.api.Proxy.list(orgId)
@@ -165,6 +162,7 @@ POST        /organizations/:orgId/groups/submit                               co
 GET         /organizations/:orgId/directory/organizationLookup                controllers.organization.DataSetControl.organizationLookup(orgId, term)
 
 
+->           /                                                                search.Routes
 ->           /                                                                cms.Routes
 
 

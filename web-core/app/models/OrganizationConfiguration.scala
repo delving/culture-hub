@@ -354,9 +354,10 @@ package models {
       // plugin time! now that we read all the configuration, enrich it with things provided by the plugins
 
       if (!Play.isTest) {
-        val invalidPluginKeys: Seq[(OrganizationConfiguration, String, Option[CultureHubPlugin])] = configurations.flatMap { configuration =>
-          configuration.plugins.map(key => Tuple3(configuration, key, plugins.find(_.pluginKey == key))).filter(_._3.isEmpty)
-        }
+        //        val invalidPluginKeys: Seq[(OrganizationConfiguration, String, Option[CultureHubPlugin])] = configurations.flatMap { configuration =>
+        //          configuration.plugins.map(key => Tuple3(configuration, key, plugins.find(_.pluginKey == key))).filter(_._3.isEmpty)
+        val invalidPluginKeys = Seq.empty[(OrganizationConfiguration, String, Option[CultureHubPlugin])]
+
         if (!invalidPluginKeys.isEmpty) {
 
           val error = "Found two or more configurations that reference non-existing plugins:\n" +

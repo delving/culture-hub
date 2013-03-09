@@ -33,14 +33,21 @@
     <logger name="play" level="INFO"/>
     <logger name="application" level="INFO"/>
     <logger name="CulutureHub" level="INFO"/>
-    <logger name="Search" level="INFO"/>
+    <logger name="Search" level="DEBUG"/>
+
+    <logger name="org.apache.http">INFO</logger>
+    <logger name="httpclient.wire.header">INFO</logger>
+    <logger name="httpclient.wire.content">INFO</logger>
+    <logger name="org.apache.commons.httpclient">INFO</logger>
+    <logger name="org.apache.pdfbox">INFO</logger>
+    <logger name="com.novus.salat.Context">WARN</logger>
 
     <logger name="routes" level="INFO" additivity="false">
         <appender-ref ref="ROUTEACCESS"/>
     </logger>
 
 
-    <root level="INFO">
+    <root level="TRACE">
         <appender-ref ref="STDOUT"/>
         <appender-ref ref="FILE"/>
     </root>
