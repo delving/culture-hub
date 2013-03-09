@@ -119,6 +119,11 @@ object Build extends sbt.Build {
     publish := {}
   ).dependsOn(webCore % "test->test;compile->compile").settings(scalarifromSettings :_*)
 
+  val search = play.Project("search", "1.0-SNAPSHOT", Seq.empty, path = file(cultureHubPath + "modules/search")).settings(
+    resolvers ++= commonResolvers,
+    publish := {}
+  ).dependsOn(webCore % "test->test;compile->compile").settings(scalarifromSettings :_*)
+
   val dataSet = play.Project("dataset", "1.0-SNAPSHOT", Seq.empty, path = file(cultureHubPath + "modules/dataset"), settings = Defaults.defaultSettings ++ buildInfoSettings).settings(
     libraryDependencies += "eu.delving" % "sip-core" % sipCoreVersion,
     resolvers ++= commonResolvers,
@@ -178,6 +183,7 @@ object Build extends sbt.Build {
     thumbnail               % "test->test;compile->compile",
     deepZoom                % "test->test;compile->compile",
     hubNode                 % "test->test;compile->compile",
+    search                 % "test->test;compile->compile",
     dataSet                 % "test->test;compile->compile",
     dos                     % "test->test;compile->compile",
     cms                     % "test->test;compile->compile",
@@ -188,6 +194,7 @@ object Build extends sbt.Build {
     thumbnail,
     deepZoom,
     hubNode,
+    search,
     dataSet,
     dos,
     cms,
