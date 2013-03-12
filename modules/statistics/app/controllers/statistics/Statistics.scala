@@ -154,7 +154,7 @@ class SolrFacetBasedStatistics(orgId: String, facets: Map[String, String], filte
   val totalDigitalObjects = digitalObjectsResponse.getResults.getNumFound
 
   // query with landing pages
-  query setFilterQueries ("%s:[* TO *]".format(SystemField.LANDING_PAGE.tag), orgIdFilter)
+  query setFilterQueries ("%s:true]".format(SystemField.LANDING_PAGE.tag), orgIdFilter)
   filter foreach { f => query addFilterQuery f }
   val landingPagesResponse = SolrQueryService.getSolrResponseFromServer(solrQuery = query)
   val landingPages = SolrBindingService.createFacetStatistics(landingPagesResponse.getFacetFields.asScala.toList)
