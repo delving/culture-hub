@@ -6,11 +6,10 @@ import play.api.Logger
 import controllers.ErrorReporter
 import util.OrganizationConfigurationHandler
 import processing.{ ProcessDataSetCollection, DataSetCollectionProcessor }
-import akka.actor.OneForOneStrategy
-import akka.actor.SupervisorStrategy._
-import scala.concurrent.duration._
 
 /**
+ * Entry point for Processing. This actor deals with initializing the processing of a set when asked to do so
+ * and deals with state changes.
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
@@ -18,18 +17,6 @@ import scala.concurrent.duration._
 class Processor extends Actor {
 
   private val log = Logger("CultureHub")
-
-  override def postStop() {
-    log.error("Processor stopped. Doh!")
-  }
-
-  override def supervisorStrategy: SupervisorStrategy = {
-    OneForOneStrategy(maxNrOfRetries = 3, withinTimeRange = 20 seconds) {
-      case t: Throwable =>
-        log.error("No kidding! Processor had to be restarted, my goodness", t)
-        Restart
-    }
-  }
 
   def receive = {
 
@@ -55,8 +42,10 @@ class Processor extends Actor {
               } else if (state == DataSetState.CANCELLED) {
                 DataSet.dao.updateState(set, DataSetState.UPLOADED)
               }
+              context.stop(dataSetCollectionProcessor)
             },
             onFailure = { t =>
+              context.stop(dataSetCollectionProcessor)
               handleProcessingFailure(set, t)
             }, configuration)
 
@@ -68,12 +57,10 @@ class Processor extends Actor {
 
       } catch {
         case t: Throwable => {
+          context.children foreach { context.stop(_) }
           handleProcessingFailure(set, t)
         }
       }
-
-    case a @ _ => log.warn("Processor: What what ? ==> " + a)
-
   }
 
   private def handleProcessingFailure(set: DataSet, t: Throwable)(implicit configuration: OrganizationConfiguration) {

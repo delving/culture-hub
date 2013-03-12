@@ -333,12 +333,7 @@
         var retries = 0;
 
         ws.onclose = function() {
-            if(retries < 3) {
-                retries++;
-                document.target = document.url;
-            } else {
-                bootbox.alert("Lost connection with the server. Please refresh the page when you're online again.");
-            }
+            bootbox.alert("Lost connection with the server. Please refresh the page.");
         };
 
         ws.onmessage = function(evt) {

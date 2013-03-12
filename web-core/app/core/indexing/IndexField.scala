@@ -31,6 +31,7 @@ case object IndexField {
   val RECORD_TYPE = IndexField("delving_recordType")
 
   val HAS_DIGITAL_OBJECT = IndexField("delving_hasDigitalObject")
+  val HAS_LANDING_PAGE = IndexField("delving_hasLandingPage")
 
   val FULL_TEXT_OBJECT_URL = IndexField("delving_fullTextObjectUrl")
   val FULL_TEXT = IndexField("delving_fullText")

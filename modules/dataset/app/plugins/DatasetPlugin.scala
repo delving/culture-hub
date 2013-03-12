@@ -202,16 +202,12 @@ class DataSetPlugin(app: Application) extends CultureHubPlugin(app) {
   )
 
   /**
-   * Runs globally on application start, for the whole Hub. Make sure that whatever you run here is multitenancy-aware
+   * Called at actor initialization time. Plugins that make use of the ActorSystem should initialize their actors here
+   * @param context the [[ ActorContext ]] for this plugin
    */
-  override def onStart() {
-
-    checkSchemas()
-
-    // ~~~ jobs
-
+  override def onActorInitialization(context: ActorContext) {
     // DataSet source parsing
-    Akka.system.actorOf(
+    context.actorOf(
       Props[ReceiveSource].withRouter(
         RoundRobinRouter(Runtime.getRuntime.availableProcessors(), supervisorStrategy = OneForOneStrategy() {
           case _ => Restart
@@ -220,20 +216,29 @@ class DataSetPlugin(app: Application) extends CultureHubPlugin(app) {
     )
 
     // DataSet processing
-    Akka.system.actorOf(Props[Processor].withRouter(
+    context.actorOf(Props[Processor].withRouter(
       RoundRobinRouter(2, supervisorStrategy = OneForOneStrategy() {
         case _ => Restart
       })
     ), name = "dataSetProcessor")
 
     // Processing queue watcher
-    Akka.system.actorOf(Props[ProcessingQueueWatcher])
+    context.actorOf(Props[ProcessingQueueWatcher])
 
     // DataSet event log housekeeping
-    Akka.system.actorOf(Props[DataSetEventHousekeeper])
+    context.actorOf(Props[DataSetEventHousekeeper])
 
     // only for testing
-    testDataProcessor = Akka.system.actorOf(Props[DataSetCollectionProcessor])
+    testDataProcessor = context.actorOf(Props[DataSetCollectionProcessor])
+
+  }
+
+  /**
+   * Runs globally on application start, for the whole Hub. Make sure that whatever you run here is multitenancy-aware
+   */
+  override def onStart() {
+
+    checkSchemas()
 
     // ~~~ cleanup set states
 

@@ -55,15 +55,10 @@ class CollectionProcessor(collection: Collection with OrganizationCollectionInfo
 
   implicit def nodeSeqIsChildSelectable(xml: NodeSeq) = new ChildSelectable(xml)
 
-  /**
-   * Because we are the child of a TypedActor created directly by the ActorSystem, we ought to be handling failures carefully.
-   * In this case when something goes wrong, we just stop and report back to the user.
-   */
-  override def supervisorStrategy: SupervisorStrategy = OneForOneStrategy(maxNrOfRetries = 3, withinTimeRange = 10 seconds) {
-    case t: Throwable =>
-      log.error("Fatal error: could not create CollectionSupervisor actor because: " + t.getMessage)
-      onError(t)
-      Stop
+  override def preRestart(reason: Throwable, message: Option[Any]) {
+    log.error("CollectionProcessor was restarted because " + reason.getMessage, reason)
+    onError(reason)
+    super.preRestart(reason, message)
   }
 
   def receive = {
@@ -185,9 +180,12 @@ class CollectionProcessor(collection: Collection with OrganizationCollectionInfo
             }
         }
       } catch {
+        case c: java.net.ConnectException =>
+          log.error(s"Cannot connect to BaseX server")
+          onError(new RuntimeException("Cannot reach BaseX server", c))
         case t: Throwable => {
-          t.printStackTrace()
           log.error("Error while processing collection %s of organization %s, cannot read source data: %s".format(collection.spec, collection.getOwner, t.getMessage), t)
+          context.children foreach { context.stop(_) }
           onError(t)
         }
 

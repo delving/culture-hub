@@ -250,7 +250,7 @@ trait SipCreatorEndPoint extends Controller with OrganizationConfigurationAware 
                   if (dataSet.get.state == DataSetState.PROCESSING) {
                     Left("%s: Cannot upload source while the set is being processed".format(spec))
                   } else {
-                    val receiveActor = Akka.system.actorFor("akka://application/user/dataSetParser")
+                    val receiveActor = Akka.system.actorFor("akka://application/user/plugin-dataSet/dataSetParser")
                     receiveActor ! SourceStream(
                       dataSet.get, connectedUser, inputStream, request.body, configuration
                     )

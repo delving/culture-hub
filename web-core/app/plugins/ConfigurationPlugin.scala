@@ -36,6 +36,7 @@ class ConfigurationPlugin(app: Application) extends CultureHubPlugin(app) {
 
   private var organizationConfigurationHandler: ActorRef = null
   private var pluginBroadcastActors: Seq[ActorRef] = Seq.empty
+  private var pluginActors: Seq[ActorRef] = Seq.empty
 
   override def onStart() {
 
@@ -75,10 +76,22 @@ class ConfigurationPlugin(app: Application) extends CultureHubPlugin(app) {
       }
     }
 
+    // ~~~ bootstrap top-level actors for each plugin. The plugins use this top-level actor for their actor business
+    pluginActors = CultureHubPlugin.hubPlugins.map { p =>
+      val props = Props(new PluginRootActor(p))
+      info(s"Starting Root Actor for plugin ${p.pluginKey}")
+      val ref = Akka.system.actorOf(props, s"plugin-${p.pluginKey}")
+      PluginRootActor.initialize(ref, p.onActorInitialization)
+      ref
+    }
+
     // ~~~ bootstrap plugin messaging, one per organization
+    // TODO re-think this in the light of the plugin actors above
+    // this isn't obvious because we want an API method for the CultureHubPlugin that will broadcast only to the plugins
+    // that are active for a specific configuration. Organizations change over time.
     pluginBroadcastActors = OrganizationConfigurationHandler.getAllCurrentConfigurations.map { implicit configuration =>
       val props = Props(new BroadcastingPluginActor)
-      info("Starting Akka messaging sub-system for organization " + configuration.orgId)
+      info("Starting Akka-based messaging sub-system for organization " + configuration.orgId)
       Akka.system.actorOf(props, "plugins-" + configuration.orgId)
     }
 
@@ -149,8 +162,13 @@ class ConfigurationPlugin(app: Application) extends CultureHubPlugin(app) {
   }
 
   override def onStop() {
+
+    pluginActors foreach { actor =>
+      Akka.system.stop(actor)
+    }
+
     pluginBroadcastActors foreach { actor =>
-      actor ! PoisonPill
+      Akka.system.stop(actor)
     }
     OrganizationConfigurationHandler.tearDown()
   }
