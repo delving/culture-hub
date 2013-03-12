@@ -10,7 +10,7 @@ import play.api.Play.current
 import mvc.{ RequestHeader, Handler }
 import models.{ Role, OrganizationConfiguration }
 import scala.collection.JavaConverters._
-import akka.actor.{ ActorRef, Props, Actor }
+import akka.actor.{ ActorContext, ActorRef, Props, Actor }
 
 /**
  * The CultureHub plugin contract, allowing to influence the appearance and functionality of the Hub.
@@ -50,6 +50,12 @@ abstract class CultureHubPlugin(app: Application) extends play.api.Plugin {
    *
    */
   def onBuildConfiguration(configurations: Map[OrganizationConfiguration, Option[Configuration]]) {}
+
+  /**
+   * Called at actor initialization time. Plugins that make use of the ActorSystem should initialize their actors here
+   * @param context the [[ ActorContext ]] for this plugin
+   */
+  def onActorInitialization(context: ActorContext) {}
 
   /**
    * Helper method for configuration building
@@ -317,6 +323,8 @@ case class MenuElement(url: String, titleKey: String, roles: Seq[Role] = Seq.emp
 
 case class RequestContext(request: RequestHeader, configuration: OrganizationConfiguration, renderArgs: scala.collection.mutable.Map[String, AnyRef], lang: String)
 
+// ~~~ Plugin Messaging
+
 class BroadcastingPluginActor(implicit configuration: OrganizationConfiguration) extends Actor {
 
   var routees: Seq[ActorRef] = Seq.empty
@@ -335,4 +343,34 @@ class BroadcastingPluginActor(implicit configuration: OrganizationConfiguration)
 
 class PluginActor(plugin: CultureHubPlugin) extends Actor {
   def receive: PluginActor#Receive = plugin.receive
+}
+
+// ~~~ Plugin Actor
+
+case class Initialize(onInit: ActorContext => Unit)
+
+class PluginRootActor(plugin: CultureHubPlugin) extends Actor {
+
+  private val log = Logger("CultureHub")
+
+  override def preStart() {
+    plugin.onActorInitialization(context)
+  }
+
+  override def preRestart(reason: Throwable, message: Option[Any]) {
+    log.error(s"Root actor for plugin ${plugin.pluginKey} is restarting because: ${reason.getMessage}", reason)
+    super.preRestart(reason, message)
+  }
+
+  def receive: PluginRootActor#Receive = {
+    case _ => // don't do anything. we simply supervise.
+  }
+}
+
+object PluginRootActor {
+
+  def initialize(actor: ActorRef, onInit: ActorContext => Unit) {
+    actor ! Initialize(onInit)
+  }
+
 }
