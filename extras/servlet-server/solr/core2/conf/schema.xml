@@ -914,6 +914,7 @@
    <field name="delving_imageUrl" type="string" indexed="true" stored="true" multiValued="true"/>
    <field name="delving_geohash" type="geohash" indexed="true" stored="true" multiValued="true"/>
    <field name="delving_hasDigitalObject" type="boolean" indexed="true" stored="true" multiValued="false"/>
+   <field name="delving_hasLandingPage" type="boolean" indexed="true" stored="true" multiValued="false"/>
    <field name="delving_hasGeoHash" type="boolean" indexed="true" stored="true" multiValued="false"/>
    <field name="delving_address" type="text_general" indexed="true" stored="true" multiValued="true"/>
    <field name="delving_landingPage" type="string" indexed="true" stored="true" multiValued="true"/>

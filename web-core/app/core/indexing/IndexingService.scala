@@ -32,6 +32,10 @@ object IndexingService extends SolrServer {
 
     if (hasDigitalObject) doc.setDocumentBoost(1.4.toFloat)
 
+    val hasLandingPage: Boolean = !doc.entrySet().filter(entry => entry.getKey.startsWith(LANDING_PAGE.tag) && !entry.getValue.isEmpty).isEmpty
+    if (doc.containsKey(HAS_LANDING_PAGE.key)) doc.remove(HAS_LANDING_PAGE.key)
+    doc.addField(HAS_LANDING_PAGE.key, hasLandingPage)
+
     if (!doc.containsKey(VISIBILITY.key)) {
       doc += (VISIBILITY -> Visibility.PUBLIC.value.toString)
     }
