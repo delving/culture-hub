@@ -40,6 +40,7 @@ object TIFFNormalizationProcessor extends Processor {
 
     val images = task.pathAsFile.listFiles().filter(f => isImage(f.getName))
     Task.dao(task.orgId).setTotalItems(task, images.size)
+    info(task, s"Starting to normalize images for path '${task.path}', parameters: ${parameterList(task)}")
 
     for (i <- images; if (!task.isCancelled)) {
       try {

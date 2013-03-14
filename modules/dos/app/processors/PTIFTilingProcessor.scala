@@ -82,6 +82,7 @@ object PTIFTilingProcessor extends Processor {
       val tiler: MagickTiler = PTIFTiling.getTiler(tilesWorkingBasePath)
 
       val images = p.listFiles().filter(f => isImage(f.getName))
+      info(task, s"Starting to generate tiles for path '${task.path}', parameters: ${parameterList(task)}")
       Task.dao(task.orgId).setTotalItems(task, images.size)
 
       for (i <- images; if (!task.isCancelled)) {
