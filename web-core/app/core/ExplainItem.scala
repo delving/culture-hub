@@ -11,15 +11,21 @@ case class ExplainItem(label: String, options: List[String] = List(), descriptio
   def toXml: Elem = {
     <element>
       <label>
-        {label}
-      </label>{if (!options.isEmpty)
-      <options>
-        {options.map(option => <option>
-        {option}
-      </option>)}
-      </options>}{if (!description.isEmpty) <description>
-      {description}
-    </description>}
+        { label }
+      </label>{
+        if (!options.isEmpty)
+          <options>
+            {
+              options.map(option => <option>
+                                      { option }
+                                    </option>)
+            }
+          </options>
+      }{
+        if (!description.isEmpty) <description>
+                                    { description }
+                                  </description>
+      }
     </element>
   }
 

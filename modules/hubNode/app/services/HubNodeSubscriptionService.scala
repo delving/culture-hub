@@ -1,9 +1,9 @@
 package services
 
-import core.node.{NodeDirectoryService, Node, NodeSubscriptionService}
-import models.{HubNode, OrganizationConfiguration}
-import org.scala_tools.subcut.inject.{BindingModule, Injectable}
-import core.{HubModule, DomainServiceLocator}
+import core.node.{ NodeDirectoryService, Node, NodeSubscriptionService }
+import models.{ HubNode, OrganizationConfiguration }
+import com.escalatesoft.subcut.inject.{ BindingModule, Injectable }
+import core.{ HubModule, DomainServiceLocator }
 
 /**
  *
@@ -11,7 +11,7 @@ import core.{HubModule, DomainServiceLocator}
  */
 class HubNodeSubscriptionService(implicit val bindingModule: BindingModule) extends NodeSubscriptionService with Injectable {
 
-  private val nodeDirectoryServiceLocator = inject [ DomainServiceLocator[NodeDirectoryService] ]
+  private val nodeDirectoryServiceLocator = inject[DomainServiceLocator[NodeDirectoryService]]
   private val broadcastingNodeSubscriptionService: NodeSubscriptionService = HubModule.inject[NodeSubscriptionService](name = None)
 
   def generateSubscriptionRequest(to: Node, from: Node)(implicit configuration: OrganizationConfiguration) {

@@ -1,11 +1,11 @@
 package core.services
 
 import core.CultureHubPlugin
-import core.node.{Node, NodeSubscriptionService}
+import core.node.{ Node, NodeSubscriptionService }
 import models.OrganizationConfiguration
 
 /**
- * 
+ *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 class AggregatingNodeSubscriptionService extends NodeSubscriptionService {

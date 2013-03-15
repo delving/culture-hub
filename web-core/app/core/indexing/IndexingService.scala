@@ -1,15 +1,15 @@
 package core.indexing
 
-import core.search.{SolrBindingService, SolrServer}
+import core.search.{ SolrBindingService, SolrServer }
 import core.Constants._
 import core.SystemField._
 import core.indexing.IndexField._
 import play.api.Logger
-import org.apache.solr.common.{SolrInputField, SolrInputDocument}
+import org.apache.solr.common.{ SolrInputField, SolrInputDocument }
 import org.joda.time.DateTime
 import org.joda.time.format.DateTimeFormat
 import org.apache.solr.client.solrj.SolrQuery
-import models.{Visibility, OrganizationConfiguration}
+import models.{ Visibility, OrganizationConfiguration }
 
 /**
  * Indexing API
@@ -31,6 +31,10 @@ object IndexingService extends SolrServer {
     doc.addField(HAS_DIGITAL_OBJECT.key, hasDigitalObject)
 
     if (hasDigitalObject) doc.setDocumentBoost(1.4.toFloat)
+
+    val hasLandingPage: Boolean = !doc.entrySet().filter(entry => entry.getKey.startsWith(LANDING_PAGE.tag) && !entry.getValue.isEmpty).isEmpty
+    if (doc.containsKey(HAS_LANDING_PAGE.key)) doc.remove(HAS_LANDING_PAGE.key)
+    doc.addField(HAS_LANDING_PAGE.key, hasLandingPage)
 
     if (!doc.containsKey(VISIBILITY.key)) {
       doc += (VISIBILITY -> Visibility.PUBLIC.value.toString)
@@ -71,10 +75,10 @@ object IndexingService extends SolrServer {
     }
 
     // add standard facets
-    if(!doc.containsKey(RECORD_TYPE.key + "_facet")) {
+    if (!doc.containsKey(RECORD_TYPE.key + "_facet")) {
       doc.addField(RECORD_TYPE.key + "_facet", doc.getField(RECORD_TYPE.key).getFirstValue)
     }
-    if(!doc.containsKey(HAS_DIGITAL_OBJECT.key + "_facet")) {
+    if (!doc.containsKey(HAS_DIGITAL_OBJECT.key + "_facet")) {
       doc.addField(HAS_DIGITAL_OBJECT.key + "_facet", hasDigitalObject)
     }
 
@@ -90,11 +94,11 @@ object IndexingService extends SolrServer {
 
     // *remove entries that are not valid lat,long pair
     if (doc.containsKey(GEOHASH.key)) {
-        val values = doc.get(GEOHASH.key).getValues.toList
-        doc.remove(GEOHASH.key)
-        filterForValidGeoCoordinate(values).foreach{ geoHash =>
-          doc.addField(GEOHASH.key, geoHash)
-        }
+      val values = doc.get(GEOHASH.key).getValues.toList
+      doc.remove(GEOHASH.key)
+      filterForValidGeoCoordinate(values).foreach { geoHash =>
+        doc.addField(GEOHASH.key, geoHash)
+      }
     }
 
     doc.addField(HAS_GEO_HASH.key.toString, doc.containsKey(GEOHASH.key) && !doc.get(GEOHASH.key).isEmpty)
@@ -118,7 +122,7 @@ object IndexingService extends SolrServer {
 
   /**
    * Commits staged Things or MDRs to index
-    */
+   */
   def commit(implicit configuration: OrganizationConfiguration) = {
     getStreamingUpdateServer(configuration).commit()
   }
@@ -167,12 +171,10 @@ object IndexingService extends SolrServer {
         deleteResponse.getStatus
         commit
         log.info("Deleting orphans %s from dataset from Solr Index: %s".format(orphans.toString, deleteQuery))
-      }
-      catch {
+      } catch {
         case e: Exception => Logger.info("Unable to remove orphans for %s because of %s".format(spec, e.getMessage))
       }
-    }
-    else
+    } else
       log.info("No orphans found for dataset in Solr Index: %s".format(deleteQuery))
 
   }

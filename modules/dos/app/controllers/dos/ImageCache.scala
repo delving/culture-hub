@@ -16,7 +16,6 @@ import java.net.URLDecoder
 import controllers.OrganizationConfigurationAware
 import models.OrganizationConfiguration
 
-
 /**
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
@@ -28,14 +27,14 @@ object ImageCache extends Controller with RespondWithDefaultImage with Organizat
 
   def image(id: String, withDefaultFromUrl: Boolean) = OrganizationConfigured {
     Action {
-    implicit request =>
-      val url = URLDecoder.decode(id, "utf-8")
-      if (url.contains(request.domain)) {
-        Redirect(url)
-      } else {
-        val result = imageCacheService.retrieveImageFromCache(request, url, false)
-        if (withDefaultFromUrl) withDefaultFromRequest(result, false, None) else result
-      }
+      implicit request =>
+        val url = URLDecoder.decode(id, "utf-8")
+        if (url.contains(request.domain)) {
+          Redirect(url)
+        } else {
+          val result = imageCacheService.retrieveImageFromCache(request, url, false)
+          if (withDefaultFromUrl) withDefaultFromRequest(result, false, None) else result
+        }
     }
   }
 
@@ -58,42 +57,42 @@ class ImageCacheService extends HTTPClient with Thumbnail {
   private val log: Logger = Logger("ImageCacheService")
 
   def retrieveImageFromCache(request: Request[AnyContent], url: String, thumbnail: Boolean, thumbnailWidth: Option[String] = None)(implicit configuration: OrganizationConfiguration): Result = {
-      // catch try block to harden the application and always give back a 404 for the application
-      try {
-        require(url != null)
-        require(url != "noImageFound")
-        require(!url.isEmpty)
+    // catch try block to harden the application and always give back a 404 for the application
+    try {
+      require(url != null)
+      require(url != "noImageFound")
+      require(!url.isEmpty)
 
-        val sanitizedUrl = sanitizeUrl(url)
+      val sanitizedUrl = sanitizeUrl(url)
 
-        val isAvailable = checkOrInsert(sanitizedUrl)
-        if(isAvailable) {
-          imageCacheStore(configuration).db.getCollection("fs.files").update(MongoDBObject("filename" -> sanitizedUrl), ($inc ("viewed" -> 1)) ++ $set ("lastViewed" -> new Date))
-          ImageDisplay.renderImage(
-            id = sanitizedUrl,
-            thumbnail = thumbnail,
-            thumbnailWidth = ImageDisplay.thumbnailWidth(thumbnailWidth),
-            store = imageCacheStore(configuration)
-          )(request)
-        } else {
-          NotFound(sanitizedUrl)
-        }
-
-      } catch {
-        case ia: IllegalArgumentException =>
-          log.error("Problem with processing this url: \"" + sanitizeUrl(url) + "\"", ia)
-          NotFound(sanitizeUrl(url))
-        case ex: Exception =>
-          log.error("Unable to find image: \"" + sanitizeUrl(url) + "\"\n", ex)
-          NotFound(sanitizeUrl(url))
+      val isAvailable = checkOrInsert(sanitizedUrl)
+      if (isAvailable) {
+        imageCacheStore(configuration).db.getCollection("fs.files").update(MongoDBObject("filename" -> sanitizedUrl), ($inc("viewed" -> 1)) ++ $set(Seq("lastViewed" -> new Date)))
+        ImageDisplay.renderImage(
+          id = sanitizedUrl,
+          thumbnail = thumbnail,
+          thumbnailWidth = ImageDisplay.thumbnailWidth(thumbnailWidth),
+          store = imageCacheStore(configuration)
+        )(request)
+      } else {
+        NotFound(sanitizedUrl)
       }
+
+    } catch {
+      case ia: IllegalArgumentException =>
+        log.error("Problem with processing this url: \"" + sanitizeUrl(url) + "\"", ia)
+        NotFound(sanitizeUrl(url))
+      case ex: Exception =>
+        log.error("Unable to find image: \"" + sanitizeUrl(url) + "\"\n", ex)
+        NotFound(sanitizeUrl(url))
+    }
   }
 
   def checkOrInsert(url: String)(implicit configuration: OrganizationConfiguration): Boolean = {
-    if(isImageCached(url)) true else {
+    if (isImageCached(url)) true else {
       log.debug("Image not found, attempting to store it in the cache based on URL: '" + url + "'")
       val stored = storeImage(url)
-      if(stored) {
+      if (stored) {
         log.debug("Successfully cached image for URL: '" + url + "'")
         true
       } else {
@@ -124,9 +123,9 @@ class ImageCacheService extends HTTPClient with Thumbnail {
       val inputFile = imageCacheStore(configuration).createFile(image.dataAsStream, image.url)
       inputFile.contentType = image.contentType
       inputFile put (IMAGE_ID_FIELD, image.url)
-      inputFile put("viewed", 0)
-      inputFile put("lastViewed", new Date)
-      inputFile.save
+      inputFile put ("viewed", new java.lang.Integer(0))
+      inputFile put ("lastViewed", new Date)
+      inputFile.save()
 
       val cachedImage = imageCacheStore(configuration).findOne(image.url).getOrElse(return false)
       createThumbnails(cachedImage, imageCacheStore(configuration), Map(IMAGE_ID_FIELD -> image.url))
@@ -141,9 +140,9 @@ class ImageCacheService extends HTTPClient with Thumbnail {
     try {
       val response = getHttpClient.executeMethod(method)
       val isRedirect = Seq(300, 301, 302, 303, 307).contains(response)
-      if(isRedirect) {
+      if (isRedirect) {
         val location = Option(method.getResponseHeader("Location"))
-        if(location.isDefined) {
+        if (location.isDefined) {
           retrieveImageFromUrl(location.get.getValue)
         } else {
           log.error("Could not retrieve Location header for redirect response returned by " + url)
@@ -156,9 +155,9 @@ class ImageCacheService extends HTTPClient with Thumbnail {
       case timeout: org.apache.commons.httpclient.ConnectTimeoutException =>
         log.error("""Could not retrieve image at URL "%s" because of connection timeout: %s""".format(url, timeout.getMessage))
         WebResource()
-      case t =>
-      log.error("""Error downloading image at URL "%s": %s""".format(url, t.getMessage), t)
-      WebResource()
+      case t: Throwable =>
+        log.error("""Error downloading image at URL "%s": %s""".format(url, t.getMessage), t)
+        WebResource()
     }
   }
 

@@ -1,7 +1,7 @@
 package controllers.ws
 
 import play.api.mvc._
-import controllers.{Token, DelvingController, Secured}
+import controllers.{ Token, DelvingController, Secured }
 import models.HubMongoContext._
 import com.mongodb.casbah.Imports._
 import java.util.regex.Pattern
@@ -43,6 +43,5 @@ object Places extends DelvingController with Secured {
         result
       }).toSeq
   }
-
 
 }

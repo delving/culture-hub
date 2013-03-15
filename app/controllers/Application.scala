@@ -2,14 +2,13 @@ package controllers
 
 import play.api.mvc._
 import models._
-import cms.CMSPage
+import models.cms.CMSPage
 import com.mongodb.casbah.Imports._
-import core.{RequestContext, CultureHubPlugin, ThemeInfo}
+import core.{ RequestContext, CultureHubPlugin, ThemeInfo }
 import core.Constants._
 import core.indexing.IndexField._
 
 object Application extends DelvingController {
-
 
   def index = Root {
     Action {
@@ -41,6 +40,5 @@ object Application extends DelvingController {
   def notFound(what: String) = Action {
     implicit request => Results.NotFound(what)
   }
-
 
 }

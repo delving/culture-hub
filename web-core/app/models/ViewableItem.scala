@@ -43,11 +43,11 @@ package models
 trait ViewableItem {
 
   // ~~~ identifiers
-  def getHubId : String
+  def getHubId: String
 
   // ~~~ short view
   def getItemType: String
-  def getTitle : String
+  def getTitle: String
   def getDescription: String
   def getUri: String // internal landing page for this thing
   def getThumbnailUri: String

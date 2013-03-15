@@ -16,14 +16,14 @@
 
 package core.indexing
 
-import core.collection.{Collection, OrganizationCollectionInformation}
+import core.collection.{ Collection, OrganizationCollectionInformation }
 import extensions.HTTPClient
 import org.apache.solr.common.SolrInputDocument
 import play.api.Logger
 import core.SystemField._
 import core.indexing.IndexField._
 import org.apache.commons.httpclient.methods.GetMethod
-import java.io.{InputStream, FilenameFilter, File}
+import java.io.{ InputStream, FilenameFilter, File }
 import org.apache.tika.sax.BodyContentHandler
 import org.apache.tika.parser.pdf.PDFParser
 import exceptions.SolrConnectionException
@@ -31,10 +31,9 @@ import core.search.SolrServer
 import org.apache.tika.parser.ParseContext
 import org.apache.tika.metadata.Metadata
 import java.net.URLEncoder
-import models.{OrganizationConfiguration, Visibility}
+import models.{ OrganizationConfiguration, Visibility }
 import org.apache.commons.lang.StringEscapeUtils
 import core.HubId
-
 
 /**
  *
@@ -88,11 +87,11 @@ object Indexing extends SolrServer {
     inputDoc += (PMH_ID -> URLEncoder.encode(hubId.toString, "utf-8"))
 
     // force the provider and dataProvider configured in the DataSet
-    if(inputDoc.containsKey(PROVIDER.tag)) {
+    if (inputDoc.containsKey(PROVIDER.tag)) {
       inputDoc.remove(PROVIDER.tag)
       inputDoc.addField(PROVIDER.tag, dataSet.getProvider)
     }
-    if(inputDoc.containsKey(OWNER.tag)) {
+    if (inputDoc.containsKey(OWNER.tag)) {
       inputDoc.remove(OWNER.tag)
       inputDoc.addField(OWNER.tag, dataSet.getDataProvider)
     }
@@ -100,26 +99,26 @@ object Indexing extends SolrServer {
     // deepZoom hack
     val DEEPZOOMURL: String = "delving_deepZoomUrl_string"
     val DEEPZOOM_PATH: String = "/iip/deepzoom"
-    if(inputDoc.containsKey(DEEPZOOMURL)) {
+    if (inputDoc.containsKey(DEEPZOOMURL)) {
       try {
         // http://some.delving.org/iip/deepzoom/mnt/tib/tiles/<orgId>/<spec>/<image>
         val url = inputDoc.get(DEEPZOOMURL).getFirstValue.toString
         val i = url.indexOf(DEEPZOOM_PATH)
-        if(i > -1) {
+        if (i > -1) {
           val tileSetPath = url.substring(i + DEEPZOOM_PATH.length(), url.length())
           val tileSetParentPath = tileSetPath.substring(0, tileSetPath.lastIndexOf(File.separator))
           val parent = new File(tileSetParentPath)
-          val extensionIdx = if(tileSetPath.indexOf(".") > -1) tileSetPath.lastIndexOf(".") else tileSetPath.length()
+          val extensionIdx = if (tileSetPath.indexOf(".") > -1) tileSetPath.lastIndexOf(".") else tileSetPath.length()
           val imageIdx = tileSetPath.lastIndexOf(File.separator)
           val image = tileSetPath.substring(imageIdx + 1, extensionIdx)
-          if(!(parent.exists() && parent.isDirectory)) {
+          if (!(parent.exists() && parent.isDirectory)) {
             Logger("CultureHub").debug("No tile path %s for deepZoomUrl %s".format(tileSetParentPath, url))
             inputDoc.remove(DEEPZOOMURL)
           } else {
             val files = parent.listFiles(new FilenameFilter() {
               def accept(dir: File, name: String) = name.startsWith(image)
             })
-            if(files.length == 0) {
+            if (files.length == 0) {
               Logger("CultureHub").debug("No image in directory %s starting with %s for deepZoomUrl %s".format(tileSetParentPath, image, url))
               inputDoc.remove(DEEPZOOMURL)
             }
@@ -165,8 +164,7 @@ object TikaIndexer extends HTTPClient {
     try {
       log.info("Retrieving document for indexing with Tika at " + url)
       Some(parseFullTextFromPdf(getObject(url)))
-    }
-    catch {
+    } catch {
       case t: Throwable =>
         log.error("Unable to process digital object found at " + url)
         None

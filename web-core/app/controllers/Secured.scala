@@ -20,7 +20,7 @@ trait Secured {
         val sign = remember.value.substring(0, remember.value.indexOf("-"))
         val username = remember.value.substring(remember.value.indexOf("-") + 1)
         if (Crypto.sign(username) == sign) {
-          val authenticateSession = request.session +(USERNAME, username)
+          val authenticateSession = request.session + (USERNAME, username)
           val action = request.session.get("uri") match {
             case Some(uri) => Redirect(uri)
             case None => Redirect("/")
@@ -29,7 +29,7 @@ trait Secured {
         }
     }
 
-    val session = request.session - USERNAME +("uri", if (("GET" == request.method)) request.uri else "/")
+    val session = request.session - USERNAME + ("uri", if (("GET" == request.method)) request.uri else "/")
     Redirect("/login").withSession(session).flashing(("error" -> Messages("authentication.error")))
   }
 
@@ -43,14 +43,15 @@ trait Secured {
 
   def Authenticated[A](action: Action[A]): Action[A] = {
     Action(action.parser) {
-      implicit request => {
-        if(username(request).isEmpty) {
-          val session = request.session - USERNAME +("uri", if (("GET" == request.method)) request.uri else "/")
-          Redirect("/login").withSession(session)
-        } else {
-          action(request)
+      implicit request =>
+        {
+          if (username(request).isEmpty) {
+            val session = request.session - USERNAME + ("uri", if (("GET" == request.method)) request.uri else "/")
+            Redirect("/login").withSession(session)
+          } else {
+            action(request)
+          }
         }
-      }
     }
   }
 }

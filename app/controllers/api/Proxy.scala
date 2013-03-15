@@ -2,14 +2,16 @@ package controllers.api
 
 import play.api.libs.concurrent.Promise
 import collection.immutable.Map
-import play.api.libs.ws.{Response, WS}
-import xml.{NodeSeq, TopScope, Elem}
+import play.api.libs.ws.WS
+import xml.{ NodeSeq, TopScope, Elem }
 import play.api.mvc._
-import controllers.{OrganizationConfigurationAware, RenderingExtensions}
+import controllers._
+import play.api.{ Logger, Play }
+import play.api.libs.concurrent.Execution.Implicits._
+import controllers.ApiItem
+import play.api.libs.ws.Response
+import controllers.ApiDescription
 import core.ExplainItem
-import play.api.{Logger, Play}
-import controllers.RenderingExtensions
-import java.net.URLDecoder
 
 /**
  * FIXME adjust namespace rendering in proxy responses. Also support JSON.
@@ -33,7 +35,7 @@ object Proxy extends Controller with OrganizationConfigurationAware with Renderi
         )))
     case proxyKey :: "search" :: Nil => Some(
       ApiCallDescription("Runs a search using a specific proxy", List(
-          ExplainItem("query", List("a string") , "the search term")
+        ExplainItem("query", List("a string"), "the search term")
       ))
     )
     case _ => None
@@ -43,19 +45,21 @@ object Proxy extends Controller with OrganizationConfigurationAware with Renderi
     Action {
       implicit request =>
 
-        if(!request.path.contains("api")) {
+        if (!request.path.contains("api")) {
           log.warn("Using deprecated API call " + request.uri)
         }
 
         val list =
           <explain>
-            {proxies.map {
-            proxy =>
-              <item>
-                <id>{proxy.key}</id>
-                <url>{proxy.searchUrl}</url>
-              </item>
-          }}
+            {
+              proxies.map {
+                proxy =>
+                  <item>
+                    <id>{ proxy.key }</id>
+                    <url>{ proxy.searchUrl }</url>
+                  </item>
+              }
+            }
           </explain>
 
         DOk(list, List("explain"))
@@ -66,7 +70,7 @@ object Proxy extends Controller with OrganizationConfigurationAware with Renderi
     implicit request =>
       Async {
 
-        if(!request.path.contains("api")) {
+        if (!request.path.contains("api")) {
           log.warn("Using deprecated API call " + request.uri)
         }
 
@@ -91,7 +95,7 @@ object Proxy extends Controller with OrganizationConfigurationAware with Renderi
     implicit request =>
       Async {
 
-        if(!request.path.contains("api")) {
+        if (!request.path.contains("api")) {
           log.warn("Using deprecated API call " + request.uri)
         }
 
@@ -103,7 +107,7 @@ object Proxy extends Controller with OrganizationConfigurationAware with Renderi
 
             WS.
               url(proxy.itemUrl + itemKey).
-              withQueryString(queryString : _*).
+              withQueryString(queryString: _*).
               get().map(r => DOk(proxy.handleItemResponse(r)))
 
         }.getOrElse {
@@ -120,7 +124,6 @@ object Proxy extends Controller with OrganizationConfigurationAware with Renderi
     (proxy.constantQueryString ++ queryString).map(entry => (entry._1, entry._2.headOption.getOrElse(""))).toSeq
   }
 
-
   // ~~~ proxy configs
 
   lazy val europeana = new ProxyConfiguration(
@@ -130,18 +133,19 @@ object Proxy extends Controller with OrganizationConfigurationAware with Renderi
     constantQueryString = Map("wskey" -> Play.current.configuration.getString("cultureHub.proxy.europeana.wsKey").toSeq),
     queryRemapping = Map("query" -> "searchTerms", "start" -> "startPage"),
     paginationRemapping = Some({
-      result => {
-        val total = (result \ "channel" \ "totalResults").text.toInt
-        val start = (result \ "channel" \ "startIndex").text.toInt
-        val rows = (result \ "channel" \ "itemsPerPage").text.toInt
-        ProxyPager(numFound = total, start = start, rows = rows)
-      }
+      result =>
+        {
+          val total = (result \ "channel" \ "totalResults").text.toInt
+          val start = (result \ "channel" \ "startIndex").text.toInt
+          val rows = (result \ "channel" \ "itemsPerPage").text.toInt
+          ProxyPager(numFound = total, start = start, rows = rows)
+        }
     }),
     idExtractor = Some({
       record =>
         val EUROPEANA_URI_START = "http://www.europeana.eu/portal/record/"
         val t = (record \ "guid").text
-        if(t.startsWith(EUROPEANA_URI_START)) {
+        if (t.startsWith(EUROPEANA_URI_START)) {
           t.substring(EUROPEANA_URI_START.length, t.length - "html".length) + "srw"
         } else {
           "unknown"
@@ -202,12 +206,12 @@ object Proxy extends Controller with OrganizationConfigurationAware with Renderi
 }
 
 class ProxyConfiguration(val key: String,
-                         val searchUrl: String,
-                         val itemUrl: String,
-                         val constantQueryString: Map[String, Seq[String]] = Map.empty,
-                         val queryRemapping: Map[String, String] = Map.empty,
-                         val paginationRemapping: Option[Elem => ProxyPager] = None,
-                         val idExtractor: Option[NodeSeq => String] = None) {
+    val searchUrl: String,
+    val itemUrl: String,
+    val constantQueryString: Map[String, Seq[String]] = Map.empty,
+    val queryRemapping: Map[String, String] = Map.empty,
+    val paginationRemapping: Option[Elem => ProxyPager] = None,
+    val idExtractor: Option[NodeSeq => String] = None) {
 
   def getItems(xml: Elem) = xml \\ "item"
 
@@ -215,40 +219,41 @@ class ProxyConfiguration(val key: String,
     val xml = response.xml
 
     val maybeIdExtractor = idExtractor.map(f => f(response.xml)).map { id =>
-      <id>{id}</id>
+      <id>{ id }</id>
     }
 
     val maybePagination = paginationRemapping.map(f => f(response.xml)).map { pagination =>
-            <pagination>
-              <numFound>{pagination.numFound}</numFound>
-              <start>{pagination.start}</start>
-              <rows>{pagination.rows}</rows>
-            </pagination>
-          }
+      <pagination>
+        <numFound>{ pagination.numFound }</numFound>
+        <start>{ pagination.start }</start>
+        <rows>{ pagination.rows }</rows>
+      </pagination>
+    }
 
     val processed: Elem =
-      <results xmlns:atom="http://www.w3.org/2005/Atom"
-               xmlns:enrichment="http://www.europeana.eu/schemas/ese/enrichment/"
-               xmlns:europeana="http://www.europeana.eu"
-               xmlns:dcterms="http://purl.org/dc/terms/"
-               xmlns:dc="http://purl.org/dc/elements/1.1/"
-               xmlns:opensearch="http://a9.com/-/spec/opensearch/1.1/">
-        {if(maybePagination.isDefined) maybePagination.get}
+      <results xmlns:atom="http://www.w3.org/2005/Atom" xmlns:enrichment="http://www.europeana.eu/schemas/ese/enrichment/" xmlns:europeana="http://www.europeana.eu" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:opensearch="http://a9.com/-/spec/opensearch/1.1/">
+        { if (maybePagination.isDefined) maybePagination.get }
         <items>
-          {getItems(xml).map(item => {
-          <item>
-            {if(maybeIdExtractor.isDefined) {
-              val itemId = idExtractor.map(f => f(item)).getOrElse("unknown")
-            <id>{itemId}</id>
-            }}
-            <fields>
-              {item.nonEmptyChildren map {
-              case e: Elem => e.copy(scope = TopScope)
-              case other@_ => other
-            }}
-            </fields>
-          </item>
-        })}
+          {
+            getItems(xml).map(item => {
+              <item>
+                {
+                  if (maybeIdExtractor.isDefined) {
+                    val itemId = idExtractor.map(f => f(item)).getOrElse("unknown")
+                    <id>{ itemId }</id>
+                  }
+                }
+                <fields>
+                  {
+                    item.nonEmptyChildren map {
+                      case e: Elem => e.copy(scope = TopScope)
+                      case other @ _ => other
+                    }
+                  }
+                </fields>
+              </item>
+            })
+          }
         </items>
       </results>
 
@@ -263,9 +268,9 @@ class ProxyConfiguration(val key: String,
  * MediaWiki API
  */
 case class MediaWikiProxyConfiguration(override val key: String,
-                                       override val searchUrl: String,
-                                       override val itemUrl: String)
-  extends ProxyConfiguration(key, searchUrl, itemUrl, Map("format" -> Seq("xml"), "action" -> Seq("opensearch")), Map("query" -> "search")) {
+  override val searchUrl: String,
+  override val itemUrl: String)
+    extends ProxyConfiguration(key, searchUrl, itemUrl, Map("format" -> Seq("xml"), "action" -> Seq("opensearch")), Map("query" -> "search")) {
 
   override def getItems(xml: Elem) = xml \\ "Item"
 

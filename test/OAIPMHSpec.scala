@@ -5,6 +5,7 @@ import org.joda.time.format.ISODateTimeFormat
 import org.specs2.mutable._
 import play.api.test._
 import play.api.test.Helpers._
+import test.Specs2TestContext
 
 /**
  * TODO actually test the things we get back
@@ -12,7 +13,7 @@ import play.api.test.Helpers._
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-class OAIPMHSpec extends Specs2TestContext {
+class OAIPMHSpec extends test.Specs2TestContext {
 
   step {
     loadStandalone(SAMPLE_A)
@@ -51,7 +52,6 @@ class OAIPMHSpec extends Specs2TestContext {
         val response = asyncToResult(r)
 
         status(response) must equalTo(OK)
-
 
         val xml = contentAsXML(response)
         val error = xml \ "error"
@@ -121,7 +121,6 @@ class OAIPMHSpec extends Specs2TestContext {
       }
     }
 
-
     "list records with an 'until' datestamp using YYYYMMDD format" in {
       withTestConfig {
         val today = OaiPmhService.dateFormat.format(new Date())
@@ -138,7 +137,6 @@ class OAIPMHSpec extends Specs2TestContext {
         (error \ "@code").text must equalTo("noRecordsMatch")
       }
     }
-
 
     "list no records with a 'from' datestamp using a future YYYYMMDD format" in {
       withTestConfig {
@@ -176,10 +174,8 @@ class OAIPMHSpec extends Specs2TestContext {
       }
     }
 
-
   }
 
   step(cleanup())
-
 
 }

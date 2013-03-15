@@ -2,7 +2,7 @@ package models
 
 import _root_.util.OrganizationConfigurationHandler
 import com.mongodb.casbah.Imports._
-import core.{ItemType, SystemField}
+import core.{ ItemType, SystemField }
 import org.bson.types.ObjectId
 import HubMongoContext._
 import com.novus.salat.dao.SalatDAO
@@ -16,15 +16,14 @@ import scala.collection.JavaConverters._
  */
 
 case class MetadataItem(modified: Date = new Date(),
-                        collection: String,
-                        itemType: String,
-                        itemId: String,
-                        xml: Map[String, String], // schemaPrefix -> raw XML string
-                        schemaVersions: Map[String, String], // schemaPrefix -> schemaVersion
-                        index: Int,
-                        invalidTargetSchemas: Seq[String] = Seq.empty,
-                        systemFields: Map[String, List[String]] = Map.empty
-                       ) {
+    collection: String,
+    itemType: String,
+    itemId: String,
+    xml: Map[String, String], // schemaPrefix -> raw XML string
+    schemaVersions: Map[String, String], // schemaPrefix -> schemaVersion
+    index: Int,
+    invalidTargetSchemas: Seq[String] = Seq.empty,
+    systemFields: Map[String, List[String]] = Map.empty) {
 
   def getSystemFieldValues(field: SystemField): Seq[String] = {
     systemFields.get(field.tag).getOrElse(new BasicDBList).asInstanceOf[BasicDBList].asScala.map(_.toString).toSeq
@@ -40,7 +39,11 @@ object MetadataCache {
 
   def get(orgId: String, col: String, itemType: String): core.MetadataCache = {
     val configuration = OrganizationConfigurationHandler.getByOrgId(orgId)
-    val mongoConnection = mongoConnections(configuration)
+    val mongoConnection = mongoConnections.getResource(configuration)
+
+    // manu, 20.02.2012 - I'm fully aware that this may eventually lead to lost cached records
+    //                    but a better fix involving batch inserts will eventually come later
+    // mongoConnection.setWriteConcern(WriteConcern.FsyncSafe)
     val mongoCollection: MongoCollection = mongoConnection(getMongoCollectionName(configuration.orgId))
     mongoCollection.ensureIndex(MongoDBObject("collection" -> 1, "itemType" -> 1, "itemId" -> 1))
     mongoCollection.ensureIndex(MongoDBObject("collection" -> 1, "itemType" -> 1))
@@ -51,7 +54,7 @@ object MetadataCache {
 
   def getItemTypes(orgId: String, col: String): Seq[ItemType] = {
     val configuration = OrganizationConfigurationHandler.getByOrgId(orgId)
-    val mongoConnection = mongoConnections(configuration)
+    val mongoConnection = mongoConnections.getResource(configuration)
     val mongoCollection: MongoCollection = mongoConnection(getMongoCollectionName(configuration.orgId))
     val types: Seq[Any] = mongoCollection.distinct("itemType", MongoDBObject("collection" -> col))
     types.map(t => ItemType(t.toString))
@@ -67,18 +70,18 @@ class MongoMetadataCache(orgId: String, col: String, itemType: String, mongoColl
     val mappings = item.xml.foldLeft(MongoDBObject()) { (r, c) => r + (c._1 -> c._2) }
     val schemaVersions = item.schemaVersions.foldLeft(MongoDBObject()) { (r, c) => r + (c._1 -> c._2) }
     update(
-        q = MongoDBObject("collection" -> item.collection, "itemType" -> item.itemType, "itemId" -> item.itemId),
-        o = $set (
-          "modified" -> new Date(),
-          "collection" -> item.collection,
-          "itemType" -> item.itemType,
-          "itemId" -> item.itemId,
-          "index" -> item.index,
-          "systemFields" -> item.systemFields.asDBObject,
-          "xml" -> mappings,
-          "schemaVersions" -> schemaVersions
-          ),
-        upsert = true
+      q = MongoDBObject("collection" -> item.collection, "itemType" -> item.itemType, "itemId" -> item.itemId),
+      o = $set(Seq(
+        "modified" -> new Date(),
+        "collection" -> item.collection,
+        "itemType" -> item.itemType,
+        "itemId" -> item.itemId,
+        "index" -> item.index,
+        "systemFields" -> item.systemFields.asDBObject,
+        "xml" -> mappings,
+        "schemaVersions" -> schemaVersions
+      )),
+      upsert = true
     )
   }
 
@@ -92,7 +95,7 @@ class MongoMetadataCache(orgId: String, col: String, itemType: String, mongoColl
     }
 
     val cursor = find(q).sort(MongoDBObject("index" -> 1))
-    if(limit.isDefined) {
+    if (limit.isDefined) {
       cursor.limit(limit.get)
     } else {
       cursor

@@ -1,20 +1,20 @@
 package plugins
 
 import _root_.services.HubNodeSubscriptionService
-import play.api.{Logger, Play, Application}
+import play.api.{ Logger, Play, Application }
 import play.api.Play.current
-import models.{OrganizationConfiguration, HubNode, Role}
+import models.{ OrganizationConfiguration, HubNode, Role }
 import scala.collection.immutable.ListMap
 import scala.util.matching.Regex
 import play.api.mvc.Handler
 import org.bson.types.ObjectId
-import util.OrganizationConfigurationHandler
+import util.{ OrganizationConfigurationResourceHolder, OrganizationConfigurationHandler }
 import core.services.MemoryServices
 import core._
-import node.{NodeDirectoryService, NodeRegistrationService, NodeSubscriptionService}
+import node.{ NodeDirectoryService, NodeRegistrationService, NodeSubscriptionService }
 
 /**
- * 
+ *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 class HubNodePlugin(app: Application) extends CultureHubPlugin(app) {
@@ -57,24 +57,17 @@ class HubNodePlugin(app: Application) extends CultureHubPlugin(app) {
     }
   )
 
-  override def onStart() {
-    if (Play.isTest || Play.isDev) {
-      OrganizationConfigurationHandler.organizationConfigurations.foreach { organizationConfiguration =>
-        val service = HubServices.nodeRegistrationServiceLocator.byDomain(organizationConfiguration)
-        if (service.isInstanceOf[MemoryServices]) {
-          HubNode.dao(organizationConfiguration).findAll.foreach { node =>
-            service.registerNode(node, "system")
-          }
-        }
-      }
-    }
+  // note: we abuse the concept of resource holder here and use instead the notification for new organizations
+  val hubNodes = new OrganizationConfigurationResourceHolder[OrganizationConfiguration, HubNode]("hubNodes") {
 
-    val nodeDirectoryServiceLocator = HubModule.inject[DomainServiceLocator[NodeDirectoryService]](name = None)
-    val nodeRegistrationServiceLocator = HubModule.inject[DomainServiceLocator[NodeRegistrationService]](name = None)
+    lazy val nodeDirectoryServiceLocator = HubModule.inject[DomainServiceLocator[NodeDirectoryService]](name = None)
+    lazy val nodeRegistrationServiceLocator = HubModule.inject[DomainServiceLocator[NodeRegistrationService]](name = None)
 
+    protected def resourceConfiguration(configuration: OrganizationConfiguration): OrganizationConfiguration = configuration
 
-    // check if we have a HubNode for the hub itself, and create it if necessary
-    OrganizationConfigurationHandler.organizationConfigurations.foreach { implicit configuration =>
+    protected def onAdd(resourceConfiguration: OrganizationConfiguration): Option[HubNode] = {
+      implicit val configuration = resourceConfiguration
+
       if (HubNode.dao.findOne(configuration.node.nodeId).isEmpty) {
         val registered = nodeDirectoryServiceLocator.byDomain.findOneById(configuration.node.nodeId)
         if (registered.isEmpty) {
@@ -88,17 +81,39 @@ class HubNodePlugin(app: Application) extends CultureHubPlugin(app) {
             nodeRegistrationServiceLocator.byDomain.registerNode(hubNode, "system")
             HubNode.dao.insert(hubNode)
             info("Node '%s' registered successfully".format(configuration.node.nodeId))
+            Some(hubNode)
           } catch {
             case t: Throwable =>
               error("Cannot register node for hub", t)
-              System.exit(-1)
+              None
           }
         } else {
           error("System is in inconsistent state: node '%s' for hub is registered, but no local HubNode can be found".format(configuration.node.nodeId))
-          System.exit(-1)
+          None
+        }
+      } else {
+        HubNode.dao.findOne(configuration.node.nodeId)
+      }
+    }
+
+    protected def onRemove(removed: HubNode) {}
+  }
+
+  override def onStart() {
+
+    OrganizationConfigurationHandler.registerResourceHolder(hubNodes)
+
+    if (Play.isTest || Play.isDev) {
+      OrganizationConfigurationHandler.getAllCurrentConfigurations.foreach { implicit organizationConfiguration =>
+        val service = HubServices.nodeRegistrationServiceLocator.byDomain(organizationConfiguration)
+        if (service.isInstanceOf[MemoryServices]) {
+          HubNode.dao.findAll.foreach { node =>
+            service.registerNode(node, "system")
+          }
         }
       }
     }
+
   }
 
   /**

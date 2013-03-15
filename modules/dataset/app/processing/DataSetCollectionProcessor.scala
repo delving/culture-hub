@@ -4,66 +4,43 @@ import play.api.Logger
 import models._
 import java.net.URL
 import io.Source
-import core.indexing.{IndexingService, Indexing}
-import core.{HubId, HubServices}
-import core.processing.{DoProcess, ProcessingContext, CollectionProcessor, ProcessingSchema}
-import akka.actor.{Props, TypedProps, TypedActor}
-import play.api.libs.concurrent.Akka
-import play.api.Play.current
+import core.indexing.{ IndexingService, Indexing }
+import core.{ HubId, HubServices }
+import core.processing.{ DoProcess, ProcessingContext, CollectionProcessor, ProcessingSchema }
+import akka.actor.{ Actor, Props }
 
 /**
- *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
-
-trait DataSetCollectionProcessor {
-
-  def process(dataSet: DataSet, whenDone: => Unit)(implicit configuration: OrganizationConfiguration)
-
-}
-
-object DataSetCollectionProcessor extends DataSetCollectionProcessor {
-
-
-  // TODO return a promise
-  def process(dataSet: DataSet, whenDone: => Unit)(implicit configuration: OrganizationConfiguration) {
-    val processor: DataSetCollectionProcessor = TypedActor(Akka.system).typedActorOf(TypedProps[DataSetCollectionProcessorImpl])
-    var processing = true
-    processor.process(dataSet, {
-      whenDone
-      processing = false
-    })
-    // TODO return promise and adapt client code
-    while (processing) {
-      Thread.sleep(500)
-    }
-    TypedActor(Akka.system).stop(processor)
-  }
-
-}
-
-class DataSetCollectionProcessorImpl extends DataSetCollectionProcessor {
+class DataSetCollectionProcessor extends Actor {
 
   val log = Logger("CultureHub")
 
   val RAW_PREFIX = "raw"
   val AFF_PREFIX = "aff"
 
-  def process(dataSet: DataSet, whenDone: => Unit)(implicit configuration: OrganizationConfiguration) {
+  def receive = {
+    case ProcessDataSetCollection(set, onSuccess, onFailure, configuration) => process(set, onSuccess, onFailure)(configuration)
+  }
+
+  def process(dataSet: DataSet, onSuccess: () => Unit, onFailure: Throwable => Unit)(implicit configuration: OrganizationConfiguration) {
+
+    log.info(s"Starting DataSet collection processing for set ${dataSet.spec}")
 
     val invalidRecords = DataSet.dao.getInvalidRecords(dataSet)
 
     val selectedSchemas: Seq[RecordDefinition] = dataSet.mappings.flatMap(mapping => RecordDefinition.getRecordDefinition(mapping._2.schemaPrefix, mapping._2.schemaVersion)).toSeq
 
     val selectedProcessingSchemas: Seq[ProcessingSchema] = selectedSchemas map {
-      t => new ProcessingSchema {
-        val definition: RecordDefinition = t
-        val namespaces: Map[String, String] = t.getNamespaces ++ dataSet.getNamespaces
-        val mapping: Option[String] = if (dataSet.mappings.contains(t.prefix) && dataSet.mappings(t.prefix) != null) dataSet.mappings(t.prefix).recordMapping else None
-        val sourceSchema: String = RAW_PREFIX
+      t =>
+        new ProcessingSchema {
+          val definition: RecordDefinition = t
+          val namespaces: Map[String, String] = t.getNamespaces ++ dataSet.getNamespaces
+          val mapping: Option[String] = if (dataSet.mappings.contains(t.prefix) && dataSet.mappings(t.prefix) != null) dataSet.mappings(t.prefix).recordMapping else None
+          val sourceSchema: String = RAW_PREFIX
 
-        def isValidRecord(index: Int): Boolean = definition.prefix == RAW_PREFIX || !invalidRecords(t.prefix).contains(index)
-      }
+          def isValidRecord(index: Int): Boolean = definition.prefix == RAW_PREFIX || !invalidRecords(t.prefix).contains(index)
+        }
     }
 
     val crosswalks: Seq[(RecordDefinition, URL)] = selectedSchemas.map(source => (source -> RecordDefinition.getCrosswalkResources(source.prefix))).flatMap(cw => cw._2.map(c => (cw._1, c)))
@@ -131,15 +108,15 @@ class DataSetCollectionProcessorImpl extends DataSetCollectionProcessor {
       // we retry this one 3 times, in order to minimize the chances of loosing the whole index if a timeout happens to occur
       var retries = 0
       var success = false
-      while(retries < 3 && !success) {
+      while (retries < 3 && !success) {
         try {
           IndexingService.deleteOrphansBySpec(dataSet.orgId, dataSet.spec, context.startProcessing)
           success = true
         } catch {
           case t: Throwable => retries += 1
-          }
         }
-      if(!success) {
+      }
+      if (!success) {
         log.error("Could not delete orphans records from SOLR. You may have to clean up by hand.")
       }
     }
@@ -156,14 +133,21 @@ class DataSetCollectionProcessorImpl extends DataSetCollectionProcessor {
       onError,
       indexOne,
       onProcessingDone,
-      whenDone,
-      HubServices.basexStorage(configuration)
+      onSuccess,
+      HubServices.basexStorages.getResource(configuration)
     ))
 
-    val collectionProcessor = TypedActor.context.actorOf(collectionProcessorProps)
+    try {
+      val collectionProcessor = context.actorOf(collectionProcessorProps)
+      collectionProcessor ! DoProcess
+    } catch {
+      case t: Throwable =>
+        onError(t)
 
-    collectionProcessor ! DoProcess
+    }
+
   }
 
-
 }
+
+case class ProcessDataSetCollection(set: DataSet, onSuccess: () => Unit, onFailure: Throwable => Unit, configuration: OrganizationConfiguration)

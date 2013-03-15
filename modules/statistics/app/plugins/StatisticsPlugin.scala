@@ -1,10 +1,10 @@
 package plugins
 
-import play.api.{Logger, Configuration, Application}
+import play.api.{ Logger, Configuration, Application }
 import scala.util.matching.Regex
 import play.api.mvc.Handler
-import models.{OrganizationConfiguration, Role}
-import core.{RequestContext, MenuElement, MainMenuEntry, CultureHubPlugin}
+import models.{ OrganizationConfiguration, Role }
+import core.{ RequestContext, MenuElement, MainMenuEntry, CultureHubPlugin }
 import collection.immutable.ListMap
 import collection.JavaConverters._
 
@@ -17,41 +17,48 @@ class StatisticsPlugin(app: Application) extends CultureHubPlugin(app) {
 
   val pluginKey: String = "statistics"
 
-  /** facet key -> i18n key **/
-  private var statisticsFacets: Map[OrganizationConfiguration, Map[String, String]] = Map.empty
+  private var statisticsConfigurations = Map.empty[OrganizationConfiguration, StatisticsPluginConfiguration]
 
-  def getStatisticsFacets(implicit configuration: OrganizationConfiguration) = statisticsFacets.get(configuration)
+  def getStatisticsConfiguration(implicit configuration: OrganizationConfiguration) = statisticsConfigurations.get(configuration)
 
-  /**
-   * Called at configuration building time, giving the plugin the chance to build internal configuration
-   *
-   */
   override def onBuildConfiguration(configurations: Map[OrganizationConfiguration, Option[Configuration]]) {
-    statisticsFacets = configurations.map { config =>
+    statisticsConfigurations = configurations.map { config =>
+
+      val defaults = Map(
+        "delving_owner_facet" -> "metadata.delving.owner",
+        "delving_provider_facet" -> "metadata.delving.provider"
+      )
 
       val facets = config._2.map { c =>
 
-        c.underlying.getStringList("facets").asScala.map { facet =>
+        if (c.underlying.hasPath("facets")) {
+          c.underlying.getStringList("facets").asScala.map { facet =>
             val s: Array[String] = facet.split(':')
             if (s.length == 1) {
               (facet -> facet)
             } else if (s.length == 2) {
               (s(0) -> s(1))
             } else {
-              Logger("CultureHub").warn("Invalid configuration key for statistic facets in configuration %s: %s".format(config._1.name, facet))
+              Logger("CultureHub").warn("Invalid configuration key for statistic facets in configuration %s: %s".format(config._1.orgId, facet))
               (s(0) -> s(0))
             }
-        }.toMap
+          }.toMap
+        } else {
+          defaults
+        }
 
-       }.getOrElse {
-        Map(
-          "delving_owner_facet" -> "metadata.delving.owner",
-          "delving_provider_facet" -> "metadata.delving.provider"
-        )
+      }.getOrElse {
+        defaults
       }
 
-      (config._1 -> facets)
-    
+      val public = config._2.map { c =>
+        c.getBoolean("public").getOrElse(false)
+      }.getOrElse {
+        false
+      }
+
+      (config._1 -> StatisticsPluginConfiguration(facets = facets, public = public))
+
     }.toMap
 
   }
@@ -78,13 +85,20 @@ class StatisticsPlugin(app: Application) extends CultureHubPlugin(app) {
 
   override def homePageSnippet: Option[(String, (RequestContext) => Unit)] = Some(
     "/homePageSnippet.html",
-    { context => {
+    { context =>
+      {
         context.renderArgs += ("orgId" -> context.configuration.orgId)
-    }}
+      }
+    }
   )
 
   override def roles: Seq[Role] = Seq(StatisticsPlugin.UNIT_ROLE_STATISTICS_VIEW)
 }
+
+case class StatisticsPluginConfiguration(
+  /** facet key -> i18n key **/
+  facets: Map[String, String] = Map.empty,
+  public: Boolean = false)
 
 object StatisticsPlugin {
 

@@ -2,11 +2,12 @@ tmp
 *.pyc
 *.iws
 test-result
+chromedriver.log
 .DS_Store
 .idea
 /logs
 /out
-/dist
+dist/
 /system.out
 /conf/production.conf
 /conf/*_themes.xml

@@ -48,5 +48,4 @@ object Demo extends DelvingController {
     }
   }
 
-
 }

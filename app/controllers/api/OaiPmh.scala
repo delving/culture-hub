@@ -1,11 +1,12 @@
 package controllers.api
 
-import play.api.mvc.{Controller, Action}
+import play.api.mvc.{ Controller, Action }
 import core.harvesting.OaiPmhService
 import play.api.libs.concurrent.Promise
 import controllers.OrganizationConfigurationAware
 import play.api.Logger
 import core.HubModule
+import play.api.libs.concurrent.Execution.Implicits._
 
 /**
  *
@@ -24,11 +25,11 @@ object OaiPmh extends Controller with OrganizationConfigurationAware {
           val oaiPmhService = new OaiPmhService(request.queryString, request.uri, orgId, format, accessKey)
           Promise.pure(oaiPmhService.parseRequest).map { response =>
 
-              if (!request.path.contains("api")) {
-                Logger("CultureHub").warn("Using deprecated API call " + request.uri)
-              }
+            if (!request.path.contains("api")) {
+              Logger("CultureHub").warn("Using deprecated API call " + request.uri)
+            }
 
-              Ok(response).as(XML)
+            Ok(response).as(XML)
           }
         }
     }

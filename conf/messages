@@ -728,12 +728,6 @@ plugin.cms.page.help.homepage.info=Creating content for the homepage works exact
 plugin.cms.page.keyauto.button=Auto-generate page key
 plugin.cms.page.keyauto.error=Title mandatory for page key generation.
 
-plugin.chc.orKeywords=Keywords (OR)
-plugin.chc.dataSetsNotEmpty=You must select at least one constraining DataSet
-plugin.chc.publicSchemasNotEmpty=You must select at least one metadata format for harvesting
-plugin.chc.publicSchemas=Public metadata formats
-plugin.chc.publicSchemasHelp=Hold down the Ctrl key in order to select more than one harvesting format
-
 plugin.hubNode.hubNode=Hub node
 plugin.hubNode.hubNodes=Hub nodes
 plugin.hubNode.list=List Hub nodes

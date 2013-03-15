@@ -2,17 +2,19 @@ package controllers.statistics
 
 import controllers.OrganizationController
 import play.api.mvc.Action
-import models.{Role, Group, OrganizationConfiguration, DataSet}
+import models.{ Role, Group, OrganizationConfiguration, DataSet }
 import collection.JavaConverters._
 import models.statistics.DataSetStatistics
 import collection.immutable.ListMap
-import core.search.{SolrBindingService, SolrQueryService}
+import core.search.{ SolrBindingService, SolrQueryService }
 import org.apache.solr.client.solrj.SolrQuery
-import core.{SystemField, CultureHubPlugin, Constants}
+import core.{ SystemField, CultureHubPlugin, Constants }
 import org.apache.solr.client.solrj.response.FacetField.Count
-import play.api.i18n.{Lang, Messages}
-import plugins.StatisticsPlugin
+import play.api.i18n.{ Lang, Messages }
+import plugins.{ StatisticsPluginConfiguration, StatisticsPlugin }
 import core.indexing.IndexField
+import play.api.cache.Cache
+import play.api.Play.current
 
 /**
  * Prototype statistics plugin based on the statistics provided by the Sip-Creator.
@@ -26,89 +28,62 @@ import core.indexing.IndexField
 
 object Statistics extends OrganizationController {
 
-  def statistics(orgId: String) = OrganizationAdmin {
+  def statistics(orgId: String) = OrganizationBrowsing {
     Action {
       implicit request =>
-
-        val statistics = DataSet.dao.findAll().map {
-          ds => {
-
-            DataSetStatistics.dao.getMostRecent(ds.orgId, ds.spec, "icn").map {
-              stats =>
-                val total = stats.recordCount
-
-                // TODO generify this by generic mapping of sorts
-                val hasDigitalObject = stats.getHistogram("/icn:record/europeana:object").map(_.present).getOrElse(0)
-                val hasLandingPage = stats.getHistogram("/icn:record/europeana:isShownAt").map(_.present).getOrElse(0)
-
-                Map(
-                  "spec" -> ds.spec,
-                  "total" -> total,
-                  "hasDigitalObjectCount" -> hasDigitalObject,
-                  "hasNoDigitalObjectCount" -> (total - hasDigitalObject),
-                  "hasLandingPageCount" -> hasLandingPage,
-                  "hasNoLandingPageCount" -> (total - hasLandingPage),
-                  "hasDigitalObjectPercentage" -> (if(total > 0) ((hasDigitalObject.toDouble / total) * 100).round else 0),
-                  "hasLandingPagePercentage" -> (if(total > 0) (((hasLandingPage.toDouble) / total) * 100).round else 0)
-                )
-            }.getOrElse {
-              Map(
-                "spec" -> ds.spec,
-                "total" -> "N/A",
-                "hasDigitalObjectCount" -> "N/A",
-                "hasNoDigitalObjectCount" -> "N/A",
-                "hasLandingPageCount" -> "N/A",
-                "hasNoLandingPageCount" -> "N/A",
-                "hasDigitalObjectPercentage" -> "N/A",
-                "hasLandingPagePercentage" -> "N/A"
-              )
-            }
+        if (getStatisticsConfig.map(_.public).getOrElse(false)) {
+          Ok(Template("statistics.html"))
+        } else {
+          if (isMember && isAdmin) {
+            Ok(Template("statistics.html"))
+          } else {
+            Unauthorized
           }
         }
-
-        val dataSetStatistics = statistics.map(_.asJava).asJava
-
-        Ok(Template("statistics.html", 'dataSetStatistics -> dataSetStatistics))
     }
   }
 
-  /**
-   *  The purpose of this fu
-   */
-
   def legacyStatistics(orgId: String) = OrganizationConfigured {
-      Action {
-        implicit request =>
+    Action {
+      implicit request =>
 
-          val requestFacets = request.queryString.get("facet.field")
-          val facetLimit = request.queryString.getOrElse("facet.limit", List("100")).head.toString.toInt
-          val query = request.queryString.getOrElse("query", List("*:*")).head
-          val facets: Map[String, String] = requestFacets.map { facet =>
-            facet.map(f => (f -> f)).toMap
-          }.getOrElse {
-            CultureHubPlugin.getEnabledPlugins.find(_.pluginKey == "statistics").flatMap { p =>
-              p.asInstanceOf[StatisticsPlugin].getStatisticsFacets
-            }.getOrElse {
-              Map.empty
-            }
+        val requestFacets = request.queryString.get("facet.field")
+        val facetLimit = request.queryString.getOrElse("facet.limit", List("100")).head.toString.toInt
+        val query = request.queryString.getOrElse("query", List("*:*")).head
+        val facets: Map[String, String] = requestFacets.map { facet =>
+          facet.map(f => (f -> f)).toMap
+        }.getOrElse {
+          getStatisticsConfig.map(_.facets).getOrElse {
+            Map.empty
           }
+        }
 
-          val filter = request.queryString.get("filter").flatMap { f =>
-            f.headOption
-          }
+        val filter = request.queryString.get("filter").flatMap { f =>
+          f.headOption
+        }
 
-          val canSeeFullStatistics = request.session.get(Constants.USERNAME).map { userName =>
-            Group.dao.hasRole(userName, StatisticsPlugin.UNIT_ROLE_STATISTICS_VIEW) || Group.dao.hasRole(userName, Role.OWN)
-          }.getOrElse(false)
+        val canSeeFullStatistics = getStatisticsConfig.map(_.public).getOrElse(false) || request.session.get(Constants.USERNAME).map { userName =>
+          Group.dao.hasRole(userName, StatisticsPlugin.UNIT_ROLE_STATISTICS_VIEW) || Group.dao.hasRole(userName, Role.OWN)
+        }.getOrElse(false)
 
-          val statistics = new SolrFacetBasedStatistics(orgId, facets, filter, facetLimit, query)
-          Ok(statistics.renderAsJSON(canSeeFullStatistics)).as(JSON)
-      }
+        // cache stats for 3 hours
+        val statistics = Cache.getOrElse("facetStatistics", 10800) {
+          new SolrFacetBasedStatistics(orgId, facets, filter, facetLimit, query)
+        }
+
+        Ok(statistics.renderAsJSON(canSeeFullStatistics)).as(JSON)
     }
+  }
+
+  private def getStatisticsConfig(implicit configuration: OrganizationConfiguration): Option[StatisticsPluginConfiguration] = {
+    CultureHubPlugin.getEnabledPlugins.find(_.pluginKey == "statistics").flatMap { p =>
+      p.asInstanceOf[StatisticsPlugin].getStatisticsConfiguration
+    }
+  }
 
 }
 
-case class StatisticsCounter(name: String, total: Int, withNr: Int = 0)  {
+case class StatisticsCounter(name: String, total: Int, withNr: Int = 0) {
   private val percent = 100.0
 
   lazy val withPercentage: Long = math.round(withNr / (total / percent))
@@ -153,46 +128,44 @@ case class StatisticsHeader(name: String, label: String = "", entries: Seq[Combi
 
 class SolrFacetBasedStatistics(orgId: String, facets: Map[String, String], filter: Option[String], facetLimit: Int = 100, queryString: String = "*:*")(implicit configuration: OrganizationConfiguration, lang: Lang) {
 
-    val orgIdFilter = "%s:%s".format(IndexField.ORG_ID.key, orgId)
+  val orgIdFilter = "%s:%s".format(IndexField.ORG_ID.key, orgId)
 
-    // create list of facets you want returned
-    val query = new SolrQuery
-    // query for all *:* with facets
-    query setQuery (queryString)
-    query setFacet (true)
-    query setFacetLimit (facetLimit)
-    val facetsForStatistics = facets.keys.toSeq
-    query addFacetField (facetsForStatistics: _ *)
-    query setRows (0)
-    query setFilterQueries (orgIdFilter)
-    filter foreach { f => query addFilterQuery f }
+  // create list of facets you want returned
+  val query = new SolrQuery
+  // query for all *:* with facets
+  query setQuery (queryString)
+  query setFacet (true)
+  query setFacetLimit (facetLimit)
+  val facetsForStatistics = facets.keys.toSeq
+  query addFacetField (facetsForStatistics: _*)
+  query setRows (0)
+  query setFilterQueries (orgIdFilter)
+  filter foreach { f => query addFilterQuery f }
 
-    val allRecordsResponse = SolrQueryService.getSolrResponseFromServer(solrQuery = query)
-    val allRecords = SolrBindingService.createFacetStatistics(allRecordsResponse.getFacetFields.asScala.toList)
-    val totalRecords = allRecordsResponse.getResults.getNumFound.toInt
+  val allRecordsResponse = SolrQueryService.getSolrResponseFromServer(solrQuery = query)
+  val allRecords = SolrBindingService.createFacetStatistics(allRecordsResponse.getFacetFields.asScala.toList)
+  val totalRecords = allRecordsResponse.getResults.getNumFound.toInt
 
-    // query for with only digital objects
-    query setFilterQueries("%s:true".format(IndexField.HAS_DIGITAL_OBJECT.key), orgIdFilter)
-    filter foreach { f => query addFilterQuery f }
-    val digitalObjectsResponse = SolrQueryService.getSolrResponseFromServer(solrQuery = query)
-    val digitalObjects = SolrBindingService.createFacetStatistics(digitalObjectsResponse.getFacetFields.asScala.toList)
-    val totalDigitalObjects = digitalObjectsResponse.getResults.getNumFound
+  // query for with only digital objects
+  query setFilterQueries ("%s:true".format(IndexField.HAS_DIGITAL_OBJECT.key), orgIdFilter)
+  filter foreach { f => query addFilterQuery f }
+  val digitalObjectsResponse = SolrQueryService.getSolrResponseFromServer(solrQuery = query)
+  val digitalObjects = SolrBindingService.createFacetStatistics(digitalObjectsResponse.getFacetFields.asScala.toList)
+  val totalDigitalObjects = digitalObjectsResponse.getResults.getNumFound
 
-    // query with landing pages
-    query setFilterQueries("%s:[* TO *]".format(SystemField.LANDING_PAGE.tag), orgIdFilter)
-    filter foreach { f => query addFilterQuery f }
-    val landingPagesResponse = SolrQueryService.getSolrResponseFromServer(solrQuery = query)
-    val landingPages = SolrBindingService.createFacetStatistics(landingPagesResponse.getFacetFields.asScala.toList)
-    val totalLandingPages = landingPagesResponse.getResults.getNumFound
+  // query with landing pages
+  query setFilterQueries ("%s:true".format(SystemField.LANDING_PAGE.tag), orgIdFilter)
+  filter foreach { f => query addFilterQuery f }
+  val landingPagesResponse = SolrQueryService.getSolrResponseFromServer(solrQuery = query)
+  val landingPages = SolrBindingService.createFacetStatistics(landingPagesResponse.getFacetFields.asScala.toList)
+  val totalLandingPages = landingPagesResponse.getResults.getNumFound
 
-    // query with coordinates
-    query setFilterQueries("%s:true".format("delving_hasGeoHash"), orgIdFilter)
-    filter foreach { f => query addFilterQuery f }
-    val geoResponse = SolrQueryService.getSolrResponseFromServer(solrQuery = query)
-    val geoRecords = SolrBindingService.createFacetStatistics(geoResponse.getFacetFields.asScala.toList)
-    val totalGeoRecords = geoResponse.getResults.getNumFound
-
-
+  // query with coordinates
+  query setFilterQueries ("%s:true".format("delving_hasGeoHash"), orgIdFilter)
+  filter foreach { f => query addFilterQuery f }
+  val geoResponse = SolrQueryService.getSolrResponseFromServer(solrQuery = query)
+  val geoRecords = SolrBindingService.createFacetStatistics(geoResponse.getFacetFields.asScala.toList)
+  val totalGeoRecords = geoResponse.getResults.getNumFound
 
   def createHeader(facet: (String, String)): StatisticsHeader = {
     StatisticsHeader(
@@ -202,7 +175,7 @@ class SolrFacetBasedStatistics(orgId: String, facets: Map[String, String], filte
     )
   }
 
-  def getCountForFacet(name: String, facetList: List[Count]) : Int = {
+  def getCountForFacet(name: String, facetList: List[Count]): Int = {
     val facetItem = facetList.find(count => count.getName.equalsIgnoreCase(name))
     if (facetItem == None) 0 else facetItem.get.getCount.toInt
   }
@@ -212,16 +185,17 @@ class SolrFacetBasedStatistics(orgId: String, facets: Map[String, String], filte
     val landingPageFacet = landingPages.getFacet(name)
     val geoFacet = geoRecords.getFacet(name)
 
-    allRecords.getFacet(name).map{
-      count => {
-        CombinedStatisticEntry(
-          name = count.getName,
-          total = count.getCount.toInt,
-          digitalObject = StatisticsCounter(name = count.getName, total = count.getCount.toInt, withNr = getCountForFacet(count.getName, digitalObjectFacet)),
-          landingPage = StatisticsCounter(name = count.getName, total = count.getCount.toInt, withNr = getCountForFacet(count.getName, landingPageFacet)),
-          geoRecords = StatisticsCounter(name = count.getName, total = count.getCount.toInt, withNr = getCountForFacet(count.getName, geoFacet))
-        )
-      }
+    allRecords.getFacet(name).map {
+      count =>
+        {
+          CombinedStatisticEntry(
+            name = count.getName,
+            total = count.getCount.toInt,
+            digitalObject = StatisticsCounter(name = count.getName, total = count.getCount.toInt, withNr = getCountForFacet(count.getName, digitalObjectFacet)),
+            landingPage = StatisticsCounter(name = count.getName, total = count.getCount.toInt, withNr = getCountForFacet(count.getName, landingPageFacet)),
+            geoRecords = StatisticsCounter(name = count.getName, total = count.getCount.toInt, withNr = getCountForFacet(count.getName, geoFacet))
+          )
+        }
     }
   }
 
@@ -232,7 +206,7 @@ class SolrFacetBasedStatistics(orgId: String, facets: Map[String, String], filte
   }.toMap
 
   def renderAsJSON(displayFacetDetail: Boolean): String = {
-    import net.liftweb.json.{Extraction, JsonAST, Printer}
+    import net.liftweb.json.{ Extraction, JsonAST, Printer }
     implicit val formats = net.liftweb.json.DefaultFormats
 
     val outputJson = Printer.pretty(JsonAST.render(Extraction.decompose(

@@ -1,9 +1,9 @@
 package libs
 
-import org.im4java.core.{ConvertCmd, IdentifyCmd, IMOperation, ImageCommand}
+import org.im4java.core.{ ConvertCmd, IdentifyCmd, IMOperation, ImageCommand }
 import org.im4java.process.OutputConsumer
-import java.io.{File, InputStreamReader, BufferedReader, InputStream}
-import play.api.{Logger, Play}
+import java.io.{ File, InputStreamReader, BufferedReader, InputStream }
+import play.api.{ Logger, Play }
 import org.apache.commons.io.FileUtils
 
 /**
@@ -13,6 +13,8 @@ import org.apache.commons.io.FileUtils
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 object Normalizer {
+
+  private val log = Logger("CultureHub")
 
   /**
    * Normalizes a file to be usable for tiling and presentation for DeepZoom
@@ -24,8 +26,6 @@ object Normalizer {
 
     var source: File = sourceImage
     val destination = new File(targetDirectory, sourceImage.getName)
-
-    val log = Logger("CultureHub")
 
     val hasBeenNormalized = identifyLargestLayer(source) != None || !isRGB(source)
 
@@ -41,25 +41,38 @@ object Normalizer {
 
     if (!isRGB(source)) {
       log.info("Image %s isn't RGB encoded, converting...".format(source.getName))
-      val converted = new File(targetDirectory, "RGB_" + source.getName)
-      val convertCmd = new ConvertCmd
-      val convertOp = new IMOperation
-      convertOp.colorspace("RGB")
-      convertOp.addImage(source.getAbsolutePath)
-      convertOp.addImage(converted.getAbsolutePath)
-      convertCmd.run(convertOp)
-      if (converted.exists()) {
-        if (converted.getParentFile.getAbsolutePath == targetDirectory.getAbsoluteFile) {
-          FileUtils.deleteQuietly(source)
-        }
-        FileUtils.moveFile(converted, destination)
+
+      if (isGrayscale(source)) {
+        log.info("Image %s is Greyscale, converting to CMYK first to get the right colorspace when converting back...".format(source.getName))
+        // GraphicsMagick considers Grayscale to be a subset of RGB, so it won't change the type when converting directly to RGB
+        // so we first go over to CMYK and then back to RGB
+        convertColorspace(targetDirectory, source, destination, "CMYK")
+        source = destination
       }
+
+      convertColorspace(targetDirectory, source, destination, "RGB")
     }
 
     if (hasBeenNormalized) {
       Some(destination)
     } else {
       None
+    }
+  }
+
+  private def convertColorspace(targetDirectory: File, source: File, destination: File, colorspace: String) {
+    val converted = new File(targetDirectory, colorspace + "_" + source.getName)
+    val convertCmd = new ConvertCmd
+    val convertOp = new IMOperation
+    convertOp.colorspace(colorspace)
+    convertOp.addImage(source.getAbsolutePath)
+    convertOp.addImage(converted.getAbsolutePath)
+    convertCmd.run(convertOp)
+    if (converted.exists()) {
+      if (converted.getParentFile.getAbsolutePath == targetDirectory.getAbsoluteFile) {
+        FileUtils.deleteQuietly(source)
+      }
+      FileUtils.moveFile(converted, destination)
     }
   }
 
@@ -73,7 +86,7 @@ object Normalizer {
         val Array(width: Int, height: Int) = line.split(" ")(2).split("\\+")(0).split("x").map(Integer.parseInt(_))
         (width, height)
       }.zipWithIndex.foldLeft((0, 0), 0) { (r: ((Int, Int), Int), c: ((Int, Int), Int)) =>
-          if (c._1._1 * c._1._2 > r._1._1 * r._1._2) c else r
+        if (c._1._1 * c._1._2 > r._1._1 * r._1._2) c else r
       }
       val largestIndex = largestLayer._2
       Some(largestIndex)
@@ -82,15 +95,19 @@ object Normalizer {
     }
   }
 
-  private def isRGB(sourceImage: File): Boolean = {
-    val colorspace = identify(sourceImage, { _.format("%r") })
-    colorspace.headOption.map(_.contains("RGB")).getOrElse(false)
+  private def isRGB(sourceImage: File): Boolean = isColorspace(sourceImage, "RGB")
+
+  private def isGrayscale(sourceImage: File): Boolean = isColorspace(sourceImage, "Grayscale")
+
+  private def isColorspace(sourceImage: File, colorspace: String) = {
+    val identified = identify(sourceImage, { _.format("%[colorspace]") })
+    log.info(s"Identified colorspace of image ${sourceImage.getAbsolutePath} as ${colorspace.mkString(", ")}")
+    identified.headOption.map { c: String => c.contains(colorspace) }.getOrElse(false)
   }
 
   private def identify(sourceImage: File, addParameters: IMOperation => Unit): Seq[String] = {
-    val identifyCmd = new IdentifyCmd
+    val identifyCmd = new IdentifyCmd(false)
     val identifyOp = new IMOperation
-    identifyOp.addImage(sourceImage.getAbsolutePath)
     var identified: List[String] = List()
     identifyCmd.setOutputConsumer(new OutputConsumer() {
       def consumeOutput(is: InputStream) {
@@ -98,8 +115,11 @@ object Normalizer {
         identified = Stream.continually(br.readLine()).takeWhile(_ != null).toList
       }
     })
-    identifyCmd.run(identifyOp)
 
+    addParameters(identifyOp)
+    identifyOp.addImage(sourceImage.getAbsolutePath)
+
+    identifyCmd.run(identifyOp)
     identified.toSeq
   }
 

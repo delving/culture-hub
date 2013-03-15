@@ -17,12 +17,12 @@
 package models
 
 import _root_.util.OrganizationConfigurationHandler
-import xml.{Node, XML}
-import play.api.{Logger, Play}
+import xml.{ Node, XML }
+import play.api.{ Logger, Play }
 import play.api.Play.current
 import java.net.URL
-import core.{HubModule, SchemaService}
-import eu.delving.schema.{SchemaVersion, SchemaType}
+import core.{ HubModule, SchemaService }
+import eu.delving.schema.{ SchemaVersion, SchemaType }
 import collection.mutable
 
 /**
@@ -32,12 +32,12 @@ import collection.mutable
  */
 
 case class RecordDefinition(prefix: String,
-                            schema: String,
-                            schemaVersion: String,
-                            namespace: String,               // the namespace of the format
-                            allNamespaces: List[Namespace],  // all the namespaces occurring in this format (prefix, schema)
-                            isFlat: Boolean                  // is this a flat record definition, i.e. can it be flat?
-                            ) {
+    schema: String,
+    schemaVersion: String,
+    namespace: String, // the namespace of the format
+    allNamespaces: List[Namespace], // all the namespaces occurring in this format (prefix, schema)
+    isFlat: Boolean // is this a flat record definition, i.e. can it be flat?
+    ) {
 
   def getNamespaces = allNamespaces.map(ns => (ns.prefix, ns.uri)).toMap[String, String]
 
@@ -77,7 +77,7 @@ object RecordDefinition {
   def getRecordDefinition(schema: SchemaVersion)(implicit configuration: OrganizationConfiguration): Option[RecordDefinition] = getRecordDefinition(schema.getPrefix, schema.getVersion)
 
   def getRecordDefinition(prefix: String, version: String)(implicit configuration: OrganizationConfiguration): Option[RecordDefinition] = {
-    if(prefix == "raw") {
+    if (prefix == "raw") {
       Some(rawRecordDefinition)
     } else {
       if (Play.isProd) {
@@ -128,7 +128,7 @@ object RecordDefinition {
   }
 
   private def parseRecordDefinition(node: Node, version: String): Option[RecordDefinition] = {
-    val prefix = (node \ "@prefix" ).text
+    val prefix = (node \ "@prefix").text
     val isFlat = node.attribute("flat").isDefined && (node \ "@flat" text).length > 0 && (node \ "@flat" text).toBoolean
     val recordDefinitionNamespace: Node = node \ "namespaces" \ "namespace" find { _.attributes("prefix").exists(_.text == prefix) } getOrElse (return None)
 
@@ -151,7 +151,7 @@ object RecordDefinition {
     )
   }
 
-  private lazy val enabledCrosswalks: Map[OrganizationConfiguration, Seq[String]] = OrganizationConfigurationHandler.organizationConfigurations.
-      map(configuration => (configuration -> configuration.crossWalks)).toMap
+  private lazy val enabledCrosswalks: Map[OrganizationConfiguration, Seq[String]] = OrganizationConfigurationHandler.getAllCurrentConfigurations.
+    map(configuration => (configuration -> configuration.crossWalks)).toMap
 
 }
