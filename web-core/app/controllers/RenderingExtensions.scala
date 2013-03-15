@@ -1,6 +1,6 @@
 package controllers
 
-import play.api.mvc.{Result, RequestHeader, Controller}
+import play.api.mvc.{ Result, RequestHeader, Controller }
 import xml.NodeSeq
 
 /**
@@ -21,12 +21,11 @@ trait RenderingExtensions { self: Controller =>
     request.queryString.get("format").isEmpty && request.headers.get(ACCEPT).isDefined && request.headers(ACCEPT).contains("application/xml")
 
   def DOk(xml: NodeSeq, sequences: List[String]*)(implicit request: RequestHeader): Result = {
-    if(wantsJson) {
+    if (wantsJson) {
       Ok(util.Json.toJson(xml, false, sequences)).as(JSON)
     } else {
       Ok(xml)
     }
   }
-
 
 }

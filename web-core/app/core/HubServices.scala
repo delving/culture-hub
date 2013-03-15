@@ -1,107 +1,149 @@
 package core
 
-import _root_.core.node.{NodeDirectoryService, NodeRegistrationService}
-import _root_.util.OrganizationConfigurationHandler
-import scala.collection.mutable.HashMap
+import _root_.core.node.{ NodeDirectoryService, NodeRegistrationService }
+import util.{ OrganizationConfigurationResourceHolder, OrganizationConfigurationHandler }
 import services._
-import models.{OrganizationConfiguration, HubUser}
-import play.api.Play
+import models.{ CommonsServiceConfiguration, BaseXConfiguration, OrganizationConfiguration, HubUser }
+import play.api.{ Logger, Play }
 import play.api.Play.current
 import storage.BaseXStorage
 
 /**
  * Global Services used by the Hub, initialized at startup time (see ConfigurationPlugin)
  *
+ * TODO find a cleaner way to initialize this object or pass it around
+ *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
 object HubServices {
 
+  val log = Logger("CultureHub")
+
   // ~~~ service locators
 
   lazy val authenticationServiceLocator = new DomainServiceLocator[AuthenticationService] {
-    def byDomain(implicit configuration: OrganizationConfiguration): AuthenticationService = baseServices(configuration)
+    def byDomain(implicit configuration: OrganizationConfiguration): AuthenticationService = baseServices.getResource(configuration)
   }
   lazy val registrationServiceLocator = new DomainServiceLocator[RegistrationService] {
-    def byDomain(implicit configuration: OrganizationConfiguration): RegistrationService = baseServices(configuration)
+    def byDomain(implicit configuration: OrganizationConfiguration): RegistrationService = baseServices.getResource(configuration)
   }
   lazy val userProfileServiceLocator = new DomainServiceLocator[UserProfileService] {
-    def byDomain(implicit configuration: OrganizationConfiguration): UserProfileService = baseServices(configuration)
+    def byDomain(implicit configuration: OrganizationConfiguration): UserProfileService = baseServices.getResource(configuration)
   }
   lazy val organizationServiceLocator = new DomainServiceLocator[OrganizationService] {
-    def byDomain(implicit configuration: OrganizationConfiguration): OrganizationService = baseServices(configuration)
+    def byDomain(implicit configuration: OrganizationConfiguration): OrganizationService = baseServices.getResource(configuration)
   }
   lazy val directoryServiceLocator = new DomainServiceLocator[DirectoryService] {
-    def byDomain(implicit configuration: OrganizationConfiguration): DirectoryService = baseServices(configuration)
+    def byDomain(implicit configuration: OrganizationConfiguration): DirectoryService = baseServices.getResource(configuration)
   }
   lazy val nodeRegistrationServiceLocator = new DomainServiceLocator[NodeRegistrationService] {
-    def byDomain(implicit configuration: OrganizationConfiguration): NodeRegistrationService = baseServices(configuration)
+    def byDomain(implicit configuration: OrganizationConfiguration): NodeRegistrationService = baseServices.getResource(configuration)
   }
   lazy val nodeDirectoryServiceLocator = new DomainServiceLocator[NodeDirectoryService] {
-    def byDomain(implicit configuration: OrganizationConfiguration): NodeDirectoryService = baseServices(configuration)
+    def byDomain(implicit configuration: OrganizationConfiguration): NodeDirectoryService = baseServices.getResource(configuration)
   }
 
-  val basexStorage =  new HashMap[OrganizationConfiguration, BaseXStorage]
+  type CommonServiceType = AuthenticationService with RegistrationService with UserProfileService with OrganizationService with DirectoryService with NodeRegistrationService with NodeDirectoryService
 
-  var baseServices: Map[OrganizationConfiguration, AuthenticationService with RegistrationService with UserProfileService with OrganizationService with DirectoryService with NodeRegistrationService with NodeDirectoryService] = Map.empty
+  def basexStorages = basexStoragesHolder
+  def baseServices = baseServicesHolder
+
+  private var basexStoragesHolder: OrganizationConfigurationResourceHolder[BaseXConfiguration, BaseXStorage] = null
+  private var baseServicesHolder: OrganizationConfigurationResourceHolder[(String, CommonsServiceConfiguration), CommonServiceType] = null
 
   def init() {
 
-    baseServices = OrganizationConfigurationHandler.organizationConfigurations.map { configuration =>
+    basexStoragesHolder = new OrganizationConfigurationResourceHolder[BaseXConfiguration, BaseXStorage]("basexStorages") {
 
-      val services = configuration.commonsService.commonsHost match {
+      protected def resourceConfiguration(configuration: OrganizationConfiguration): BaseXConfiguration = configuration.baseXConfiguration
 
-        case host if (!host.isEmpty) =>
-          val node = configuration.commonsService.nodeName
-          val orgId = configuration.orgId
-          val apiToken = configuration.commonsService.apiToken
-          new CommonsServices(host, orgId, apiToken, node)
-
-        case host if (host.isEmpty) && !Play.isProd => {
-          // in development mode, load all hubUsers as basis for the remote ones
-          val users = HubUser.all.flatMap { users =>
-            users.findAll.map {
-              u => {
-                MemoryUser(
-                  u.userName,
-                  u.firstName,
-                  u.lastName,
-                  u.email,
-                  "secret",
-                  u.userProfile,
-                  true
-                )
-              }
-            }
-          }.map(u => (u.userName -> u)).toMap
-
-          val memoryServices = new MemoryServices
-          users.foreach {
-            u => memoryServices.users += u
-          }
-
-          // add example organizations
-          OrganizationConfigurationHandler.organizationConfigurations.foreach { configuration =>
-            val org = MemoryOrganization(orgId = configuration.orgId, name = Map("en" -> configuration.orgId.capitalize), admins = List("bob"))
-            memoryServices.organizations += (configuration.orgId -> org)
-
-            // now ensure that bob is member everywhere
-            HubUser.dao(configuration).addToOrganization("bob", configuration.orgId)
-          }
-          memoryServices
+      protected def onAdd(resourceConfiguration: BaseXConfiguration): Option[BaseXStorage] = {
+        try {
+          Some(new BaseXStorage(resourceConfiguration))
+        } catch {
+          case t: Throwable =>
+            log.error(s"Could not initialize BaseXStorage for host ${resourceConfiguration.host}", t)
+            None
         }
-
-
-        case _ => throw new RuntimeException("The remote services are not configured. You need to specify 'services.commons.host' and 'services.commons.apiToken")
       }
 
-      basexStorage += (configuration -> new BaseXStorage(configuration.baseXConfiguration))
+      protected def onRemove(removed: BaseXStorage) {
+        // TODO we may need to call stop() on the storage, check documentation
+      }
+    }
 
-      (configuration -> services)
+    baseServicesHolder = new OrganizationConfigurationResourceHolder[(String, CommonsServiceConfiguration), CommonServiceType]("baseServices") {
 
-    }.toMap
+      protected def resourceConfiguration(configuration: OrganizationConfiguration): (String, CommonsServiceConfiguration) = (configuration.orgId, configuration.commonsService)
 
+      protected def onAdd(resourceConfiguration: (String, CommonsServiceConfiguration)): Option[CommonServiceType] = {
+
+        var services: CommonServiceType = null
+
+        resourceConfiguration._2.commonsHost match {
+
+          case host if (!host.isEmpty) =>
+            val node = resourceConfiguration._2.nodeName
+            val orgId = resourceConfiguration._1
+            val apiToken = resourceConfiguration._2.apiToken
+            services = new CommonsServices(host, orgId, apiToken, node)
+            Some(services)
+
+          case host if (host.isEmpty) && !Play.isProd => {
+            // in development mode, load all hubUsers as basis for the remote ones
+            val users = HubUser.all.flatMap {
+              users =>
+                users.findAll.map {
+                  u =>
+                    {
+                      MemoryUser(
+                        u.userName,
+                        u.firstName,
+                        u.lastName,
+                        u.email,
+                        "secret",
+                        u.userProfile,
+                        true
+                      )
+                    }
+                }
+            }.map(u => (u.userName -> u)).toMap
+
+            val memoryServices = new MemoryServices
+            users.foreach {
+              u => memoryServices.users += u
+            }
+
+            // add example organizations
+            OrganizationConfigurationHandler.getAllCurrentConfigurations.foreach {
+              implicit configuration =>
+                val org = MemoryOrganization(orgId = configuration.orgId, name = Map("en" -> configuration.orgId.capitalize), admins = List("bob"))
+                memoryServices.organizations += (configuration.orgId -> org)
+
+                // now ensure that bob is member everywhere
+                HubUser.dao.addToOrganization("bob", configuration.orgId)
+            }
+
+            services = memoryServices
+            Some(services)
+          }
+
+          case _ =>
+            throw new RuntimeException("The remote services are not configured. You need to specify 'services.commons.host' and 'services.commons.apiToken")
+            None
+        }
+      }
+
+      protected def onRemove(removed: CommonServiceType) {
+        basexStoragesHolder = null
+        baseServicesHolder = null
+      }
+
+    }
+
+    OrganizationConfigurationHandler.registerResourceHolder(basexStorages)
+    OrganizationConfigurationHandler.registerResourceHolder(baseServices)
   }
-
 
 }

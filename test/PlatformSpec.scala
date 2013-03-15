@@ -1,5 +1,8 @@
 import core.CultureHubPlugin
 import models.OrganizationConfiguration
+import play.api.Play
+import play.api.Play.current
+import test.Specs2TestContext
 import util.OrganizationConfigurationHandler
 
 import play.api.test._
@@ -19,10 +22,10 @@ class PlatformSpec extends Specs2TestContext {
     "load configurations from disk into memory" in {
       withTestConfig {
 
-
-
-        organizationConfigurationHandler.startup(CultureHubPlugin.hubPlugins)
-        OrganizationConfiguration.startup(CultureHubPlugin.hubPlugins).size should not equalTo (0)
+        organizationConfigurationHandler.configure()
+        val (configurations, errors) = OrganizationConfiguration.buildConfigurations(Play.application.configuration, CultureHubPlugin.hubPlugins)
+        configurations.size should not equalTo (0)
+        errors.size should equalTo(0)
       }
     }
 

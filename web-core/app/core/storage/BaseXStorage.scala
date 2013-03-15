@@ -17,7 +17,6 @@ import models.BaseXConfiguration
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-
 class BaseXStorage(configuration: BaseXConfiguration) {
 
   val DEFAUL_BASEX_PATH_EXTENSION = "DOT"
@@ -34,6 +33,10 @@ class BaseXStorage(configuration: BaseXConfiguration) {
   def createCollection(collection: Collection): Collection = {
     storage.createDatabase(storageName(collection))
     collection
+  }
+
+  def renameCollection(collection: Collection, newName: String) {
+    storage.alter(storageName(collection), storageName(collection, newName))
   }
 
   def openCollection(collection: Collection): Option[Collection] = {
@@ -73,16 +76,16 @@ class BaseXStorage(configuration: BaseXConfiguration) {
       session =>
 
         val it = records.zipWithIndex
-        while(it.hasNext) {
+        while (it.hasNext) {
           val next = it.next()
-          if(next._2 % 10000 == 0) session.flush()
+          if (next._2 % 10000 == 0) session.flush()
           try {
             // we add the record on a path of its own, which is useful because then we know how many distinct records are stored in a BaseX collection
             // given that those path need to be valid file names, we do preemptive sanitization here
-            val sanitizedId = if(next._1.id.endsWith(".")) next._1.id + DEFAUL_BASEX_PATH_EXTENSION else next._1.id
+            val sanitizedId = if (next._1.id.endsWith(".")) next._1.id + DEFAUL_BASEX_PATH_EXTENSION else next._1.id
             session.add(sanitizedId, buildRecord(next._1, 0, namespaces, next._2))
           } catch {
-            case t =>
+            case t: Throwable =>
               Logger("CultureHub").error(next._1.toString)
               throw new StorageInsertionException(next._1.toString, t)
           }
@@ -91,7 +94,7 @@ class BaseXStorage(configuration: BaseXConfiguration) {
         }
         session.flush()
         session.createAttributeIndex()
-      }
+    }
     val end = System.currentTimeMillis()
     Logger("CultureHub").info("Storing %s records into BaseX took %s ms".format(inserted, end - start))
     inserted
@@ -123,12 +126,11 @@ class BaseXStorage(configuration: BaseXConfiguration) {
     </record>""".format(record.id, version, ns, record.schemaPrefix, index, record.document).getBytes("utf-8"))
   }
 
-
   // ~~~ Collection queries
 
   def currentCollectionVersion(implicit session: ClientSession): Int = {
     val v = session.findOne("let $r := /*:record return <currentCollectionVersion>{max($r/@version)}</currentCollectionVersion>").get.text
-    if(v.isEmpty) 0 else v.toInt
+    if (v.isEmpty) 0 else v.toInt
   }
 
   def count(implicit session: ClientSession): Int = {
@@ -145,9 +147,8 @@ class BaseXStorage(configuration: BaseXConfiguration) {
     session.findRaw("for $i in /*:record[@version = %s] order by number($i/system/index) return $i/*:document/*:input".format(currentVersion))
   }
 
+  private def storageName(c: Collection, newName: String) = c.getOwner + "____" + newName
   private def storageName(c: Collection) = c.getOwner + "____" + c.spec
 
 }
-
-
 

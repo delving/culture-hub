@@ -4,7 +4,7 @@ import core.SchemaService
 import eu.delving.metadata._
 import org.w3c.dom.Node
 import eu.delving.groovy.XmlSerializer
-import eu.delving.schema.{SchemaVersion, SchemaType}
+import eu.delving.schema.{ SchemaVersion, SchemaType }
 import java.io.ByteArrayInputStream
 
 /**

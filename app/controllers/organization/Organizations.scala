@@ -21,7 +21,7 @@ object Organizations extends BoundController(HubModule) with Organizations
 
 trait Organizations extends DelvingController { this: BoundController =>
 
-  val harvestCollectionLookupService = inject [ HarvestCollectionLookupService ]
+  val harvestCollectionLookupService = inject[HarvestCollectionLookupService]
 
   def index(orgId: String, language: Option[String]) = OrganizationBrowsing {
     Action {
@@ -52,6 +52,5 @@ trait Organizations extends DelvingController { this: BoundController =>
         Json(tokens)
     }
   }
-
 
 }

@@ -1,6 +1,6 @@
 package controllers
 
-import org.scala_tools.subcut.inject.{Injectable, BindingModule}
+import com.escalatesoft.subcut.inject.{ Injectable, BindingModule }
 
 /**
  * Base class allowing us to use subcut within controllers

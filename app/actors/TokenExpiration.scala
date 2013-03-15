@@ -1,10 +1,11 @@
 package actors
 
-import akka.actor.{Cancellable, Actor}
+import akka.actor.{ Cancellable, Actor }
 import models.HubUser
 import play.api.libs.concurrent.Akka
-import akka.util.duration._
+import scala.concurrent.duration._
 import play.api.Play.current
+import play.api.libs.concurrent.Execution.Implicits._
 
 /**
  * Authentication stuff.
@@ -16,22 +17,20 @@ class TokenExpiration extends Actor {
 
   private var scheduler: Cancellable = null
 
-
   override def preStart() {
     scheduler = Akka.system.scheduler.schedule(
-          0 seconds,
-          5 minutes,
-          self,
-          EvictOAuth2Tokens
-        )
+      0 seconds,
+      5 minutes,
+      self,
+      EvictOAuth2Tokens
+    )
   }
-
 
   override def postStop() {
     scheduler.cancel()
   }
 
-  protected def receive = {
+  def receive = {
     case EvictOAuth2Tokens => HubUser.all.foreach(u => u.evictExpiredAccessTokens())
   }
 }

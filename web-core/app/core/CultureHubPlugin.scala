@@ -1,16 +1,16 @@
 package core
 
-import _root_.util.OrganizationConfigurationHandler
-import core.access.ResourceLookup
+import util.{ OrganizationConfigurationResourceHolder, OrganizationConfigurationHandler }
+import access.{ ResourceType, ResourceLookup }
 import scala.collection.immutable.ListMap
 import scala.util.matching.Regex
 import play.api._
 import libs.concurrent.Akka
 import play.api.Play.current
-import mvc.{RequestHeader, Handler}
-import models.{Role, OrganizationConfiguration}
+import mvc.{ RequestHeader, Handler }
+import models.{ Role, OrganizationConfiguration }
 import scala.collection.JavaConverters._
-import akka.actor.{ActorRef, Props, Actor}
+import akka.actor.{ ActorContext, ActorRef, Props, Actor }
 
 /**
  * The CultureHub plugin contract, allowing to influence the appearance and functionality of the Hub.
@@ -50,6 +50,12 @@ abstract class CultureHubPlugin(app: Application) extends play.api.Plugin {
    *
    */
   def onBuildConfiguration(configurations: Map[OrganizationConfiguration, Option[Configuration]]) {}
+
+  /**
+   * Called at actor initialization time. Plugins that make use of the ActorSystem should initialize their actors here
+   * @param context the [[ ActorContext ]] for this plugin
+   */
+  def onActorInitialization(context: ActorContext) {}
 
   /**
    * Helper method for configuration building
@@ -117,7 +123,7 @@ abstract class CultureHubPlugin(app: Application) extends play.api.Plugin {
   /**
    * Override this to provide the necessary lookup for a [[core.access.Resource]] depicted by a [[models.Role]]
    * @return
-   **/
+   */
   def resourceLookups: Seq[ResourceLookup] = Seq.empty
 
   /**
@@ -129,8 +135,7 @@ abstract class CultureHubPlugin(app: Application) extends play.api.Plugin {
    * Handler for plugin messaging, based on Akka actors.
    * Override this method to handle particular messages.
    */
-  def receive: Actor.Receive = { case _ @ message => }
-
+  def receive: Actor.Receive = { case _@ message => }
 
   // ~~~ API
 
@@ -151,7 +156,7 @@ abstract class CultureHubPlugin(app: Application) extends play.api.Plugin {
    * @param configuration the [[models.OrganizationConfiguration]]
    * @return a sequence of MenuEntries
    */
-  def getOrganizationNavigation(orgId: String, lang: String, roles: Seq[String], isMember: Boolean)(implicit configuration: OrganizationConfiguration) = if(isEnabled(configuration)) {
+  def getOrganizationNavigation(orgId: String, lang: String, roles: Seq[String], isMember: Boolean)(implicit configuration: OrganizationConfiguration) = if (isEnabled(configuration)) {
     organizationMenuEntries(configuration, lang, roles).
       filter(e => !e.membersOnly || (e.membersOnly && isMember && (e.roles.isEmpty || e.roles.map(_.key).intersect(roles).size > 0))).
       map(i => i.copy(items = i.items.filter(item => item.roles.isEmpty || (!item.roles.isEmpty && item.roles.map(_.key).intersect(roles).size > 0))))
@@ -173,37 +178,49 @@ abstract class CultureHubPlugin(app: Application) extends play.api.Plugin {
     services.find(s => serviceClass.isAssignableFrom(s.getClass)).map(_.asInstanceOf[T])
   }
 
-
   // ~~~ Play Plugin lifecycle integration
 
   /** finds out whether this plugin is enabled at all, for the whole hub **/
   override def enabled: Boolean = {
-    val config = app.configuration.getConfig("configurations").get
-    val allOrganizationConfigurations: Seq[String] = config.keys.filterNot(_.indexOf(".") < 0).map(_.split("\\.").head).toList.distinct
-    val plugins: Seq[String] = allOrganizationConfigurations.flatMap {
-      key => {
-        val configuration = config.getConfig(key).get
-        configuration.underlying.getStringList("plugins").asScala.toSeq
+    app.configuration.getConfig("configurations").map { config =>
+      val allOrganizationConfigurations: Seq[String] = config.keys.filterNot(_.indexOf(".") < 0).map(_.split("\\.").head).toList.distinct
+      val plugins: Seq[String] = allOrganizationConfigurations.flatMap {
+        key =>
+          {
+            val configuration = config.getConfig(key).get
+            configuration.underlying.getStringList("plugins").asScala.toSeq
+          }
+      }
+      plugins.distinct.contains(pluginKey)
+    }.getOrElse {
+      if (app.configuration.underlying.hasPath("cultureHub.plugins")) {
+        app.configuration.underlying.getStringList("cultureHub.plugins").asScala.contains(pluginKey)
+      } else {
+        log.error("Fatal error: could not read plugin configurations, config is:\n" + app.configuration.underlying.origin())
+        System.exit(-1)
+        false
       }
     }
-    plugins.distinct.contains(pluginKey)
   }
 
   override def hashCode(): Int = pluginKey.hashCode
 
   override def equals(plugin: Any): Boolean = plugin.isInstanceOf[CultureHubPlugin] && plugin.asInstanceOf[CultureHubPlugin].pluginKey == pluginKey
 
-
-
 }
 
 object CultureHubPlugin {
 
-  lazy val broadcastingPluginActorReferences: Map[OrganizationConfiguration, ActorRef] = {
-    OrganizationConfigurationHandler.organizationConfigurations.map { implicit configuration =>
-      (configuration -> Akka.system.actorFor("akka://application/user/plugins-" + configuration.orgId))
-    }.toMap
+  val broadcastingPluginActorReferences = new OrganizationConfigurationResourceHolder[OrganizationConfiguration, ActorRef]("broadcastingPluginActorReferences") {
+
+    protected def resourceConfiguration(configuration: OrganizationConfiguration): OrganizationConfiguration = configuration
+
+    protected def onAdd(resourceConfiguration: OrganizationConfiguration): Option[ActorRef] = Some(Akka.system.actorFor("akka://application/user/plugins-" + resourceConfiguration.orgId))
+
+    protected def onRemove(removed: ActorRef) { Akka.system.stop(removed) }
   }
+
+  OrganizationConfigurationHandler.registerResourceHolder(broadcastingPluginActorReferences)
 
   /**
    * All available hub plugins to the application
@@ -219,11 +236,11 @@ object CultureHubPlugin {
    * @return the set of active plugins
    */
   def getEnabledPlugins(implicit configuration: OrganizationConfiguration): Seq[CultureHubPlugin] = Play.application.plugins
-      .filter(_.isInstanceOf[CultureHubPlugin])
-      .map(_.asInstanceOf[CultureHubPlugin])
-      .filter(_.isEnabled(configuration))
-      .toList
-      .distinct
+    .filter(_.isInstanceOf[CultureHubPlugin])
+    .map(_.asInstanceOf[CultureHubPlugin])
+    .filter(_.isEnabled(configuration))
+    .toList
+    .distinct
 
   /**
    * Gets all service implementations of a certain type provided by all plugins
@@ -251,13 +268,37 @@ object CultureHubPlugin {
    * @param configuration the [[models.OrganizationConfiguration]] being accessed
    */
   def broadcastMessage(message: Any)(implicit configuration: OrganizationConfiguration) {
-    broadcastingPluginActorReferences.get(configuration).map { ref =>
-      ref ! message
-    }.getOrElse {
-      Logger("CultureHub").warn("Could not broadcast message %s to plugins of organization %s: no actor found".format(message, configuration.orgId))
-    }
+    broadcastingPluginActorReferences.getResource(configuration) ! message
   }
 
+  /**
+   * Find the ResourceLookup for a given ResourceType
+   * @param resourceType the [[ ResourceType ]] for this lookup
+   * @param configuration the [[models.OrganizationConfiguration]] being accessed
+   * @return an optional [[ ResourceLookup]]
+   */
+  def getResourceLookup(resourceType: ResourceType)(implicit configuration: OrganizationConfiguration): Option[ResourceLookup] = {
+    CultureHubPlugin.
+      getEnabledPlugins.
+      flatMap(plugin => plugin.resourceLookups).
+      find(lookup => lookup.resourceType == resourceType)
+  }
+
+  /**
+   * Whether the quota for this resource has been reached or exceeded
+   * @param resourceType the [[ ResourceType ]] for which to check the quota
+   * @param configuration the [[models.OrganizationConfiguration]] being accessed
+   * @return whether the quota has been reached or exceeded
+   */
+  def isQuotaExceeded(resourceType: ResourceType)(implicit configuration: OrganizationConfiguration): Boolean = {
+    configuration.quotas.get(resourceType.resourceType).map { limit =>
+      limit > -1 && (
+        getResourceLookup(resourceType).map { lookup =>
+          lookup.totalResourceCount >= limit
+        }.getOrElse(false)
+      )
+    }.getOrElse(false)
+  }
 
 }
 
@@ -282,10 +323,11 @@ case class MenuElement(url: String, titleKey: String, roles: Seq[Role] = Seq.emp
 
 case class RequestContext(request: RequestHeader, configuration: OrganizationConfiguration, renderArgs: scala.collection.mutable.Map[String, AnyRef], lang: String)
 
+// ~~~ Plugin Messaging
+
 class BroadcastingPluginActor(implicit configuration: OrganizationConfiguration) extends Actor {
 
   var routees: Seq[ActorRef] = Seq.empty
-
 
   override def preStart() {
     routees = CultureHubPlugin.getEnabledPlugins.map { plugin =>
@@ -293,12 +335,42 @@ class BroadcastingPluginActor(implicit configuration: OrganizationConfiguration)
     }
   }
 
-  protected def receive: BroadcastingPluginActor#Receive = {
-    case message@_ =>
+  def receive: BroadcastingPluginActor#Receive = {
+    case message @ _ =>
       routees.foreach { r => r ! message }
   }
 }
 
 class PluginActor(plugin: CultureHubPlugin) extends Actor {
-  protected def receive: PluginActor#Receive = plugin.receive
+  def receive: PluginActor#Receive = plugin.receive
+}
+
+// ~~~ Plugin Actor
+
+case class Initialize(onInit: ActorContext => Unit)
+
+class PluginRootActor(plugin: CultureHubPlugin) extends Actor {
+
+  private val log = Logger("CultureHub")
+
+  override def preStart() {
+    plugin.onActorInitialization(context)
+  }
+
+  override def preRestart(reason: Throwable, message: Option[Any]) {
+    log.error(s"Root actor for plugin ${plugin.pluginKey} is restarting because: ${reason.getMessage}", reason)
+    super.preRestart(reason, message)
+  }
+
+  def receive: PluginRootActor#Receive = {
+    case _ => // don't do anything. we simply supervise.
+  }
+}
+
+object PluginRootActor {
+
+  def initialize(actor: ActorRef, onInit: ActorContext => Unit) {
+    actor ! Initialize(onInit)
+  }
+
 }

@@ -13,15 +13,15 @@ import play.api.Play.current
  */
 
 case class HubUser(_id: ObjectId = new ObjectId,
-                userName: String,                                 // userName, unique in the world
-                firstName: String,
-                lastName: String,
-                email: String,
-                userProfile: UserProfile,
-                groups: List[ObjectId] = List.empty[ObjectId],    // groups this user belongs to
-                organizations: List[String] = List.empty[String], // organizations this user belongs to
-                accessToken: Option[AccessToken] = None,
-                refreshToken: Option[String] = None) {
+    userName: String, // userName, unique in the world
+    firstName: String,
+    lastName: String,
+    email: String,
+    userProfile: UserProfile,
+    groups: List[ObjectId] = List.empty[ObjectId], // groups this user belongs to
+    organizations: List[String] = List.empty[String], // organizations this user belongs to
+    accessToken: Option[AccessToken] = None,
+    refreshToken: Option[String] = None) {
 
   val fullname = firstName + " " + lastName
 
@@ -40,7 +40,6 @@ object HubUser extends MultiModel[HubUser, HubUserDAO] {
   }
 
   protected def initDAO(collection: MongoCollection, connection: MongoDB)(implicit configuration: OrganizationConfiguration): HubUserDAO = new HubUserDAO(collection)
-
 
   // ~~~ OAuth 2
 
@@ -67,39 +66,40 @@ class HubUserDAO(collection: MongoCollection) extends SalatDAO[HubUser, ObjectId
 
   def addToOrganization(userName: String, orgId: String): Boolean = {
     try {
-      update(MongoDBObject("userName" -> userName), $addToSet ("organizations" -> orgId), false, false, WriteConcern.Safe)
+      update(MongoDBObject("userName" -> userName), $addToSet("organizations" -> orgId), false, false, WriteConcern.Safe)
     } catch {
-      case _ => return false
+      case t: Throwable => return false
     }
     true
   }
 
   def removeFromOrganization(userName: String, orgId: String)(implicit configuration: OrganizationConfiguration): Boolean = {
     try {
-      update(MongoDBObject("userName" -> userName), $pull ("organizations" -> orgId), false, false, WriteConcern.Safe)
+      update(MongoDBObject("userName" -> userName), $pull("organizations" -> orgId), false, false, WriteConcern.Safe)
 
       // remove from all groups
       Group.dao.findDirectMemberships(userName).foreach {
         group => Group.dao.removeUser(orgId, userName, group._id)
       }
     } catch {
-      case _ => return false
+      case t: Throwable => return false
     }
     true
   }
-  
+
   def listOrganizationMembers(orgId: String): List[String] = {
     find(MongoDBObject("organizations" -> orgId)).map(_.userName).toList
   }
-  
+
   // ~~~ various
-  
+
   def updateProfile(userName: String, firstName: String, lastName: String, email: String, profile: UserProfile) {
     findByUsername(userName).map {
-      u => {
-        val updated = u.copy(firstName = firstName, lastName = lastName, email = email, userProfile = profile)
-        save(updated)
-      }
+      u =>
+        {
+          val updated = u.copy(firstName = firstName, lastName = lastName, email = email, userProfile = profile)
+          save(updated)
+        }
     }
   }
 
@@ -115,7 +115,7 @@ class HubUserDAO(collection: MongoCollection) extends SalatDAO[HubUser, ObjectId
   }
 
   def findByAccessToken(token: String): Option[HubUser] = {
-    if((Play.isTest || Play.isDev) && token == "TEST") return findOne(MongoDBObject("userName" -> "bob"))
+    if ((Play.isTest || Play.isDev) && token == "TEST") return findOne(MongoDBObject("userName" -> "bob"))
     findOne(MongoDBObject("accessToken.token" -> token))
   }
 
@@ -127,6 +127,5 @@ class HubUserDAO(collection: MongoCollection) extends SalatDAO[HubUser, ObjectId
     val delta = System.currentTimeMillis() - timeout * 1000
     update("accessToken.issueTime" $lt delta, MongoDBObject("$unset" -> MongoDBObject("accessToken" -> 1)))
   }
-
 
 }

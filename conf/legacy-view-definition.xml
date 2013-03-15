@@ -24,11 +24,11 @@
                 </list>
             </elem>
             <elem name="item">
-                <list name="fields" path="//*[local-name()='record']/*[fn:not(fn:contains('relatedItems', local-name()))]">
+                <list name="fields" path="//*[local-name()='record']/*[not(contains('relatedItems', local-name()))]">
                     <auto-field/>
                 </list>
             </elem>
-            <list name="relatedItems" path="//*[local-name()='record']/*[fn:contains('relatedItems', local-name())]/*">
+            <list name="relatedItems" path="//*[local-name()='record']/*[contains('relatedItems', local-name())]/*">
                 <elem name="item">
                     <list name="fields" path="fields/*">
                         <auto-field/>

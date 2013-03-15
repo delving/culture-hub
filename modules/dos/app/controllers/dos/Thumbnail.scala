@@ -1,15 +1,15 @@
 package controllers.dos
 
 import org.bson.types.ObjectId
-import com.mongodb.casbah.gridfs.{GridFS, GridFSDBFile}
+import com.mongodb.casbah.gridfs.{ GridFS, GridFSDBFile }
 import java.awt.image.BufferedImage
 import javax.imageio.ImageIO
 import java.io._
 import org.imgscalr.Scalr
 import play.api.libs.Files.TemporaryFile
 import org.apache.commons.io.IOUtils
-import org.im4java.core.{IMOperation, ImageCommand}
-import play.api.{Logger, Play}
+import org.im4java.core.{ IMOperation, ImageCommand }
+import play.api.{ Logger, Play }
 import play.api.Play.current
 import java.util.UUID
 import org.im4java.process.ErrorConsumer
@@ -47,7 +47,7 @@ trait Thumbnail {
     val thumbnail = store.createFile(thumbnailStream)
     thumbnail.filename = filename
     thumbnail.contentType = contentType
-    thumbnail.put (THUMBNAIL_WIDTH_FIELD, width.asInstanceOf[AnyRef])
+    thumbnail.put(THUMBNAIL_WIDTH_FIELD, width.asInstanceOf[AnyRef])
     params.foreach { p => thumbnail.put(p._1, p._2) }
     thumbnail.save
     (width, thumbnail._id.get)
@@ -74,7 +74,6 @@ trait Thumbnail {
 
       val thumbnailFile = TemporaryFile(UUID.randomUUID().toString, ".png")
       logger.debug("Set temporary thumbnail file path to " + thumbnailFile.file.getAbsolutePath)
-
 
       // TODO consolidate all places using GM
       val gmCommand = Play.configuration.getString("dos.graphicsmagic.cmd").getOrElse("")
@@ -114,6 +113,5 @@ trait Thumbnail {
       Scalr.resize(bufferedImage, Scalr.Mode.FIT_TO_WIDTH, width)
     }
   }
-
 
 }

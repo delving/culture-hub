@@ -11,14 +11,13 @@ import models.HubMongoContext._
  */
 
 case class DataSetEventLog(_id: ObjectId = new ObjectId,
-                           orgId: String,
-                           spec: String,
-                           eventType: String,
-                           payload: Option[String],
-                           userName: Option[String],
-                           systemEvent: Boolean = false,
-                           transientEvent: Boolean = false
-                          )
+  orgId: String,
+  spec: String,
+  eventType: String,
+  payload: Option[String],
+  userName: Option[String],
+  systemEvent: Boolean = false,
+  transientEvent: Boolean = false)
 
 object DataSetEventLog extends MultiModel[DataSetEventLog, DataSetEventLogDAO] {
 

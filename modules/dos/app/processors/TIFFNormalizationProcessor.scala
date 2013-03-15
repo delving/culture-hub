@@ -18,8 +18,8 @@ package processors
 
 import models.dos.Task
 import org.im4java.process.OutputConsumer
-import org.im4java.core.{ImageCommand, IMOperation}
-import java.io.{File, InputStreamReader, BufferedReader, InputStream}
+import org.im4java.core.{ ImageCommand, IMOperation }
+import java.io.{ File, InputStreamReader, BufferedReader, InputStream }
 import libs.Normalizer
 import org.apache.commons.io.FileUtils
 
@@ -40,12 +40,19 @@ object TIFFNormalizationProcessor extends Processor {
 
     val images = task.pathAsFile.listFiles().filter(f => isImage(f.getName))
     Task.dao(task.orgId).setTotalItems(task, images.size)
+    info(task, s"Starting to normalize images for path '${task.path}', parameters: ${parameterList(task)}")
 
     for (i <- images; if (!task.isCancelled)) {
-      Normalizer.normalize(i, workDir).map { file =>
-        i.renameTo(new File(originalDir, i.getName))
-        file.renameTo(new File(task.pathAsFile, i.getName))
-        info(task, """Image %s normalized succesfully, moved original to directory "_original"""".format(i.getName), Some(i.getAbsolutePath), Some(file.getAbsolutePath))
+      try {
+        Normalizer.normalize(i, workDir).map { file =>
+          i.renameTo(new File(originalDir, i.getName))
+          file.renameTo(new File(task.pathAsFile, i.getName))
+          info(task, """Image %s normalized succesfully, moved original to directory "_original"""".format(i.getName), Some(i.getAbsolutePath), Some(file.getAbsolutePath))
+        }
+      } catch {
+        case t: Throwable =>
+          t.printStackTrace()
+          error(task, s"Error while normalizing image ${i.getAbsolutePath}: ${t.getMessage}")
       }
       Task.dao(task.orgId).incrementProcessedItems(task, 1)
     }

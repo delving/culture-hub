@@ -1,0 +1,9 @@
+<div class="control-group">
+    <label for="${_name}" class="${_labelClass}">${_label} #{if _required}<span class="required">*</span>#{/if}</label>
+    <div class="controls">
+        <select id="${_name}" name="${_name}" data-bind="${_dataBind}" #{if _multiple}multiple="true"#{/if}>
+        </select>
+        <span class="error" data-bind="text: errors().${_name.replaceAll("\\.", "_")}">${views.Helpers.showError(_name, _form)}</span>
+        <span class="help-inline">${_help}</span>
+    </div>
+</div>

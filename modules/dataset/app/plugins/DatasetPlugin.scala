@@ -1,28 +1,27 @@
 package plugins
 
-import _root_.services.{DataSetLookupService, MetadataRecordResolverService}
+import services.{ DataSetLookupService, MetadataRecordResolverService }
 import jobs._
-import play.api.{Play, Application}
+import play.api.{ Play, Application }
+import play.api.mvc.Handler
 import Play.current
 import models._
-import _root_.processing.DataSetCollectionProcessor
+import processing.{ ProcessDataSetCollection, DataSetCollectionProcessor }
 import util.OrganizationConfigurationHandler
 import java.util.zip.GZIPInputStream
 import com.mongodb.BasicDBObject
 import io.Source
 import play.api.libs.concurrent.Akka
-import akka.actor.Props
-import akka.routing.RoundRobinRouter
-import akka.actor.SupervisorStrategy.Restart
-import controllers.{organization, ReceiveSource}
+import akka.actor._
+import akka.routing._
+import akka.actor.SupervisorStrategy._
+import controllers.{ organization, ReceiveSource }
 import core.indexing.IndexingService
 import scala.collection.immutable.ListMap
 import scala.collection.JavaConverters._
 import scala.util.matching.Regex
-import play.api.mvc.Handler
 import core._
-import core.access.{ResourceType, Resource, ResourceLookup}
-import akka.actor.OneForOneStrategy
+import core.access.{ ResourceType, Resource, ResourceLookup }
 import com.mongodb.casbah.commons.MongoDBObject
 import java.util.regex.Pattern
 import java.io.FileInputStream
@@ -33,27 +32,30 @@ class DataSetPlugin(app: Application) extends CultureHubPlugin(app) {
 
   private val dataSetHarvestCollectionLookup = new DataSetLookupService
 
+  // only for testing...
+  private var testDataProcessor: ActorRef = null
+
   val schemaService: SchemaService = HubModule.inject[SchemaService](name = None)
 
   /**
-
-        GET         /:user/sip-creator.jnlp                                           controllers.organization.SipCreator.jnlp(user)
-
-        GET         /organizations/:orgId/dataset                                     controllers.organization.DataSets.list(orgId)
-        GET         /organizations/:orgId/dataset/feed                                controllers.organization.DataSets.feed(orgId, clientId: String, spec: Option[String])
-        GET         /organizations/:orgId/dataset/add                                 controllers.organization.DataSetControl.dataSet(orgId, spec: Option[String] = None)
-        GET         /organizations/:orgId/dataset/:spec/update                        controllers.organization.DataSetControl.dataSet(orgId, spec: Option[String])
-        POST        /organizations/:orgId/dataset/submit                              controllers.organization.DataSetControl.dataSetSubmit(orgId)
-        GET         /organizations/:orgId/dataset/:spec                               controllers.organization.DataSets.dataSet(orgId, spec)
-
-        GET         /organizations/:orgId/sip-creator                                 controllers.organization.SipCreator.index(orgId)
-
-        GET         /api/sip-creator/list                                             controllers.SipCreatorEndPoint.listAll(accessKey: Option[String] ?= None)
-        GET         /api/sip-creator/unlock/:orgId/:spec                              controllers.SipCreatorEndPoint.unlock(orgId, spec, accessKey: Option[String] ?= None)
-        POST        /api/sip-creator/submit/:orgId/:spec                              controllers.SipCreatorEndPoint.acceptFileList(orgId, spec, accessKey: Option[String] ?= None)
-        POST        /api/sip-creator/submit/:orgId/:spec/:fileName                    controllers.SipCreatorEndPoint.acceptFile(orgId, spec, fileName, accessKey: Option[String] ?= None)
-        GET         /api/sip-creator/fetch/:orgId/:spec-sip.zip                       controllers.SipCreatorEndPoint.fetchSIP(orgId, spec, accessKey: Option[String] ?= None)
-
+   *
+   * GET         /:user/sip-creator.jnlp                                           controllers.organization.SipCreator.jnlp(user)
+   *
+   * GET         /organizations/:orgId/dataset                                     controllers.organization.DataSets.list(orgId)
+   * GET         /organizations/:orgId/dataset/feed                                controllers.organization.DataSets.feed(orgId, clientId: String, spec: Option[String])
+   * GET         /organizations/:orgId/dataset/add                                 controllers.organization.DataSetControl.dataSet(orgId, spec: Option[String] = None)
+   * GET         /organizations/:orgId/dataset/:spec/update                        controllers.organization.DataSetControl.dataSet(orgId, spec: Option[String])
+   * POST        /organizations/:orgId/dataset/submit                              controllers.organization.DataSetControl.dataSetSubmit(orgId)
+   * GET         /organizations/:orgId/dataset/:spec                               controllers.organization.DataSets.dataSet(orgId, spec)
+   *
+   * GET         /organizations/:orgId/sip-creator                                 controllers.organization.SipCreator.index(orgId)
+   *
+   * GET         /api/sip-creator/list                                             controllers.SipCreatorEndPoint.listAll(accessKey: Option[String] ?= None)
+   * GET         /api/sip-creator/unlock/:orgId/:spec                              controllers.SipCreatorEndPoint.unlock(orgId, spec, accessKey: Option[String] ?= None)
+   * POST        /api/sip-creator/submit/:orgId/:spec                              controllers.SipCreatorEndPoint.acceptFileList(orgId, spec, accessKey: Option[String] ?= None)
+   * POST        /api/sip-creator/submit/:orgId/:spec/:fileName                    controllers.SipCreatorEndPoint.acceptFile(orgId, spec, fileName, accessKey: Option[String] ?= None)
+   * GET         /api/sip-creator/fetch/:orgId/:spec-sip.zip                       controllers.SipCreatorEndPoint.fetchSIP(orgId, spec, accessKey: Option[String] ?= None)
+   *
    */
 
   override val routes: ListMap[(String, Regex), (List[String], Map[String, String]) => Handler] = ListMap(
@@ -159,11 +161,19 @@ class DataSetPlugin(app: Application) extends CultureHubPlugin(app) {
   /**
    * Override this to provide the necessary lookup for a [[core.access.Resource]] depicted by a [[models.Role]]
    * @return
-   **/
+   */
   override val resourceLookups: Seq[core.access.ResourceLookup] = Seq(
     new ResourceLookup {
 
       def resourceType: ResourceType = DataSet.RESOURCE_TYPE
+
+      /**
+       * The total number of resources of this type
+       * @return the number of resources for this ResourceType
+       */
+      def totalResourceCount(implicit configuration: OrganizationConfiguration): Int = {
+        DataSet.dao.count().toInt
+      }
 
       /**
        * Queries resources by type and name
@@ -192,16 +202,12 @@ class DataSetPlugin(app: Application) extends CultureHubPlugin(app) {
   )
 
   /**
-   * Runs globally on application start, for the whole Hub. Make sure that whatever you run here is multitenancy-aware
+   * Called at actor initialization time. Plugins that make use of the ActorSystem should initialize their actors here
+   * @param context the [[ ActorContext ]] for this plugin
    */
-  override def onStart() {
-
-    checkSchemas()
-
-    // ~~~ jobs
-
+  override def onActorInitialization(context: ActorContext) {
     // DataSet source parsing
-    Akka.system.actorOf(
+    context.actorOf(
       Props[ReceiveSource].withRouter(
         RoundRobinRouter(Runtime.getRuntime.availableProcessors(), supervisorStrategy = OneForOneStrategy() {
           case _ => Restart
@@ -210,29 +216,29 @@ class DataSetPlugin(app: Application) extends CultureHubPlugin(app) {
     )
 
     // DataSet processing
-    // Play can't do multi-threading in DEV mode...
-    if (Play.isDev) {
-      Akka.system.actorOf(Props[Processor], name = "dataSetProcessor")
-    }
-    else {
-      Akka.system.actorOf(
-        Props[Processor].withRouter(
-          RoundRobinRouter(
-            Runtime.getRuntime.availableProcessors(),
-            supervisorStrategy = OneForOneStrategy() {
-              case _ => Restart
-            }
-          )
-        ),
-        name = "dataSetProcessor"
-      )
-    }
+    context.actorOf(Props[Processor].withRouter(
+      RoundRobinRouter(2, supervisorStrategy = OneForOneStrategy() {
+        case _ => Restart
+      })
+    ), name = "dataSetProcessor")
 
     // Processing queue watcher
-    Akka.system.actorOf(Props[ProcessingQueueWatcher])
+    context.actorOf(Props[ProcessingQueueWatcher])
 
     // DataSet event log housekeeping
-    Akka.system.actorOf(Props[DataSetEventHousekeeper])
+    context.actorOf(Props[DataSetEventHousekeeper])
+
+    // only for testing
+    testDataProcessor = context.actorOf(Props[DataSetCollectionProcessor])
+
+  }
+
+  /**
+   * Runs globally on application start, for the whole Hub. Make sure that whatever you run here is multitenancy-aware
+   */
+  override def onStart() {
+
+    checkSchemas()
 
     // ~~~ cleanup set states
 
@@ -257,7 +263,7 @@ class DataSetPlugin(app: Application) extends CultureHubPlugin(app) {
             } finally {
               dataSetDAO.updateState(set, DataSetState.UPLOADED)
             }
-        }
+          }
       }
     }
   }
@@ -299,7 +305,7 @@ class DataSetPlugin(app: Application) extends CultureHubPlugin(app) {
           |
           |%s
         """.stripMargin.format(
-          missingVersions.map( missing =>
+          missingVersions.map(missing =>
             "%s -> %s".format(
               missing._1, missing._2.map("'%s'".format(_)).mkString(", ")
             )
@@ -387,7 +393,7 @@ class DataSetPlugin(app: Application) extends CultureHubPlugin(app) {
       val dataSet = DataSet.dao.findBySpecAndOrgId(boot.spec, boot.org).get
 
       // provision records, but only if necessary
-      if (HubServices.basexStorage(configuration).openCollection(dataSet).isEmpty) {
+      if (HubServices.basexStorages.getResource(configuration).openCollection(dataSet).isEmpty) {
         val sourceFile = boot.file("source.xml.gz")
         _root_.controllers.SipCreatorEndPoint.loadSourceData(
           dataSet,
@@ -398,17 +404,35 @@ class DataSetPlugin(app: Application) extends CultureHubPlugin(app) {
 
       if (Play.isTest) {
         val dataSet = DataSet.dao.findBySpecAndOrgId(boot.spec, boot.org).get
+
         DataSet.dao.updateState(dataSet, DataSetState.QUEUED)
-        DataSetCollectionProcessor.process(dataSet, {
-          DataSet.dao.updateProcessingInstanceIdentifier(dataSet, None)
-          DataSet.dao.updateState(dataSet, DataSetState.ENABLED)
-        })
+        var processing = true
+        testDataProcessor ! ProcessDataSetCollection(
+          set = dataSet,
+          onSuccess = { () =>
+            DataSet.dao.updateProcessingInstanceIdentifier(dataSet, None)
+            DataSet.dao.updateState(dataSet, DataSetState.ENABLED)
+            processing = false
+          },
+          onFailure = { t =>
+            DataSet.dao.updateProcessingInstanceIdentifier(dataSet, None)
+            DataSet.dao.updateState(dataSet, DataSetState.ERROR, errorMessage = Some(t.getMessage))
+            processing = false
+          },
+          configuration
+        )
+
+        while (processing) {
+          // we need to block because otherwise the test aren't prepared correctly
+          // of course something that would simulate and generate processing data would be the proper way to go here
+          Thread.sleep(500)
+        }
       }
 
       boot.init()
     }
 
-    }
+  }
 }
 
 object DataSetPlugin {

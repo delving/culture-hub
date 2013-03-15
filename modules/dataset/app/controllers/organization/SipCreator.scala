@@ -26,7 +26,7 @@ object SipCreator extends OrganizationController {
     Action {
       implicit request =>
 
-        val host = request.domain + ":9000"
+        val host = request.domain + ":80" // we need the port for the sip-creator
         val home = "http://" + host + "/" + user
         val codebase = "http://" + host + "/assets/sip-creator/"
 
@@ -37,14 +37,12 @@ object SipCreator extends OrganizationController {
           new Date(url.openConnection().getLastModified)
         }
 
-
-
         Ok(jnlp).
           as("application/x-java-jnlp-file").
           withHeaders(
-          (CACHE_CONTROL, "no-cache"),
-          (LAST_MODIFIED, format.format(lastModified))
-        )
+            (CACHE_CONTROL, "no-cache"),
+            (LAST_MODIFIED, format.format(lastModified))
+          )
     }
   }
 

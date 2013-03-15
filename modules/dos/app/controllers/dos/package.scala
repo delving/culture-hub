@@ -16,23 +16,23 @@
 
 package controllers {
 
-import models.HubMongoContext
+  import models.HubMongoContext
 
-package object dos extends HubMongoContext {
+  package object dos extends HubMongoContext {
 
-  val emptyThumbnailPath = "/public/images/dummy-object.png"
-  val emptyThumbnailUrl = "/assets/dos/images/dummy-object.png"
+    val emptyThumbnailPath = "/public/images/dummy-object.png"
+    val emptyThumbnailUrl = "/assets/dos/images/dummy-object.png"
 
-  val DEFAULT_THUMBNAIL_WIDTH = 220
-  val thumbnailSizes = Map("tiny" -> 80, "thumbnail" -> 100, "smaller" -> 180, "small" -> 220, "story" -> 350, "big" -> 500)
+    val DEFAULT_THUMBNAIL_WIDTH = 220
+    val thumbnailSizes = Map("tiny" -> 80, "thumbnail" -> 100, "smaller" -> 180, "small" -> 220, "story" -> 350, "big" -> 500)
 
-  val THUMBNAIL_WIDTH_FIELD = "thumbnail_width"
+    val THUMBNAIL_WIDTH_FIELD = "thumbnail_width"
 
-  val ORGANIZATION_IDENTIFIER_FIELD = "orgId"
-  val COLLECTION_IDENTIFIER_FIELD = "collectionId"
+    val ORGANIZATION_IDENTIFIER_FIELD = "orgId"
+    val COLLECTION_IDENTIFIER_FIELD = "collectionId"
 
-  val TASK_ID = "task_id" // mongo id of the task that led to the creation of this thing
+    val TASK_ID = "task_id" // mongo id of the task that led to the creation of this thing
 
-}
+  }
 
 }

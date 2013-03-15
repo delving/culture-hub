@@ -58,9 +58,9 @@ object MCP extends Controller with Extensions with GroovyTemplates {
 }
 
 case class BrowserFile(path: String,
-                       name: String,
-                       isDir: Boolean,
-                       contentType: String) {
+    name: String,
+    isDir: Boolean,
+    contentType: String) {
 
   def isImage = contentType.contains("image")
 

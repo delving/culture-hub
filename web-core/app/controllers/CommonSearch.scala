@@ -5,7 +5,7 @@ import core.search.BriefItemView
 import core.search.CHResponse
 import core.search.Params
 import play.api.mvc.RequestHeader
-import models.{Visibility, OrganizationConfiguration}
+import models.{ Visibility, OrganizationConfiguration }
 
 /**
  * Temporary shared controller, until search is a plugin and all dependencies match

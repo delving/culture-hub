@@ -1,5 +1,7 @@
 package core.access
 
+import models.OrganizationConfiguration
+
 /**
  * A Resource made accessible by a [[models.Role]]
  *
@@ -27,6 +29,12 @@ trait ResourceLookup {
   def resourceType: ResourceType
 
   /**
+   * The total number of resources of this type
+   * @return the number of resources for this ResourceType
+   */
+  def totalResourceCount(implicit configuration: OrganizationConfiguration): Int
+
+  /**
    * Queries resources name
    * @param orgId the orgId
    * @param query the query on the resource name
@@ -43,7 +51,5 @@ trait ResourceLookup {
   def findResourceByKey(orgId: String, resourceKey: String): Option[Resource]
 
 }
-
-
 
 case class ResourceType(resourceType: String)

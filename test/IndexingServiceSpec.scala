@@ -1,9 +1,10 @@
 import core.indexing.IndexingService
+import test.Specs2TestContext
 
 /**
  *
  * @author Sjoerd Siebinga <sjoerd.siebinga@gmail.com>
- * @since 12/24/12 3:22 PM  
+ * @since 12/24/12 3:22 PM
  */
 class IndexingServiceSpec extends Specs2TestContext {
 

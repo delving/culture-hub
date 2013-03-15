@@ -39,5 +39,4 @@ trait SchemaService {
    */
   def getSchema(prefix: String, version: String, schemaType: SchemaType): Option[String]
 
-
 }

@@ -4,8 +4,8 @@ import models.OrganizationConfiguration
 import com.mongodb.casbah.Imports._
 import com.mongodb.casbah.gridfs.Imports._
 import models.HubMongoContext._
-import java.io.{FileOutputStream, File, InputStream}
-import core.{CultureHubPlugin, FileStoreService}
+import java.io.{ FileOutputStream, File, InputStream }
+import core.{ CultureHubPlugin, FileStoreService }
 import org.bson.types.ObjectId
 import core.messages.FileStored
 import org.apache.commons.io.IOUtils
@@ -30,7 +30,6 @@ object FileStorage extends FileStoreService {
       map(f => fileToStoredFile(f)).toList
   }
 
-
   def deleteFiles(bucketId: String, fileType: Option[String] = None)(implicit configuration: OrganizationConfiguration) {
     val files = listFiles(bucketId, fileType)
     files.foreach { f =>
@@ -39,7 +38,7 @@ object FileStorage extends FileStoreService {
   }
 
   def storeFile(file: File, contentType: String, fileName: String, bucketId: String, fileType: Option[String] = None,
-                params: Map[String, AnyRef] = Map.empty, advertise: Boolean = true)(implicit configuration: OrganizationConfiguration): Option[StoredFile] = {
+    params: Map[String, AnyRef] = Map.empty, advertise: Boolean = true)(implicit configuration: OrganizationConfiguration): Option[StoredFile] = {
     val f = fileStore(configuration).createFile(file)
     f.filename = fileName
     f.contentType = contentType
@@ -76,11 +75,11 @@ object FileStorage extends FileStoreService {
       fileStore(configuration).find(id) foreach { toDelete =>
         // remove thumbnails
         fileStore(configuration).find(MongoDBObject(FILE_POINTER_FIELD -> id)) foreach { t =>
-            fileStore(configuration).remove(t.getId.asInstanceOf[ObjectId])
+          fileStore(configuration).remove(t.getId.asInstanceOf[ObjectId])
         }
         // remove the file itself
         fileStore(configuration).remove(id)
-    }
+      }
     }
   }
 
@@ -131,7 +130,6 @@ object FileStorage extends FileStoreService {
 
 }
 
-
 case class StoredFile(id: ObjectId, name: String, contentType: String, length: Long, content: InputStream) {
 
   def writeTo(file: File) {
@@ -146,7 +144,6 @@ case class StoredFile(id: ObjectId, name: String, contentType: String, length: L
 
 }
 
-
 /**
  * Represents a response to a file upload via the jQuery File Upload widget
  *
@@ -160,8 +157,7 @@ case class FileUploadResponse(
   delete_url: String = "",
   delete_type: String = "DELETE",
   error: String = "",
-  id: String = ""
-)
+  id: String = "")
 
 object FileUploadResponse {
 

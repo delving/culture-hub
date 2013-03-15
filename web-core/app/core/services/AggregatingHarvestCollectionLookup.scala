@@ -1,8 +1,8 @@
 package core.services
 
 import core.collection.Harvestable
-import models.{OrganizationConfiguration, RecordDefinition}
-import core.{HarvestCollectionLookupService, CultureHubPlugin}
+import models.{ OrganizationConfiguration, RecordDefinition }
+import core.{ HarvestCollectionLookupService, CultureHubPlugin }
 
 /**
  * Aggregated lookup mechanism for Harvest Collections.
@@ -11,7 +11,6 @@ import core.{HarvestCollectionLookupService, CultureHubPlugin}
  */
 
 class AggregatingHarvestCollectionLookup extends HarvestCollectionLookupService {
-
 
   def harvestCollectionLookups(implicit configuration: OrganizationConfiguration) = CultureHubPlugin.getServices(classOf[HarvestCollectionLookupService])
 
@@ -29,6 +28,5 @@ class AggregatingHarvestCollectionLookup extends HarvestCollectionLookupService 
   def getAllMetadataFormats(orgId: String, accessKey: Option[String])(implicit configuration: OrganizationConfiguration): Seq[RecordDefinition] = {
     harvestCollectionLookups.flatMap(_.getAllMetadataFormats(orgId, accessKey))
   }
-
 
 }

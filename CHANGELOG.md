@@ -2,6 +2,31 @@
 
 This is the changelog of the CultureHub. It documents changes of the main platform, without modules.
 
+# 13.02
+
+### New features
+
+- manu: Introducing quota management for DataSets
+- manu: statistics can now be publicly available
+- manu: dynamic configuration
+- sjoerd: DeepZoom checking script
+
+
+### Fixes and refactoring
+
+- manu: Upgrade to Play 2.1
+- manu: fixing #667, #698, #728, #790, #791, #787, #788
+- sjoerd: Added support for items with multiple coordinates being properly rendered in AB-C type KML
+- manu: Added support for MLT filtering based on delving owner
+- manu: Fix for localIds containing slashes
+- manu: IndexApi is now a plugin
+- manu: making it possible to list CMS pages without a menu
+- manu: processing now a lot more fault-resilient
+- manu: improvements in TIFF Normalizer, new version of IM4Java
+- manu: fixing bug in ProcessingQueueWatcher
+- manu: Plugins now have their own top-level actor. Fixes #836
+- manu: minor fixes in DOS
+
 # 13.01
 
 ### New features

@@ -5,7 +5,7 @@
         <div class="row">
             <div class="span4">
                 <div id="primary-branding">
-                    <a href="@{controllers.routes.Application.index()}">
+                    <a href="/">
                         <img src='${themeInfo.path("images/logo-primary.png")}' alt="${themeInfo.siteName()}" title="${themeInfo.siteName()}"/>
                     </a>
                 </div>
@@ -28,9 +28,9 @@
                             *{<div class="nav-collapse">}*
                                 <ul class="nav k-nav">
                                     <li><a href="https://beta.kulturnett.no/portal/web/kulturnett/home" tabindex="-1"><span> Hjem</span></a></li>
-                                    <li #{if pageId != 'statistics'}class="active"#{/if}><a href="http://samlinger.kulturnett.no/portal/search?query=*:*&amp;qf=HASDIGITALOBJECT:true&amp;tab=all&amp;view=table" tabindex="0" class="active"><span>Kulturs&#248;k</span></a></li>
+                                    <li #{if pageId != 'statistics'}class="active"#{/if}><a href="http://samlinger.kulturnett.no/search?query=*:*" tabindex="0" class="active"><span>Kulturs&#248;k</span></a></li>
                                     <li><a href="https:/beta.kulturnett.no/portal/web/kulturnett/e-kultur-i-sosiale-media" tabindex="-1" ><span> Sosiale media</span></a></li>
-                                    <li #{if  pageId == 'statistics'}class="active"#{/if}><a href="http://samlinger.kulturnett.no/portal/statistics.html#provider-tab" tabindex="-1"><span> Statistikk</span></a></li>
+                                    <li #{if  pageId == 'statistics'}class="active"#{/if}><a href="http://samlinger.kulturnett.no/organizations/kulturnett/statistics.html#provider-tab" tabindex="-1"><span> Statistikk</span></a></li>
                                     <li><a href="https://beta.kulturnett.no/portal/web/kulturnett/om" tabindex="-1"><span> Om</span></a></li>
                                     <li><a href="https://beta.kulturnett.no/portal/web/kulturnett/regionale-kulturnett" tabindex="-1"><span> Regionale kulturnett</span></a></li>
                                     <li><a href="https://beta.kulturnett.no/portal/web/kulturnett/tidligere-kulturnett" tabindex="-1"><span> Tidligere kulturnett</span></a></li>
@@ -66,7 +66,7 @@
                         *{<option value="dc_creator">Vervaardiger</option>}*
                         *{<option value="dc_subject">Onderwerp</option>}*
                     *{</select>}*
-                    <input class="search-query" placeholder="&{'ui.label.search'} ..." type="text" id="query" name="query" value='${params.get("query")? params.get("query").apply(0) : ""}'/>
+                    <input class="search-query" placeholder="&{'ui.label.search'} ..." type="text" id="query" name="query" value='${params.get("query")? params.get("query")[0] : ""}'/>
                     <button type="submit" class="btn btn-primary submit" title="&{'ui.label.search'}"><i class="icon icon-search icon-white"></i></button>
                     &#160;<a href="/search/advanced" rel="nofollow">&{'plugin.advancedsearch'}</a>
                 </form>

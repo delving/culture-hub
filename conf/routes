@@ -5,9 +5,6 @@
 GET         /favicon.ico                                                           controllers.Application.notFound(what = "favicon.ico")
 GET         /assets/themes/:theme/info.conf                                        controllers.Application.notFound(theme)
 
-# Map static resources from the /public folder to the /assets URL path
-GET         /assets/*file                                                          controllers.Assets.at(path="/public", file)
-
 GET         /robots.txt                                                            controllers.Assets.at(path="/public", file="robots.txt")
 
 # Home page
@@ -21,7 +18,6 @@ POST       /login                                                               
 GET        /logout                                                                 controllers.Authentication.logout
 
 # OAuth2
-GET        /authorize                                                              controllers.OAuth2Authenticator.authenticate
 GET        /token                                                                  controllers.OAuth2TokenEndpoint.token
 
 # Demo space
@@ -136,10 +132,6 @@ GET         /organizations/:orgId/api/providers                               co
 GET         /organizations/:orgId/api/dataProviders                           controllers.api.Organization.dataProviders(orgId)
 GET         /organizations/:orgId/api/collections                             controllers.api.Organization.collections(orgId)
 
-GET         /organizations/:orgId/api/index                                   controllers.api.Index.status(orgId)
-POST        /organizations/:orgId/api/index                                   controllers.api.Index.submit(orgId)
-POST        /organizations/:orgId/api/reIndex                                 controllers.api.Index.reIndex(orgId)
-
 ## Deprecated - legacy routes support
 GET         /organizations/:orgId/search                                      controllers.api.Search.searchApi(orgId, provider: Option[String] = None, dataProvider: Option[String] = None, collection: Option[String] = None)
 GET         /organizations/:orgId/oai-pmh                                     controllers.api.OaiPmh.oaipmh(orgId: String, format: Option[String] = None, accessKey: Option[String] = None)
@@ -173,4 +165,13 @@ POST        /organizations/:orgId/groups/submit                               co
 GET         /organizations/:orgId/directory/organizationLookup                controllers.organization.DataSetControl.organizationLookup(orgId, term)
 
 
+->           /                                                                cms.Routes
+
+
+# Map static resources from the /public folder to the /assets URL path
+GET         /assets/*file                                                     controllers.Assets.at(path="/public", file)
+
+
 GET          /:orgId/:spec/:recordId                                          controllers.FullView.render(orgId, spec, recordId, format: Option[String])
+
+

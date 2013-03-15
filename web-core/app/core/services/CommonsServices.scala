@@ -3,13 +3,16 @@ package core.services
 import core._
 import core.node._
 import play.api.libs.Crypto
-import play.api.libs.ws.{Response, WS}
+import play.api.libs.ws.{ Response, WS }
 import play.api.libs.json._
+import play.api.libs.functional.syntax._
 import play.api.Logger
 import java.util.concurrent.TimeoutException
 import java.net.URLEncoder
 import extensions.MissingLibs
 import eu.delving.definitions.OrganizationEntry
+import scala.concurrent.Await
+import scala.concurrent.duration._
 
 /**
  * TODO harden this, error handling, logging... for now we always return the worst case scenario in case of an error. however we should make the clients
@@ -19,9 +22,40 @@ import eu.delving.definitions.OrganizationEntry
  */
 
 class CommonsServices(commonsHost: String, orgId: String, apiToken: String, node: String) extends AuthenticationService
-  with RegistrationService with UserProfileService with OrganizationService with DirectoryService
-  with NodeRegistrationService with NodeDirectoryService
-  with play.api.http.Status {
+    with RegistrationService with UserProfileService with OrganizationService with DirectoryService
+    with NodeRegistrationService with NodeDirectoryService
+    with play.api.http.Status {
+
+  // ~~~ JSON converters
+  implicit val organizationProfileReads = Json.reads[OrganizationProfile]
+  implicit val organizationProfileWrites = Json.writes[OrganizationProfile]
+
+  implicit val userProfileReads = Json.reads[UserProfile]
+  implicit val userProfileWrites = Json.writes[UserProfile]
+
+  implicit val organizationEntryReads = Json.reads[OrganizationEntry]
+  implicit val organizationEntryWrites = Json.writes[OrganizationEntry]
+
+  implicit val nodeReads = (
+    (__ \ "nodeId").read[String] and
+    (__ \ "name").read[String] and
+    (__ \ "orgId").read[String]
+  )({ (nId: String, nName: String, nOrgId: String) =>
+      new Node {
+        def nodeId: String = nId
+        def name: String = nName
+        def orgId: String = nOrgId
+        def isLocal: Boolean = false
+      }
+    })
+
+  implicit val nodeWrites = (
+    (__ \ "nodeId").write[String] and
+    (__ \ "name").write[String] and
+    (__ \ "orgId").write[String]
+  )({ node: Node =>
+      (node.nodeId, node.name, node.orgId)
+    })
 
   val log = Logger("CultureHub")
 
@@ -42,7 +76,7 @@ class CommonsServices(commonsHost: String, orgId: String, apiToken: String, node
   private def postWithBody[T <: JsValue](path: String, body: T, queryParams: (String, String)*): Option[Response] = call(path, Some(body), "POST", queryParams)
 
   private def call[T <: JsValue](path: String, body: Option[T], method: String = "GET", queryParams: Seq[(String, String)], retry: Int = 0): Option[Response] = {
-    val wsCall = WS.url(host + path).withQueryString(queryParams ++ apiQueryParams: _ *)
+    val wsCall = WS.url(host + path).withQueryString(queryParams ++ apiQueryParams: _*)
     val callInvocation = method match {
       case "GET" => wsCall.get()
       case "POST" if (body.isDefined) => wsCall.post(body.get)
@@ -51,17 +85,17 @@ class CommonsServices(commonsHost: String, orgId: String, apiToken: String, node
       case _ => throw new RuntimeException("Should not be here")
     }
     try {
-      callInvocation.await.fold(t => None, r => Some(r))
+      Some(Await.result(callInvocation, 5 seconds))
     } catch {
       case timeout: TimeoutException =>
         // retry
-        if(retry < 3) {
+        if (retry < 3) {
           call(path, body, method, queryParams, retry + 1)
         } else {
           Logger("CultureHub").error("Still getting a timeout error while contacting CultureCommons, after %s attempts".format(retry), timeout)
           None
         }
-      case t =>
+      case t: Throwable =>
         Logger("CultureHub").error("Error contacting CultureCommons", t)
         None
     }
@@ -101,13 +135,13 @@ class CommonsServices(commonsHost: String, orgId: String, apiToken: String, node
       ("email" -> email),
       ("password" -> MissingLibs.passwordHash(password, MissingLibs.HashType.SHA512))).map {
 
-      response =>
-        if (response.status == OK) {
-          Some(response.body)
-        } else {
-          None
-        }
-    }.getOrElse(None)
+        response =>
+          if (response.status == OK) {
+            Some(response.body)
+          } else {
+            None
+          }
+      }.getOrElse(None)
   }
 
   def activateUser(activationToken: String): Option[RegisteredUser] = {
@@ -151,8 +185,7 @@ class CommonsServices(commonsHost: String, orgId: String, apiToken: String, node
     get("/user/profile/" + userName).map {
       response =>
         if (response.status == OK) {
-          import UserProfileFormat._
-          Some(Json.fromJson[UserProfile](Json.parse(response.body)))
+          Json.fromJson[UserProfile](response.json).asOpt
         } else {
           None
         }
@@ -174,8 +207,7 @@ class CommonsServices(commonsHost: String, orgId: String, apiToken: String, node
   def queryByOrgId(query: String): Seq[OrganizationProfile] = {
     get("/organization/query", "field" -> "name", "value" -> query).map { response =>
       if (response.status == OK) {
-        import OrganizationProfileFormat._
-        Json.fromJson[Seq[OrganizationProfile]](Json.parse(response.body))
+        Json.fromJson[Seq[OrganizationProfile]](response.json).asOpt.getOrElse(Seq.empty)
       } else {
         Seq.empty
       }
@@ -190,11 +222,12 @@ class CommonsServices(commonsHost: String, orgId: String, apiToken: String, node
 
   def listAdmins(orgId: String): List[String] = {
     get("/organization/" + orgId + "/admin/list").map {
-      response => if (response.status == OK) {
-        Json.parse(response.body).as[List[String]]
-      } else {
-        List()
-      }
+      response =>
+        if (response.status == OK) {
+          Json.parse(response.body).as[List[String]]
+        } else {
+          List()
+        }
     }.getOrElse(List())
   }
 
@@ -214,8 +247,7 @@ class CommonsServices(commonsHost: String, orgId: String, apiToken: String, node
     get("/organization/" + orgId).map {
       response =>
         if (response.status == OK) {
-          import OrganizationProfileFormat._
-          Json.fromJson[OrganizationProfile](Json.parse(response.body)).name.get(language)
+          Json.fromJson[OrganizationProfile](response.json).asOpt.map(_.name.get(language).getOrElse(""))
         } else {
           None
         }
@@ -232,16 +264,16 @@ class CommonsServices(commonsHost: String, orgId: String, apiToken: String, node
       "name" -> node.name,
       "apiUserName" -> userName
     ).foreach { response =>
-      response.status match {
-        case BAD_REQUEST =>
-          log.error("Error registering node %s : ".format(node) + response.body)
-          throw new RuntimeException("Could not register node: " + response.body)
-        case OK => // we're ok
-        case other@_ =>
-          log.error("Could not register node %s: %s".format(node, response.body))
-          throw new RuntimeException("Error registering node: " + response.body)
+        response.status match {
+          case BAD_REQUEST =>
+            log.error("Error registering node %s : ".format(node) + response.body)
+            throw new RuntimeException("Could not register node: " + response.body)
+          case OK => // we're ok
+          case other @ _ =>
+            log.error("Could not register node %s: %s".format(node, response.body))
+            throw new RuntimeException("Error registering node: " + response.body)
+        }
       }
-    }
   }
 
   def updateNode(node: Node) {
@@ -249,19 +281,19 @@ class CommonsServices(commonsHost: String, orgId: String, apiToken: String, node
       "/node/%s/%s/update".format(node.orgId, node.nodeId),
       "name" -> node.name
     ).foreach { response =>
-      response.status match {
-        case UNAUTHORIZED =>
-          log.warn("Couldn't update node %s because access is unauthorized: ".format(node) + response.body)
-          throw new RuntimeException("Not allowed to update node: " + response.body)
-        case NOT_FOUND =>
-          log.warn("Node %s could not be found".format(node))
-          throw new RuntimeException("Node to update could not be found")
-        case OK => // ok
-        case other@_ =>
-          log.error("Could not update node %s: %s".format(node, response.body))
-          throw new RuntimeException("Error updating node: " + response.body)
+        response.status match {
+          case UNAUTHORIZED =>
+            log.warn("Couldn't update node %s because access is unauthorized: ".format(node) + response.body)
+            throw new RuntimeException("Not allowed to update node: " + response.body)
+          case NOT_FOUND =>
+            log.warn("Node %s could not be found".format(node))
+            throw new RuntimeException("Node to update could not be found")
+          case OK => // ok
+          case other @ _ =>
+            log.error("Could not update node %s: %s".format(node, response.body))
+            throw new RuntimeException("Error updating node: " + response.body)
+        }
       }
-    }
   }
 
   def removeNode(node: Node) {
@@ -274,7 +306,7 @@ class CommonsServices(commonsHost: String, orgId: String, apiToken: String, node
           log.warn("Node %s could not be found".format(node))
           throw new RuntimeException("Node to remove could not be found")
         case OK => // ok
-        case other@_ =>
+        case other @ _ =>
           log.error("Could not remove node %s: %s".format(node, response.body))
           throw new RuntimeException("Error removing node: " + response.body)
       }
@@ -285,13 +317,13 @@ class CommonsServices(commonsHost: String, orgId: String, apiToken: String, node
     get(
       "/node/%s/%s/user/list".format(node.orgId, node.nodeId)
     ).map { response =>
-      response.status match {
-        case OK =>
-          (response.json \ "members").asOpt[Seq[String]].getOrElse(Seq.empty)
-        case _ =>
-          Seq.empty
-      }
-    }.getOrElse(Seq.empty)
+        response.status match {
+          case OK =>
+            (response.json \ "members").asOpt[Seq[String]].getOrElse(Seq.empty)
+          case _ =>
+            Seq.empty
+        }
+      }.getOrElse(Seq.empty)
   }
 
   def addMember(node: Node, userName: String) {
@@ -307,12 +339,12 @@ class CommonsServices(commonsHost: String, orgId: String, apiToken: String, node
             log.warn("Node %s could not be found".format(node))
             throw new RuntimeException("Node to update could not be found")
           case OK => // ok
-          case other@_ =>
+          case other @ _ =>
             log.error("Could not add member to node %s: %s".format(node, response.body))
             throw new RuntimeException("Error adding member to node: " + response.body)
         }
       }
-    }
+  }
 
   def removeMember(node: Node, userName: String) {
     delete(
@@ -326,7 +358,7 @@ class CommonsServices(commonsHost: String, orgId: String, apiToken: String, node
             log.warn("Node %s could not be found".format(node))
             throw new RuntimeException("Node to update could not be found")
           case OK => // ok
-          case other@_ =>
+          case other @ _ =>
             log.error("Could not remove member from node %s: %s".format(node, response.body))
             throw new RuntimeException("Error removing member from node: " + response.body)
         }
@@ -338,8 +370,7 @@ class CommonsServices(commonsHost: String, orgId: String, apiToken: String, node
   def findOneById(nodeId: String): Option[Node] = {
     get("/node/" + nodeId).flatMap { response =>
       if (response.status == OK) {
-        import NodeFormat._
-        Some(Json.fromJson[Node](response.json))
+        Json.fromJson[Node](response.json).asOpt
       } else {
         None
       }
@@ -349,8 +380,7 @@ class CommonsServices(commonsHost: String, orgId: String, apiToken: String, node
   def listEntries: Seq[Node] = {
     get("/node/list").flatMap { response =>
       if (response.status == OK) {
-        import NodeFormat._
-        Some(Json.fromJson[List[Node]](response.json))
+        Json.fromJson[List[Node]](response.json).asOpt
       } else {
         None
       }
@@ -362,9 +392,8 @@ class CommonsServices(commonsHost: String, orgId: String, apiToken: String, node
   def findOrganization(query: String): List[OrganizationEntry] = {
     get("/directory/organization/query", "query" -> URLEncoder.encode(query, "utf-8")).map {
       response =>
-        if(response.status == OK) {
-          import OrganizationEntryFormat._
-          Json.fromJson[List[OrganizationEntry]](response.json)
+        if (response.status == OK) {
+          Json.fromJson[List[OrganizationEntry]](response.json).asOpt.getOrElse(List.empty)
         } else {
           List.empty
         }
@@ -374,97 +403,12 @@ class CommonsServices(commonsHost: String, orgId: String, apiToken: String, node
   def findOrganizationByName(name: String): Option[OrganizationEntry] = {
     get("/directory/organization/byName", "name" -> URLEncoder.encode(name, "utf-8")).map {
       response =>
-        if(response.status == OK) {
-          Some(Json.fromJson[OrganizationEntry](Json.parse(response.body)))
+        if (response.status == OK) {
+          Json.fromJson[OrganizationEntry](response.json).asOpt
         } else {
           None
         }
     }.getOrElse(None)
-  }
-
-  // json un/marshalling
-
-  import play.api.libs.json._
-
-  implicit object UserProfileFormat extends Format[UserProfile] {
-
-
-    def reads(json: JsValue) = UserProfile(
-      isPublic = (json \ "isPublic").as[Boolean],
-      firstName = (json \ "firstName").as[String],
-      lastName = (json \ "lastName").as[String],
-      email = (json \ "email").as[String],
-      description = (json \ "description").asOpt[String],
-      funFact = (json \ "funFact").asOpt[String],
-      websites = (json \ "websites").asOpt[List[String]].getOrElse(List()),
-      twitter = (json \ "twitter").asOpt[String],
-      linkedIn = (json \ "linkedIn").asOpt[String]
-    )
-
-    def writes(o: UserProfile) = JsObject(
-      List(
-        "isPublic" -> JsBoolean(o.isPublic),
-        "firstName" -> JsString(o.firstName),
-        "lastName" -> JsString(o.lastName),
-        "email" -> JsString(o.email)
-      ) ::: o.description.map(d => List("description" -> JsString(d))).getOrElse(List())
-        ::: o.funFact.map(d => List("funFact" -> JsString(d))).getOrElse(List())
-        ::: List("websites" -> JsArray(o.websites.map(e => JsString(e)).toList))
-        ::: o.twitter.map(d => List("twitter" -> JsString(d))).getOrElse(List())
-        ::: o.linkedIn.map(d => List("linkedIn" -> JsString(d))).getOrElse(List())
-    )
-  }
-
-  implicit object OrganizationProfileFormat extends Format[OrganizationProfile] {
-
-    def reads(json: JsValue) = OrganizationProfile(
-      orgId = (json \ "orgId").as[String],
-      name = (json \ "name").as[Map[String, String]]
-    )
-
-    def writes(o: OrganizationProfile) = JsObject(
-      List(
-        "orgId" -> JsString(o.orgId),
-        "name" -> JsObject(
-          o.name.map(n => (n._1 -> JsString(n._2))).toList
-        )
-      )
-    )
-  }
-
-  implicit object OrganizationEntryFormat extends Format[OrganizationEntry] {
-
-    def reads(json: JsValue): OrganizationEntry = OrganizationEntry(
-      uri = (json \ "uri").as[String],
-      name = (json \ "name").as[String],
-      countryCode = (json \ "countryCode").as[String]
-    )
-
-    def writes(o: OrganizationEntry): JsValue = JsObject(
-      Seq(
-        "uri" -> JsString(o.uri),
-        "name" -> JsString(o.name),
-        "countryCode" -> JsString(o.countryCode)
-      )
-    )
-  }
-
-  implicit object NodeFormat extends Format[Node] {
-
-    def reads(json: JsValue): Node = new Node {
-      def nodeId: String = (json \ "nodeId").as[String]
-      def name: String = (json \ "name").as[String]
-      def orgId: String = (json \ "orgId").as[String]
-      def isLocal: Boolean = false
-    }
-
-    def writes(o: Node): JsValue = JsObject(
-      Seq(
-        "nodeId" -> JsString(o.nodeId),
-        "name" -> JsString(o.name),
-        "orgId" -> JsString(o.orgId)
-      )
-    )
   }
 
 }

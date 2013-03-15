@@ -33,7 +33,7 @@ import util.OrganizationConfigurationHandler
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-class ViewRenderSpec extends Specs2TestContext {
+class ViewRenderSpec extends test.Specs2TestContext {
 
   "The ViewRenderer" should {
 
@@ -53,7 +53,6 @@ class ViewRenderSpec extends Specs2TestContext {
         args.put("lang", "en")
         val rendered: String = template.render(args).replaceAll("""(?m)^\s+""", "")
         val expected: String =
-
 
           """<div class="root ">
             |<div class="row ">
@@ -82,7 +81,7 @@ class ViewRenderSpec extends Specs2TestContext {
             |</div>
             |""".stripMargin
 
-        rendered must be equalTo(expected)
+        rendered must be equalTo (expected)
       }
     }
 
@@ -120,8 +119,8 @@ class ViewRenderSpec extends Specs2TestContext {
         val xml = view.toXmlString
 
         val expected =
-"""<?xml version="1.0" encoding="utf-8" ?>
- <record xmlns:delving="http://www.delving.eu/schemas/delving-1.0.xsd" xmlns:dc="http://dublincore.org/schemas/xmls/qdc/dc.xsd">
+          """<?xml version="1.0" encoding="utf-8" ?>
+ <record xmlns:dc="http://dublincore.org/schemas/xmls/qdc/dc.xsd" xmlns:delving="http://www.delving.eu/schemas/delving-1.0.xsd">
    <item id="42">
       <dc:title>A test hierarchical record</dc:title>
       <delving:description>This is a test record</delving:description>
@@ -143,7 +142,6 @@ class ViewRenderSpec extends Specs2TestContext {
       }
     }
 
-
     "render a record as JSON" in {
       withTestConfig {
         val configuration = OrganizationConfigurationHandler.getByOrgId("delving")
@@ -155,7 +153,7 @@ class ViewRenderSpec extends Specs2TestContext {
 
         val expected = """{"record":{"item":{"id":"42","dc_title":"A test hierarchical record","delving_description":"This is a test record","places":{"place":[{"country":"France","name":"Paris"},{"country":"Germany","name":"Berlin"},{"country":"Netherlands","name":"Amsterdam"}]}}}}"""
 
-        json must equalTo (expected)
+        json must equalTo(expected)
       }
 
     }
@@ -181,7 +179,7 @@ class ViewRenderSpec extends Specs2TestContext {
 
         val expected = """{"result":{"layout":{"fields":{"field":[{"name":"dc_creator","i18n":"Creator"},{"name":"dc_date","i18n":"Date"},{"name":"dc_format","i18n":"Format"},{"name":"dc_publisher","i18n":"Publisher"},{"name":"dc_title","i18n":"Title"},{"name":"dcterms_hasVersion","i18n":"Has version"},{"name":"delving_allSchemas","i18n":"metadata.delving.allSchemas"},{"name":"delving_currentFormat","i18n":"metadata.delving.currentFormat"},{"name":"delving_hasDigitalObject","i18n":"Record has a digital object"},{"name":"delving_hubId","i18n":"metadata.delving.hubId"},{"name":"delving_landingPage","i18n":"metadata.delving.landingPage"},{"name":"delving_orgId","i18n":"metadata.delving.orgId"},{"name":"delving_pmhId","i18n":"metadata.delving.pmhId"},{"name":"delving_publicSchemas","i18n":"metadata.delving.publicSchemas"},{"name":"delving_recordType","i18n":"Record type"},{"name":"delving_spec","i18n":"metadata.delving.spec"},{"name":"delving_thumbnail","i18n":"metadata.delving.thumbnail"},{"name":"delving_visibility","i18n":"metadata.delving.visibility"},{"name":"delving_year","i18n":"metadata.delving.year"},{"name":"europeana_collectionName","i18n":"Collection Name"},{"name":"europeana_collectionTitle","i18n":"Collection Title"},{"name":"europeana_country","i18n":"Country"},{"name":"europeana_dataProvider","i18n":"Data Provider"},{"name":"europeana_isShownAt","i18n":"Remote Landing Page"},{"name":"europeana_isShownBy","i18n":"Remote url to digital object"},{"name":"europeana_language","i18n":"Language"},{"name":"europeana_provider","i18n":"Provider"},{"name":"europeana_rights","i18n":"Rights"},{"name":"europeana_type","i18n":"Type"},{"name":"europeana_uri","i18n":"Europeana Url"},{"name":"tib_citName","i18n":"Cit collection name"},{"name":"tib_citOldId","i18n":"Cit record identifier"},{"name":"tib_collection","i18n":"Collection"},{"name":"tib_objectSoort","i18n":"Object type"},{"name":"tib_pageEnd","i18n":"End page"},{"name":"tib_pageStart","i18n":"Start page"},{"name":"tib_thumbLarge","i18n":"Large thumbnail"},{"name":"tib_thumbSmall","i18n":"Small thumbnail"}]}},"item":{"fields":{"dc_creator":["C."],"dc_date":["1965"],"dc_format":["application/pdf"],"dc_publisher":["De Brabantse Leeuw"],"dc_title":["GESLACHT RULO"],"dcterms_hasVersion":["JAARGANG XIV 1 9 6 5"],"delving_allSchemas":["raw","tib"],"delving_currentFormat":["tib"],"delving_hasDigitalObject":["true"],"delving_hubId":["thuisinbrabant_de-brabantse-leeuw_3967"],"delving_landingPage":["http://www.thuisinbrabant.nl/de-brabantse-leeuw/817"],"delving_orgId":["thuisinbrabant"],"delving_pmhId":["de-brabantse-leeuw_4ef0fdfb0cf21d42ad667346"],"delving_publicSchemas":["raw"],"delving_recordType":["mdr"],"delving_spec":["de-brabantse-leeuw"],"delving_thumbnail":["http://thuisinbrabant.delving.org/thumbnail/thuisinbrabant/de-brabantse-leeuw/brabants_leeuw_1965_1_87_96/500","http://thuisinbrabant.delving.org/thumbnail/thuisinbrabant/de-brabantse-leeuw/brabants_leeuw_1965_1_87_96/180"],"delving_visibility":["10"],"delving_year":["1965"],"europeana_collectionName":["de-brabantse-leeuw"],"europeana_collectionTitle":["De Brabantse Leeuw"],"europeana_country":["netherlands"],"europeana_dataProvider":["De Brabantse Leeuw"],"europeana_isShownAt":["http://www.thuisinbrabant.nl/de-brabantse-leeuw/817"],"europeana_isShownBy":["http://thuisinbrabant.delving.org/pdf/thuisinbrabant/de-brabantse-leeuw/brabants_leeuw_1965_1_87_96.pdf"],"europeana_language":["nl"],"europeana_provider":["Erfgoed Brabant"],"europeana_rights":["http://creativecommons.org/publicdomain/mark/1.0/"],"europeana_type":["TEXT"],"europeana_uri":["de-brabantse-leeuw/817"],"tib_citName":["ccBrabant_deBrabantseLeeuw"],"tib_citOldId":["ccBrabant_deBrabantseLeeuw_3967"],"tib_collection":["De Brabantse Leeuw"],"tib_objectSoort":["tijdschriftartikel","ontwerptekening"],"tib_pageEnd":["96"],"tib_pageStart":["87"],"tib_thumbLarge":["http://thuisinbrabant.delving.org/thumbnail/thuisinbrabant/de-brabantse-leeuw/brabants_leeuw_1965_1_87_96/500"],"tib_thumbSmall":["http://thuisinbrabant.delving.org/thumbnail/thuisinbrabant/de-brabantse-leeuw/brabants_leeuw_1965_1_87_96/180"]}},"relatedItems":""}}"""
 
-        json must equalTo (expected)
+        json must equalTo(expected)
       }
 
     }
@@ -202,36 +200,29 @@ class ViewRenderSpec extends Specs2TestContext {
 
   }
 
-
-
-
-
-
-
-
   private def testHtmlViewDefinition =
     <view name="full">
       <row>
         <column id="description">
           <container>
-              <field path="/record/delving:summaryFields/delving:description" label="metadata.dc.description"/>
+            <field path="/record/delving:summaryFields/delving:description" label="metadata.dc.description"/>
           </container>
         </column>
         <column id="fields">
           <container>
-              <enumeration type="concatenated" separator=", " label="random" path="/record/delving:summaryFields/delving:title, /record/icn:data/icn:general/icn:material"/>
-              <field path="/record/icn:data/icn:acquisition/icn:cost" label="metadata.icn.purchasePrice" role="administrator, own"/>
-              <field path="/record/icn:data/icn:acquisition/@type" label="metadata.icn.purchaseType"/>
-              <link urlExpr="/record/dc:data/dc:link" textExpr="/record/dc:data/dc:name" />
+            <enumeration type="concatenated" separator=", " label="random" path="/record/delving:summaryFields/delving:title, /record/icn:data/icn:general/icn:material"/>
+            <field path="/record/icn:data/icn:acquisition/icn:cost" label="metadata.icn.purchasePrice" role="administrator, own"/>
+            <field path="/record/icn:data/icn:acquisition/@type" label="metadata.icn.purchaseType"/>
+            <link urlExpr="/record/dc:data/dc:link" textExpr="/record/dc:data/dc:name"/>
           </container>
         </column>
         <column id="complexFields">
           <container>
             <list path="/record/icn:places/icn:place">
-                <field path="@name" label="metadata.icn.placeName"/>
+              <field path="@name" label="metadata.icn.placeName"/>
             </list>
           </container>
-         </column>
+        </column>
       </row>
     </view>
 
@@ -239,32 +230,31 @@ class ViewRenderSpec extends Specs2TestContext {
     <view name="xml">
       <elem name="record">
         <attrs>
-          <attr prefix="xmlns" name="delving" value="http://www.delving.eu/schemas/delving-1.0.xsd" />
-          <attr prefix="xmlns" name="dc" value="http://dublincore.org/schemas/xmls/qdc/dc.xsd" />
+          <attr prefix="xmlns" name="delving" value="http://www.delving.eu/schemas/delving-1.0.xsd"/>
+          <attr prefix="xmlns" name="dc" value="http://dublincore.org/schemas/xmls/qdc/dc.xsd"/>
         </attrs>
         <elem name="item">
           <attrs>
-            <attr name="id" value="42" />
+            <attr name="id" value="42"/>
           </attrs>
-          <elem name="title" prefix="dc" expr="/record/delving:summaryFields/delving:title" />
-          <elem name="description" prefix="delving" expr="/record/delving:summaryFields/delving:description" />
+          <elem name="title" prefix="dc" expr="/record/delving:summaryFields/delving:title"/>
+          <elem name="description" prefix="delving" expr="/record/delving:summaryFields/delving:description"/>
           <list name="places" path="/record/icn:places/icn:place">
-              <elem name="place">
-                <attrs>
-                  <attr name="country" prefix="geo" expr="@country" />
-                </attrs>
-                <elem name="name" expr="@name" />
-              </elem>
+            <elem name="place">
+              <attrs>
+                <attr name="country" prefix="geo" expr="@country"/>
+              </attrs>
+              <elem name="name" expr="@name"/>
+            </elem>
           </list>
         </elem>
       </elem>
     </view>
 
-
   private def testRecord(): String = {
 
     // test record, hierarchical
-      """<?xml version="1.0" encoding="utf-8" ?>
+    """<?xml version="1.0" encoding="utf-8" ?>
       <record xmlns:delving="http://www.delving.eu/schemas/delving-1.0.xsd" xmlns:dc="http://dublincore.org/schemas/xmls/qdc/dc.xsd" xmlns:icn="http://www.icn.nl/schemas/ICN-V3.2.xsd">
         <delving:summaryFields>
           <delving:title>A test hierarchical record</delving:title>
@@ -294,7 +284,7 @@ class ViewRenderSpec extends Specs2TestContext {
       </record>"""
 
   }
-  
+
   private def legacyRecord(): String =
     """<record xmlns:delving="http://www.delving.eu/schemas/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:europeana="http://www.europeana.eu/schemas/ese/" xmlns:icn="http://www.icn.nl/schemas/icn/" xmlns:tib="http://www.thuisinbrabant.nl/namespace">
       |  <dc:creator>C.</dc:creator>

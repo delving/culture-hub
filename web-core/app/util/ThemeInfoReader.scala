@@ -4,7 +4,7 @@ import play.Play
 import java.util.Properties
 import java.util.concurrent.ConcurrentHashMap
 import play.api.Play.current
-import play.api.{Logger, PlayException}
+import play.api.{ Logger, PlayException }
 import java.lang.String
 import extensions.MissingLibs
 
@@ -34,12 +34,12 @@ object ThemeInfoReader {
     }
     val info = mayInfo match {
       case Right(i) => cache.put(theme, i); i
-      case Left(err) => throw PlayException("Configuration exception", err)
+      case Left(err) => throw new PlayException("Configuration exception", err)
     }
 
     info.getProperty(key) match {
       case value if value == null || value.trim().length() == 0 => None
-      case v@_ => Some(v)
+      case v @ _ => Some(v)
     }
   }
 

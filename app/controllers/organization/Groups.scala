@@ -6,13 +6,13 @@ import com.mongodb.casbah.Imports._
 import models._
 import models.HubMongoContext._
 import play.api.i18n.Messages
-import controllers.{BoundController, OrganizationController, ViewModel, Token}
-import play.api.mvc.{Results, AnyContent, RequestHeader, Action}
+import controllers.{ BoundController, OrganizationController, ViewModel, Token }
+import play.api.mvc.{ Results, AnyContent, RequestHeader, Action }
 import play.api.data.Forms._
 import extensions.Formatters._
 import play.api.data.Form
-import core.{HubModule, CultureHubPlugin, HubServices}
-import core.access.Resource
+import core.{ HubModule, CultureHubPlugin, HubServices }
+import core.access.{ ResourceType, Resource }
 import collection.JavaConverters._
 import play.api.Logger
 import scala.Some
@@ -62,9 +62,9 @@ trait Groups extends OrganizationController { this: BoundController =>
             'groupForm -> GroupViewModel.groupForm,
             'users -> usersAsTokens,
             'roles -> Role.allPrimaryRoles(configuration).
-                    filterNot(_ == Role.OWN).
-                    map(role => (role.key -> role.getDescription(lang))).
-                    toMap.asJava
+              filterNot(_ == Role.OWN).
+              map(role => (role.key -> role.getDescription(lang))).
+              toMap.asJava
           ))
         }
     }
@@ -73,7 +73,7 @@ trait Groups extends OrganizationController { this: BoundController =>
   def remove(orgId: String, groupId: Option[ObjectId]) = OrganizationAdmin {
     Action {
       implicit request =>
-        if(!groupId.isDefined) {
+        if (!groupId.isDefined) {
           Results.BadRequest
         } else {
           Group.dao.remove(MongoDBObject("_id" -> groupId, "orgId" -> orgId))
@@ -81,7 +81,6 @@ trait Groups extends OrganizationController { this: BoundController =>
         }
     }
   }
-
 
   def submit(orgId: String): Action[AnyContent] = OrganizationMember {
     Action {
@@ -92,82 +91,82 @@ trait Groups extends OrganizationController { this: BoundController =>
           groupForm => {
             Logger("CultureHub").debug("Received group submission: " + groupForm)
             val groupId = groupForm.id
-            if(groupForm.id != None && !canUpdateGroup(orgId, groupId.get) || groupId == None && !canCreateGroup(orgId)) {
+            if (groupForm.id != None && !canUpdateGroup(orgId, groupId.get) || groupId == None && !canCreateGroup(orgId)) {
               Forbidden(Messages("user.secured.noAccess"))
             } else {
-                  val role = try {
-                    Role.get(groupForm.roleKey)
-                  } catch {
-                    case t: Throwable =>
-                      reportSecurity("Attempting to save Group with role " + groupForm.roleKey)
-                      return Action {
-                        BadRequest("Invalid Role " + groupForm.roleKey)
-                      }
+              val role = try {
+                Role.get(groupForm.roleKey)
+              } catch {
+                case t: Throwable =>
+                  reportSecurity("Attempting to save Group with role " + groupForm.roleKey)
+                  return Action {
+                    BadRequest("Invalid Role " + groupForm.roleKey)
                   }
+              }
 
-                  if (role == Role.OWN && (groupForm.id == None || (groupForm.id != None && Group.dao.findOneById(groupForm.id.get) == None))) {
-                    reportSecurity("User %s tried to create an owners team!".format(connectedUser))
-                    return Action {
-                      Forbidden("Your IP has been logged and reported to the police.")
-                    }
-                  }
-
-                  val persisted = groupForm.id match {
-
-                    case None =>
-                      Group.dao.insert(
-                        Group(
-                          name = groupForm.name,
-                          orgId = orgId,
-                          roleKey = role.key
-                        )
-                      ) match {
-                        case None => None
-                        case Some(id) =>
-                          groupForm.users.foreach(u => Group.dao.addUser(orgId, u.id, id))
-                          groupForm.resources.foreach(r => Group.dao.addResource(orgId, r.id, role.resourceType.get, id))
-                          Some(groupForm.copy(id = Some(id)))
-                      }
-                    case Some(id) =>
-
-                      Group.dao.findOneById(groupForm.id.get) match {
-                        case None => return Action {
-                          NotFound("Group with ID %s was not found".format(id))
-                        }
-                        case Some(g) =>
-                          g.roleKey match {
-                            case Role.OWN.key => // do nothing
-                            case _ =>
-
-                              val resources: Seq[Resource] = role.resourceType.map { resourceType =>
-                                val lookup = resourceLookup(role.resourceType.get.resourceType).get
-                                groupForm.resources.flatMap { resourceToken =>
-                                  lookup.findResourceByKey(orgId, resourceToken.id)
-                                }
-                              }.getOrElse {
-                                Seq.empty
-                              }
-                              Group.dao.updateGroupInfo(id, groupForm.name, role, groupForm.users.map(_.id), resources.map(r => PersistedResource(r)))
-                              groupForm.users.foreach(u => Group.dao.addUser(orgId, u.id, id))
-
-                          }
-                          Some(groupForm)
-                      }
-                  }
-
-                  persisted match {
-                    case Some(group) => Json(group)
-                    case None => Error(Messages("organizations.group.cannotSaveGroup"))
-                  }
+              if (role == Role.OWN && (groupForm.id == None || (groupForm.id != None && Group.dao.findOneById(groupForm.id.get) == None))) {
+                reportSecurity("User %s tried to create an owners team!".format(connectedUser))
+                return Action {
+                  Forbidden("Your IP has been logged and reported to the police.")
                 }
-        })
+              }
+
+              val persisted = groupForm.id match {
+
+                case None =>
+                  Group.dao.insert(
+                    Group(
+                      name = groupForm.name,
+                      orgId = orgId,
+                      roleKey = role.key
+                    )
+                  ) match {
+                      case None => None
+                      case Some(id) =>
+                        groupForm.users.foreach(u => Group.dao.addUser(orgId, u.id, id))
+                        groupForm.resources.foreach(r => Group.dao.addResource(orgId, r.id, role.resourceType.get, id))
+                        Some(groupForm.copy(id = Some(id)))
+                    }
+                case Some(id) =>
+
+                  Group.dao.findOneById(groupForm.id.get) match {
+                    case None => return Action {
+                      NotFound("Group with ID %s was not found".format(id))
+                    }
+                    case Some(g) =>
+                      g.roleKey match {
+                        case Role.OWN.key => // do nothing
+                        case _ =>
+
+                          val resources: Seq[Resource] = role.resourceType.map { resourceType =>
+                            val lookup = CultureHubPlugin.getResourceLookup(role.resourceType.get).get
+                            groupForm.resources.flatMap { resourceToken =>
+                              lookup.findResourceByKey(orgId, resourceToken.id)
+                            }
+                          }.getOrElse {
+                            Seq.empty
+                          }
+                          Group.dao.updateGroupInfo(id, groupForm.name, role, groupForm.users.map(_.id), resources.map(r => PersistedResource(r)))
+                          groupForm.users.foreach(u => Group.dao.addUser(orgId, u.id, id))
+
+                      }
+                      Some(groupForm)
+                  }
+              }
+
+              persisted match {
+                case Some(group) => Json(group)
+                case None => Error(Messages("organizations.group.cannotSaveGroup"))
+              }
+            }
+          })
     }
   }
 
   def searchResourceTokens(orgId: String, resourceType: String, q: String) = OrganizationMember {
     Action {
       implicit request =>
-        val maybeLookup = resourceLookup(resourceType)
+        val maybeLookup = CultureHubPlugin.getResourceLookup(ResourceType(resourceType))
         maybeLookup.map { lookup =>
           val tokens = lookup.findResources(orgId, q).map { resource =>
             Token(resource.getResourceKey, resource.getResourceKey, Some(resource.getResourceType.resourceType))
@@ -177,15 +176,6 @@ trait Groups extends OrganizationController { this: BoundController =>
           Json(Seq.empty)
         )
     }
-  }
-
-
-  private def resourceLookup(resourceType: String)(implicit configuration: OrganizationConfiguration) = {
-    CultureHubPlugin.
-      getEnabledPlugins.
-      flatMap(plugin => plugin.resourceLookups).
-      find(lookup => lookup.resourceType.resourceType == resourceType)
-
   }
 
   private def load(orgId: String, groupId: Option[ObjectId])(implicit configuration: OrganizationConfiguration): String = {
@@ -224,19 +214,18 @@ trait Groups extends OrganizationController { this: BoundController =>
 }
 
 case class GroupViewModel(id: Option[ObjectId] = None,
-                          name: String = "",
-                          roleKey: String,
-                          canChangeGrantType: Boolean = true,
-                          users: Seq[Token] = Seq.empty[Token],
-                          resources: Seq[Token] = Seq.empty[Token],
-                          rolesWithResources: Seq[String] = Seq.empty,
-                          rolesWithResourceAdmin: Seq[String] = Seq.empty,
-                          rolesResourceType: Seq[RoleResourceType] = Seq.empty)
+  name: String = "",
+  roleKey: String,
+  canChangeGrantType: Boolean = true,
+  users: Seq[Token] = Seq.empty[Token],
+  resources: Seq[Token] = Seq.empty[Token],
+  rolesWithResources: Seq[String] = Seq.empty,
+  rolesWithResourceAdmin: Seq[String] = Seq.empty,
+  rolesResourceType: Seq[RoleResourceType] = Seq.empty)
 
 case class RoleResourceType(roleKey: String, resourceType: String, resourceTypeName: String)
 
 object GroupViewModel {
-
 
   val groupForm: Form[GroupViewModel] = Form(
     mapping(
@@ -250,14 +239,14 @@ object GroupViewModel {
       "rolesWithResourceAdmin" -> seq(nonEmptyText),
       "rolesResourceType" -> seq(
         mapping(
-        "roleKey" -> nonEmptyText,
-        "resourceType" -> nonEmptyText,
-        "resourceTypeName" -> nonEmptyText
+          "roleKey" -> nonEmptyText,
+          "resourceType" -> nonEmptyText,
+          "resourceTypeName" -> nonEmptyText
         )(RoleResourceType.apply)(RoleResourceType.unapply)
       )
     )(GroupViewModel.apply)(GroupViewModel.unapply)
   )
-  
+
 }
 
 case class GroupListModel(id: String, name: String, size: Int, description: String)

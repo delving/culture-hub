@@ -10,10 +10,9 @@ import java.util.regex.Pattern
  * @author Gerald de Jong <gerald@delving.eu>
  */
 
-
 object Users extends DelvingController {
 
-  def list(query: String, page:Int) = Root {
+  def list(query: String, page: Int) = Root {
     Action {
       implicit request =>
 

@@ -1,5 +1,6 @@
 import play.api.test.Helpers._
 import play.api.test.FakeRequest
+import test.Specs2TestContext
 import util.OrganizationConfigurationHandler
 
 /**
@@ -15,7 +16,7 @@ import util.OrganizationConfigurationHandler
 
 class SearchApiSpec extends Specs2TestContext {
 
-  args(skipAll=true)
+  args(skipAll = true)
 
   step {
     loadStandalone(SAMPLE_A, SAMPLE_B)

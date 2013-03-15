@@ -49,4 +49,3 @@ case class RegisteredUser(userName: String, firstName: String, lastName: String,
   val fullName = firstName + " " + lastName
 }
 
-
