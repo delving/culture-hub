@@ -32,16 +32,20 @@ trait ThumbnailCreationProcessor extends Processor {
       error(task, "No spec passed for task " + task)
       return
     })
+    val orgId = task.params.get(controllers.dos.ORGANIZATION_IDENTIFIER_FIELD).getOrElse({
+      error(task, "No orgId passed for task " + task)
+      return
+    })
 
     val sizes = processorParams("sizes").asInstanceOf[List[Int]]
 
-    info(task, "Starting to generate thumbnails for path '%s' for sizes %s".format(task.path, sizes.mkString(", ")))
+    info(task, s"Starting to generate thumbnails for path '${task.path}' for sizes ${sizes.mkString(", ")}, parameters: ${parameterList(task)}")
 
     val images = p.listFiles().filter(f => isImage(f.getName))
 
     Task.dao(task.orgId).setTotalItems(task, images.size * sizes.length)
 
-    for (s <- sizes; if (!task.isCancelled)) createThumbnailsForSize(images, s, task, task.orgId, collectionId)
+    for (s <- sizes; if (!task.isCancelled)) createThumbnailsForSize(images, s, task, orgId, collectionId)
   }
 
   protected def createThumbnailsForSize(images: Seq[File], width: Int, task: Task, orgId: String, collectionId: String)

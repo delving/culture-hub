@@ -40,7 +40,7 @@ object Logs extends Controller with Extensions with OrganizationConfigurationAwa
       implicit request =>
         {
           val cursor: SalatMongoCursor[Log] = Log.dao.find(MongoDBObject("task_id" -> taskId)).sort(MongoDBObject("date" -> 1))
-          Ok(cursor.map(log => log.date + "\t" + log.level.name.toUpperCase + "\t" + log.node + "\t" + log.message).mkString("\n"))
+          Ok(cursor.map(log => log.date + "\t" + s"[${log.orgId}] " + log.level.name.toUpperCase + "\t" + log.node + "\t" + log.message).mkString("\n"))
         }
     }
   }

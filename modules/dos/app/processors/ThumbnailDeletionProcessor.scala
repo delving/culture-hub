@@ -37,7 +37,7 @@ object ThumbnailDeletionProcessor extends Processor with Thumbnail {
     if (!task.params.contains(controllers.dos.COLLECTION_IDENTIFIER_FIELD) || !task.params.contains(controllers.dos.ORGANIZATION_IDENTIFIER_FIELD)) {
       error(task, "No spec or organisation provided")
     } else {
-      info(task, "Starting to delete thumbnails for directory " + task.path)
+      info(task, s"Starting to delete thumbnails for path '${task.path}', parameters: ${parameterList(task)}")
       val thumbs = store.find(MongoDBObject(ORIGIN_PATH_FIELD -> task.path.r, COLLECTION_IDENTIFIER_FIELD -> task.params(COLLECTION_IDENTIFIER_FIELD).toString, ORGANIZATION_IDENTIFIER_FIELD -> task.params(ORGANIZATION_IDENTIFIER_FIELD).toString))
       Task.dao(task.orgId).setTotalItems(task, thumbs.size)
       thumbs foreach {

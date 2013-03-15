@@ -48,6 +48,8 @@ trait Processor extends Logging {
     } else gmCommand
   }
 
+  def parameterList(task: Task) = task.params.map(p => s"${p._1}:${p._2}").mkString(", ")
+
   /** image name without extension **/
   def getImageName(name: String) = if (name.indexOf(".") > 0) name.substring(0, name.lastIndexOf(".")) else name
 
