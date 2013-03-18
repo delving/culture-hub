@@ -150,7 +150,7 @@ trait OrganizationController extends DelvingController with Secured {
   def isAdmin(orgId: String)(implicit request: RequestHeader): Boolean = organizationServiceLocator.byDomain.isAdmin(orgId, connectedUser)
 
   def isMember(implicit request: RequestHeader, configuration: OrganizationConfiguration) = {
-    !HubUser.dao.findByUsername(connectedUser).map(_.organizations.contains(configuration.orgId)).getOrElse(false)
+    HubUser.dao.findByUsername(connectedUser).map(_.organizations.contains(configuration.orgId)).getOrElse(false)
   }
 
   def OrganizationAdmin[A](action: Action[A]): Action[A] = {
