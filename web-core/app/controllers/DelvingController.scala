@@ -174,7 +174,7 @@ trait OrganizationController extends DelvingController with Secured {
         Action(action.parser) {
           implicit request =>
             {
-              if (isMember) {
+              if (!isMember) {
                 Forbidden(Messages("user.secured.noAccess"))
               } else {
                 action(request)
