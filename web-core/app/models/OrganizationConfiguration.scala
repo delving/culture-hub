@@ -422,7 +422,12 @@ package models {
       groupedPluginConfigurations.foreach { pluginConfig =>
         CultureHubPlugin.hubPlugins.find(_.pluginKey == pluginConfig._1).map { plugin =>
           log.debug(s"Loading configuration for plugin ${plugin.pluginKey}")
-          plugin.onBuildConfiguration(pluginConfig._2)
+          try {
+            plugin.onBuildConfiguration(pluginConfig._2)
+          } catch {
+            case t: Throwable =>
+              log.error(s"Could not configure plugin ${plugin.pluginKey}", t)
+          }
         }
       }
 
