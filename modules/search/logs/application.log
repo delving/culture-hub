@@ -1,0 +1,87 @@
+2013-03-18 18:32:15,187 - [INFO] - from play in main 
+Listening for HTTP on /0.0.0.0:9000
+
+2013-03-18 18:32:25,540 - [INFO] - from play in New I/O  worker #1 
+Groovy template engine started
+
+2013-03-18 18:32:26,079 - [INFO] - from play in New I/O  worker #1 
+Starting application default Akka system.
+
+2013-03-18 18:32:26,332 - [INFO] - from CultureHub in application-akka.actor.default-dispatcher-4 
+Refreshed SchemaRepository, available schemas are: facts, icn, abm, tib, ese, aff, edm, itin, lido, oaidc, mods, abc, musip, reloc
+
+2013-03-18 18:32:26,419 - [DEBUG] - from CultureHub in application-akka.actor.default-dispatcher-2 
+Found following plugin configurations: statistics, dataSet, hubNode, indexApi, cms
+
+2013-03-18 18:32:26,847 - [DEBUG] - from CultureHub in application-akka.actor.default-dispatcher-2 
+Initialized 1 resource holders
+
+2013-03-18 18:32:26,851 - [INFO] - from CultureHub in New I/O  worker #1 
+[plugin configuration] Using the following configurations: delving
+
+2013-03-18 18:32:26,883 - [DEBUG] - from CultureHub in application-akka.actor.default-dispatcher-2 
+Initialized 5 resource holders
+
+2013-03-18 18:32:26,884 - [INFO] - from CultureHub in application-akka.actor.default-dispatcher-2 
+Configuration successfully initialized
+
+2013-03-18 18:32:27,136 - [INFO] - from CultureHub in New I/O  worker #1 
+[plugin configuration] Starting Root Actor for plugin configuration
+
+2013-03-18 18:32:27,140 - [INFO] - from CultureHub in New I/O  worker #1 
+[plugin configuration] Starting Akka-based messaging sub-system for organization delving
+
+2013-03-18 18:32:27,146 - [INFO] - from play in New I/O  worker #1 
+Application started (Dev)
+
+2013-03-18 18:32:47,615 - [INFO] - from play in New I/O  worker #1 
+Stopping Groovy template engine
+
+2013-03-18 18:32:47,616 - [INFO] - from play in New I/O  worker #1 
+Shutdown application default Akka system.
+
+2013-03-18 18:32:48,941 - [INFO] - from play in New I/O  worker #1 
+Groovy template engine started
+
+2013-03-18 18:32:48,961 - [INFO] - from play in New I/O  worker #1 
+Starting application default Akka system.
+
+2013-03-18 18:32:49,014 - [INFO] - from CultureHub in application-akka.actor.default-dispatcher-5 
+Refreshed SchemaRepository, available schemas are: facts, icn, abm, tib, ese, aff, edm, itin, lido, oaidc, mods, abc, musip, reloc
+
+2013-03-18 18:32:49,119 - [DEBUG] - from CultureHub in application-akka.actor.default-dispatcher-4 
+Found following plugin configurations: statistics, dataSet, hubNode, indexApi, cms
+
+2013-03-18 18:32:49,202 - [DEBUG] - from CultureHub in application-akka.actor.default-dispatcher-4 
+Initialized 1 resource holders
+
+2013-03-18 18:32:49,205 - [INFO] - from CultureHub in New I/O  worker #1 
+[plugin configuration] Using the following configurations: delving
+
+2013-03-18 18:32:49,214 - [DEBUG] - from CultureHub in application-akka.actor.default-dispatcher-4 
+Initialized 5 resource holders
+
+2013-03-18 18:32:49,214 - [INFO] - from CultureHub in application-akka.actor.default-dispatcher-4 
+Configuration successfully initialized
+
+2013-03-18 18:32:49,334 - [INFO] - from CultureHub in New I/O  worker #1 
+[plugin configuration] Starting Root Actor for plugin configuration
+
+2013-03-18 18:32:49,338 - [INFO] - from CultureHub in New I/O  worker #1 
+[plugin configuration] Starting Akka-based messaging sub-system for organization delving
+
+2013-03-18 18:32:49,339 - [INFO] - from play in New I/O  worker #1 
+Application started (Dev)
+
+2013-03-18 18:37:49,090 - [INFO] - from CultureHub in application-akka.actor.default-dispatcher-6 
+Refreshed SchemaRepository, available schemas are: facts, icn, abm, tib, ese, aff, edm, itin, lido, oaidc, mods, abc, musip, reloc
+
+2013-03-18 18:37:49,099 - [DEBUG] - from CultureHub in application-akka.actor.default-dispatcher-3 
+Found following plugin configurations: statistics, dataSet, hubNode, indexApi, cms
+
+2013-03-18 18:37:49,106 - [DEBUG] - from CultureHub in application-akka.actor.default-dispatcher-3 
+Initialized 1 resource holders
+
+2013-03-18 18:37:49,106 - [DEBUG] - from CultureHub in application-akka.actor.default-dispatcher-3 
+Initialized 8 resource holders
+

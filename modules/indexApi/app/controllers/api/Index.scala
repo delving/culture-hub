@@ -180,20 +180,24 @@ object Index extends Controller with OrganizationConfigurationAware with Renderi
       Async {
         Promise.pure {
 
+          val itemTypes = new IndexItemOrganizationCollectionLookupService().findAll.map(_.itemType)
+
           var reIndexed = 0
           val error = new ArrayBuffer[String]()
-          val cache = MetadataCache.get(orgId, CACHE_COLLECTION, "foo")
-          cache.underlying.find(MongoDBObject("deleted" -> false)) foreach {
-            item =>
-              try {
-                IndexingService.stageForIndexing(IndexItem(orgId, item).toSolrDocument)
-                reIndexed += 1
-              } catch {
-                case t =>
-                  val id = orgId + "_" + item.itemType + "_" + item.itemId
-                  Logger("IndexApi").error("Could not index item " + id, t)
-                  error += id
-              }
+          itemTypes map { t =>
+            val cache = MetadataCache.get(orgId, CACHE_COLLECTION, t)
+            cache.underlying.find(MongoDBObject("deleted" -> false)) foreach {
+              item =>
+                try {
+                  IndexingService.stageForIndexing(IndexItem(orgId, item).toSolrDocument)
+                  reIndexed += 1
+                } catch {
+                  case t: Throwable =>
+                    val id = orgId + "_" + item.itemType + "_" + item.itemId
+                    Logger("IndexApi").error("Could not index item " + id, t)
+                    error += id
+                }
+            }
           }
 
           (reIndexed, error)
