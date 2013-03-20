@@ -25,6 +25,7 @@ import core.access.{ ResourceType, Resource, ResourceLookup }
 import com.mongodb.casbah.commons.MongoDBObject
 import java.util.regex.Pattern
 import java.io.FileInputStream
+import controllers.organization.DataSetEventFeed
 
 class DataSetPlugin(app: Application) extends CultureHubPlugin(app) {
 
@@ -227,6 +228,9 @@ class DataSetPlugin(app: Application) extends CultureHubPlugin(app) {
 
     // DataSet event log housekeeping
     context.actorOf(Props[DataSetEventHousekeeper])
+
+    // DataSet event feed
+    context.actorOf(Props[DataSetEventFeed], name = "dataSetEventFeed")
 
     // only for testing
     testDataProcessor = context.actorOf(Props[DataSetCollectionProcessor])
