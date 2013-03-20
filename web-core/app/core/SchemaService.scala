@@ -12,9 +12,10 @@ import eu.delving.schema.SchemaType
 trait SchemaService {
 
   /**
-   * Refreshes the repository, i.e. fetches the latest version of all schemas
+   * Refreshes the repository, i.e. fetches the latest version of all schemas.
+   * Returns true if it was refreshed successfully
    */
-  def refresh()
+  def refresh: Boolean
 
   /**
    * Retrieves all Schemas that are active for the current configuration
