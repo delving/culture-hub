@@ -5,7 +5,7 @@
 #{breadcrumbs crumbs: breadcrumbs /}
 
 #{if isMember}
-    #{organizationNavBar orgId: orgId, active: 'overview', navigation: navigation /}
+    #{organizationNavBar isReadOnly: isReadOnly, isAdmin: isAdmin, orgId: orgId, active: 'overview', navigation: navigation /}
 #{/if}
 
 

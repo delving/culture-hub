@@ -88,42 +88,47 @@ object Index extends Controller with OrganizationConfigurationAware with Renderi
           Async {
             Promise.pure {
 
-              val (valid, invalid) = parseIndexRequest(orgId, request.body)
+              if (configuration.isReadOnly) {
+                <indexResponse>
+                  <error>The system is in read-only mode and cannot process the request</error>
+                </indexResponse>
+              } else {
+                val (valid, invalid) = parseIndexRequest(orgId, request.body)
 
-              var indexed: Int = 0
-              var deleted: Int = 0
+                var indexed: Int = 0
+                var deleted: Int = 0
 
-              for (i <- valid.zipWithIndex) {
-                val item = i._1
-                val index = i._2
-                val cache = MetadataCache.get(orgId, CACHE_COLLECTION, item.itemType)
-                if (item.deleted) {
-                  cache.remove(item.itemId)
-                  IndexingService.deleteByQuery("""id:%s_%s_%s""".format(item.orgId, item.itemType, item.itemId))
-                  deleted += 1
-                } else {
-                  val cacheItem = MetadataItem(collection = CACHE_COLLECTION, itemType = item.itemType, itemId = item.itemId, xml = Map("raw" -> item.rawXml), schemaVersions = Map("raw" -> "1.0.0"), index = index)
-                  cache.saveOrUpdate(cacheItem)
-                  IndexingService.stageForIndexing(item.toSolrDocument)
-                  indexed += 1
+                for (i <- valid.zipWithIndex) {
+                  val item = i._1
+                  val index = i._2
+                  val cache = MetadataCache.get(orgId, CACHE_COLLECTION, item.itemType)
+                  if (item.deleted) {
+                    cache.remove(item.itemId)
+                    IndexingService.deleteByQuery("""id:%s_%s_%s""".format(item.orgId, item.itemType, item.itemId))
+                    deleted += 1
+                  } else {
+                    val cacheItem = MetadataItem(collection = CACHE_COLLECTION, itemType = item.itemType, itemId = item.itemId, xml = Map("raw" -> item.rawXml), schemaVersions = Map("raw" -> "1.0.0"), index = index)
+                    cache.saveOrUpdate(cacheItem)
+                    IndexingService.stageForIndexing(item.toSolrDocument)
+                    indexed += 1
+                  }
                 }
+                IndexingService.commit
+
+                val invalidItems = invalid.map(i => <invalidItem><error>{ i._1 }</error><item>{ i._2 }</item></invalidItem>)
+
+                <indexResponse>
+                  <totalItemCount>{ valid.size + invalid.size }</totalItemCount>
+                  <indexedItemCount>{ valid.filterNot(_.deleted).size }</indexedItemCount>
+                  <deletedItemCount>{ valid.filter(_.deleted).size }</deletedItemCount>
+                  <invalidItemCount>{ invalid.size }</invalidItemCount>
+                  <invalidItems>{ invalidItems }</invalidItems>
+                </indexResponse>
               }
-              IndexingService.commit
-
-              val invalidItems = invalid.map(i => <invalidItem><error>{ i._1 }</error><item>{ i._2 }</item></invalidItem>)
-
-              <indexResponse>
-                <totalItemCount>{ valid.size + invalid.size }</totalItemCount>
-                <indexedItemCount>{ valid.filterNot(_.deleted).size }</indexedItemCount>
-                <deletedItemCount>{ valid.filter(_.deleted).size }</deletedItemCount>
-                <invalidItemCount>{ invalid.size }</invalidItemCount>
-                <invalidItems>{ invalidItems }</invalidItems>
-              </indexResponse>
 
             } map {
               response => Ok(response)
             }
-
           }
         }
     }
