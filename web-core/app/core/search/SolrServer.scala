@@ -46,7 +46,13 @@ trait SolrServer {
 
   def getSolrServer(configuration: OrganizationConfiguration) = SolrServer.solrServer(configuration)
 
-  def getStreamingUpdateServer(configuration: OrganizationConfiguration) = SolrServer.streamingUpdateServer(configuration)
+  def getStreamingUpdateServer(configuration: OrganizationConfiguration) = {
+    if (!configuration.isReadOnly) {
+      SolrServer.streamingUpdateServer(configuration)
+    } else {
+      throw new RuntimeException("System is in read-only mode, no indexing is possible at the moment")
+    }
+  }
 
   def runQuery(query: SolrQuery, retries: Int = 0)(implicit configuration: OrganizationConfiguration): QueryResponse = {
     try {

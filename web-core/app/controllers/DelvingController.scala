@@ -221,6 +221,8 @@ trait DelvingController extends ApplicationController {
             val isAdmin = organizationServiceLocator.byDomain.isAdmin(configuration.orgId, userName)
             renderArgs += ("isAdmin" -> isAdmin.asInstanceOf[AnyRef])
 
+            renderArgs += ("isReadOnly" -> configuration.isReadOnly.asInstanceOf[AnyRef])
+
             // Connected user
             HubUser.dao.findByUsername(userName).foreach { u =>
               renderArgs += ("fullName" -> u.fullname)
