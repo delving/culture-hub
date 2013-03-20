@@ -1,5 +1,16 @@
 <div class="organization-navbar">
     <h2>${_orgId}</h2>
+    #{if _isAdmin && _isReadOnly}
+    <div class="alert alert-block">
+        <p>
+            <strong>Warning!</strong>
+            The system is currently in read-only mode, and as a result a number of actions cannot be performed.
+        </p>
+        <p>
+            We are doing our best to fix the issue.
+        </p>
+    </div>
+    #{/if}
     <ul class="nav nav-tabs">
     #{list _navigation, as: 'mainMenuEntry'}
         #{if mainMenuEntry.mainEntry}
