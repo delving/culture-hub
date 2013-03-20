@@ -22,6 +22,7 @@ package models {
       orgId: String,
       domains: List[String] = List.empty,
       instances: List[String] = List.empty,
+      isReadOnly: Boolean = false,
 
       // ~~~ mail
       emailTarget: EmailTarget = EmailTarget(),
@@ -200,6 +201,7 @@ package models {
     val ORG_ID = "orgId"
 
     val INSTANCES = "instances"
+    val READ_ONLY = "readOnly"
 
     val SOLR_BASE_URL = "solr.baseUrl"
     val SOLR_INDEXER_URL = "solr.indexerUrl"
@@ -432,6 +434,7 @@ package models {
       orgId = configuration.getString(ORG_ID).get,
       domains = configuration.underlying.getStringList("domains").asScala.toList,
       instances = configuration.underlying.getStringList(INSTANCES).asScala.toList,
+      isReadOnly = configuration.getBoolean(READ_ONLY).getOrElse(false),
       mongoDatabase = configuration.getString(MONGO_DATABASE).get,
       baseXConfiguration = BaseXConfiguration(
         host = getString(configuration, BASEX_HOST),

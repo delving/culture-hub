@@ -73,9 +73,7 @@ object DataSetEventFeed {
 
   implicit def dataSetListToViewModelList(dsl: Seq[DataSet]): Seq[DataSetViewModel] = dsl.map(dataSetToViewModel(_))
 
-  lazy val default = {
-    Akka.system.actorOf(Props[DataSetEventFeed])
-  }
+  def default = Akka.system.actorFor("akka://application/user/plugin-dataSet/dataSetEventFeed")
 
   def subscribe(orgId: String, clientId: String, userName: String, configuration: String, spec: Option[String]): Future[(Iteratee[JsValue, _], Enumerator[JsValue])] = {
 
@@ -288,9 +286,11 @@ class DataSetEventFeed extends Actor {
               DataSet.dao.findBySpecAndOrgId(spec, orgId).map {
                 set =>
                   {
-                    if (checkAccess(set, userName)) {
+                    if (configuration.isReadOnly) {
+                      send(s, error("The system is in read-only mode and cannot process your request."))
+                    } else if (!configuration.isReadOnly && checkAccess(set, userName)) {
                       block(set)
-                    } else {
+                    } else if (!configuration.isReadOnly) {
                       send(s, error("Sorry, you are not authorized to perform this action!"))
                     }
                   }
@@ -440,7 +440,7 @@ class DataSetEventFeed extends Actor {
                             |
                             |Yours truthfully,
                             |
-                            |The CultureHub robot
+                            |The CultureBot
                           """.stripMargin).send()
                       }
                     }
