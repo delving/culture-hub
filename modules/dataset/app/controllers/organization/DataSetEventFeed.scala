@@ -73,9 +73,7 @@ object DataSetEventFeed {
 
   implicit def dataSetListToViewModelList(dsl: Seq[DataSet]): Seq[DataSetViewModel] = dsl.map(dataSetToViewModel(_))
 
-  lazy val default = {
-    Akka.system.actorOf(Props[DataSetEventFeed])
-  }
+  def default = Akka.system.actorFor("akka://application/user/plugin-dataSet/dataSetEventFeed")
 
   def subscribe(orgId: String, clientId: String, userName: String, configuration: String, spec: Option[String]): Future[(Iteratee[JsValue, _], Enumerator[JsValue])] = {
 
