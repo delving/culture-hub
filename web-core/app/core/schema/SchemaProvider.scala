@@ -33,10 +33,21 @@ class SchemaProvider extends SchemaService {
 
   private val log = Logger("CultureHub")
   private def repository = Akka.system.actorFor("akka://application/user/schemaRepository")
-  private implicit val timeout = Timeout(5000 milliseconds)
+  private implicit val timeout = Timeout(2000 milliseconds)
+  private val refreshTimeout = Timeout(1 minute) // at this point in March 2013, one minute is perfectly reasonable
 
-  override def refresh() {
-    repository ! Refresh
+  override def refresh = {
+    val eventuallyRefreshed = (repository ? Refresh)(refreshTimeout)
+    try {
+      Await.result(eventuallyRefreshed, refreshTimeout.duration) match {
+        case true => true
+        case false => false
+      }
+    } catch {
+      case t: Throwable =>
+        log.error("Problem refreshing the SchemaRepository", t)
+        false
+    }
   }
 
   override def getSchemas(implicit configuration: OrganizationConfiguration): Seq[eu.delving.schema.xml.Schema] = {
@@ -100,7 +111,7 @@ class SchemaRepositoryWrapper extends Actor {
   private var scheduler: Cancellable = null
   private var schemaRepository: SchemaRepository = null
 
-  private lazy val fetcher = if (Play.isDev || Play.isTest) new FileSystemFetcher(false) else new RemoteFetcher
+  private lazy val fetcher = if (false) new FileSystemFetcher(false) else new RemoteFetcher
 
   override def preStart() {
     scheduler = Akka.system.scheduler.schedule(5 minutes, 5 minutes, self, SchemaProvider.Refresh)
@@ -113,19 +124,19 @@ class SchemaRepositoryWrapper extends Actor {
   def receive = {
 
     case SchemaProvider.Refresh =>
-      refresh()
+      sender ! refresh
 
     case GetSchemas =>
       if (schemaRepository == null) {
         log.warn("Schema repository was null?! Refreshing...")
-        refresh()
+        refresh
       }
       sender ! Schemas(schemaRepository.getSchemas.asScala)
 
     case GetSchema(version, schemaType) =>
       if (schemaRepository == null) {
         log.warn("Schema repository was null?! Refreshing...")
-        refresh()
+        refresh
       }
 
       try {
@@ -138,9 +149,18 @@ class SchemaRepositoryWrapper extends Actor {
 
   }
 
-  private def refresh() {
-    schemaRepository = new SchemaRepository(fetcher)
-    log.info("Refreshed SchemaRepository, available schemas are: " + prefixes(schemaRepository.getSchemas.asScala))
+  private def refresh = {
+    try {
+      val newSchemaRepository = new SchemaRepository(fetcher)
+      newSchemaRepository.prefetchAllSchemas()
+      schemaRepository = newSchemaRepository
+      log.info("Refreshed SchemaRepository, available schemas are: " + prefixes(schemaRepository.getSchemas.asScala))
+      true
+    } catch {
+      case t: Throwable =>
+        log.error("Could not prefetch schema repository", t)
+        false
+    }
   }
 
   private def prefixes(schemas: Seq[eu.delving.schema.xml.Schema]) = schemas.map(_.prefix).mkString(", ")
