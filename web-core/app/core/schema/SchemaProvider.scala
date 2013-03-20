@@ -139,8 +139,15 @@ class SchemaRepositoryWrapper extends Actor {
   }
 
   private def refresh() {
-    schemaRepository = new SchemaRepository(fetcher)
-    log.info("Refreshed SchemaRepository, available schemas are: " + prefixes(schemaRepository.getSchemas.asScala))
+    try {
+      val newSchemaRepository = new SchemaRepository(fetcher)
+      newSchemaRepository.prefetchAllSchemas()
+      schemaRepository = newSchemaRepository
+      log.info("Refreshed SchemaRepository, available schemas are: " + prefixes(schemaRepository.getSchemas.asScala))
+    } catch {
+      case t: Throwable =>
+        log.error("Could not prefetch schema repository", t)
+    }
   }
 
   private def prefixes(schemas: Seq[eu.delving.schema.xml.Schema]) = schemas.map(_.prefix).mkString(", ")
