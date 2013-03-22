@@ -1,6 +1,7 @@
 package core
 
 import _root_.core.node.{ NodeDirectoryService, NodeRegistrationService }
+import search.SearchService
 import util.{ OrganizationConfigurationResourceHolder, OrganizationConfigurationHandler }
 import services._
 import models.{ CommonsServiceConfiguration, BaseXConfiguration, OrganizationConfiguration, HubUser }
@@ -20,8 +21,7 @@ object HubServices {
 
   val log = Logger("CultureHub")
 
-  // ~~~ service locators
-
+  // ~~~ service locators for organization-bound services
   lazy val authenticationServiceLocator = new DomainServiceLocator[AuthenticationService] {
     def byDomain(implicit configuration: OrganizationConfiguration): AuthenticationService = baseServices.getResource(configuration)
   }
@@ -42,6 +42,10 @@ object HubServices {
   }
   lazy val nodeDirectoryServiceLocator = new DomainServiceLocator[NodeDirectoryService] {
     def byDomain(implicit configuration: OrganizationConfiguration): NodeDirectoryService = baseServices.getResource(configuration)
+  }
+  lazy val searchServiceLocator = new DomainServiceLocator[SearchService] {
+    def byDomain(implicit configuration: OrganizationConfiguration): SearchService = CultureHubPlugin.getServices(classOf[SearchService]).head
+
   }
 
   type CommonServiceType = AuthenticationService with RegistrationService with UserProfileService with OrganizationService with DirectoryService with NodeRegistrationService with NodeDirectoryService

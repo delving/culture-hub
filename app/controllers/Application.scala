@@ -1,9 +1,6 @@
 package controllers
 
 import play.api.mvc._
-import models._
-import models.cms.CMSPage
-import com.mongodb.casbah.Imports._
 import core.{ RequestContext, CultureHubPlugin, ThemeInfo }
 import core.Constants._
 import core.indexing.IndexField._
@@ -15,7 +12,7 @@ object Application extends DelvingController {
       implicit request =>
         val themeInfo = renderArgs("themeInfo").get.asInstanceOf[ThemeInfo]
         val recentMdrs: Seq[ListItem] = try {
-          CommonSearch.search(
+          searchServiceLocator.byDomain.search(
             None,
             List("%s:%s AND %s:%s".format(RECORD_TYPE.key, ITEM_TYPE_MDR, HAS_DIGITAL_OBJECT.key, true)),
             request.queryString,

@@ -40,8 +40,6 @@ class ConfigurationPlugin(app: Application) extends CultureHubPlugin(app) {
 
   override def onStart() {
 
-    Play.configuration
-
     // initialize various resource holders
     HubMongoContext.init()
 

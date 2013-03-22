@@ -36,26 +36,12 @@ import net.liftweb.json.{ Extraction, Printer }
 import collection.immutable.ListMap
 import play.templates.GenericTemplateLoader
 import collection.immutable.Map
-import core.{ HubId }
+import core.HubId
 import java.net.{ URLDecoder, URLEncoder }
 import core.Constants._
-import core.ExplainItem
 import eu.delving.schema.SchemaVersion
 import controllers.ListItem
-import scala.Predef._
-import controllers.ListItem
-import core.search.SearchContext
-import scala.Some
-import core.search.SearchSummary
-import core.search.BriefItemView
-import core.search.Params
 import core.ExplainItem
-import core.search.ExplainResponse
-import core.search.FacetAutoComplete
-import core.search.BriefDocItem
-import core.search.CHResponse
-import core.search.DocItemReference
-import core.search.RecordLabel
 
 /**
  *

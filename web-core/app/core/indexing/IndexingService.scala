@@ -1,14 +1,10 @@
 package core.indexing
 
 import core.search.{ SolrBindingService, SolrServer }
-import core.Constants._
 import core.SystemField._
 import core.indexing.IndexField._
 import play.api.Logger
 import org.apache.solr.common.{ SolrInputField, SolrInputDocument }
-import org.joda.time.DateTime
-import org.joda.time.format.DateTimeFormat
-import org.apache.solr.client.solrj.SolrQuery
 import models.{ Visibility, OrganizationConfiguration }
 
 /**

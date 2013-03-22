@@ -16,8 +16,8 @@ package search
  * limitations under the License.
  */
 
-import _root_.java.net.URLEncoder
-import _root_.org.apache.solr.client.solrj.SolrQuery
+import java.net.URLEncoder
+import org.apache.solr.client.solrj.SolrQuery
 import collection.immutable.List
 import core.search._
 import org.scalatest.matchers.ShouldMatchers

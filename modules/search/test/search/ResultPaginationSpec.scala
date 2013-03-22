@@ -1,6 +1,6 @@
 package search
 
-import _root_.org.scalatest.matchers.ShouldMatchers
+import org.scalatest.matchers.ShouldMatchers
 import core.search.{ PageLink, Pager }
 import org.scalatest.FunSpec
 import scala.collection.JavaConversions._

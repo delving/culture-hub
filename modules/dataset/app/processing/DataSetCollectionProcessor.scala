@@ -6,15 +6,13 @@ import java.net.URL
 import io.Source
 import core.indexing.{ IndexingService, Indexing }
 import core.{ HubId, HubServices }
-import core.processing.{ DoProcess, ProcessingContext, CollectionProcessor, ProcessingSchema }
+import core.processing.{ DoProcess, CollectionProcessor, ProcessingSchema }
 import akka.actor.{ Actor, Props }
 import org.joda.time.DateTime
 import org.joda.time.format.DateTimeFormat
 import core.SystemField.SPEC
 import core.indexing.IndexField._
 import models.MetadataItem
-import scala.Some
-import processing.ProcessDataSetCollection
 import core.processing.ProcessingContext
 import org.apache.solr.client.solrj.SolrQuery
 
