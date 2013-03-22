@@ -10,6 +10,7 @@ import collection.JavaConverters._
 import org.bson.types.ObjectId
 import core._
 import models.{ OrganizationConfiguration, Role, Group, HubUser }
+import core.search.SearchService
 import xml.NodeSeq
 import org.apache.commons.lang.StringEscapeUtils
 
@@ -188,7 +189,10 @@ trait OrganizationController extends DelvingController with Secured {
 
 trait DelvingController extends ApplicationController {
 
+  // TODO proper injection, now that Play supports it
   val organizationServiceLocator = HubModule.inject[DomainServiceLocator[OrganizationService]](name = None)
+
+  val searchServiceLocator = HubModule.inject[DomainServiceLocator[SearchService]](name = None)
 
   def userName(implicit request: RequestHeader) = request.session.get(Constants.USERNAME).getOrElse(null)
 

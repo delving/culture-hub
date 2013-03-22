@@ -21,7 +21,6 @@ import org.apache.solr.client.solrj.response.{ QueryResponse, FacetField }
 import scala.collection.JavaConverters._
 import exceptions.SolrConnectionException
 import play.api.Logger
-import play.api.mvc.RequestHeader
 import core.indexing.IndexField._
 import collection.immutable.{ List, Map }
 import models.{ MetadataAccessors, OrganizationConfiguration }
