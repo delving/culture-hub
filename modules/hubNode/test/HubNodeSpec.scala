@@ -91,7 +91,7 @@ class HubNodeSpec extends test.Specs2TestContext {
     )
 
   step {
-    cleanup()
+    cleanup(cleanupSOLR = false)
   }
 
 }

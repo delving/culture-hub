@@ -16,6 +16,7 @@ object HubModule extends NewBindingModule({ module =>
   bind[SchemaService].toSingle(new SchemaProvider)
 
   bind[DomainServiceLocator[SearchService]].toSingle(HubServices.searchServiceLocator)
+  bind[DomainServiceLocator[IndexingService]].toSingle(HubServices.indexingServiceLocator)
 
   bind[HarvestCollectionLookupService].toSingle(new AggregatingHarvestCollectionLookup)
 

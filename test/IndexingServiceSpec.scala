@@ -1,4 +1,4 @@
-import core.indexing.IndexingService
+import core.indexing.SOLRIndexingService
 import test.Specs2TestContext
 
 /**
@@ -12,17 +12,17 @@ class IndexingServiceSpec extends Specs2TestContext {
 
     "let valid coordinates through" in {
       val test = List("53.084797,4.874389", "53.084797,4.874389")
-      IndexingService.filterForValidGeoCoordinate(test).size must equalTo(2)
+      SOLRIndexingService.filterForValidGeoCoordinate(test).size must equalTo(2)
     }
 
     "reject all invalid coordinates" in {
       val test = List("sjoerd", "53.084797,4.874389")
-      IndexingService.filterForValidGeoCoordinate(test).size must equalTo(1)
+      SOLRIndexingService.filterForValidGeoCoordinate(test).size must equalTo(1)
     }
 
     "remove spaces from the coordinates" in {
       val test = List("53.084797, 4.874389")
-      IndexingService.filterForValidGeoCoordinate(test).head must equalTo("53.084797,4.874389")
+      SOLRIndexingService.filterForValidGeoCoordinate(test).head must equalTo("53.084797,4.874389")
     }
 
   }

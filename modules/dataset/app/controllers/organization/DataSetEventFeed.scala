@@ -6,7 +6,6 @@ import scala.concurrent.duration._
 import akka.actor._
 import akka.util.Timeout
 import akka.pattern.ask
-import core.indexing.IndexingService
 import play.api.libs.iteratee._
 import play.api.Play.current
 import models.{ OrganizationConfiguration, DataSetEventLog, DataSetState, DataSet, HubUser }
@@ -17,6 +16,7 @@ import scala.concurrent.Future
 import play.api.libs.concurrent.Akka
 import extensions.Email
 import play.api.libs.json._
+import core.{ HubModule, IndexingService, DomainServiceLocator }
 
 /**
  * TODO access control
@@ -25,6 +25,8 @@ import play.api.libs.json._
  */
 
 object DataSetEventFeed {
+
+  val indexingServiceLocator: DomainServiceLocator[IndexingService] = HubModule.inject[DomainServiceLocator[IndexingService]](name = None)
 
   val log = Logger(getClass)
 
@@ -357,7 +359,7 @@ class DataSetEventFeed extends Actor {
                       set.state match {
                         case ENABLED =>
                           try {
-                            IndexingService.deleteBySpec(set.orgId, set.spec)
+                            indexingServiceLocator.byDomain.deleteBySpec(set.orgId, set.spec)
                             DataSet.dao.updateState(set, DataSetState.DISABLED, Some(userName))
                             send(s, ok)
                           } catch {
@@ -398,7 +400,7 @@ class DataSetEventFeed extends Actor {
                         case QUEUED | PROCESSING =>
                           DataSet.dao.updateState(set, DataSetState.CANCELLED, Some(userName))
                           try {
-                            IndexingService.deleteBySpec(set.orgId, set.spec)
+                            indexingServiceLocator.byDomain.deleteBySpec(set.orgId, set.spec)
                           } catch {
                             case t: Throwable =>
                               log.warn("Error while trying to remove cancelled set from index", t)
