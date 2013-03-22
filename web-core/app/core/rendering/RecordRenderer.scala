@@ -1,10 +1,6 @@
 package core.rendering
 
-import core.Constants._
-import core.HubId
-import core.search.{ DelvingIdType, BriefDocItem, DocItemReference, SolrQueryService }
-import models.{ Role, RecordDefinition, MetadataCache, OrganizationConfiguration }
-import java.net.{ URLDecoder, URLEncoder }
+import models.{ Role, RecordDefinition, OrganizationConfiguration }
 import play.api.Logger
 import xml._
 import play.api.i18n.Lang
@@ -21,120 +17,6 @@ import eu.delving.schema.SchemaVersion
 object RecordRenderer {
 
   val log = Logger("CultureHub")
-
-  /**
-   * Gets the full view of a record, for access via the search API.
-   * This is complex because we have to cater for legacy deployments with special idTypes
-   */
-  def getRenderedFullView(id: String,
-    idType: DelvingIdType,
-    viewType: ViewType,
-    lang: Lang,
-    schema: Option[String] = None,
-    renderRelatedItems: Boolean,
-    relatedItemsCount: Int,
-    requestParameters: Map[String, Seq[String]])(implicit configuration: OrganizationConfiguration): Either[String, RenderedView] = {
-
-    val hasFilterByDataOwnerKey: Boolean = requestParameters.contains("dataowner") && !requestParameters.get("dataowner").get.isEmpty
-
-    def filterByDataOwner(items: Seq[BriefDocItem], filterField: String, mltCount: Int) = {
-      if (hasFilterByDataOwnerKey) {
-        val filterKeys: Seq[String] = requestParameters.get("dataowner").get
-        items.filter(i => filterKeys.contains(i.getFieldValue(filterField).getFirst)).take(mltCount)
-      } else
-        items
-    }
-
-    SolrQueryService.getSolrItemReference(URLEncoder.encode(id, "utf-8"), idType, renderRelatedItems, if (hasFilterByDataOwnerKey) relatedItemsCount + 10 else relatedItemsCount) match {
-      case Some(DocItemReference(hubId, defaultSchema, publicSchemas, relatedItems, item)) =>
-        val prefix = if (schema.isDefined && publicSchemas.contains(schema.get)) {
-          schema.get
-        } else if (schema.isDefined && !publicSchemas.contains(schema.get)) {
-          val m = "Schema '%s' not available for hubId '%s'".format(schema.get, hubId)
-          Logger("Search").info(m)
-          return Left(m)
-        } else {
-          defaultSchema
-        }
-
-        idType match {
-          case DelvingIdType.ITIN =>
-            // TODO legacy support, to be removed on 01.06.2013
-            renderItinItem(item, relatedItems)
-          case DelvingIdType.INDEX_ITEM =>
-            renderIndexItem(id)
-          case _ =>
-            renderMetadataRecord(prefix, URLDecoder.decode(hubId, "utf-8"), viewType, lang, renderRelatedItems, filterByDataOwner(relatedItems, "delving_owner", relatedItemsCount), requestParameters)
-        }
-      case None =>
-        Left("Could not resolve identifier for hubId '%s' and idType '%s'".format(id, idType.idType))
-    }
-  }
-
-  private def renderItinItem(item: Option[BriefDocItem], relatedItems: Seq[BriefDocItem]) = {
-
-    val document = <result xmlns:delving="http://www.delving.eu/schemas/" xmlns:icn="http://www.icn.nl/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:custom="http://www.delving.eu/schemas/" xmlns:dcterms="http://purl.org/dc/termes/" xmlns:itin="http://www.itin.nl/namespace" xmlns:drup="http://www.itin.nl/drupal" xmlns:europeana="http://www.europeana.eu/schemas/ese/">
-                     { item.map { i => { i.toXml() } }.getOrElse(<item/>) }
-                     <relatedItems>{ relatedItems.map { ri => { ri.toXml() } } }</relatedItems>
-                   </result>
-
-    Right(new RenderedView {
-      def toXml: NodeSeq = document
-      def toViewTree: RenderNode = null
-      def toXmlString: String = document.toString()
-      def toJson: String = "JSON rendering is unsupported"
-    })
-
-  }
-
-  private def renderIndexItem(id: String): Either[String, RenderedView] = {
-    if (id.split("_").length < 3) {
-      Left("Invalid hubId")
-    } else {
-      val hubId = HubId(id)
-      val cache = MetadataCache.get(hubId.orgId, "indexApiItems", hubId.spec)
-      val indexItem = cache.findOne(hubId.localId).getOrElse(return Left("Could not find IndexItem with id '%s".format(id)))
-      Right(new RenderedView {
-        def toXmlString: String = indexItem.xml("raw")
-        def toJson: String = "JSON rendering not supported"
-        def toXml: NodeSeq = scala.xml.XML.loadString(indexItem.xml("raw"))
-        def toViewTree: RenderNode = null
-      })
-    }
-  }
-
-  private def renderMetadataRecord(prefix: String,
-    hubId: String,
-    viewType: ViewType,
-    lang: Lang,
-    renderRelatedItems: Boolean,
-    relatedItems: Seq[BriefDocItem],
-    parameters: Map[String, Seq[String]])(implicit configuration: OrganizationConfiguration): Either[String, RenderedView] = {
-
-    if (hubId.split("_").length < 3) return Left("Invalid hubId " + hubId)
-    val id = HubId(hubId)
-    val cache = MetadataCache.get(id.orgId, id.spec, ITEM_TYPE_MDR)
-    val record = cache.findOne(hubId)
-    val rawRecord: Option[String] = record.flatMap(_.xml.get(prefix))
-    if (rawRecord.isEmpty) {
-      log.info("Could not find cached record in mongo with format %s for hubId %s".format(prefix, hubId))
-      Left("Could not find full record with hubId '%s' for format '%s'".format(hubId, prefix))
-    } else {
-
-      // handle legacy formats
-      val legacyApiFormats = List("tib", "abm", "ese", "abc")
-      val legacyHtmlFormats = List("abm", "ese", "abc")
-      val viewDefinitionFormatName = if (viewType == ViewType.API) {
-        if (legacyApiFormats.contains(prefix)) "legacy" else prefix
-      } else {
-        if (legacyHtmlFormats.contains(prefix)) "legacy" else prefix
-      }
-
-      val schemaVersion = record.get.schemaVersions(prefix)
-
-      renderMetadataRecord(hubId, rawRecord.get, new SchemaVersion(prefix, schemaVersion), viewDefinitionFormatName, viewType, lang, renderRelatedItems, relatedItems.map(_.toXml()), Seq.empty, parameters)
-    }
-  }
 
   /**
    * Renders a metadata record

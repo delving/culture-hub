@@ -14,7 +14,7 @@ import java.util.List
 
 class ResultPaginationSpec extends FunSpec with ShouldMatchers {
 
-  describe("A ResultPagination") {
+  describe("A SOLRResultPagination") {
 
     describe("(when a start pagination range)") {
       testPagination(300, 20, 0, "simple query")

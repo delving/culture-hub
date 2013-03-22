@@ -15,10 +15,11 @@ import models.{ Visibility, OrganizationConfiguration }
 
 object CommonSearch extends DelvingController {
 
-  def search(user: Option[String], query: List[String])(implicit request: RequestHeader, configuration: OrganizationConfiguration) = {
-    val chQuery = SolrQueryService.createCHQuery(request, user, query)
+  def search(user: Option[String], query: List[String], params: Map[String, Seq[String]], host: String)(implicit configuration: OrganizationConfiguration) = {
+    val searchContext = SearchContext(params, host, query)
+    val chQuery = SolrQueryService.createCHQuery(searchContext, user)
     val queryResponse = SolrQueryService.getSolrResponseFromServer(chQuery.solrQuery, true)
-    val chResponse = CHResponse(Params(request.queryString), queryResponse, chQuery, configuration)
+    val chResponse = CHResponse(queryResponse, chQuery, configuration)
     val briefItemView = BriefItemView(chResponse)
 
     val items: Seq[ListItem] = toListItems(briefItemView.getBriefDocs.filterNot(_.getHubId.isEmpty))(configuration)
@@ -26,7 +27,7 @@ object CommonSearch extends DelvingController {
     (items, briefItemView)
   }
 
-  def toListItems(briefDocs: Seq[BriefDocItem])(implicit configuration: OrganizationConfiguration) = briefDocs.map {
+  private def toListItems(briefDocs: Seq[BriefDocItem])(implicit configuration: OrganizationConfiguration) = briefDocs.map {
     bd =>
       ListItem(id = bd.getHubId,
         itemType = bd.getItemType,
