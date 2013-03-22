@@ -1,6 +1,5 @@
-package core.indexing
+package services
 
-import core.search.{ SolrBindingService, SolrServer }
 import core.SystemField._
 import core.indexing.IndexField._
 import play.api.Logger
@@ -17,6 +16,7 @@ import org.apache.tika.metadata.Metadata
 import org.apache.tika.parser.pdf.PDFParser
 import org.apache.tika.parser.ParseContext
 import core.IndexingService
+import search.{ SolrServer, SolrBindingService }
 
 /**
  * Indexing API
@@ -57,7 +57,7 @@ class SOLRIndexingService extends SolrServer with IndexingService {
     doc.addField(HAS_LANDING_PAGE.key, hasLandingPage)
 
     if (!doc.containsKey(VISIBILITY.key)) {
-      doc += (VISIBILITY -> Visibility.PUBLIC.value.toString)
+      doc.addField(VISIBILITY.key, Visibility.PUBLIC.value.toString)
     }
 
     // add full text from digital objects

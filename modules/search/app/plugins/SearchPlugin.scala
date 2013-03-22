@@ -2,8 +2,10 @@ package plugins
 
 import play.api.Application
 import core.CultureHubPlugin
-import core.search.SOLRSearchService
-import core.indexing.SOLRIndexingService
+import akka.actor.{ Props, ActorContext }
+import actors.SolrCache
+import services.{ SOLRIndexingService }
+import services.search.SOLRSearchService
 
 /**
  *
@@ -19,6 +21,10 @@ class SearchPlugin(app: Application) extends CultureHubPlugin(app) {
   override def services: Seq[Any] = Seq(
     new SOLRSearchService,
     new SOLRIndexingService
-
   )
+
+  override def onActorInitialization(context: ActorContext) {
+    context.actorOf(Props[SolrCache])
+
+  }
 }

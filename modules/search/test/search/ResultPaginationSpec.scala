@@ -1,10 +1,11 @@
 package search
 
 import org.scalatest.matchers.ShouldMatchers
-import core.search.{ PageLink, Pager }
+import core.search.{ PageLink }
 import org.scalatest.FunSpec
 import scala.collection.JavaConversions._
 import java.util.List
+import services.search.Pager
 
 /**
  *
@@ -14,7 +15,7 @@ import java.util.List
 
 class ResultPaginationSpec extends FunSpec with ShouldMatchers {
 
-  describe("A SOLRResultPagination") {
+  describe("A services.search.SOLRResultPagination") {
 
     describe("(when a start pagination range)") {
       testPagination(300, 20, 0, "simple query")

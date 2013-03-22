@@ -1,20 +1,4 @@
-package core.search
-
-/*
- * Copyright 2011 Delving B.V.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+package services.search
 
 import core.indexing.IndexField
 import exceptions.AccessKeyException
@@ -42,27 +26,12 @@ import core.Constants._
 import eu.delving.schema.SchemaVersion
 import controllers.ListItem
 import core.ExplainItem
+import core.search._
 
 /**
  *
- * @author Sjoerd Siebinga <sjoerd.siebinga@gmail.com>
- * @since 10/17/11 2:25 PM
+ * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
-object SOLRSearchService {
-
-  def localiseKey(metadataField: String, language: String = "en", defaultLabel: String = "unknown"): String = {
-    val localizedName = Messages("metadata." + metadataField.replaceAll("_", "."))(Lang(language))
-    if (localizedName != null && !defaultLabel.startsWith("#") && !localizedName.startsWith("metadata.")) localizedName else defaultLabel
-  }
-
-}
-
-case class SearchContext(queryString: Map[String, Seq[String]], host: String, hiddenQueryFilters: Seq[String]) {
-  val params = Params(queryString)
-  val format = params.getValueOrElse("format", "default")
-  val apiLanguage = params.getValueOrElse("lang", "en")
-}
-
 class SOLRSearchService extends SearchService {
 
   val log = Logger("CultureHub")
@@ -392,6 +361,26 @@ class SOLRSearchService extends SearchService {
     }
   }
 
+}
+
+/**
+ *
+ * @author Sjoerd Siebinga <sjoerd.siebinga@gmail.com>
+ * @since 10/17/11 2:25 PM
+ */
+object SOLRSearchService {
+
+  def localiseKey(metadataField: String, language: String = "en", defaultLabel: String = "unknown"): String = {
+    val localizedName = Messages("metadata." + metadataField.replaceAll("_", "."))(Lang(language))
+    if (localizedName != null && !defaultLabel.startsWith("#") && !localizedName.startsWith("metadata.")) localizedName else defaultLabel
+  }
+
+}
+
+case class SearchContext(queryString: Map[String, Seq[String]], host: String, hiddenQueryFilters: Seq[String]) {
+  val params = Params(queryString)
+  val format = params.getValueOrElse("format", "default")
+  val apiLanguage = params.getValueOrElse("lang", "en")
 }
 
 case class RecordLabel(name: String, fieldValue: String, multivalued: Boolean = false)

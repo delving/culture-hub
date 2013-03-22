@@ -1,6 +1,5 @@
 package core.indexing
 
-import org.apache.solr.common.SolrInputDocument
 import collection.mutable
 
 /**
@@ -49,12 +48,6 @@ case object IndexField {
 
   // ~~~ deprecated
   val VISIBILITY = IndexField("delving_visibility")
-
-  implicit def withRichSolrInputDocument(doc: SolrInputDocument) = new {
-    def +=(pair: (IndexableField, AnyRef)) {
-      doc.addField(pair._1.key, pair._2)
-    }
-  }
 
   implicit def withRichMultiMap(doc: mutable.MultiMap[String, Any]) = new {
     def +=(pair: (IndexableField, AnyRef)) {

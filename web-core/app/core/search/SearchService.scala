@@ -63,6 +63,10 @@ trait FacetCountLink {
   def getCount: Long
 }
 
+case class FacetElement(facetName: String, facetInternationalisationCode: String, nrDisplayColumns: Int = 1)
+
+case class SortElement(sortKey: String, sortAscending: Boolean = true)
+
 case class PageLink(start: Int, display: Int, isLinked: Boolean = false) {
   override def toString: String = if (isLinked) "%i:%i".format(display, start) else display.toString
 }

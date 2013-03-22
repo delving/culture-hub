@@ -1,5 +1,7 @@
-import core.indexing.SOLRIndexingService
+package search
+
 import test.Specs2TestContext
+import services.SOLRIndexingService
 
 /**
  *
