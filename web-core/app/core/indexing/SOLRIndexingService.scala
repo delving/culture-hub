@@ -6,15 +6,39 @@ import core.indexing.IndexField._
 import play.api.Logger
 import org.apache.solr.common.{ SolrInputField, SolrInputDocument }
 import models.{ Visibility, OrganizationConfiguration }
+import org.joda.time.DateTime
+import org.joda.time.format.DateTimeFormat
+import org.apache.solr.client.solrj.SolrQuery
+import extensions.HTTPClient
+import java.io.InputStream
+import org.apache.commons.httpclient.methods.GetMethod
+import org.apache.tika.sax.BodyContentHandler
+import org.apache.tika.metadata.Metadata
+import org.apache.tika.parser.pdf.PDFParser
+import org.apache.tika.parser.ParseContext
+import core.IndexingService
 
 /**
  * Indexing API
  *
  * TODO turn into a real service and inject via subcut
  */
-object IndexingService extends SolrServer {
-
+class SOLRIndexingService extends SolrServer with IndexingService {
   val log = Logger("CultureHub")
+
+  /**
+   * Stages a document for indexing, and applies all generic delving mechanisms on top
+   */
+  def stageForIndexing(doc: IndexDocument)(implicit configuration: OrganizationConfiguration) {
+    val solrDoc = new SolrInputDocument()
+    doc foreach { pair =>
+      pair._2 foreach { value =>
+        solrDoc.addField(pair._1, value)
+      }
+    }
+
+    stageForIndexing(solrDoc)
+  }
 
   /**
    * Stages a SOLR InputDocument for indexing, and applies all generic delving mechanisms on top
@@ -92,7 +116,7 @@ object IndexingService extends SolrServer {
     if (doc.containsKey(GEOHASH.key)) {
       val values = doc.get(GEOHASH.key).getValues.toList
       doc.remove(GEOHASH.key)
-      filterForValidGeoCoordinate(values).foreach { geoHash =>
+      SOLRIndexingService.filterForValidGeoCoordinate(values).foreach { geoHash =>
         doc.addField(GEOHASH.key, geoHash)
       }
     }
@@ -100,20 +124,6 @@ object IndexingService extends SolrServer {
     doc.addField(HAS_GEO_HASH.key.toString, doc.containsKey(GEOHASH.key) && !doc.get(GEOHASH.key).isEmpty)
 
     getStreamingUpdateServer(configuration).add(doc)
-  }
-
-  /**
-   * Check the values of an collection and remove all entries that are not valid lat long pairs
-   * This check is not absolute but should remove most issues associated with wrong string values being assigned
-   * in the mapping stage
-   */
-
-  def filterForValidGeoCoordinate(values: List[AnyRef]): List[String] = {
-    def isValid(value: String) = {
-      val coordinates = value.split(",")
-      (coordinates.size == 2) && (coordinates.head.split("\\.").size == 2 && coordinates.last.split("\\.").size == 2)
-    }
-    values.map(_.toString.replaceAll(" ", "")).filter(isValid(_))
   }
 
   /**
@@ -157,5 +167,71 @@ object IndexingService extends SolrServer {
     commit
   }
 
+  def deleteOrphansBySpec(orgId: String, spec: String, startIndexing: DateTime)(implicit configuration: OrganizationConfiguration) {
+    val fmt = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
+    val deleteQuery = SPEC.tag + ":" + spec + " AND " + ORG_ID.key + ":" + orgId + " AND timestamp:[* TO " + fmt.print(startIndexing.minusSeconds(15)) + "]"
+    val orphans = getSolrServer(configuration).query(new SolrQuery(deleteQuery)).getResults.getNumFound
+    if (orphans > 0) {
+      try {
+        val deleteResponse = getStreamingUpdateServer(configuration).deleteByQuery(deleteQuery)
+        deleteResponse.getStatus
+        commit
+        log.info("Deleting orphans %s from dataset from Solr Index: %s".format(orphans.toString, deleteQuery))
+      } catch {
+        case e: Exception => log.info("Unable to remove orphans for %s because of %s".format(spec, e.getMessage))
+      }
+    } else
+      log.info("No orphans found for dataset in Solr Index: %s".format(deleteQuery))
+  }
+
+}
+
+object SOLRIndexingService {
+
+  /**
+   * Check the values of an collection and remove all entries that are not valid lat long pairs
+   * This check is not absolute but should remove most issues associated with wrong string values being assigned
+   * in the mapping stage
+   */
+  def filterForValidGeoCoordinate(values: List[AnyRef]): List[String] = {
+    def isValid(value: String) = {
+      val coordinates = value.split(",")
+      (coordinates.size == 2) && (coordinates.head.split("\\.").size == 2 && coordinates.last.split("\\.").size == 2)
+    }
+    values.map(_.toString.replaceAll(" ", "")).filter(isValid(_))
+  }
+
+}
+
+object TikaIndexer extends HTTPClient {
+
+  val log = Logger("CultureHub")
+
+  def getFullTextFromRemoteURL(url: String): Option[String] = {
+    try {
+      log.info("Retrieving document for indexing with Tika at " + url)
+      Some(parseFullTextFromPdf(getObject(url)))
+    } catch {
+      case t: Throwable =>
+        log.error("Unable to process digital object found at " + url)
+        None
+    }
+  }
+
+  def getObject(url: String): InputStream = {
+    val method = new GetMethod(url)
+    getHttpClient executeMethod (method)
+    method.getResponseBodyAsStream
+  }
+
+  def parseFullTextFromPdf(input: InputStream): String = {
+    val textHandler = new BodyContentHandler()
+    val metadata = new Metadata()
+    val parser = new PDFParser()
+    parser.parse(input, textHandler, metadata, new ParseContext)
+    input.close()
+    log.debug("Found following text via Tika for indexing:\n\n" + textHandler.toString)
+    textHandler.toString
+  }
 }
 

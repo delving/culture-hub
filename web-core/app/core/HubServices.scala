@@ -45,7 +45,9 @@ object HubServices {
   }
   lazy val searchServiceLocator = new DomainServiceLocator[SearchService] {
     def byDomain(implicit configuration: OrganizationConfiguration): SearchService = CultureHubPlugin.getServices(classOf[SearchService]).head
-
+  }
+  lazy val indexingServiceLocator = new DomainServiceLocator[IndexingService] {
+    def byDomain(implicit configuration: OrganizationConfiguration): IndexingService = CultureHubPlugin.getServices(classOf[IndexingService]).head
   }
 
   type CommonServiceType = AuthenticationService with RegistrationService with UserProfileService with OrganizationService with DirectoryService with NodeRegistrationService with NodeDirectoryService

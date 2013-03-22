@@ -16,7 +16,6 @@ import akka.actor._
 import akka.routing._
 import akka.actor.SupervisorStrategy._
 import controllers.{ organization, ReceiveSource }
-import core.indexing.IndexingService
 import scala.collection.immutable.ListMap
 import scala.collection.JavaConverters._
 import scala.util.matching.Regex
@@ -37,6 +36,7 @@ class DataSetPlugin(app: Application) extends CultureHubPlugin(app) {
   private var testDataProcessor: ActorRef = null
 
   val schemaService: SchemaService = HubModule.inject[SchemaService](name = None)
+  lazy val indexingServiceLocator = HubModule.inject[DomainServiceLocator[IndexingService]](name = None)
 
   /**
    *
@@ -255,7 +255,7 @@ class DataSetPlugin(app: Application) extends CultureHubPlugin(app) {
             dataSetDAO.updateState(set, DataSetState.CANCELLED)
             try {
               implicit val configuration = OrganizationConfigurationHandler.getByOrgId(set.orgId)
-              IndexingService.deleteBySpec(set.orgId, set.spec)
+              indexingServiceLocator.byDomain.deleteBySpec(set.orgId, set.spec)
             } catch {
               case t: Throwable => error(
                 "Couldn't delete SOLR index for cancelled set %s:%s at startup".format(

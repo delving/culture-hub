@@ -17,30 +17,26 @@
 package core.indexing
 
 import core.collection.{ Collection, OrganizationCollectionInformation }
-import extensions.HTTPClient
-import org.apache.solr.common.SolrInputDocument
 import play.api.Logger
 import core.SystemField._
 import core.indexing.IndexField._
-import org.apache.commons.httpclient.methods.GetMethod
-import java.io.{ InputStream, FilenameFilter, File }
-import org.apache.tika.sax.BodyContentHandler
-import org.apache.tika.parser.pdf.PDFParser
+import java.io.{ FilenameFilter, File }
 import exceptions.SolrConnectionException
-import core.search.SolrServer
-import org.apache.tika.parser.ParseContext
-import org.apache.tika.metadata.Metadata
 import java.net.URLEncoder
 import models.{ OrganizationConfiguration, Visibility }
 import org.apache.commons.lang.StringEscapeUtils
-import core.HubId
+import core.{ IndexingService, DomainServiceLocator, HubModule, HubId }
+import core.indexing.IndexField._
+import collection.mutable
 
 /**
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-object Indexing extends SolrServer {
+object Indexing {
+
+  lazy val indexingServiceLocator = HubModule.inject[DomainServiceLocator[IndexingService]](name = None)
 
   type IndexableCollection = Collection with OrganizationCollectionInformation
 
@@ -48,30 +44,29 @@ object Indexing extends SolrServer {
     val doc = createSolrInputDocument(mapped)
     addDelvingHouseKeepingFields(doc, collection, hubId, metadataFormatForIndexing)
     try {
-      IndexingService.stageForIndexing(doc)
+      indexingServiceLocator.byDomain.stageForIndexing(doc.toMap)
     } catch {
       case t: Throwable => Left(new SolrConnectionException("Unable to add document to Solr", t))
     }
     Right("ok")
   }
 
-  private def createSolrInputDocument(indexDoc: Map[String, List[Any]]): SolrInputDocument = {
+  private def createSolrInputDocument(indexDoc: Map[String, List[Any]]) = {
 
-    val doc = new SolrInputDocument
+    val doc = new mutable.HashMap[String, mutable.Set[Any]] with mutable.MultiMap[String, Any]
     indexDoc.foreach {
       entry =>
         val unMungedKey = entry._1
         entry._2.foreach {
           value =>
             val cleanValue = if (unMungedKey.endsWith("_text")) StringEscapeUtils.unescapeHtml(value.toString) else value.toString
-            doc.addField(unMungedKey, cleanValue)
+            doc.addBinding(unMungedKey, cleanValue)
         }
     }
     doc
   }
 
-  def addDelvingHouseKeepingFields(inputDoc: SolrInputDocument, dataSet: IndexableCollection, hubId: HubId, schemaPrefix: String)(implicit configuration: OrganizationConfiguration) {
-    import scala.collection.JavaConversions._
+  def addDelvingHouseKeepingFields(inputDoc: mutable.MultiMap[String, Any], dataSet: IndexableCollection, hubId: HubId, schemaPrefix: String)(implicit configuration: OrganizationConfiguration) {
 
     // mandatory fields
     inputDoc += (ORG_ID -> dataSet.getOwner)
@@ -80,29 +75,29 @@ object Indexing extends SolrServer {
     inputDoc += (RECORD_TYPE -> dataSet.itemType.itemType)
     inputDoc += (VISIBILITY -> Visibility.PUBLIC.value.toString)
 
-    inputDoc.addField(SPEC.tag, "%s".format(dataSet.spec))
-    inputDoc.addField(COLLECTION.tag, "%s".format(dataSet.getName))
+    inputDoc.addBinding(SPEC.tag, "%s".format(dataSet.spec))
+    inputDoc.addBinding(COLLECTION.tag, "%s".format(dataSet.getName))
 
     // for backwards-compatibility
     inputDoc += (PMH_ID -> URLEncoder.encode(hubId.toString, "utf-8"))
 
     // force the provider and dataProvider configured in the DataSet
-    if (inputDoc.containsKey(PROVIDER.tag)) {
+    if (inputDoc.contains(PROVIDER.tag)) {
       inputDoc.remove(PROVIDER.tag)
-      inputDoc.addField(PROVIDER.tag, dataSet.getProvider)
+      inputDoc.addBinding(PROVIDER.tag, dataSet.getProvider)
     }
-    if (inputDoc.containsKey(OWNER.tag)) {
+    if (inputDoc.contains(OWNER.tag)) {
       inputDoc.remove(OWNER.tag)
-      inputDoc.addField(OWNER.tag, dataSet.getDataProvider)
+      inputDoc.addBinding(OWNER.tag, dataSet.getDataProvider)
     }
 
     // deepZoom hack
     val DEEPZOOMURL: String = "delving_deepZoomUrl_string"
     val DEEPZOOM_PATH: String = "/iip/deepzoom"
-    if (inputDoc.containsKey(DEEPZOOMURL)) {
+    if (inputDoc.contains(DEEPZOOMURL) && !inputDoc(DEEPZOOMURL).isEmpty) {
       try {
         // http://some.delving.org/iip/deepzoom/mnt/tib/tiles/<orgId>/<spec>/<image>
-        val url = inputDoc.get(DEEPZOOMURL).getFirstValue.toString
+        val url = inputDoc.get(DEEPZOOMURL).get.head.toString
         val i = url.indexOf(DEEPZOOM_PATH)
         if (i > -1) {
           val tileSetPath = url.substring(i + DEEPZOOM_PATH.length(), url.length())
@@ -126,26 +121,26 @@ object Indexing extends SolrServer {
         }
       } catch {
         case t: Throwable =>
-          Logger("CultureHub").error("Error during deepZoomUrl check, deepZoomURL " + inputDoc.get(DEEPZOOMURL).getFirstValue, t)
+          Logger("CultureHub").error("Error during deepZoomUrl check, deepZoomURL " + inputDoc.get(DEEPZOOMURL).get.head, t)
           // in doubt, remove
           inputDoc.remove(DEEPZOOMURL)
       }
     }
 
-    if (inputDoc.containsKey(ID.key)) inputDoc.remove(ID.key)
+    if (inputDoc.contains(ID.key)) inputDoc.remove(ID.key)
     inputDoc += (ID -> hubId.toString)
 
     // TODO remove this hack
     val uriWithTypeSuffix = EUROPEANA_URI.key + "_string"
     val uriWithTextSuffix = EUROPEANA_URI.key + "_text"
-    if (inputDoc.containsKey(uriWithTypeSuffix)) {
-      val uriValue: String = inputDoc.get(uriWithTypeSuffix).getFirstValue.toString
+    if (inputDoc.contains(uriWithTypeSuffix) && !inputDoc(uriWithTypeSuffix).isEmpty) {
+      val uriValue: String = inputDoc(uriWithTypeSuffix).head.toString
       inputDoc.remove(uriWithTypeSuffix)
-      inputDoc.addField(EUROPEANA_URI.key, uriValue)
-    } else if (inputDoc.contains(uriWithTextSuffix)) {
-      val uriValue: String = inputDoc.get(uriWithTextSuffix).getFirstValue.toString
+      inputDoc.addBinding(EUROPEANA_URI.key, uriValue)
+    } else if (inputDoc.contains(uriWithTextSuffix) && !inputDoc(uriWithTextSuffix).isEmpty) {
+      val uriValue: String = inputDoc(uriWithTextSuffix).head.toString
       inputDoc.remove(uriWithTextSuffix)
-      inputDoc.addField(EUROPEANA_URI.key, uriValue)
+      inputDoc.addBinding(EUROPEANA_URI.key, uriValue)
     }
 
     // ALL_SCHEMAS used to contain all the public schemas for a set
@@ -154,36 +149,4 @@ object Indexing extends SolrServer {
     inputDoc += (ALL_SCHEMAS -> schemaPrefix)
   }
 
-}
-
-object TikaIndexer extends HTTPClient {
-
-  val log = Logger("CultureHub")
-
-  def getFullTextFromRemoteURL(url: String): Option[String] = {
-    try {
-      log.info("Retrieving document for indexing with Tika at " + url)
-      Some(parseFullTextFromPdf(getObject(url)))
-    } catch {
-      case t: Throwable =>
-        log.error("Unable to process digital object found at " + url)
-        None
-    }
-  }
-
-  def getObject(url: String): InputStream = {
-    val method = new GetMethod(url)
-    getHttpClient executeMethod (method)
-    method.getResponseBodyAsStream
-  }
-
-  def parseFullTextFromPdf(input: InputStream): String = {
-    val textHandler = new BodyContentHandler()
-    val metadata = new Metadata()
-    val parser = new PDFParser()
-    parser.parse(input, textHandler, metadata, new ParseContext)
-    input.close()
-    log.debug("Found following text via Tika for indexing:\n\n" + textHandler.toString)
-    textHandler.toString
-  }
 }
