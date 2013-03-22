@@ -2,8 +2,7 @@ package models {
 
   import _root_.core.node.Node
   import core.{ SystemField, CultureHubPlugin }
-  import org.apache.solr.client.solrj.SolrQuery
-  import core.search.{ SolrSortElement, SolrFacetElement }
+  import core.search.{ SortElement, FacetElement }
   import play.api.{ Configuration, Play, Logger }
   import Play.current
   import collection.JavaConverters._
@@ -70,38 +69,38 @@ package models {
       val isLocal: Boolean = true
     }
 
-    def getFacets: List[SolrFacetElement] = {
+    def getFacets: List[FacetElement] = {
       searchService.facets.split(",").filter(k => k.split(":").size > 0 && k.split(":").size < 4).map {
         entry =>
           {
             val k = entry.split(":")
             k.length match {
-              case 1 => SolrFacetElement(k.head, k.head)
-              case 2 => SolrFacetElement(k(0), k(1))
+              case 1 => FacetElement(k.head, k.head)
+              case 2 => FacetElement(k(0), k(1))
               case 3 =>
                 try {
-                  SolrFacetElement(k(0), k(1), k(2).toInt)
+                  FacetElement(k(0), k(1), k(2).toInt)
                 } catch {
                   case _: java.lang.NumberFormatException =>
                     Logger("CultureHub").warn("Wrong value %s for facet display column number for theme %s".format(k(2), orgId))
-                    SolrFacetElement(k(0), k(1))
+                    FacetElement(k(0), k(1))
                 }
             }
           }
       }.toList
     }
 
-    def getSortFields: List[SolrSortElement] = {
+    def getSortFields: List[SortElement] = {
       searchService.sortFields.split(",").filter(sf => sf.split(":").size > 0 && sf.split(":").size < 3).map {
         entry =>
           {
             val k = entry.split(":")
             k.length match {
-              case 1 => SolrSortElement(k.head)
+              case 1 => SortElement(k.head)
               case 2 =>
-                SolrSortElement(
+                SortElement(
                   k(1),
-                  if (k(2).equalsIgnoreCase("desc")) SolrQuery.ORDER.desc else SolrQuery.ORDER.asc
+                  (k(2).equalsIgnoreCase("asc"))
                 )
             }
           }

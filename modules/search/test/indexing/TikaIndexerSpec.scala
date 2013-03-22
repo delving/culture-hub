@@ -1,8 +1,8 @@
 package indexing
 
-import core.indexing.TikaIndexer
 import org.scalatest.matchers.ShouldMatchers
 import org.scalatest.FunSpec
+import services.TikaIndexer
 
 /**
  *

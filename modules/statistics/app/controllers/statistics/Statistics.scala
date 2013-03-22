@@ -6,7 +6,6 @@ import models.{ Role, Group, OrganizationConfiguration, DataSet }
 import collection.JavaConverters._
 import models.statistics.DataSetStatistics
 import collection.immutable.ListMap
-import core.search.{ SolrBindingService, SolrQueryService }
 import org.apache.solr.client.solrj.SolrQuery
 import core.{ SystemField, CultureHubPlugin, Constants }
 import org.apache.solr.client.solrj.response.FacetField.Count
@@ -15,6 +14,7 @@ import plugins.{ StatisticsPluginConfiguration, StatisticsPlugin }
 import core.indexing.IndexField
 import play.api.cache.Cache
 import play.api.Play.current
+import services.search.{ SolrQueryService, SolrBindingService }
 
 /**
  * Prototype statistics plugin based on the statistics provided by the Sip-Creator.

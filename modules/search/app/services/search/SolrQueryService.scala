@@ -1,25 +1,9 @@
-package core.search
-
-/*
- * Copyright 2011 Delving B.V.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+package services.search
 
 import core.indexing.IndexField
 import org.apache.solr.client.solrj.response.{ QueryResponse, FacetField }
 import scala.collection.JavaConverters._
-import exceptions.SolrConnectionException
+import exceptions.{ MalformedQueryException, SolrConnectionException }
 import play.api.Logger
 import core.indexing.IndexField._
 import collection.immutable.{ List, Map }
@@ -34,6 +18,7 @@ import org.apache.solr.client.solrj.SolrServerException
 import org.apache.solr.common.util.SimpleOrderedMap
 import core.indexing.IndexField._
 import core.Constants._
+import core.search._
 
 /**
  *
@@ -529,10 +514,6 @@ case class FilterQuery(field: String, value: String) {
   override def toString = toFacetString
 }
 
-case class SolrFacetElement(facetName: String, facetInternationalisationCode: String, nrDisplayColumns: Int = 1)
-
-case class SolrSortElement(sortKey: String, sortOrder: SolrQuery.ORDER = SolrQuery.ORDER.asc)
-
 case class CHQuery(solrQuery: SolrQuery, responseFormat: String = "xml", filterQueries: List[FilterQuery] = List.empty, hiddenFilterQueries: List[FilterQuery] = List.empty, systemQueries: List[String] = List.empty)
 
 case class CHResponse(response: QueryResponse, chQuery: CHQuery, configuration: OrganizationConfiguration) { // todo extend with the other response elements
@@ -540,10 +521,6 @@ case class CHResponse(response: QueryResponse, chQuery: CHQuery, configuration: 
   lazy val breadCrumbs: List[BreadCrumb] = SolrQueryService.createBreadCrumbList(chQuery)
 
 }
-
-/*
- * case classes converted from legacy code
- */
 
 case class Pager(numFound: Int, start: Int = 1, rows: Int, pageSize: Int = 12) {
 
@@ -646,9 +623,3 @@ case class BriefItemView(chResponse: CHResponse) extends SearchResult {
 }
 
 case class DocItemReference(hubId: String, defaultSchema: String, publicSchemas: Seq[String], relatedItems: Seq[BriefDocItem] = Seq.empty, item: Option[BriefDocItem] = None)
-
-// todo implement the traits as case classes
-
-case class MalformedQueryException(s: String, throwable: Throwable) extends Exception(s, throwable) {
-  def this(s: String) = this(s, null)
-}

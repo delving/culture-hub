@@ -56,10 +56,8 @@ object Build extends sbt.Build {
     "com.yammer.metrics"        %  "metrics-core"                    % "2.2.0",
     "nl.grons"                  %% "metrics-scala"                   % "2.2.0",
 
-    "org.apache.solr"           %  "solr-solrj"                      % "3.6.0",
     "org.apache.httpcomponents" %  "httpclient"                      % "4.1.2",
     "org.apache.httpcomponents" %  "httpmime"                        % "4.1.2",
-    "org.apache.tika"           %  "tika-parsers"                    % "1.2",
 
     "org.scalesxml"             %% "scales-xml"                      % "0.4.4",
 
@@ -121,6 +119,10 @@ object Build extends sbt.Build {
 
   val search = play.Project("search", "1.0-SNAPSHOT", Seq.empty, path = file(cultureHubPath + "modules/search")).settings(
     resolvers ++= commonResolvers,
+    libraryDependencies ++= Seq(
+      "org.apache.solr"           %  "solr-solrj"                      % "3.6.0",
+      "org.apache.tika"           %  "tika-parsers"                    % "1.2"
+    ),
     publish := {}
   ).dependsOn(webCore % "test->test;compile->compile").settings(scalarifromSettings :_*)
 
