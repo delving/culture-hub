@@ -56,13 +56,13 @@ class SearchApiSpec extends Specs2TestContext {
 
   private def query(query: String) = {
     val request = FakeRequest("GET", "?query=" + query)
-    val r = controllers.api.Search.searchApi("delving", None, None, None)(request)
+    val r = controllers.search.api.Search.searchApi("delving", None, None, None)(request)
     asyncToResult(r)
   }
 
   private def id(id: String) = {
     val request = FakeRequest("GET", "?id=" + id)
-    val r = controllers.api.Search.searchApi("delving", None, None, None)(request)
+    val r = controllers.search.api.Search.searchApi("delving", None, None, None)(request)
     asyncToResult(r)
   }
 

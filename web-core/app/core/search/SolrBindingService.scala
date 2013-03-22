@@ -104,14 +104,14 @@ object SolrBindingService {
     docs
   }
 
-  def createFacetMap(links: List[FacetQueryLinks]) = FacetMap(links.toList)
+  def createFacetMap(links: List[SOLRFacetQueryLinks]) = FacetMap(links.toList)
 
   def createFacetStatistics(facets: List[FacetField]) = FacetStatisticsMap(facets.toList)
 }
 
-case class FacetMap(private val links: List[FacetQueryLinks]) {
+case class FacetMap(private val links: List[SOLRFacetQueryLinks]) {
 
-  val facetMap = Map[String, FacetQueryLinks]()
+  val facetMap = Map[String, SOLRFacetQueryLinks]()
   links.foreach {
     facet =>
       facetMap put (facet.getType, facet)
@@ -119,7 +119,7 @@ case class FacetMap(private val links: List[FacetQueryLinks]) {
 
   def getFacetList = links
 
-  def getFacet(key: String): FacetQueryLinks = facetMap.getOrElse(key, FacetQueryLinks("unknown"))
+  def getFacet(key: String): SOLRFacetQueryLinks = facetMap.getOrElse(key, SOLRFacetQueryLinks("unknown"))
 }
 
 case class FacetStatisticsMap(private val facets: List[FacetField]) {

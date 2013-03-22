@@ -51,9 +51,9 @@ object Search extends DelvingController {
             snippet._2(RequestContext(request, configuration, renderArgs(), getLang))
           }
 
-          val (items, briefItemView) = CommonSearch.search(Option(connectedUser), solrQuery)
+          val (items, briefItemView) = CommonSearch.search(Option(connectedUser), solrQuery, request.queryString, request.host)
           // method checks if facet is for "HasDigitalObject" - used later on (filterNot) to filter out the facet from the display list
-          def isFacetHasDigitalObject(link: FacetQueryLinks) = link.facetName == IndexField.HAS_DIGITAL_OBJECT.key + "_facet"
+          def isFacetHasDigitalObject(link: FacetQueryLinks) = link.getType == IndexField.HAS_DIGITAL_OBJECT.key + "_facet"
 
           Ok(Template("/Search/index.html",
             'briefDocs -> items,

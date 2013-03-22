@@ -3,7 +3,7 @@ package controllers.search.api
 import play.api.mvc._
 import core.Constants._
 import core.indexing.IndexField._
-import core.search.SearchService
+import core.search.{ SearchService, SOLRSearchService }
 import play.api.libs.concurrent.Promise
 import controllers.{ BoundController, OrganizationConfigurationAware }
 import play.api.Logger
@@ -23,6 +23,9 @@ object Search extends BoundController(HubModule) with Search
 trait Search extends Controller with OrganizationConfigurationAware { this: Controller with BoundController with OrganizationConfigurationAware =>
 
   val organizationCollectionLookupService = inject[OrganizationCollectionLookupService]
+
+  // TODO once refactoring is done, inject via subcut
+  val searchService: SearchService = new SOLRSearchService
 
   def searchApi(orgId: String, provider: Option[String], dataProvider: Option[String], collection: Option[String]) = OrganizationConfigured {
     Action {
@@ -46,7 +49,7 @@ trait Search extends Controller with OrganizationConfigurationAware { this: Cont
 
             val hiddenQueryFilters = if (itemTypes.isEmpty) List(orgIdFilter) else List(itemTypesFilter, orgIdFilter)
 
-            SearchService.getApiResult(request, hiddenQueryFilters)
+            searchService.getApiResult(request.queryString, request.host, hiddenQueryFilters)
 
           } map {
             // CORS - see http://www.w3.org/TR/cors/

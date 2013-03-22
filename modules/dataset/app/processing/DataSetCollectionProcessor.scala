@@ -8,6 +8,15 @@ import core.indexing.{ IndexingService, Indexing }
 import core.{ HubId, HubServices }
 import core.processing.{ DoProcess, ProcessingContext, CollectionProcessor, ProcessingSchema }
 import akka.actor.{ Actor, Props }
+import org.joda.time.DateTime
+import org.joda.time.format.DateTimeFormat
+import core.SystemField.SPEC
+import core.indexing.IndexField._
+import models.MetadataItem
+import scala.Some
+import processing.ProcessDataSetCollection
+import core.processing.ProcessingContext
+import org.apache.solr.client.solrj.SolrQuery
 
 /**
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
@@ -105,12 +114,29 @@ class DataSetCollectionProcessor extends Actor {
     def onProcessingDone(context: ProcessingContext) {
       IndexingService.commit
 
+      def deleteOrphansBySpec(orgId: String, spec: String, startIndexing: DateTime)(implicit configuration: OrganizationConfiguration) {
+        val fmt = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
+        val deleteQuery = SPEC.tag + ":" + spec + " AND " + ORG_ID.key + ":" + orgId + " AND timestamp:[* TO " + fmt.print(startIndexing.minusSeconds(15)) + "]"
+        val orphans = IndexingService.getSolrServer(configuration).query(new SolrQuery(deleteQuery)).getResults.getNumFound
+        if (orphans > 0) {
+          try {
+            val deleteResponse = IndexingService.getStreamingUpdateServer(configuration).deleteByQuery(deleteQuery)
+            deleteResponse.getStatus
+            IndexingService.commit
+            log.info("Deleting orphans %s from dataset from Solr Index: %s".format(orphans.toString, deleteQuery))
+          } catch {
+            case e: Exception => log.info("Unable to remove orphans for %s because of %s".format(spec, e.getMessage))
+          }
+        } else
+          log.info("No orphans found for dataset in Solr Index: %s".format(deleteQuery))
+      }
+
       // we retry this one 3 times, in order to minimize the chances of loosing the whole index if a timeout happens to occur
       var retries = 0
       var success = false
       while (retries < 3 && !success) {
         try {
-          IndexingService.deleteOrphansBySpec(dataSet.orgId, dataSet.spec, context.startProcessing)
+          deleteOrphansBySpec(dataSet.orgId, dataSet.spec, context.startProcessing)
           success = true
         } catch {
           case t: Throwable => retries += 1

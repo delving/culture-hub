@@ -17,7 +17,9 @@ object Application extends DelvingController {
         val recentMdrs: Seq[ListItem] = try {
           CommonSearch.search(
             None,
-            List("%s:%s AND %s:%s".format(RECORD_TYPE.key, ITEM_TYPE_MDR, HAS_DIGITAL_OBJECT.key, true))
+            List("%s:%s AND %s:%s".format(RECORD_TYPE.key, ITEM_TYPE_MDR, HAS_DIGITAL_OBJECT.key, true)),
+            request.queryString,
+            request.host
           )._1.slice(0, themeInfo.themeProperty("recentMdrsCount", classOf[Int]))
 
         } catch {
