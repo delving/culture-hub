@@ -1,9 +1,9 @@
-import core.indexing.IndexingService
-import core.search.SolrQueryService
+import core.{ HubModule, DomainServiceLocator, IndexingService }
 import models.MetadataCache
 import org.apache.solr.client.solrj.SolrQuery
 import play.api.test.Helpers._
 import play.api.test.{ FakeHeaders, FakeRequest }
+import services.search.SolrQueryService
 import test.Specs2TestContext
 import util.OrganizationConfigurationHandler
 import xml.XML
@@ -241,10 +241,10 @@ class IndexApiSpec extends Specs2TestContext {
   step {
     withTestConfig {
       implicit val configuration = OrganizationConfigurationHandler.getByOrgId("delving")
-      IndexingService.deleteByQuery("delving_orgId:delving delving_systemType:indexApiItem")
+      indexingServiceLocator.byDomain.deleteByQuery("delving_orgId:delving delving_systemType:indexApiItem")
     }
   }
 
-  step(cleanup)
+  step(cleanup())
 
 }

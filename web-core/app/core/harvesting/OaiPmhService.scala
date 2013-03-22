@@ -20,7 +20,6 @@ import core.{ HarvestCollectionLookupService, HubId }
 import java.text.SimpleDateFormat
 import java.util.Date
 import exceptions._
-import core.search.Params
 import core.harvesting.PmhVerbType.PmhVerb
 import play.api.Logger
 import xml._
@@ -52,7 +51,6 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
 
   private val VERB = "verb"
   private val legalParameterKeys = List("verb", "identifier", "metadataPrefix", "set", "from", "until", "resumptionToken", "accessKey", "body")
-  val params = Params(queryString)
 
   /**
    * receive an HttpServletRequest with the OAI-PMH parameters and return the correctly formatted xml as a string.
@@ -60,12 +58,12 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
 
   def parseRequest: String = {
 
-    if (!isLegalPmhRequest(params)) return createErrorResponse("badArgument").toString()
+    if (!isLegalPmhRequest(queryString)) return createErrorResponse("badArgument").toString()
 
-    def pmhRequest(verb: PmhVerb): PmhRequestEntry = createPmhRequest(params, verb)
+    def pmhRequest(verb: PmhVerb): PmhRequestEntry = createPmhRequest(queryString, verb)
 
     val response: Elem = try {
-      params.getValueOrElse(VERB, "error") match {
+      queryString.get(VERB).map(_.head).getOrElse("error") match {
         case "Identify" => processIdentify(pmhRequest(PmhVerbType.IDENTIFY))
         case "ListMetadataFormats" => processListMetadataFormats(pmhRequest(PmhVerbType.List_METADATA_FORMATS))
         case "ListSets" => processListSets(pmhRequest(PmhVerbType.LIST_SETS))
@@ -89,25 +87,25 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
     response.toString()
   }
 
-  def isLegalPmhRequest(params: Params): Boolean = {
+  def isLegalPmhRequest(params: Map[String, Seq[String]]): Boolean = {
 
     // request must contain the verb parameter
-    if (!params._contains(VERB)) return false
+    if (!params.contains(VERB)) return false
 
     // no repeat queryParameters are allowed
-    if (params.all.values.exists(value => value.length > 1)) return false
+    if (params.values.exists(value => value.length > 1)) return false
 
     // check for illegal queryParameter keys
     if (!(params.keys filterNot (legalParameterKeys contains)).isEmpty) return false
 
     // check for validity of dates
-    Seq(params.getFirst("from"), params.getFirst("until")).filterNot(_.isEmpty).foreach { date =>
+    Seq(params.get("from").headOption, params.get("until").headOption).filterNot(_.isEmpty).foreach { date =>
       try {
-        OaiPmhService.dateFormat.parse(date.get)
+        OaiPmhService.dateFormat.parse(date.get.head)
       } catch {
         case t: Throwable => {
           try {
-            OaiPmhService.utcFormat.parse(date.get)
+            OaiPmhService.utcFormat.parse(date.get.head)
           } catch {
             case t: Throwable => return false
           }
@@ -379,9 +377,9 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
     mutableElem
   }
 
-  def createPmhRequest(params: Params, verb: PmhVerb): PmhRequestEntry = {
+  def createPmhRequest(params: Map[String, Seq[String]], verb: PmhVerb): PmhRequestEntry = {
 
-    def getParam(key: String) = params.getValueOrElse(key, "")
+    def getParam(key: String) = params.get(key).map(_.headOption.getOrElse("")).getOrElse("")
 
     def parseDate(date: String) = try {
       OaiPmhService.dateFormat.parse(date)
@@ -400,8 +398,8 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
     val pmh = PmhRequestItem(
       verb,
       getParam("set"),
-      params.getFirst("from").map(parseDate(_)),
-      params.getFirst("until").map(parseDate(_)),
+      params.get("from").map(_.headOption.getOrElse("")).map(parseDate(_)),
+      params.get("until").map(_.headOption.getOrElse("")).map(parseDate(_)),
       getParam("metadataPrefix"),
       getParam("identifier")
     )

@@ -1,30 +1,13 @@
-package core.search
-
-/*
- * Copyright 2011 Delving B.V.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+package services.search
 
 import core.indexing.IndexField
 import org.apache.solr.client.solrj.response.{ QueryResponse, FacetField }
 import scala.collection.JavaConverters._
-import exceptions.SolrConnectionException
+import exceptions.{ MalformedQueryException, SolrConnectionException }
 import play.api.Logger
-import play.api.mvc.RequestHeader
 import core.indexing.IndexField._
 import collection.immutable.{ List, Map }
-import models.OrganizationConfiguration
+import models.{ MetadataAccessors, OrganizationConfiguration }
 import scala.xml.XML
 import scala.xml.Elem
 import org.apache.solr.client.solrj.SolrQuery
@@ -35,6 +18,7 @@ import org.apache.solr.client.solrj.SolrServerException
 import org.apache.solr.common.util.SimpleOrderedMap
 import core.indexing.IndexField._
 import core.Constants._
+import core.search._
 
 /**
  *
@@ -188,9 +172,8 @@ object SolrQueryService extends SolrServer {
       ).toList
   }
 
-  def createCHQuery(request: RequestHeader, connectedUser: Option[String] = None, additionalSystemHQFs: Seq[String] = Seq.empty)(implicit configuration: OrganizationConfiguration): CHQuery = {
-    val params = Params(request.queryString)
-    createCHQuery(params, connectedUser, additionalSystemHQFs)
+  def createCHQuery(context: SearchContext, connectedUser: Option[String] = None)(implicit configuration: OrganizationConfiguration): CHQuery = {
+    createCHQuery(context.params, connectedUser, context.hiddenQueryFilters)
   }
 
   def createCHQuery(params: Params, connectedUser: Option[String], additionalSystemHQFs: Seq[String])(implicit configuration: OrganizationConfiguration): CHQuery = {
@@ -400,10 +383,10 @@ object SolrQueryService extends SolrServer {
     if (last.getName == null) last.getCount.toInt else 0
   }
 
-  def createFacetQueryLinks(chResponse: CHResponse): List[FacetQueryLinks] = {
+  def createFacetQueryLinks(chResponse: CHResponse): List[SOLRFacetQueryLinks] = {
     chResponse.response.getFacetFields.asScala.map {
       facetField =>
-        FacetQueryLinks(
+        SOLRFacetQueryLinks(
           facetName = facetField.getName,
           links = buildFacetCountLinks(facetField, chResponse.chQuery.filterQueries),
           facetSelected = !chResponse.chQuery.filterQueries.filter(_.field.equalsIgnoreCase(facetField.getName)).isEmpty,
@@ -412,14 +395,14 @@ object SolrQueryService extends SolrServer {
     }.toList
   }
 
-  def buildFacetCountLinks(facetField: FacetField, filterQueries: List[FilterQuery]): List[FacetCountLink] = {
+  def buildFacetCountLinks(facetField: FacetField, filterQueries: List[FilterQuery]): List[SOLRFacetCountLink] = {
     if (facetField.getValues == null)
       List.empty
     else
       facetField.getValues.asScala.map {
         facetCount =>
           val remove = !filterQueries.filter(_.field.equalsIgnoreCase(facetField.getName)).filter(_.value.equalsIgnoreCase(facetCount.getName)).isEmpty
-          FacetCountLink(
+          SOLRFacetCountLink(
             facetCount = facetCount,
             url = makeFacetQueryUrls(facetField, filterQueries, facetCount, remove),
             remove = remove
@@ -470,15 +453,16 @@ object DelvingIdType {
 
 }
 
-case class FacetCountLink(facetCount: FacetField.Count, url: String, remove: Boolean) {
+case class SOLRFacetCountLink(facetCount: FacetField.Count, url: String, remove: Boolean) extends FacetCountLink {
 
-  def value = if (facetCount.getName != null) facetCount.getName else "missing"
-  def count = facetCount.getCount
+  def getValue: String = if (facetCount.getName != null) facetCount.getName else "missing"
+  def getCount: Long = facetCount.getCount
 
-  override def toString: String = "<a href='%s'>%s</a> (%s)".format(url, value, if (remove) "remove" else "add")
+  override def toString: String = "<a href='%s'>%s</a> (%s)".format(url, getValue, if (remove) "remove" else "add")
 }
 
-case class FacetQueryLinks(facetName: String, links: List[FacetCountLink] = List.empty, facetSelected: Boolean = false, missingValues: Int = 0) {
+case class SOLRFacetQueryLinks(facetName: String, links: List[SOLRFacetCountLink] = List.empty, facetSelected: Boolean = false, missingValues: Int = 0)
+    extends FacetQueryLinks {
 
   def getType: String = facetName
   def getLinks: List[FacetCountLink] = links
@@ -530,30 +514,12 @@ case class FilterQuery(field: String, value: String) {
   override def toString = toFacetString
 }
 
-case class SolrFacetElement(facetName: String, facetInternationalisationCode: String, nrDisplayColumns: Int = 1)
-
-case class SolrSortElement(sortKey: String, sortOrder: SolrQuery.ORDER = SolrQuery.ORDER.asc)
-
 case class CHQuery(solrQuery: SolrQuery, responseFormat: String = "xml", filterQueries: List[FilterQuery] = List.empty, hiddenFilterQueries: List[FilterQuery] = List.empty, systemQueries: List[String] = List.empty)
 
-case class CHResponse(params: Params, response: QueryResponse, chQuery: CHQuery, configuration: OrganizationConfiguration) { // todo extend with the other response elements
-
-  def useCacheUrl: Boolean = params.hasKeyAndValue("cache", "true")
+case class CHResponse(response: QueryResponse, chQuery: CHQuery, configuration: OrganizationConfiguration) { // todo extend with the other response elements
 
   lazy val breadCrumbs: List[BreadCrumb] = SolrQueryService.createBreadCrumbList(chQuery)
 
-}
-
-/*
- * case classes converted from legacy code
- */
-
-case class PageLink(start: Int, display: Int, isLinked: Boolean = false) {
-  override def toString: String = if (isLinked) "%i:%i".format(display, start) else display.toString
-}
-
-case class BreadCrumb(href: String, display: String, field: String = "", localisedField: String = "", value: String, isLast: Boolean = false) {
-  override def toString: String = "<a href=\"" + href + "\">" + display + "</a>"
 }
 
 case class Pager(numFound: Int, start: Int = 1, rows: Int, pageSize: Int = 12) {
@@ -581,7 +547,7 @@ case class Pager(numFound: Int, start: Int = 1, rows: Int, pageSize: Int = 12) {
   val lastViewableRecord = if (hasNextPage) scala.math.min(nextPageNumber, numFound) - 1 else numFound
 }
 
-case class ResultPagination(chResponse: CHResponse) {
+case class SOLRResultPagination(chResponse: CHResponse) extends ResultPagination {
 
   lazy val pager = SolrQueryService.createPager(chResponse)(chResponse.configuration)
 
@@ -607,12 +573,12 @@ case class ResultPagination(chResponse: CHResponse) {
 
   def getBreadcrumbs: List[BreadCrumb] = chResponse.breadCrumbs
 
-  def getPresentationQuery: PresentationQuery = PresentationQuery(chResponse)
+  def getPresentationQuery: PresentationQuery = SOLRPresentationQuery(chResponse)
 
   def getLastViewablePage: Int = pager.totalPages
 }
 
-case class PresentationQuery(chResponse: CHResponse) {
+case class SOLRPresentationQuery(chResponse: CHResponse) extends PresentationQuery {
 
   val requestQueryString = chResponse.chQuery.solrQuery.getQuery
 
@@ -643,21 +609,17 @@ case class PresentationQuery(chResponse: CHResponse) {
 
 }
 
-case class BriefItemView(chResponse: CHResponse) {
+case class BriefItemView(chResponse: CHResponse) extends SearchResult {
+
+  def getResultDocuments: List[MetadataAccessors] = getBriefDocs
 
   def getBriefDocs: List[BriefDocItem] = SolrBindingService.getBriefDocsWithIndex(chResponse.response, pagination.getStart)
 
-  def getFacetQueryLinks: List[FacetQueryLinks] = SolrQueryService.createFacetQueryLinks(chResponse = chResponse)
+  def getFacetQueryLinks: List[SOLRFacetQueryLinks] = SolrQueryService.createFacetQueryLinks(chResponse = chResponse)
 
-  val pagination = ResultPagination(chResponse)
+  val pagination = SOLRResultPagination(chResponse)
 
   def getPagination: ResultPagination = pagination
 }
 
 case class DocItemReference(hubId: String, defaultSchema: String, publicSchemas: Seq[String], relatedItems: Seq[BriefDocItem] = Seq.empty, item: Option[BriefDocItem] = None)
-
-// todo implement the traits as case classes
-
-case class MalformedQueryException(s: String, throwable: Throwable) extends Exception(s, throwable) {
-  def this(s: String) = this(s, null)
-}

@@ -1,12 +1,11 @@
 package core.processing
 
 import akka.actor.{ Props, Actor }
-import core.HubId
+import core.{ IndexingService, DomainServiceLocator, HubModule, HubId }
 import collection.mutable.ArrayBuffer
 import eu.delving.schema.SchemaVersion
-import models.OrganizationConfiguration
+import models.{ MetadataItem, OrganizationConfiguration }
 import play.api.Logger
-import core.indexing.IndexingService
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 import akka.routing.RoundRobinRouter
@@ -23,12 +22,16 @@ import concurrent.duration.Duration
 class ProcessingSupervisor(
     totalSourceRecords: Int,
     updateCount: Long => Unit,
+    indexOne: (HubId, MultiMap, String) => Either[Throwable, String],
     interrupted: => Boolean,
     onProcessingDone: ProcessingContext => Unit,
     whenDone: () => Unit,
     onError: Throwable => Unit,
     processingContext: ProcessingContext,
     configuration: OrganizationConfiguration) extends Actor {
+
+  // TODO pull this into the creator of this actor via onInterrupted
+  private val indexingServiceLocator = HubModule.inject[DomainServiceLocator[IndexingService]](name = None)
 
   private val log = Logger("CultureHub")
 
@@ -50,7 +53,7 @@ class ProcessingSupervisor(
   private val recordCacher = context.actorOf(Props(new MappedRecordCacher(processingContext, processingInterrupted)).withRouter(
     RoundRobinRouter(nrOfInstances = halfNumInstances)
   ))
-  private val recordIndexer = context.actorOf(Props(new RecordIndexer(processingContext, processingInterrupted, configuration)).withRouter(
+  private val recordIndexer = context.actorOf(Props(new RecordIndexer(processingContext, indexOne, processingInterrupted, configuration)).withRouter(
     RoundRobinRouter(nrOfInstances = halfNumInstances)
   ))
 
@@ -195,7 +198,7 @@ class ProcessingSupervisor(
 
     if (processingContext.indexingSchema.isDefined) {
       log.info("Deleting DataSet %s from SOLR".format(processingContext.collection.spec))
-      IndexingService.deleteBySpec(processingContext.collection.getOwner, processingContext.collection.spec)(configuration)
+      indexingServiceLocator.byDomain(configuration).deleteBySpec(processingContext.collection.getOwner, processingContext.collection.spec)(configuration)
     }
 
     whenDone()

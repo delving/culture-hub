@@ -1,11 +1,10 @@
-package controllers.api
+package controllers.search.api
 
 import play.api.mvc._
 import core.Constants._
 import core.indexing.IndexField._
-import core.search.SearchService
 import play.api.libs.concurrent.Promise
-import controllers.{ BoundController, OrganizationConfigurationAware }
+import controllers.{ DelvingController, BoundController, OrganizationConfigurationAware }
 import play.api.Logger
 import core.{ OrganizationCollectionLookupService, HubModule }
 import play.api.cache.Cache
@@ -20,7 +19,7 @@ import play.api.libs.concurrent.Execution.Implicits._
 
 object Search extends BoundController(HubModule) with Search
 
-trait Search extends Controller with OrganizationConfigurationAware { this: Controller with BoundController with OrganizationConfigurationAware =>
+trait Search extends DelvingController { this: Controller with BoundController with OrganizationConfigurationAware =>
 
   val organizationCollectionLookupService = inject[OrganizationCollectionLookupService]
 
@@ -38,16 +37,15 @@ trait Search extends Controller with OrganizationConfigurationAware { this: Cont
               organizationCollectionLookupService.findAll.map(_.itemType).distinct
             }
 
-            val hiddenQueryFilters = List(
-              "(%s)".format(
-                itemTypes.map(t =>
-                  "%s:%s".format(RECORD_TYPE.key, t.itemType)
-                ).mkString(" OR ")
-              ),
-              "%s:%s".format(ORG_ID.key, configuration.orgId)
-            )
+            val orgIdFilter = "%s:%s".format(ORG_ID.key, configuration.orgId)
 
-            SearchService.getApiResult(request, hiddenQueryFilters)
+            val itemTypesFilter = ("(%s)".format(
+              itemTypes.map(t => "%s:%s".format(RECORD_TYPE.key, t.itemType)).mkString(" OR ")
+            ))
+
+            val hiddenQueryFilters = if (itemTypes.isEmpty) List(orgIdFilter) else List(itemTypesFilter, orgIdFilter)
+
+            searchServiceLocator.byDomain.getApiResult(request.queryString, request.host, hiddenQueryFilters)
 
           } map {
             // CORS - see http://www.w3.org/TR/cors/

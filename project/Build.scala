@@ -56,10 +56,8 @@ object Build extends sbt.Build {
     "com.yammer.metrics"        %  "metrics-core"                    % "2.2.0",
     "nl.grons"                  %% "metrics-scala"                   % "2.2.0",
 
-    "org.apache.solr"           %  "solr-solrj"                      % "3.6.0",
     "org.apache.httpcomponents" %  "httpclient"                      % "4.1.2",
     "org.apache.httpcomponents" %  "httpmime"                        % "4.1.2",
-    "org.apache.tika"           %  "tika-parsers"                    % "1.2",
 
     "org.scalesxml"             %% "scales-xml"                      % "0.4.4",
 
@@ -119,6 +117,15 @@ object Build extends sbt.Build {
     publish := {}
   ).dependsOn(webCore % "test->test;compile->compile").settings(scalarifromSettings :_*)
 
+  val search = play.Project("search", "1.0-SNAPSHOT", Seq.empty, path = file(cultureHubPath + "modules/search")).settings(
+    resolvers ++= commonResolvers,
+    libraryDependencies ++= Seq(
+      "org.apache.solr"           %  "solr-solrj"                      % "3.6.0",
+      "org.apache.tika"           %  "tika-parsers"                    % "1.2"
+    ),
+    publish := {}
+  ).dependsOn(webCore % "test->test;compile->compile").settings(scalarifromSettings :_*)
+
   val dataSet = play.Project("dataset", "1.0-SNAPSHOT", Seq.empty, path = file(cultureHubPath + "modules/dataset"), settings = Defaults.defaultSettings ++ buildInfoSettings).settings(
     libraryDependencies += "eu.delving" % "sip-core" % sipCoreVersion,
     resolvers ++= commonResolvers,
@@ -126,7 +133,7 @@ object Build extends sbt.Build {
     sipCore := sipCoreVersion,
     schemaRepo := schemaRepoVersion,
     publish := { }
-  ).dependsOn(webCore % "test->test;compile->compile").settings(scalarifromSettings :_*)
+  ).dependsOn(webCore % "test->test;compile->compile", search).settings(scalarifromSettings :_*)
 
   val cms = play.Project("cms", "1.0-SNAPSHOT", Seq.empty, path = file(cultureHubPath + "modules/cms")).settings(
     resolvers ++= commonResolvers,
@@ -137,12 +144,12 @@ object Build extends sbt.Build {
   val indexApi = play.Project("indexApi", "1.0-SNAPSHOT", Seq.empty, path = file(cultureHubPath + "modules/indexApi")).settings(
     resolvers ++= commonResolvers,
     publish := {}
-  ).dependsOn(webCore % "test->test;compile->compile", dos).settings(scalarifromSettings :_*)
+  ).dependsOn(webCore % "test->test;compile->compile", dos, search).settings(scalarifromSettings :_*)
 
   val statistics = play.Project("statistics", "1.0-SNAPSHOT", Seq.empty, path = file(cultureHubPath + "modules/statistics")).settings(
     resolvers ++= commonResolvers,
     publish := { }
-  ).dependsOn(webCore, dataSet).settings(scalarifromSettings :_*)
+  ).dependsOn(webCore, dataSet, search).settings(scalarifromSettings :_*)
 
   val root = play.Project(appName, cultureHubVersion, appDependencies, settings = Defaults.defaultSettings ++ groovyTemplatesSettings, path = file(cultureHubPath)).settings(
 
@@ -178,6 +185,7 @@ object Build extends sbt.Build {
     thumbnail               % "test->test;compile->compile",
     deepZoom                % "test->test;compile->compile",
     hubNode                 % "test->test;compile->compile",
+    search                  % "test->test;compile->compile",
     dataSet                 % "test->test;compile->compile",
     dos                     % "test->test;compile->compile",
     cms                     % "test->test;compile->compile",
@@ -188,6 +196,7 @@ object Build extends sbt.Build {
     thumbnail,
     deepZoom,
     hubNode,
+    search,
     dataSet,
     dos,
     cms,

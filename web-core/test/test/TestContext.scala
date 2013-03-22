@@ -1,10 +1,8 @@
 package test
 
-import akka.util.Timeout
 import com.gargoylesoftware.htmlunit.BrowserVersion
 import concurrent.Await
-import core.HubServices
-import core.indexing.IndexingService
+import core.{ IndexingService, DomainServiceLocator, HubModule, HubServices }
 import core.services.AggregatingOrganizationCollectionLookupService
 import java.io.File
 import models.HubMongoContext._
@@ -13,7 +11,7 @@ import org.specs2.mutable.Specification
 import play.api.mvc.{ AsyncResult, Result }
 import play.api.test._
 import play.api.test.Helpers._
-import _root_.util.{ TestDataLoader, OrganizationConfigurationHandler }
+import util.{ TestDataLoader, OrganizationConfigurationHandler }
 import xml.XML
 import scala.concurrent.duration._
 /**
@@ -22,6 +20,8 @@ import scala.concurrent.duration._
  */
 
 trait TestContext {
+
+  protected lazy val indexingServiceLocator = HubModule.inject[DomainServiceLocator[IndexingService]](name = None)
 
   val SAMPLE_A = "sample-a"
   val SAMPLE_B = "sample-b"
@@ -55,7 +55,7 @@ trait TestContext {
     TestDataLoader.load(parameters)
   }
 
-  def cleanup() {
+  def cleanup(cleanupSOLR: Boolean = true) {
     withTestConfig {
       HubServices.init()
       implicit val configuration = OrganizationConfigurationHandler.getByOrgId("delving")
@@ -79,7 +79,9 @@ trait TestContext {
       createConnection(configuration.mongoDatabase).dropDatabase()
       createConnection(configuration.objectService.fileStoreDatabaseName).dropDatabase()
       createConnection(configuration.objectService.imageCacheDatabaseName).dropDatabase()
-      IndexingService.deleteByQuery("*:*")
+      if (cleanupSOLR) {
+        indexingServiceLocator.byDomain(configuration).deleteByQuery("*:*")
+      }
     }
   }
 

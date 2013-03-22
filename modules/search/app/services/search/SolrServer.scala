@@ -1,20 +1,4 @@
-/*
- * Copyright 2011 Delving B.V.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
-package core.search
+package services.search
 
 import util.{ OrganizationConfigurationResourceHolder, OrganizationConfigurationHandler }
 import exceptions.SolrConnectionException
@@ -111,9 +95,9 @@ object SolrServer {
   OrganizationConfigurationHandler.registerResourceHolder(solrServers)
   OrganizationConfigurationHandler.registerResourceHolder(solrUpdateServers)
 
-  private[search] def solrServer(configuration: OrganizationConfiguration) = solrServers.getResource(configuration)
+  private def solrServer(configuration: OrganizationConfiguration) = solrServers.getResource(configuration)
 
-  private[search] def streamingUpdateServer(configuration: OrganizationConfiguration) = solrUpdateServers.getResource(configuration)
+  private def streamingUpdateServer(configuration: OrganizationConfiguration) = solrUpdateServers.getResource(configuration)
 
   def deleteFromSolrByQuery(query: String)(implicit configuration: OrganizationConfiguration) = {
     val response = streamingUpdateServer(configuration).deleteByQuery(query)
@@ -191,4 +175,3 @@ case class SolrDynamicField(name: String, fieldType: String = "text", schema: St
 }
 
 case class SolrFrequencyItem(name: String, freq: Int)
-

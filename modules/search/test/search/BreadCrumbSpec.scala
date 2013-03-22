@@ -16,12 +16,13 @@ package search
  * limitations under the License.
  */
 
-import _root_.java.net.URLEncoder
-import _root_.org.apache.solr.client.solrj.SolrQuery
+import java.net.URLEncoder
+import org.apache.solr.client.solrj.SolrQuery
 import collection.immutable.List
 import core.search._
 import org.scalatest.matchers.ShouldMatchers
 import org.scalatest.FunSpec
+import services.search.{ SolrQueryService, CHQuery }
 
 /**
  *
@@ -105,11 +106,11 @@ class BreadCrumbSpec extends FunSpec with ShouldMatchers {
     //      }
     //    }
 
-    describe("(when given an illegal FilterQuery)") {
+    describe("(when given an illegal services.search.FilterQuery)") {
       val solrQuery: SolrQuery = new SolrQuery(queryString)
       val filterQueries = SolrQueryService.createFilterQueryList(Array("LANGUAGE:en", "wrong filter query"))
 
-      it("should ignore the illegal FilterQuery") {
+      it("should ignore the illegal services.search.FilterQuery") {
         val list: List[BreadCrumb] = (SolrQueryService.createBreadCrumbList(CHQuery(solrQuery = solrQuery, filterQueries = filterQueries)))
         list.size should equal(2)
         val lastBreadCrumb: BreadCrumb = list.last
