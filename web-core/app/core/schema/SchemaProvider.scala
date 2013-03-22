@@ -111,7 +111,7 @@ class SchemaRepositoryWrapper extends Actor {
   private var scheduler: Cancellable = null
   private var schemaRepository: SchemaRepository = null
 
-  private lazy val fetcher = if (false) new FileSystemFetcher(false) else new RemoteFetcher
+  private lazy val fetcher = if (Play.isDev || Play.isTest) new FileSystemFetcher(false) else new RemoteFetcher
 
   override def preStart() {
     scheduler = Akka.system.scheduler.schedule(5 minutes, 5 minutes, self, SchemaProvider.Refresh)
