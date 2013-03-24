@@ -1,13 +1,13 @@
 package actors
 
 import akka.actor.{ Cancellable, Actor }
-import core.search.SolrServer
 import play.api.cache.Cache
 import play.api.Play.current
 import util.OrganizationConfigurationHandler
 import play.api.libs.concurrent.Akka
 import scala.concurrent.duration._
 import play.api.libs.concurrent.Execution.Implicits._
+import services.search.SolrServer
 
 /**
  *

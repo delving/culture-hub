@@ -1,32 +1,29 @@
 package controllers.api
 
-import controllers.{ ApiDescription, DelvingController, OrganizationConfigurationAware, RenderingExtensions }
+import controllers.{ ApiDescription, DelvingController, RenderingExtensions }
 import play.api.mvc._
 import play.api.libs.concurrent.Promise
 import scala.xml._
 import core.Constants._
 import core.indexing.IndexField._
-import core.indexing.IndexingService
 import models.{ OrganizationConfiguration, MetadataItem, MetadataCache }
-import org.apache.solr.common.SolrInputDocument
 import org.joda.time.format.ISODateTimeFormat
 import collection.mutable.{ ArrayBuffer, ListBuffer }
 import com.mongodb.casbah.commons.MongoDBObject
 import play.api.Logger
-import core.{ ItemType, OrganizationCollectionLookupService }
+import core.{ IndexingService, ItemType, OrganizationCollectionLookupService }
 import core.collection.OrganizationCollection
 import play.api.libs.concurrent.Execution.Implicits._
+import collection.mutable
 
 /**
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-object Index extends Controller with OrganizationConfigurationAware with RenderingExtensions {
+object Index extends DelvingController with RenderingExtensions {
 
   val CACHE_COLLECTION = "indexApiItems"
-
-  val log = Logger("CultureHub")
 
   def explain(path: List[String]) = path match {
     case Nil =>
@@ -104,16 +101,16 @@ object Index extends Controller with OrganizationConfigurationAware with Renderi
                   val cache = MetadataCache.get(orgId, CACHE_COLLECTION, item.itemType)
                   if (item.deleted) {
                     cache.remove(item.itemId)
-                    IndexingService.deleteByQuery("""id:%s_%s_%s""".format(item.orgId, item.itemType, item.itemId))
+                    indexingServiceLocator.byDomain.deleteByQuery("""id:%s_%s_%s""".format(item.orgId, item.itemType, item.itemId))
                     deleted += 1
                   } else {
                     val cacheItem = MetadataItem(collection = CACHE_COLLECTION, itemType = item.itemType, itemId = item.itemId, xml = Map("raw" -> item.rawXml), schemaVersions = Map("raw" -> "1.0.0"), index = index)
                     cache.saveOrUpdate(cacheItem)
-                    IndexingService.stageForIndexing(item.toSolrDocument)
+                    indexingServiceLocator.byDomain.stageForIndexing(item.toSolrDocument)
                     indexed += 1
                   }
                 }
-                IndexingService.commit
+                indexingServiceLocator.byDomain.commit
 
                 val invalidItems = invalid.map(i => <invalidItem><error>{ i._1 }</error><item>{ i._2 }</item></invalidItem>)
 
@@ -194,7 +191,7 @@ object Index extends Controller with OrganizationConfigurationAware with Renderi
             cache.underlying.find(MongoDBObject("deleted" -> false)) foreach {
               item =>
                 try {
-                  IndexingService.stageForIndexing(IndexItem(orgId, item).toSolrDocument)
+                  indexingServiceLocator.byDomain.stageForIndexing(IndexItem(orgId, item).toSolrDocument)
                   reIndexed += 1
                 } catch {
                   case t: Throwable =>
@@ -221,8 +218,8 @@ case class IndexItem(orgId: String,
     rawXml: String,
     deleted: Boolean = false) {
 
-  def toSolrDocument: SolrInputDocument = {
-    val doc = new SolrInputDocument
+  def toSolrDocument: IndexingService#IndexDocument = {
+    val doc = new mutable.HashMap[String, mutable.Set[Any]] with mutable.MultiMap[String, Any]
 
     val document = XML.loadString(rawXml).nonEmptyChildren
     val fields = document.filter(_.label == "field")
@@ -244,10 +241,10 @@ case class IndexItem(orgId: String,
           "custom_%s_%s".format(name, dataType)
         }
 
-        doc.addField(indexFieldName, field.text)
+        doc.addBinding(indexFieldName, field.text)
 
         if (isFacet) {
-          doc.addField(indexFieldName + "_facet", field.text)
+          doc.addBinding(indexFieldName + "_facet", field.text)
         }
     }
 
@@ -258,7 +255,7 @@ case class IndexItem(orgId: String,
     systemFields.filter(f => f.attribute("name").isDefined && allowedSystemFields.contains(f.attribute("name").get.text)).foreach {
       field =>
         val name = (field \ "@name").text
-        doc.addField("delving_" + name, field.text)
+        doc.addBinding("delving_" + name, field.text)
     }
 
     // mandatory fields
@@ -268,7 +265,7 @@ case class IndexItem(orgId: String,
     doc += (ORG_ID -> orgId)
     doc += (RECORD_TYPE -> itemType)
 
-    doc
+    doc.toMap
   }
 
 }

@@ -3,7 +3,6 @@ package core.processing
 import akka.actor.{ PoisonPill, Actor }
 import core.HubId
 import eu.delving.schema.SchemaVersion
-import core.indexing.Indexing
 import models.OrganizationConfiguration
 import java.util.concurrent.atomic.AtomicBoolean
 import play.api.Logger
@@ -13,7 +12,11 @@ import com.yammer.metrics.scala.Instrumented
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
-class RecordIndexer(processingContext: ProcessingContext, processingInterrupted: AtomicBoolean, configuration: OrganizationConfiguration) extends Actor with Instrumented {
+class RecordIndexer(
+    processingContext: ProcessingContext,
+    indexOne: (HubId, MultiMap, String) => Either[Throwable, String],
+    processingInterrupted: AtomicBoolean,
+    configuration: OrganizationConfiguration) extends Actor with Instrumented {
 
   val counter = metrics.counter(processingContext.collection.getOwner + ".recordIndexer")
 
@@ -30,7 +33,7 @@ class RecordIndexer(processingContext: ProcessingContext, processingInterrupted:
       if (processingInterrupted.get()) {
         self ! PoisonPill
       } else {
-        Indexing.indexOne(processingContext.collection, hubId, fields, schema.getPrefix)(configuration)
+        indexOne(hubId, fields, schema.getPrefix)
 
         counter += 1
 
