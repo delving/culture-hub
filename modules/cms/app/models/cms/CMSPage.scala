@@ -159,9 +159,9 @@ class MenuEntryDAO(collection: MongoCollection) extends SalatDAO[MenuEntry, Obje
   def removePage(orgId: String, targetPageKey: String, lang: String) {
     findOne(MongoDBObject("orgId" -> orgId, "targetPageKey" -> targetPageKey)) match {
       case Some(entry) =>
-        val updated = entry.copy(title = entry.title - (lang))
+        val updated = entry.copy(title = (entry.title.filterNot(_._1 == lang)))
         if (updated.title.isEmpty) {
-          remove(MongoDBObject("_id" -> updated._id))
+          removeById(updated._id)
         } else {
           save(updated)
         }
