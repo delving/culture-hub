@@ -32,7 +32,7 @@ class IndexApiPlugin(app: Application) extends CultureHubPlugin(app) {
     },
     ("POST", """^/organizations/([A-Za-z0-9-]+)/api/reIndex""".r) -> {
       (pathArgs: List[String], queryString: Map[String, String]) =>
-        controllers.api.Index.reIndex(pathArgs(0))
+        controllers.api.Index.reIndex()
     }
   )
 
