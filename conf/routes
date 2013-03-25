@@ -2,174 +2,170 @@
 # This file defines all application routes (Higher priority routes first)
 # ~~~~
 
-GET         /favicon.ico                                                           controllers.Application.notFound(what = "favicon.ico")
-GET         /assets/themes/:theme/info.conf                                        controllers.Application.notFound(theme)
+GET         /favicon.ico                                                            controllers.Application.notFound(what = "favicon.ico")
+GET         /assets/themes/:theme/info.conf                                         controllers.Application.notFound(theme)
 
-GET         /robots.txt                                                            controllers.Assets.at(path="/public", file="robots.txt")
+GET         /robots.txt                                                             controllers.Assets.at(path="/public", file="robots.txt")
 
 # Home page
-GET     /                                                                          controllers.Application.index
+GET     /                                                                           controllers.Application.index
 
-GET     /browsers.html                                                             controllers.Assets.at(path="/public", file="browsers.html")
+GET     /browsers.html                                                              controllers.Assets.at(path="/public", file="browsers.html")
 
 # Form-based authentication
-GET        /login                                                                  controllers.Authentication.login
-POST       /login                                                                  controllers.Authentication.authenticate
-GET        /logout                                                                 controllers.Authentication.logout
+GET        /login                                                                   controllers.Authentication.login
+POST       /login                                                                   controllers.Authentication.authenticate
+GET        /logout                                                                  controllers.Authentication.logout
 
 # OAuth2
-GET        /token                                                                  controllers.OAuth2TokenEndpoint.token
+GET        /token                                                                   controllers.OAuth2TokenEndpoint.token
 
 # Demo space
-GET        /demo/viewer                                                            controllers.Demo.view(image: Option[String])
-GET        /demo/yumaImage                                                         controllers.Demo.yumaImage()
-GET        /demo/yumaMap                                                           controllers.Demo.yumaMap()
-GET        /fcgi-bin/iipsrv.fcgi                                                   controllers.Demo.iipsrv
+GET        /demo/viewer                                                             controllers.Demo.view(image: Option[String])
+GET        /demo/yumaImage                                                          controllers.Demo.yumaImage()
+GET        /demo/yumaMap                                                            controllers.Demo.yumaMap()
+GET        /fcgi-bin/iipsrv.fcgi                                                    controllers.Demo.iipsrv
 
 
 # Image Upload - with authentication
-POST       /file/upload/:uid                                                       controllers.user.FileUpload.uploadFile(uid)
-DELETE     /file/:id                                                               controllers.user.FileUpload.deleteFile(id)
+POST       /file/upload/:uid                                                        controllers.user.FileUpload.uploadFile(uid)
+DELETE     /file/:id                                                                controllers.user.FileUpload.deleteFile(id)
 
 
 ##################################
 ### Delving object Server module #
 ##################################
 
-# File Upload API
-POST       /file/upload/:uid                                 controllers.dos.FileUpload.uploadFile(uid)
-#DELETE     /file/:id                                         controllers.dos.FileUpload.deleteFile(id)
-
 # File Download API
-GET        /file/:id                                         controllers.dos.FileStore.get(id)
+GET        /file/:id                                                                controllers.dos.FileStore.get(id)
 
 # Image Cache API
-GET        /image/cache                                      controllers.dos.ImageCache.image(id, withDefaultFromUrl: Boolean ?= true)
-GET        /thumbnail/cache                                  controllers.dos.ImageCache.thumbnail(id, width: Option[String], withDefaultFromUrl: Boolean ?= true)
+GET        /image/cache                                                             controllers.dos.ImageCache.image(id, withDefaultFromUrl: Boolean ?= true)
+GET        /thumbnail/cache                                                         controllers.dos.ImageCache.thumbnail(id, width: Option[String], withDefaultFromUrl: Boolean ?= true)
 
 # Image Display API
 
 ## Lookup by GridFS file ID
-GET        /file/image/:id                                   controllers.dos.ImageDisplay.displayImage(id, fileId: Boolean = true)
-GET        /file/thumbnail/:id/:width                        controllers.dos.ImageDisplay.displayThumbnail(id: String, orgId: String = "", collectionId: String = "", width: Option[String], browse: Boolean = false, fileId: Boolean = true)
-GET        /file/thumbnail/*id                               controllers.dos.ImageDisplay.displayThumbnail(id, orgId = "", collectionId = "", width: Option[String] = None, browse: Boolean = false, fileId: Boolean = true)
+GET        /file/image/:id                                                          controllers.dos.ImageDisplay.displayImage(id, fileId: Boolean = true)
+GET        /file/thumbnail/:id/:width                                               controllers.dos.ImageDisplay.displayThumbnail(id: String, orgId: String = "", collectionId: String = "", width: Option[String], browse: Boolean = false, fileId: Boolean = true)
+GET        /file/thumbnail/*id                                                      controllers.dos.ImageDisplay.displayThumbnail(id, orgId = "", collectionId = "", width: Option[String] = None, browse: Boolean = false, fileId: Boolean = true)
 
 ## Lookup by item ID or other form of IDs
-GET        /image/:id                                        controllers.dos.ImageDisplay.displayImage(id, fileId: Boolean = true)
-GET        /thumbnail/:orgId/:collectionId/:id/:width        controllers.dos.ImageDisplay.displayThumbnail(id, orgId, collectionId, width: Option[String], browse: Boolean = false, fileId: Boolean = false)
-GET        /thumbnail/:orgId/:collectionId/*id               controllers.dos.ImageDisplay.displayThumbnail(id, orgId, collectionId, width: Option[String], browse: Boolean = false, fileId: Boolean = false)
-GET        /thumbnail/:id/:width                             controllers.dos.ImageDisplay.displayThumbnail(id, orgId = "", collectionId = "", width: Option[String], browse: Boolean = false, fileId: Boolean = true)
-GET        /thumbnail/*id                                    controllers.dos.ImageDisplay.displayThumbnail(id, orgId = "", collectionId = "", width: Option[String] = None, browse: Boolean = false, fileId: Boolean = true)
+GET        /image/:id                                                               controllers.dos.ImageDisplay.displayImage(id, fileId: Boolean = true)
+GET        /thumbnail/:orgId/:collectionId/:id/:width                               controllers.dos.ImageDisplay.displayThumbnail(id, orgId, collectionId, width: Option[String], browse: Boolean = false, fileId: Boolean = false)
+GET        /thumbnail/:orgId/:collectionId/*id                                      controllers.dos.ImageDisplay.displayThumbnail(id, orgId, collectionId, width: Option[String], browse: Boolean = false, fileId: Boolean = false)
+GET        /thumbnail/:id/:width                                                    controllers.dos.ImageDisplay.displayThumbnail(id, orgId = "", collectionId = "", width: Option[String], browse: Boolean = false, fileId: Boolean = true)
+GET        /thumbnail/*id                                                           controllers.dos.ImageDisplay.displayThumbnail(id, orgId = "", collectionId = "", width: Option[String] = None, browse: Boolean = false, fileId: Boolean = true)
 
 
 # UI
-GET     /@dos                                   controllers.dos.ui.MCP.index
-GET     /@dos/browse                            controllers.dos.ui.MCP.browse(path)
+GET     /@dos                                                                       controllers.dos.ui.MCP.index
+GET     /@dos/browse                                                                controllers.dos.ui.MCP.browse(path)
 
-PUT     /@dos/task/add                          controllers.dos.ui.Tasks.add(path: String, taskType: String)
-DELETE  /@dos/task/cancel/:id                   controllers.dos.ui.Tasks.cancel(id: org.bson.types.ObjectId)
-GET     /@dos/task/list                         controllers.dos.ui.Tasks.listAll
-GET     /@dos/task/list/queued                  controllers.dos.ui.Tasks.list(what: String = "queued")
-GET     /@dos/task/list/running                 controllers.dos.ui.Tasks.list(what: String = "running")
-GET     /@dos/task/list/finished                controllers.dos.ui.Tasks.list(what: String = "finished")
-GET     /@dos/task/status/:id                   controllers.dos.ui.Tasks.status(id: org.bson.types.ObjectId)
+PUT     /@dos/task/add                                                              controllers.dos.ui.Tasks.add(path: String, taskType: String)
+DELETE  /@dos/task/cancel/:id                                                       controllers.dos.ui.Tasks.cancel(id: org.bson.types.ObjectId)
+GET     /@dos/task/list                                                             controllers.dos.ui.Tasks.listAll
+GET     /@dos/task/list/queued                                                      controllers.dos.ui.Tasks.list(what: String = "queued")
+GET     /@dos/task/list/running                                                     controllers.dos.ui.Tasks.list(what: String = "running")
+GET     /@dos/task/list/finished                                                    controllers.dos.ui.Tasks.list(what: String = "finished")
+GET     /@dos/task/status/:id                                                       controllers.dos.ui.Tasks.status(id: org.bson.types.ObjectId)
 
-GET     /@dos/log/list/:taskId                 controllers.dos.ui.Logs.list(taskId: org.bson.types.ObjectId, lastCount: Option[Int])
-GET     /@dos/log/view/:taskId                 controllers.dos.ui.Logs.view(taskId: org.bson.types.ObjectId)
+GET     /@dos/log/list/:taskId                                                      controllers.dos.ui.Logs.list(taskId: org.bson.types.ObjectId, lastCount: Option[Int])
+GET     /@dos/log/view/:taskId                                                      controllers.dos.ui.Logs.view(taskId: org.bson.types.ObjectId)
 
-GET     /@dos/thumbnail/:id/:width             controllers.dos.ImageDisplay.displayThumbnail(id, orgId = "", collectionId = "", width: Option[String], browse: Boolean = true, fileId: Boolean = false)
-GET     /@dos/thumbnail/*id                    controllers.dos.ImageDisplay.displayThumbnail(id, orgId = "", collectionId = "", width: Option[String], browse: Boolean = true, fileId: Boolean = false)
+GET     /@dos/thumbnail/:id/:width                                                  controllers.dos.ImageDisplay.displayThumbnail(id, orgId = "", collectionId = "", width: Option[String], browse: Boolean = true, fileId: Boolean = false)
+GET     /@dos/thumbnail/*id                                                         controllers.dos.ImageDisplay.displayThumbnail(id, orgId = "", collectionId = "", width: Option[String], browse: Boolean = true, fileId: Boolean = false)
 
 
 # User registration
-GET        /registration                                                      controllers.Registration.index
-POST       /registration/register                                             controllers.Registration.register
-GET        /registration/captcha/:id                                          controllers.Registration.captcha(id)
-GET        /registration/activate/:activationToken                            controllers.Registration.activate(activationToken)
-GET        /registration/lostPassword                                         controllers.Registration.lostPassword
-POST       /registration/resetPasswordEmail                                   controllers.Registration.resetPasswordEmail
-GET        /registration/resetPassword/:resetPasswordToken                    controllers.Registration.resetPassword(resetPasswordToken)
-POST       /registration/newPassword/:resetPasswordToken                      controllers.Registration.newPassword(resetPasswordToken)
+GET        /registration                                                            controllers.Registration.index
+POST       /registration/register                                                   controllers.Registration.register
+GET        /registration/captcha/:id                                                controllers.Registration.captcha(id)
+GET        /registration/activate/:activationToken                                  controllers.Registration.activate(activationToken)
+GET        /registration/lostPassword                                               controllers.Registration.lostPassword
+POST       /registration/resetPasswordEmail                                         controllers.Registration.resetPasswordEmail
+GET        /registration/resetPassword/:resetPasswordToken                          controllers.Registration.resetPassword(resetPasswordToken)
+POST       /registration/newPassword/:resetPasswordToken                            controllers.Registration.newPassword(resetPasswordToken)
 
 
 
 # Enrichment lookups
 
-GET         /places/search                                                    controllers.ws.Places.listAsTokens(q: String ?= "", countryCode: Option[String])
+GET         /places/search                                                          controllers.ws.Places.listAsTokens(q: String ?= "", countryCode: Option[String])
 
 # Delving URL scheme
 
-GET          /users                                                           controllers.Users.list(query: String ?= "", page: Int ?= 1)
-GET          /users/search                                                    controllers.Users.listAsTokens(orgId: Option[String] = None, q: String ?= "")
+GET          /users                                                                 controllers.Users.list(query: String ?= "", page: Int ?= 1)
+GET          /users/search                                                          controllers.Users.listAsTokens(orgId: Option[String] = None, q: String ?= "")
 
-GET          /search                                                          controllers.Search.index(query ?= "*:*", page: Int ?= 1)
+GET          /search                                                                controllers.Search.index(query ?= "*:*", page: Int ?= 1)
 
-GET          /:user                                                           controllers.Profile.profile(user)
+GET          /:user                                                                 controllers.Profile.profile(user)
 
-GET          /:user/admin/profile/update                                      controllers.user.Admin.profile(user)
-POST         /:user/admin/profile                                             controllers.user.Admin.profileSubmit(user)
+GET          /:user/admin/profile/update                                            controllers.user.Admin.profile(user)
+POST         /:user/admin/profile                                                   controllers.user.Admin.profileSubmit(user)
 
 
 # Organizations API
 
-GET         /organizations/:orgId/api                                         controllers.api.Api.api(orgId)
+GET         /organizations/:orgId/api                                               controllers.api.Api.api(orgId)
 
-GET         /organizations/search                                             controllers.organization.Organizations.listAsTokens(q: String ?= "")
+GET         /organizations/search                                                   controllers.organization.Organizations.listAsTokens(q: String ?= "")
 
-GET         /organizations/:orgId/api/oai-pmh                                 controllers.api.OaiPmh.oaipmh(orgId: String, format: Option[String] = None, accessKey: Option[String] = None)
-GET         /organizations/:orgId/api/oai-pmh/:accessKey                      controllers.api.OaiPmh.oaipmh(orgId: String, format: Option[String] = None, accessKey: Option[String])
-GET         /organizations/:orgId/api/oai-pmh/format/:format                  controllers.api.OaiPmh.oaipmh(orgId: String, format: Option[String], accessKey: Option[String] = None)
-GET         /organizations/:orgId/api/oai-pmh/format/:format/:accessKey       controllers.api.OaiPmh.oaipmh(orgId: String, format: Option[String], accessKey: Option[String])
+GET         /organizations/:orgId/api/oai-pmh                                       controllers.api.OaiPmh.oaipmh(orgId: String, format: Option[String] = None, accessKey: Option[String] = None)
+GET         /organizations/:orgId/api/oai-pmh/:accessKey                            controllers.api.OaiPmh.oaipmh(orgId: String, format: Option[String] = None, accessKey: Option[String])
+GET         /organizations/:orgId/api/oai-pmh/format/:format                        controllers.api.OaiPmh.oaipmh(orgId: String, format: Option[String], accessKey: Option[String] = None)
+GET         /organizations/:orgId/api/oai-pmh/format/:format/:accessKey             controllers.api.OaiPmh.oaipmh(orgId: String, format: Option[String], accessKey: Option[String])
 
-GET         /organizations/:orgId/api/proxy                                   controllers.api.Api.explain(orgId)
-GET         /organizations/:orgId/api/proxy/list                              controllers.api.Proxy.list(orgId)
-GET         /organizations/:orgId/api/proxy/:proxyKey/search                  controllers.api.Proxy.query(orgId, proxyKey)
-GET         /organizations/:orgId/api/proxy/:proxyKey/item/*itemKey           controllers.api.Proxy.item(orgId, proxyKey, itemKey)
+GET         /organizations/:orgId/api/proxy                                         controllers.api.Api.explain(orgId)
+GET         /organizations/:orgId/api/proxy/list                                    controllers.api.Proxy.list(orgId)
+GET         /organizations/:orgId/api/proxy/:proxyKey/search                        controllers.api.Proxy.query(orgId, proxyKey)
+GET         /organizations/:orgId/api/proxy/:proxyKey/item/*itemKey                 controllers.api.Proxy.item(orgId, proxyKey, itemKey)
 
-GET         /organizations/:orgId/api/providers                               controllers.api.Organization.providers(orgId)
-GET         /organizations/:orgId/api/dataProviders                           controllers.api.Organization.dataProviders(orgId)
-GET         /organizations/:orgId/api/collections                             controllers.api.Organization.collections(orgId)
+GET         /organizations/:orgId/api/providers                                     controllers.api.Organization.providers(orgId)
+GET         /organizations/:orgId/api/dataProviders                                 controllers.api.Organization.dataProviders(orgId)
+GET         /organizations/:orgId/api/collections                                   controllers.api.Organization.collections(orgId)
 
 ## Deprecated - legacy routes support
-GET         /organizations/:orgId/oai-pmh                                     controllers.api.OaiPmh.oaipmh(orgId: String, format: Option[String] = None, accessKey: Option[String] = None)
-GET         /organizations/:orgId/oai-pmh/:accessKey                          controllers.api.OaiPmh.oaipmh(orgId: String, format: Option[String] = None, accessKey: Option[String])
-GET         /organizations/:orgId/proxy/list                                  controllers.api.Proxy.list(orgId)
-GET         /organizations/:orgId/proxy/:proxyKey/search                      controllers.api.Proxy.query(orgId, proxyKey)
-GET         /organizations/:orgId/proxy/:proxyKey/item/*itemKey               controllers.api.Proxy.item(orgId, proxyKey, itemKey)
+GET         /organizations/:orgId/oai-pmh                                           controllers.api.OaiPmh.oaipmh(orgId: String, format: Option[String] = None, accessKey: Option[String] = None)
+GET         /organizations/:orgId/oai-pmh/:accessKey                                controllers.api.OaiPmh.oaipmh(orgId: String, format: Option[String] = None, accessKey: Option[String])
+GET         /organizations/:orgId/proxy/list                                        controllers.api.Proxy.list(orgId)
+GET         /organizations/:orgId/proxy/:proxyKey/search                            controllers.api.Proxy.query(orgId, proxyKey)
+GET         /organizations/:orgId/proxy/:proxyKey/item/*itemKey                     controllers.api.Proxy.item(orgId, proxyKey, itemKey)
 
 
 # Organizations UI
-GET         /organizations/:orgId                                             controllers.organization.Organizations.index(orgId, language: Option[String] = None)
+GET         /organizations/:orgId                                                   controllers.organization.Organizations.index(orgId, language: Option[String] = None)
 
-GET         /organizations/:orgId/admin                                       controllers.organization.Admin.index(orgId)
-POST        /organizations/:orgId/admin/users/add                             controllers.organization.Admin.addUser(orgId)
-DELETE      /organizations/:orgId/admin/users/remove                          controllers.organization.Admin.removeUser(orgId)
-POST        /organizations/:orgId/admin/admin/add                             controllers.organization.Admin.addAdmin(orgId)
-DELETE      /organizations/:orgId/admin/admin/remove                          controllers.organization.Admin.removeAdmin(orgId)
+GET         /organizations/:orgId/admin                                             controllers.organization.Admin.index(orgId)
+POST        /organizations/:orgId/admin/users/add                                   controllers.organization.Admin.addUser(orgId)
+DELETE      /organizations/:orgId/admin/users/remove                                controllers.organization.Admin.removeUser(orgId)
+POST        /organizations/:orgId/admin/admin/add                                   controllers.organization.Admin.addAdmin(orgId)
+DELETE      /organizations/:orgId/admin/admin/remove                                controllers.organization.Admin.removeAdmin(orgId)
 
-GET         /organizations/:orgId/admin/solrSearchProxy                       controllers.organization.Admin.solrSearchProxy(orgId)
+GET         /organizations/:orgId/admin/solrSearchProxy                             controllers.organization.Admin.solrSearchProxy(orgId)
 
-GET         /organizations/:orgId/users/search                                controllers.Users.listAsTokens(orgId: Option[String], q: String ?= "")
+GET         /organizations/:orgId/users/search                                      controllers.Users.listAsTokens(orgId: Option[String], q: String ?= "")
 
-GET         /organizations/:orgId/groups/resources/:resourceType/search       controllers.organization.Groups.searchResourceTokens(orgId, resourceType, q: String ?= "")
+GET         /organizations/:orgId/groups/resources/:resourceType/search             controllers.organization.Groups.searchResourceTokens(orgId, resourceType, q: String ?= "")
 
-GET         /organizations/:orgId/groups                                      controllers.organization.Groups.list(orgId)
-GET         /organizations/:orgId/groups/create                               controllers.organization.Groups.groups(orgId, groupId: Option[org.bson.types.ObjectId] = None)
-GET         /organizations/:orgId/groups/update/:groupId                      controllers.organization.Groups.groups(orgId, groupId: Option[org.bson.types.ObjectId])
-DELETE      /organizations/:orgId/groups/remove/:groupId                      controllers.organization.Groups.remove(orgId, groupId: Option[org.bson.types.ObjectId])
-POST        /organizations/:orgId/groups/submit                               controllers.organization.Groups.submit(orgId)
+GET         /organizations/:orgId/groups                                            controllers.organization.Groups.list(orgId)
+GET         /organizations/:orgId/groups/create                                     controllers.organization.Groups.groups(orgId, groupId: Option[org.bson.types.ObjectId] = None)
+GET         /organizations/:orgId/groups/update/:groupId                            controllers.organization.Groups.groups(orgId, groupId: Option[org.bson.types.ObjectId])
+DELETE      /organizations/:orgId/groups/remove/:groupId                            controllers.organization.Groups.remove(orgId, groupId: Option[org.bson.types.ObjectId])
+POST        /organizations/:orgId/groups/submit                                     controllers.organization.Groups.submit(orgId)
 
-GET         /organizations/:orgId/directory/organizationLookup                controllers.organization.DataSetControl.organizationLookup(orgId, term)
+GET         /organizations/:orgId/directory/organizationLookup                      controllers.organization.DataSetControl.organizationLookup(orgId, term)
 
 
-->           /                                                                search.Routes
-->           /                                                                cms.Routes
+->           /                                                                      search.Routes
+->           /                                                                      cms.Routes
 
 
 # Map static resources from the /public folder to the /assets URL path
-GET         /assets/*file                                                     controllers.Assets.at(path="/public", file)
+GET         /assets/*file                                                           controllers.Assets.at(path="/public", file)
 
 
-GET          /:orgId/:spec/:recordId                                          controllers.FullView.render(orgId, spec, recordId, format: Option[String])
+GET          /:orgId/:spec/:recordId                                                controllers.FullView.render(orgId, spec, recordId, format: Option[String])
 
 
