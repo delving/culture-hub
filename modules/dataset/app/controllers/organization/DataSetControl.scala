@@ -275,12 +275,17 @@ trait DataSetControl extends OrganizationController { this: BoundController =>
               mappings.toMap[String, Mapping]
             }
 
+            def removedSchemas(schemaProcessingConfigurations: Seq[SchemaProcessingConfiguration], existingMappings: Map[String, Mapping]): Seq[String] = {
+              existingMappings.keys.filter(e => !schemaProcessingConfigurations.exists(_.prefix == e)).toSeq
+            }
+
             def updateMappings(schemaProcessingConfigurations: Seq[SchemaProcessingConfiguration], mappings: Map[String, Mapping]): Map[String, Mapping] = {
               val existing = mappings.filter(m => schemaProcessingConfigurations.exists(s => s.prefix == m._1))
               val keyList = mappings.keys.toList
               val added = schemaProcessingConfigurations.filter(s => !keyList.contains(s.prefix))
+              val removed = removedSchemas(schemaProcessingConfigurations, mappings)
               val updated = existing.map(e => (e._1 -> e._2.copy(schemaVersion = schemaProcessingConfigurations.find(_.prefix == e._1).get.version)))
-              updated ++ buildMappings(added)
+              (updated ++ buildMappings(added)).filterNot(entry => removed.contains(entry._1))
             }
 
             def strToOpt(str: String) = if (str.trim.isEmpty) None else Some(str.trim)
@@ -311,13 +316,21 @@ trait DataSetControl extends OrganizationController { this: BoundController =>
                   HubServices.basexStorages.getResource(configuration).renameCollection(existing, dataSetForm.spec)
                 }
 
-                val updatedDetails = existing.details.copy(name = dataSetForm.facts.name, facts = factsObject)
+                val removed: Seq[String] = removedSchemas(submittedSchemaConfigurations, existing.mappings)
+                val updatedDetails = existing.details.copy(
+                  name = dataSetForm.facts.name,
+                  facts = factsObject,
+                  invalidRecordCount = existing.details.invalidRecordCount.filterNot(i => removed.contains(i._1))
+                )
+                val updatedInvalidRecords = existing.invalidRecords.filterNot(e => removed.contains(e._1))
+
                 val updated = existing.copy(
                   spec = dataSetForm.spec,
                   description = strToOpt(dataSetForm.description),
                   details = updatedDetails,
                   mappings = updateMappings(submittedSchemaConfigurations, existing.mappings),
                   formatAccessControl = formatAccessControl,
+                  invalidRecords = updatedInvalidRecords,
                   idxMappings = dataSetForm.indexingMappingPrefix.map(List(_)).getOrElse(List.empty)
                 )
                 DataSet.dao.save(updated)
