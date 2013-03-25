@@ -255,10 +255,6 @@ class IndexApiSpec extends Specs2TestContext {
 
       val expected = "ReIndexed 3 items successfully, error for "
 
-      val queryByHasDigitalObject = SolrQueryService.getSolrResponseFromServer(new SolrQuery("delving_orgId:delving delving_recordType:foo delving_hasDigitalObject:true"))
-
-      queryByHasDigitalObject.getResults.size() must equalTo(1)
-
       contentAsString(result) must equalTo(expected)
     }
   }
