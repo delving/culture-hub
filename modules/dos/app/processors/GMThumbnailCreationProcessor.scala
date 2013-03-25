@@ -85,7 +85,7 @@ object GMThumbnailCreationProcessor extends ThumbnailCreationProcessor with Thum
               ORIGIN_PATH_FIELD -> image.getAbsolutePath,
               IMAGE_ID_FIELD -> imageName,
               TASK_ID -> task._id,
-              ORGANIZATION_IDENTIFIER_FIELD -> task.orgId,
+              ORGANIZATION_IDENTIFIER_FIELD -> orgId,
               COLLECTION_IDENTIFIER_FIELD -> collectionId
             )
           )
