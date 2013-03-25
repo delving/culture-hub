@@ -1,6 +1,8 @@
+import controllers.api.Index
 import core.{ HubModule, DomainServiceLocator, IndexingService }
 import models.MetadataCache
 import org.apache.solr.client.solrj.SolrQuery
+import play.api.mvc.{ AnyContentAsEmpty, AnyContent }
 import play.api.test.Helpers._
 import play.api.test.{ FakeHeaders, FakeRequest }
 import services.search.SolrQueryService
@@ -128,7 +130,6 @@ class IndexApiSpec extends Specs2TestContext {
           uri = "delving.localhost",
           headers = FakeHeaders(Seq(CONTENT_TYPE -> Seq("application/xml"))),
           body = testItems
-
         )
         val result = asyncToResult(controllers.api.Index.submit("delving")(fakeRequest))
         status(result) must equalTo(OK)
@@ -235,6 +236,30 @@ class IndexApiSpec extends Specs2TestContext {
 
       trim(XML.loadString(contentAsString(result))) must equalTo(trim(expected))
 
+    }
+  }
+
+  "re-index items from cache" in {
+
+    withTestConfig {
+
+      val fakeRequest: FakeRequest[AnyContent] = FakeRequest(
+        method = "POST",
+        uri = "delving.localhost",
+        headers = FakeHeaders(),
+        body = AnyContentAsEmpty
+      )
+
+      val result = controllers.api.Index.reIndex()(fakeRequest)
+      status(result) must equalTo(OK)
+
+      val expected = "ReIndexed 3 items successfully, error for "
+
+      val queryByHasDigitalObject = SolrQueryService.getSolrResponseFromServer(new SolrQuery("delving_orgId:delving delving_recordType:foo delving_hasDigitalObject:true"))
+
+      queryByHasDigitalObject.getResults.size() must equalTo(1)
+
+      contentAsString(result) must equalTo(expected)
     }
   }
 
