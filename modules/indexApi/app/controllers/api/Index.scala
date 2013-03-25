@@ -106,7 +106,7 @@ object Index extends DelvingController with RenderingExtensions {
                   } else {
                     val cacheItem = MetadataItem(collection = CACHE_COLLECTION, itemType = item.itemType, itemId = item.itemId, xml = Map("raw" -> item.rawXml), schemaVersions = Map("raw" -> "1.0.0"), index = index)
                     cache.saveOrUpdate(cacheItem)
-                    indexingServiceLocator.byDomain.stageForIndexing(item.toSolrDocument)
+                    indexingServiceLocator.byDomain.stageForIndexing(item.toIndexDocument)
                     indexed += 1
                   }
                 }
@@ -177,37 +177,32 @@ object Index extends DelvingController with RenderingExtensions {
 
   }
 
-  def reIndex(orgId: String) = Action {
-    implicit request =>
-      Async {
-        Promise.pure {
+  def reIndex = OrganizationConfigured {
+    Action {
+      implicit request =>
+        val service = new IndexItemOrganizationCollectionLookupService()
+        val itemTypes = service.findAll.map { _.itemType }
 
-          val itemTypes = new IndexItemOrganizationCollectionLookupService().findAll.map(_.itemType)
-
-          var reIndexed = 0
-          val error = new ArrayBuffer[String]()
-          itemTypes map { t =>
-            val cache = MetadataCache.get(orgId, CACHE_COLLECTION, t)
-            cache.underlying.find(MongoDBObject("deleted" -> false)) foreach {
-              item =>
-                try {
-                  indexingServiceLocator.byDomain.stageForIndexing(IndexItem(orgId, item).toSolrDocument)
-                  reIndexed += 1
-                } catch {
-                  case t: Throwable =>
-                    val id = orgId + "_" + item.itemType + "_" + item.itemId
-                    Logger("IndexApi").error("Could not index item " + id, t)
-                    error += id
-                }
+        var reIndexed = 0
+        val error = new ArrayBuffer[String]()
+        itemTypes map { t =>
+          val cache = MetadataCache.get(configuration.orgId, CACHE_COLLECTION, t)
+          cache.iterate() foreach { item =>
+            try {
+              indexingServiceLocator.byDomain.stageForIndexing(IndexItem(configuration.orgId, item).toIndexDocument)
+              reIndexed += 1
+            } catch {
+              case t: Throwable =>
+                val id = configuration.orgId + "_" + item.itemType + "_" + item.itemId
+                Logger("IndexApi").error("Could not index item " + id, t)
+                error += id
             }
           }
-
-          (reIndexed, error)
-
-        } map {
-          response => Ok("""ReIndexed %s items successfully, error for %s""".format(response._1.toString, response._2.mkString(", ")))
         }
-      }
+        indexingServiceLocator.byDomain.commit
+
+        Ok(s"ReIndexed $reIndexed items successfully, error for ${error.mkString(", ")}")
+    }
   }
 
 }
@@ -218,7 +213,7 @@ case class IndexItem(orgId: String,
     rawXml: String,
     deleted: Boolean = false) {
 
-  def toSolrDocument: IndexingService#IndexDocument = {
+  def toIndexDocument: IndexingService#IndexDocument = {
     val doc = new mutable.HashMap[String, mutable.Set[Any]] with mutable.MultiMap[String, Any]
 
     val document = XML.loadString(rawXml).nonEmptyChildren
