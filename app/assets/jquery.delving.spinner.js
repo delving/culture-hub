@@ -1,7 +1,6 @@
 /**
  * Attach a "spinner" or busy signal to a div to alert the user that something is going on
  * @author: Eric van der Meulen eric@delving.eu
- * @datecreated: 08-10-2011
  */
 
 (function($) {
