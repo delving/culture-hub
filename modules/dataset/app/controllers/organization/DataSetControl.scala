@@ -127,7 +127,7 @@ object DataSetCreationViewModel {
       "spec" -> nonEmptyText.verifying(Constraints.pattern("^[A-Za-z0-9-]{3,40}$".r, "constraint.validSpec", "Invalid spec format")),
       "description" -> text,
       "facts" -> mapping(
-        "name" -> nonEmptyText,
+        "name" -> nonEmptyText.verifying(Constraints.pattern("^[A-Za-z0-9-_ ]*$".r, "constraint.validName", "Invalid name")),
         "language" -> nonEmptyText,
         "country" -> nonEmptyText,
         "provider" -> nonEmptyText,
@@ -314,6 +314,7 @@ trait DataSetControl extends OrganizationController { this: BoundController =>
                 if (existing.spec != dataSetForm.spec) {
                   log.info(s"Renaming DataSet spec ${existing.spec} to ${dataSetForm.spec}")
                   HubServices.basexStorages.getResource(configuration).renameCollection(existing, dataSetForm.spec)
+                  indexingServiceLocator.byDomain.deleteBySpec(configuration.orgId, existing.spec)
                 }
 
                 val removed: Seq[String] = removedSchemas(submittedSchemaConfigurations, existing.mappings)
