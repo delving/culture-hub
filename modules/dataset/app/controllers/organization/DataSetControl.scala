@@ -127,7 +127,7 @@ object DataSetCreationViewModel {
       "spec" -> nonEmptyText.verifying(Constraints.pattern("^[A-Za-z0-9-]{3,40}$".r, "constraint.validSpec", "Invalid spec format")),
       "description" -> text,
       "facts" -> mapping(
-        "name" -> nonEmptyText.verifying(Constraints.pattern("^[A-Za-z0-9-_ ]".r, "constraint.validName", "Invalid name")),
+        "name" -> nonEmptyText.verifying(Constraints.pattern("^[A-Za-z0-9-_ ]*$".r, "constraint.validName", "Invalid name")),
         "language" -> nonEmptyText,
         "country" -> nonEmptyText,
         "provider" -> nonEmptyText,
