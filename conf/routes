@@ -166,6 +166,6 @@ GET         /organizations/:orgId/directory/organizationLookup                  
 GET         /assets/*file                                                           controllers.Assets.at(path="/public", file)
 
 
-GET          /:orgId/:spec/:recordId                                                controllers.FullView.render(orgId, spec, recordId, format: Option[String])
+GET          /:orgId/:spec/*recordId                                                controllers.FullView.render(orgId, spec, recordId, format: Option[String])
 
 
