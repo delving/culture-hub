@@ -126,7 +126,7 @@ object SolrQueryService extends SolrServer {
               queryParams setStart (values.head.toInt)
             case "rows" =>
               val queryRows: Int = values.head.toInt
-              queryParams setRows (if (queryRows > 500) 500 else queryRows)
+              queryParams setRows (if (queryRows > configuration.searchService.rowLimit) configuration.searchService.rowLimit else queryRows)
             case "fl" | "fl[]" =>
               queryParams setFields (values.mkString(","))
             case "facet.limit" =>
@@ -417,7 +417,7 @@ object SolrQueryService extends SolrServer {
     val href = remove match {
       case true => facetTerms
       case false =>
-        (facetTerms ::: List("%s:%s".format(facetCount.getFacetField.getName, facetCount.getName)))
+        (facetTerms ::: List("%s:%s".format(facetCount.getFacetField.getName, encodeUrl(facetCount.getName))))
     }
     if (!href.isEmpty) href.mkString(FACET_PROMPT, FACET_PROMPT, "") else ""
   }

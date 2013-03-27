@@ -160,6 +160,7 @@ package models {
     apiWsKeyEnabled: Boolean = false,
     apiWsKeys: Seq[String] = Seq.empty,
     pageSize: Int,
+    rowLimit: Int = 500,
     showResultsWithoutThumbnails: Boolean = false)
 
   case class ProcessingServiceConfiguration(
@@ -233,6 +234,7 @@ package models {
     val SEARCH_MORELIKETHIS = "services.search.moreLikeThis"
     val SEARCH_SEARCHIN = "services.search.searchIn"
     val SEARCH_PAGE_SIZE = "services.search.pageSize"
+    val SEARCH_ROW_LIMIT = "services.search.rowLimit"
     val SHOW_ITEMS_WITHOUT_THUMBNAIL = "services.search.showItemsWithoutThumbnail"
 
     val PROCESSING_MAPPING_CPU_PROPORTION = "services.processing.mappingCpuProportion"
@@ -514,6 +516,7 @@ package models {
           }
         },
         pageSize = getOptionalInt(configuration, SEARCH_PAGE_SIZE).getOrElse(20),
+        rowLimit = getOptionalInt(configuration, SEARCH_ROW_LIMIT).getOrElse(500),
         showResultsWithoutThumbnails = getOptionalBoolean(configuration, SHOW_ITEMS_WITHOUT_THUMBNAIL).getOrElse(false)
       ),
       processingService = ProcessingServiceConfiguration(

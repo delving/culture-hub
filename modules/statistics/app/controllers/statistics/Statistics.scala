@@ -71,7 +71,11 @@ object Statistics extends OrganizationController {
           new SolrFacetBasedStatistics(orgId, facets, filter, facetLimit, query)
         }
 
-        Ok(statistics.renderAsJSON(canSeeFullStatistics)).as(JSON)
+        if (request.queryString.getFirst("format") == Some("csv")) {
+          Ok(statistics.renderAsCSV(canSeeFullStatistics)).as("text/csv")
+        } else {
+          Ok(statistics.renderAsJSON(canSeeFullStatistics)).as(JSON)
+        }
     }
   }
 
@@ -94,24 +98,47 @@ case class StatisticsCounter(name: String, total: Int, withNr: Int = 0) {
 
 case class CombinedStatisticEntry(name: String, total: Int, digitalObject: StatisticsCounter, landingPage: StatisticsCounter, geoRecords: StatisticsCounter) {
 
+  def values = Seq(
+    name,
+    total,
+    digitalObject.withNr,
+    digitalObject.withPercentage,
+    digitalObject.withoutNr,
+    digitalObject.withOutPercentage,
+    landingPage.withNr,
+    landingPage.withPercentage,
+    landingPage.withoutNr,
+    landingPage.withOutPercentage,
+    geoRecords.withNr,
+    geoRecords.withPercentage,
+    geoRecords.withoutNr,
+    geoRecords.withOutPercentage
+  )
+
   def asListMap = {
-    ListMap(
-      "name" -> name,
-      "total" -> total,
-      "digitalObjects" -> digitalObject.withNr,
-      "digitalObjectsPercentage" -> digitalObject.withPercentage,
-      "noDigitalObjects" -> digitalObject.withoutNr,
-      "noDigitalObjectsPercentage" -> digitalObject.withOutPercentage,
-      "landingPages" -> landingPage.withNr,
-      "landingPagesPercentage" -> landingPage.withPercentage,
-      "nolandingPages" -> landingPage.withoutNr,
-      "nolandingPagesPercentage" -> landingPage.withOutPercentage,
-      "GeoRecords" -> geoRecords.withNr,
-      "GeoRecordsPercentage" -> geoRecords.withPercentage,
-      "noGeoRecords" -> geoRecords.withoutNr,
-      "noGeoRecordsPercentage" -> geoRecords.withOutPercentage
-    )
+    ListMap(CombinedStatisticEntry.keys.zip(values): _*)
   }
+}
+
+object CombinedStatisticEntry {
+
+  val keys = Seq(
+    "name",
+    "total",
+    "digitalObjects",
+    "digitsObjectsPercentage",
+    "noDigitalObjects",
+    "noDigitalObjectsPercentage",
+    "landingPages",
+    "landingPagesPercentage",
+    "nolandingPages",
+    "nolandingPagesPercentage",
+    "GeoRecords",
+    "GeoRecordsPercentage",
+    "noGeoRecords",
+    "noGeoRecordsPercentage"
+  )
+
 }
 
 case class StatisticsHeader(name: String, label: String = "", entries: Seq[CombinedStatisticEntry]) {
@@ -205,6 +232,18 @@ class SolrFacetBasedStatistics(orgId: String, facets: Map[String, String], filte
     (e.name -> e.entries.size)
   }.toMap
 
+  val totalStatisticsEntry = {
+    val entry = CombinedStatisticEntry(
+      name = "total",
+      total = totalRecords,
+      digitalObject = StatisticsCounter(name = "totalDigitalObjects", total = totalRecords, withNr = totalDigitalObjects.toInt),
+      landingPage = StatisticsCounter(name = "totalLangingPages", total = totalRecords, withNr = totalLandingPages.toInt),
+      geoRecords = StatisticsCounter(name = "totalCoordinates", total = totalRecords, withNr = totalGeoRecords.toInt)
+    )
+
+    StatisticsHeader("total", "Total statistics", Seq(entry))
+  }
+
   def renderAsJSON(displayFacetDetail: Boolean): String = {
     import net.liftweb.json.{ Extraction, JsonAST, Printer }
     implicit val formats = net.liftweb.json.DefaultFormats
@@ -227,6 +266,25 @@ class SolrFacetBasedStatistics(orgId: String, facets: Map[String, String], filte
       ))))
 
     outputJson
+  }
+
+  def renderAsCSV(displayFacetDetail: Boolean): String = {
+    val header = Seq("facet", "label") ++ CombinedStatisticEntry.keys
+    val displayedValues = if (displayFacetDetail) (Seq(totalStatisticsEntry) ++ entries) else Seq(totalStatisticsEntry)
+    val values: Seq[Seq[String]] = (displayedValues flatMap { entry =>
+      entry.entries map { statisticsEntry =>
+        (Seq(
+          entry.name,
+          entry.label
+        ) ++ statisticsEntry.values).map(_.toString)
+      }
+    })
+
+    header.map(h => """"%s"""".format(h)).mkString(",") +
+      "\n" +
+      (values map { line: Seq[String] =>
+        line.map(v => """"%s"""".format(v)).mkString(",")
+      }).mkString("\n")
   }
 
 }
