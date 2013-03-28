@@ -417,7 +417,7 @@ object SolrQueryService extends SolrServer {
     val href = remove match {
       case true => facetTerms
       case false =>
-        (facetTerms ::: List("%s:%s".format(facetCount.getFacetField.getName, encodeUrl(facetCount.getName))))
+        (facetTerms ::: List("%s:%s".format(facetCount.getFacetField.getName, Option(facetCount.getName).map(encodeUrl(_)).getOrElse(""))))
     }
     if (!href.isEmpty) href.mkString(FACET_PROMPT, FACET_PROMPT, "") else ""
   }
