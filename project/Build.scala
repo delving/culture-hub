@@ -177,7 +177,15 @@ object Build extends sbt.Build {
       sources
         .filterNot(source => source.isFile && source.getPath.contains("app/views") && !source.getName.endsWith(".scala.html") && source.getName.endsWith(".html"))
         .filterNot(source => source.isDirectory && source.getPath.contains("app/views"))
+    },
+
+    // temporary workaround for https://github.com/playframework/Play20/issues/903
+    // this breaks automatic reloading for changes in the routers but is still better than to reload at each request
+    playMonitoredFiles <<= playMonitoredFiles map { (files: Seq[String]) =>
+      files.filterNot(file => file.contains("src_managed"))
     }
+
+
 
   ).settings(scalarifromSettings :_*) // .settings(addArtifact(Artifact((appName + "-" + cultureHubVersion), "zip", "zip"), dist).settings :_*)
    .dependsOn(
