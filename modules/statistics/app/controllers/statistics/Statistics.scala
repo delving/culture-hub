@@ -126,7 +126,7 @@ object CombinedStatisticEntry {
     "name",
     "total",
     "digitalObjects",
-    "digitsObjectsPercentage",
+    "digitalObjectsPercentage",
     "noDigitalObjects",
     "noDigitalObjectsPercentage",
     "landingPages",
