@@ -110,7 +110,7 @@
             downloadTemplate: _renderDownloadTemplate,
             acceptFileTypes: /(\.|\/)(gif|jpe?g|png)$/i
         }).bind('fileuploaddone', function (e, data) {
-            $.post('/organizations/${orgId}/site/upload/${uid}');
+            $.post('/admin/site/upload/${uid}');
         });
 
         var files = ${files.raw()};
