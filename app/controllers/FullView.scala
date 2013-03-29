@@ -24,7 +24,7 @@ trait FullView extends DelvingController {
     Action {
       implicit request =>
 
-        val hubId = HubId(orgId, spec, localId)
+        val hubId = HubId(configuration.orgId, spec, localId)
 
         val resolvers = CultureHubPlugin.getServices(classOf[RecordResolverService])
 
