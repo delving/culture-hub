@@ -737,7 +737,7 @@ Delving.wysiwyg = function (params) {
         dialog_type : "modal",
         height : "320",
         plugins: "searchreplace,inlinepopups,advimage,autoresize,template,fullscreen",
-        external_image_list_url: '/organizations/' + params.orgId + '/site/listImages',
+        external_image_list_url: '/admin/site/listImages',
         extended_valid_elements: "img[!src|border:0|alt|title|width|height|style]a[name|href|target|title|onclick|class]",
         template_external_list_url : "/assets/common/javascripts/tiny-templates.js",
         template_popup_width : 1000,
