@@ -67,7 +67,7 @@ object Statistics extends OrganizationController {
         }.getOrElse(false)
 
         // cache stats for 3 hours
-        val statistics = Cache.getOrElse("facetStatistics", 10800) {
+        val statistics = Cache.getOrElse("facetStatistics-" + request.queryString.mkString.hashCode, 10800) {
           new SolrFacetBasedStatistics(orgId, facets, filter, facetLimit, query)
         }
 
