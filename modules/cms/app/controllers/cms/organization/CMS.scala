@@ -63,7 +63,7 @@ trait CMS extends OrganizationController { this: BoundController =>
     Action {
       implicit request =>
         FileUpload.markFilesAttached(uid, configuration.orgId)
-        Redirect("/organizations/%s/site/upload".format(configuration.orgId))
+        Redirect(routes.CMS.upload())
     }
   }
 
