@@ -255,7 +255,7 @@
             viewModel.finished(data.finished);
 
             if (data.running.length > 0 && viewModel.activeTask() !== data.running[0]._id) {
-                $('#tasks').smartupdaterSetTimeout(10000);
+                $('#tasks').smartupdater('setTimeout', 10000);
                 var runningId = data.running[0]._id;
                 var logCount = 0;
                 viewModel.activeTask(runningId);
@@ -280,7 +280,7 @@
                         viewModel.logs.push(log);
                     });
                     logCount = logCount + data.logs.length;
-                    $('#log').smartupdaterAlterUrl(false, {lastCount: logCount})
+                    $('#log').smartupdater('alterUrl', {lastCount: logCount})
                 });
 
                 // progress
@@ -293,10 +293,10 @@
                     $('#runningProgressCounter').progressbar('value', data.percentage);
                 });
             } else if (data.running.length == 0 && viewModel.activeTask()) {
-                $('#tasks').smartupdaterSetTimeout(2000);
+                $('#tasks').smartupdater('setTimeout', 2000);
                 viewModel.showLogs(data.finished[data.finished.length - 1]._id);
-                $('#runningProgress').smartupdaterStop();
-                $('#log').smartupdaterStop();
+                $('#runningProgress').smartupdater('stop');
+                $('#log').smartupdater('stop');
                 viewModel.activeTask(null);
             }
         });
