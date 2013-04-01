@@ -81,10 +81,14 @@ object ModulesBuild extends sbt.Build with BuildDefinitions {
     publish := { }
   ).dependsOn(ModulesBuild.webCore % "test->test;compile->compile").settings(ModulesBuild.scalarifromSettings :_*)
 
+  lazy val dataset = play.Project("dataset", "1.0-SNAPSHOT", Seq.empty, path = file("modules/dataset")).settings(
+    resolvers ++= ModulesBuild.commonResolvers,
+    publish := { }
+  ).dependsOn(ModulesBuild.webCore % "test->test;compile->compile", ModulesBuild.search % "test->test;compile->compile").settings(ModulesBuild.scalarifromSettings :_*)
 
   // ~~~ dynamic modules, to avoid hard-coded definitions
 
-  val excludes = Seq("cms", "search", "statistics", "thumbnail", "deepZoom")
+  val excludes = Seq("cms", "search", "dataset", "thumbnail", "deepZoom")
 
   def discoverModules(dir: String): Seq[Project] = {
     val dirs: Seq[sbt.File] = if(file(dir).listFiles != null) file(dir).listFiles else Seq.empty[sbt.File]
@@ -92,7 +96,7 @@ object ModulesBuild extends sbt.Build with BuildDefinitions {
         play.Project(x.getName, "1.0-SNAPSHOT", Seq.empty, path = x).settings(
           resolvers ++= commonResolvers,
           publish := { }
-        ).dependsOn(webCore % "test->test;compile->compile", search % "test->test;compile->compile").settings(scalarifromSettings :_*)
+        ).dependsOn(webCore % "test->test;compile->compile", search % "test->test;compile->compile", dataset % "test->test;compile->compile").settings(scalarifromSettings :_*)
   }
 
   lazy val modules = discoverModules("modules") ++ discoverModules("additionalModules")
@@ -105,13 +109,6 @@ object AllModulesBuild extends sbt.Build {
 
   // the following projects have dependencies on other modules, and need to be declared separately
 
-  lazy val statistics = play.Project("statistics", "1.0-SNAPSHOT", Seq.empty, path = file("modules/statistics")).settings(
-    resolvers ++= ModulesBuild.commonResolvers,
-    publish := { }
-  ).dependsOn(
-    ModulesBuild.webCore, ModulesBuild.module("dataset"), ModulesBuild.search
-  ).settings(ModulesBuild.scalarifromSettings :_*)
-
   lazy val cms = play.Project("cms", "1.0-SNAPSHOT", Seq.empty, path = file("modules/cms")).settings(
     resolvers ++= ModulesBuild.commonResolvers,
     publish := { },
@@ -119,7 +116,7 @@ object AllModulesBuild extends sbt.Build {
     routesImport += "extensions.Binders._"
   ).dependsOn(ModulesBuild.webCore % "test->test;compile->compile", ModulesBuild.module("dos")).settings(ModulesBuild.scalarifromSettings :_*)
 
-  override def projects = Seq(ModulesBuild.webCore, statistics, cms) ++ ModulesBuild.modules
+  override def projects = Seq(ModulesBuild.webCore, ModulesBuild.search, ModulesBuild.dataset, cms) ++ ModulesBuild.modules
 
   def toRef = projects.map {x => x: ProjectReference }
 
