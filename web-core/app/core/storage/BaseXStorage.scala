@@ -82,7 +82,7 @@ class BaseXStorage(configuration: BaseXConfiguration) {
           try {
             // we add the record on a path of its own, which is useful because then we know how many distinct records are stored in a BaseX collection
             // given that those path need to be valid file names, we do preemptive sanitization here
-            val sanitizedId = if (next._1.id.endsWith(".")) next._1.id + DEFAUL_BASEX_PATH_EXTENSION else next._1.id
+            val sanitizedId = next._1.id.replaceAll("[:;\\./]", "_")
             session.add(sanitizedId, buildRecord(next._1, 0, namespaces, next._2))
           } catch {
             case t: Throwable =>
