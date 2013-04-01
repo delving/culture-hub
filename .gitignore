@@ -9,10 +9,11 @@ logs
 /out
 dist/
 /system.out
+/development.conf
 /conf/production.conf
 /conf/*_themes.xml
-/conf/development.conf
 target/
+additionalModules
 extras/servlet-server/solr/*/data/
 extras/servlet-server/work/
 /public/sip-creator/*.jar
