@@ -40,15 +40,15 @@ object Indexing {
 
   type IndexableCollection = Collection with OrganizationCollectionInformation
 
-  def indexOne(collection: IndexableCollection, hubId: HubId, mapped: Map[String, List[Any]], metadataFormatForIndexing: String)(implicit configuration: OrganizationConfiguration): Either[Throwable, String] = {
+  def indexOne(collection: IndexableCollection, hubId: HubId, mapped: Map[String, List[Any]], metadataFormatForIndexing: String)(implicit configuration: OrganizationConfiguration): Option[Throwable] = {
     val doc = createSolrInputDocument(mapped)
     addDelvingHouseKeepingFields(doc, collection, hubId, metadataFormatForIndexing)
     try {
       indexingServiceLocator.byDomain.stageForIndexing(doc.toMap)
     } catch {
-      case t: Throwable => Left(new SolrConnectionException("Unable to add document to Solr", t))
+      case t: Throwable => Some(new SolrConnectionException("Unable to add document to SOLR", t))
     }
-    Right("ok")
+    None
   }
 
   private def createSolrInputDocument(indexDoc: Map[String, List[Any]]) = {
