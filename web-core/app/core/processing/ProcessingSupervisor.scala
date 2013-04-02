@@ -4,12 +4,13 @@ import akka.actor.{ Props, Actor }
 import core.{ IndexingService, DomainServiceLocator, HubModule, HubId }
 import collection.mutable.ArrayBuffer
 import eu.delving.schema.SchemaVersion
-import models.{ MetadataItem, OrganizationConfiguration }
+import models.OrganizationConfiguration
 import play.api.Logger
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 import akka.routing.RoundRobinRouter
 import concurrent.duration.Duration
+import org.w3c.dom.Node
 
 /**
  * Supervises a processing run.
@@ -22,7 +23,7 @@ import concurrent.duration.Duration
 class ProcessingSupervisor(
     totalSourceRecords: Int,
     updateCount: Long => Unit,
-    indexOne: (HubId, MultiMap, String) => Either[Throwable, String],
+    indexOne: (HubId, SchemaVersion, MultiMap, Node) => Option[Throwable],
     interrupted: => Boolean,
     onProcessingDone: ProcessingContext => Unit,
     whenDone: () => Unit,
@@ -95,7 +96,7 @@ class ProcessingSupervisor(
             // TODO once the record definitions are cleaned up, clean this up.
             val fieldsToIndex = result.getFields ++ result.getSearchFields ++ result.getOtherFields ++ result.getSystemFields
 
-            recordIndexer ! IndexRecord(hubId, indexingSchema, fieldsToIndex)
+            recordIndexer ! IndexRecord(hubId, indexingSchema, fieldsToIndex, result.getDocument)
           }
         }
 
@@ -173,7 +174,7 @@ class ProcessingSupervisor(
             |
           """.stripMargin.format(index, hubId, throwable.getMessage, sourceRecord), throwable)
         onError(throwable)
-      case MappedRecordCachingFailure(index, hubId, schema, result, throwable) =>
+      case MappedRecordCachingFailure(index, hubId, throwable, schema, result) if (schema != None && result != None) => {
         log.error(
           """
             |Error during caching of record at index %s for schema %s, hubId %s: %s
@@ -183,9 +184,13 @@ class ProcessingSupervisor(
             |
             |%s
             |
-          """.stripMargin.format(index, schema, hubId, throwable.getMessage, result), throwable)
+          """.stripMargin.format(index, schema.getOrElse(""), hubId, throwable.getMessage, result.getOrElse("")), throwable)
         onError(throwable)
-
+      }
+      case MappedRecordCachingFailure(index, hubId, throwable, schema, result) => {
+        log.error(s"Error during caching of record at index $index, hubId $hubId: ${throwable.getMessage}")
+        onError(throwable)
+      }
     }
     handleInterrupt()
   }

@@ -9,6 +9,9 @@ import core.processing.{ DoProcess, CollectionProcessor, ProcessingSchema }
 import akka.actor.{ Actor, Props }
 import indexing.Indexing
 import processing.ProcessingContext
+import org.w3c.dom.Node
+import eu.delving.schema.SchemaVersion
+import services.IndexingAnalysisServiceLookup
 
 /**
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
@@ -18,6 +21,7 @@ class DataSetCollectionProcessor extends Actor {
   val log = Logger("CultureHub")
 
   lazy val indexingServiceLocator: DomainServiceLocator[IndexingService] = HubModule.inject[DomainServiceLocator[IndexingService]](name = None)
+  lazy val indexingAnalysisServiceLookup: IndexingAnalysisServiceLookup = HubModule.inject[IndexingAnalysisServiceLookup](name = None)
 
   val RAW_PREFIX = "raw"
   val AFF_PREFIX = "aff"
@@ -81,6 +85,8 @@ class DataSetCollectionProcessor extends Actor {
 
     val indexingSchema: Option[ProcessingSchema] = dataSet.idxMappings.headOption.flatMap(i => actionableTargetSchemas.find(_.prefix == i))
 
+    val indexingAnalysisService: Option[IndexingAnalysisService] = indexingSchema.flatMap { s => indexingAnalysisServiceLookup.findOneBySchemaPrefix(s.prefix) }
+
     val renderingSchema: Option[ProcessingSchema] = if (actionableTargetSchemas.exists(_.prefix == AFF_PREFIX)) {
       actionableTargetSchemas.find(_.prefix == AFF_PREFIX)
     } else if (indexingSchema.isDefined) {
@@ -102,8 +108,25 @@ class DataSetCollectionProcessor extends Actor {
       DataSet.dao.updateState(dataSet, DataSetState.ERROR, None, Some(t.getMessage))
     }
 
-    def indexOne(itemId: HubId, fields: Map[String, List[String]], prefix: String)(implicit configuration: OrganizationConfiguration) =
-      Indexing.indexOne(dataSet, itemId, fields, prefix)
+    def indexOne(itemId: HubId, schemaVersion: SchemaVersion, fields: Map[String, List[String]], document: Node)(implicit configuration: OrganizationConfiguration): Option[Throwable] = {
+
+      indexingAnalysisService.map { s =>
+        {
+          try {
+            s.analyze(itemId, schemaVersion, document) map { indexDocument =>
+              indexingServiceLocator.byDomain.stageForIndexing(indexDocument)
+            }
+            None
+          } catch {
+            case t: Throwable =>
+              Some(t)
+          }
+        }
+      } getOrElse {
+        Indexing.indexOne(dataSet, itemId, fields, schemaVersion.getPrefix)
+      }
+
+    }
 
     def onProcessingDone(context: ProcessingContext) {
       indexingServiceLocator.byDomain.commit
