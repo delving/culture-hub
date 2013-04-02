@@ -1,0 +1,451 @@
+<?xml version="1.0"?>
+<!-- Source: http://www.loc.gov/ead/tglib/appendix_ca.html -->
+<!-- Slightly modified to make it parseable -->
+<ead>
+    <eadheader audience="internal" countryencoding="iso3166-1" dateencoding="iso8601" langencoding="iso639-2b" repositoryencoding="iso15511">
+        <eadid countrycode="us" mainagencycode="cu-i" publicid="-//us::cu-i//TEXT us::cu-i::p29.sgm//EN">Mildred Davenport Dance Programs and Dance School Materials, MS-P29
+    </eadid>
+    <filedesc>
+        <titlestmt>
+            <titleproper>Guide to the Mildred Davenport Dance Programs and Dance School Materials</titleproper>
+            <author>Processed by Adrian Turner; machine-readable finding aid created by Adrian Turner</author>
+        </titlestmt>
+        <publicationstmt>
+            <date>2001</date>
+            <p>The Regents of the University of California. All rights reserved.</p>
+        </publicationstmt>
+        <notestmt>
+            <note>
+                <p>
+                    <subject source="cdl">Arts and Humanities--Dance--Dance Performance</subject>
+                    <subject source="cdl">Arts and Humanities--Dance--Dance History and Criticism</subject>
+                    <subject source="cdl">Area, Interdisciplinary, and Ethnic Studies--African American Studies</subject>
+                </p>
+            </note>
+        </notestmt>
+    </filedesc>
+    <profiledesc>
+        <creation>Machine-readable finding aid derived from MS Word.  Date of source: <date>2001.</date></creation>
+        <langusage>Description is in <language>English.</language></langusage>
+    </profiledesc>
+</eadheader>
+<frontmatter>
+    <titlepage>
+        <titleproper>Guide to the Mildred Davenport Dance Programs and Dance School Materials</titleproper>
+    <num>Collection number: MS-P29</num>
+    <publisher>Special Collections and Archives
+        <lb>The UCI Libraries</lb>
+        <lb><extptr actuate="onload" show="embed" entityref="ucseal" /></lb>
+        <lb>University of California</lb>
+        <lb>Irvine, California</lb></publisher>
+<list type="deflist">
+    <defitem>
+        <label>Processed by: </label>
+        <item>Adrian Turner</item>
+    </defitem>
+    <defitem>
+        <label>Date Completed: </label>
+        <item>2001</item>
+    </defitem>
+    <defitem>
+        <label>Encoded by: </label>
+        <item>Adrian Turner</item>
+    </defitem>
+</list>
+    <p>2001 The Regents of the University of California. All rights reserved.</p>
+</titlepage>
+</frontmatter>
+
+<archdesc level="collection">
+    <did>
+        <head>Descriptive Summary</head>
+            <unittitle label="Title">Mildred Davenport dance programs and dance school materials</unittitle>
+        <unitdate type="inclusive" normal="1934/1942">1934-1942</unitdate>
+            <unitid countrycode="us" repositorycode="cu-i" label="Collection number">MS-P29</unitid>
+            <origination label="Creator"><persname rules="aacr2">Davenport, Mildred, 1900-1990</persname></origination>
+        <physdesc label="Extent">
+            <extent>0.3 linear feet (1 box and 1 oversize folder)</extent>
+        </physdesc>
+        <repository label="Repository">
+            <corpname>University of California, Irvine. Library. Special Collections and Archives.</corpname>
+        <address>
+            <addressline>Irvine, California 92623-9557</addressline>
+        </address>
+    </repository>
+        <abstract label="Abstract">This collection comprises dance programs, dance school materials, photographs, and ephemera documenting the early career of the Boston-based African-American dancer, dance instructor, and civic official Mildred Davenport. The bulk of this collection consists of dance programs and dance school materials. The collection also contains 29 photographs of Davenport, her students in various performances, and friends or individual students. Dance programs from 1925 to 1942 feature her solo performances and group performances with her students. The collection includes a complete run of programs for Bronze Rhapsody, an annual performance series choreographed, staged, and directed by Davenport. Her personal copy of a typescript of stage directions for a 1934 performance is included with these programs. Her dance schools, Davenport School of the Dance and Silver Box Studio, are documented in course brochures and applications. Biographical and academic materials include a 1939 newspaper article on Davenport.</abstract>
+    </did>
+    <descgrp>
+        <head>Important Information for Users of the Collection</head>
+        <accessrestrict>
+            <head>Access</head>
+            <p>Collection is open for research.</p>
+        </accessrestrict>
+        <userestrict>
+        <head>Publication Rights</head>
+            <p>Property rights reside with the University of California. Literary rights are retained by the creators of the records and their heirs. For permissions to reproduce or to publish, please contact the Head of Special Collections and Archives.</p>
+        </userestrict>
+        <prefercite>
+            <head>Preferred Citation</head>
+            <p>Mildred Davenport Dance Programs and Dance School Materials. MS-P29. Special Collections and Archives, The UC Irvine Libraries, Irvine, California.</p>
+        </prefercite>
+        <acqinfo>
+            <head>Acquisition Information</head>
+
+            <p>Acquired, 1998.</p>
+        </acqinfo>
+        <processinfo>
+            <head>Processing History</head>
+            <p>Processed by Adrian Turner, 2001.</p>
+        </processinfo>
+    </descgrp>
+    <bioghist>
+        <bioghist>
+            <head>Biography</head>
+            <p>Mildred Ellen Davenport was a noted civic official and military officer with an extensive career as a dancer and dance instructor in Boston in the 1930s and 1940s. She was born in Boston on November 12, 1900. She began her dance studies at C.C. Perkins Grade School and Prince School as a teenager, and graduated from Boston Girls' High School in 1918. In the 1920s she studied at the Sargent School for Physical Culture and at Harvard, and opened her first dance school, the Davenport School of Dance. Over the next ten years she studied under Ted Shawn and taught dance in Boston. She was also progressively more involved in road show performances such as Hot Chocolates. From 1930 to 1935 she performed in a number of African-American musical productions on Broadway, including Fast and Furious, Flying Colors, and Black Birds. In 1932 she established her second dance school, the Silver Box Studio, in the South End of Boston. She became the first African American woman to perform with the Arthur Fiedler Pops unit of the Boston Symphony Orchestra at this time.</p>
+            <p>During World War II, Davenport enlisted in the Army as a captain. She produced musical shows for military bases and later served as a special service officer, library officer, and advisor in the Office of Racial Affairs. In 1950, she served as an executive board member for the N.A.A.C.P. office in Boston. From 1947 to 1968 she worked for the Massachusetts Commission Against Discrimination, founded in 1944 to enforce fair employment practices. Davenport died in Boston in 1990.</p>
+        </bioghist>
+        <bioghist>
+            <head>Chronology</head>
+            <chronlist>
+                <chronitem>
+                    <date>1900</date>
+                    <event>Born in Boston.</event>
+                </chronitem>
+                <chronitem>
+                    <date>Ca. 1914</date>
+                    <event>Student at C.C. Perkins Grade School and Prince School.</event>
+                </chronitem>
+                <chronitem>
+                    <date>1918</date>
+                    <event>Graduates from Boston Girls' High School.</event>
+                </chronitem>
+                <chronitem>
+                    <date>Ca. 1920s</date>
+                    <event>Establishes Davenport School of Dance in Boston.</event>
+                </chronitem>
+                <chronitem>
+                    <date>1921</date>
+                    <event>Student at Sargent School for Physical Culture.</event>
+                </chronitem>
+                <chronitem>
+                    <date>1921-1922</date>
+                    <event>Physical training instructor at Tuskegee Institute, Alabama.</event>
+                </chronitem>
+                <chronitem>
+                    <date>1923</date>
+                    <event>Student at Harvard Summer School.</event>
+                </chronitem>
+                <chronitem>
+                    <date>1925-ca. 1930</date>
+                        <event>Staff member with the Department of Public Welfare, Boston.</event>
+                    </chronitem>
+                    <chronitem>
+                        <date>Ca. 1930-1935</date>
+                        <event>Performs on Broadway.</event>
+                    </chronitem>
+                    <chronitem>
+                        <date>1932</date>
+                        <event>Establishes Silver Box Studio in Boston.</event>
+                    </chronitem>
+                    <chronitem>
+                        <date>1946-1947</date>
+                        <event>U.S. Army, civilian defense instructor.</event>
+                    </chronitem>
+                    <chronitem>
+                        <date>1947</date>
+                        <event>U.S. Army Office of Racial Affairs, assistant special service officer, library officer, and advisor.</event>
+                    </chronitem>
+                    <chronitem>
+                        <date>1950</date>
+                        <event>Executive board member of N.A.A.C.P., Boston.  Member of Women's Service Club and League of Women for Community Service, Boston.</event>
+                    </chronitem>
+                    <chronitem>
+                        <date>1947-1968</date>
+                        <event>Staff member with the Massachusetts Commission Against Discrimination.</event>
+                    </chronitem>
+                    <chronitem>
+                        <date>1973</date>
+                        <event>Receives Sojourner Truth Award of the National Association of Negro Business and Professional Women's Clubs, Boston and Vicinity Club.</event>
+                    </chronitem>
+                    <chronitem>
+                        <date>1990</date>
+                        <event>Dies in Boston.</event>
+                    </chronitem>
+                </chronlist>
+            </bioghist>
+        </bioghist>
+        <scopecontent>
+            <head>Collection Scope and Content Summary</head>
+            <p>This collection comprises dance programs, dance school materials, photographs, and ephemera documenting the early career of the Boston-based African-American dancer, dance instructor, and civic official Mildred Davenport. The bulk of this collection consists of dance programs and dance school materials. The collection also contains 29 photographs of Davenport, her students in various performances, and friends or individual students. Dance programs from 1925 to 1942 feature her solo performances and group performances with her students. The collection includes a complete run of programs for Bronze Rhapsody, an annual performance series choreographed, staged, and directed by Davenport. Her personal copy of a typescript of stage directions for a 1934 performance is included with these programs. Her dance schools, Davenport School of the Dance and Silver Box Studio, are documented in course brochures and applications. Biographical and academic materials include a 1939 newspaper article on Davenport.</p>
+            <p>The collection is arranged topically. Materials are arranged chronologically within each topical grouping whenever possible.</p>
+        </scopecontent>
+        <controlaccess>
+            <head>Indexing Terms</head>
+            <p>The following terms have been used to index the description of this collection in the library's online public access catalog.</p>
+        <controlaccess>
+            <head>Subjects</head>
+            <persname encodinganalog="600" rules="aacr2" role="subject">Davenport, Mildred, 1900-1990--Archives.</persname>
+            <subject encodinganalog="650" source="lcsh">Dance schools--Massachusetts--Boston--Archival resources.</subject>
+            <subject encodinganalog="650" source="lcsh">Dance--Archival resources.</subject>
+            <subject encodinganalog="650" source="lcsh">Modern dance--United States--Archival resources.</subject>
+            <subject encodinganalog="650" source="lcsh">Dance, Black--Archival resources.</subject>
+            <subject encodinganalog="650" source="lcsh">African American dancers--Archival resources.</subject>
+        </controlaccess>
+        <controlaccess>
+            <head>Genres and Forms of Materials</head>
+            <genreform encodinganalog="655" source="local">Dance programs.</genreform>
+            <genreform encodinganalog="655" source="gmgpc">Photographic prints.</genreform>
+            <genreform encodinganalog="655" source="gmgpc">Posters.</genreform>
+        </controlaccess>
+        <controlaccess>
+            <head>Occupations</head>
+            <occupation encodinganalog="656" source="aat">Dancers.</occupation>
+            <occupation encodinganalog="656" source="lcsh">Dance teachers.</occupation>
+        </controlaccess>
+    </controlaccess>
+    <dsc type="combined">
+        <head>Collection Contents</head>
+        <c01 level="file">
+            <did>
+                <container type="box-folder" label="Box ">1 : 1</container>
+                <unittitle>Biographical and academic materials</unittitle>
+            </did>
+            <c02 level="file">
+                <did>
+                    <container type="box-folder" label="Box ">FB-21 : 1</container>
+                    <unittitle>Boston Girls' High School, commencement program</unittitle>
+                    <unitdate normal="1918">1918</unitdate>
+                </did>
+            </c02>
+            <c02 level="file">
+                <did>
+                    <container type="box-folder" label="Box ">1 : 1</container>
+                    <unittitle>George Peabody College for Teachers, School of the Dance, schedule of courses offered by Ted Shawn</unittitle>
+                    <unitdate normal="1938">1938</unitdate>
+                </did>
+            </c02>
+            <c02 level="file">
+                <did>
+                    <container type="box-folder" label="Box ">1 : 1</container>
+                    <unittitle>"Boston teacher called evangelist of the dance," newspaper clipping</unittitle>
+                    <unitdate normal="1939">1939</unitdate>
+                </did>
+            </c02>
+        </c01>
+
+        <c01 level="file">
+            <did>
+                <container type="box-folder" label="Box ">1 : 2-4</container>
+                <unittitle>Dance programs</unittitle>
+            </did>
+            <c02 level="item">
+                <did>
+                    <container type="box-folder" label="Box ">1 : 4</container>
+                    <unittitle>The Feast of Apollo, Brattle Hall, Massachusetts</unittitle>
+                    <unitdate normal="1925">1925</unitdate>
+                </did>
+            </c02>
+            <c02 level="item">
+                <did>
+                    <container type="box-folder" label="Box ">1 : 4</container>
+                    <unittitle>Mildred Davenport and her pupils, Brattle Hall, Massachusetts</unittitle>
+                    <unitdate normal="1928">1928</unitdate>
+                </did>
+            </c02>
+            <c02 level="item">
+                <did>
+                    <container type="box-folder" label="Box ">1 : 4</container>
+                    <unittitle>Recital of dance poems and songs, Allied Art Studio, Boston</unittitle>
+                    <unitdate normal="1928">1928</unitdate>
+                </did>
+            </c02>
+            <c02 level="item">
+                <did>
+                    <container type="box-folder" label="Box ">1 : 4</container>
+                    <unittitle>Mildred Davenport and Sepia Beauties in revue, Challengers Club, Boston</unittitle>
+                    <unitdate normal="1933">1933</unitdate>
+                </did>
+            </c02>
+            <c02 level="file">
+                <did>
+                    <container type="box-folder" label="Box ">1 : 2-3</container>
+                    <unittitle>Bronze rhapsody</unittitle>
+                </did>
+                <c03 level="file">
+                    <did>
+                        <container type="box-folder" label="Box ">1 : 2</container>
+                        <unittitle><unitdate normal="1934">1934</unitdate>
+                        </unittitle>
+                    </did>
+                    <c04 level="item">
+                        <did>
+                            <container type="box-folder" label="Box ">1 : 2</container>
+                            <unittitle>Typescript of stage directions, with holograph note "Miss Davenport (personal)" on first leaf</unittitle>
+                            <unitdate normal="1934">1934</unitdate>
+                        </did>
+                    </c04>
+                </c03>
+                <c03 level="file">
+                    <did>
+                        <container type="box-folder" label="Box ">1 : 3</container>
+                        <unittitle><unitdate type="inclusive" normal="1935/1941">1935-1941</unitdate></unittitle>
+                    </did>
+                </c03>
+                <c03 level="file">
+                    <did>
+                        <container type="box-folder" label="Box ">1 : 3</container>
+                        <unittitle><unitdate normal="1942">1942</unitdate></unittitle>
+                    </did>
+                    <c04 level="item">
+                        <did>
+                            <container type="box-folder" label="Box ">FB-21 : 1</container>
+                            <unittitle>Hand-colored poster (partial) </unittitle>
+                            <unitdate normal="1942">1942</unitdate>
+                        </did>
+                    </c04>
+                </c03>
+            </c02>
+            <c02 level="file">
+                <did>
+                    <container type="box-folder" label="Box ">1 : 4</container>
+                    <unittitle>Classic, John Hancock Hall, Boston</unittitle>
+                    <unitdate normal="1938">1938</unitdate>
+                </did>
+            </c02>
+            <c02 level="file">
+                <did>
+                    <container type="box-folder" label="Box ">1 : 4</container>
+                    <unittitle>Shadowland Ball Room performances, Boston, undated.</unittitle>
+                    <physdesc><extent>2 items.</extent></physdesc>
+                </did>
+            </c02>
+        </c01>
+        <c01 level="file">
+            <did>
+                <container type="box-folder" label="Box ">1 : 5</container>
+                <unittitle>Dance school materials</unittitle>
+            </did>
+            <c02 level="item">
+                <did>
+                    <container type="box-folder" label="Box ">1 : 5</container>
+                    <unittitle>Davenport School of the Dance application, undated</unittitle>
+                </did>
+            </c02>
+            <c02 level="file">
+                <did>
+                    <container type="box-folder" label="Box ">1 : 5</container>
+                    <unittitle>Silver Box Studio</unittitle>
+                </did>
+                <c03 level="file">
+                    <did>
+                        <container type="box-folder" label="Box ">1 : 5</container>
+                        <unittitle>Course brochures and applications, undated.</unittitle>
+                        <physdesc><extent>3 items.</extent></physdesc>
+                    </did>
+                </c03>
+                <c03 level="file">
+                    <did>
+                        <container type="box-folder" label="Box ">1 : 5</container>
+                        <unittitle>Event invitation and greeting card</unittitle>
+                    <unitdate normal="1939">1939 and undated.</unitdate>
+                        <physdesc><extent>2 items.</extent></physdesc>
+                    </did>
+                </c03>
+            </c02>
+        </c01>
+        <c01 level="file">
+            <did>
+                <container type="box-folder" label="Box ">1 : 6-11</container>
+                <unittitle>Photographs</unittitle></did>
+            <c02 level="file">
+                <did>
+                    <container type="box-folder" label="Box ">1 : 6-7</container>
+                    <unittitle>Personal</unittitle>
+                </did>
+                <c03 level="item">
+                    <did>
+                        <container type="box-folder" label="Box ">FB-21 : 1</container>
+                        <unittitle>Prince School class, photographic print</unittitle>
+                        <unitdate normal="1914">1914</unitdate>
+                    </did>
+                </c03>
+                <c03 level="file">
+                    <did>
+                        <container type="box-folder" label="Box ">1 : 6</container>
+                        <unittitle>Teenage performances, undated.</unittitle>
+                        <physdesc><extent>5 items.</extent></physdesc>
+                    </did>
+                </c03>
+                <c03 level="file">
+                    <did>
+                        <container type="box-folder" label="Box ">1 : 7</container>
+                        <unittitle>Portraits, undated.</unittitle>
+                        <physdesc><extent>3 items.</extent></physdesc>
+                    </did>
+                </c03>
+            </c02>
+            <c02 level="file">
+                <did>
+                    <container type="box-folder" label="Box ">1 : 8-10</container>
+                    <unittitle>Performances by students</unittitle>
+                </did>
+                <c03 level="item">
+                    <did>
+                        <container type="box-folder" label="Box ">1 : 8</container>
+                        <unittitle>Piggilly wiggily</unittitle>
+                        <unitdate normal="1942">ca. 1942</unitdate>
+                    </did>
+                </c03>
+                <c03 level="item">
+                    <did>
+                        <container type="box-folder" label="Box ">1 : 8</container>
+                        <unittitle>Top hat</unittitle>
+                        <unitdate normal="1942">ca. 1942</unitdate>
+                    </did>
+                </c03>
+                <c03 level="file">
+                    <did>
+                        <container type="box-folder" label="Box ">1 : 8-10</container>
+                        <unittitle>Unidentified, undated.</unittitle>
+                        <physdesc><extent>15 items.</extent></physdesc>
+                    </did>
+                </c03>
+            </c02>
+            <c02 level="file">
+                <did>
+                    <container type="box-folder" label="Box ">1 : 11</container>
+                    <unittitle>Other individuals</unittitle>
+                </did>
+                <c03 level="file">
+                    <did>
+                        <container type="box-folder" label="Box ">1 : 11</container>
+                        <unittitle>Hall, Tom</unittitle>
+                        <unitdate normal="1930">1930</unitdate>
+                    </did>
+                </c03>
+                <c03 level="file">
+                    <did>
+                        <container type="box-folder" label="Box ">1 : 11</container>
+                        <unittitle>Purcell, Barbara</unittitle>
+                        <unitdate normal="1942">ca. 1942</unitdate>
+                    </did>
+                </c03>
+                <c03 level="file">
+                    <did>
+                        <container type="box-folder" label="Box ">1 : 11</container>
+                        <unittitle>Stokes, Bernice</unittitle>
+                        <unitdate normal="1942">ca. 1942</unitdate>
+                    </did>
+                </c03>
+                <c03 level="file">
+                    <did>
+                        <container type="box-folder" label="Box ">1 : 11</container>
+                        <unittitle>Roberts, Francine</unittitle>
+                        <unitdate normal="1942">ca. 1942</unitdate>
+                    </did>
+                </c03>
+            </c02>
+        </c01>
+    </dsc>
+</archdesc>
+</ead>

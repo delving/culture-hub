@@ -1,0 +1,3 @@
+GET             /experiments/ead/sample                          controllers.ead.Prototype.sampleData
+
+GET             /assets/*file                                    controllers.ead.Assets.at(path="/public", file)
