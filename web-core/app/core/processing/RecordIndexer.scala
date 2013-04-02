@@ -7,6 +7,7 @@ import models.OrganizationConfiguration
 import java.util.concurrent.atomic.AtomicBoolean
 import play.api.Logger
 import com.yammer.metrics.scala.Instrumented
+import org.w3c.dom.Node
 
 /**
  *
@@ -14,7 +15,7 @@ import com.yammer.metrics.scala.Instrumented
  */
 class RecordIndexer(
     processingContext: ProcessingContext,
-    indexOne: (HubId, MultiMap, String) => Either[Throwable, String],
+    indexOne: (HubId, SchemaVersion, MultiMap, Node) => Option[Throwable],
     processingInterrupted: AtomicBoolean,
     configuration: OrganizationConfiguration) extends Actor with Instrumented {
 
@@ -28,12 +29,13 @@ class RecordIndexer(
 
   def receive = {
 
-    case IndexRecord(hubId, schema, fields) =>
+    case IndexRecord(hubId, schema, fields, document) =>
 
       if (processingInterrupted.get()) {
         self ! PoisonPill
       } else {
-        indexOne(hubId, fields, schema.getPrefix)
+        // TODO eventually handle indexing failure
+        indexOne(hubId, schema, fields, document)
 
         counter += 1
 
@@ -52,4 +54,4 @@ class RecordIndexer(
 
 }
 
-case class IndexRecord(hubId: HubId, schema: SchemaVersion, fields: Map[String, List[String]])
+case class IndexRecord(hubId: HubId, schema: SchemaVersion, fields: Map[String, List[String]], document: Node)

@@ -60,7 +60,7 @@ class MappedRecordCacher(processingContext: ProcessingContext, processingInterru
               (r._1.getPrefix -> Some(serialized))
             } catch {
               case t: Throwable => {
-                sender ! MappedRecordCachingFailure(index, hubId, r._1, r._2, t)
+                sender ! MappedRecordCachingFailure(index, hubId, t, Some(r._1), Some(r._2))
                 (r._1.getPrefix -> None)
               }
             }
@@ -85,24 +85,30 @@ class MappedRecordCacher(processingContext: ProcessingContext, processingInterru
               systemFields = allSystemFields.getOrElse(Map.empty),
               index = index
             )
-            cache.saveOrUpdate(cachedRecord)
+            try {
+              cache.saveOrUpdate(cachedRecord)
+
+              sender ! MappedRecordCachingSuccess
+              counter += 1
+
+              if (log.isDebugEnabled) {
+                if (counter.count % 1000 == 0) {
+                  log.debug(
+                    s"""Processing metrics from MappedRecordCacher:
+                      |- cached records: ${counter.count}
+                      |- caching rate: ${meter.meanRate} records / second
+                      |- serialization time: ${serializationTimer.mean} ms
+                      |- caching time: ${cachingTimer.mean} ms
+                    """.stripMargin)
+                }
+              }
+
+            } catch {
+              case t: Throwable =>
+                sender ! MappedRecordCachingFailure(index, hubId, t)
+            }
           }
 
-        }
-
-        sender ! MappedRecordCachingSuccess
-        counter += 1
-
-        if (log.isDebugEnabled) {
-          if (counter.count % 1000 == 0) {
-            log.debug(
-              s"""Processing metrics from MappedRecordCacher:
-                |- cached records: ${counter.count}
-                |- caching rate: ${meter.meanRate} records / second
-                |- serialization time: ${serializationTimer.mean} ms
-                |- caching time: ${cachingTimer.mean} ms
-              """.stripMargin)
-          }
         }
       }
   }
@@ -124,4 +130,4 @@ class MappedRecordCacher(processingContext: ProcessingContext, processingInterru
 case class CacheMappedRecord(index: Int, hubId: HubId, records: Map[SchemaVersion, MappingResult])
 
 case object MappedRecordCachingSuccess
-case class MappedRecordCachingFailure(index: Int, hubId: HubId, schema: SchemaVersion, result: MappingResult, throwable: Throwable)
+case class MappedRecordCachingFailure(index: Int, hubId: HubId, cause: Throwable, schema: Option[SchemaVersion] = None, result: Option[MappingResult] = None)
