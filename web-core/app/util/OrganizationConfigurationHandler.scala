@@ -105,15 +105,20 @@ object OrganizationConfigurationHandler {
   }
 
   def registerResourceHolder[A, B](holder: OrganizationConfigurationResourceHolder[A, B], initFirst: Boolean = false) {
-    if (!resourceHolders.exists(_._1 == holder)) {
-      resourceHolders += ((holder, initFirst))
+    if (holder == null) {
+      val st = new RuntimeException()
+      st.fillInStackTrace()
+      log.warn("Attempting to register null ResourceHolder", st)
+    } else {
+      if (!resourceHolders.exists(_._1 == holder)) {
+        resourceHolders += ((holder, initFirst))
 
-      // if we get registration requests after having started configuring, we need to do something with them
-      if (firstStageDone) {
-        holder.configure(firstStageConfigurations)
+        // if we get registration requests after having started configuring, we need to do something with them
+        if (firstStageDone) {
+          holder.configure(firstStageConfigurations)
+        }
       }
     }
-
   }
 
   def getByOrgId(orgId: String) = {

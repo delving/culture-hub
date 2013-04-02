@@ -1,7 +1,7 @@
 <div class="control-group">
     <label class="${_labelClass}" for="${_name}">${_label} #{if _required}<span class="required">*</span>#{/if}</label>
     <div class="controls">
-        <textarea class="${_inputClass}" id="${_name}" value="${views.Helpers.showValue(_name, _form)}" data-bind="${_dataBind}" data-validate="${views.Helpers.printValidationRules(_form, _name)}" #{if _dataMaxChars}data-max-chars="${_dataMaxChars}" #{/if} #{if _extraCss}style="${_extraCss}"#{/if}></textarea>
+        <textarea class="${_inputClass}" name="${_name}" id="${_name}" value="${views.Helpers.showValue(_name, _form)}" data-bind="${_dataBind}" data-validate="${views.Helpers.printValidationRules(_form, _name)}" #{if _dataMaxChars}data-max-chars="${_dataMaxChars}" #{/if} #{if _extraCss}style="${_extraCss}"#{/if}></textarea>
         #{if _extHelp}<a href="#" rel="tooltip" title="${_extHelp}" class="extHelp"><i class="icon-question-sign"></i></a> #{/if}
         <span class="error">${views.Helpers.showError(name, _form)}</span>
         <span class="help-inline">${_help}</span>
