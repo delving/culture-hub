@@ -25,13 +25,19 @@
                     url: '@{controllers.ead.routes.Prototype.dynatreeSample()}'
                 },
                 extensions: ["filter"],
-                ajax: {
-                    complete: function(isReloading, isError) {
-                        $("#tree").fancytree("getRootNode").visit(function(node){
-                            node.setExpanded(true);
-                        });
-                    }
+//                ajax: {
+//                    complete: function(isReloading, isError) {
+//                        $("#tree").fancytree("getRootNode").visit(function(node){
+//                            node.setExpanded(true);
+//                        });
+//                    }
+//                },
+                lazyload: function(e, data) {
+                    console.log(e)
+                    console.log(data)
+
                 }
+
             });
 
             var tree = $("#tree").fancytree("getTree");
