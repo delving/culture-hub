@@ -7,7 +7,6 @@ import play.api.Play.current
 import scala.xml._
 import net.liftweb.json._
 import collection.immutable.Stack
-import collection.mutable
 import collection.mutable.ArrayBuffer
 
 /**
@@ -47,7 +46,8 @@ object Prototype extends DelvingController {
             val source = Source.fromInputStream(resourceStream)
             val xml = scala.xml.XML.load(source)
             val json = Xml.toJson(xml)
-            val transformed = transformToViewTree(json, request.queryString.getFirst("path"))
+            val unlimited = request.queryString.getFirst("limited").map(_ == "false").getOrElse(false)
+            val transformed = transformToViewTree(json, request.queryString.getFirst("path"), unlimited)
 
             Ok(pretty(net.liftweb.json.render(transformed))).as(JSON)
           }
@@ -57,12 +57,12 @@ object Prototype extends DelvingController {
 
   }
 
-  def transformToViewTree(json: JValue, key: Option[String]): JValue = {
+  def transformToViewTree(json: JValue, key: Option[String], unlimited: Boolean = false): JValue = {
     json match {
       case o @ JObject(fields: Seq[JField]) =>
         val root = fields.head
         val subtree = ArrayBuffer[JValue]()
-        val transformed = transformNode(root.name, root.value, Stack(), 0, key, subtree) match {
+        val transformed = transformNode(root.name, root.value, Stack(), 0, key, subtree, if (unlimited) -1 else 1) match {
           case JObject(fields: Seq[JField]) => List(JObject(fields))
         }
 
@@ -73,7 +73,12 @@ object Prototype extends DelvingController {
 
   }
 
-  def transformNode(title: String, value: JValue, path: Stack[String], depth: Int, key: Option[String], subtree: ArrayBuffer[JValue]): JValue = {
+  def transformNode(title: String,
+    value: JValue,
+    path: Stack[String],
+    depth: Int, key: Option[String],
+    subtree: ArrayBuffer[JValue],
+    depthLimit: Int = 1): JValue = {
     val pathMatched = key != None && key.get == path.reverse.mkString
     val v = value match {
       case JObject(fields: Seq[JField]) =>
@@ -91,11 +96,11 @@ object Prototype extends DelvingController {
             value = JString(path.reverse.mkString + "/" + title)
           )
         )
-        val renderedFields = if (depth > 0 && (key.isEmpty || (key.isDefined && !subtree.isEmpty))) {
+        val renderedFields = if ((depth >= depthLimit && depthLimit > -1) && (key.isEmpty || (key.isDefined && !subtree.isEmpty))) {
           baseFields ::: List(
             JField(
               name = "lazy",
-              value = JBool(depth > 0)
+              value = JBool(value = true)
             )
           )
 
@@ -104,7 +109,7 @@ object Prototype extends DelvingController {
             name = "children",
             value = JArray(
               fields map { field =>
-                val node = transformNode(field.name, field.value, path push ("/" + title), depth + 1, key, subtree)
+                val node = transformNode(field.name, field.value, path push ("/" + title), depth + 1, key, subtree, depthLimit)
                 node
               }
             )
@@ -112,19 +117,21 @@ object Prototype extends DelvingController {
         )
         JObject(renderedFields)
       case JArray(values: Seq[JValue]) =>
-
         JObject(List(
           JField(
             name = "title",
             value = JString(title)
           ),
           JField(
+            name = "folder",
+            value = JBool(value = true)
+          ),
+          JField(
             name = "children",
             value = JArray(values.zipWithIndex.map { v =>
-              val node = transformNode(title, v._1, path push (s"/$title[${v._2}]"), depth + 1, key, subtree)
+              val node = transformNode(title, v._1, path push (s"/$title[${v._2}]"), depth + 1, key, subtree, depthLimit)
               node
-            }
-            )
+            })
           )))
       case JString(s) => JObject(List(
         JField(
@@ -137,12 +144,13 @@ object Prototype extends DelvingController {
         ),
         JField(
           name = "children",
-          value = JArray(List(JObject(List(
-            JField(
-              name = "title",
-              value = JString(s)
-            )
-          ))))
+          value = JArray(
+            List(JObject(List(
+              JField(
+                name = "title",
+                value = JString(s)
+              )
+            ))))
         )
 
       ))
