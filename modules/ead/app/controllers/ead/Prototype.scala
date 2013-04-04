@@ -16,10 +16,12 @@ import collection.mutable.ArrayBuffer
  */
 object Prototype extends DelvingController {
 
+  val source = "apeEAD_SE_KrA_0058.xml"
+
   def sampleData = Action {
     implicit request =>
 
-      Play.resourceAsStream("mildred_davenport.xml") map {
+      Play.resourceAsStream(source) map {
         resourceStream =>
           {
             val source = Source.fromInputStream(resourceStream)
@@ -39,7 +41,7 @@ object Prototype extends DelvingController {
   def dynatreeSample = Action {
     implicit request =>
 
-      Play.resourceAsStream("mildred_davenport.xml") map {
+      Play.resourceAsStream(source) map {
         resourceStream =>
           {
             val source = Source.fromInputStream(resourceStream)
@@ -110,10 +112,20 @@ object Prototype extends DelvingController {
         )
         JObject(renderedFields)
       case JArray(values: Seq[JValue]) =>
-        JArray(values.zipWithIndex.map { v =>
-          val node = transformNode(title, v._1, path push (s"/$title[${v._2}]"), depth + 1, key, subtree)
-          node
-        })
+
+        JObject(List(
+          JField(
+            name = "title",
+            value = JString(title)
+          ),
+          JField(
+            name = "children",
+            value = JArray(values.zipWithIndex.map { v =>
+              val node = transformNode(title, v._1, path push (s"/$title[${v._2}]"), depth + 1, key, subtree)
+              node
+            }
+            )
+          )))
       case JString(s) => JObject(List(
         JField(
           name = "title",

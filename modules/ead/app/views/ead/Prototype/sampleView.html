@@ -25,13 +25,6 @@
                     url: '@{controllers.ead.routes.Prototype.dynatreeSample()}'
                 },
                 extensions: ["filter"],
-//                ajax: {
-//                    complete: function(isReloading, isError) {
-//                        $("#tree").fancytree("getRootNode").visit(function(node){
-//                            node.setExpanded(true);
-//                        });
-//                    }
-//                },
                 lazyload: function(e, data) {
                     data.result = {
                       url: '@{controllers.ead.routes.Prototype.dynatreeSample()}',
