@@ -33,8 +33,10 @@
 //                    }
 //                },
                 lazyload: function(e, data) {
-                    console.log(e)
-                    console.log(data)
+                    data.result = {
+                      url: '@{controllers.ead.routes.Prototype.dynatreeSample()}',
+                      data: {path: data.node.key}
+                    };
 
                 }
 
