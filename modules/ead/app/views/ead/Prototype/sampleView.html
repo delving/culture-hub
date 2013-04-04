@@ -22,12 +22,12 @@
                 			},
                 persist: true,
                 source: {
-                    url: '@{controllers.ead.routes.Prototype.dynatreeSample()}'
+                    url: '@{controllers.ead.routes.Prototype.tree(scala.Option.apply(null), true)}'
                 },
                 extensions: ["filter"],
                 lazyload: function(e, data) {
                     data.result = {
-                      url: '@{controllers.ead.routes.Prototype.dynatreeSample()}',
+                      url: '@{controllers.ead.routes.Prototype.tree(scala.Option.apply(null), true)}',
                       data: {path: data.node.key}
                     };
 

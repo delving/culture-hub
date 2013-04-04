@@ -12,6 +12,10 @@ GET         /organizations/:orgId/*path                                         
 POST        /organizations/:orgId/*path                                             @controllers.Application.legacyOrganizationsPath(path, orgId)
 DELETE      /organizations/:orgId/*path                                             @controllers.Application.legacyOrganizationsPath(path, orgId)
 
+# Swagger
+GET         /api                                                                    controllers.api.Api.ui
+GET         /api/api-docs.json                                                      controllers.ApiHelpController.getResources
+
 # Home page
 GET     /                                                                           @controllers.Application.index
 
