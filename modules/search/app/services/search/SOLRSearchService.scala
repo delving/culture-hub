@@ -148,7 +148,9 @@ class SOLRSearchService extends SearchService {
           case "kml" =>
             summary.renderAsKML(authorized, context.params)
           case "kml-a" =>
-            summary.renderAsABCKML(authorized)
+            summary.renderAsABCKML(authorized, context.params)
+          case "kn-reise" =>
+            summary.renderAsKNreiseKML(authorized, context.params)
           case _ =>
             summary.renderAsXML(authorized)
         }
@@ -411,7 +413,7 @@ case class SearchSummary(result: BriefItemView, context: SearchContext, chRespon
       value
   }
 
-  def renderAsABCKML(authorized: Boolean): Elem = {
+  def renderAsABCKML(authorized: Boolean, params: Params): Elem = {
     def renderData(field: String, fieldName: String, item: BriefDocItem, cdata: Boolean = false, customString: String = "%s"): Elem = {
       if (cdata)
         <Data name={ fieldName }><value>{ PCData(customString.format(item.getAsString(field))) }</value></Data>
@@ -547,12 +549,73 @@ case class SearchSummary(result: BriefItemView, context: SearchContext, chRespon
     response
   }
 
+  def renderAsKNreiseKML(authorized: Boolean, params: Params): Elem = {
+
+    val sfield = params.getValueOrElse("sfield", GEOHASH.key) match {
+      case "abm_geo_geohash" => "abm_geo"
+      case _ => GEOHASH.key
+    }
+
+    val knReiseFilterFields = Seq("delving_snippet", IndexField.FULL_TEXT.key, "delving_SNIPPET", "delving_description",
+      "delving_currentSchema", "delving_recordType", "delving_provider", "delving_pmhId", "delving_allSchemas",
+      "delving_geohash", "delving_schema", "delving_creator", "delving_landing", "delving_collection",
+      "delving_hasDigitalObject", "delving_hasGeoHash", "delving_hasLandingPage", "delving_landingPage", "delving_orgId",
+      "delving_spec", "delving_thumbnail", "delving_title", "delving_visibility", "delving_hubId", "delving_owner")
+
+    val useSchema = false
+
+    val response: Elem =
+      <kml xmlns="http://earth.google.com/kml/2.0">
+        <Document>
+          <Folder>
+            <name>Culture-Hub</name>
+            {
+              if (useSchema) {
+                <Schema name="Culture-Hub" id="Culture-HubId">
+                  {
+                    uniqueKeyNamesWithDelving.map {
+                      item =>
+                        <SimpleField name={ item } type="string">{ SOLRSearchService.localiseKey(item, context.apiLanguage) }</SimpleField>
+                    }
+                  }
+                </Schema>
+              }
+            }
+            {
+              briefDocs.map(
+                (item: BriefDocItem) =>
+                  <Placemark id={ item.getAsString(HUB_ID.key) }>
+                    <name>{ item.getAsString("delving_title") }</name>
+                    <Point>
+                      <coordinates>{ item.getAsString(sfield).split(",").reverse.mkString(",") }</coordinates>
+                    </Point>
+                    <ExtendedData>
+                      {
+                        if (useSchema) {
+                          <SchemaData schemaUrl="#Culture-HubId">
+                            { item.toKmFields(filteredFields = filteredFields, language = context.apiLanguage).map(field => field) }
+                          </SchemaData>
+                        } else {
+                          List(<Data name='delving:linkHome'><value>{ "http://%s/%s/%s/%s".format(context.host, item.getOrgId, item.getSpec, item.getRecordId) }</value></Data>) :::
+                            item.toKmFields(filteredFields = knReiseFilterFields, language = context.apiLanguage, simpleData = useSchema).map(field => field)
+                        }
+                      }
+                    </ExtendedData>
+                  </Placemark>
+              )
+            }
+          </Folder>
+        </Document>
+      </kml>
+    response
+  }
+
   def renderAsXML(authorized: Boolean): Elem = {
 
     // todo add years from query if they exist
     val response: Elem =
       <results xmlns:delving="http://www.delving.eu/schemas/" xmlns:aff="http://schemas.delving.eu/aff/" xmlns:icn="http://www.icn.nl/" xmlns:europeana="http://www.europeana.eu/schemas/ese/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:raw="http://delving.eu/namespaces/raw" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:ese="http://www.europeana.eu/schemas/ese/" xmlns:abm="http://schemas.delving.eu/abm/" xmlns:abc="http://www.ab-c.nl/" xmlns:drup="http://www.itin.nl/drupal" xmlns:itin="http://www.itin.nl/namespace" xmlns:tib="http://www.thuisinbrabant.nl/namespace" xmlns:musip="http://www.musip.nl/" xmlns:custom="http://www.delving.eu/namespaces/custom">
-        <query numFound={ pagination.getNumFound.toString } firstYear="0" lastYear="0">
+        <query numFound={ pagination.getNumFound.toString }>
           <terms>{ searchTerms }</terms>
           <breadCrumbs>
             {
