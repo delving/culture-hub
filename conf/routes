@@ -7,6 +7,10 @@ GET         /assets/themes/:theme/info.conf                                     
 
 GET         /robots.txt                                                             controllers.Assets.at(path="/public", file="robots.txt")
 
+# Swagger
+GET         /api                                                                    controllers.api.Api.ui
+GET         /api/api-docs.json                                                      controllers.ApiHelpController.getResources
+
 # Home page
 GET     /                                                                           controllers.Application.index
 
