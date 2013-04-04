@@ -6,6 +6,7 @@ import play.api._
 import play.api.Play.current
 import scala.xml._
 import net.liftweb.json._
+import collection.immutable.Stack
 
 /**
  *
@@ -55,8 +56,9 @@ object Prototype extends DelvingController {
   def transformToDynatree(json: JValue): JValue = {
     json match {
       case o @ JObject(fields: Seq[JField]) =>
+        val root = fields.head
         JArray(
-          transformNode("root", o) match {
+          transformNode(root.name, root.value, Stack(), 0) match {
             case JObject(fields: Seq[JField]) => List(JObject(fields))
           }
         )
@@ -64,7 +66,7 @@ object Prototype extends DelvingController {
 
   }
 
-  def transformNode(title: String, value: JValue): JValue = value match {
+  def transformNode(title: String, value: JValue, path: Stack[String], depth: Int): JValue = value match {
     case JObject(fields: Seq[JField]) =>
       JObject(List(
         JField(
@@ -76,16 +78,24 @@ object Prototype extends DelvingController {
           value = JBool(value = true)
         ),
         JField(
+          name = "key",
+          value = JString(path.reverse.mkString)
+        ),
+        JField(
           name = "children",
           value = JArray(
             fields map { field =>
-              transformNode(field.name, field.value)
+              val node = transformNode(field.name, field.value, path push ("/" + title), depth + 1)
+              node
             }
           )
         )
       ))
     case JArray(values: Seq[JValue]) =>
-      JArray(values map { v => transformNode(title, v) })
+      JArray(values.zipWithIndex.map { v =>
+        val node = transformNode(title, v._1, path push (s"/$title[${v._2}]"), depth)
+        node
+      })
     case JString(s) => JObject(List(
       JField(
         name = "title",
