@@ -1,5 +1,5 @@
 GET             /experiments/ead/sample                          controllers.ead.Prototype.sampleData
 GET             /experiments/ead/view                            controllers.ead.Prototype.sampleView
-GET             /experiments/ead/dynatree                        controllers.ead.Prototype.dynatreeSample
+GET             /experiments/ead/tree                            controllers.ead.Prototype.tree(path: Option[String] ?= None, limited: Boolean ?= true)
 
 GET             /assets/*file                                    controllers.ead.Assets.at(path="/public", file)

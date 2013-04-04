@@ -8,15 +8,19 @@ import scala.xml._
 import net.liftweb.json._
 import collection.immutable.Stack
 import collection.mutable.ArrayBuffer
+import com.wordnik.swagger.annotations.{ ApiParam, ApiOperation, Api }
+import javax.ws.rs.PathParam
 
 /**
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
+@Api(value = "/experiments/ead", listingPath = "/api-docs.{format}/experiments/ead", description = "EAD prototype")
 object Prototype extends DelvingController {
 
   val source = "apeEAD_SE_KrA_0058.xml"
 
+  @ApiOperation(value = "Sample data")
   def sampleData = Action {
     implicit request =>
 
@@ -32,12 +36,20 @@ object Prototype extends DelvingController {
       }
   }
 
+  @ApiOperation(value = "Sample view")
   def sampleView = Action {
     implicit request =>
       Ok(Template())
   }
 
-  def dynatreeSample = Action {
+  @ApiOperation(
+    value = "Render a tree so that it can be displayed by FancyTree",
+    notes = "Returns the JSON representation of the tree",
+    responseClass = "tree",
+    httpMethod = "GET"
+  )
+  def tree(@ApiParam(value = "Optional path for which to render a subtree") path: Option[String],
+    @ApiParam(value = "Whether or not to limit the depth of the tree, for lazy loading (true by default)") limited: Boolean) = Action {
     implicit request =>
 
       Play.resourceAsStream(source) map {
@@ -69,6 +81,7 @@ object Prototype extends DelvingController {
         JArray(
           if (key.isDefined && !subtree.isEmpty) subtree.toList else transformed
         )
+      case other @ _ => throw new RuntimeException("Huh? Unknown node type: " + other)
     }
 
   }

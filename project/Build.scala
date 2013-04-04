@@ -55,6 +55,8 @@ object ModulesBuild extends sbt.Build with BuildDefinitions {
 
     "org.scalesxml"             %% "scales-xml"                      % "0.4.4",
 
+    "com.wordnik"               %% "swagger-play2"                   % "1.2.1-SNAPSHOT",
+
     "org.scalatest"             %% "scalatest"                       % "2.0.M5b"             % "test",
 
     // temporary until https://play.lighthouseapp.com/projects/82401-play-20/tickets/970-xpathselecttext-regression is fixed

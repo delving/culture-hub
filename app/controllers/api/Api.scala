@@ -19,6 +19,11 @@ import core.ExplainItem
 
 object Api extends DelvingController with RenderingExtensions {
 
+  def ui = Action {
+    implicit request =>
+      Ok(Template)
+  }
+
   def explanations(orgId: String, path: String): Action[AnyContent] = {
     val pathList = path.split("/").drop(1).toList
     if (pathList.isEmpty) {
