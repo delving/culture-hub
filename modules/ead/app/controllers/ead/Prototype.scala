@@ -59,34 +59,66 @@ object Prototype extends DelvingController {
             val xml = scala.xml.XML.load(source)
             val json = Xml.toJson(xml)
             val unlimited = request.queryString.getFirst("limited").map(_ == "false").getOrElse(false)
-            val transformed = transformToViewTree(json, request.queryString.getFirst("path"), unlimited)
+            val transformed = transformTree(json, request.queryString.getFirst("path"), unlimited, transformFancyNode, renderAsArray = true, skipRoot = true)
 
             Ok(pretty(net.liftweb.json.render(transformed))).as(JSON)
           }
       } getOrElse {
         InternalServerError("Couldn't find test resource")
       }
-
   }
 
-  def transformToViewTree(json: JValue, key: Option[String], unlimited: Boolean = false): JValue = {
+  @ApiOperation(
+    value = "Render a source tree, eventually only rendering parts of it",
+    notes = "Returns the JSON representation of the source document",
+    responseClass = "sourceTree",
+    httpMethod = "GET"
+  )
+  def sourceTree(@ApiParam(value = "Optional path for which to render a subtree") path: Option[String],
+    @ApiParam(value = "Whether or not to limit the depth of the tree (true by default)") limited: Boolean) = Action {
+    implicit request =>
+
+      Play.resourceAsStream(source) map {
+        resourceStream =>
+          {
+            val source = Source.fromInputStream(resourceStream)
+            val xml = scala.xml.XML.load(source)
+            val json = Xml.toJson(xml)
+            val unlimited = request.queryString.getFirst("limited").map(_ == "false").getOrElse(false)
+            val transformed = transformTree(json, request.queryString.getFirst("path"), unlimited, transformSourceNode)
+
+            Ok(pretty(net.liftweb.json.render(transformed))).as(JSON)
+          }
+      } getOrElse {
+        InternalServerError("Couldn't find test resource")
+      }
+  }
+
+  def transformTree(json: JValue, key: Option[String], unlimited: Boolean = false,
+    transformer: (String, JValue, Stack[String], Int, Option[String], ArrayBuffer[JValue], Int) => JValue,
+    renderAsArray: Boolean = false,
+    skipRoot: Boolean = false): JValue = {
     json match {
       case o @ JObject(fields: Seq[JField]) =>
         val root = fields.head
         val subtree = ArrayBuffer[JValue]()
-        val transformed = transformNode(root.name, root.value, Stack(), 0, key, subtree, if (unlimited) -1 else 1) match {
-          case JObject(fields: Seq[JField]) => List(JObject(fields))
+        val transformed = transformer(root.name, root.value, Stack(), 0, key, subtree, if (unlimited) -1 else 1) match {
+          case JObject(fields: Seq[JField]) if skipRoot => List(JObject(fields))
+          case o @ JObject(fields: Seq[JField]) => List(JObject(List(JField(root.name, o))))
         }
 
-        JArray(
-          if (key.isDefined && !subtree.isEmpty) subtree.toList else transformed
-        )
+        if (renderAsArray) {
+          JArray(
+            if (key.isDefined && !subtree.isEmpty) subtree.toList else transformed
+          )
+        } else {
+          if (key.isDefined && !subtree.isEmpty) subtree.head else transformed.head
+        }
       case other @ _ => throw new RuntimeException("Huh? Unknown node type: " + other)
     }
-
   }
 
-  def transformNode(title: String,
+  def transformFancyNode(title: String,
     value: JValue,
     path: Stack[String],
     depth: Int, key: Option[String],
@@ -122,7 +154,7 @@ object Prototype extends DelvingController {
             name = "children",
             value = JArray(
               fields map { field =>
-                val node = transformNode(field.name, field.value, path push ("/" + title), depth + 1, key, subtree, depthLimit)
+                val node = transformFancyNode(field.name, field.value, path push ("/" + title), depth + 1, key, subtree, depthLimit)
                 node
               }
             )
@@ -142,7 +174,7 @@ object Prototype extends DelvingController {
           JField(
             name = "children",
             value = JArray(values.zipWithIndex.map { v =>
-              val node = transformNode(title, v._1, path push (s"/$title[${v._2}]"), depth + 1, key, subtree, depthLimit)
+              val node = transformFancyNode(title, v._1, path push (s"/$title[${v._2}]"), depth + 1, key, subtree, depthLimit)
               node
             })
           )))
@@ -165,11 +197,37 @@ object Prototype extends DelvingController {
               )
             ))))
         )
-
       ))
+      case other @ _ => throw new RuntimeException("Unknown node type: " + other)
     }
     if (pathMatched) subtree append v
     v
   }
 
+  def transformSourceNode(
+    title: String,
+    value: JValue,
+    path: Stack[String],
+    depth: Int, key: Option[String],
+    subtree: ArrayBuffer[JValue],
+    depthLimit: Int = 1): JValue = {
+    //    log.debug(s"Source tree node, path: ${path.reverse.mkString}, title: $title, key: ${key.getOrElse("none")}")
+    val pathMatched = key != None && key.get == path.reverse.mkString + "/" + title
+    if (log.isDebugEnabled && pathMatched) {
+      log.debug("Matched the path " + key.get)
+    }
+    val v = value match {
+      case JObject(fields: Seq[JField]) =>
+        JObject(fields.map { field =>
+          JField(field.name, transformSourceNode(field.name, field.value, path push ("/" + title), depth + 1, key, subtree, depthLimit))
+        })
+      case JArray(values: Seq[JValue]) =>
+        JArray(values.zipWithIndex.map { v =>
+          transformSourceNode(title, v._1, path push (s"/$title[${v._2}]"), depth + 1, key, subtree, depthLimit)
+        })
+      case other @ _ => other
+    }
+    if (pathMatched) subtree append v
+    v
+  }
 }
