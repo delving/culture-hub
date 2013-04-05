@@ -18,9 +18,9 @@ object Build extends sbt.Build {
 
   val appName = "culture-hub"
   val cultureHubVersion = "13.03-SNAPSHOT"
-  val sipAppVersion = "1.1.1-SNAPSHOT"
-  val sipCoreVersion = "1.1.1-SNAPSHOT"
-  val schemaRepoVersion = "1.1.2-SNAPSHOT"
+  val sipAppVersion = "1.1.3"
+  val sipCoreVersion = "1.1.3"
+  val schemaRepoVersion = "1.1.3"
   val playExtensionsVersion = "1.4-SNAPSHOT"
 
   val dosVersion = "1.5"
