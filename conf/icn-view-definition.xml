@@ -101,6 +101,7 @@
 
                             <!--<field path="/icn:record/dc:source" label="metadata.dc.source"/>-->
                             <field path="/icn:record/dc:contributor" label="searchfield.contributor"/>
+                            <field path="/icn:record/dc:source" label="metadata.dc.source"/>
                             <field path="/icn:record/icn:province" label="metadata.icn.province"/>
                             <field path="/icn:record/europeana:country" label="metadata.europeana.country"/>
                             <field path="/icn:record/dc:rights" label="metadata.dc.rights"/>
