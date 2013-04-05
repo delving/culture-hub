@@ -140,8 +140,8 @@ class SchemaRepositoryWrapper extends Actor {
       }
 
       try {
-        val content = schemaRepository.getSchema(version, schemaType)
-        sender ! SchemaContent(content)
+        val response = schemaRepository.getSchema(version, schemaType)
+        sender ! SchemaContent(response.getSchemaText)
       } catch {
         case t: Throwable =>
           sender ! SchemaError(t)
