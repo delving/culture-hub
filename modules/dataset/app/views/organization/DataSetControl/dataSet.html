@@ -57,7 +57,7 @@
 
 #{breadcrumbs crumbs: breadcrumbs /}
 
-#{organizationNavBar orgId: orgId, active:"datasets", navigation: navigation /}
+#{organizationNavBar isReadOnly: isReadOnly, isAdmin: isAdmin, orgId: orgId, active:"datasets", navigation: navigation /}
 
 <div class="page-header">
     <h2>${spec.isEmpty() ? messages.get('organization.dataset.create') : messages.get('organization.dataset.update') }</h2>

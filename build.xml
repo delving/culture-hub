@@ -5,7 +5,7 @@
     <property name="root" value="."/>
     <property name="target" value="${root}/target"/>
     <property name="tmp" value="${root}/tmp"/>
-    <property name="sip-creator.version" value="1.1.0"/>
+    <property name="sip-creator.version" value="1.1.3"/>
     <property name="sip-creator.path" value="${root}/public/sip-creator/"/>
 
     <taskdef resource="net/sf/antcontrib/antlib.xml">
@@ -20,7 +20,7 @@
              classpathref="maven-ant-tasks.classpath"/>
 
     <artifact:remoteRepository id="delving.snapshots"
-                               url="http://development.delving.org:8081/nexus/content/repositories/snapshots"/>
+                               url="http://nexus.delving.org/nexus/content/repositories/snapshots"/>
 
     <target name="startSolr">
         <java jar="extras/servlet-server/start.jar" fork="true" dir="extras/servlet-server" spawn="true"/>

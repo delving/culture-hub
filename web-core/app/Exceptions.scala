@@ -68,6 +68,10 @@ package exceptions {
     def this(s: String) = this(s, null)
   }
 
+  case class MalformedQueryException(s: String, throwable: Throwable) extends Exception(s, throwable) {
+    def this(s: String) = this(s, null)
+  }
+
   // ~~~ BaseX insertion
 
   class StorageInsertionException(s: String, throwable: Throwable) extends Exception(s, throwable)

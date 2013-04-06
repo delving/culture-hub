@@ -6,12 +6,15 @@ import play.api.Play.current
 import play.api.i18n.{ Lang, Messages }
 import play.libs.Time
 import eu.delving.templates.scala.GroovyTemplates
-import collection.JavaConverters._
+import scala.collection.JavaConverters._
 import org.bson.types.ObjectId
 import core._
 import models.{ OrganizationConfiguration, Role, Group, HubUser }
+import core.search.SearchService
 import xml.NodeSeq
 import org.apache.commons.lang.StringEscapeUtils
+import play.api.mvc.Cookie
+import core.ExplainItem
 
 /**
  * TODO document the default renderArgs attributes available to templates
@@ -188,7 +191,10 @@ trait OrganizationController extends DelvingController with Secured {
 
 trait DelvingController extends ApplicationController {
 
-  val organizationServiceLocator = HubModule.inject[DomainServiceLocator[OrganizationService]](name = None)
+  // TODO proper injection, now that Play supports it
+  lazy val organizationServiceLocator: DomainServiceLocator[OrganizationService] = HubModule.inject[DomainServiceLocator[OrganizationService]](name = None)
+  lazy val searchServiceLocator: DomainServiceLocator[SearchService] = HubModule.inject[DomainServiceLocator[SearchService]](name = None)
+  lazy val indexingServiceLocator: DomainServiceLocator[IndexingService] = HubModule.inject[DomainServiceLocator[IndexingService]](name = None)
 
   def userName(implicit request: RequestHeader) = request.session.get(Constants.USERNAME).getOrElse(null)
 
@@ -220,6 +226,8 @@ trait DelvingController extends ApplicationController {
             // admin
             val isAdmin = organizationServiceLocator.byDomain.isAdmin(configuration.orgId, userName)
             renderArgs += ("isAdmin" -> isAdmin.asInstanceOf[AnyRef])
+
+            renderArgs += ("isReadOnly" -> configuration.isReadOnly.asInstanceOf[AnyRef])
 
             // Connected user
             HubUser.dao.findByUsername(userName).foreach { u =>

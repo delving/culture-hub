@@ -4,19 +4,16 @@ import scala.collection.JavaConverters._
 import play.api.Logger
 import core.collection.{ OrganizationCollectionInformation, Collection }
 import core.storage.BaseXStorage
-import core.indexing.IndexingService
 import models._
 import xml.{ Elem, NodeSeq, Node }
 import java.util.concurrent.atomic.{ AtomicBoolean, AtomicInteger }
-import akka.actor.{ SupervisorStrategy, Actor, Props }
+import akka.actor.{ Actor, Props }
 import akka.pattern.ask
-import core.HubId
+import core.{ IndexingService, DomainServiceLocator, HubModule, HubId }
 import play.api.libs.concurrent.Execution.Implicits._
 import scala.concurrent.duration._
 import concurrent.{ Await, Future }
 import akka.util.Timeout
-import akka.actor.OneForOneStrategy
-import akka.actor.SupervisorStrategy._
 
 /**
  * CollectionProcessor, essentially taking care of:
@@ -35,12 +32,14 @@ class CollectionProcessor(collection: Collection with OrganizationCollectionInfo
     interrupted: => Boolean,
     updateCount: Long => Unit,
     onError: Throwable => Unit,
-    indexOne: (MetadataItem, MultiMap, String) => Either[Throwable, String],
+    indexOne: (HubId, MultiMap, String) => Either[Throwable, String],
     onProcessingDone: ProcessingContext => Unit,
     whenDone: () => Unit,
     basexStorage: BaseXStorage)(implicit configuration: OrganizationConfiguration) extends Actor {
 
   val log = Logger("CultureHub")
+
+  private val indexingServiceLocator = HubModule.inject[DomainServiceLocator[IndexingService]](name = None)
 
   private implicit def listMapToScala(map: java.util.Map[String, java.util.List[String]]) = map.asScala.map(v => (v._1, v._2.asScala.toList)).toMap
 
@@ -94,6 +93,7 @@ class CollectionProcessor(collection: Collection with OrganizationCollectionInfo
                 val supervisorProps = Props(new ProcessingSupervisor(
                   recordCount,
                   updateCount,
+                  indexOne,
                   interrupted,
                   onProcessingDone,
                   whenDone,
@@ -168,7 +168,7 @@ class CollectionProcessor(collection: Collection with OrganizationCollectionInfo
 
                   if (indexingSchema.isDefined) {
                     log.info("Deleting DataSet %s from SOLR".format(collection.spec))
-                    IndexingService.deleteBySpec(collection.getOwner, collection.spec)
+                    indexingServiceLocator.byDomain.deleteBySpec(collection.getOwner, collection.spec)
                   }
 
                   updateCount(0)

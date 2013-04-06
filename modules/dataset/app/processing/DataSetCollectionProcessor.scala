@@ -4,10 +4,11 @@ import play.api.Logger
 import models._
 import java.net.URL
 import io.Source
-import core.indexing.{ IndexingService, Indexing }
-import core.{ HubId, HubServices }
-import core.processing.{ DoProcess, ProcessingContext, CollectionProcessor, ProcessingSchema }
+import core._
+import core.processing.{ DoProcess, CollectionProcessor, ProcessingSchema }
 import akka.actor.{ Actor, Props }
+import indexing.Indexing
+import processing.ProcessingContext
 
 /**
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
@@ -15,6 +16,8 @@ import akka.actor.{ Actor, Props }
 class DataSetCollectionProcessor extends Actor {
 
   val log = Logger("CultureHub")
+
+  lazy val indexingServiceLocator: DomainServiceLocator[IndexingService] = HubModule.inject[DomainServiceLocator[IndexingService]](name = None)
 
   val RAW_PREFIX = "raw"
   val AFF_PREFIX = "aff"
@@ -99,18 +102,18 @@ class DataSetCollectionProcessor extends Actor {
       DataSet.dao.updateState(dataSet, DataSetState.ERROR, None, Some(t.getMessage))
     }
 
-    def indexOne(item: MetadataItem, fields: Map[String, List[String]], prefix: String)(implicit configuration: OrganizationConfiguration) =
-      Indexing.indexOne(dataSet, HubId(item.itemId), fields, prefix)
+    def indexOne(itemId: HubId, fields: Map[String, List[String]], prefix: String)(implicit configuration: OrganizationConfiguration) =
+      Indexing.indexOne(dataSet, itemId, fields, prefix)
 
     def onProcessingDone(context: ProcessingContext) {
-      IndexingService.commit
+      indexingServiceLocator.byDomain.commit
 
       // we retry this one 3 times, in order to minimize the chances of loosing the whole index if a timeout happens to occur
       var retries = 0
       var success = false
       while (retries < 3 && !success) {
         try {
-          IndexingService.deleteOrphansBySpec(dataSet.orgId, dataSet.spec, context.startProcessing)
+          indexingServiceLocator.byDomain.deleteOrphansBySpec(dataSet.orgId, dataSet.spec, context.startProcessing)
           success = true
         } catch {
           case t: Throwable => retries += 1

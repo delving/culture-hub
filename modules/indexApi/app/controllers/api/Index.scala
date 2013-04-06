@@ -1,32 +1,29 @@
 package controllers.api
 
-import controllers.{ ApiDescription, DelvingController, OrganizationConfigurationAware, RenderingExtensions }
+import controllers.{ ApiDescription, DelvingController, RenderingExtensions }
 import play.api.mvc._
 import play.api.libs.concurrent.Promise
 import scala.xml._
 import core.Constants._
 import core.indexing.IndexField._
-import core.indexing.IndexingService
 import models.{ OrganizationConfiguration, MetadataItem, MetadataCache }
-import org.apache.solr.common.SolrInputDocument
 import org.joda.time.format.ISODateTimeFormat
 import collection.mutable.{ ArrayBuffer, ListBuffer }
 import com.mongodb.casbah.commons.MongoDBObject
 import play.api.Logger
-import core.{ ItemType, OrganizationCollectionLookupService }
+import core.{ IndexingService, ItemType, OrganizationCollectionLookupService }
 import core.collection.OrganizationCollection
 import play.api.libs.concurrent.Execution.Implicits._
+import collection.mutable
 
 /**
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-object Index extends Controller with OrganizationConfigurationAware with RenderingExtensions {
+object Index extends DelvingController with RenderingExtensions {
 
   val CACHE_COLLECTION = "indexApiItems"
-
-  val log = Logger("CultureHub")
 
   def explain(path: List[String]) = path match {
     case Nil =>
@@ -88,42 +85,47 @@ object Index extends Controller with OrganizationConfigurationAware with Renderi
           Async {
             Promise.pure {
 
-              val (valid, invalid) = parseIndexRequest(orgId, request.body)
+              if (configuration.isReadOnly) {
+                <indexResponse>
+                  <error>The system is in read-only mode and cannot process the request</error>
+                </indexResponse>
+              } else {
+                val (valid, invalid) = parseIndexRequest(orgId, request.body)
 
-              var indexed: Int = 0
-              var deleted: Int = 0
+                var indexed: Int = 0
+                var deleted: Int = 0
 
-              for (i <- valid.zipWithIndex) {
-                val item = i._1
-                val index = i._2
-                val cache = MetadataCache.get(orgId, CACHE_COLLECTION, item.itemType)
-                if (item.deleted) {
-                  cache.remove(item.itemId)
-                  IndexingService.deleteByQuery("""id:%s_%s_%s""".format(item.orgId, item.itemType, item.itemId))
-                  deleted += 1
-                } else {
-                  val cacheItem = MetadataItem(collection = CACHE_COLLECTION, itemType = item.itemType, itemId = item.itemId, xml = Map("raw" -> item.rawXml), schemaVersions = Map("raw" -> "1.0.0"), index = index)
-                  cache.saveOrUpdate(cacheItem)
-                  IndexingService.stageForIndexing(item.toSolrDocument)
-                  indexed += 1
+                for (i <- valid.zipWithIndex) {
+                  val item = i._1
+                  val index = i._2
+                  val cache = MetadataCache.get(orgId, CACHE_COLLECTION, item.itemType)
+                  if (item.deleted) {
+                    cache.remove(item.itemId)
+                    indexingServiceLocator.byDomain.deleteByQuery("""id:%s_%s_%s""".format(item.orgId, item.itemType, item.itemId))
+                    deleted += 1
+                  } else {
+                    val cacheItem = MetadataItem(collection = CACHE_COLLECTION, itemType = item.itemType, itemId = item.itemId, xml = Map("raw" -> item.rawXml), schemaVersions = Map("raw" -> "1.0.0"), index = index)
+                    cache.saveOrUpdate(cacheItem)
+                    indexingServiceLocator.byDomain.stageForIndexing(item.toIndexDocument)
+                    indexed += 1
+                  }
                 }
+                indexingServiceLocator.byDomain.commit
+
+                val invalidItems = invalid.map(i => <invalidItem><error>{ i._1 }</error><item>{ i._2 }</item></invalidItem>)
+
+                <indexResponse>
+                  <totalItemCount>{ valid.size + invalid.size }</totalItemCount>
+                  <indexedItemCount>{ valid.filterNot(_.deleted).size }</indexedItemCount>
+                  <deletedItemCount>{ valid.filter(_.deleted).size }</deletedItemCount>
+                  <invalidItemCount>{ invalid.size }</invalidItemCount>
+                  <invalidItems>{ invalidItems }</invalidItems>
+                </indexResponse>
               }
-              IndexingService.commit
-
-              val invalidItems = invalid.map(i => <invalidItem><error>{ i._1 }</error><item>{ i._2 }</item></invalidItem>)
-
-              <indexResponse>
-                <totalItemCount>{ valid.size + invalid.size }</totalItemCount>
-                <indexedItemCount>{ valid.filterNot(_.deleted).size }</indexedItemCount>
-                <deletedItemCount>{ valid.filter(_.deleted).size }</deletedItemCount>
-                <invalidItemCount>{ invalid.size }</invalidItemCount>
-                <invalidItems>{ invalidItems }</invalidItems>
-              </indexResponse>
 
             } map {
               response => Ok(response)
             }
-
           }
         }
     }
@@ -175,37 +177,32 @@ object Index extends Controller with OrganizationConfigurationAware with Renderi
 
   }
 
-  def reIndex(orgId: String) = Action {
-    implicit request =>
-      Async {
-        Promise.pure {
+  def reIndex = OrganizationConfigured {
+    Action {
+      implicit request =>
+        val service = new IndexItemOrganizationCollectionLookupService()
+        val itemTypes = service.findAll.map { _.itemType }
 
-          val itemTypes = new IndexItemOrganizationCollectionLookupService().findAll.map(_.itemType)
-
-          var reIndexed = 0
-          val error = new ArrayBuffer[String]()
-          itemTypes map { t =>
-            val cache = MetadataCache.get(orgId, CACHE_COLLECTION, t)
-            cache.underlying.find(MongoDBObject("deleted" -> false)) foreach {
-              item =>
-                try {
-                  IndexingService.stageForIndexing(IndexItem(orgId, item).toSolrDocument)
-                  reIndexed += 1
-                } catch {
-                  case t: Throwable =>
-                    val id = orgId + "_" + item.itemType + "_" + item.itemId
-                    Logger("IndexApi").error("Could not index item " + id, t)
-                    error += id
-                }
+        var reIndexed = 0
+        val error = new ArrayBuffer[String]()
+        itemTypes map { t =>
+          val cache = MetadataCache.get(configuration.orgId, CACHE_COLLECTION, t)
+          cache.iterate() foreach { item =>
+            try {
+              indexingServiceLocator.byDomain.stageForIndexing(IndexItem(configuration.orgId, item).toIndexDocument)
+              reIndexed += 1
+            } catch {
+              case t: Throwable =>
+                val id = configuration.orgId + "_" + item.itemType + "_" + item.itemId
+                Logger("IndexApi").error("Could not index item " + id, t)
+                error += id
             }
           }
-
-          (reIndexed, error)
-
-        } map {
-          response => Ok("""ReIndexed %s items successfully, error for %s""".format(response._1.toString, response._2.mkString(", ")))
         }
-      }
+        indexingServiceLocator.byDomain.commit
+
+        Ok(s"ReIndexed $reIndexed items successfully, error for ${error.mkString(", ")}")
+    }
   }
 
 }
@@ -216,8 +213,8 @@ case class IndexItem(orgId: String,
     rawXml: String,
     deleted: Boolean = false) {
 
-  def toSolrDocument: SolrInputDocument = {
-    val doc = new SolrInputDocument
+  def toIndexDocument: IndexingService#IndexDocument = {
+    val doc = new mutable.HashMap[String, mutable.Set[Any]] with mutable.MultiMap[String, Any]
 
     val document = XML.loadString(rawXml).nonEmptyChildren
     val fields = document.filter(_.label == "field")
@@ -239,10 +236,10 @@ case class IndexItem(orgId: String,
           "custom_%s_%s".format(name, dataType)
         }
 
-        doc.addField(indexFieldName, field.text)
+        doc.addBinding(indexFieldName, field.text)
 
         if (isFacet) {
-          doc.addField(indexFieldName + "_facet", field.text)
+          doc.addBinding(indexFieldName + "_facet", field.text)
         }
     }
 
@@ -253,7 +250,7 @@ case class IndexItem(orgId: String,
     systemFields.filter(f => f.attribute("name").isDefined && allowedSystemFields.contains(f.attribute("name").get.text)).foreach {
       field =>
         val name = (field \ "@name").text
-        doc.addField("delving_" + name, field.text)
+        doc.addBinding("delving_" + name, field.text)
     }
 
     // mandatory fields
@@ -263,7 +260,7 @@ case class IndexItem(orgId: String,
     doc += (ORG_ID -> orgId)
     doc += (RECORD_TYPE -> itemType)
 
-    doc
+    doc.toMap
   }
 
 }

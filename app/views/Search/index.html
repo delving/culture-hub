@@ -5,7 +5,7 @@
 #{set bodyId: 'results' /}
 
 #{set 'moreScripts'}
-<script type='text/javascript' src="@{routes.Assets.at('common/javascripts/results.js')}"></script>
+<script type='text/javascript' src="@{routes.Assets.at('results.js')}"></script>
 #{/set}
 
 #{breadcrumbs crumbs: breadcrumbs, queryCrumbs: pagination /}
@@ -20,11 +20,11 @@
             <small>
             #{list hasDigitalObject, as: 'facet'}
                 #{list facet.getLinks(), as: 'link'}
-                    #{if link.value() == 'true' && !facet.isFacetSelected()}
+                    #{if link.getValue() == 'true' && !facet.isFacetSelected()}
                         <input type="checkbox" class="include-without-digtalobjects" checked="checked" value="/search?query=${pagination.getPresentationQuery().getUserSubmittedQuery()}&searchIn=${params.searchIn ? params.searchIn[0]  : "all"}${link.url}">
                         <a href="/search?query=${pagination.getPresentationQuery().getUserSubmittedQuery()}&searchIn=${params.searchIn ? params.searchIn[0]  : "all"}${link.url}">&{'ui.label.results.withoutImages'}</a>
                     #{/if}
-                    #{if link.value() == 'true' && facet.isFacetSelected()}
+                    #{if link.getValue() == 'true' && facet.isFacetSelected()}
                         <input type="checkbox" class="include-without-digtalobjects" value="/search?query=${pagination.getPresentationQuery().getUserSubmittedQuery()}&searchIn=${params.searchIn ? params.searchIn[0]  : "all"}">
                         <a href="/search?query=${pagination.getPresentationQuery().getUserSubmittedQuery()}&searchIn=${params.searchIn ? params.searchIn[0]  : "all"}">&{'ui.label.results.withoutImages'}</a>
                     #{/if}

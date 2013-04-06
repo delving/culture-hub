@@ -4,17 +4,30 @@
 #{if count > themeInfo.pageSize()}
 #{set 'moreScripts'}
 <script type="text/javascript" src="@{routes.Assets.at("common/javascripts/jquery.pagination.js")}"></script>
-<script>
-    pageObject = new Object();
-    pageObject.count = ${count};
-    pageObject.page = ${page};
-    pageObject.link = '?page=__id__';
-    pageObject.previous = "${messages.get('ui.label.previous')}";
-    pageObject.next = "${messages.get('ui.label.next')}";
-    pageObject.itemsPerPage = ${themeInfo.pageSize()}
-    pageObject.selector = ".pg"
+<script type="text/javascript">
+        $(document).ready(function(){
+            $(pageObject.selector).pagination(pageObject.count, {
+                one_indexed: 1,
+                current_page:  parseInt(pageObject.page),
+                num_edge_entries:1,
+                num_display_entries: 6,
+                callback: function() {},
+                items_per_page: pageObject.itemsPerPage,
+                prev_text: pageObject.previous,
+                next_text:pageObject.next,
+                link_to: pageObject.link
+            });
+
+            pageObject = new Object();
+            pageObject.count = ${count};
+            pageObject.page = ${page};
+            pageObject.link = '?page=__id__';
+            pageObject.previous = "${messages.get('ui.label.previous')}";
+            pageObject.next = "${messages.get('ui.label.next')}";
+            pageObject.itemsPerPage = ${themeInfo.pageSize()}
+            pageObject.selector = ".pg"
+        });
 </script>
-<script type="text/javascript" language="javascript" src="/assets/common/javascripts/paginationInit.js"></script>
 #{/set}
 #{/if}
 

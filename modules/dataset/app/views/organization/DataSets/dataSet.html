@@ -11,7 +11,7 @@
 
 #{breadcrumbs crumbs: breadcrumbs /}
 
-#{organizationNavBar orgId: orgId, active: "datasets", navigation: navigation /}
+#{organizationNavBar isReadOnly: isReadOnly, isAdmin: isAdmin, orgId: orgId, active: "datasets", navigation: navigation /}
 
 <div class="row">
     <div class="dataset-sidebar span5">
@@ -258,19 +258,6 @@
                     payload: '${spec}'
                 }));
             },
-            unlockOrig: function(spec) {
-                bootbox.confirm(msgUnlock, function(result){
-                    if(result){
-                        ws.send(JSON.stringify({
-                            eventType: 'unlockSet',
-                            clientId: clientId,
-                            payload: '${spec}'
-                        }));
-
-                    }
-                });
-
-            },
             unlock: function(spec) {
                 bootbox.dialog(msgUnlock, [{
                     "label"     :   "I am aware of this. Unlock anyway!",
@@ -282,7 +269,6 @@
                             payload: '${spec}'
                             }));
                             var html = '<div class="alert alert-block"><a class="close" data-dismiss="alert" href="#">x</a>' +
-//                                '<strong>Attention!</strong>' +
                                 '<p>Dataset is now unlocked!</p>' +
                                 '</div>'
                         $('#extra-alert').html(html);

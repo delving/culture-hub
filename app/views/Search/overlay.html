@@ -42,10 +42,10 @@
 Possible methods
 def getAsArray(key: String) : Array[String] = assign(key)
 def getAsString(key: String) : String = assignFirst(key)
-def getFieldValue(key : String) : FieldValue = FieldValue(key, solrDocument)
-def getFieldValueList: JList[FieldValue] = solrDocument.getFieldValueList
-def getFieldValuesFiltered(include: Boolean, fields: Array[String]) : JList[FieldValue] = solrDocument.getFieldValuesFiltered(include, fields.toList)
-def getConcatenatedArray(key: String, fields: Array[String]) : FieldFormatted = solrDocument.getConcatenatedArray(key, fields.toList)
+def getFieldValue(key : String) : services.search.FieldValue = services.search.FieldValue(key, solrDocument)
+def getFieldValueList: JList[services.search.FieldValue] = solrDocument.getFieldValueList
+def getFieldValuesFiltered(include: Boolean, fields: Array[String]) : JList[services.search.FieldValue] = solrDocument.getFieldValuesFiltered(include, fields.toList)
+def getConcatenatedArray(key: String, fields: Array[String]) : services.search.FieldFormatted = solrDocument.getConcatenatedArray(key, fields.toList)
 
 def getId : String = assign("delving_hubId")
 def getDelvingId : String = assign("delving_pmhId")

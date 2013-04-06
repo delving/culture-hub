@@ -2,6 +2,36 @@
 
 This is the changelog of the CultureHub. It documents changes of the main platform, without modules.
 
+# 13.03
+
+### New features
+
+manu: the hub can now function in a "read only mode", in case of failover
+manu: CSV rendering of statistics
+
+### Fixes and refactorign
+
+manu: initializing all plugin actors using a parent actor (for each plugin)
+manu: stability improvement: The SchemaRepository must have been initialized at least once in order to start
+manu: modularizing the search and indexing
+manu: cleaning up unused UI resources
+manu: Removed schemas no longer show in the invalid count list. Fixes #805
+manu: DOS: Thumbnails now get the correct orgId in storage
+manu: A DataSet name should not contain ampersands. Fixes #853
+manu: Renaming a DataSet spec deletes old collection from the index. Fixes #842
+manu: Fixing the routing for IDs with slashes in them (again). Fixes #857
+manu: Maximum row limit can be configured. Fixes #855
+manu: Fixing issue with URL-encoding of facets. Fixes #853
+manu: Workaround for an issue with Play 2.1 JNotify mechanism, making development turnaround considerably faster
+manu: Fixing statistics API caching
+manu: Fixing URL redirection after uploading CMS images
+manu: Always using the orgId of the currently active organization, thus making it impossible to have wrong resolutions. Fixes #862
+gerald: fixing storage of strange identifiers in BaseX
+sjoerd: KML fixes
+eric: Adding dc:source to the ICN view definition
+manu: DataSet page: Disabling sorting on the record number header for the time being, closes #866
+manu: Updating to Sip-Creator 13.03, Sip-Core 13.03, Schema-Repository 13.03
+
 # 13.02
 
 ### New features

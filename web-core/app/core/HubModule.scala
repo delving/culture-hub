@@ -1,9 +1,10 @@
 package core
 
-import _root_.core.node.{ NodeDirectoryService, NodeSubscriptionService, NodeRegistrationService }
+import core.node.{ NodeDirectoryService, NodeSubscriptionService, NodeRegistrationService }
 import core.schema.SchemaProvider
-import _root_.core.services.{ AggregatingNodeSubscriptionService, AggregatingOrganizationCollectionLookupService, AggregatingHarvestCollectionLookup }
+import core.services.{ AggregatingNodeSubscriptionService, AggregatingOrganizationCollectionLookupService, AggregatingHarvestCollectionLookup }
 import com.escalatesoft.subcut.inject.NewBindingModule
+import search.SearchService
 
 /**
  * Experimenting with DI
@@ -13,6 +14,9 @@ object HubModule extends NewBindingModule({ module =>
   import module._
 
   bind[SchemaService].toSingle(new SchemaProvider)
+
+  bind[DomainServiceLocator[SearchService]].toSingle(HubServices.searchServiceLocator)
+  bind[DomainServiceLocator[IndexingService]].toSingle(HubServices.indexingServiceLocator)
 
   bind[HarvestCollectionLookupService].toSingle(new AggregatingHarvestCollectionLookup)
 

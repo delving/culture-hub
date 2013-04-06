@@ -2,8 +2,7 @@ package models {
 
   import _root_.core.node.Node
   import core.{ SystemField, CultureHubPlugin }
-  import org.apache.solr.client.solrj.SolrQuery
-  import core.search.{ SolrSortElement, SolrFacetElement }
+  import core.search.{ SortElement, FacetElement }
   import play.api.{ Configuration, Play, Logger }
   import Play.current
   import collection.JavaConverters._
@@ -22,6 +21,7 @@ package models {
       orgId: String,
       domains: List[String] = List.empty,
       instances: List[String] = List.empty,
+      isReadOnly: Boolean = false,
 
       // ~~~ mail
       emailTarget: EmailTarget = EmailTarget(),
@@ -69,38 +69,38 @@ package models {
       val isLocal: Boolean = true
     }
 
-    def getFacets: List[SolrFacetElement] = {
+    def getFacets: List[FacetElement] = {
       searchService.facets.split(",").filter(k => k.split(":").size > 0 && k.split(":").size < 4).map {
         entry =>
           {
             val k = entry.split(":")
             k.length match {
-              case 1 => SolrFacetElement(k.head, k.head)
-              case 2 => SolrFacetElement(k(0), k(1))
+              case 1 => FacetElement(k.head, k.head)
+              case 2 => FacetElement(k(0), k(1))
               case 3 =>
                 try {
-                  SolrFacetElement(k(0), k(1), k(2).toInt)
+                  FacetElement(k(0), k(1), k(2).toInt)
                 } catch {
                   case _: java.lang.NumberFormatException =>
                     Logger("CultureHub").warn("Wrong value %s for facet display column number for theme %s".format(k(2), orgId))
-                    SolrFacetElement(k(0), k(1))
+                    FacetElement(k(0), k(1))
                 }
             }
           }
       }.toList
     }
 
-    def getSortFields: List[SolrSortElement] = {
+    def getSortFields: List[SortElement] = {
       searchService.sortFields.split(",").filter(sf => sf.split(":").size > 0 && sf.split(":").size < 3).map {
         entry =>
           {
             val k = entry.split(":")
             k.length match {
-              case 1 => SolrSortElement(k.head)
+              case 1 => SortElement(k.head)
               case 2 =>
-                SolrSortElement(
+                SortElement(
                   k(1),
-                  if (k(2).equalsIgnoreCase("desc")) SolrQuery.ORDER.desc else SolrQuery.ORDER.asc
+                  (k(2).equalsIgnoreCase("asc"))
                 )
             }
           }
@@ -160,6 +160,7 @@ package models {
     apiWsKeyEnabled: Boolean = false,
     apiWsKeys: Seq[String] = Seq.empty,
     pageSize: Int,
+    rowLimit: Int = 500,
     showResultsWithoutThumbnails: Boolean = false)
 
   case class ProcessingServiceConfiguration(
@@ -200,6 +201,7 @@ package models {
     val ORG_ID = "orgId"
 
     val INSTANCES = "instances"
+    val READ_ONLY = "readOnly"
 
     val SOLR_BASE_URL = "solr.baseUrl"
     val SOLR_INDEXER_URL = "solr.indexerUrl"
@@ -232,6 +234,7 @@ package models {
     val SEARCH_MORELIKETHIS = "services.search.moreLikeThis"
     val SEARCH_SEARCHIN = "services.search.searchIn"
     val SEARCH_PAGE_SIZE = "services.search.pageSize"
+    val SEARCH_ROW_LIMIT = "services.search.rowLimit"
     val SHOW_ITEMS_WITHOUT_THUMBNAIL = "services.search.showItemsWithoutThumbnail"
 
     val PROCESSING_MAPPING_CPU_PROPORTION = "services.processing.mappingCpuProportion"
@@ -352,9 +355,10 @@ package models {
       // plugin time! now that we read all the configuration, enrich it with things provided by the plugins
 
       if (!Play.isTest) {
-        val invalidPluginKeys: Seq[(OrganizationConfiguration, String, Option[CultureHubPlugin])] = configurations.flatMap { configuration =>
-          configuration.plugins.map(key => Tuple3(configuration, key, plugins.find(_.pluginKey == key))).filter(_._3.isEmpty)
-        }
+        //        val invalidPluginKeys: Seq[(OrganizationConfiguration, String, Option[CultureHubPlugin])] = configurations.flatMap { configuration =>
+        //          configuration.plugins.map(key => Tuple3(configuration, key, plugins.find(_.pluginKey == key))).filter(_._3.isEmpty)
+        val invalidPluginKeys = Seq.empty[(OrganizationConfiguration, String, Option[CultureHubPlugin])]
+
         if (!invalidPluginKeys.isEmpty) {
 
           val error = "Found two or more configurations that reference non-existing plugins:\n" +
@@ -420,7 +424,12 @@ package models {
       groupedPluginConfigurations.foreach { pluginConfig =>
         CultureHubPlugin.hubPlugins.find(_.pluginKey == pluginConfig._1).map { plugin =>
           log.debug(s"Loading configuration for plugin ${plugin.pluginKey}")
-          plugin.onBuildConfiguration(pluginConfig._2)
+          try {
+            plugin.onBuildConfiguration(pluginConfig._2)
+          } catch {
+            case t: Throwable =>
+              log.error(s"Could not configure plugin ${plugin.pluginKey}", t)
+          }
         }
       }
 
@@ -432,6 +441,7 @@ package models {
       orgId = configuration.getString(ORG_ID).get,
       domains = configuration.underlying.getStringList("domains").asScala.toList,
       instances = configuration.underlying.getStringList(INSTANCES).asScala.toList,
+      isReadOnly = configuration.getBoolean(READ_ONLY).getOrElse(false),
       mongoDatabase = configuration.getString(MONGO_DATABASE).get,
       baseXConfiguration = BaseXConfiguration(
         host = getString(configuration, BASEX_HOST),
@@ -506,6 +516,7 @@ package models {
           }
         },
         pageSize = getOptionalInt(configuration, SEARCH_PAGE_SIZE).getOrElse(20),
+        rowLimit = getOptionalInt(configuration, SEARCH_ROW_LIMIT).getOrElse(500),
         showResultsWithoutThumbnails = getOptionalBoolean(configuration, SHOW_ITEMS_WITHOUT_THUMBNAIL).getOrElse(false)
       ),
       processingService = ProcessingServiceConfiguration(

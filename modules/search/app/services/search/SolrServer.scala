@@ -1,0 +1,177 @@
+package services.search
+
+import util.{ OrganizationConfigurationResourceHolder, OrganizationConfigurationHandler }
+import exceptions.SolrConnectionException
+import org.apache.solr.client.solrj.SolrQuery
+import xml.XML
+import xml.Node
+import org.apache.solr.client.solrj.response.{ FacetField, QueryResponse }
+import collection.JavaConverters._
+import play.api.cache.Cache
+import org.apache.solr.client.solrj.impl.{ ConcurrentUpdateSolrServer, HttpSolrServer }
+import java.net.URL
+import models.OrganizationConfiguration
+import play.api.Play.current
+
+/**
+ * REFACTORME:
+ *
+ * The SolrServer trait should go, and instead a SolrServerService (or so) should be used, taking into account the
+ * OrganizationConfiguration design.
+ *
+ * Currently we cache the different SOLR servers on a per-resource basis, in order not to create duplicate resources (which may be expensive)
+ *
+ * @author Sjoerd Siebinga <sjoerd.siebinga@gmail.com>
+ * @author Manuel Bernhardt <ernhardt.manuel@gmail.com>
+ * @since 7/7/11 1:18 AM
+ */
+
+trait SolrServer {
+
+  def getSolrServer(configuration: OrganizationConfiguration) = SolrServer.solrServer(configuration)
+
+  def getStreamingUpdateServer(configuration: OrganizationConfiguration) = {
+    if (!configuration.isReadOnly) {
+      SolrServer.streamingUpdateServer(configuration)
+    } else {
+      throw new RuntimeException("System is in read-only mode, no indexing is possible at the moment")
+    }
+  }
+
+  def runQuery(query: SolrQuery, retries: Int = 0)(implicit configuration: OrganizationConfiguration): QueryResponse = {
+    try {
+      SolrServer.solrServer(configuration).query(query)
+    } catch {
+      case e: SolrConnectionException =>
+        if (retries < 3) {
+          Thread.sleep(2000)
+          runQuery(query, retries + 1)
+        } else {
+          throw e
+        }
+    }
+  }
+
+}
+
+object SolrServer {
+
+  val SOLR_FIELDS_CACHE_KEY_PREFIX = "solrFields"
+
+  private val solrServers = new OrganizationConfigurationResourceHolder[String, HttpSolrServer]("solrServers") {
+
+    protected def resourceConfiguration(configuration: OrganizationConfiguration): String = configuration.solrBaseUrl
+
+    protected def onAdd(resourceConfiguration: String): Option[HttpSolrServer] = {
+      val solrServer = new HttpSolrServer(resourceConfiguration)
+      solrServer.setSoTimeout(5000) // socket read timeout
+      solrServer.setConnectionTimeout(5000)
+      solrServer.setDefaultMaxConnectionsPerHost(64)
+      solrServer.setMaxTotalConnections(125)
+      solrServer.setFollowRedirects(false) // defaults to false
+      solrServer.setAllowCompression(false)
+      solrServer.setMaxRetries(1)
+      Some(solrServer)
+    }
+
+    protected def onRemove(removed: HttpSolrServer) {
+      removed.shutdown()
+    }
+  }
+
+  val solrUpdateServers = new OrganizationConfigurationResourceHolder[String, ConcurrentUpdateSolrServer]("solrUpdateServers") {
+
+    protected def resourceConfiguration(configuration: OrganizationConfiguration): String = configuration.solrIndexerUrl.getOrElse(configuration.solrBaseUrl)
+
+    protected def onAdd(resourceConfiguration: String): Option[ConcurrentUpdateSolrServer] = {
+      Some(new ConcurrentUpdateSolrServer(resourceConfiguration, 1000, 5))
+    }
+
+    protected def onRemove(removed: ConcurrentUpdateSolrServer) {
+      removed.shutdown()
+    }
+  }
+
+  OrganizationConfigurationHandler.registerResourceHolder(solrServers)
+  OrganizationConfigurationHandler.registerResourceHolder(solrUpdateServers)
+
+  private def solrServer(configuration: OrganizationConfiguration) = solrServers.getResource(configuration)
+
+  private def streamingUpdateServer(configuration: OrganizationConfiguration) = solrUpdateServers.getResource(configuration)
+
+  def deleteFromSolrByQuery(query: String)(implicit configuration: OrganizationConfiguration) = {
+    val response = streamingUpdateServer(configuration).deleteByQuery(query)
+    streamingUpdateServer(configuration).commit()
+    response
+  }
+
+  def getSolrFrequencyItemList(node: Node): List[SolrFrequencyItem] = {
+    node.nonEmptyChildren.filter(node => node.attribute("name") != None).map {
+      f => SolrFrequencyItem(f.attribute("name").get.text, f.text.toInt)
+    }.toList
+  }
+
+  def getSolrFields(configuration: OrganizationConfiguration): List[SolrDynamicField] = {
+    Cache.getOrElse(SOLR_FIELDS_CACHE_KEY_PREFIX + configuration.orgId, 7200) {
+      computeSolrFields(configuration)
+    }
+
+  }
+
+  def computeSolrFields(configuration: OrganizationConfiguration) = {
+    val lukeUrl: URL = new URL("%s/admin/luke".format(configuration.solrBaseUrl))
+    val fields = XML.load(lukeUrl) \\ "lst"
+
+    fields.filter(node => node.attribute("name") != None && node.attribute("name").get.text.equalsIgnoreCase("fields")).head.nonEmptyChildren.map {
+      field =>
+        {
+          val fieldName = field.attribute("name").get.text
+          val fields = field.nonEmptyChildren
+          fields.foldLeft(SolrDynamicField(name = fieldName))((sds, f) => {
+            val text = f.attribute("name")
+            text match {
+              case Some(fieldtype) if (fieldtype.text == ("type")) => sds.copy(fieldType = f.text)
+              case Some(fieldtype) if (fieldtype.text == ("index")) => sds.copy(index = f.text)
+              case Some(fieldtype) if (fieldtype.text == ("schema")) => sds.copy(schema = f.text)
+              case Some(fieldtype) if (fieldtype.text == ("dynamicBase")) => sds.copy(dynamicBase = f.text)
+              case Some(fieldtype) if (fieldtype.text == "docs") => sds.copy(docs = f.text.toInt)
+              case Some(fieldtype) if (fieldtype.text == "distinct") => sds.copy(distinct = f.text.toInt)
+              case Some(fieldtype) if (fieldtype.text == "topTerms") => sds.copy(topTerms = getSolrFrequencyItemList(f))
+              case Some(fieldtype) if (fieldtype.text == "histogram") => sds.copy(histogram = getSolrFrequencyItemList(f))
+              case _ => sds
+            }
+          }
+          )
+        }
+    }.toList
+
+  }
+
+  def getFacetFieldAutocomplete(facetName: String, facetQuery: String, facetLimit: Int = 10)(configuration: OrganizationConfiguration) = {
+    val normalisedFacetName = "%s_lowercase".format(SolrBindingService.stripDynamicFieldLabels(facetName))
+    val normalisedFacetQuery = if (normalisedFacetName.endsWith("_lowercase")) facetQuery.toLowerCase else facetQuery
+    val query = new SolrQuery("*:*")
+    query setFacet true
+    query setFacetLimit facetLimit
+    query setFacetMinCount 1
+    query addFacetField (facetName)
+    query setFacetPrefix (facetName, facetQuery.capitalize)
+    query setRows 0
+    val response = solrServer(configuration) query (query)
+    val facetValues = (response getFacetField (facetName))
+
+    if (facetValues.getValueCount != 0) facetValues.getValues.asScala else List[FacetField.Count]()
+  }
+
+}
+
+case class SolrDynamicField(name: String, fieldType: String = "text", schema: String = "", index: String = "", dynamicBase: String = "", docs: Int = 0, distinct: Int = 0, topTerms: List[SolrFrequencyItem] = List.empty, histogram: List[SolrFrequencyItem] = List.empty) {
+
+  lazy val fieldCanBeUsedAsFacet: Boolean = name.endsWith("_facet") || fieldType.equalsIgnoreCase("string") || name.startsWith("facet_")
+  lazy val fieldIsSortable: Boolean = name.startsWith("sort_")
+
+  lazy val xmlFieldName = normalisedField.replaceFirst("_", ":")
+  lazy val normalisedField = SolrBindingService.stripDynamicFieldLabels(name)
+}
+
+case class SolrFrequencyItem(name: String, freq: Int)
