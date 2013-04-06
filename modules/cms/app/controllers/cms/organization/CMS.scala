@@ -63,7 +63,7 @@ trait CMS extends OrganizationController { this: BoundController =>
     Action {
       implicit request =>
         FileUpload.markFilesAttached(uid, configuration.orgId)
-        Redirect("/organizations/%s/site/upload".format(configuration.orgId))
+        Redirect(routes.CMS.upload())
     }
   }
 
@@ -151,7 +151,7 @@ trait CMS extends OrganizationController { this: BoundController =>
       implicit request =>
         CMSPage.dao.delete(configuration.orgId, key, language)
 
-        // also delete menu entries that refer to that page, for now only from the main menu
+        // also delete menu entries that refer to that page
         MenuEntry.dao.removePage(configuration.orgId, key, language)
 
         Ok

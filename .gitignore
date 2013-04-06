@@ -1,11 +1,11 @@
 tmp
 *.pyc
 *.iws
+*.log
 test-result
-chromedriver.log
 .DS_Store
 .idea
-/logs
+logs
 /out
 dist/
 /system.out

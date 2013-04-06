@@ -13,7 +13,7 @@
 
 #{breadcrumbs crumbs: breadcrumbs /}
 
-#{organizationNavBar orgId: orgId, active:"datasets", navigation: navigation /}
+#{organizationNavBar isReadOnly: isReadOnly, isAdmin: isAdmin, orgId: orgId, active:"datasets", navigation: navigation /}
 
 <div class="dataset-filter row">
     <div class="dataset-filter-inner span12">
@@ -141,7 +141,13 @@
                         $.uiTableFilter($('#dataset-table'), $.cookie("ds-filter"));
                         $('input#filter').val($.cookie("ds-filter"));
                     }
-                    $("#dataset-table").tablesorter();
+                    $("#dataset-table").tablesorter({
+                        headers: {
+                            2: {
+                                sorter: false
+                            }
+                        }
+                    });
                     break;
                 case "created":
                     viewModel.sets.push(ko.mapping.fromJS(data.payload));

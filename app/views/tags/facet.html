@@ -11,9 +11,9 @@
                 %{
                     def qs = '/search?query='+ _qString + '&searchIn=' + _searchIn + link.url
                     // translate object types
-                    def thingType = link.value()
+                    def thingType = link.getValue()
                     if (facet.getType() == "delving_recordType_facet") {
-                        switch (link.value()) {
+                        switch (link.getValue()) {
                             case 'mdr':
                             thingType = messages.get('thing.object.heritage')
                             break
@@ -27,11 +27,11 @@
                             thingType = messages.get('thing.museum')
                             break
                             default:
-                            thingType = link.value()
+                            thingType = link.getValue()
                         }
                     }
                     if (facet.getType() == "delving_hasDigitalObject_facet") {
-                      switch (link.value()) {
+                      switch (link.getValue()) {
                           case 'false':
                           thingType = messages.get('ui.label.withoutDigitalObject')
                           break
@@ -43,10 +43,10 @@
                 }%
                 <div class="facet #{if _columns == 2}span1of2#{/if}">
                     #{if !link.remove()}
-                        <input type="checkbox" value="${qs}&facetBoolType=OR"/><span><a href="${qs}&facetBoolType=OR" rel="nofollow">${views.Helpers.shorten(thingType, 50)} (${link.count()})</a></span>
+                        <input type="checkbox" value="${qs}&facetBoolType=OR"/><span><a href="${qs}&facetBoolType=OR" rel="nofollow">${views.Helpers.shorten(thingType, 50)} (${link.getCount()})</a></span>
                     #{/if}
                     #{else}
-                        <input type="checkbox" checked="checked" value="${qs}&facetBoolType=OR"/><span><a href="${qs}&facetBoolType=OR" rel="nofollow" class="active">${views.Helpers.shorten(thingType, 50)} (${link.count()})</a></span>
+                        <input type="checkbox" checked="checked" value="${qs}&facetBoolType=OR"/><span><a href="${qs}&facetBoolType=OR" rel="nofollow" class="active">${views.Helpers.shorten(thingType, 50)} (${link.getCount()})</a></span>
                     #{/else}
                 </div>
             #{/list}
@@ -89,18 +89,18 @@
                     thingType = messages.get('thing.museum')
                     break
                     default:
-                    thingType = link.value()
+                    thingType = link.getValue()
                     }
                     }
 
                     }%
                     #{if !link.remove()}
-                        <li><input type="checkbox" value="${qs}&facetBoolType=OR"/><span><a href="${qs}&facetBoolType=OR">${thingType} (${link.count()})</a></span>
+                        <li><input type="checkbox" value="${qs}&facetBoolType=OR"/><span><a href="${qs}&facetBoolType=OR">${thingType} (${link.getCount()})</a></span>
                         </li>
                     #{/if}
                     #{else}
                         <li class="active"><input type="checkbox" checked="checked" value="${qs}&facetBoolType=OR"/><span><a href="${qs}&facetBoolType=OR">${thingType}
-                            (${link.count()})</a></span></li>
+                            (${link.getCount()})</a></span></li>
                     #{/else}
 
                 #{/list}
@@ -129,9 +129,9 @@
                 *{%{}*
                     *{def qs = '/search?query='+ _qString + link.url}*
                     *{// translate object types}*
-                    *{def thingType = link.value()}*
+                    *{def thingType = link.getValue()}*
                     *{if (facet.getType() == "delving_recordType_facet") {}*
-                    *{switch (link.value()) {}*
+                    *{switch (link.getValue()) {}*
                     *{case 'mdr':}*
                     *{thingType = messages.get('thing.object.heritage')}*
                     *{break}*
@@ -145,18 +145,18 @@
                     *{thingType = messages.get('thing.museum')}*
                     *{break}*
                     *{default:}*
-                    *{thingType = link.value()}*
+                    *{thingType = link.getValue()}*
                     *{}}*
                     *{}}*
 
                     *{}%}*
                     *{#{if !link.remove()}}*
-                        *{<li><a href="${qs}">${thingType} (${link.count()})</a>}*
+                        *{<li><a href="${qs}">${thingType} (${link.getCount()})</a>}*
                         *{</li>}*
                     *{#{/if}}*
                     *{#{else}}*
                         *{<li class="active"><a href="${qs}">${thingType}}*
-                            *{(${link.count()})</a></li>}*
+                            *{(${link.getCount()})</a></li>}*
                     *{#{/else}}*
 
                 *{#{/list}}*

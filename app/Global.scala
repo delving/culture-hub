@@ -52,9 +52,6 @@ object Global extends GlobalSettings {
       // DoS
       Akka.system.actorOf(Props[TaskQueueActor])
 
-      // SOLR
-      Akka.system.actorOf(Props[SolrCache])
-
       // routes access logger
       Akka.system.actorOf(Props[RouteLogger], name = "routeLogger")
 

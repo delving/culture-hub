@@ -43,11 +43,13 @@ class ConfigurationPlugin(app: Application) extends CultureHubPlugin(app) {
     // initialize various resource holders
     HubMongoContext.init()
 
-    // initialize schema repository to be available for plugins at configuration time
-    Akka.system.actorOf(Props[SchemaRepositoryWrapper], name = "schemaRepository")
-    schemaService.refresh()
-
     try {
+      // initialize schema repository to be available for plugins at configuration time
+      Akka.system.actorOf(Props[SchemaRepositoryWrapper], name = "schemaRepository")
+      if (!schemaService.refresh) {
+        throw new RuntimeException("Cannot initialize schema service, perhaps the schema repository is down?")
+      }
+
       checkPluginSystem()
       // ~~~ load configurations
       val props = Props(new OrganizationConfigurationHandler(CultureHubPlugin.hubPlugins))
@@ -55,7 +57,7 @@ class ConfigurationPlugin(app: Application) extends CultureHubPlugin(app) {
       OrganizationConfigurationHandler.configure(isStartup = true)
     } catch {
       case t: Throwable =>
-        t.printStackTrace()
+        log.error("FATAL: Error during initial configuration", t)
         System.exit(-1)
     }
 
