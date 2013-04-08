@@ -58,9 +58,19 @@ object Prototype extends DelvingController {
           {
             val source = Source.fromInputStream(resourceStream)
             val xml = scala.xml.XML.load(source)
-            val json = util.Json.toJson(xml)
+            val simplified = EADSimplifier.simplify(xml)
+            val json = util.Json.toJson(simplified)
             val unlimited = request.queryString.getFirst("limited").map(_ == "false").getOrElse(false)
-            val transformed = transformTree(json, request.queryString.getFirst("path"), unlimited, transformFancyNode, renderAsArray = true, skipRoot = true)
+            def customRender = { node: JValue =>
+              {
+                RenderNode(
+                  title = (node \ "title") match { case JString(title) => title; case _ => "" },
+                  path = (node \ "key") match { case JString(key) => key; case _ => "" },
+                  children = node.children
+                )
+              }
+            }
+            val transformed = transformTree(json, request.queryString.getFirst("path"), unlimited, transformFancyNode, customRender = Some(customRender), renderAsArray = true, skipRoot = true)
 
             Ok(pretty(net.liftweb.json.render(transformed))).as(JSON)
           }
@@ -117,14 +127,15 @@ object Prototype extends DelvingController {
   }
 
   def transformTree(json: JValue, key: Option[String], unlimited: Boolean = false,
-    transformer: (String, JValue, Stack[String], Int, Option[String], ArrayBuffer[JValue], Int) => JValue,
+    transformer: (String, JValue, Stack[String], Int, Option[String], ArrayBuffer[JValue], Int, Option[JValue => RenderNode]) => JValue,
+    customRender: Option[JValue => RenderNode] = None,
     renderAsArray: Boolean = false,
     skipRoot: Boolean = false): JValue = {
     json match {
       case o @ JObject(fields: Seq[JField]) =>
         val root = fields.head
         val subtree = ArrayBuffer[JValue]()
-        val transformed = transformer(root.name, root.value, Stack(), 0, key, subtree, if (unlimited) -1 else 1) match {
+        val transformed = transformer(root.name, root.value, Stack(), 0, key, subtree, if (unlimited) -1 else 1, customRender) match {
           case JObject(fields: Seq[JField]) if skipRoot => List(JObject(fields))
           case o @ JObject(fields: Seq[JField]) => List(JObject(List(JField(root.name, o))))
         }
@@ -145,14 +156,20 @@ object Prototype extends DelvingController {
     path: Stack[String],
     depth: Int, key: Option[String],
     subtree: ArrayBuffer[JValue],
-    depthLimit: Int = 1): JValue = {
+    depthLimit: Int = 1,
+    customRender: Option[JValue => RenderNode] = None): JValue = {
     val pathMatched = key != None && key.get == path.reverse.mkString
     val v = value match {
       case JObject(fields: Seq[JField]) =>
+        val renderNode: RenderNode = customRender map { e =>
+          e(value)
+        } getOrElse {
+          RenderNode(title, path.reverse.mkString + "/" + title, fields)
+        }
         val baseFields = List(
           JField(
             name = "title",
-            value = JString(title)
+            value = JString(renderNode.title)
           ),
           JField(
             name = "folder",
@@ -161,6 +178,10 @@ object Prototype extends DelvingController {
           JField(
             name = "key",
             value = JString(path.reverse.mkString + "/" + title)
+          ),
+          JField(
+            name = "path",
+            value = JString(renderNode.path)
           )
         )
         val renderedFields = if ((depth >= depthLimit && depthLimit > -1) && (key.isEmpty || (key.isDefined && !subtree.isEmpty))) {
@@ -176,7 +197,7 @@ object Prototype extends DelvingController {
             name = "children",
             value = JArray(
               fields map { field =>
-                val node = transformFancyNode(field.name, field.value, path push ("/" + title), depth + 1, key, subtree, depthLimit)
+                val node = transformFancyNode(field.name, field.value, path push ("/" + title), depth + 1, key, subtree, depthLimit, customRender)
                 node
               }
             )
@@ -196,7 +217,7 @@ object Prototype extends DelvingController {
           JField(
             name = "children",
             value = JArray(values.zipWithIndex.map { v =>
-              val node = transformFancyNode(title, v._1, path push (s"/$title[${v._2}]"), depth + 1, key, subtree, depthLimit)
+              val node = transformFancyNode(title, v._1, path push (s"/$title[${v._2}]"), depth + 1, key, subtree, depthLimit, customRender)
               node
             })
           )))
@@ -232,8 +253,10 @@ object Prototype extends DelvingController {
     path: Stack[String],
     depth: Int, key: Option[String],
     subtree: ArrayBuffer[JValue],
-    depthLimit: Int = 1): JValue = {
-    val pathMatched = key != None && key.get == path.reverse.mkString
+    depthLimit: Int = 1,
+    customRender: Option[JValue => RenderNode] = None): JValue = {
+    val pathMatched = key != None && key.get == (path.reverse.mkString + "/" + title)
+    println(path.reverse.mkString + "/" + title)
     val v = value match {
       case JObject(fields: Seq[JField]) =>
         JObject(fields.map { field =>
@@ -249,3 +272,5 @@ object Prototype extends DelvingController {
     v
   }
 }
+
+case class RenderNode(title: String, path: String, children: Seq[JValue])
