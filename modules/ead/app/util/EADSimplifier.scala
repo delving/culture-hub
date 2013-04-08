@@ -37,7 +37,7 @@ object EADSimplifier {
             val kids = n \ "c"
             <node>
               <title>{ title }</title>
-              <key>{ path.reverse.mkString("/") + s"/c/c[$index]" }</key>
+              <key>{ path.reverse.mkString("/") + s"/c/c[$index]/c" }</key>
               { simplifyC(kids, path push n.label + s"[$index]") }
             </node>
         }
