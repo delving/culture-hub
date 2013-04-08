@@ -4,12 +4,25 @@
     <script src='@{controllers.ead.routes.Assets.at("fancytree/jquery/jquery.js"}' type="text/javascript"></script>
     <script src='@{controllers.ead.routes.Assets.at("fancytree/jquery/jquery-ui.custom.js"}' type="text/javascript"></script>
     <script src='@{controllers.ead.routes.Assets.at("fancytree/jquery/jquery.cookie.js"}' type="text/javascript"></script>
-
-    <link rel='stylesheet' type='text/css' href='@{controllers.ead.routes.Assets.at("fancytree/skin-win7/ui.fancytree.css")}'>
+    <link rel="stylesheet" type="text/css" href="@{routes.Assets.at("common/stylesheets/bootstrap.min.css")}"/>
+    <link rel='stylesheet' type='text/css' href='@{controllers.ead.routes.Assets.at("fancytree/skin-lion/ui.fancytree.css")}'>
     <script src='@{controllers.ead.routes.Assets.at("fancytree/jquery.fancytree.js")}' type="text/javascript"></script>
     <script src='@{controllers.ead.routes.Assets.at("fancytree/jquery.fancytree.filter.js")}' type="text/javascript"></script>
 
     <script src='@{controllers.ead.routes.Assets.at("javascripts/mustache.js")}' type="text/javascript"></script>
+
+    <style>
+        body {
+            margin: 20px;
+        }
+        input[type='text'] {
+            height: auto;
+        }
+        .fancytree-container {
+            background: #eaeaea;
+            height: auto;
+        }
+    </style>
 
     <!-- Add code to initialize the tree when the document is loaded: -->
     <script type="text/javascript">
@@ -39,16 +52,21 @@
 
                         // here we can now render the detail
                         // we need to be able to render different parts of the APENet EAD tree, case-by-case
-
+                             console.log(node.key);
                         var handledKeys = {
                             "/ead/eadheader": "eadheaderTpl"
                         };
+
+                        console.log(node.key);
+
+                        console.log("/experiments/ead/sourceTree?path=" + node.key);
 
                         if (handledKeys[node.key]) {
                             $.getJSON('/experiments/ead/sourceTree', { path: node.key }, function(data) {
                                 var template = $('#' + handledKeys[node.key]).html();
                                 var html = Mustache.to_html(template, data);
                                 $('#detail').html(html);
+                                
                             });
                         } else {
                             $('#detail').html('<p>Hello, Is there anybody in there? Just nod if you can hear me Is there anyone home?</p>')
@@ -84,15 +102,28 @@
 </head>
 <body>
 
-<p>
-    <label>Filter:</label>
-    <input name="search" placeholder="Filter...">
-    <button id="btnResetSearch">&times;</button>
-    <span id="matches"></span>
-  </p>
+<div class="container">
+    <div class="row">
+         <div class="span12">
+             <form class="form-horizontal">
+                    <label for="search">Filter:</label>
+                        <input class="span2" type="text" name="search" id="search" placeholder="Filter...">
+                        <button id="btnResetSearch" class="btn" type="submit">&times;</button>
+                        <span id="matches"></span>
+             </form>
+         </div>
+    </div>
+    <div class="row">
+        <div class="span5">
+            <div id="tree"></div>
+        </div>
+        <div class="span7">
+            <div id="detail"></div>
+        </div>
+    </div>
+</div>
 
-<div id="tree"></div>
-<div id="detail"></div>
+
 
 </body>
 </html>
@@ -100,5 +131,10 @@
 
 
 <script id="eadheaderTpl" type="text/template">
-<h1>{{identifier}}</h1>
+    <dl class="dl-horizontal">
+        <dt>Title:</dt><dd>{{filedesc.titlestmt.titleproper}}</dd>
+        <dt>Creator:</dt><dd>{{filedesc.titlestmt.author}}</dd>
+        <dt>Identifier:</dt><dd>{{identifier}}</dd>
+        <dt>Latest revision:</dt><dd>{{revisiondesc.change.0.date}}</dd>
+    </dl>
 </script>
