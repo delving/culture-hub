@@ -1,7 +1,6 @@
 package util
 
 import scala.xml._
-import java.io.File
 import scala.collection.immutable.Stack
 
 /**
