@@ -22,7 +22,7 @@ trait RenderingExtensions { self: Controller =>
 
   def DOk(xml: NodeSeq, sequences: List[String]*)(implicit request: RequestHeader): Result = {
     if (wantsJson) {
-      Ok(util.Json.toJson(xml, false, sequences)).as(JSON)
+      Ok(util.Json.renderToJson(xml, false, sequences)).as(JSON)
     } else {
       Ok(xml)
     }
