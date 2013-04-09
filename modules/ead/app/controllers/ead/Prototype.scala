@@ -151,8 +151,6 @@ object Prototype extends DelvingController {
     subtree: ArrayBuffer[JValue],
     depthLimit: Int = 1): JValue = {
 
-    val pathMatched = key != None && key.get == (path.reverse.mkString + "/" + title)
-
     def node(value: JObject) = {
       val title = (value \ "title") match { case JString(t) => t }
       val path = (value \ "key") match { case JString(p) => p }
@@ -165,7 +163,7 @@ object Prototype extends DelvingController {
         val (title, p, nodes) = node(o)
         JObject(List(
           JField("title", JString(title)),
-          JField("folder", JBool(true)),
+          JField("folder", JBool(!nodes.isEmpty)),
           JField("data", JObject(List(JField("path", JString(p))))),
           JField("key", JString(path.reverse.mkString + "/" + title)),
           JField("children", JArray(nodes.zipWithIndex.map { c =>
@@ -175,7 +173,8 @@ object Prototype extends DelvingController {
 
       case JString(s) =>
         JObject(List(
-          JField("title", JString(s))
+          JField("title", JString(s)),
+          JField("folder", JBool(false))
         ))
     }
 
