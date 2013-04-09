@@ -6,7 +6,7 @@ import play.Project._
 import sbtbuildinfo.Plugin._
 import eu.delving.templates.Plugin._
 
-trait BuildDefinitions { self: sbt.Build =>
+object Build extends sbt.Build {
 
   val cultureHub = SettingKey[String]("culture-hub", "Version of the CultureHub")
   val sipApp     = SettingKey[String]("sip-app", "Version of the SIP-App")
@@ -32,11 +32,14 @@ trait BuildDefinitions { self: sbt.Build =>
 
   val scalarifromSettings = SbtScalariform.scalariformSettings
 
-}
+  val appDependencies = Seq(
+    "org.apache.amber"          %  "amber-oauth2-authzserver"        % "0.22-incubating",
+    "org.apache.amber"          %  "amber-oauth2-client"             % "0.22-incubating",
+    "eu.delving"                %  "themes"                          % "1.0-SNAPSHOT"      changing()
+  )
 
-object ModulesBuild extends sbt.Build with BuildDefinitions {
 
-  // ~~~ core
+    // ~~~ core
 
   val webCoreDependencies = Seq(
     "eu.delving"                %% "play2-extensions"                % playExtensionsVersion,
@@ -77,21 +80,21 @@ object ModulesBuild extends sbt.Build with BuildDefinitions {
   ).settings(scalarifromSettings :_*)
 
   lazy val search = play.Project("search", "1.0-SNAPSHOT", Seq.empty, path = file("modules/search")).settings(
-    resolvers ++= ModulesBuild.commonResolvers,
+    resolvers ++= commonResolvers,
     publish := { }
-  ).dependsOn(ModulesBuild.webCore % "test->test;compile->compile").settings(ModulesBuild.scalarifromSettings :_*)
+  ).dependsOn(webCore % "test->test;compile->compile").settings(scalarifromSettings :_*)
 
   lazy val dataset = play.Project("dataset", "1.0-SNAPSHOT", Seq.empty, path = file("modules/dataset")).settings(
-    resolvers ++= ModulesBuild.commonResolvers,
+    resolvers ++= commonResolvers,
     publish := { }
-  ).dependsOn(ModulesBuild.webCore % "test->test;compile->compile", ModulesBuild.search % "test->test;compile->compile").settings(ModulesBuild.scalarifromSettings :_*)
+  ).dependsOn(webCore % "test->test;compile->compile", search % "test->test;compile->compile").settings(scalarifromSettings :_*)
 
   // ~~~ dynamic modules, to avoid hard-coded definitions
 
   val excludes = Seq("cms", "search", "dataset", "thumbnail", "deepZoom", "simple-document-upload")
 
-  def discoverModules(dir: String): Seq[Project] = {
-    val dirs: Seq[sbt.File] = if(file(dir).listFiles != null) file(dir).listFiles else Seq.empty[sbt.File]
+  def discoverModules(base: File, dir: String): Seq[Project] = {
+    val dirs: Seq[sbt.File] = if((base / dir).listFiles != null) (base / dir).listFiles else Seq.empty[sbt.File]
     for (x <- dirs if x.isDirectory && !excludes.contains(x.getName)) yield
         play.Project(x.getName, "1.0-SNAPSHOT", Seq.empty, path = x).settings(
           resolvers ++= commonResolvers,
@@ -99,50 +102,41 @@ object ModulesBuild extends sbt.Build with BuildDefinitions {
         ).dependsOn(webCore % "test->test;compile->compile", search % "test->test;compile->compile", dataset % "test->test;compile->compile").settings(scalarifromSettings :_*)
   }
 
-  lazy val modules = discoverModules("modules") ++ discoverModules("additionalModules")
+  def modules(base: File): Seq[Project] = discoverModules(base, "modules") ++ discoverModules(base, "additionalModules")
 
-  def module(id: String): Project = modules.find(_.id == id).get
+  def module(base: File, id: String): Project = modules(base).find(_.id == id).get
 
-}
-
-object AllModulesBuild extends sbt.Build {
 
   // the following projects have dependencies on other modules, and need to be declared separately
 
-  lazy val cms = play.Project("cms", "1.0-SNAPSHOT", Seq.empty, path = file("modules/cms")).settings(
-    resolvers ++= ModulesBuild.commonResolvers,
+  def cms(base: File) = play.Project("cms", "1.0-SNAPSHOT", Seq.empty, path = file("modules/cms")).settings(
+    resolvers ++= commonResolvers,
     publish := { },
-    libraryDependencies += "eu.delving"                %% "play2-extensions"                % ModulesBuild.playExtensionsVersion,
+    libraryDependencies += "eu.delving"                %% "play2-extensions"                % playExtensionsVersion,
     routesImport += "extensions.Binders._"
-  ).dependsOn(ModulesBuild.webCore % "test->test;compile->compile", ModulesBuild.module("dos")).settings(ModulesBuild.scalarifromSettings :_*)
+  ).dependsOn(webCore % "test->test;compile->compile", module(base, "dos")).settings(scalarifromSettings :_*)
 
-  override def projects = Seq(ModulesBuild.webCore, ModulesBuild.search, ModulesBuild.dataset, cms) ++ ModulesBuild.modules
 
-  def toRef = projects.map {x => x: ProjectReference }
 
-  def toProj = projects.map {x => x: ClasspathDep[ProjectReference] }
+  def allModules(base: File) = Seq(webCore, search, dataset, cms(base)) ++ modules(base)
 
-}
+  def allModuleReferences(base: File) = allModules(base).map {x => x: ProjectReference }
 
-object Build extends sbt.Build {
+  override def projectDefinitions(baseDirectory: File): Seq[Project] = allModules(baseDirectory) ++ Seq(root(baseDirectory))
 
-  val appDependencies = Seq(
-    "org.apache.amber"          %  "amber-oauth2-authzserver"        % "0.22-incubating",
-    "org.apache.amber"          %  "amber-oauth2-client"             % "0.22-incubating",
-    "eu.delving"                %  "themes"                          % "1.0-SNAPSHOT"      changing()
-  )
 
-  val root = play.Project("culture-hub", ModulesBuild.cultureHubVersion, appDependencies, settings = Defaults.defaultSettings ++ groovyTemplatesSettings).settings(
+
+  def root(base: File): Project = play.Project("culture-hub", cultureHubVersion, appDependencies, settings = Defaults.defaultSettings ++ groovyTemplatesSettings).settings(
 
     onLoadMessage := "May the force be with you",
 
     sourceGenerators in Compile <+= groovyTemplatesList,
 
     resolvers += Resolver.file("local-ivy-repo", file(Path.userHome + "/.ivy2/local"))(Resolver.ivyStylePatterns),
-    resolvers ++= ModulesBuild.commonResolvers,
+    resolvers ++= commonResolvers,
     publishArtifact in (Compile, packageDoc) := false,
     publishArtifact in (Compile, packageSrc) := false,
-    publishTo := Some(ModulesBuild.delvingRepository(ModulesBuild.cultureHubVersion)),
+    publishTo := Some(delvingRepository(cultureHubVersion)),
     credentials += Credentials(Path.userHome / ".ivy2" / ".credentials"),
 
 
@@ -150,7 +144,7 @@ object Build extends sbt.Build {
 
     parallelExecution in (ThisBuild) := false,
 
-    scalaVersion in (ThisBuild) := ModulesBuild.buildScalaVersion,
+    scalaVersion in (ThisBuild) := buildScalaVersion,
 
     watchTransitiveSources <<= watchTransitiveSources map { (sources: Seq[java.io.File]) =>
       sources
@@ -164,9 +158,9 @@ object Build extends sbt.Build {
       files.filterNot(file => file.contains("src_managed"))
     }
 
-  ).settings(ModulesBuild.scalarifromSettings :_*)
-   .dependsOn(AllModulesBuild.toRef map { x => x % "test->test;compile->compile"} : _*)
-   .aggregate(AllModulesBuild.toRef : _*)
+  ).settings(scalarifromSettings :_*)
+   .dependsOn(allModules(base) map { x => x % "test->test;compile->compile"} : _*)
+   .aggregate(allModuleReferences(base) : _*)
 
 
 }
