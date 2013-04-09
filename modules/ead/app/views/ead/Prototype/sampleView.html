@@ -54,7 +54,8 @@
                         // we need to be able to render different parts of the APENet EAD tree, case-by-case
                              console.log(node.key);
                         var handledKeys = {
-                            "/ead/eadheader": "eadheaderTpl"
+                            "/ead/eadheader": "eadheaderTpl",
+                            "/ead/archdesc": "eadarchdescTpl"
                         };
 
                         console.log(node.key);
@@ -136,5 +137,12 @@
         <dt>Creator:</dt><dd>{{filedesc.titlestmt.author}}</dd>
         <dt>Identifier:</dt><dd>{{identifier}}</dd>
         <dt>Latest revision:</dt><dd>{{revisiondesc.change.0.date}}</dd>
+    </dl>
+</script>
+<script id="eadarchdescTpl" type="text/template">
+    <dl class="dl-horizontal">
+        <dt>Title:</dt><dd>{{did.unittitle}}</dd>
+        <dt>Description:</dt><dd>{{odd.p}}</dd>
+        <dt>adsfafadf:</dt><dd>{{dsc.c.c.0.series}}</dd>
     </dl>
 </script>
