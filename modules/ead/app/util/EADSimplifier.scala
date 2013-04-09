@@ -19,7 +19,7 @@ object EADSimplifier {
 
     val res = simplifyC(firstCs, Stack("/ead/archdesc/dsc"))
 
-    val r = <all>{ res }</all>
+    val r = <node><title>{ title }</title><key>/</key>{ res }</node>
 
     r
 
