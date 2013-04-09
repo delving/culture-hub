@@ -3216,7 +3216,7 @@ $.extend($.ui.fancytree,
 	/** @type {String} */
 	version: "2.0.0pre",
 	/** @type {int} */
-	debugLevel: 2,
+	debugLevel: 0,
 
 	_nextId: 1,
 	_nextNodeKey: 1,

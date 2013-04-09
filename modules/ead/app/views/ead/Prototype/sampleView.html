@@ -40,6 +40,9 @@
                     url: '@{controllers.ead.routes.Prototype.tree(scala.Option.apply(null), true)}'
                 },
                 extensions: ["filter"],
+                filter: {
+                    mode: "hide"
+                },
                 lazyload: function(e, data) {
                     data.result = {
                       url: '@{controllers.ead.routes.Prototype.tree(scala.Option.apply(null), true)}',
@@ -49,6 +52,7 @@
                 activate: function(e, data) {
                     var node = data.node;
                     if (node.key) {
+                        console.log(node.data.path)
 
                         // here we can now render the detail
                         // we need to be able to render different parts of the APENet EAD tree, case-by-case
@@ -70,7 +74,7 @@
                                 
                             });
                         } else {
-                            $('#detail').html('<p>Hello, Is there anybody in there? Just nod if you can hear me Is there anyone home?</p>')
+                            $('#detail').html('<p>Hello, Is there anybody in there? / Just nod if you can hear me / Is there anyone home?</p><p>' + node.data.path +'</p>')
                         }
                     }
                 }

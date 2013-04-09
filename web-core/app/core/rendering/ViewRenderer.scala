@@ -263,7 +263,7 @@ class ViewRenderer(val schema: String, viewType: ViewType, configuration: Organi
                 shortcutResult = Some(new RenderedView {
                   def toXmlString: String = rawRecord
 
-                  def toJson: String = util.Json.toJson(xml = toXml, escapeNamespaces = true, sequences = arrays.toList)
+                  def toJson: String = util.Json.renderToJson(xml = toXml, escapeNamespaces = true, sequences = arrays.toList)
 
                   def toXml: NodeSeq = XML.loadString(rawRecord)
 
@@ -623,7 +623,7 @@ case object RenderNode {
   }
 
   def toJson(n: RenderNode, sequences: Seq[List[String]]): String = {
-    util.Json.toJson(
+    util.Json.renderToJson(
       xml = XML.loadString(toXMLString(n)),
       escapeNamespaces = true,
       sequences = sequences
