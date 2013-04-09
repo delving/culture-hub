@@ -27,6 +27,9 @@
                     url: '@{controllers.ead.routes.Prototype.tree(scala.Option.apply(null), true)}'
                 },
                 extensions: ["filter"],
+                filter: {
+                    mode: "hide"
+                },
                 lazyload: function(e, data) {
                     data.result = {
                       url: '@{controllers.ead.routes.Prototype.tree(scala.Option.apply(null), true)}',
