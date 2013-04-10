@@ -20,7 +20,7 @@ object EADSimplifier {
 
     val firstCs = source \ "archdesc" \ "dsc" \ "c"
 
-    val simplifiedCs = simplifyC(firstCs, Stack("/ead/archdesc/dsc/c"))
+    val simplifiedCs = simplifyC(firstCs, Stack("/ead/archdesc/dsc"))
 
     <node>
       <id>{ id }</id>
@@ -61,7 +61,7 @@ object EADSimplifier {
               <odd>{ (n \ "odd" \ "p").text }</odd>
               <otherfindaid>{ (n \ "otherfindaid" \ "p").text }</otherfindaid>
               <key>{ path.reverse.mkString("/") + s"/c/c[$index]" }</key>
-              { simplifyC(kids, path push n.label + s"[$index]") }
+              { simplifyC(kids, path push n.label + s"/c[$index]") }
             </node>
         }
     }
