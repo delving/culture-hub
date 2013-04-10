@@ -144,16 +144,16 @@ object Prototype extends DelvingController {
           case o @ JObject(fields: Seq[JField]) => List(JObject(List(JField(root.name, o))))
         }
 
-        if (key.isDefined && subtree.isEmpty) {
+        if (key.isDefined && subtree.isEmpty && key.get != "/") {
           None
         } else {
           Some(
             if (renderAsArray) {
               JArray(
-                if (key.isDefined) subtree.toList else transformed
+                if (key.isDefined && !subtree.isEmpty) subtree.toList else transformed
               )
             } else {
-              if (key.isDefined) subtree.head else transformed.head
+              if (key.isDefined && !subtree.isEmpty) subtree.head else transformed.head
             }
           )
         }
