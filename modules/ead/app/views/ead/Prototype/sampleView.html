@@ -30,12 +30,14 @@
             // Attach the fancytree widget to an existing <div id="tree"> element
             // and pass the tree options as an argument to the fancytree() function:
             $("#tree").fancytree({
+                // why is this here? it never gets triggered it seems.
                 onActivate: function(node) {
-                				// A DynaTreeNode object is passed to the activation handler
-                				// Note: we also get this event, if persistence is on, and the page is reloaded.
-                				alert("You activated " + node.data.title);
-                			},
+                    // A DynaTreeNode object is passed to the activation handler
+                    // Note: we also get this event, if persistence is on, and the page is reloaded.
+                    alert("You activated " + node.data.title);
+                },
                 persist: true,
+                clickFolderMode: 3,
                 source: {
                     url: '@{controllers.ead.routes.Prototype.tree(scala.Option.apply(null), true)}'
                 },
@@ -43,6 +45,7 @@
                 filter: {
                     mode: "hide"
                 },
+                // lazyload is also never triggered.
                 lazyload: function(e, data) {
                     data.result = {
                       url: '@{controllers.ead.routes.Prototype.tree(scala.Option.apply(null), true)}',
@@ -50,26 +53,29 @@
                     };
                 },
                 activate: function(e, data) {
-                    var node = data.node;
-                    if (node.key) {
-                        console.log(node.data.path)
 
+                    var node = data.node;
+                    if (node.data.path) {
                         // here we can now render the detail
                         // we need to be able to render different parts of the APENet EAD tree, case-by-case
-                             console.log(node.key);
                         var handledKeys = {
-                            "/ead/eadheader": "eadheaderTpl"
+                            "/": "eadheaderTpl",
+                            "/ead/archdesc/dsc/c/c[0]/c": "eadarchdescTpl",
+                            "/ead/archdesc": "testTmpl"
                         };
 
-                        console.log(node.key);
-
-                        console.log("/experiments/ead/sourceTree?path=" + node.key);
-
-                        if (handledKeys[node.key]) {
-                            $.getJSON('/experiments/ead/sourceTree', { path: node.key }, function(data) {
-                                var template = $('#' + handledKeys[node.key]).html();
+                        if (handledKeys[node.data.path]) {
+                            $.getJSON('/experiments/ead/sourceTree', { path: node.data.path }, function(data) {
+                                var template = $('#' + handledKeys[node.data.path]).html();
                                 var html = Mustache.to_html(template, data);
-                                $('#detail').html(html);
+                                if(node.data.path === "/"){
+                                      $("#header").html(html);
+                                }
+                                else {
+                                    $('#detail').html(html);
+                                }
+                                console.log(node.data.path);
+
                                 
                             });
                         } else {
@@ -122,6 +128,7 @@
             <div id="tree"></div>
         </div>
         <div class="span7">
+            <div id="header"></div>
             <div id="detail"></div>
         </div>
     </div>
@@ -135,10 +142,41 @@
 
 
 <script id="eadheaderTpl" type="text/template">
+    <h2>Header Template</h2>
     <dl class="dl-horizontal">
-        <dt>Title:</dt><dd>{{filedesc.titlestmt.titleproper}}</dd>
-        <dt>Creator:</dt><dd>{{filedesc.titlestmt.author}}</dd>
-        <dt>Identifier:</dt><dd>{{identifier}}</dd>
-        <dt>Latest revision:</dt><dd>{{revisiondesc.change.0.date}}</dd>
+        <dt>Title:</dt>
+            <dd>{{ead.eadheader.filedesc.titlestmt.titleproper}}</dd>
+        <dt>Creator:</dt>
+            <dd>{{ead.eadheader.filedesc.titlestmt.author}}</dd>
+        <dt>Identifier:</dt>
+            <dd>{{ead.eadheader.identifier}}</dd>
+        <dt>Origin</dt>
+            <dd>{{ead.archdesc.did.origination.corpname}}</dd>
+        <dt>Arrangement</dt>
+            <dd>{{ead.archdesc.arrangement.p}}</dd>
+        <dt>Description</dt>
+            <dd>{{ead.archdesc.odd.p}}</dd>
+        <dt>Latest revision:</dt>
+            <dd>{{ead.eadheader.revisiondesc.change.0.item}} - {{ead.eadheader.revisiondesc.change.0.date}}</dd>
+
+    </dl>
+    {{#ead.archdesc.dsc.c.0.c}}
+        test
+    {{/ead.archdesc.dsc.c.0.c}}
+</script>
+<script id="eadarchdescTpl" type="text/template">
+    <h2>Description Template</h2>
+    <dl class="dl-horizontal">
+        <dt>Title:</dt><dd>{{ead.archdesc.dsc.c.0.c.0.did.unittitle}}</dd>
+        <dt>Description:</dt><dd>{{odd.p}}</dd>
+        <dt>adsfafadf:</dt><dd>{{dsc.c.c.0.series}}</dd>
+    </dl>
+</script>
+<script id="testTmpl" type="text/template">
+    <h2>Test Template</h2>
+    <dl class="dl-horizontal">
+        <dt>Title:</dt><dd>{{ead.archdesc.dsc.c.0.c.0.did.unittitle}}</dd>
+        <dt>Description:</dt><dd>{{odd.p}}</dd>
+        <dt>adsfafadf:</dt><dd>{{dsc.c.0.c.0.series}}</dd>
     </dl>
 </script>
