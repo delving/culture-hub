@@ -5,6 +5,7 @@ import scala.collection.immutable.Stack
 
 /**
  * Prototype for EAD tree simplification
+ *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 object EADSimplifier {
@@ -13,16 +14,31 @@ object EADSimplifier {
 
     val title = (source \ "eadheader" \ "filedesc" \ "titlestmt" \ "titleproper").text
 
-    val dscRoot = source \ "archdesc" \ "dsc"
+    val simplifiedArchDesc = simplifyArchDesc(source \ "archdesc")
 
-    val firstCs = dscRoot \ "c"
+    val firstCs = source \ "archdesc" \ "dsc" \ "c"
 
-    val res = simplifyC(firstCs, Stack("/ead/archdesc/dsc"))
+    val simplifiedCs = simplifyC(firstCs, Stack("/ead/archdesc/dsc"))
 
-    val r = <node><title>{ title }</title><key>/</key>{ res }</node>
+    <node>
+      <title>{ title }</title>
+      <key>/</key>
+      { simplifiedArchDesc }
+      { simplifiedCs }
+    </node>
 
-    r
+  }
 
+  def simplifyArchDesc(node: NodeSeq): Seq[Node] = {
+
+    def did(elt: String) = (node \ "did" \ elt).text
+
+    <did_unitid>{ did("unitid") }</did_unitid>
+    <did_unittitle>{ did("unittitle") }</did_unittitle>
+    <did_unitdate>{ did("unitdate") }</did_unitdate>
+    <did_origination_corpname>{ (node \ "did" \ "origination" \ "corpname").text }</did_origination_corpname>
+    <odd>{ (node \ "odd" \ "p").text }</odd>
+    <arrangement>{ (node \ "arrangement" \ "p").text }</arrangement>
   }
 
   def simplifyC(nodeSeq: Seq[Node], path: Stack[String]): Seq[Node] = {

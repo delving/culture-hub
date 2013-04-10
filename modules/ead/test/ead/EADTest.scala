@@ -20,7 +20,8 @@ class EADTest extends FlatSpec with ShouldMatchers {
         {
           val source = Source.fromInputStream(resourceStream)
           val xml = scala.xml.XML.load(source)
-          EADSimplifier.simplify(xml)
+          val r = EADSimplifier.simplify(xml)
+          println(r)
         }
     }
 
