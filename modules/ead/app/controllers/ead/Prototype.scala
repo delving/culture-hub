@@ -64,7 +64,11 @@ object Prototype extends DelvingController {
 
             val transformed = transformTree(json, request.queryString.getFirst("path"), unlimited, transformSimplifiedTreeToFancyNode, renderAsArray = true, skipRoot = true)
 
-            Ok(pretty(net.liftweb.json.render(transformed))).as(JSON)
+            transformed map { t =>
+              Ok(pretty(net.liftweb.json.render(t))).as(JSON)
+            } getOrElse {
+              NotFound
+            }
           }
       } getOrElse {
         InternalServerError("Couldn't find test resource")
@@ -90,7 +94,11 @@ object Prototype extends DelvingController {
             val unlimited = request.queryString.getFirst("limited").map(_ == "false").getOrElse(false)
             val transformed = transformTree(json, request.queryString.getFirst("path"), unlimited, transformSourceNode)
 
-            Ok(pretty(net.liftweb.json.render(transformed))).as(JSON)
+            transformed map { t =>
+              Ok(pretty(net.liftweb.json.render(t))).as(JSON)
+            } getOrElse {
+              NotFound
+            }
           }
       } getOrElse {
         InternalServerError("Couldn't find test resource")
@@ -111,7 +119,12 @@ object Prototype extends DelvingController {
             val unlimited = request.queryString.getFirst("limited").map(_ == "false").getOrElse(false)
             val transformed = transformTree(json, request.queryString.getFirst("path"), unlimited, transformSourceNode)
 
-            Ok(pretty(net.liftweb.json.render(transformed))).as(JSON)
+            transformed map { t =>
+              Ok(pretty(net.liftweb.json.render(t))).as(JSON)
+            } getOrElse {
+              NotFound
+            }
+
           }
       } getOrElse {
         InternalServerError("Couldn't find test resource")
@@ -121,7 +134,7 @@ object Prototype extends DelvingController {
   def transformTree(json: JValue, key: Option[String], unlimited: Boolean = false,
     transformer: (String, JValue, Stack[String], Int, Option[String], ArrayBuffer[JValue], Int) => JValue,
     renderAsArray: Boolean = false,
-    skipRoot: Boolean = false): JValue = {
+    skipRoot: Boolean = false): Option[JValue] = {
     json match {
       case o @ JObject(fields: Seq[JField]) =>
         val root = fields.head
@@ -131,13 +144,20 @@ object Prototype extends DelvingController {
           case o @ JObject(fields: Seq[JField]) => List(JObject(List(JField(root.name, o))))
         }
 
-        if (renderAsArray) {
-          JArray(
-            if (key.isDefined && !subtree.isEmpty) subtree.toList else transformed
-          )
+        if (key.isDefined && subtree.isEmpty) {
+          None
         } else {
-          if (key.isDefined && !subtree.isEmpty) subtree.head else transformed.head
+          Some(
+            if (renderAsArray) {
+              JArray(
+                if (key.isDefined) subtree.toList else transformed
+              )
+            } else {
+              if (key.isDefined) subtree.head else transformed.head
+            }
+          )
         }
+
       case other @ _ => throw new RuntimeException("Huh? Unknown node type: " + other)
     }
   }
@@ -285,7 +305,11 @@ object Prototype extends DelvingController {
         })
       case JArray(values: Seq[JValue]) =>
         JArray(values.zipWithIndex.map { v =>
-          transformSourceNode(title, v._1, path push (s"/$title[${v._2}]"), depth + 1, key, subtree, depthLimit)
+          {
+            // we push the title again to generate coherent paths, e.g. /some/array, /some/array/array[0], etc.
+            val updatedPath = path push (s"/$title")
+            transformSourceNode(s"$title[${v._2}]", v._1, updatedPath, depth + 1, key, subtree, depthLimit)
+          }
         })
       case other @ _ => other
     }
@@ -293,5 +317,3 @@ object Prototype extends DelvingController {
     v
   }
 }
-
-case class RenderNode(title: String, data: Map[String, String], children: List[JField])
