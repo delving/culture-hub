@@ -14,16 +14,21 @@ object EADSimplifier {
 
     val title = (source \ "eadheader" \ "filedesc" \ "titlestmt" \ "titleproper").text
 
+    val id = (source \ "eadheader" \ "eadid" \ "@identifier").text
+
     val simplifiedArchDesc = simplifyArchDesc(source \ "archdesc")
 
     val firstCs = source \ "archdesc" \ "dsc" \ "c"
 
-    val simplifiedCs = simplifyC(firstCs, Stack("/ead/archdesc/dsc"))
+    val simplifiedCs = simplifyC(firstCs, Stack("/ead/archdesc/dsc/c"))
 
     <node>
+      <id>{ id }</id>
       <title>{ title }</title>
       <key>/</key>
-      { simplifiedArchDesc }
+      <archdesc>
+        { simplifiedArchDesc }
+      </archdesc>
       { simplifiedCs }
     </node>
 
@@ -48,11 +53,14 @@ object EADSimplifier {
         val index = pair._2
         node match {
           case n if n.label == "c" =>
-            val title = (n \ "did" \ "unittitle").text
             val kids = n \ "c"
             <node>
-              <title>{ title }</title>
-              <key>{ path.reverse.mkString("/") + s"/c/c[$index]/c" }</key>
+              <title>{ (n \ "did" \ "unittitle").text }</title>
+              <id>{ (n \ "did" \ "unitid").text }</id>
+              <date>{ (n \ "did" \ "unitdate").text }</date>
+              <odd>{ (n \ "odd" \ "p").text }</odd>
+              <otherfindaid>{ (n \ "otherfindaid" \ "p").text }</otherfindaid>
+              <key>{ path.reverse.mkString("/") + s"/c/c[$index]" }</key>
               { simplifyC(kids, path push n.label + s"[$index]") }
             </node>
         }
