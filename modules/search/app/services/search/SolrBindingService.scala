@@ -2,7 +2,7 @@ package services.search
 
 import scala.collection.JavaConversions._
 import org.apache.solr.client.solrj.response.{ FacetField, QueryResponse }
-import collection.immutable.{ HashMap, Map => ImMap }
+import scala.collection.immutable.{Map => ImMap, ListMap, HashMap}
 import org.apache.solr.client.solrj.response.FacetField.Count
 import collection.mutable.{ ListBuffer, Map }
 import org.apache.solr.common.SolrDocumentList
@@ -10,8 +10,7 @@ import java.lang.{ Boolean => JBoolean, Float => JFloat }
 import java.util.{ Date, ArrayList, List => JList, Map => JMap }
 import models.MetadataAccessors
 import play.api.Logger
-import xml.{ XML, Elem }
-import org.apache.commons.lang.StringEscapeUtils
+import xml.Elem
 import org.apache.solr.common.util.NamedList
 
 /**
@@ -282,9 +281,6 @@ case class BriefDocItem(solrDocument: SolrResultDocument) extends MetadataAccess
 
   def getHighlights: List[FieldValue] = solrDocument.getHighLightsAsFieldValueList
 
-  var index: Int = _
-  var fullDocUrl: String = _
-
   // debug and scoring information
   var score: Int = _
   var debugQuery: String = _
@@ -334,6 +330,19 @@ case class BriefDocItem(solrDocument: SolrResultDocument) extends MetadataAccess
     }
 
     <item>
+      {
+        solrDocument.groupInfo.map { group =>
+          <group>
+            <groupField>{ group.groupField }</groupField>
+            <nGroups>{ group.nGroups }</nGroups>
+            <matches>{ group.matches }</matches>
+            <groupValue>{ group.groupValue }</groupValue>
+            <numFound>{ group.numFound }</numFound>
+          </group>
+        } getOrElse {
+          <group/>
+        }
+      }
       <fields>{ fields }</fields>{
         if (getHighlights.isEmpty) <highlights/>
         else
@@ -350,8 +359,17 @@ case class BriefDocItem(solrDocument: SolrResultDocument) extends MetadataAccess
     }
 
     ListMap("item" ->
-      ListMap("fields" ->
-        ListMap(renderedFields.toSeq: _*)
+      ListMap(
+        "fields" -> ListMap(renderedFields.toSeq: _*),
+        "group" -> solrDocument.groupInfo.map { group =>
+          ListMap(
+            "group" -> group.groupField,
+            "nGroups" -> group.nGroups,
+            "matches" -> group.matches,
+            "groupValue" -> group.groupValue,
+            "numFound" -> group.numFound
+          )
+        }.getOrElse { ListMap.empty }
       )
     )
   }
