@@ -898,10 +898,10 @@
    <field name="id" type="string" indexed="true" stored="true" required="true" /> 
    <field name="alphaNameSort" type="alphaOnlySort" indexed="true" stored="false"/>
 
-
    <field name="europeana_uri" type="string" indexed="true" stored="true" multiValued="true"/>
    <field name="delving_pmhId" type="string" indexed="true" stored="true" multiValued="true"/>
    <field name="delving_hubId" type="string" indexed="true" stored="true" multiValued="true"/>
+   <field name="delving_rootId" type="string" indexed="true" stored="true" multiValued="false"/>
    <field name="delving_recordType" type="string" indexed="true" stored="true" multiValued="false"/>
    <field name="delving_snippet" type="text_general" indexed="true" stored="true" multiValued="true"/>
 
