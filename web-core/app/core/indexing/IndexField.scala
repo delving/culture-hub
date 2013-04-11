@@ -25,6 +25,10 @@ case object IndexField {
   val HUB_ID = IndexField("delving_hubId")
   val ORG_ID = IndexField("delving_orgId")
 
+  // this field is used for grouping in hierarchical searches
+  // we can't re-use hubId because it is multi-valued, and we can't reIndex everything
+  val ROOT_ID = IndexField("delving_rootId")
+
   val SCHEMA = IndexField("delving_currentSchema")
   val ALL_SCHEMAS = IndexField("delving_allSchemas")
 

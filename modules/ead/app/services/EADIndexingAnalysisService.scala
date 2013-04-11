@@ -26,11 +26,12 @@ class EADIndexingAnalysisService extends IndexingAnalysisService {
 
     val hubId = (doc \ "id").text
     root.addBinding(HUB_ID.key, hubId)
+    root.addBinding(ROOT_ID.key, hubId)
     root.addBinding(TITLE.key, (doc \ "title").text)
     root.addBinding(DESCRIPTION.key, (doc \ "archdesc" \ "odd").text)
 
     val eadHeader = newMultiMap
-    eadHeader.addBinding(HUB_ID.key, (doc \ "id").text)
+    eadHeader.addBinding(ROOT_ID.key, hubId)
     eadHeader.addBinding("ead_archdesc_did_unittitle", (doc \ "archdesc" \ "did_unittitle").text)
     eadHeader.addBinding("ead_archdesc_did_unitdate", (doc \ "archdesc" \ "did_unitdate").text)
     eadHeader.addBinding("ead_archdesc_did_origination_corpname", (doc \ "archdesc" \ "did_origination_corpname").text)
@@ -46,7 +47,7 @@ class EADIndexingAnalysisService extends IndexingAnalysisService {
   def traverseNodes(node: scala.xml.NodeSeq, rootId: String, documents: ArrayBuffer[IndexingService#IndexDocument]) {
 
     val doc = newMultiMap
-    doc.addBinding(HUB_ID.key, rootId)
+    doc.addBinding(ROOT_ID.key, rootId)
     doc.addBinding(TITLE.key, node \ "title")
     doc.addBinding("ead_id", node \ "id")
     doc.addBinding("ead_date", node \ "date")
