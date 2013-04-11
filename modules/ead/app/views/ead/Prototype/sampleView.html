@@ -23,13 +23,24 @@
             background: #fff;
             border: none;
             height: auto;
-            outline: none;
         }
         .fancytree-container:focus {
             outline: none;
         }
-        .level-1 .fancytree-icon.folder {
-            background-position: 0px -16px;
+        .page-header {
+            color: white;
+            margin-bottom: 4px;
+            padding: 2px 10px 4px;
+        }
+        .page-header.level-0 {
+            background: #3875d7;
+        }
+        .page-header.level-1 {
+            background: #69a0c1;
+        }
+        .page-header.level-2 {
+            background: #eaeaea;
+            color: #000;
         }
     </style>
 
@@ -41,6 +52,7 @@
             $("#tree").fancytree({
                 persist: true,
                 clickFolderMode: 3,
+                autoCollapse: true,
                 source: {
                     url: '@{controllers.ead.routes.Prototype.tree(scala.Option.apply(null), scala.Option.apply(null), true)}'
                 },
