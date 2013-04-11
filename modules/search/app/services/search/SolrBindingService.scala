@@ -12,6 +12,7 @@ import models.MetadataAccessors
 import play.api.Logger
 import xml.{ XML, Elem }
 import org.apache.commons.lang.StringEscapeUtils
+import org.apache.solr.common.util.NamedList
 
 /**
  *
@@ -33,10 +34,32 @@ object SolrBindingService {
 
   def getSolrDocumentList(queryResponse: QueryResponse): List[SolrResultDocument] = {
     val highLightMap: JMap[String, JMap[String, JList[String]]] = queryResponse.getHighlighting
-    getSolrDocumentList(queryResponse.getResults, highLightMap)
+    val responseParams = queryResponse.getResponseHeader.get("params").asInstanceOf[NamedList[Any]]
+    val isGroup = responseParams.indexOf("group", 1) > -1 && responseParams.get("group").toString.toBoolean
+
+    if (isGroup) {
+      queryResponse.getGroupResponse.getValues.flatMap { gc =>
+        {
+          val groupField = gc.getName
+          val matches = gc.getMatches
+          val nGroups = gc.getNGroups
+          gc.getValues.flatMap { group =>
+            {
+              val groupValue = group.getGroupValue
+              val numFound = group.getResult.getNumFound
+
+              val groupInfo = GroupInfo(groupField, matches, nGroups, groupValue, numFound)
+              getSolrDocumentList(group.getResult, Some(groupInfo), highLightMap)
+            }
+          }
+        }
+      }.toList
+    } else {
+      getSolrDocumentList(queryResponse.getResults, None, highLightMap)
+    }
   }
 
-  def getSolrDocumentList(documentList: SolrDocumentList, highLightMap: JMap[String, JMap[String, JList[String]]] = null): List[SolrResultDocument] = {
+  def getSolrDocumentList(documentList: SolrDocumentList, groupInfo: Option[GroupInfo] = None, highLightMap: JMap[String, JMap[String, JList[String]]] = null): List[SolrResultDocument] = {
     import java.lang.{ Integer => JInteger }
 
     val docs = new ListBuffer[SolrResultDocument]
@@ -50,7 +73,7 @@ object SolrBindingService {
 
     documentList.foreach {
       doc =>
-        val solrDoc = SolrResultDocument()
+        val solrDoc = SolrResultDocument(groupInfo = groupInfo)
         doc.entrySet.filter(!_.getKey.endsWith("_facet")).foreach {
           field =>
             val normalisedField = stripDynamicFieldLabels(field.getKey)
@@ -71,22 +94,12 @@ object SolrBindingService {
     docs.toList
   }
 
-  def getBriefDocsWithIndex(queryResponse: QueryResponse, start: Int = 1): List[BriefDocItem] = addIndexToBriefDocs(getBriefDocs(queryResponse), start)
-
-  def getBriefDocsWithIndexFromSolrDocumentList(documentList: SolrDocumentList, start: Int = 1): List[BriefDocItem] = addIndexToBriefDocs(getBriefDocs(documentList), start)
-
   def getBriefDocs(queryResponse: QueryResponse): List[BriefDocItem] = {
     getSolrDocumentList(queryResponse).map(doc => BriefDocItem(doc))
   }
 
   def getBriefDocs(documentList: SolrDocumentList): List[BriefDocItem] = {
-    getSolrDocumentList(documentList).map(doc => BriefDocItem(doc))
-  }
-
-  // todo test this
-  def addIndexToBriefDocs(docs: List[BriefDocItem], start: Int): List[BriefDocItem] = {
-    docs.foreach(doc => doc.index = docs.indexOf(doc) + start)
-    docs
+    getSolrDocumentList(documentList, None).map(doc => BriefDocItem(doc))
   }
 
   def createFacetMap(links: List[SOLRFacetQueryLinks]) = FacetMap(links.toList)
@@ -136,7 +149,10 @@ case class FacetStatisticsMap(private val facets: List[FacetField]) {
 
 }
 
-case class SolrResultDocument(fieldMap: Map[String, List[FieldValueNode]] = Map[String, List[FieldValueNode]](), highLightMap: Map[String, List[String]] = Map[String, List[String]]()) {
+case class SolrResultDocument(
+    fieldMap: Map[String, List[FieldValueNode]] = Map[String, List[FieldValueNode]](),
+    highLightMap: Map[String, List[String]] = Map[String, List[String]](),
+    groupInfo: Option[GroupInfo]) {
 
   def get(field: String): List[String] = for (node: FieldValueNode <- fieldMap.getOrElse(field, List[FieldValueNode]())) yield node.fieldValue
 
@@ -165,13 +181,20 @@ case class SolrResultDocument(fieldMap: Map[String, List[FieldValueNode]] = Map[
   }
 }
 
+/** in case of a group response, give useful information about which group this document belongs to **/
+case class GroupInfo(
+  groupField: String,
+  matches: Int,
+  nGroups: Int,
+  groupValue: String,
+  numFound: Long)
+
 case class FieldFormatted(key: String, values: Array[String]) {
   def getKey: String = key
   def getKeyAsMessageKey = "_metadata.%s" format (key.replaceFirst("_", "."))
   def getValues: Array[String] = values
   def getValuesFormatted(separator: String = ";&#160;"): String = values.mkString(separator)
   def isNotEmpty: Boolean = !values.isEmpty
-
 }
 
 case class FieldValue(key: String, solrDocument: SolrResultDocument) {
