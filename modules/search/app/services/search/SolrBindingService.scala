@@ -288,9 +288,6 @@ case class BriefDocItem(solrDocument: SolrResultDocument) extends MetadataAccess
 
   def getHighlights: List[FieldValue] = solrDocument.getHighLightsAsFieldValueList
 
-  var index: Int = _
-  var fullDocUrl: String = _
-
   // debug and scoring information
   var score: Int = _
   var debugQuery: String = _
@@ -356,6 +353,19 @@ case class BriefDocItem(solrDocument: SolrResultDocument) extends MetadataAccess
     }
 
     <item>
+      {
+        solrDocument.groupInfo.map { group =>
+          <group>
+            <groupField>{ group.groupField }</groupField>
+            <nGroups>{ group.nGroups }</nGroups>
+            <matches>{ group.matches }</matches>
+            <groupValue>{ group.groupValue }</groupValue>
+            <numFound>{ group.numFound }</numFound>
+          </group>
+        } getOrElse {
+          <group/>
+        }
+      }
       <fields>{ fields }</fields>{
         if (getHighlights.isEmpty) <highlights/>
         else
