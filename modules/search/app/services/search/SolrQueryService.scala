@@ -143,6 +143,7 @@ object SolrQueryService extends SolrServer {
               // add the params stuff now
               queryParams setParam ("group", "true")
               queryParams setParam ("group.limit", "5")
+              queryParams setParam ("group.ngroups", "true")
               values foreach (grouping => {
                 queryParams add ("group.field", grouping)
               })
@@ -228,14 +229,11 @@ object SolrQueryService extends SolrServer {
 
     addPrefixedFilterQueries(filterQueries ++ hiddenQueryFilters, query)
 
-    // manu: deactivated this query since we don't have this kind of access rights any longer
-    // val defaultSystemHQFs = if (connectedUser.isEmpty) List("%s:10".format(VISIBILITY)) else List("%s:10 OR %s:\"%s\"".format(VISIBILITY, OWNER, connectedUser.get))
-
     val defaultSystemHQFs = List("""delving_orgId:%s""".format(configuration.orgId)) // always filter by organization
 
     val systemHQFs = defaultSystemHQFs ++ additionalSystemHQFs
     systemHQFs.foreach(fq => query addFilterQuery (fq))
-    CHQuery(query, format, filterQueries, hiddenQueryFilters, systemHQFs)
+    CHQuery(query, format, filterQueries, hiddenQueryFilters, systemHQFs, params.getFirst("group.field"))
   }
 
   def getSolrItemReference(id: String, idType: DelvingIdType, findRelatedItems: Boolean, relatedItemsCount: Int)(implicit configuration: OrganizationConfiguration): Option[DocItemReference] = {
@@ -275,7 +273,7 @@ object SolrQueryService extends SolrServer {
       val relatedItems = if (findRelatedItems) {
         val moreLikeThis = response.getResponse.get("moreLikeThis").asInstanceOf[SimpleOrderedMap[Any]].asScala.head.getValue.asInstanceOf[SolrDocumentList]
         if (moreLikeThis != null && !moreLikeThis.isEmpty) {
-          SolrBindingService.getBriefDocsWithIndexFromSolrDocumentList(moreLikeThis)
+          SolrBindingService.getBriefDocs(moreLikeThis)
         } else Seq.empty
       } else {
         Seq.empty
@@ -370,8 +368,15 @@ object SolrQueryService extends SolrServer {
 
   def createPager(chResponse: CHResponse)(implicit configuration: OrganizationConfiguration): Pager = {
     val solrStart = chResponse.chQuery.solrQuery.getStart
+    val numFound = if (chResponse.chQuery.groupField.isDefined) {
+      // for grouped responses, we don't use the number of total matches, but the number of returned documents for all groups instead
+      val groupResponses = chResponse.response.getGroupResponse.getValues
+      groupResponses.asScala.flatMap(_.getValues.asScala).foldLeft(0)((sum, group) => sum + group.getResult.size())
+    } else {
+      chResponse.response.getResults.getNumFound.intValue
+    }
     Pager(
-      numFound = chResponse.response.getResults.getNumFound.intValue,
+      numFound = numFound,
       start = if (solrStart != null) solrStart.intValue() + 1 else 1,
       rows = chResponse.chQuery.solrQuery.getRows.intValue(),
       pageSize = configuration.searchService.pageSize
@@ -514,7 +519,13 @@ case class FilterQuery(field: String, value: String) {
   override def toString = toFacetString
 }
 
-case class CHQuery(solrQuery: SolrQuery, responseFormat: String = "xml", filterQueries: List[FilterQuery] = List.empty, hiddenFilterQueries: List[FilterQuery] = List.empty, systemQueries: List[String] = List.empty)
+case class CHQuery(
+  solrQuery: SolrQuery,
+  responseFormat: String = "xml",
+  filterQueries: List[FilterQuery] = List.empty,
+  hiddenFilterQueries: List[FilterQuery] = List.empty,
+  systemQueries: List[String] = List.empty,
+  groupField: Option[String] = None)
 
 case class CHResponse(response: QueryResponse, chQuery: CHQuery, configuration: OrganizationConfiguration) { // todo extend with the other response elements
 
@@ -613,7 +624,7 @@ case class BriefItemView(chResponse: CHResponse) extends SearchResult {
 
   def getResultDocuments: List[MetadataAccessors] = getBriefDocs
 
-  def getBriefDocs: List[BriefDocItem] = SolrBindingService.getBriefDocsWithIndex(chResponse.response, pagination.getStart)
+  def getBriefDocs: List[BriefDocItem] = SolrBindingService.getBriefDocs(chResponse.response)
 
   def getFacetQueryLinks: List[SOLRFacetQueryLinks] = SolrQueryService.createFacetQueryLinks(chResponse = chResponse)
 

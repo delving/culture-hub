@@ -690,8 +690,17 @@ case class SearchSummary(result: BriefItemView, context: SearchContext, chRespon
       doc.getFieldValuesFiltered(false, filteredFields)
         .sortWith((fv1, fv2) => fv1.getKey < fv2.getKey).foreach(fv => recordMap.put(fv.getKey, fv.getValueAsArray))
       ListMap("item" ->
-        ListMap("fields" ->
-          ListMap(recordMap.toSeq: _*)
+        ListMap(
+          "fields" -> ListMap(recordMap.toSeq: _*),
+          "group" -> doc.solrDocument.groupInfo.map { group =>
+            ListMap(
+              "group" -> group.groupField,
+              "nGroups" -> group.nGroups,
+              "matches" -> group.matches,
+              "groupValue" -> group.groupValue,
+              "numFound" -> group.numFound
+            )
+          }.getOrElse { ListMap.empty }
         )
       )
     }
