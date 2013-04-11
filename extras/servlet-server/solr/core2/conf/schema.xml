@@ -901,9 +901,12 @@
    <field name="europeana_uri" type="string" indexed="true" stored="true" multiValued="true"/>
    <field name="delving_pmhId" type="string" indexed="true" stored="true" multiValued="true"/>
    <field name="delving_hubId" type="string" indexed="true" stored="true" multiValued="true"/>
-   <field name="delving_rootId" type="string" indexed="true" stored="true" multiValued="false"/>
    <field name="delving_recordType" type="string" indexed="true" stored="true" multiValued="false"/>
    <field name="delving_snippet" type="text_general" indexed="true" stored="true" multiValued="true"/>
+
+   <!-- hierarchies -->
+   <field name="delving_rootId" type="string" indexed="true" stored="true" multiValued="false"/>
+   <field name="delving_parentPath" type="string" indexed="true" stored="true" multiValued="false"/>
 
    <field name="delving_title" type="text_general" indexed="true" stored="true" multiValued="true"/>
    <field name="delving_description" type="text_general" indexed="true" stored="true" multiValued="true"/>
