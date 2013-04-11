@@ -10,6 +10,7 @@ import collection.immutable.Stack
 import collection.mutable.ArrayBuffer
 import com.wordnik.swagger.annotations.{ ApiParam, ApiOperation, Api }
 import util.EADSimplifier
+import core.{ HubId, RecordResolverService, CultureHubPlugin }
 
 /**
  *
@@ -49,31 +50,11 @@ object Prototype extends DelvingController {
     responseClass = "tree",
     httpMethod = "GET"
   )
-  def tree(@ApiParam(value = "Optional path for which to render a subtree") path: Option[String],
-    @ApiParam(value = "Whether or not to limit the depth of the tree, for lazy loading (true by default)") limited: Boolean) = Action {
-    implicit request =>
-
-      Play.resourceAsStream(source) map {
-        resourceStream =>
-          {
-            val source = Source.fromInputStream(resourceStream)
-            val xml = scala.xml.XML.load(source)
-            val simplified = EADSimplifier.simplify(xml)
-            val json = util.Json.toJson(simplified)
-            val unlimited = request.queryString.getFirst("limited").map(_ == "false").getOrElse(false)
-
-            val transformed = transformTree(json, request.queryString.getFirst("path"), unlimited, transformSimplifiedTreeToFancyNode, renderAsArray = true, skipRoot = true)
-
-            transformed map { t =>
-              Ok(pretty(net.liftweb.json.render(t))).as(JSON)
-            } getOrElse {
-              NotFound
-            }
-          }
-      } getOrElse {
-        InternalServerError("Couldn't find test resource")
-      }
-  }
+  def tree(
+    @ApiParam(value = "Identifier of the document, optional atm") hubId: Option[String],
+    @ApiParam(value = "Optional path for which to render a subtree") path: Option[String],
+    @ApiParam(value = "Whether or not to limit the depth of the tree, for lazy loading (true by default)") limited: Boolean) =
+    renderTree(hubId, path, limited, EADSimplifier.simplify, transformSimplifiedTreeToFancyNode, renderAsArray = true, skipRoot = true)
 
   @ApiOperation(
     value = "Render a source tree, eventually only rendering parts of it",
@@ -81,57 +62,69 @@ object Prototype extends DelvingController {
     responseClass = "sourceTree",
     httpMethod = "GET"
   )
-  def sourceTree(@ApiParam(value = "Optional path for which to render a subtree") path: Option[String],
-    @ApiParam(value = "Whether or not to limit the depth of the tree (true by default)") limited: Boolean) = Action {
+  def sourceTree(
+    @ApiParam(value = "Identifier of the document, optional atm") hubId: Option[String],
+    @ApiParam(value = "Optional path for which to render a subtree") path: Option[String],
+    @ApiParam(value = "Whether or not to limit the depth of the tree (true by default)") limited: Boolean) =
+    renderTree(hubId, path, limited, x => x, transformSourceNode)
+
+  def simplifiedTree(
+    @ApiParam(value = "Identifier of the document, optional atm") hubId: Option[String],
+    @ApiParam(value = "Optional path for which to render a subtree") path: Option[String],
+    @ApiParam(value = "Whether or not to limit the depth of the tree (true by default)") limited: Boolean) =
+    renderTree(hubId, path, limited, EADSimplifier.simplify, transformSourceNode)
+
+  def renderTree(
+    hubId: Option[String],
+    path: Option[String],
+    limited: Boolean,
+    preProcess: Elem => Elem,
+    transformer: (String, JValue, Stack[String], Int, Option[String], ArrayBuffer[JValue], Int) => JValue,
+    renderAsArray: Boolean = false,
+    skipRoot: Boolean = false) = Action {
     implicit request =>
 
-      Play.resourceAsStream(source) map {
-        resourceStream =>
-          {
-            val source = Source.fromInputStream(resourceStream)
-            val xml = scala.xml.XML.load(source)
-            val json = util.Json.toJson(xml)
-            val unlimited = request.queryString.getFirst("limited").map(_ == "false").getOrElse(false)
-            val transformed = transformTree(json, request.queryString.getFirst("path"), unlimited, transformSourceNode)
-
-            transformed map { t =>
-              Ok(pretty(net.liftweb.json.render(t))).as(JSON)
-            } getOrElse {
-              NotFound
-            }
+      val sourceDocument: Option[Elem] = hubId flatMap { id =>
+        val resolvers = CultureHubPlugin.getServices(classOf[RecordResolverService])
+        resolvers.flatMap { r =>
+          r.getRecord(HubId(id))
+        }.headOption.map { record =>
+          try {
+            Some(scala.xml.XML.load(record.recordXml))
+          } catch {
+            case t: Throwable =>
+              log.error("Can't parse source record?!", t)
+              None
           }
+        }
       } getOrElse {
-        InternalServerError("Couldn't find test resource")
+        Play.resourceAsStream(source) map { resourceStream =>
+          Some(scala.xml.XML.load(Source.fromInputStream(resourceStream)))
+        } getOrElse {
+          None
+        }
+      }
+
+      sourceDocument map { src =>
+        {
+          val processed = preProcess(src)
+          val json = util.Json.toJson(processed)
+          val transformed = transformTree(json, path, !limited, transformSourceNode, renderAsArray, skipRoot)
+          transformed map { t =>
+            Ok(pretty(net.liftweb.json.render(t))).as(JSON)
+          } getOrElse {
+            NotFound
+          }
+        }
+      } getOrElse {
+        NotFound
       }
   }
 
-  def simplifiedTree(@ApiParam(value = "Optional path for which to render a subtree") path: Option[String],
-    @ApiParam(value = "Whether or not to limit the depth of the tree (true by default)") limited: Boolean) = Action {
-    implicit request =>
-
-      Play.resourceAsStream(source) map {
-        resourceStream =>
-          {
-            val source = Source.fromInputStream(resourceStream)
-            val xml = scala.xml.XML.load(source)
-            val simplified = EADSimplifier.simplify(xml)
-            val json = util.Json.toJson(simplified)
-            val unlimited = request.queryString.getFirst("limited").map(_ == "false").getOrElse(false)
-            val transformed = transformTree(json, request.queryString.getFirst("path"), unlimited, transformSourceNode)
-
-            transformed map { t =>
-              Ok(pretty(net.liftweb.json.render(t))).as(JSON)
-            } getOrElse {
-              NotFound
-            }
-
-          }
-      } getOrElse {
-        InternalServerError("Couldn't find test resource")
-      }
-  }
-
-  def transformTree(json: JValue, key: Option[String], unlimited: Boolean = false,
+  def transformTree(
+    json: JValue,
+    key: Option[String],
+    unlimited: Boolean = false,
     transformer: (String, JValue, Stack[String], Int, Option[String], ArrayBuffer[JValue], Int) => JValue,
     renderAsArray: Boolean = false,
     skipRoot: Boolean = false): Option[JValue] = {
