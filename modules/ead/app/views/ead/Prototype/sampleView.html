@@ -20,8 +20,16 @@
             height: auto;
         }
         .fancytree-container {
-            background: #eaeaea;
+            background: #fff;
+            border: none;
             height: auto;
+            outline: none;
+        }
+        .fancytree-container:focus {
+            outline: none;
+        }
+        .level-1 .fancytree-icon.folder {
+            background-position: 0px -16px;
         }
     </style>
 
@@ -42,7 +50,7 @@
                 },
                 init: function(event, data, flag) {
                     $.getJSON('/experiments/ead/sourceTree', { path: "/" }, function(data) {
-                        var tpl = $('#eadheaderTpl').html();
+                        var tpl = $('#ead-header-tpl').html();
                         var html = Mustache.to_html(tpl, data);
                             $("#header").html(html);
                             $('dl.expandable dd').expander({
@@ -58,30 +66,41 @@
                     var node = data.node;
                     if (node.data.path) {
                         // here we can now render the detail
-                        var template = "";
-                        if (node.data.path.indexOf('/ead/archdesc') > -1) {
-                            template = "testTmpl"
+                        console.log(node.data.path);
+                        // regex patterns for tree levels
+                        //patternLevelZero= /^\//;  // "/"
+                        patternLevelOne = /\/ead\/archdesc\/dsc\/c\/c\[\d+\]$/; // "/ead/archdesc/dsc/c/c[0]
+                        patternLevelTwo = /(\[\d+\]\/c\/c\[\d+\]){1}/; // "/ead/archdesc/dsc/c/c[0]/c/c[0]"
+
+
+                        var template = "", level="";
+                        if (node.data.path.match(patternLevelOne)) {
+                            console.log("level 1");
+                            level = 1;
+                            template = "#ead-level1-tpl";
+                            $('#level-2').html('');
                         }
-                        if (node.data.path.indexOf('/ead/archdesc/dsc/c') > -1) {
-                            template = "cTemplate"
+                        else if (node.data.path.match(patternLevelTwo)) {
+                            console.log('level 2');
+                            level = 2;
+                            template = "#ead-level2-tpl";
                         }
+
 
                         if (node.data.path) {
                             $.getJSON('/experiments/ead/sourceTree', { path: node.data.path }, function(data) {
-                                var tpl = $('#' + template).html();
+                                var tpl = $(template).html();
                                 var html = Mustache.to_html(tpl, data);
-                                if(node.data.path === "/"){
-                                      $("#header").html(html);
+                                if (level === 1) {
+                                    $('#level-1').html(html).effect("highlight", {color: '#AFEEEE'}, 1500);
                                 }
-                                else {
-                                    $('#detail').html(html);
+                                if (level === 2) {
+                                    $('#level-2').html(html).effect("highlight", {}, 1500);
                                 }
-                                console.log(node.data.path);
-
-                                
                             });
-                        } else {
-                            $('#detail').html('<p>Hello, Is there anybody in there? / Just nod if you can hear me / Is there anyone home?</p><p>' + node.data.path +'</p>')
+                        }
+                        else {
+                            $('#detail').html('<p>Node: ' + node.data.path +'</p>')
                         }
                     }
                 }
@@ -115,12 +134,13 @@
         })
     </script>
 
-    <script id="eadheaderTpl" type="text/template">
-        <h4 class="page-header">{{ead.eadheader.filedesc.titlestmt.titleproper}}</h4>
+    <script id="ead-header-tpl" type="text/template">
+        <h2 class="page-header level-0">{{ead.eadheader.filedesc.titlestmt.titleproper}}</h4>
+        <div id="ead-header-container">
         <dl class="dl-horizontal expandable">
-            <dt>Identifier:</dt>
+            <dt>Identifier</dt>
             <dd>{{ead.eadheader.identifier}}</dd>
-            <dt>Creator:</dt>
+            <dt>Creator</dt>
             <dd>{{ead.eadheader.filedesc.titlestmt.author}}</dd>
             <dt>Origin</dt>
             <dd>{{ead.archdesc.did.origination.corpname}}</dd>
@@ -128,32 +148,55 @@
             <dd>{{ead.archdesc.arrangement.p}}</dd>
             <dt>Description</dt>
             <dd>{{ead.archdesc.odd.p}}</dd>
-            <dt>Latest revision:</dt>
+            <dt>Latest revision</dt>
             <dd>{{ead.eadheader.revisiondesc.change.0.item}} - {{ead.eadheader.revisiondesc.change.0.date}}</dd>
         </dl>
         <hr/>
+        </div>
     </script>
-    <script id="eadarchdescTpl" type="text/template">
-        <h2>Description Template</h2>
+    <script id="ead-level1-tpl" type="text/template">
+        <h4 class="page-header level-1">{{did.unittitle}}</h4>
         <dl class="dl-horizontal">
-            <dt>Title:</dt><dd>{{ead.archdesc.dsc.c.0.c.0.did.unittitle}}</dd>
-            <dt>Description:</dt><dd>{{odd.p}}</dd>
-            <dt>adsfafadf:</dt><dd>{{dsc.c.c.0.series}}</dd>
-        </dl>
-    </script>
-    <script id="cTemplate" type="text/template">
-        <h4 class="page-header">{{did.unittitle}}</h4>
-        <dl class="dl-horizontal">
-            <dt>Id:</dt>
+            {{#did.unitid}}
+            <dt>Id</dt>
             <dd>{{did.unitid}}</dd>
-            <dt>Date:</dt>
+            {{/did.unitid}}
+            {{#did.unitdate}}
+            <dt>Date</dt>
             <dd>{{did.unitdate}}</dd>
-            <dt>Description:</dt>
+            {{/did.unitdate}}
+            {{#odd.p}}
+            <dt>Description</dt>
             <dd>{{odd.p}}</dd>
-            <dt>Other findingaid:</dt>
+            {{/odd.p}}
+            {{#otherfindaid.p.href}}
+            <dt>Other findingaid</dt>
             <dd><a href="{{otherfindaid.p.href}}" target="_blank">{{otherfindaid.p.extref}}</a></dd>
-
+            {{/otherfindaid.p.href}}
         </dl>
+        <hr/>
+    </script>
+    <script id="ead-level2-tpl" type="text/template">
+        <h5 class="page-header level-2">{{did.unittitle}}</h4>
+        <dl class="dl-horizontal">
+            {{#did.unitid}}
+            <dt>Id</dt>
+            <dd>{{did.unitid}}</dd>
+            {{/did.unitid}}
+            {{#did.unitdate}}
+            <dt>Date</dt>
+            <dd>{{did.unitdate}}</dd>
+            {{/did.unitdate}}
+            {{#odd.p}}
+            <dt>Description</dt>
+            <dd>{{odd.p}}</dd>
+            {{/odd.p}}
+            {{#otherfindaid.p.href}}
+            <dt>Other findingaid</dt>
+            <dd><a href="{{otherfindaid.p.href}}" target="_blank">{{otherfindaid.p.extref}}</a></dd>
+            {{/otherfindaid.p.href}}
+        </dl>
+        <hr/>
     </script>
 </head>
 <body>
@@ -162,9 +205,8 @@
     <div class="row">
          <div class="span12">
              <form class="form-horizontal">
-                    <label for="search">Filter:</label>
-                        <input class="span2" type="text" name="search" id="search" placeholder="Filter...">
-                        <button id="btnResetSearch" class="btn" type="submit">&times;</button>
+                        <input class="span4" type="text" name="search" id="search" placeholder="Filter the tree">
+                        <button id="btnResetSearch" class="btn" type="submit">Reset filter</button>
                         <span id="matches"></span>
              </form>
          </div>
@@ -175,7 +217,8 @@
         </div>
         <div class="span7">
             <div id="header"></div>
-            <div id="detail"></div>
+            <div id="level-1"></div>
+            <div id="level-2"></div>
         </div>
     </div>
 </div>
