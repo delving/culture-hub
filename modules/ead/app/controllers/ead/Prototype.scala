@@ -109,7 +109,7 @@ object Prototype extends DelvingController {
         {
           val processed = preProcess(src)
           val json = util.Json.toJson(processed)
-          val transformed = transformTree(json, path, !limited, transformSourceNode, renderAsArray, skipRoot)
+          val transformed = transformTree(json, path, !limited, transformer, renderAsArray, skipRoot)
           transformed map { t =>
             Ok(pretty(net.liftweb.json.render(t))).as(JSON)
           } getOrElse {
