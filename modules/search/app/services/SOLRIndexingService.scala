@@ -116,9 +116,11 @@ class SOLRIndexingService extends SolrServer with IndexingService {
     if (doc.containsKey(GEOHASH.key)) {
       val values = doc.get(GEOHASH.key).getValues.toList
       doc.remove(GEOHASH.key)
-      SOLRIndexingService.filterForValidGeoCoordinate(values).foreach { geoHash =>
+      val validCoordinates: List[String] = SOLRIndexingService.filterForValidGeoCoordinate(values)
+      validCoordinates.foreach { geoHash =>
         doc.addField(GEOHASH.key, geoHash)
       }
+      if (!validCoordinates.isEmpty) doc.addField(GEOHASH_SINGLE.key, validCoordinates.head)
     }
 
     doc.addField(HAS_GEO_HASH.key.toString, doc.containsKey(GEOHASH.key) && !doc.get(GEOHASH.key).isEmpty)
@@ -129,7 +131,7 @@ class SOLRIndexingService extends SolrServer with IndexingService {
   /**
    * Commits staged Things or MDRs to index
    */
-  def commit(implicit configuration: OrganizationConfiguration) = {
+  def commit(implicit configuration: OrganizationConfiguration) {
     getStreamingUpdateServer(configuration).commit()
   }
 
