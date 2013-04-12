@@ -54,14 +54,15 @@
                 clickFolderMode: 3,
                 autoCollapse: true,
                 source: {
-                    url: '@{controllers.ead.routes.Prototype.tree(scala.Option.apply(null), scala.Option.apply(null), true)}'
+                    url: '@{controllers.ead.routes.Prototype.tree(id, scala.Option.apply(null), true)}'
                 },
                 extensions: ["filter"],
                 filter: {
                     mode: "hide"
                 },
                 init: function(event, data, flag) {
-                    $.getJSON('/experiments/ead/sourceTree', { path: "/" }, function(data) {
+                    var d = '${id}'.length() > 0 ? { path: "/", hubId: '${id}' } : { path: "/" }
+                    $.getJSON('/experiments/ead/sourceTree', d, function(data) {
                         var tpl = $('#ead-header-tpl').html();
                         var html = Mustache.to_html(tpl, data);
                             $("#header").html(html);
@@ -100,7 +101,8 @@
 
 
                         if (node.data.path) {
-                            $.getJSON('/experiments/ead/sourceTree', { path: node.data.path }, function(data) {
+                            var d = '${id}'.length() > 0 ? { path: node.data.path, hubId: '${id}' } : { path: node.data.path }
+                            $.getJSON('/experiments/ead/sourceTree', d, function(data) {
                                 var tpl = $(template).html();
                                 var html = Mustache.to_html(tpl, data);
                                 if (level === 1) {
