@@ -68,7 +68,7 @@
                     mode: "hide"
                 },
                 init: function(event, data, flag) {
-                    var d = '${id}'.length() > 0 ? { path: "/", hubId: '${id}' } : { path: "/" }
+                    var d = "${id}" !== 'None' ? { path: "/", hubId: '${id}' } : { path: "/" }
                     $.getJSON('/experiments/ead/sourceTree', d, function(data) {
                         var tpl = $('#ead-header-tpl').html();
                         var html = Mustache.to_html(tpl, data);
@@ -108,7 +108,7 @@
 
 
                         if (node.data.path) {
-                            var d = '${id}'.length() > 0 ? { path: node.data.path, hubId: '${id}' } : { path: node.data.path }
+                            var d = "${id}" !== 'None' ? { path: node.data.path, hubId: '${id}' } : { path: node.data.path }
                             $.getJSON('/experiments/ead/sourceTree', d, function(data) {
                                 var tpl = $(template).html();
                                 var html = Mustache.to_html(tpl, data);
