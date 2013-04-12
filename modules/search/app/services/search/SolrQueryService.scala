@@ -91,10 +91,10 @@ object SolrQueryService extends SolrServer {
     params.put("facet.field", facetFields)
 
     def addGeoParams(hasGeoType: Boolean) {
-      if (!hasGeoType) queryParams setFilterQueries ("{!%s}".format("geofilt"))
+      if (!hasGeoType) queryParams setFilterQueries ("{!%s}".format("gh_geofilt"))
       // set defaults
       queryParams setParam ("d", "5")
-      queryParams setParam ("sfield", "delving_geohash")
+      queryParams setParam ("sfield", if (params.allNonEmpty.getOrElse("sortBy", "").toString.startsWith("geodist")) GEOHASH_SINGLE.key else GEOHASH.key)
 
       params.all.filter(!_._2.isEmpty).map(params => (params._1, params._2.head)).toMap.filterKeys(key => List("geoType", "d", "sfield").contains(key)).foreach {
         item =>
@@ -133,7 +133,9 @@ object SolrQueryService extends SolrServer {
               queryParams setFacetLimit (values.head.toInt)
             case "sortBy" =>
               val sortOrder = if (params.hasKeyAndValue("sortOrder", "desc")) SolrQuery.ORDER.desc else SolrQuery.ORDER.asc
-              val sortField = if (values.head.equalsIgnoreCase("random")) createRandomSortKey else values.head
+              val sortField = if (values.head.equalsIgnoreCase("random")) createRandomSortKey
+              else if (values.head.equalsIgnoreCase("geodist")) "geodist()"
+              else values.head
               queryParams setSortField (sortField, sortOrder)
             case "facet.field" | "facet.field[]" =>
               values foreach (facet => {
@@ -192,7 +194,7 @@ object SolrQueryService extends SolrServer {
           field =>
             field match {
               case FacetExtractor(prefix, facetName) => (facetName, prefix)
-              case _ => (field, "p%i".format(solrFacetFields.indexOf(field)))
+              case _ => (field, s"p${solrFacetFields.indexOf(field)}")
             }
         }.toMap
       }
