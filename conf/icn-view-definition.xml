@@ -65,7 +65,7 @@
                             <enumeration path="/icn:record/dc:creator" separator="lf" label="metadata.dc.creator"/>
                             <field path="/icn:record/icn:creatorYearOfBirth" label="metadata.icn.creatorYearOfBirth"/>
                             <enumeration label="metadata.dc.date" separator=", " path="/icn:record/dc:date,/icn:record/dcterms:created,/icn:record/dcterms:temportal,/icn:record/dcterms:issued"/>
-                            <field path="/icn:record/dc:type" label="metadata.dc.type"/>
+                            <enumeration label="metadata.dc.type" separator="lf" path="/icn:record/dc:type" />
                             <enumeration label="metadata.dc.format" separator="lf" path="/icn:record/dc:format,/icn:record/dcterms:extent"/>
                             <field path="/icn:record/icn:material" label="metadata.icn.material"/>
                             <enumeration path="/icn:record/icn:technique" label="metadata.icn.technique" separator=", "/>
