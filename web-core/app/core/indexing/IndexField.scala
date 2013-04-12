@@ -37,6 +37,7 @@ case object IndexField {
   val FULL_TEXT = IndexField("delving_fullText")
 
   val GEOHASH = IndexField("delving_geohash")
+  val GEOHASH_SINGLE = IndexField("delving_geohash_single")
   val HAS_GEO_HASH = IndexField("delving_hasGeoHash")
 
   // TODO review this one.
