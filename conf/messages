@@ -375,6 +375,7 @@ metadata.icn.material=Material
 metadata.icn.collection=Collection
 metadata.icn.technique=Technique
 metadata.icn.creatorYearOfBirth=Creator Birth
+metadata.icn.creatorYearOfDeath=Creator Death
 metadata.icn.acquisitionMeans=Means of Aquisition
 metadata.icn.acquisitionYear=Year Acquired
 metadata.icn.acquiredWithHelpFrom=Acquired with help from

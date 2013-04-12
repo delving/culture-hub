@@ -321,6 +321,7 @@ metadata.icn.material=Materiaal
 metadata.icn.collection=Collectie
 metadata.icn.technique=Techniek
 metadata.icn.creatorYearOfBirth=Vervaardiger geboortejaar
+metadata.icn.creatorYearOfDeath=Vervaardiger overlijdensjaar
 metadata.icn.acquisitionMeans=Wijze van verwerving
 metadata.icn.acquisitionYear=Jaar van verwerving
 metadata.icn.acquiredWithHelpFrom=Verworven met steun van
