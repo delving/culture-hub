@@ -62,13 +62,14 @@
                         <container type="definition-list">
                             <field path="/icn:record/dc:title" label="metadata.dc.title"/>
                             <field path="/icn:record/dc:description" label="metadata.dc.description" />
-                            <enumeration path="/icn:record/dc:creator" separator="lf" label="metadata.dc.creator"/>
+                            <enumeration label="metadata.dc.creator" separator="lf" path="/icn:record/dc:creator"/>
                             <field path="/icn:record/icn:creatorYearOfBirth" label="metadata.icn.creatorYearOfBirth"/>
+                            <field path="/icn:record/icn:creatorYearOfDeath" label="metadata.icn.creatorYearOfDeath"/>
                             <enumeration label="metadata.dc.date" separator=", " path="/icn:record/dc:date,/icn:record/dcterms:created,/icn:record/dcterms:temportal,/icn:record/dcterms:issued"/>
-                            <enumeration label="metadata.dc.type" separator="lf" path="/icn:record/dc:type" />
+                            <enumaration label="metadata.dc.type" separator=", " path="/icn:record/dc:type"/>
                             <enumeration label="metadata.dc.format" separator="lf" path="/icn:record/dc:format,/icn:record/dcterms:extent"/>
-                            <field path="/icn:record/icn:material" label="metadata.icn.material"/>
-                            <enumeration path="/icn:record/icn:technique" label="metadata.icn.technique" separator=", "/>
+                            <enumeration label="metadata.icn.material" separator=", " path="/icn:record/icn:material" />
+                            <enumeration label="metadata.icn.technique" separator=", " path="/icn:record/icn:technique"/>
                             <enumeration label="metadata.dc.subject" separator=", " path="/icn:record/dc:subject/icn:record/dcterms:temporal,/icn:record/dcterms:spatial,/icn:record/dc:coverage"/>
                             <!--<field path="/icn:record/dc:coverage" label="metadata.dc.coverage"/>-->
                             <enumeration label="metadata.dc.relation"
