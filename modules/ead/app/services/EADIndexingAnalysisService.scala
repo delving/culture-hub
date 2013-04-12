@@ -7,6 +7,7 @@ import util.EADSimplifier
 import core.indexing.IndexField._
 import core.SystemField._
 import scala.collection.mutable.ArrayBuffer
+import java.net.URLEncoder
 
 /**
  * Prototype for indexing APENet EAD
@@ -18,46 +19,71 @@ class EADIndexingAnalysisService extends IndexingAnalysisService {
 
   def analyze(hubId: HubId, schemaVersion: SchemaVersion, document: Node): Seq[IndexingService#IndexDocument] = {
 
+    println("indexing " + hubId)
+
     val documentAsScala = asXml(document)
 
     val doc = EADSimplifier.simplify(documentAsScala)
 
     val root = newMultiMap
 
-    val hubId = (doc \ "id").text
-    root.addBinding(HUB_ID.key, hubId)
-    root.addBinding(ROOT_ID.key, hubId)
-    root.addBinding(PARENT_PATH.key, "/")
-    root.addBinding(TITLE.key, (doc \ "title").text)
-    root.addBinding(DESCRIPTION.key, (doc \ "archdesc" \ "odd").text)
+    root += (HUB_ID, hubId.toString)
+    root += (ROOT_ID, hubId.toString)
+    root += (PARENT_PATH, "/")
+    root += (TITLE, (doc \ "title").text)
+    root += (DESCRIPTION, (doc \ "archdesc" \ "odd").text)
 
     val eadHeader = newMultiMap
-    eadHeader.addBinding(ROOT_ID.key, hubId)
-    eadHeader.addBinding(PARENT_PATH.key, "/ead")
-    eadHeader.addBinding("ead_archdesc_did_unittitle", (doc \ "archdesc" \ "did_unittitle").text)
-    eadHeader.addBinding("ead_archdesc_did_unitdate", (doc \ "archdesc" \ "did_unitdate").text)
-    eadHeader.addBinding("ead_archdesc_did_origination_corpname", (doc \ "archdesc" \ "did_origination_corpname").text)
-    eadHeader.addBinding("ead_archdesc_odd", (doc \ "archdesc" \ "odd").text)
-    eadHeader.addBinding("ead_archdesc_arrangement", (doc \ "archdesc" \ "arrangement").text)
+    eadHeader += (ROOT_ID, hubId)
+    eadHeader += (PARENT_PATH, "/ead")
+    eadHeader += ("ead_archdesc_did_unittitle", (doc \ "archdesc" \ "did_unittitle").text)
+    eadHeader += ("ead_archdesc_did_unitdate", (doc \ "archdesc" \ "did_unitdate").text)
+    eadHeader += ("ead_archdesc_did_origination_corpname", (doc \ "archdesc" \ "did_origination_corpname").text)
+    eadHeader += ("ead_archdesc_odd", (doc \ "archdesc" \ "odd").text)
+    eadHeader += ("ead_archdesc_arrangement", (doc \ "archdesc" \ "arrangement").text)
 
-    val nodeDocuments = new ArrayBuffer[IndexingService#IndexDocument]
-    traverseNodes(doc \ "node", hubId, (doc \ "key").text, nodeDocuments)
+    val nodeDocuments = new ArrayBuffer[MultiMap]
+    traverseNodes(doc \ "node", hubId.toString, (doc \ "key").text, nodeDocuments)
 
-    Seq(root.toMap, eadHeader.toMap) ++ nodeDocuments
+    (Seq(root, eadHeader) ++ nodeDocuments) map { doc: MultiMap =>
+      {
+        val enriched = addHousekeepingFields(hubId, doc)
+        enriched.filterNot(entry => entry._2.isEmpty).toMap
+      }
+    }
+
   }
 
-  def traverseNodes(node: scala.xml.NodeSeq, rootId: String, parentPath: String, documents: ArrayBuffer[IndexingService#IndexDocument]) {
+  def traverseNodes(node: scala.xml.NodeSeq, rootId: String, parentPath: String, documents: ArrayBuffer[MultiMap]) {
 
     val doc = newMultiMap
-    doc.addBinding(ROOT_ID.key, rootId)
-    doc.addBinding(TITLE.key, node \ "title")
-    doc.addBinding("ead_id", node \ "id")
-    doc.addBinding("ead_date", node \ "date")
-    doc.addBinding(DESCRIPTION.key, node \ "odd")
+    doc += (ROOT_ID, rootId)
+    doc += (TITLE, node \ "title")
+    doc += ("ead_id", node \ "id")
+    //    doc += ("ead_date", node \ "date")
+    doc += (DESCRIPTION, node \ "odd")
 
-    documents += doc.toMap
+    documents += doc
 
     (node \ "node") foreach { n => traverseNodes(n, rootId, (n \ "key").text, documents) }
+  }
+
+  // TODO - eventually, we have to provide this via the core API, and thus make a part of Indexing part of the API
+  // now we just experiment to get something on the screen
+  def addHousekeepingFields(hubId: HubId, doc: MultiMap) = {
+    doc += (OWNER, "The Dude")
+    doc += (PROVIDER, "The Other Dude")
+    doc += (ORG_ID, hubId.orgId)
+    doc += (HUB_ID, URLEncoder.encode(hubId.toString, "utf-8"))
+    doc += (SCHEMA, "ead")
+    doc += (RECORD_TYPE, "mdr")
+
+    doc += (SPEC, hubId.spec)
+    doc += (COLLECTION, hubId.spec) // TODO should be the name, instead
+
+    doc += (ID, hubId.toString)
+
+    doc
   }
 
 }

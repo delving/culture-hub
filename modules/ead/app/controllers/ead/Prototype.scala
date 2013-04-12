@@ -39,9 +39,10 @@ object Prototype extends DelvingController {
   }
 
   @ApiOperation(value = "Sample view")
-  def sampleView = Action {
-    implicit request =>
-      Ok(Template())
+  def sampleView(hubId: Option[String]) = Root {
+    Action {
+      implicit request => Ok(Template('id -> hubId))
+    }
   }
 
   @ApiOperation(
@@ -81,44 +82,46 @@ object Prototype extends DelvingController {
     preProcess: Elem => Elem,
     transformer: (String, JValue, Stack[String], Int, Option[String], ArrayBuffer[JValue], Int) => JValue,
     renderAsArray: Boolean = false,
-    skipRoot: Boolean = false) = Action {
-    implicit request =>
+    skipRoot: Boolean = false) = Root {
+    Action {
+      implicit request =>
 
-      val sourceDocument: Option[Elem] = hubId flatMap { id =>
-        val resolvers = CultureHubPlugin.getServices(classOf[RecordResolverService])
-        resolvers.flatMap { r =>
-          r.getRecord(HubId(id))
-        }.headOption.map { record =>
-          try {
-            Some(scala.xml.XML.load(record.recordXml))
-          } catch {
-            case t: Throwable =>
-              log.error("Can't parse source record?!", t)
-              None
+        val sourceDocument: Option[Elem] = hubId flatMap { id =>
+          val resolvers = CultureHubPlugin.getServices(classOf[RecordResolverService])
+          resolvers.flatMap { r =>
+            r.getRecord(HubId(id))
+          }.headOption.map { record =>
+            try {
+              Some(scala.xml.XML.loadString(record.recordXml))
+            } catch {
+              case t: Throwable =>
+                log.error("Can't parse source record?!", t)
+                None
+            }
           }
-        }
-      } getOrElse {
-        Play.resourceAsStream(source) map { resourceStream =>
-          Some(scala.xml.XML.load(Source.fromInputStream(resourceStream)))
         } getOrElse {
-          None
-        }
-      }
-
-      sourceDocument map { src =>
-        {
-          val processed = preProcess(src)
-          val json = util.Json.toJson(processed)
-          val transformed = transformTree(json, path, !limited, transformer, renderAsArray, skipRoot)
-          transformed map { t =>
-            Ok(pretty(net.liftweb.json.render(t))).as(JSON)
+          Play.resourceAsStream(source) map { resourceStream =>
+            Some(scala.xml.XML.load(Source.fromInputStream(resourceStream)))
           } getOrElse {
-            NotFound
+            None
           }
         }
-      } getOrElse {
-        NotFound
-      }
+
+        sourceDocument map { src =>
+          {
+            val processed = preProcess(src)
+            val json = util.Json.toJson(processed)
+            val transformed = transformTree(json, path, !limited, transformer, renderAsArray, skipRoot)
+            transformed map { t =>
+              Ok(pretty(net.liftweb.json.render(t))).as(JSON)
+            } getOrElse {
+              NotFound
+            }
+          }
+        } getOrElse {
+          NotFound
+        }
+    }
   }
 
   def transformTree(

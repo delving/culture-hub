@@ -5,9 +5,12 @@ import eu.delving.schema.SchemaVersion
 import scala.xml.parsing.NoBindingFactoryAdapter
 import com.sun.org.apache.xalan.internal.xsltc.trax.DOM2SAX
 import scala.collection.mutable
+import core.indexing.IndexableField
 
 /**
  * Analyzes a document to be indexed.
+ *
+ * TODO provide implicit enrichment for MultiMap (+=)
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
@@ -38,9 +41,21 @@ trait IndexingAnalysisService {
     adapter.rootElem
   }
 
+  type MultiMap = mutable.HashMap[String, mutable.Set[Any]] with mutable.MultiMap[String, Any]
+
+  implicit class RichMultiMap(multiMap: MultiMap) {
+    def +=(key: IndexableField, value: Any) = {
+      multiMap.addBinding(key.key, value)
+    }
+    def +=(key: String, value: Any) = {
+      multiMap.addBinding(key, value)
+    }
+  }
+
   /**
    * Convenience function to create a Map that can be turned into an IndexDocument by calling toMap
    */
   def newMultiMap = new mutable.HashMap[String, mutable.Set[Any]] with mutable.MultiMap[String, Any]
 
 }
+
