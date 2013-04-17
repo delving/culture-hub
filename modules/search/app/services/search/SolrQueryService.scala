@@ -91,10 +91,12 @@ object SolrQueryService extends SolrServer {
     params.put("facet.field", facetFields)
 
     def addGeoParams(hasGeoType: Boolean) {
-      if (!hasGeoType) queryParams setFilterQueries ("{!%s}".format("gh_geofilt"))
       // set defaults
+      val sfield: String = if (params.allNonEmpty.getOrElse("sortBy", "").toString.startsWith("geodist")) GEOHASH_SINGLE.key else GEOHASH.key
+      if (!hasGeoType) queryParams setFilterQueries ("{!%s}".format("geofilt"))
+
       queryParams setParam ("d", "5")
-      queryParams setParam ("sfield", if (params.allNonEmpty.getOrElse("sortBy", "").toString.startsWith("geodist")) GEOHASH_SINGLE.key else GEOHASH.key)
+      queryParams setParam ("sfield", sfield)
 
       params.all.filter(!_._2.isEmpty).map(params => (params._1, params._2.head)).toMap.filterKeys(key => List("geoType", "d", "sfield").contains(key)).foreach {
         item =>
@@ -104,7 +106,7 @@ object SolrQueryService extends SolrServer {
                 case "bbox" =>
                   queryParams setFilterQueries ("{!%s}".format("bbox"))
                 case _ =>
-                  queryParams setFilterQueries ("{!%s}".format("gh_geofilt"))
+                  queryParams setFilterQueries ("{!%s}".format("geofilt"))
               }
             case "d" =>
               queryParams setParam ("d", item._2)
