@@ -10,7 +10,6 @@ import org.bson.types.ObjectId
 import play.api.i18n.Messages
 import play.api.data.Form
 import play.api.data.Forms._
-import org.apache.solr.common.SolrInputDocument
 import core.indexing.IndexField._
 import core.indexing.IndexField
 import models.MetadataItem
