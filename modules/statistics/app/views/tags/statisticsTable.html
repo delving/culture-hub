@@ -11,7 +11,7 @@
             </ul>
             <div class="tab-content" data-bind="foreach: facets">
                 <div class="tab-pane" data-bind="css: { active: $root.selected() === $data.name() }">
-                    <table class="table table-striped sortable" id="statistics-table">
+                    <table class="table table-striped sortable">
                         <thead>
                         <tr>
                             <th class="sort">&{'thing.name'}</th>
@@ -42,22 +42,16 @@
 
 <script>
     $(document).ready(function() {
-
       var viewModel = {
         selected: ko.observable("")
       };
-
       $.get('/organizations/${_orgId}/api/statistics${_filter}', function(data) {
         load(data.statistics, viewModel, null, function() {
           var name = viewModel.facets()[0].name();
           viewModel.selected(name);
           $('span[rel=tooltip]').tooltip();
-          $("#statistics-table").tablesorter();
+          $(".sortable").tablesorter();
         });
-
       });
-
-//        $("#statistics-table").tablesorter();
-
     })
 </script>
