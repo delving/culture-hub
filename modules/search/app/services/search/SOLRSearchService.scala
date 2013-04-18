@@ -149,7 +149,7 @@ class SOLRSearchService extends SearchService {
             summary.renderAsKML(authorized, context.params)
           case "kml-a" =>
             summary.renderAsABCKML(authorized, context.params)
-          case "kn-reise" =>
+          case "kml-knr" =>
             summary.renderAsKNreiseKML(authorized, context.params)
           case _ =>
             summary.renderAsXML(authorized)

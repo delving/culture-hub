@@ -913,6 +913,7 @@
    <field name="delving_thumbnail" type="string" indexed="true" stored="true" multiValued="true"/>
    <field name="delving_imageUrl" type="string" indexed="true" stored="true" multiValued="true"/>
    <field name="delving_geohash" type="geohash" indexed="true" stored="true" multiValued="true"/>
+   <field name="delving_geohash_single" type="geohash" indexed="true" stored="false" multiValued="false"/>
    <field name="delving_hasDigitalObject" type="boolean" indexed="true" stored="true" multiValued="false"/>
    <field name="delving_hasLandingPage" type="boolean" indexed="true" stored="true" multiValued="false"/>
    <field name="delving_hasGeoHash" type="boolean" indexed="true" stored="true" multiValued="false"/>
