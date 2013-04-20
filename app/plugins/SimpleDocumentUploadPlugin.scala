@@ -124,7 +124,7 @@ class SimpleDocumentUploadPlugin(app: Application) extends CultureHubPlugin(app)
 
   /**
    * Override this to add menu entries to the organization menu
-   * @param orgId the organization ID
+   * @param configuration the organization ID
    * @param lang the active language
    * @param roles the roles of the current user
    * @return a sequence of [[core.MainMenuEntry]] for the organization menu
