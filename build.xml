@@ -20,7 +20,7 @@
              classpathref="maven-ant-tasks.classpath"/>
 
     <artifact:remoteRepository id="delving.snapshots"
-                               url="http://nexus.delving.org/nexus/content/repositories/releases"/>
+                               url="http://nexus.delving.org/nexus/content/repositories/snapshots"/>
 
     <target name="startSolr">
         <java jar="extras/servlet-server/start.jar" fork="true" dir="extras/servlet-server" spawn="true"/>
