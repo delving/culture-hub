@@ -67,7 +67,6 @@ object Build extends sbt.Build {
   val webCore = play.Project("web-core", "1.0-SNAPSHOT", webCoreDependencies, file("web-core/"), settings = Defaults.defaultSettings ++ buildInfoSettings).settings(
     resolvers ++= commonResolvers,
     publish := { },
-    testOptions in Test := Nil, // Required to use scalatest.
     cultureHub := cultureHubVersion,
     sipApp := sipAppVersion,
     sipCore := sipCoreVersion,
@@ -91,7 +90,7 @@ object Build extends sbt.Build {
 
   // ~~~ dynamic modules, to avoid hard-coded definitions
 
-  val excludes = Seq("cms", "search", "dataset", "thumbnail", "deepZoom", "dos", "simple-document-upload")
+  val excludes = Seq("cms", "search", "dataset", "simple-document-upload", "thumbnail", "deepZoom", "dos")
 
   def discoverModules(base: File, dir: String): Seq[Project] = {
     val dirs: Seq[sbt.File] = if((base / dir).listFiles != null) (base / dir).listFiles else Seq.empty[sbt.File]
@@ -109,7 +108,7 @@ object Build extends sbt.Build {
 
   // the following projects have dependencies on other modules, and need to be declared separately
 
-  lazy val dos = play.Project("dos", "1.0-SNAPSHOT", Seq.empty, path = file("modules/dos")).settings(
+  def dos = play.Project("dos", "1.0-SNAPSHOT", Seq.empty, path = file("modules/dos")).settings(
     resolvers ++= commonResolvers,
     publish := { },
     libraryDependencies += "eu.delving"                %% "play2-extensions"                % playExtensionsVersion,
@@ -117,17 +116,16 @@ object Build extends sbt.Build {
   ).dependsOn(webCore % "test->test;compile->compile").settings(scalarifromSettings :_*)
 
   def cms(base: File) = play.Project("cms", "1.0-SNAPSHOT", Seq.empty, path = file("modules/cms")).settings(
-  resolvers ++= commonResolvers,
-  publish := { },
-  libraryDependencies += "eu.delving"                %% "play2-extensions"                % playExtensionsVersion,
-  routesImport += "extensions.Binders._"
+    resolvers ++= commonResolvers,
+    publish := { },
+    libraryDependencies += "eu.delving"                %% "play2-extensions"                % playExtensionsVersion,
+    routesImport += "extensions.Binders._"
   ).dependsOn(webCore % "test->test;compile->compile", dos % "test->test;compile->compile").settings(scalarifromSettings :_*)
 
-  lazy val simpleDocumentUpload = play.Project("simple-document-upload", "1.0-SNAPSHOT", Seq.empty, path = file("additionalModules/simple-document-upload")).settings(
+  def simpleDocumentUpload = play.Project("simple-document-upload", "1.0-SNAPSHOT", Seq.empty, path = file("modules/simple-document-upload")).settings(
     resolvers ++= commonResolvers,
-    testOptions in Test := Nil, // Required to use scalatest.
     publish := { }
-  ).dependsOn(webCore % "test->test;compile->compile", dos).settings(scalarifromSettings :_*)
+  ).dependsOn(webCore % "test->test;compile->compile", search, dos).settings(scalarifromSettings :_*)
 
 
   def allModules(base: File) = Seq(webCore, search, dataset, dos, simpleDocumentUpload, cms(base)) ++ modules(base)
