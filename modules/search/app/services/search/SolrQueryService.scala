@@ -19,6 +19,7 @@ import org.apache.solr.common.util.SimpleOrderedMap
 import core.indexing.IndexField._
 import core.Constants._
 import core.search._
+import scala.collection.mutable.ArrayBuffer
 
 /**
  *
@@ -92,7 +93,7 @@ object SolrQueryService extends SolrServer {
 
     def addGeoParams(hasGeoType: Boolean) {
       // set defaults
-      val sfield: String = if (params.allNonEmpty.getOrElse("sortBy", "").toString.startsWith("geodist")) GEOHASH_SINGLE.key else GEOHASH.key
+      val sfield: String = if (params.allNonEmpty.getOrElse("sortBy", new ArrayBuffer()).head.toString.startsWith("geodist")) GEOHASH_SINGLE.key else GEOHASH.key
       if (!hasGeoType) queryParams setFilterQueries ("{!%s}".format("geofilt"))
 
       queryParams setParam ("d", "5")
@@ -254,8 +255,8 @@ object SolrQueryService extends SolrServer {
     val query = new SolrQuery(solrQuery)
     if (findRelatedItems) {
       val mlt = configuration.searchService.moreLikeThis
+      query.set("fq", s"${IndexField.ORG_ID}:${configuration.orgId}")
       query.set("mlt", true)
-      query.set("mlt.fq", s"${IndexField.ORG_ID}:${configuration.orgId}")
       query.set("mlt.count", relatedItemsCount)
       query.set("mlt.fl", mlt.fieldList.mkString(","))
       query.set("mlt.mintf", mlt.minTermFrequency)

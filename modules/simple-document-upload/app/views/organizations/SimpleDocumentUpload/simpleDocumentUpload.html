@@ -1,0 +1,102 @@
+#{extends themeInfo.get('themeLayout') /}
+
+#{set title: messages.get('plugin.simpledocumentupload.add') /}
+
+#{set bodyId: 'organization' /}
+
+#{set 'moreCss'}
+<link rel="stylesheet" type="text/css" href="@{routes.Assets.at("common/stylesheets/fileupload/jquery.fileupload-ui.css")}"/>
+#{/set}
+
+#{set 'moreScripts'}
+<script type="text/javascript" src="@{routes.Assets.at("common/javascripts/fileupload/jquery.iframe-transport.js")}"></script>
+<script type="text/javascript" src="@{routes.Assets.at("common/javascripts/fileupload/jquery.fileupload.js")}"></script>
+<script type="text/javascript" src="@{routes.Assets.at("common/javascripts/fileupload/jquery.fileupload-fp.js")}"></script>
+<script type="text/javascript" src="@{routes.Assets.at("common/javascripts/fileupload/jquery.fileupload-ui.js")}"></script>
+<script type="text/javascript" src="@{routes.Assets.at("common/javascripts/fileupload/upload.js")}"></script>
+<script type="text/javascript" src="@{routes.Assets.at("common/javascripts/bootstrap/bootstrap-collapse.js")}"></script>
+#{/set}
+
+#{breadcrumbs crumbs: breadcrumbs /}
+
+#{organizationNavBar isReadOnly: isReadOnly, isAdmin: isAdmin, orgId: orgId, active:"simple-document-upload", navigation: navigation /}
+
+
+<div class="row">
+    <div class="span6">
+        <h3>Set document properties</h3>
+        <form id="itemForm" method="POST" action="" class="form-delving form-horizontal well well-small">
+            <!-- ko foreach: fields -->
+            <div class="control-group">
+                <label data-bind="text: label" class="control-label" ></label>
+                <div class="controls">
+                    <!-- ko if: $data.hasOptions() -->
+                    <select data-bind="options: options, value: value"></select>
+                    <!-- /ko -->
+                    <!-- ko ifnot: $data.hasOptions() -->
+                    <input type="text" data-bind="value: value" />
+                    <!-- /ko -->
+                </div>
+            </div>
+            <!-- /ko -->
+        </form>
+    </div>
+    <div class="span6">
+
+    </div>
+</div>
+
+#{fileUploadForm /}
+
+<div class="well clearfix">
+
+    <div class="pull-left">
+    #{btnButton label: messages.get('ui.label.save'), extraClass:"btn-success btn-large span6 pull-right", iconClass:"icon-ok-circle icon-white", id:"saveButton", type:"submit" /}
+        <div class="wait"></div>
+    </div>
+        <div class="pull-right">
+        #{btnButton label: messages.get('ui.label.cancel'), extraClass:"cancelButton", id:"cancelButton", type:"reset" /}
+    #{btnButton label: messages.get('ui.label.reset'), extraClass:"", type:"reset" /}
+        </div>
+
+    *{</div>}*
+
+</div>
+
+
+
+
+<script type="text/javascript">
+
+    $(document).ready(function () {
+        var viewModel = {};
+        load(${data.raw()}, viewModel, document.getElementById('itemForm'), function () {
+
+            $('#fileupload').fileupload({
+                url: '@{controllers.user.routes.FileUpload.uploadFile(uid)}',
+                autoUpload: true,
+                uploadTemplate: _renderUploadTemplate,
+                downloadTemplate: _renderDownloadTemplate,
+                acceptFileTypes: /(\.|\/)(pdf|jpg|png|jpeg)$/i
+            }).bind('fileuploaddone', function (e, data) {
+                $.post('/organizations/${orgId}/simpledocument/upload/${uid}?id=${id}');
+            });
+
+            $("table.files td.delete button").addClass("btn btn-danger");
+
+            $('#fileupload').each(function () {
+                var that = this;
+                $(that).fileupload('option', 'done').call(that, null, { result: ko.mapping.toJS(viewModel.files)} );
+            });
+
+            $("body").css('visibility', 'visible');
+        });
+
+        $('#saveButton').click(function (event) {
+            event.preventDefault();
+            handleSubmit('/organizations/${orgId}/simpledocument/submit', viewModel, '#itemForm', null, function () {
+                document.location = '/organizations/${orgId}/simpledocument';
+            });
+        });
+    });
+</script>

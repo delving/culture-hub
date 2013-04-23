@@ -101,7 +101,7 @@ object Normalizer {
 
   private def isColorspace(sourceImage: File, colorspace: String) = {
     val identified = identify(sourceImage, { _.format("%[colorspace]") })
-    log.info(s"Identified colorspace of image ${sourceImage.getAbsolutePath} as ${colorspace.mkString(", ")}")
+    log.info(s"Identified colorspace of image ${sourceImage.getAbsolutePath} as $colorspace")
     identified.headOption.map { c: String => c.contains(colorspace) }.getOrElse(false)
   }
 

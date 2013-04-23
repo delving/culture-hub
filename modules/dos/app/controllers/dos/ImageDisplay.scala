@@ -40,7 +40,7 @@ object ImageDisplay extends Controller with RespondWithDefaultImage with Organiz
   /**
    * Display a thumbnail given an ID and a width
    */
-  def displayThumbnail(id: String, orgId: String, collectionId: String, width: Option[String], browse: Boolean = false, fileId: Boolean = false) = OrganizationConfigured {
+  def displayThumbnail(id: String, orgId: String, collectionId: String, width: Option[String], browse: Boolean = false, fileId: Boolean = false, headOnly: Boolean = false) = OrganizationConfigured {
     Action {
       implicit request =>
         renderImage(
@@ -51,7 +51,8 @@ object ImageDisplay extends Controller with RespondWithDefaultImage with Organiz
           collectionId = collectionId,
           thumbnailWidth = thumbnailWidth(width),
           browse = browse,
-          isFileId = fileId
+          isFileId = fileId,
+          headOnly = headOnly
         )
     }
   }
@@ -75,7 +76,8 @@ object ImageDisplay extends Controller with RespondWithDefaultImage with Organiz
     thumbnailWidth: Int = DEFAULT_THUMBNAIL_WIDTH,
     store: GridFS,
     browse: Boolean = false,
-    isFileId: Boolean = false)(implicit request: Request[AnyContent]): Result = {
+    isFileId: Boolean = false,
+    headOnly: Boolean = false)(implicit request: Request[AnyContent]): Result = {
 
     val baseQuery: MongoDBObject = if (ObjectId.isValid(id)) {
       // here we can have different combinations:
@@ -148,8 +150,9 @@ object ImageDisplay extends Controller with RespondWithDefaultImage with Organiz
 
     }
     image match {
-      case None =>
-        withDefaultFromRequest(NotFound(request.rawQueryString), thumbnail, Some(thumbnailWidth.toString), false)(request)
+      case None if headOnly => NotFound
+      case Some(i) if headOnly => Ok
+      case None => withDefaultFromRequest(NotFound(request.rawQueryString), thumbnail, Some(thumbnailWidth.toString), false)(request)
       case Some(t) =>
         // cache control
         //        val maxAge: String = Play.configuration.getProperty("http.cacheControl", "3600")
