@@ -210,6 +210,11 @@ ui.message.resetpassword.error=Er is een fout opgetreden met het aanmaken van uw
 ui.message.nothingFound=Helaas! Het blijkt dat er momenteel niks gevonden kan worden.
 ui.message.statusPrivate=Dit object is alleen voor jou zichtbaar. Om het te delen met anderen verander de <a href="{0}"><strong>zichtbaarheid status</strong></a> naar "Publiek".
 ui.message.charsLeft=characters mogelijk
+
+ui.message.noCookies=Your browser needs to support cookies in order for this site to work correctly.
+ui.message.oldBrowser=<strong>Waarschuwing!</strong> U maakt gebruik van een verouderde web browser. Deze website vereist een moderne browser om correct te kunnen functioneren. Een verouderde browser is tevens een beveilgings risico voor <em>uw</em> computer.
+
+
 # User navigation
 
 user.nav.goto=Ga naar
