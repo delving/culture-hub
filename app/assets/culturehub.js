@@ -44,7 +44,14 @@ function initializeElements() {
         };
 
     if ($.browser.msie && $.browser.version < 9) {
-        document.location.href="/browsers.html";
+        //document.location.href="/browsers.html";
+        var $warning = $('div#browser-alert');
+        if(!$.cookie('browser-alert'))  {
+            $warning.removeClass('hide');
+        }
+        $warning.find('button').on('click',function(){
+            $.cookie('browser-alert', '1', { path: '/' });
+        })
     }
 
     externalLinks();

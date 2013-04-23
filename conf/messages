@@ -228,6 +228,7 @@ ui.message.statusPrivate=This object is visible only to you. If you want others 
 ui.message.charsLeft=characters left
 
 ui.message.noCookies=Your browser needs to support cookies in order for this site to work correctly.
+ui.message.oldBroswer=<strong>Warning!</strong> You are viewing this site with an outdated browser. This website requires a modern, standards compliant browser to function properly. Older browsers are not standards compliant and are also a serious security risk for <em>your</em> computer.
 
 # User navigation
 
