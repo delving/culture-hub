@@ -32,9 +32,8 @@ object MediatorServer extends DelvingController {
         BadRequest
       } else {
         imageProcessor ! ProcessImage(orgId, set, file, callbackUrl, configuration)
+        Ok
       }
-
-      Ok
     }
   }
 
