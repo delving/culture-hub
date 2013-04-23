@@ -1,0 +1,5 @@
+## Client-side
+POST             /media/event/fileHandled                                controllers.mediator.organization.Mediator.fileHandled(orgId, set, fileName)
+
+## Server-side
+POST             /media/event/newFile                                    controllers.mediator.MediatorServer.newFile(orgId, set, fileName, callbackUrl)
