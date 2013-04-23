@@ -88,6 +88,14 @@ object Build extends sbt.Build {
     publish := { }
   ).dependsOn(webCore % "test->test;compile->compile", search % "test->test;compile->compile").settings(scalarifromSettings :_*)
 
+  lazy val dos = play.Project("dos", "1.0-SNAPSHOT", Seq.empty, path = file("modules/dos")).settings(
+    resolvers ++= commonResolvers,
+    publish := { },
+    libraryDependencies += "eu.delving"                %% "play2-extensions"                % playExtensionsVersion,
+    routesImport += "extensions.Binders._"
+  ).dependsOn(webCore % "test->test;compile->compile").settings(scalarifromSettings :_*)
+
+
   // ~~~ dynamic modules, to avoid hard-coded definitions
 
   val excludes = Seq("cms", "search", "dataset", "simple-document-upload", "thumbnail", "deepZoom", "dos")
@@ -98,7 +106,12 @@ object Build extends sbt.Build {
         play.Project(x.getName, "1.0-SNAPSHOT", Seq.empty, path = x).settings(
           resolvers ++= commonResolvers,
           publish := { }
-        ).dependsOn(webCore % "test->test;compile->compile", search % "test->test;compile->compile", dataset % "test->test;compile->compile").settings(scalarifromSettings :_*)
+        ).dependsOn(
+          webCore % "test->test;compile->compile",
+          search % "test->test;compile->compile",
+          dataset % "test->test;compile->compile",
+          dos % "test->test;compile->compile"
+        ).settings(scalarifromSettings :_*)
   }
 
   def modules(base: File): Seq[Project] = discoverModules(base, "modules") ++ discoverModules(base, "additionalModules")
@@ -108,13 +121,6 @@ object Build extends sbt.Build {
 
   // the following projects have dependencies on other modules, and need to be declared separately
 
-  def dos = play.Project("dos", "1.0-SNAPSHOT", Seq.empty, path = file("modules/dos")).settings(
-    resolvers ++= commonResolvers,
-    publish := { },
-    libraryDependencies += "eu.delving"                %% "play2-extensions"                % playExtensionsVersion,
-    routesImport += "extensions.Binders._"
-  ).dependsOn(webCore % "test->test;compile->compile").settings(scalarifromSettings :_*)
-
   def cms(base: File) = play.Project("cms", "1.0-SNAPSHOT", Seq.empty, path = file("modules/cms")).settings(
     resolvers ++= commonResolvers,
     publish := { },
@@ -122,13 +128,7 @@ object Build extends sbt.Build {
     routesImport += "extensions.Binders._"
   ).dependsOn(webCore % "test->test;compile->compile", dos % "test->test;compile->compile").settings(scalarifromSettings :_*)
 
-  def simpleDocumentUpload = play.Project("simple-document-upload", "1.0-SNAPSHOT", Seq.empty, path = file("modules/simple-document-upload")).settings(
-    resolvers ++= commonResolvers,
-    publish := { }
-  ).dependsOn(webCore % "test->test;compile->compile", search, dos).settings(scalarifromSettings :_*)
-
-
-  def allModules(base: File) = Seq(webCore, search, dataset, dos, simpleDocumentUpload, cms(base)) ++ modules(base)
+  def allModules(base: File) = Seq(webCore, search, dataset, dos, cms(base)) ++ modules(base)
 
   def allModuleReferences(base: File) = allModules(base).map {x => x: ProjectReference }
 

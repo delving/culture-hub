@@ -24,7 +24,11 @@ object Mediator extends OrganizationController {
     }
   }
 
-  def fileHandled(orgId: String, set: String, fileName: String) = Action { implicit request =>
+  def fileHandled(orgId: String, set: String, fileName: String, error: Option[String]) = Action { implicit request =>
+    log.debug(s"[$orgId] Received file handling response from media server for $set/$fileName, ${if (error.isDefined) "with error: " + error.get}")
+
+    // TODO notify user
+
     Ok
   }
 

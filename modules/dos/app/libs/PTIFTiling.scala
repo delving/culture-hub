@@ -1,6 +1,6 @@
 package libs
 
-import at.ait.dme.magicktiler.MagickTiler
+import at.ait.dme.magicktiler.{ TilesetInfo, MagickTiler }
 import at.ait.dme.magicktiler.ptif.PTIFConverter
 import at.ait.dme.magicktiler.image.ImageFormat
 import java.io.File
@@ -24,18 +24,26 @@ object PTIFTiling {
     tiler
   }
 
-  def createTile(tilesWorkingBasePath: File, tilesOutputPath: File, sourceImage: File) {
-    def targetName = (if (sourceImage.getName.indexOf(".") > 0)
-      sourceImage.getName.substring(0, sourceImage.getName.lastIndexOf("."))
-    else
-      sourceImage.getName) + ".tif"
+  def createTile(tilesWorkingBasePath: File, tilesOutputPath: File, sourceImage: File): Either[String, TilesetInfo] = {
 
-    def targetFile = new File(tilesOutputPath, targetName)
-    targetFile.createNewFile()
+    try {
+      def targetName = (if (sourceImage.getName.indexOf(".") > 0)
+        sourceImage.getName.substring(0, sourceImage.getName.lastIndexOf("."))
+      else
+        sourceImage.getName) + ".tif"
 
-    val tileInfo = getTiler(tilesWorkingBasePath).convert(sourceImage, targetFile)
+      def targetFile = new File(tilesOutputPath, targetName)
+      log.debug("Target file: " + targetFile.getAbsolutePath)
+      targetFile.createNewFile()
 
-    log.info("Created PTIF tile for image %s, %s zoom levels".format(sourceImage.getName, tileInfo.getZoomLevels))
+      val tileInfo = getTiler(tilesWorkingBasePath).convert(sourceImage, targetFile)
+      log.info("Created PTIF tile for image %s, %s zoom levels".format(sourceImage.getName, tileInfo.getZoomLevels))
+      Right(tileInfo)
+    } catch {
+      case t: Throwable =>
+        log.error(s"Failed to create PTIF tile for image ${sourceImage.getName}", t)
+        Left(t.getMessage)
+    }
   }
 
 }

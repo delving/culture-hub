@@ -9,6 +9,7 @@ import org.apache.ftpserver._
 import org.apache.ftpserver.listener.ListenerFactory
 import org.apache.ftpserver.ftplet._
 import org.apache.ftpserver.usermanager.UsernamePasswordAuthentication
+import org.apache.ftpserver.command.{ NotSupportedCommand, CommandFactoryFactory }
 import com.escalatesoft.subcut.inject.{ BindingModule, Injectable }
 import scala.collection.JavaConverters._
 import org.apache.ftpserver.usermanager.impl.{ ConcurrentLoginPermission, WritePermission, BaseUser }
@@ -17,9 +18,14 @@ import play.api.libs.ws.WS
 import play.api.mvc.Results
 import play.api.Play.current
 import play.api.libs.concurrent.Execution.Implicits._
+import akka.actor.{ Props, ActorContext }
+import actors.ImageProcessor
 
 /**
- * TODO fix permissions to only allow upload in set folders, and to disallow mkdir
+ * TODO fix permissions to only allow upload in set folders
+ * TODO TLS-SSL
+ * TODO see if we can only have one FTP server and have directories per organization, with the appropriate permissions / view tweaks
+ * TODO creating a collection should trigger a core event, picked up by this plugin to create the dirs
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
@@ -35,17 +41,26 @@ class MediatorPlugin(app: Application) extends CultureHubPlugin(app) {
         val sourceDir = c.getString("sourceDirectory").getOrElse {
           throw missingConfigurationField("sourceDirectory", config._1.orgId)
         }
+        val archiveDir = c.getString("archiveDirectory").getOrElse {
+          throw missingConfigurationField("archiveDirectory", config._1.orgId)
+        }
         val mediaServer = c.getString("mediaServerUrl").getOrElse {
           throw missingConfigurationField("mediaServerUrl", config._1.orgId)
         }
         val port = c.getInt("port").getOrElse {
           throw missingConfigurationField("port", config._1.orgId)
         }
-        val f = new File(sourceDir)
-        f.mkdirs()
-        (config._1 -> MediatorPluginConfiguration(f, mediaServer, port, config._1))
+        val sourceDirFile = new File(sourceDir)
+        sourceDirFile.mkdirs()
+        val archiveDirFile = new File(archiveDir)
+        archiveDirFile.mkdirs()
+        (config._1 -> MediatorPluginConfiguration(sourceDirFile, archiveDirFile, mediaServer, port, config._1))
       }
     }
+  }
+
+  override def onActorInitialization(context: ActorContext) {
+    context.actorOf(Props[ImageProcessor], name = "imageProcessor")
   }
 
   lazy val ftpServers = new OrganizationConfigurationResourceHolder[Option[MediatorPluginConfiguration], FtpServer]("ftpServers") {
@@ -57,7 +72,8 @@ class MediatorPlugin(app: Application) extends CultureHubPlugin(app) {
       // because the hub is multi-tenant, but the FtpServer is not, we have to create one FTP server per organization
       // this is pretty stupid, but then again, we don't really have a choice. Life is tough.
       val serverFactory = new FtpServerFactory
-      val listenerFactory = new ListenerFactory()
+      val listenerFactory = new ListenerFactory
+      val commandFactoryFactory = new CommandFactoryFactory
 
       val dataConnectionConfigurationFactory = new DataConnectionConfigurationFactory()
       dataConnectionConfigurationFactory.setPassivePorts("20000-20100")
@@ -66,11 +82,17 @@ class MediatorPlugin(app: Application) extends CultureHubPlugin(app) {
       listenerFactory.setPort(config.port)
       listenerFactory.setDataConnectionConfiguration(dataConnectionConfiguration)
       serverFactory.addListener("default", listenerFactory.createListener())
+
       serverFactory.setUserManager(new HubUserManager(config.sourceDirectory.getAbsolutePath, HubModule)(config.configuration))
 
       val ftplets = new mutable.HashMap[String, Ftplet]()
       ftplets.put("mediator", new MediatorFtplet()(config.configuration))
       serverFactory.setFtplets(ftplets.asJava)
+
+      // disallow creation of directories
+      commandFactoryFactory.addCommand("MKD", new NotSupportedCommand)
+      val commandFactory = commandFactoryFactory.createCommandFactory()
+      serverFactory.setCommandFactory(commandFactory)
 
       // TODO SSL & TLS, see http://mina.apache.org/ftpserver-project/embedding_ftpserver.html
       val ftpServer = serverFactory.createServer()
@@ -94,12 +116,12 @@ class MediatorPlugin(app: Application) extends CultureHubPlugin(app) {
 
 class MediatorFtplet(implicit configuration: OrganizationConfiguration) extends DefaultFtplet {
 
-  val log = Logger("Culture-Hub")
+  val log = Logger("CultureHub")
+
+  override def onMkdirStart(session: FtpSession, request: FtpRequest): FtpletResult = super.onMkdirStart(session, request)
 
   override def onUploadEnd(session: FtpSession, request: FtpRequest): FtpletResult = {
-    // FIXME - logs don't seem to work here ?!
-    // log.info(s"[${session.getUser.getName}@${configuration.orgId}] Mediator: new file '${request.getArgument}' uploaded")
-    println(s"[${session.getUser.getName}@${configuration.orgId}] Mediator: new file '${request.getArgument}' uploaded")
+    log.info(s"[${session.getUser.getName}@${configuration.orgId}] Mediator: new file '${request.getArgument}' uploaded")
 
     handleNewFile(session.getUser.getName, request.getArgument)
 
@@ -109,18 +131,15 @@ class MediatorFtplet(implicit configuration: OrganizationConfiguration) extends 
   private def handleNewFile(userName: String, path: String) {
     path.split("/") match {
       case p if p.length < 3 =>
-        println("File uploaded in the wrong place")
-      case p if p.length > 3 =>
-        println("Can't have subfolders")
+        log.warn("File uploaded in the wrong place")
       case p =>
         val Array(set, fileName) = path.drop(1).split("/")
-        println(s"We shall process file $set $fileName")
 
         // when we are presented a file with spaces in the name, remedy to it immediately
         val name = if (fileName.indexOf(" ") > -1) {
           val renamed = fileName.replaceAll("\\s", "_")
           val srcDir = MediatorPlugin.pluginConfiguration.sourceDirectory
-          println(s"[$userName@${configuration.orgId}}] Renaming uploaded file to /$set/$renamed")
+          log.info(s"[$userName@${configuration.orgId}}] Mediator: renaming uploaded file to /$set/$renamed")
           val f = new File(srcDir, path)
           f.renameTo(new File(srcDir, s"/$set/$renamed"))
           renamed
@@ -133,8 +152,9 @@ class MediatorFtplet(implicit configuration: OrganizationConfiguration) extends 
             val host = if (Play.isDev) s"http://${configuration.domains.head}:9000" else s"http://${configuration.domains.head}"
             host + "/media/event/fileHandled" // TODO think of a better client-side URL scheme
           }
+          val url = MediatorPlugin.pluginConfiguration.mediaServerUrl + "/media/event/newFile"
           WS
-            .url(MediatorPlugin.pluginConfiguration.mediaServerUrl + "/media/event/newFile")
+            .url(url)
             .withQueryString(
               "orgId" -> configuration.orgId,
               "set" -> set,
@@ -142,11 +162,16 @@ class MediatorFtplet(implicit configuration: OrganizationConfiguration) extends 
               "callbackUrl" -> callbackUrl
             )
             .post(Results.EmptyContent()).map { response =>
-              println(response.ahcResponse.getStatusCode)
+              if (response.ahcResponse.getStatusCode != 200) {
+                log.error(s"[$userName@${configuration.orgId}}] Mediator: could not make request to media server at '$url', parameters: " +
+                  s"orgId:${configuration.orgId}, set:$set, fileName:$name, callbackUrl:$callbackUrl")
+
+                // TODO notify user per email
+              }
             }
         } catch {
           case t: Throwable =>
-            t.printStackTrace()
+            log.error(s"[$userName@${configuration.orgId}}] Mediator: could not make request to media server", t)
         }
 
     }
@@ -157,7 +182,7 @@ class MediatorFtplet(implicit configuration: OrganizationConfiguration) extends 
 
 class HubUserManager(baseDirectory: String, binding: BindingModule)(implicit configuration: OrganizationConfiguration) extends UserManager with Injectable {
 
-  val log = Logger("Culture-Hub")
+  val log = Logger("CultureHub")
 
   implicit def bindingModule: BindingModule = binding
 
@@ -232,4 +257,9 @@ object MediatorPlugin {
 
 }
 
-case class MediatorPluginConfiguration(sourceDirectory: File, mediaServerUrl: String, port: Int, configuration: OrganizationConfiguration)
+case class MediatorPluginConfiguration(
+  sourceDirectory: File,
+  archiveDirectory: File,
+  mediaServerUrl: String,
+  port: Int,
+  configuration: OrganizationConfiguration)

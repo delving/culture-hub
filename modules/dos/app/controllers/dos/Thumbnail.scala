@@ -7,12 +7,13 @@ import javax.imageio.ImageIO
 import java.io._
 import org.imgscalr.Scalr
 import play.api.libs.Files.TemporaryFile
-import org.apache.commons.io.IOUtils
+import org.apache.commons.io.{ FileUtils, IOUtils }
 import org.im4java.core.{ IMOperation, ImageCommand }
 import play.api.{ Logger, Play }
 import play.api.Play.current
 import java.util.UUID
 import org.im4java.process.ErrorConsumer
+import com.mongodb.casbah.commons.MongoDBObject
 
 /**
  * TODO refactor the createThumbnails method to allow batch processing on all sizes
@@ -44,6 +45,7 @@ trait Thumbnail {
   }
 
   protected def storeThumbnail(thumbnailStream: InputStream, filename: String, contentType: String, width: Int, store: GridFS, params: Map[String, AnyRef] = Map.empty[String, AnyRef]): (Int, ObjectId) = {
+    //    store.findOne(MongoDBObject(params.toList))
     val thumbnail = store.createFile(thumbnailStream)
     thumbnail.filename = filename
     thumbnail.contentType = contentType
@@ -113,5 +115,59 @@ trait Thumbnail {
       Scalr.resize(bufferedImage, Scalr.Mode.FIT_TO_WIDTH, width)
     }
   }
+
+  /**
+   * Creates a thumbnail via GM and stores it
+   * TODO merge with PDF method above
+   */
+  def createAndStoreThumbnail(image: File, width: Int, params: Map[String, AnyRef], gmCommand: String, store: GridFS, thumbnailTmpDir: File, onSuccess: (Int, File) => Unit, onFailure: (Int, File, String) => Unit): Option[ObjectId] = {
+    // we want JPG thumbnails
+    val name = imageName(image.getName) + ".jpg"
+    val thumbnailFile = new File(thumbnailTmpDir, name)
+    val cmd = new ImageCommand(gmCommand, "convert")
+    var e: List[String] = List()
+    cmd.setErrorConsumer(new ErrorConsumer() {
+      def consumeError(is: InputStream) {
+        val br = new BufferedReader(new InputStreamReader(is))
+        e = Stream.continually(br.readLine()).takeWhile(_ != null).toList
+      }
+    })
+
+    val resizeOperation = new IMOperation()
+    resizeOperation.size(width, width)
+    resizeOperation.addImage(image.getAbsolutePath)
+    resizeOperation.resize(width, width)
+    resizeOperation.p_profile("\"*\"")
+    resizeOperation.addImage(thumbnailFile.getAbsolutePath)
+    try {
+      cmd.run(resizeOperation)
+      if (thumbnailFile.exists()) {
+        val thumb = storeThumbnail(
+          thumbnailStream = new BufferedInputStream(new FileInputStream(thumbnailFile)),
+          filename = image.getName,
+          contentType = "image/jpeg",
+          width = width,
+          store = store,
+          params = params
+        )
+        onSuccess(width, image)
+        Some(thumb._2)
+      } else {
+        onFailure(width, image, e.mkString("\n"))
+        None
+      }
+    } catch {
+      case t: Throwable =>
+        t.printStackTrace()
+        onFailure(width, image, t.getMessage)
+        None
+    } finally {
+      // cleanup
+      FileUtils.deleteQuietly(thumbnailFile)
+    }
+  }
+
+  /** image name without extension **/
+  protected def imageName(name: String) = if (name.indexOf(".") > 0) name.substring(0, name.lastIndexOf(".")) else name
 
 }
