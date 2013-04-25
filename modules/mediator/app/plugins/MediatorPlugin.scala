@@ -185,6 +185,7 @@ class MediatorFtplet(implicit configuration: OrganizationConfiguration) extends 
               "orgId" -> configuration.orgId,
               "set" -> set,
               "fileName" -> name,
+              "userName" -> userName,
               "errorCallbackUrl" -> errorCallbackUrl
             )
             .post(Results.EmptyContent()).map { response =>

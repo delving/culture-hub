@@ -28,7 +28,7 @@ class ImageProcessor extends Actor with ThumbnailSupport {
 
   def receive = {
 
-    case context @ ProcessImage(orgId, set, file, errorCallbackUrl, configuration) =>
+    case context @ ProcessImage(orgId, set, file, errorCallbackUrl, userName, configuration) =>
 
       val errors: Seq[String] = operations flatMap { op =>
         op(context)
@@ -39,7 +39,7 @@ class ImageProcessor extends Actor with ThumbnailSupport {
         // move the original file to archive
         FileUtils.moveFileToDirectory(file, destinationDir, true)
       } else {
-        val params = Seq("orgId" -> orgId, "set" -> set, "fileName" -> file.getName, "errors" -> errors.mkString("\n"))
+        val params = Seq("orgId" -> orgId, "set" -> set, "fileName" -> file.getName, "userName" -> userName, "error" -> errors.mkString("\n"))
         WS
           .url(errorCallbackUrl)
           .withQueryString(params: _*)
@@ -73,7 +73,7 @@ class ImageProcessor extends Actor with ThumbnailSupport {
           log.warn(s"Could not create thumbnail of width $width for file ${file.getName}: $reason")
           errors += reason
         }
-      )
+      )(context.configuration)
     }
 
     if (!errors.isEmpty) {
@@ -108,4 +108,4 @@ class ImageProcessor extends Actor with ThumbnailSupport {
 
 }
 
-case class ProcessImage(orgId: String, set: String, file: File, errorCallbackUrl: String, configuration: OrganizationConfiguration)
+case class ProcessImage(orgId: String, set: String, file: File, userName: String, errorCallbackUrl: String, configuration: OrganizationConfiguration)
