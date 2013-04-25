@@ -75,3 +75,8 @@
 
 </head>
 <body class="${userName ? 'logged-in' : 'anonymous'}" id="#{get 'bodyId' /}" style="visibility: ${play.templates.BaseTemplate.layoutData.get().get('visibility') ? play.templates.BaseTemplate.layoutData.get().get('visibility') : 'visible'}">
+
+<div class="alert alert-error hide" id="browser-alert">
+    <button type="button" class="close" data-dismiss="alert">&times;</button>
+    &{'ui.message.oldBroswer'}
+</div>
