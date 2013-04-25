@@ -5,6 +5,7 @@ import at.ait.dme.magicktiler.ptif.PTIFConverter
 import at.ait.dme.magicktiler.image.ImageFormat
 import java.io.File
 import play.api.Logger
+import org.apache.commons.io.FileUtils
 
 /**
  *
@@ -34,6 +35,12 @@ object PTIFTiling {
 
       def targetFile = new File(tilesOutputPath, targetName)
       log.debug("Target file: " + targetFile.getAbsolutePath)
+
+      if (targetFile.exists()) {
+        log.debug(s"DeepZoom tile already exists for ${targetFile.getAbsolutePath}, so we delete it")
+        FileUtils.deleteQuietly(targetFile)
+
+      }
       targetFile.createNewFile()
 
       val tileInfo = getTiler(tilesWorkingBasePath).convert(sourceImage, targetFile)

@@ -101,6 +101,7 @@ class ImageProcessor extends Actor with ThumbnailSupport {
       val result = PTIFTiling.createTile(tilesWorkingDir, tilesOutputDir, tileSource)
       result.left.toOption
     } finally {
+      FileUtils.deleteQuietly(sourceFile)
       FileUtils.deleteQuietly(tileSource)
     }
   }
