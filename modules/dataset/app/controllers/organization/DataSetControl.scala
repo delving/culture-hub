@@ -38,6 +38,7 @@ import models.Mapping
 import models.FactDefinition
 import controllers.ShortDataSet
 import play.api.i18n.Messages
+import core.messages._
 
 /**
  *
@@ -315,6 +316,7 @@ trait DataSetControl extends OrganizationController { this: BoundController =>
                   log.info(s"Renaming DataSet spec ${existing.spec} to ${dataSetForm.spec}")
                   HubServices.basexStorages.getResource(configuration).renameCollection(existing, dataSetForm.spec)
                   indexingServiceLocator.byDomain.deleteBySpec(configuration.orgId, existing.spec)
+                  CultureHubPlugin.broadcastMessage(CollectionRenamed(existing.spec, dataSetForm.spec, configuration))
                 }
 
                 val removed: Seq[String] = removedSchemas(submittedSchemaConfigurations, existing.mappings)
@@ -361,6 +363,7 @@ trait DataSetControl extends OrganizationController { this: BoundController =>
                 )
 
                 DataSetEvent ! DataSetEvent.Created(orgId, dataSetForm.spec, connectedUser)
+                CultureHubPlugin.broadcastMessage(CollectionCreated(dataSetForm.spec, configuration))
 
             }
             Json(dataSetForm)

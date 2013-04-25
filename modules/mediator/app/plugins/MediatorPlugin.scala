@@ -22,10 +22,8 @@ import akka.actor.{ Props, ActorContext }
 import actors.ImageProcessor
 
 /**
- * TODO fix permissions to only allow upload in set folders
  * TODO TLS-SSL
  * TODO see if we can only have one FTP server and have directories per organization, with the appropriate permissions / view tweaks
- * TODO creating a collection should trigger a core event, picked up by this plugin to create the dirs
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
@@ -61,6 +59,26 @@ class MediatorPlugin(app: Application) extends CultureHubPlugin(app) {
 
   override def onActorInitialization(context: ActorContext) {
     context.actorOf(Props[ImageProcessor], name = "imageProcessor")
+  }
+
+  import core.messages._
+  /**
+   * Handler for plugin messaging, based on Akka actors.
+   * Override this method to handle particular messages.
+   */
+  override def receive = {
+    case CollectionCreated(collectionId, configuration) =>
+      val collectionSourceDir = new File(MediatorPlugin.pluginConfiguration(configuration).sourceDirectory, collectionId)
+      if (!collectionSourceDir.exists()) {
+        info(s"Created media source directory for collection ${configuration.orgId}:$collectionId")
+        collectionSourceDir.mkdir()
+      }
+
+    case CollectionRenamed(oldCollectionId, newCollectionId, configuration) =>
+      val oldCollectionSourceDir = new File(MediatorPlugin.pluginConfiguration(configuration).sourceDirectory, oldCollectionId)
+      val newCollectionSourceDir = new File(MediatorPlugin.pluginConfiguration(configuration).sourceDirectory, newCollectionId)
+      oldCollectionSourceDir.renameTo(newCollectionSourceDir)
+      info(s"Renamed media source directory for collection ${configuration.orgId}:$oldCollectionId to  ${configuration.orgId}:$newCollectionId")
   }
 
   lazy val ftpServers = new OrganizationConfigurationResourceHolder[Option[MediatorPluginConfiguration], FtpServer]("ftpServers") {
@@ -118,7 +136,16 @@ class MediatorFtplet(implicit configuration: OrganizationConfiguration) extends 
 
   val log = Logger("CultureHub")
 
-  override def onMkdirStart(session: FtpSession, request: FtpRequest): FtpletResult = super.onMkdirStart(session, request)
+  override def onUploadStart(session: FtpSession, request: FtpRequest): FtpletResult = {
+    val path = request.getArgument
+    if (path.split("/").length < 3) {
+      log.info(s"[${session.getUser.getName}@${configuration.orgId}] Mediator: user tried to upload to wrong location '$path'")
+      // be harsh. wuh-PSSSH!
+      FtpletResult.DISCONNECT
+    } else {
+      super.onUploadStart(session, request)
+    }
+  }
 
   override def onUploadEnd(session: FtpSession, request: FtpRequest): FtpletResult = {
     log.info(s"[${session.getUser.getName}@${configuration.orgId}] Mediator: new file '${request.getArgument}' uploaded")
