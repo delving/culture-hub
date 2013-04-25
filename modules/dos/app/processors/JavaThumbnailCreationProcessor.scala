@@ -20,6 +20,7 @@ import org.bson.types.ObjectId
 import controllers.dos._
 import java.io.{ FileInputStream, File }
 import models.dos.Task
+import models.OrganizationConfiguration
 
 /**
  *
@@ -28,7 +29,7 @@ import models.dos.Task
 
 object JavaThumbnailCreationProcessor extends ThumbnailCreationProcessor with ThumbnailSupport {
 
-  protected def createThumbnailsForSize(images: Seq[File], width: Int, task: Task, orgId: String, collectionId: String) {
+  protected def createThumbnailsForSize(images: Seq[File], width: Int, task: Task, orgId: String, collectionId: String)(implicit configuration: OrganizationConfiguration) {
     for (image <- images; if (!task.isCancelled)) {
       try {
         val id = createThumbnailFromFile(image, width, task._id, orgId, collectionId)
@@ -41,7 +42,7 @@ object JavaThumbnailCreationProcessor extends ThumbnailCreationProcessor with Th
     }
   }
 
-  protected def createThumbnailFromFile(image: File, width: Int, taskId: ObjectId, orgId: String, collectionId: String): ObjectId = {
+  protected def createThumbnailFromFile(image: File, width: Int, taskId: ObjectId, orgId: String, collectionId: String)(implicit configuration: OrganizationConfiguration): ObjectId = {
     val imageName = getImageName(image.getName)
     createThumbnailFromStream(new FileInputStream(image), image.getName, "image/jpeg", width, getStore(orgId), Map(
       ORIGIN_PATH_FIELD -> image.getAbsolutePath,

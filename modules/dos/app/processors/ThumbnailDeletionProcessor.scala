@@ -22,6 +22,7 @@ import java.io.File
 import controllers.dos.ThumbnailSupport
 import org.bson.types.ObjectId
 import com.mongodb.casbah.commons.MongoDBObject
+import models.OrganizationConfiguration
 
 /**
  *
@@ -30,7 +31,7 @@ import com.mongodb.casbah.commons.MongoDBObject
 
 object ThumbnailDeletionProcessor extends Processor with ThumbnailSupport {
 
-  def process(task: Task, processorParams: Map[String, AnyRef]) {
+  def process(task: Task, processorParams: Map[String, AnyRef])(implicit configuration: OrganizationConfiguration) {
 
     val store = getStore(task.orgId)
 

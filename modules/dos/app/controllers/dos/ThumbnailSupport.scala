@@ -14,6 +14,7 @@ import play.api.Play.current
 import java.util.UUID
 import org.im4java.process.ErrorConsumer
 import com.mongodb.casbah.commons.MongoDBObject
+import models.OrganizationConfiguration
 
 /**
  * TODO refactor the createThumbnails method to allow batch processing on all sizes
@@ -25,21 +26,21 @@ trait ThumbnailSupport {
 
   val logger = Logger("CultureHub")
 
-  protected def createThumbnailsFromStream(imageStream: InputStream, fileIdentifier: String, filename: String, contentType: String, store: GridFS, params: Map[String, String] = Map.empty[String, String]): Map[Int, ObjectId] = {
+  protected def createThumbnailsFromStream(imageStream: InputStream, fileIdentifier: String, filename: String, contentType: String, store: GridFS, params: Map[String, String] = Map.empty[String, String])(implicit configuration: OrganizationConfiguration): Map[Int, ObjectId] = {
     thumbnailSizes.map { size =>
       logger.info("Creating thumbnail for file " + filename)
       createThumbnailFromStream(imageStream, filename, contentType, size._2, store, params + (FILE_POINTER_FIELD -> fileIdentifier))
     }
   }
 
-  protected def createThumbnails(image: GridFSDBFile, store: GridFS, globalParams: Map[String, String] = Map.empty[String, String]): Map[Int, ObjectId] = {
+  protected def createThumbnails(image: GridFSDBFile, store: GridFS, globalParams: Map[String, String] = Map.empty[String, String])(implicit configuration: OrganizationConfiguration): Map[Int, ObjectId] = {
     thumbnailSizes.map { size =>
       logger.info("Creating thumbnail for file " + image.filename)
       createThumbnailFromStream(image.inputStream, image.filename.getOrElse(""), image.contentType.getOrElse("unknown/unknown"), size._2, store, globalParams + (FILE_POINTER_FIELD -> image._id.get))
     }
   }
 
-  protected def createThumbnailFromStream(imageStream: InputStream, filename: String, contentType: String, width: Int, store: GridFS, params: Map[String, AnyRef] = Map.empty[String, AnyRef]): (Int, ObjectId) = {
+  protected def createThumbnailFromStream(imageStream: InputStream, filename: String, contentType: String, width: Int, store: GridFS, params: Map[String, AnyRef] = Map.empty[String, AnyRef])(implicit configuration: OrganizationConfiguration): (Int, ObjectId) = {
     val resizedStream = createThumbnail(imageStream, contentType, width)
     storeThumbnail(resizedStream, filename, "png", width, store, params)
   }
@@ -71,7 +72,7 @@ trait ThumbnailSupport {
     (width, thumbnail._id.get)
   }
 
-  private def createThumbnail(sourceStream: InputStream, contentType: String, thumbnailWidth: Int, boundingBox: Boolean = true): InputStream = {
+  private def createThumbnail(sourceStream: InputStream, contentType: String, thumbnailWidth: Int, boundingBox: Boolean = true)(implicit configuration: OrganizationConfiguration): InputStream = {
 
     if (contentType.contains("pdf")) {
 
@@ -93,7 +94,7 @@ trait ThumbnailSupport {
       val thumbnailFile = TemporaryFile(UUID.randomUUID().toString, ".png")
       logger.debug("Set temporary thumbnail file path to " + thumbnailFile.file.getAbsolutePath)
 
-      val cmd = new ImageCommand(gmCommand, "convert")
+      val cmd = new ImageCommand(configuration.objectService.graphicsMagickCommand, "convert")
       var e: List[String] = List()
       cmd.setErrorConsumer(new ErrorConsumer() {
         def consumeError(is: InputStream) {
@@ -133,11 +134,11 @@ trait ThumbnailSupport {
    * Creates a thumbnail via GM and stores it
    * TODO merge with PDF method above
    */
-  def createAndStoreThumbnail(image: File, width: Int, params: Map[String, AnyRef], store: GridFS, thumbnailTmpDir: File, onSuccess: (Int, File) => Unit, onFailure: (Int, File, String) => Unit): Option[ObjectId] = {
+  def createAndStoreThumbnail(image: File, width: Int, params: Map[String, AnyRef], store: GridFS, thumbnailTmpDir: File, onSuccess: (Int, File) => Unit, onFailure: (Int, File, String) => Unit)(implicit configuration: OrganizationConfiguration): Option[ObjectId] = {
     // we want JPG thumbnails
     val name = imageName(image.getName) + ".jpg"
     val thumbnailFile = new File(thumbnailTmpDir, name)
-    val cmd = new ImageCommand(gmCommand, "convert")
+    val cmd = new ImageCommand(configuration.objectService.graphicsMagickCommand, "convert")
     var e: List[String] = List()
     cmd.setErrorConsumer(new ErrorConsumer() {
       def consumeError(is: InputStream) {
@@ -179,8 +180,6 @@ trait ThumbnailSupport {
       FileUtils.deleteQuietly(thumbnailFile)
     }
   }
-
-  def gmCommand = Play.configuration.getString("dos.graphicsmagic.cmd").getOrElse("")
 
   /** image name without extension **/
   protected def imageName(name: String) = if (name.indexOf(".") > 0) name.substring(0, name.lastIndexOf(".")) else name
