@@ -1,6 +1,6 @@
 package plugins
 
-import _root_.util.{ OrganizationConfigurationHandler, OrganizationConfigurationResourceHolder }
+import _root_.util.{Quotes, OrganizationConfigurationHandler, OrganizationConfigurationResourceHolder}
 import play.api.{ Play, Logger, Configuration, Application }
 import core.{ DomainServiceLocator, HubModule, AuthenticationService, CultureHubPlugin }
 import models.{ HubUser, OrganizationConfiguration }
@@ -20,6 +20,7 @@ import play.api.Play.current
 import play.api.libs.concurrent.Execution.Implicits._
 import akka.actor.{ Props, ActorContext }
 import actors.ImageProcessor
+import controllers.ErrorReporter
 
 /**
  * TODO TLS-SSL
@@ -173,13 +174,34 @@ class MediatorFtplet(implicit configuration: OrganizationConfiguration) extends 
           renamed
         }
 
+        def reportConnectionIssue(url: String, orgId: String, userName: String, statusCode: Option[Int]) {
+          ErrorReporter.reportError(
+            s"[Mediator Client] [$userName@orgId] Mediator Server unreachable",
+            s"""
+              |Master,
+              |
+              |user $userName tried to process a file, but the MediatorServer at '$url' is causing trouble.
+              |
+              |${ if(statusCode.isDefined) "Status code is: " + statusCode else "Server is simply not reachable, see logs for more details" }
+              |
+              |Yours truly,
+              |
+              |The Mediator
+              |----
+              |${Quotes.randomQuote()}
+            """.stripMargin
+          )
+
+        }
+
+        val errorCallbackUrl = {
+          val longestDomain = configuration.domains.sortBy(_.length).head
+          val host = if (Play.isDev) s"http://$longestDomain.localhost:9000" else s"http://$longestDomain"
+          host + "/media/fault/newFile"
+        }
+        val url = MediatorPlugin.pluginConfiguration.mediaServerUrl + "/media/command/newFile"
+
         try {
-          val errorCallbackUrl = {
-            val longestDomain = configuration.domains.sortBy(_.length).head
-            val host = if (Play.isDev) s"http://$longestDomain.localhost:9000" else s"http://$longestDomain"
-            host + "/media/fault/newFile"
-          }
-          val url = MediatorPlugin.pluginConfiguration.mediaServerUrl + "/media/command/newFile"
           WS
             .url(url)
             .withQueryString(
@@ -193,13 +215,14 @@ class MediatorFtplet(implicit configuration: OrganizationConfiguration) extends 
               if (response.ahcResponse.getStatusCode != 200) {
                 log.error(s"[$userName@${configuration.orgId}}] Mediator: could not make request to media server at '$url', parameters: " +
                   s"orgId:${configuration.orgId}, set:$set, fileName:$name, errorCallbackUrl:$errorCallbackUrl")
-
-                // TODO notify user per email
+                reportConnectionIssue(url, configuration.orgId, userName, Some(response.ahcResponse.getStatusCode))
               }
             }
         } catch {
           case t: Throwable =>
             log.error(s"[$userName@${configuration.orgId}}] Mediator: could not make request to media server", t)
+            reportConnectionIssue(url, configuration.orgId, userName, None)
+
         }
 
     }
