@@ -21,7 +21,7 @@ import com.mongodb.casbah.commons.MongoDBObject
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-trait Thumbnail {
+trait ThumbnailSupport {
 
   val logger = Logger("CultureHub")
 
@@ -45,7 +45,23 @@ trait Thumbnail {
   }
 
   protected def storeThumbnail(thumbnailStream: InputStream, filename: String, contentType: String, width: Int, store: GridFS, params: Map[String, AnyRef] = Map.empty[String, AnyRef]): (Int, ObjectId) = {
-    //    store.findOne(MongoDBObject(params.toList))
+
+    // delete previous version if the same file exists in the same context
+    if (params.contains(ORGANIZATION_IDENTIFIER_FIELD) && params.contains(COLLECTION_IDENTIFIER_FIELD)) {
+      val query = MongoDBObject(
+        ORGANIZATION_IDENTIFIER_FIELD -> params(ORGANIZATION_IDENTIFIER_FIELD),
+        COLLECTION_IDENTIFIER_FIELD -> params(COLLECTION_IDENTIFIER_FIELD),
+        THUMBNAIL_WIDTH_FIELD -> width,
+        "filename" -> filename
+      )
+      store.findOne(query).map { existing =>
+        existing._id.map { id =>
+          logger.debug(s"Removing existing thumbnail for replacement for file $filename and width $width")
+          store.remove(id)
+        }
+      }
+    }
+
     val thumbnail = store.createFile(thumbnailStream)
     thumbnail.filename = filename
     thumbnail.contentType = contentType
@@ -76,9 +92,6 @@ trait Thumbnail {
 
       val thumbnailFile = TemporaryFile(UUID.randomUUID().toString, ".png")
       logger.debug("Set temporary thumbnail file path to " + thumbnailFile.file.getAbsolutePath)
-
-      // TODO consolidate all places using GM
-      val gmCommand = Play.configuration.getString("dos.graphicsmagic.cmd").getOrElse("")
 
       val cmd = new ImageCommand(gmCommand, "convert")
       var e: List[String] = List()
@@ -120,7 +133,7 @@ trait Thumbnail {
    * Creates a thumbnail via GM and stores it
    * TODO merge with PDF method above
    */
-  def createAndStoreThumbnail(image: File, width: Int, params: Map[String, AnyRef], gmCommand: String, store: GridFS, thumbnailTmpDir: File, onSuccess: (Int, File) => Unit, onFailure: (Int, File, String) => Unit): Option[ObjectId] = {
+  def createAndStoreThumbnail(image: File, width: Int, params: Map[String, AnyRef], store: GridFS, thumbnailTmpDir: File, onSuccess: (Int, File) => Unit, onFailure: (Int, File, String) => Unit): Option[ObjectId] = {
     // we want JPG thumbnails
     val name = imageName(image.getName) + ".jpg"
     val thumbnailFile = new File(thumbnailTmpDir, name)
@@ -166,6 +179,8 @@ trait Thumbnail {
       FileUtils.deleteQuietly(thumbnailFile)
     }
   }
+
+  def gmCommand = Play.configuration.getString("dos.graphicsmagic.cmd").getOrElse("")
 
   /** image name without extension **/
   protected def imageName(name: String) = if (name.indexOf(".") > 0) name.substring(0, name.lastIndexOf(".")) else name

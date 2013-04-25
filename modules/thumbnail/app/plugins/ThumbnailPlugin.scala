@@ -4,11 +4,11 @@ import play.api._
 import core.CultureHubPlugin
 import core.storage.FileStorage
 import models.OrganizationConfiguration
-import controllers.dos.Thumbnail
+import controllers.dos.ThumbnailSupport
 import models.HubMongoContext._
 import core.messages.FileStored
 
-class ThumbnailPlugin(app: Application) extends CultureHubPlugin(app) with Thumbnail {
+class ThumbnailPlugin(app: Application) extends CultureHubPlugin(app) with ThumbnailSupport {
 
   val pluginKey: String = "thumbnail"
 

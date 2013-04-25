@@ -26,7 +26,7 @@ import models.dos.Task
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-object JavaThumbnailCreationProcessor extends ThumbnailCreationProcessor with Thumbnail {
+object JavaThumbnailCreationProcessor extends ThumbnailCreationProcessor with ThumbnailSupport {
 
   protected def createThumbnailsForSize(images: Seq[File], width: Int, task: Task, orgId: String, collectionId: String) {
     for (image <- images; if (!task.isCancelled)) {

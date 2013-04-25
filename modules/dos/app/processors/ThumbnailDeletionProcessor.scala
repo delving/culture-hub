@@ -19,7 +19,7 @@ package processors
 import controllers.dos._
 import models.dos.Task
 import java.io.File
-import controllers.dos.Thumbnail
+import controllers.dos.ThumbnailSupport
 import org.bson.types.ObjectId
 import com.mongodb.casbah.commons.MongoDBObject
 
@@ -28,7 +28,7 @@ import com.mongodb.casbah.commons.MongoDBObject
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-object ThumbnailDeletionProcessor extends Processor with Thumbnail {
+object ThumbnailDeletionProcessor extends Processor with ThumbnailSupport {
 
   def process(task: Task, processorParams: Map[String, AnyRef]) {
 

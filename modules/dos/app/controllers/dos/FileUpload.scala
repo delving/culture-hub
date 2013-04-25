@@ -31,7 +31,7 @@ import core.storage.{ StoredFile, FileUploadResponse, FileStorage }
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-object FileUpload extends Controller with Extensions with Thumbnail with OrganizationConfigurationAware {
+object FileUpload extends Controller with Extensions with ThumbnailSupport with OrganizationConfigurationAware {
 
   // ~~ public HTTP API
 

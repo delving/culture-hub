@@ -20,7 +20,7 @@ import plugins.MediatorPlugin
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
-class ImageProcessor extends Actor with Thumbnail {
+class ImageProcessor extends Actor with ThumbnailSupport {
 
   val log = Logger("CultureHub")
 
@@ -56,9 +56,6 @@ class ImageProcessor extends Actor with Thumbnail {
       COLLECTION_IDENTIFIER_FIELD -> context.set
     )
 
-    // TODO consolidate all places using GM, move this to the config!!
-    val gmCommand = Play.configuration.getString("dos.graphicsmagic.cmd").getOrElse("")
-
     val tmpDir = new File(context.configuration.objectService.tilesWorkingBaseDir + File.separator + "thumbnailTmp" + File.separator + context.orgId + context.set)
     tmpDir.mkdirs()
 
@@ -69,7 +66,6 @@ class ImageProcessor extends Actor with Thumbnail {
         context.file,
         size._2,
         params,
-        gmCommand,
         fileStore(context.configuration),
         tmpDir,
         { (width, file) => },

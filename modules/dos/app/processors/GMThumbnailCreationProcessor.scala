@@ -28,7 +28,7 @@ import java.io._
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-object GMThumbnailCreationProcessor extends ThumbnailCreationProcessor with Thumbnail {
+object GMThumbnailCreationProcessor extends ThumbnailCreationProcessor with ThumbnailSupport {
 
   protected def createThumbnailsForSize(images: Seq[File], width: Int, task: Task, orgId: String, collectionId: String) {
 
@@ -63,7 +63,6 @@ object GMThumbnailCreationProcessor extends ThumbnailCreationProcessor with Thum
         image,
         width,
         params,
-        gmCommand,
         getStore(task.orgId),
         thumbnailTmpDir,
         onSuccess = { (size, file) => info(task, "Created thumbnail of size '%s' for image '%s'".format(width, image.getAbsolutePath), Some(image.getAbsolutePath), None) },
