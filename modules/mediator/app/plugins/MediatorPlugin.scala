@@ -136,15 +136,14 @@ class MediatorFtplet(implicit configuration: OrganizationConfiguration) extends 
         val Array(set, fileName) = path.drop(1).split("/")
 
         // when we are presented a file with spaces in the name, remedy to it immediately
-        val name = if (fileName.indexOf(" ") > -1) {
-          val renamed = fileName.replaceAll("\\s", "_")
+        // also lowercase it
+        val name = {
+          val renamed = fileName.replaceAll("\\s", "_").toLowerCase
           val srcDir = MediatorPlugin.pluginConfiguration.sourceDirectory
-          log.info(s"[$userName@${configuration.orgId}}] Mediator: renaming uploaded file to /$set/$renamed")
+          log.debug(s"[$userName@${configuration.orgId}}] Mediator: renaming uploaded file to /$set/$renamed")
           val f = new File(srcDir, path)
           f.renameTo(new File(srcDir, s"/$set/$renamed"))
           renamed
-        } else {
-          fileName
         }
 
         try {
