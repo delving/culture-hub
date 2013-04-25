@@ -98,7 +98,7 @@ object Build extends sbt.Build {
 
   // ~~~ dynamic modules, to avoid hard-coded definitions
 
-  val excludes = Seq("cms", "search", "dataset", "simple-document-upload", "thumbnail", "deepZoom", "dos")
+  val excludes = Seq("cms", "search", "dataset", "simple-document-upload", "dos")
 
   def discoverModules(base: File, dir: String): Seq[Project] = {
     val dirs: Seq[sbt.File] = if((base / dir).listFiles != null) (base / dir).listFiles else Seq.empty[sbt.File]
