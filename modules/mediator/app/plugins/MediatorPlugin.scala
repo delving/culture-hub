@@ -1,6 +1,6 @@
 package plugins
 
-import _root_.util.{Quotes, OrganizationConfigurationHandler, OrganizationConfigurationResourceHolder}
+import _root_.util.{ Quotes, OrganizationConfigurationHandler, OrganizationConfigurationResourceHolder }
 import play.api.{ Play, Logger, Configuration, Application }
 import core.{ DomainServiceLocator, HubModule, AuthenticationService, CultureHubPlugin }
 import models.{ HubUser, OrganizationConfiguration }
@@ -182,7 +182,7 @@ class MediatorFtplet(implicit configuration: OrganizationConfiguration) extends 
               |
               |user $userName tried to process a file, but the MediatorServer at '$url' is causing trouble.
               |
-              |${ if(statusCode.isDefined) "Status code is: " + statusCode else "Server is simply not reachable, see logs for more details" }
+              |${if (statusCode.isDefined) "Status code is: " + statusCode else "Server is simply not reachable, see logs for more details"}
               |
               |Yours truly,
               |

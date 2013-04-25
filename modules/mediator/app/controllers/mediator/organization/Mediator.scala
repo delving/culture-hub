@@ -68,7 +68,7 @@ object Mediator extends OrganizationController with ThumbnailSupport {
         }
       }).asJava
 
-      Ok(Template('items -> groupedDisplayResult))
+      Ok(Template('collection -> collection, 'items -> groupedDisplayResult))
     }
   }
 
