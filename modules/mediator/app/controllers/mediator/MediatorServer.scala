@@ -18,7 +18,7 @@ object MediatorServer extends DelvingController {
 
   def imageProcessor: ActorRef = Akka.system.actorFor("akka://application/user/plugin-mediator/imageProcessor")
 
-  def newFile(orgId: String, set: String, fileName: String, callbackUrl: String) = OrganizationConfigured {
+  def newFile(orgId: String, set: String, fileName: String, errorCallbackUrl: String) = OrganizationConfigured {
     Action { implicit request =>
       log.info(s"[MediatorServer] Received notification for new file [$orgId] $set/$fileName")
 
@@ -31,7 +31,7 @@ object MediatorServer extends DelvingController {
         log.error(s"[MediatorServer] File ${file.getAbsolutePath} is not an image")
         BadRequest
       } else {
-        imageProcessor ! ProcessImage(orgId, set, file, callbackUrl, configuration)
+        imageProcessor ! ProcessImage(orgId, set, file, errorCallbackUrl, configuration)
         Ok
       }
     }

@@ -1,5 +1,5 @@
 ## Client-side
-POST             /media/event/fileHandled                                controllers.mediator.organization.Mediator.fileHandled(orgId, set, fileName, error: Option[String])
+POST             /media/fault/newFile                                    controllers.mediator.organization.Mediator.newFileFault(orgId, set, fileName, error: Option[String])
 
 ## Server-side
-POST             /media/event/newFile                                    controllers.mediator.MediatorServer.newFile(orgId, set, fileName, callbackUrl)
+POST             /media/command/newFile                                  controllers.mediator.MediatorServer.newFile(orgId, set, fileName, errorCallbackUrl)

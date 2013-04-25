@@ -148,23 +148,23 @@ class MediatorFtplet(implicit configuration: OrganizationConfiguration) extends 
         }
 
         try {
-          val callbackUrl = {
+          val errorCallbackUrl = {
             val host = if (Play.isDev) s"http://${configuration.domains.head}:9000" else s"http://${configuration.domains.head}"
             host + "/media/event/fileHandled" // TODO think of a better client-side URL scheme
           }
-          val url = MediatorPlugin.pluginConfiguration.mediaServerUrl + "/media/event/newFile"
+          val url = MediatorPlugin.pluginConfiguration.mediaServerUrl + "/media/command/newFile"
           WS
             .url(url)
             .withQueryString(
               "orgId" -> configuration.orgId,
               "set" -> set,
               "fileName" -> name,
-              "callbackUrl" -> callbackUrl
+              "errorCallbackUrl" -> errorCallbackUrl
             )
             .post(Results.EmptyContent()).map { response =>
               if (response.ahcResponse.getStatusCode != 200) {
                 log.error(s"[$userName@${configuration.orgId}}] Mediator: could not make request to media server at '$url', parameters: " +
-                  s"orgId:${configuration.orgId}, set:$set, fileName:$name, callbackUrl:$callbackUrl")
+                  s"orgId:${configuration.orgId}, set:$set, fileName:$name, errorCallbackUrl:$errorCallbackUrl")
 
                 // TODO notify user per email
               }

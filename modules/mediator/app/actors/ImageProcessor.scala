@@ -28,7 +28,7 @@ class ImageProcessor extends Actor with Thumbnail {
 
   def receive = {
 
-    case context @ ProcessImage(orgId, set, file, callbackUrl, configuration) =>
+    case context @ ProcessImage(orgId, set, file, errorCallbackUrl, configuration) =>
 
       val errors: Seq[String] = operations flatMap { op =>
         op(context)
@@ -41,7 +41,7 @@ class ImageProcessor extends Actor with Thumbnail {
       } else {
         val params = Seq("orgId" -> orgId, "set" -> set, "fileName" -> file.getName, "errors" -> errors.mkString("\n"))
         WS
-          .url(callbackUrl)
+          .url(errorCallbackUrl)
           .withQueryString(params: _*)
           .post(Results.EmptyContent()).map { result => log.debug("Mediator: Result of error callback operation: " + result.ahcResponse.getStatusCode) }
 
@@ -111,4 +111,4 @@ class ImageProcessor extends Actor with Thumbnail {
 
 }
 
-case class ProcessImage(orgId: String, set: String, file: File, callbackUrl: String, configuration: OrganizationConfiguration)
+case class ProcessImage(orgId: String, set: String, file: File, errorCallbackUrl: String, configuration: OrganizationConfiguration)
