@@ -11,7 +11,6 @@ import controllers.dos.fileStore
 import scala.collection.mutable.ArrayBuffer
 import play.api.libs.ws.WS
 import play.api.libs.concurrent.Execution.Implicits._
-import play.api.mvc.Results
 import play.api.Play.current
 import plugins.MediatorPlugin
 
@@ -28,7 +27,7 @@ class ImageProcessor extends Actor with ThumbnailSupport {
 
   def receive = {
 
-    case context @ ProcessImage(orgId, set, file, errorCallbackUrl, userName, configuration) =>
+    case context @ ProcessImage(orgId, set, file, userName, errorCallbackUrl, configuration) =>
 
       val errors: Seq[String] = operations flatMap { op =>
         op(context)
@@ -37,13 +36,22 @@ class ImageProcessor extends Actor with ThumbnailSupport {
       if (errors.isEmpty) {
         val destinationDir = new File(MediatorPlugin.pluginConfiguration(configuration).archiveDirectory, s"/$orgId/$set")
         // move the original file to archive
+        val maybeArchived = new File(destinationDir, file.getName)
+        if (maybeArchived.exists()) maybeArchived.delete()
         FileUtils.moveFileToDirectory(file, destinationDir, true)
       } else {
-        val params = Seq("orgId" -> orgId, "set" -> set, "fileName" -> file.getName, "userName" -> userName, "error" -> errors.mkString("\n"))
+        log.debug(s"[MediatorServer] [$userName@$orgId] Errors during creation of alternative representations of file $set/$file: we're reporting back to $errorCallbackUrl")
+        val params = Seq(
+          "orgId" -> orgId,
+          "set" -> set,
+          "fileName" -> file.getName,
+          "userName" -> userName,
+          "error" -> errors.mkString("\n")
+        )
         WS
           .url(errorCallbackUrl)
           .withQueryString(params: _*)
-          .post(Results.EmptyContent()).map { result => log.debug("Mediator: Result of error callback operation: " + result.ahcResponse.getStatusCode) }
+          .post(errors.mkString("\n")).map { result => log.debug("Mediator: Result of error callback operation: " + result.ahcResponse.getStatusCode) }
 
       }
   }
@@ -85,7 +93,8 @@ class ImageProcessor extends Actor with ThumbnailSupport {
   }
 
   def makeDeepZoom(context: ProcessImage): Option[String] = {
-    val tilesOutputDir = new File(context.configuration.objectService.tilesOutputBaseDir)
+    val tilesOutputDir = new File(context.configuration.objectService.tilesOutputBaseDir, context.orgId + "/" + context.set)
+    tilesOutputDir.mkdirs()
     val tilesWorkingDir = new File(context.configuration.objectService.tilesWorkingBaseDir)
     val normalizationWorkingDir = tilesWorkingDir.getAbsolutePath + File.separator + "normalized"
     new File(normalizationWorkingDir).mkdirs()

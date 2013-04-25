@@ -1,6 +1,6 @@
 package controllers.dos
 
-import org.bson.types.ObjectId
+import com.mongodb.casbah.Imports._
 import com.mongodb.casbah.gridfs.{ GridFS, GridFSDBFile }
 import java.awt.image.BufferedImage
 import javax.imageio.ImageIO
@@ -9,7 +9,7 @@ import org.imgscalr.Scalr
 import play.api.libs.Files.TemporaryFile
 import org.apache.commons.io.{ FileUtils, IOUtils }
 import org.im4java.core.{ IMOperation, ImageCommand }
-import play.api.{ Logger, Play }
+import play.api.Logger
 import play.api.Play.current
 import java.util.UUID
 import org.im4java.process.ErrorConsumer
@@ -45,7 +45,7 @@ trait ThumbnailSupport {
     storeThumbnail(resizedStream, filename, "png", width, store, params)
   }
 
-  protected def storeThumbnail(thumbnailStream: InputStream, filename: String, contentType: String, width: Int, store: GridFS, params: Map[String, AnyRef] = Map.empty[String, AnyRef]): (Int, ObjectId) = {
+  private def storeThumbnail(thumbnailStream: InputStream, filename: String, contentType: String, width: Int, store: GridFS, params: Map[String, AnyRef] = Map.empty[String, AnyRef]): (Int, ObjectId) = {
 
     // delete previous version if the same file exists in the same context
     if (params.contains(ORGANIZATION_IDENTIFIER_FIELD) && params.contains(COLLECTION_IDENTIFIER_FIELD)) {
@@ -130,6 +130,17 @@ trait ThumbnailSupport {
     }
   }
 
+  def listThumbnailFiles(orgId: String, collectionId: String)(implicit configuration: OrganizationConfiguration): Seq[Thumbnail] = {
+    val query = MongoDBObject(
+      ORGANIZATION_IDENTIFIER_FIELD -> orgId,
+      COLLECTION_IDENTIFIER_FIELD -> collectionId
+    ) ++ (THUMBNAIL_WIDTH_FIELD $exists true)
+
+    fileStore(configuration).find(query).groupBy(_.getFilename).map { groupedThumbs =>
+      Thumbnail(groupedThumbs._1, groupedThumbs._2.map(thumb => thumb.get(THUMBNAIL_WIDTH_FIELD).asInstanceOf[Int]).toSeq)
+    }.toSeq
+  }
+
   /**
    * Creates a thumbnail via GM and stores it
    * TODO merge with PDF method above
@@ -185,3 +196,5 @@ trait ThumbnailSupport {
   protected def imageName(name: String) = if (name.indexOf(".") > 0) name.substring(0, name.lastIndexOf(".")) else name
 
 }
+
+case class Thumbnail(fileName: String, widths: Seq[Int])

@@ -1,0 +1,42 @@
+#{extends themeInfo.get('themeLayout') /}
+#{set title: messages.get('plugin.statistics.mediator') /}
+#{set bodyId:'mediator' /}
+#{set pageId:'Mediator'/}
+
+#{breadcrumbs crumbs: breadcrumbs /}
+
+<table class="table table-striped sortable">
+    <thead>
+        <th>Thumbnail</th>
+        <th>File name</th>
+        <th>Thumbnail widths</th>
+        <th>DeepZoom tile</th>
+        <th>Is source file archived</th>
+    </thead>
+    #{list items, as: 'i'}
+    <tr>
+        <td>
+            <img src="${i.thumbnailUrl}/80"></img>
+        </td>
+        <td>
+            ${i.fileName}
+        </td>
+        <td>
+            #{list i.thumbnailWidths, as: 'w'}<a href="${i.thumbnailUrl}/${w}">${w}</a>#{if !w_isLast}, #{/if}#{/list}
+        </td>
+        <td>
+            #{if i.tileUrl}
+                <a href="${i.tileUrl}">${i.tileName}</a>
+            #{/if}
+            #{else}
+                No tile
+            #{/else}
+        </td>
+        <td>
+          ${i.hasSourceFile ? "Yes": "No"}
+        </td>
+    </tr>
+
+
+    #{/list}
+</table>

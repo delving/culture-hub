@@ -175,8 +175,9 @@ class MediatorFtplet(implicit configuration: OrganizationConfiguration) extends 
 
         try {
           val errorCallbackUrl = {
-            val host = if (Play.isDev) s"http://${configuration.domains.head}:9000" else s"http://${configuration.domains.head}"
-            host + "/media/event/fileHandled" // TODO think of a better client-side URL scheme
+            val longestDomain = configuration.domains.sortBy(_.length).head
+            val host = if (Play.isDev) s"http://$longestDomain.localhost:9000" else s"http://$longestDomain"
+            host + "/media/fault/newFile"
           }
           val url = MediatorPlugin.pluginConfiguration.mediaServerUrl + "/media/command/newFile"
           WS
