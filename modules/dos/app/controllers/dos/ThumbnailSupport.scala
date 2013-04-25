@@ -17,7 +17,7 @@ import com.mongodb.casbah.commons.MongoDBObject
 import models.OrganizationConfiguration
 
 /**
- * TODO refactor the createThumbnails method to allow batch processing on all sizes
+ * TODO merge createThumbnails and createAndStoreThumbnail - go for full GM action
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
