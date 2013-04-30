@@ -1,3 +1,4 @@
+GET              /admin/media                                            controllers.mediator.organization.Mediator.index
 GET              /admin/media/:collectionId/list                         controllers.mediator.organization.Mediator.collection(collectionId)
 
 ## Client-side

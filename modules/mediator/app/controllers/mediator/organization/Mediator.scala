@@ -16,6 +16,14 @@ import scala.collection.JavaConverters._
  */
 object Mediator extends OrganizationController with ThumbnailSupport {
 
+  def index = OrganizationAdmin {
+    Action {
+      implicit request =>
+        val ftpUrl = s"ftp://${connectedUser}@${request.domain}:${MediatorPlugin.pluginConfiguration.port}"
+        Ok(Template('ftpUrl -> ftpUrl))
+    }
+  }
+
   def collection(collection: String) = OrganizationAdmin {
 
     Action { implicit request =>

@@ -1,19 +1,24 @@
 #{extends themeInfo.get('themeLayout') /}
 #{set title: messages.get('plugin.mediator.mediator') /}
 #{set bodyId:'mediator' /}
-#{set pageId:'Mediator'/}
+#{set pageId:'Mediator - Collection ' + collection /}
 
 #{breadcrumbs crumbs: breadcrumbs /}
 
+#{set 'moreScripts'}
+<script type="text/javascript" src="@{routes.Assets.at("common/javascripts/jquery.tablesorter.min.js")}"></script>
+#{/set}
+
+
 <h1>Media representations for collection ${collection}</h1>
 
-<table class="table table-striped sortable">
+<table id="fileTable" class="table table-striped sortable">
     <thead>
         <th>Thumbnail</th>
-        <th>File name</th>
+        <th class="sort">File name</th>
         <th>Thumbnail widths</th>
         <th>DeepZoom tile</th>
-        <th>Is source file archived</th>
+        <th class="sort">Is source file archived</th>
     </thead>
     #{list items, as: 'i'}
     <tr>
@@ -42,3 +47,8 @@
 
     #{/list}
 </table>
+<script type="text/javascript">
+    $(document).ready(function() {
+        $("#fileTable").tablesorter();
+    })
+</script>
