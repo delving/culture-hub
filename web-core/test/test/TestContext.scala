@@ -14,6 +14,8 @@ import play.api.test.Helpers._
 import util.{ TestDataLoader, OrganizationConfigurationHandler }
 import xml.XML
 import scala.concurrent.duration._
+import models.OrganizationConfiguration
+
 /**
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
@@ -34,9 +36,14 @@ trait TestContext {
     f => f.isDirectory && f.getName == "conf")) new File(".").getAbsoluteFile
   else new File("culture-hub")
 
-  def withTestConfig[T](block: => T) = {
-    running(FakeApplication(path = applicationPath, withoutPlugins = Seq("play.api.db.BoneCPPlugin", "play.db.ebean.EbeanPlugin", "play.db.jpa.JPAPlugin", "play.api.db.evolutions.EvolutionsPlugin"))) {
-      block
+  def withTestConfig[T](block: => T): T = withTestConfig(_ => block)
+
+  def withTestConfig[T](block: OrganizationConfiguration => T): T = withTestConfig(Map.empty[String, AnyRef])(block)
+
+  def withTestConfig[T](additionalConfiguration: Map[String, _])(block: OrganizationConfiguration => T): T = {
+    running(FakeApplication(path = applicationPath, additionalConfiguration = additionalConfiguration, withoutPlugins = Seq("play.api.db.BoneCPPlugin", "play.db.ebean.EbeanPlugin", "play.db.jpa.JPAPlugin", "play.api.db.evolutions.EvolutionsPlugin"))) {
+      implicit val configuration = OrganizationConfigurationHandler.getByOrgId("delving")
+      block(configuration)
     }
   }
 

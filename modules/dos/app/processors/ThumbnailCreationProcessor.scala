@@ -18,6 +18,7 @@ package processors
 
 import models.dos.Task
 import java.io.File
+import models.OrganizationConfiguration
 
 /**
  *
@@ -26,7 +27,7 @@ import java.io.File
 
 trait ThumbnailCreationProcessor extends Processor {
 
-  def process(task: Task, processorParams: Map[String, AnyRef]) {
+  def process(task: Task, processorParams: Map[String, AnyRef])(implicit configuration: OrganizationConfiguration) {
     val p = new File(task.path)
     val collectionId = task.params.get(controllers.dos.COLLECTION_IDENTIFIER_FIELD).getOrElse({
       error(task, "No spec passed for task " + task)
@@ -48,6 +49,6 @@ trait ThumbnailCreationProcessor extends Processor {
     for (s <- sizes; if (!task.isCancelled)) createThumbnailsForSize(images, s, task, orgId, collectionId)
   }
 
-  protected def createThumbnailsForSize(images: Seq[File], width: Int, task: Task, orgId: String, collectionId: String)
+  protected def createThumbnailsForSize(images: Seq[File], width: Int, task: Task, orgId: String, collectionId: String)(implicit configuration: OrganizationConfiguration)
 
 }

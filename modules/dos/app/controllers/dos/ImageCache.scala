@@ -52,7 +52,7 @@ object ImageCache extends Controller with RespondWithDefaultImage with Organizat
   }
 }
 
-class ImageCacheService extends HTTPClient with Thumbnail {
+class ImageCacheService extends HTTPClient with ThumbnailSupport {
 
   private val log: Logger = Logger("ImageCacheService")
 

@@ -22,6 +22,7 @@ import org.im4java.core.{ ImageCommand, IMOperation }
 import java.io.{ File, InputStreamReader, BufferedReader, InputStream }
 import libs.Normalizer
 import org.apache.commons.io.FileUtils
+import models.OrganizationConfiguration
 
 /**
  * This processor normalizes original TIFs, so that tiling works nicely with it. Original images are moved to a new subdirectory called "_original"
@@ -31,7 +32,7 @@ import org.apache.commons.io.FileUtils
 
 object TIFFNormalizationProcessor extends Processor {
 
-  def process(task: Task, processorParams: Map[String, AnyRef]) {
+  def process(task: Task, processorParams: Map[String, AnyRef])(implicit configuration: OrganizationConfiguration) {
 
     val originalDir = new File(task.pathAsFile, "_original")
     val workDir = new File(task.pathAsFile, "_temp")

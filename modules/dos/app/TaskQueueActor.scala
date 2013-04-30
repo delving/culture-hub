@@ -1,6 +1,7 @@
-import _root_.util.Logging
+import util.{ OrganizationConfigurationHandler, Logging }
 import akka.actor.{ Cancellable, Actor }
 import models.dos.{ TaskType, TaskState, Task }
+import models.OrganizationConfiguration
 import play.api.libs.concurrent.Akka
 import play.api.Logger
 import processors._
@@ -43,6 +44,7 @@ class TaskQueueActor extends Actor with Logging {
             task =>
               taskDAO.start(task)
               try {
+                implicit val configuration = OrganizationConfigurationHandler.getByOrgId(task.orgId)
                 task.taskType match {
                   case TaskType.THUMBNAILS_CREATE => GMThumbnailCreationProcessor.process(task, Map("sizes" -> controllers.dos.thumbnailSizes.values.toList))
                   case TaskType.THUMBNAILS_DELETE => ThumbnailDeletionProcessor.process(task)
