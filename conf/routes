@@ -161,6 +161,7 @@ GET         /organizations/:orgId/directory/organizationLookup                  
 
 ->           /                                                                      search.Routes
 ->           /                                                                      cms.Routes
+->           /                                                                      mediator.Routes
 
 
 # Map static resources from the /public folder to the /assets URL path
