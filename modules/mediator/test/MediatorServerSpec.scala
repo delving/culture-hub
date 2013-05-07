@@ -15,14 +15,14 @@ class MediatorServerSpec extends Specs2TestContext {
 
     "return 404 if an image was not found" in {
       withTestConfig { implicit configuration: OrganizationConfiguration =>
-        val result = MediatorServer.newFile("delving", "fooSet", "fooFile.jpg", s"http://${configuration.domains.head}:9000/media/fault/newFile")(FakeRequest())
+        val result = MediatorServer.newFile("delving", "fooSet", "fooFile.jpg", "bob", s"http://${configuration.domains.head}:9000/media/fault/newFile")(FakeRequest())
         status(result) must equalTo(404)
       }
     }
     "return 400 if a file is not an image" in {
       val here = (new File("modules/mediator"))
       withTestConfig(Map("configurations.delving.plugin.mediator.sourceDirectory" -> here.getAbsolutePath)) { implicit configuration: OrganizationConfiguration =>
-        val result = MediatorServer.newFile("delving", "conf", "mediator.routes", s"http://${configuration.domains.head}:9000/media/fault/newFile")(FakeRequest())
+        val result = MediatorServer.newFile("delving", "conf", "mediator.routes", "bob", s"http://${configuration.domains.head}:9000/media/fault/newFile")(FakeRequest())
         status(result) must equalTo(400)
       }
     }
