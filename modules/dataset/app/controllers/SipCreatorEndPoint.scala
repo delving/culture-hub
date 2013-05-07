@@ -265,6 +265,10 @@ trait SipCreatorEndPoint extends Controller with OrganizationConfigurationAware 
                 case x if x.startsWith("stats-") =>
                   receiveSourceStats(dataSet.get, inputStream, prefix, fileName, request.body.file)
 
+                case "links" =>
+                  receiveLinks(dataSet.get, prefix, fileName, request.body.file)
+
+
                 case "image" =>
                   FileStorage.storeFile(
                     request.body.file,
@@ -347,7 +351,7 @@ trait SipCreatorEndPoint extends Controller with OrganizationConfigurationAware 
       f.put("uploadDate", context.uploadDate)
       f.put("hubFileType", "source-statistics")
       f.put("filename", fileName)
-      f.save
+      f.save()
 
       val dss = DataSetStatistics(
         context = context,
@@ -400,6 +404,28 @@ trait SipCreatorEndPoint extends Controller with OrganizationConfigurationAware 
     DataSet.dao(dataSet.orgId).save(updatedDataSet)
     Right("Allright")
   }
+
+  private def receiveLinks(dataSet: DataSet, schemaPrefix: String, fileName: String, file: File) = {
+    try {
+      val f = hubFileStores.getResource(configuration).createFile(file)
+      f.put("contentType", "application/x-gzip")
+      f.put("orgId", dataSet.orgId)
+      f.put("spec", dataSet.spec)
+      f.put("schema", schemaPrefix)
+      f.put("uploadDate", new Date())
+      f.put("hubFileType", "source-statistics")
+      f.put("filename", fileName)
+      f.save()
+      Right("Ok")
+
+    } catch {
+      case t: Throwable =>
+        log.error("SipCreatorEndPoint: Could not store links", t)
+        Left("Error while receiving links: " + t.getMessage)
+    }
+  }
+
+
 
   def fetchSIP(orgId: String, spec: String, accessToken: Option[String]) = OrganizationAction(orgId, accessToken) {
     Action {
