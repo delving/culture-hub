@@ -120,7 +120,7 @@ class SOLRIndexingService extends SolrServer with IndexingService {
       validCoordinates.foreach { geoHash =>
         doc.addField(GEOHASH.key, geoHash)
       }
-      if (!validCoordinates.isEmpty) doc.addField(GEOHASH_SINGLE.key, validCoordinates.head)
+      if (!validCoordinates.isEmpty) doc.addField(GEOHASH_MONO.key, validCoordinates.head)
     }
 
     doc.addField(HAS_GEO_HASH.key.toString, doc.containsKey(GEOHASH.key) && !doc.get(GEOHASH.key).isEmpty)
