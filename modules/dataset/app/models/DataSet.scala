@@ -36,6 +36,7 @@ import com.escalatesoft.subcut.inject.{ BindingModule, Injectable }
 import core.SchemaService
 import play.api.Play
 import com.novus.salat.dao.SalatDAO
+import com.mongodb.casbah.gridfs.GridFSDBFile
 
 /**
  * DataSet model
@@ -493,6 +494,17 @@ class DataSetDAO(collection: MongoCollection)(implicit val configuration: Organi
 
   def getMostRecentDataSetStatistics(implicit configuration: OrganizationConfiguration) = {
     DataSetStatistics.dao.find(MongoDBObject()).$orderby(MongoDBObject("_id" -> -1)).limit(1).toList.headOption
+  }
+
+  // links from the link-checker
+
+  def getLinksFile(spec: String, orgId: String, prefix: String): Option[GridFSDBFile] = {
+    hubFileStores.getResource(configuration).findOne(MongoDBObject(
+      "orgId" -> orgId,
+      "spec" -> spec,
+      "schema" -> prefix,
+      "hubFileType" -> "links"
+    ))
   }
 
 }

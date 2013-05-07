@@ -33,6 +33,8 @@ import models.statistics.FieldValues
 import play.api.libs.MimeTypes
 import play.api.libs.concurrent.Execution.Implicits._
 import scala.concurrent.duration._
+import com.mongodb.casbah.Imports._
+import com.mongodb.casbah.gridfs.{ GridFSDBFile, GridFS }
 
 /**
  * This Controller is responsible for all the interaction with the SIP-Creator.
@@ -265,6 +267,9 @@ trait SipCreatorEndPoint extends Controller with OrganizationConfigurationAware 
                 case x if x.startsWith("stats-") =>
                   receiveSourceStats(dataSet.get, inputStream, prefix, fileName, request.body.file)
 
+                case "links" =>
+                  receiveLinks(dataSet.get, prefix, fileName, request.body.file)
+
                 case "image" =>
                   FileStorage.storeFile(
                     request.body.file,
@@ -347,7 +352,7 @@ trait SipCreatorEndPoint extends Controller with OrganizationConfigurationAware 
       f.put("uploadDate", context.uploadDate)
       f.put("hubFileType", "source-statistics")
       f.put("filename", fileName)
-      f.save
+      f.save()
 
       val dss = DataSetStatistics(
         context = context,
@@ -401,6 +406,40 @@ trait SipCreatorEndPoint extends Controller with OrganizationConfigurationAware 
     Right("Allright")
   }
 
+  private def receiveLinks(dataSet: DataSet, schemaPrefix: String, fileName: String, file: File)(implicit configuration: OrganizationConfiguration) = {
+    val store = hubFileStores.getResource(configuration)
+    import com.mongodb.casbah.gridfs.Imports._
+
+    // remove previous version
+    findLinksFile(dataSet.orgId, dataSet.spec, schemaPrefix, store) foreach { previous =>
+      store.remove(previous._id.get)
+    }
+
+    val f = store.createFile(file)
+
+    try {
+      f.put("contentType", "application/x-gzip")
+      f.put("orgId", dataSet.orgId)
+      f.put("spec", dataSet.spec)
+      f.put("schema", schemaPrefix)
+      f.put("uploadDate", new Date())
+      f.put("hubFileType", "links")
+      f.put("filename", fileName)
+      f.save()
+
+      Right("Ok")
+
+    } catch {
+      case t: Throwable =>
+        log.error("SipCreatorEndPoint: Could not store links", t)
+        Left("Error while receiving links: " + t.getMessage)
+    }
+  }
+
+  private def findLinksFile(orgId: String, spec: String, schemaPrefix: String, store: GridFS): Option[GridFSDBFile] = {
+    store.findOne(MongoDBObject("orgId" -> orgId, "spec" -> spec, "schema" -> schemaPrefix, "hubFileType" -> "links"))
+  }
+
   def fetchSIP(orgId: String, spec: String, accessToken: Option[String]) = OrganizationAction(orgId, accessToken) {
     Action {
       implicit request =>
@@ -439,6 +478,7 @@ trait SipCreatorEndPoint extends Controller with OrganizationConfigurationAware 
     val temp = TemporaryFile(dataSet.spec)
     val fos = new FileOutputStream(temp.file)
     val zipOut = new ZipOutputStream(fos)
+    val store = hubFileStores.getResource(configuration)
 
     writeEntry("dataset_facts.txt", zipOut) {
       out => IOUtils.write(dataSet.details.getFactsAsText, out)
@@ -446,6 +486,15 @@ trait SipCreatorEndPoint extends Controller with OrganizationConfigurationAware 
 
     writeEntry("hints.txt", zipOut) {
       out => IOUtils.copy(new ByteArrayInputStream(dataSet.hints), out)
+    }
+
+    store.find(MongoDBObject("orgId" -> dataSet.orgId, "spec" -> dataSet.spec, "hubFileType" -> "links")).toSeq.foreach { links =>
+      {
+        val prefix: String = links.get("schema").toString
+        writeEntry(s"links_$prefix.csv.gz", zipOut) {
+          out => IOUtils.copy(links.getInputStream, out)
+        }
+      }
     }
 
     val recordCount = basexStorage.count(dataSet)
