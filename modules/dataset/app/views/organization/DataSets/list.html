@@ -101,6 +101,8 @@
 <script type="text/javascript" language="javascript">
     $(document).ready(function () {
 
+        var clientId;
+
         var viewModel = {
             sets: ko.observableArray(),
             stateToClass: function(state) { return stateToClass(state) },
@@ -120,17 +122,14 @@
             }
         };
 
-        var clientId = Math.floor(1 + 10001 * Math.random());
-        var ws = new WebSocket("ws://" + location.host + "/organizations/${orgId}/dataset/feed?clientId=" + clientId);
-
-        ws.onopen = function() {
+        var onopen = function() {
             ws.send(JSON.stringify({
                 eventType: "sendList",
                 clientId: clientId
             }));
         };
 
-        ws.onmessage = function(evt) {
+        var onmessage = function(evt) {
             var data = $.parseJSON(evt.data);
             switch(data.eventType) {
                 case "loadList":
@@ -189,6 +188,8 @@
                     break;
             }
         };
+
+        clientId = feed('${orgId}', '${spec}', onopen, onmessage, 0);
 
         ko.applyBindings(viewModel);
 
