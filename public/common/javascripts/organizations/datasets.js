@@ -52,10 +52,18 @@ function feed(orgId, spec, onopen, onmessage, connectionRetries) {
             setTimeout(function() { feed(orgId, spec, onopen, onmessage, localRetries + 1) }, 5000);
         } else {
             // TODO here we might want to retry, but with a bigger timeout
-            // also instead of a bootbox alert, show a banner
-            bootbox.alert("Lost connection with the server. Please refresh the page.");
+            // show connection warning
+            $('div#ws-connection-alert').show();
+            // sroll to top in case use is working below the page-view line and will not see the warning
+            window.scrollTo(0,0);
 
         }
     };
     return clientId;
 }
+
+jQuery(document).ready(function() {
+    $("button#ws-reconnect").on('click', function(){
+        location.reload();
+    });
+});
