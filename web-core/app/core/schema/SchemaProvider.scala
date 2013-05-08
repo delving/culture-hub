@@ -181,7 +181,7 @@ class RemoteFetcher extends Fetcher {
   )
 
   def fetchFactDefinitions(definition: String): String = {
-    WS.url(SCHEMA_REPO + "/fact-definition-list_1.0.0.xml").get().await(5, TimeUnit.SECONDS).fold(
+    WS.url(SCHEMA_REPO + "/facts/fact-definition-list_1.0.1.xml").get().await(5, TimeUnit.SECONDS).fold(
       { t: Throwable => log.error("RemoteFetcher: could not fetch fact definitions", t); "" },
       { r: Response => r.getAHCResponse.getResponseBody("UTF-8") }
     )
