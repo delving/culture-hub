@@ -18,7 +18,9 @@ class TilingSupportSpec extends Specs2TestContext {
 
         val sourceImage = new File("modules/dos/test/resources/smallballs.tif")
 
-        val tmpDir = new File(System.getProperty("java.io.tmpdir"))
+        val tmpDir = new File("modules/dos/target/tilesTmp")
+        tmpDir.mkdirs()
+        FileUtils.cleanDirectory(tmpDir)
 
         val output = new File(tmpDir, "/output")
         output.mkdir()
@@ -27,12 +29,14 @@ class TilingSupportSpec extends Specs2TestContext {
         result must (beRight)
 
         val r = new File(tmpDir, "/output/smallballs.tif")
-        r.exists() must (beTrue)
+        r.exists must (beTrue)
+        r.isFile must (beTrue)
 
         val result2 = PTIFTiling.createTile(tmpDir, output, sourceImage)
         result2 must (beRight)
 
-        r.exists() must (beTrue)
+        r.exists must (beTrue)
+        r.isFile must (beTrue)
 
         FileUtils.deleteQuietly(r)
       }
