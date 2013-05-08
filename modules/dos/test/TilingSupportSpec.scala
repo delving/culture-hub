@@ -18,16 +18,18 @@ class TilingSupportSpec extends Specs2TestContext {
 
         val sourceImage = new File("modules/dos/test/resources/smallballs.tif")
 
-        val output = new File("/tmp/output")
+        val tmpDir = new File(System.getProperty("java.io.tmpdir"))
+
+        val output = new File(tmpDir, "/output")
         output.mkdir()
 
-        val result = PTIFTiling.createTile(new File("/tmp"), output, sourceImage)
+        val result = PTIFTiling.createTile(tmpDir, output, sourceImage)
         result must (beRight)
 
-        val r = new File("/tmp/output/smallballs.tif")
+        val r = new File(tmpDir, "/output/smallballs.tif")
         r.exists() must (beTrue)
 
-        val result2 = PTIFTiling.createTile(new File("/tmp"), output, sourceImage)
+        val result2 = PTIFTiling.createTile(tmpDir, output, sourceImage)
         result2 must (beRight)
 
         r.exists() must (beTrue)
