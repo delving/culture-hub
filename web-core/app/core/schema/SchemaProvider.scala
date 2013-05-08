@@ -180,13 +180,6 @@ class RemoteFetcher extends Fetcher {
     { r: Response => r.getAHCResponse.getResponseBody("UTF-8") }
   )
 
-  def fetchFactDefinitions(definition: String): String = {
-    WS.url(SCHEMA_REPO + "/facts/fact-definition-list_1.0.2.xml").get().await(5, TimeUnit.SECONDS).fold(
-      { t: Throwable => log.error("RemoteFetcher: could not fetch fact definitions", t); "" },
-      { r: Response => r.getAHCResponse.getResponseBody("UTF-8") }
-    )
-  }
-
   def fetchSchema(version: SchemaVersion, schemaType: SchemaType): String = WS.url(SCHEMA_REPO + version.getPath(schemaType)).get().await(5, TimeUnit.SECONDS).fold(
     { t: Throwable => log.error("RemoteFetcher: could not retrieve schema", t); "" },
     { r: Response => r.getAHCResponse.getResponseBody("UTF-8") }
