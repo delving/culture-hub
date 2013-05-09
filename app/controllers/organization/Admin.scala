@@ -109,4 +109,18 @@ trait Admin extends OrganizationController { this: BoundController =>
     }
   }
 
+  def reProcessAll = OrganizationAdmin {
+    Action {
+      implicit request =>
+
+        log.info(s"[$connectedUser${configuration.orgId}] Marking all enabled DataSets to be re-process")
+
+        DataSet.dao.findByState(DataSetState.ENABLED).foreach { dataSet =>
+          DataSet.dao.updateState(dataSet, DataSetState.QUEUED, Some(connectedUser))
+        }
+
+        Ok
+    }
+  }
+
 }

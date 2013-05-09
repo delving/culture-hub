@@ -145,6 +145,7 @@ POST        /organizations/:orgId/admin/admin/add                               
 DELETE      /organizations/:orgId/admin/admin/remove                                controllers.organization.Admin.removeAdmin(orgId)
 
 GET         /organizations/:orgId/admin/solrSearchProxy                             controllers.organization.Admin.solrSearchProxy(orgId)
+GET         /organizations/:orgId/admin/reProcessAll                                controllers.organization.Admin.reProcessAll
 
 GET         /organizations/:orgId/users/search                                      controllers.Users.listAsTokens(orgId: Option[String], q: String ?= "")
 
