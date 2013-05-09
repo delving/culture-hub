@@ -22,7 +22,7 @@ object CMS extends DelvingController {
             case None => NotFound(key)
             case Some(page) =>
               if (menuKey.isDefined) {
-                val subMenu = MenuEntry.dao.findEntries(configuration.orgId, menuKey.get).map { e =>
+                val subMenu = MenuEntry.dao.findEntries(menuKey.get).map { e =>
                   MenuElement(
                     url = "/site/" + menuKey.get + "/page/" + e.targetPageKey.getOrElse(""),
                     titleKey = e.title.get(getLang).getOrElse(e.menuKey)
