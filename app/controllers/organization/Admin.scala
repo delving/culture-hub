@@ -109,7 +109,7 @@ trait Admin extends OrganizationController { this: BoundController =>
     }
   }
 
-  def reProcessAll = OrganizationAdmin {
+  def reProcessAll(orgId: String) = OrganizationAdmin {
     Action {
       implicit request =>
 
