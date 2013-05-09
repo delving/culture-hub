@@ -85,7 +85,6 @@ class CMSPlugin(app: Application) extends CultureHubPlugin(app) {
               MenuEntry.dao.save(updated)
             }.getOrElse {
               val entry = MenuEntry(
-                orgId = resourceConfiguration.orgId,
                 menuKey = definition._1.parentMenuKey.get,
                 position = definition._2,
                 title = definition._1.title,
@@ -103,7 +102,6 @@ class CMSPlugin(app: Application) extends CultureHubPlugin(app) {
           val homePage = CMSPage(
             key = "homepage",
             userName = "system",
-            orgId = resourceConfiguration.orgId,
             lang = lang.code,
             title = "Homepage",
             content = ""
@@ -114,7 +112,6 @@ class CMSPlugin(app: Application) extends CultureHubPlugin(app) {
 
       if (MenuEntry.dao.findOneByKey(CMSPlugin.HOME_PAGE).isEmpty) {
         val homePageEntry = MenuEntry(
-          orgId = resourceConfiguration.orgId,
           menuKey = CMSPlugin.HOME_PAGE,
           parentMenuKey = None,
           position = 0,
@@ -140,9 +137,9 @@ class CMSPlugin(app: Application) extends CultureHubPlugin(app) {
   override def mainMenuEntries(configuration: OrganizationConfiguration, lang: String): Seq[MainMenuEntry] = {
     def isVisible(entry: MenuEntry) = entry.title.contains(lang) && entry.published
     models.cms.MenuEntry.dao(configuration.orgId).
-      findEntries(configuration.orgId, CMSPlugin.MAIN_MENU).
+      findEntries(CMSPlugin.MAIN_MENU).
       filter(isVisible).
-      filterNot(e => e.targetMenuKey.isDefined && models.cms.MenuEntry.dao(configuration.orgId).findEntries(e.orgId, e.targetMenuKey.get).filter(isVisible).isEmpty).
+      filterNot(e => e.targetMenuKey.isDefined && models.cms.MenuEntry.dao(configuration.orgId).findEntries(e.targetMenuKey.get).filter(isVisible).isEmpty).
       map { e =>
 
         val targetUrl = if (e.targetPageKey.isDefined && e.menuKey != CMSPlugin.MAIN_MENU) {
@@ -150,7 +147,7 @@ class CMSPlugin(app: Application) extends CultureHubPlugin(app) {
         } else if (e.targetPageKey.isDefined && e.menuKey == CMSPlugin.MAIN_MENU) {
           "/page/" + e.targetPageKey.get
         } else if (e.targetMenuKey.isDefined) {
-          val first = MenuEntry.dao(configuration.orgId).findEntries(configuration.orgId, e.targetMenuKey.get).toSeq.headOption
+          val first = MenuEntry.dao(configuration.orgId).findEntries(e.targetMenuKey.get).toSeq.headOption
           "/site/" + e.targetMenuKey.get + "/page/" + first.flatMap(_.targetPageKey).getOrElse("")
         } else if (e.targetUrl.isDefined) {
           e.targetUrl.get
@@ -207,7 +204,7 @@ class CMSPlugin(app: Application) extends CultureHubPlugin(app) {
     ("/cms/CMS/homePageSnippet.html",
       { context =>
         {
-          val homePageEntries = CMSPage.dao(context.configuration.orgId).list(context.configuration.orgId, context.lang, Some(CMSPlugin.HOME_PAGE))
+          val homePageEntries = CMSPage.dao(context.configuration.orgId).list(context.lang, Some(CMSPlugin.HOME_PAGE))
           homePageEntries.headOption.map { page =>
             context.renderArgs += ("homepageCmsContent" -> page)
           }
