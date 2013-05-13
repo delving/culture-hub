@@ -219,9 +219,10 @@
 <script type="text/javascript" language="javascript">
     $(document).ready(function () {
 
-        var clientId = Math.floor(1 + 10001 * Math.random());
-        var ws = new WebSocket("ws://" + location.host + "/organizations/${orgId}/dataset/feed?clientId=" + clientId + '&spec=${spec}');
+        var clientId;
+
         var msgUnlock = "When a dataset is locked, the locking user is considered to be in full control.  Unlocking implies taking that control away, which should not be done without the permission of the locking user because it invalidates their current work on the dataset.";
+
         var viewModel = {
 
             progressPercentage: ko.observable('0%'),
@@ -308,7 +309,7 @@
             }
         };
 
-        ws.onopen = function() {
+        var onopen = function() {
             ws.send(JSON.stringify({
                 eventType: "sendSet",
                 clientId: clientId,
@@ -316,13 +317,7 @@
             }));
         };
 
-        var retries = 0;
-
-        ws.onclose = function() {
-            bootbox.alert("Lost connection with the server. Please refresh the page.");
-        };
-
-        ws.onmessage = function(evt) {
+        var onmessage = function(evt) {
             var data = $.parseJSON(evt.data);
             console.log(data)
             switch(data.eventType) {
@@ -367,6 +362,8 @@
                     break;
             }
         };
+
+        clientId = feed('${orgId}', '${spec}', onopen, onmessage, 0);
 
     });
 
