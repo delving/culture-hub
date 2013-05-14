@@ -3,3 +3,8 @@ ui.label.loggedInAs=_hub.LoggedInAs
 ui.label.login=_hub.Login
 ui.label.logout=_hub.Logout
 ui.label.register=_hub.Register
+
+ui.label.username=_hub.Username
+ui.label.password=_hub.Password
+authentication.label.rememberme=_hub.RememberMe
+authentication.label.forgotpassword=_hub.IForgotMyPassword
