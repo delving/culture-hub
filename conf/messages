@@ -1,3 +1,46 @@
+_cms.AddPageToAMenu=Add page to a menu
+_cms.AddingImages=Adding images
+_cms.AreYouSureYouWantToDelete=Are you sure you want to delete this page and all of its versions? This cannot be undone.
+_cms.AutoGeneratePageKey=Auto-generate page key
+_cms.BeginByChoosingAnImage=<ul><li>Begin by choosing an image from your own computer by pressing <span class="btn btn-success btn-mini"><i class="icon-plus icon-white"></i>Choose an image</span></li><li>Multiple images may be selected at once</li></ul>
+_cms.CreateANewPage=Create new page
+_cms.CreatingContentForTheHomePage=Creating content for the homepage works exactly like creating a normal page except for the following: <ol><li>The <strong>Page key</strong> must be: <em>homepage</em></li><li>It cannot be added to a menu</li></ol>
+_cms.CreatingHomepageContent=Creating homepage content
+_cms.DeletePage=Delete page
+_cms.FieldsExplained=Fields explained
+_cms.HelpWithUploadingImages=Help with uploading images
+_cms.HelpWithWebsitePages=Help with website pages
+_cms.Homepage=Homepage
+_cms.ImagesCanBeAdded=Images can be added in two ways: <ol><li><strong>Upload from a computer:</strong> this can be done on the <a href="/organizations/{0}/site/upload">Upload image</a> page. After the image is saved it can be used in your page content by clicking on the <span class="mceIcon mceImage"></span> icon and selecting your uploaded image from the <em>Image list</em></li><li><strong>Directly from the internet:</strong> klick on the <span class="mceIcon mceImage"></span> icon and type or paste the URL of the image in the </em>Image URL</em> field
+_cms.InvalidKeyValue=Invalid key value. A page key must be lowercase and has to be from 3 to 35 characters long.
+_cms.ListPagesIn=List pages in
+_cms.MainMenu=Main menu
+_cms.MakeThisContentAvailable=Checking this option will make this content visible
+_cms.NotPublished=Not published
+_cms.OnceUploaded=<p>Once uploaded, go back to the <a href="/organizations/{0}/site">page list</a> and edit and existing page or create a <a href="/organizations/{0}/site/{1}/page/add">new page</a>. Click on the <span class="mceIcon mceImage"></span> icon to select the image from the <em>Image list</em> for use.</p>
+_cms.PageKey=Page key
+_cms.PositionInTheMenu=Position in the menu
+_cms.Publish=Publish
+_cms.Published=Published
+_cms.ReadyForUse=Ready for use
+_cms.SaveFiles=Save files
+_cms.SavePage=Save page
+_cms.SelectTheMenu=Select the menu you want to have the page link appear in.
+_cms.SiteContentAdministrationRights=Site content administration rights
+_cms.TheHubTheme=The Hub theme under which this page will be displayed.
+_cms.TheImagesAreThenAdded=<p>The images are then added to the list and are ready to be uploaded to the CultureHub.</p><ul><li>Press the <span class="btn btn-primary btn-mini"><i class="icon-upload icon-white"></i>Start upload</span> button to upload all images at once</li><li>Press the <span class="btn btn-primary btn-mini"><i class="icon-upload icon-white"></i>Start</span> button of the individual image in the image list for uploading one image at a time</li></ul>
+_cms.TheLanguageOfThisPage=The language of this page's content. If language switching is active (i.e. you have your Hub available in multiple languages) then you should create a page for each language.
+_cms.ThePositionOfYourPageLink=The position of your page link in the selected menu. The higher the number, the further to the right it will move.
+_cms.TitleMandatory=Title mandatory for page key generation.
+_cms.UniqueIdentifierForThePage=Unique identifier for the page. This is used as the URL for the page.
+_cms.UpdateHomepage=Update homepage
+_cms.UpdatePage=Update page
+_cms.UploadFile=Upload file
+_cms.UploadImage=Upload image
+_cms.UsedInThePagesHTML=Used in the page&apos;s html <code>&lt;title&gt;&lt;/title&gt;</code> attribute and, if the page is added to a menu then this will appear as the link in the menu.
+_cms.UsingTemplates=Using templates
+_cms.WebsitePages=Website pages
+_cms.WhenCreatingPageContent=When creating page content the use of a template can help you get started quickly. By clicking on the <span class="mceIcon mceTemplate"></span> icon, a pop-up window will appear where you can preview and insert the templates
 _hub.Add=Add
 _hub.AddComment=Add comment
 _hub.AddFiles=Add files...
@@ -129,66 +172,56 @@ dataSetState.processingQueued=Queued for processing
 dataSetState.queued=Queued for processing
 dataSetState.uploaded=Uploaded and ready for processing
 dataset.cancelindex=Cancel processing
-dataset.disable=Disable
-dataset.enable=Enable
 dataset.confirmDeletion=Are you sure you want to remove this Dataset?
-dataset.find=Find a Dataset
+dataset.disable=Disable
+dataset.disableDatasetForDeletion=You need to disable the dataset before it can be deleted
+dataset.enable=Enable
+dataset.filter.beginTyping=Begin typing a dataset name
 dataset.filter.name=Filter by name
 dataset.filter.state=Filter by state
+dataset.find=Find a Dataset
+dataset.index=Process
 dataset.invalidate=Reset hashes
-dataset.disableDatasetForDeletion=You need to disable the dataset before it can be deleted
-dataset.filter.beginTyping=Begin typing a dataset name
-
-##Mails
+dataset.reindex=Re-process
+datasets.dataSetNotFound=Dataset {0} was not found
+delvingcontroller.userNotFound=User {0} was not found
+listPageTitle.dataset.all=List of datasets
+listPageTitle.dataset.user=List of datasets for user {0}
+listPageTitle.mdr.all=List of heritage objects
+listPageTitle.mdr.user=List of heritage object for {0}
+listPageTitle.user.all=List of users
+locale.en=English (en)
+locale.nb=Norwegian b�kmal (nb)
+locale.nl=Dutch (nl)
+locale.no=Norwegian (no)
+mail.message.accountblocked=Your account has been blocked given the content you have posted is not deemed appropriate for this site. If you think this is an error, please contact {0}.
 mail.message.activateaccount=Your account for {0} has been created. In order to activate it, please click the link below
 mail.message.resetpassword=In order to reset your password for {0}, please follow the link below
 mail.subject.accountblocked=Your account has been blocked
-mail.message.accountblocked=Your account has been blocked given the content you have posted is not deemed appropriate for this site. If you think this is an error, please contact {0}.
-
-##Profiles
-profile.title=Profile page for
-profile.activesince=Active since
-
-##Registration
-registration.lostpassword=Lost password
-registration.lostpassword.message=If you have forgotten your password you can reset it by entering your e-mail address below
-registration.resetpassword=Reset password
-registration.reset.error=Error resetting your password, correct the errors below:
-registration.resetProblem=Error resetting your password, please try again
-registration.newpassword=Enter a new password below
-registration.registerFor=Register for {0}
-
-##Search
-search.facets=Facets
-search.nrfound= Found {0} results
-search.resultsfor=Search results for
-search.sortby=Sort by
-search.refineYourSearch=Refine your search
-search.facet.byYear=Year
-search.facet.byProvider=Provider
-search.facet.byObjectType=Object type
-search.facet.byCollection=Collection
-search.trail=Results <strong>{0} - {1}</strong> of <strong>{2}</strong>
-search.viewInOriginalContext=View in original context
-search.invalidQuery=Query "{0}" is not a valid query. Please try something else.
-
-#metadata
-
-metadata.text=All
-
+metadata.abm.aboutPerson=About Person
+metadata.abm.address=Address
 metadata.abm.contentProvider=Content Provider
 metadata.abm.county=County
 metadata.abm.data.provider=Data Provider
-metadata.abm.municipality=Municipality
-metadata.abm.namedPlace=Named place
-metadata.abm.aboutPerson=About Person
-metadata.abm.landedProperty=Gardsnummer
-metadata.abm.address=Address
 metadata.abm.digitised=Digitized
+metadata.abm.geo=GeoCoordinates
+metadata.abm.landedProperty=Gardsnummer
 metadata.abm.lat=Latitude
 metadata.abm.long=Longitude
-metadata.abm.geo=GeoCoordinates
-
+metadata.abm.municipality=Municipality
+metadata.abm.namedPlace=Named place
+metadata.collection.aatCategories=AAT categories
+metadata.collection.administrators=Administrators
+metadata.collection.count=Number of objects
+metadata.collection.earliestWork=Earliest work from collection
+metadata.collection.fromBorrowed=Borrowed
+metadata.collection.fromCore=From core-collection
+metadata.collection.geographicalRelevance=Geographical relevance
+metadata.collection.latestWork=Most recent work from collection
+metadata.collection.museum=Museum
+metadata.collection.relationToCoreCollection=Relation to core collection
+metadata.collection.strength=Strength
+metadata.collection.total=Total
 metadata.dc.contributor=Contributor
 metadata.dc.coverage=Coverage
 metadata.dc.creator=Creator
@@ -204,10 +237,10 @@ metadata.dc.source=Source
 metadata.dc.subject=Subject
 metadata.dc.title=Title
 metadata.dc.type=Type
-
 metadata.dcterms.alternative=Alternative Title
 metadata.dcterms.conformsTo=Conforms to
 metadata.dcterms.created=Date
+metadata.dcterms.extent=Extent
 metadata.dcterms.hasFormat=Has format
 metadata.dcterms.hasPart=Has part
 metadata.dcterms.hasVersion=Has version
@@ -220,446 +253,455 @@ metadata.dcterms.provenance=Provenance
 metadata.dcterms.references=References
 metadata.dcterms.replaces=Replaces
 metadata.dcterms.requires=Requires
+metadata.dcterms.rightsHolder=Rights holder
 metadata.dcterms.spatial=Spatial coverage
 metadata.dcterms.temporal=Temporal coverage
-metadata.dcterms.rightsHolder=Rights holder
-metadata.dcterms.extent=Extent
-
-### Delving NS
-
-metadata.delving.creator=Creator
 metadata.delving.collection=Collection
-metadata.delving.provider=Provider
-metadata.delving.owner=Data Provider
-metadata.delving.recordType=Record type
-metadata.delving.hasDigitalObject=Record has a digital object
-
-## TODO remove
+metadata.delving.creator=Creator
 metadata.delving.dimensions=Dimensions
-
-
+metadata.delving.hasDigitalObject=Record has a digital object
+metadata.delving.owner=Data Provider
+metadata.delving.provider=Provider
+metadata.delving.recordType=Record type
+metadata.europeana.collectionName=Collection Name
+metadata.europeana.collectionTitle=Collection Title
 metadata.europeana.country=Country
 metadata.europeana.dataProvider=Data Provider
-metadata.europeana.provider=Provider
 metadata.europeana.isShownAt=Remote Landing Page
 metadata.europeana.isShownBy=Remote url to digital object
-metadata.europeana.type=Type
-metadata.europeana.year=Year
 metadata.europeana.language=Language
-metadata.europeana.collectionTitle=Collection Title
-metadata.europeana.collectionName=Collection Name
-metadata.europeana.rights=Rights
-metadata.europeana.uri=Europeana Url
 metadata.europeana.object=Object
-
-metadata.icn.material=Material
-metadata.icn.collection=Collection
-metadata.icn.technique=Technique
-metadata.icn.creatorYearOfBirth=Creator Birth
-metadata.icn.creatorYearOfDeath=Creator Death
-metadata.icn.acquisitionMeans=Means of Aquisition
-metadata.icn.acquisitionYear=Year Acquired
-metadata.icn.acquiredWithHelpFrom=Acquired with help from
-metadata.icn.collectionPart=Part
-metadata.icn.location=Location
-metadata.icn.physicalState=Physical State
-metadata.icn.province=Province
-metadata.icn.purchasePrice=Purchase Price
-metadata.icn.collectionType=Collection type
-metadata.icn.legalStatus=Legal Status
+metadata.europeana.provider=Provider
+metadata.europeana.rights=Rights
+metadata.europeana.type=Type
+metadata.europeana.uri=Europeana Url
+metadata.europeana.year=Year
 metadata.icn.acceptedStateCharges=Accepted State Charges
 metadata.icn.acceptedStateChargesReason=Reason for accepted state charges
-metadata.icn.expulsionYear=Expulsion year
-metadata.icn.expulsionMeans=Expulsion means
+metadata.icn.acquiredWithHelpFrom=Acquired with help from
+metadata.icn.acquisitionMeans=Means of Aquisition
+metadata.icn.acquisitionYear=Year Acquired
+metadata.icn.collection=Collection
+metadata.icn.collectionPart=Part
+metadata.icn.collectionType=Collection type
+metadata.icn.creatorYearOfBirth=Creator Birth
+metadata.icn.creatorYearOfDeath=Creator Death
 metadata.icn.currentLocation=Current location
+metadata.icn.expulsionMeans=Expulsion means
+metadata.icn.expulsionYear=Expulsion year
+metadata.icn.legalStatus=Legal Status
+metadata.icn.location=Location
+metadata.icn.material=Material
+metadata.icn.physicalState=Physical State
 metadata.icn.previousLocation=Previous location
-
-# Tib
-metadata.tib.period=Period
+metadata.icn.province=Province
+metadata.icn.purchasePrice=Purchase Price
+metadata.icn.technique=Technique
+metadata.is.about=Is about
+metadata.museum.type=Museum type
+metadata.reloc.comments=Comments
+metadata.reloc.condition=Condition object
+metadata.reloc.contact=Contact person
+metadata.reloc.creationPlace=Place of creation
+metadata.reloc.creator=Creator
+metadata.reloc.depth=Depth
+metadata.reloc.diameter=Diameter
+metadata.reloc.docsAvailable=Documentation available
+metadata.reloc.height=Height
+metadata.reloc.identifier=Inventory number
+metadata.reloc.lamoCompleted=Leidraad afstoting (LAMO) is doorlopen
+metadata.reloc.length=Length
+metadata.reloc.material=Material
+metadata.reloc.physicalState=Physical state
+metadata.reloc.reasonForPlacement=Reden van plaatsing
+metadata.reloc.upForAuction=Place for auction
+metadata.reloc.width=Width
+metadata.searchfield.contributor=Contributor
+metadata.searchfield.creator=Creator
+metadata.searchfield.dataprovider=Data Provider
+metadata.searchfield.hasDigitalObject=Has digital object
+metadata.searchfield.recordType=Object type
+metadata.text=All
 metadata.tib.citName= Cit collection name
 metadata.tib.citOldId= Cit record identifier
-metadata.tib.thumbLarge= Large thumbnail
-metadata.tib.thumbSmall= Small thumbnail
-metadata.tib.deepZoomUrl= URL for DeepZoom Image
 metadata.tib.collection=Collection
-metadata.tib.creatorRole= Creator Role
-metadata.tib.productionPeriod= Production period
-metadata.tib.productionStart= Pruduction start date
-metadata.tib.productionEnd= Production end date
+metadata.tib.collectionPart=Sub-collection name
+metadata.tib.color=Color
 metadata.tib.creatorBirthYear= Year of birth
 metadata.tib.creatorDeathYear= Year of death
-metadata.tib.year=Year
-metadata.tib.dimension=Dimension
-metadata.tib.color=Color
-metadata.tib.exhibition=Exhibition
-metadata.tib.design=Design
-metadata.tib.subjectDepicted=Voorstelling
-metadata.tib.objectSoort=Object type
-metadata.tib.objectNumber=Inventory number
-metadata.tib.material=Material
-metadata.tib.place=Place
-metadata.tib.technique=Technique
+metadata.tib.creatorRole= Creator Role
 metadata.tib.date=Date
-metadata.tib.collectionPart=Sub-collection name
-metadata.tib.person=Person
-metadata.tib.region=Region
-metadata.tib.theme=Theme
+metadata.tib.deepZoomUrl= URL for DeepZoom Image
+metadata.tib.design=Design
+metadata.tib.dimension=Dimension
 metadata.tib.event=Event
-metadata.tib.location=Geo-location
-metadata.tib.fullTextObjectUrl=URL to full-text search-able object
-metadata.tib.pageStart=Start page
-metadata.tib.pageEnd=End page
-metadata.tib.pages=Pages
+metadata.tib.exhibition=Exhibition
 metadata.tib.formatted=Formatted
-metadata.tib.vindplaats=Physical Location
+metadata.tib.fullTextObjectUrl=URL to full-text search-able object
+metadata.tib.location=Geo-location
+metadata.tib.material=Material
+metadata.tib.objectNumber=Inventory number
+metadata.tib.objectSoort=Object type
+metadata.tib.pageEnd=End page
+metadata.tib.pageStart=Start page
+metadata.tib.pages=Pages
+metadata.tib.period=Period
+metadata.tib.person=Person
+metadata.tib.place=Place
+metadata.tib.productionEnd= Production end date
+metadata.tib.productionPeriod= Production period
+metadata.tib.productionStart= Pruduction start date
+metadata.tib.region=Region
+metadata.tib.subjectDepicted=Voorstelling
+metadata.tib.technique=Technique
 metadata.tib.theme=Theme
-
-
-metadata.collection.strength=Strength
-metadata.collection.administrators=Administrators
-metadata.collection.museum=Museum
-metadata.collection.relationToCoreCollection=Relation to core collection
-metadata.collection.earliestWork=Earliest work from collection
-metadata.collection.latestWork=Most recent work from collection
-metadata.collection.geographicalRelevance=Geographical relevance
-metadata.collection.aatCategories=AAT categories
-metadata.collection.count=Number of objects
-metadata.collection.total=Total
-metadata.collection.fromCore=From core-collection
-metadata.collection.fromBorrowed=Borrowed
-
-metadata.museum.type=Museum type
-
-metadata.is.about=Is about
-metadata.searchfield.recordType=Object type
-metadata.searchfield.contributor=Contributor
-metadata.searchfield.dataprovider=Data Provider
-metadata.searchfield.creator=Creator
-metadata.searchfield.hasDigitalObject=Has digital object
+metadata.tib.thumbLarge= Large thumbnail
+metadata.tib.thumbSmall= Small thumbnail
+metadata.tib.vindplaats=Physical Location
+metadata.tib.year=Year
 metadata.type.all=All
 metadata.type.images=Images
 metadata.type.sounds=Sounds
 metadata.type.texts=Texts
 metadata.type.video=Video
 metadata.type.videos=Videos
-
-metadata.reloc.reasonForPlacement=Reden van plaatsing
-metadata.reloc.creator=Creator
-metadata.reloc.creationPlace=Place of creation
-metadata.reloc.material=Material
-metadata.reloc.length=Length
-metadata.reloc.height=Height
-metadata.reloc.width=Width
-metadata.reloc.depth=Depth
-metadata.reloc.diameter=Diameter
-metadata.reloc.condition=Condition object
-metadata.reloc.lamoCompleted=Leidraad afstoting (LAMO) is doorlopen
-metadata.reloc.docsAvailable=Documentation available
-metadata.reloc.upForAuction=Place for auction
-metadata.reloc.contact=Contact person
-metadata.reloc.comments=Comments
-metadata.reloc.physicalState=Physical state
-metadata.reloc.identifier=Inventory number
-
-
-#Users
-
-##Index
-user.index.title=User {0}
-
-##List
-user.list.browse=Browse users
-user.list.noUsers=There are currently no users in the system (how did you even get here?)
-user.list.editProfile=Edit your profile
-
-##Admin
-user.admin.index.title=Account space
-user.admin.profile.title=Your profile
-user.admin.profile.help.aboutYou=A few words about yourself
-user.admin.profile.save=Save profile
-user.admin.profile.help.twitter=Your twitter username, e.g. #johndoe
-user.admin.profile.help.fixedPhone=Your phone number
-user.admin.profile.help.linkedIn=Your linkedIn public profile name, e.g. johndoe
-user.admin.profile.help.public=If you check this option, your profile is also visible to non-connected users
-user.admin.profile.gravatarHelp=Associate a <a href="http://www.gravatar.com" target="_blank">Gravatar</a> with your email adres
-
-user.profile.fixedPhone=Phone
-user.profile.aboutYou=About you
-user.profile.funFact=Fun fact
-
-# Organizations
+org.admin.index.addAdmins=Add an administrator by typing the user-name into the blank area above and then press the ENTER key.
+org.admin.index.addMembers=Add a new member by typing the user-name into the blank area above and then press the ENTER key
+org.admin.index.admins=Administrators
+org.admin.index.members=Members
+org.admin.index.removeMemberConfirmation=Removing a member will also remove them from all groups they are in. Are you sure you want to proceed?
+org.admin.index.title=Organization administration
+org.group.create=Create group
+org.group.grantType.modify=Dataset modification rights
+org.group.grantType.own=Administrator rights
+org.group.grantType.view=Dataset view rights
+org.group.list=Group list
+org.group.save=Save group
 org.info=Organization information
-### This gets concatenated to a sentence
-org.list.memberCount={0} member(s)
-org.list.grantType.view=with rights to view
-org.list.grantType.modify=with rights to modify
-org.list.grantType.own=with full access to everything
 org.list.dataSetCount={0} Dataset(s)
 org.list.filter=Type here to narrow down the list
 org.list.filterHelp=Type in any value(s) to filter the list. Press 'Save' to save the filter. Press 'Reset' to remove the filter.
-
-org.group.grantType.view=Dataset view rights
-org.group.grantType.modify=Dataset modification rights
-org.group.grantType.own=Administrator rights
-org.group.save=Save group
-org.group.create=Create group
-org.group.list=Group list
-
-org.vc.list=Virtual collection list
-org.vc.new=New Virtual collection
-org.vc.update=Edit virtual collection
+org.list.grantType.modify=with rights to modify
+org.list.grantType.own=with full access to everything
+org.list.grantType.view=with rights to view
+org.list.memberCount={0} member(s)
+org.vc.autoUpdate=Automatically update collection
+org.vc.currentCount=Number of current results
 org.vc.deleteCollection=Delete Virtual collection
 org.vc.deleteCollectionConfirm=Are you sure you want to delete this virtual collection?
-org.vc.save=Save
-org.vc.query=Query
 org.vc.excludedIds=Exclude
-org.vc.spec=Identifier
-org.vc.autoUpdate=Automatically update collection
-org.vc.recordCount=Number of linked records
-org.vc.currentCount=Number of current results
-org.vc.publicMetadataPrefixes=Public metadata prefixes
-org.vc.referencedDatasets=Referenced DataSets
-org.vc.queryDatasets=Queried DataSets
-
-### VC HELP ###
-org.vc.help.toggle=Help with virtual collections
-
-# FIELDS #
-org.vc.help.fields.tab=Fields explained
-org.vc.help.fields.name.info=The display name of the virtual collection.
-org.vc.help.fields.identifier.info=The system name for the virtual collection.
 org.vc.help.fields.datasets.info=The Dataset(s) included in the virtual collection.
-org.vc.help.fields.query.info=The search-term(s) which will query the Datasets to build the virtual collection.
-org.vc.help.fields.keywords=Comma separated list of terms (term_1, term_2, ... )
 org.vc.help.fields.excludedHubIds.info=Exclude specific records from the virtual collection by entering their <em>hubId</em> here. Multiple <em>hubIds</em> are separated by a comma. Or add them automatically by clicking on the "Exlclude" button in the preview results.
-# QUERIES #
-org.vc.help.queries.tab=Writing queries
+org.vc.help.fields.identifier.info=The system name for the virtual collection.
+org.vc.help.fields.keywords=Comma separated list of terms (term_1, term_2, ... )
+org.vc.help.fields.name.info=The display name of the virtual collection.
+org.vc.help.fields.query.info=The search-term(s) which will query the Datasets to build the virtual collection.
+org.vc.help.fields.tab=Fields explained
 org.vc.help.queries.info=<h6>Simple queries</h6><p>Queries can be a simple search term like a <em>place</em> or <em>person</em> name.</p><h6>Complex queries</h6><p>Multiple terms are combined using the boolean operators <code>AND</code> and <code>NOT</code>. An example would be: <code>sketch OR drawing NOT charcoal</code>.</p><h6>Excluding specific hubIds</h6><p>Try to compose the query in such a way that undesired records are not part of the results. Any undesired results that remain can be omitted by entering their <span class="label label-contrast">hubId</span> in the <span class="label label-contrast">Exclude</span> field.</p><h6>Better results</h6><p>To increase the chance that returned results contain digital objects (i.e. images) append <code>AND delving_hasDigitalObject_facet:true</code> to the query in the <span class="label label-contrast">Query</span> field.</p>
-
-
-# AUTO-GEN PAGE KEY #
+org.vc.help.queries.tab=Writing queries
+org.vc.help.toggle=Help with virtual collections
 org.vc.keyauto.button=Auto-generate identifier
 org.vc.keyauto.error=Name field mandatory for identifier generation.
-
-org.admin.index.title=Organization administration
-org.admin.index.removeMemberConfirmation=Removing a member will also remove them from all groups they are in. Are you sure you want to proceed?
-org.admin.index.addMembers=Add a new member by typing the user-name into the blank area above and then press the ENTER key
-org.admin.index.members=Members
-org.admin.index.admins=Administrators
-org.admin.index.addAdmins=Add an administrator by typing the user-name into the blank area above and then press the ENTER key.
-
-organization.dataset.title.create=Create new dataset for user {0}
-organization.dataset.title.update=Update dataset for user {0}
+org.vc.list=Virtual collection list
+org.vc.new=New Virtual collection
+org.vc.publicMetadataPrefixes=Public metadata prefixes
+org.vc.query=Query
+org.vc.queryDatasets=Queried DataSets
+org.vc.recordCount=Number of linked records
+org.vc.referencedDatasets=Referenced DataSets
+org.vc.save=Save
+org.vc.spec=Identifier
+org.vc.update=Edit virtual collection
 organization.dataset.create=Create a dataset
-organization.dataset.update=Update a dataset
+organization.dataset.help.identifier=The unique identifier of this Dataset
 organization.dataset.info=Data Set Information
 organization.dataset.label.identifier=Identifier
-organization.dataset.help.identifier=The unique identifier of this Dataset
-organization.dataset.save=Save Dataset
 organization.dataset.list=Dataset list
-
 organization.dataset.locked=Locked
 organization.dataset.lockedBy=Locked by:
+organization.dataset.save=Save Dataset
+organization.dataset.title.create=Create new dataset for user {0}
+organization.dataset.title.update=Update dataset for user {0}
 organization.dataset.unlocked=Unlocked
-
-organization.members=Members
-
-organization.instant.list=List Instant Sites
-organization.instant.create=Create an Instant Site
-
-
-
-organization.sipcreator.p1=The SIP-Creator is a stand-alone tool that you can use to manage your data sets.  It allows you to map any existing XML format to the record definitions that have been chosen as target for each data set individually. Once mapped and validated, the SIP-Creator lets you upload the source XML and the mapping instruction files to the Delving Culture Hub so that the mappings can also be executed there.
-organization.sipcreator.p2=Launch the SIP-Creator by clicking on the logo on the left. This will cause your browser to download a launch file called <strong>sip-creator.jnlp</strong> which should cause the application to be downloaded and installed on your machine.  You will need to have <strong>Java</strong> installed on your machine. Whenever you start up the SIP-Creator it will check the Culture Hub for a new version and update automatically.
-
-# Controllers
-
-user.secured.noAccess=We are deeply sorry - really, we are - but you do not have access here
-
-dataSetState.incomplete=Incomplete
-dataSetState.uploaded=Uploaded and ready for processing
-dataSetState.parsing=Parsing and storing uploaded source data
-dataSetState.queued=Queued for processing
-dataSetState.processingQueued=Queued for processing
-dataSetState.processing=Processing
-dataSetState.cancelled=Processing cancelled
-dataSetState.enabled=Enabled
-dataSetState.disabled=Disabled
-dataSetState.error=Error occured while processing
-
-admin.themes.themeNotFound=Theme with id {0} was not found
-admin.themes.saveError=Error saving theme {0}
-user.admin.userNotFound=Could not find user {0}
-user.admin.profile.saveError=Error saving your profile, please try again
-user.fileupload.removeError=Error removing file, invalid id {0}
-datasets.dataSetNotFound=Dataset {0} was not found
-delvingcontroller.userNotFound=User {0} was not found
-
-listPageTitle.mdr.user=List of heritage object for {0}
-listPageTitle.mdr.all=List of heritage objects
-listPageTitle.dataset.user=List of datasets for user {0}
-listPageTitle.dataset.all=List of datasets
-listPageTitle.user.all=List of users
-
-registration.invalidCode=Invalid code. Please type it again
-registration.duplicateEmail=There is already a user with this email address
-registration.duplicateDisplayName=There is already a user with this user name
-registration.errorCreating=Error creating your account, please try again
-registration.accountNotFoundWithEmail=No account could be found with this email address
-registration.accountNotActive=This account is not active yet. Please activate your account with the link sent in the registration e-mail
-registration.resetTokenNotFound=Reset password token not found
-registration.errorPasswordChange=Error changing your password. Try resetting it again.
-registration.passwordsDiffer=Passwords are not the same
-registration.userNameInvalid=This username is not valid. A username can only contain lower-case letters, numbers, and has to be between 3 and 15 characters long.
-
-authentication.usernameRequired=Username is required
-authentication.passwordRequired=Password is required
-authentication.error=Login incorrect
-authentication.logout=You were logged out successfully
-authentication.notactive.error=Your account is not yet active. Active it following the link in the mail.
-servicessecurity.userNotFound=User {0} was not found
-
-profile.profileNotFound=No profile was found for user {0}
-
-organizations.organization.orgNotFound=Could not find organization {0}
-
-organizations.admin.userNotFound=Could not find user with userName {0}
-
-organizations.group.cannotAddUser=Could not add user with userName {0} to group {0}
-organizations.group.cannotRemoveUser=Could not remove user with userName {0} to group {0}
-organizations.group.cannotAddDataset=Could not add Dataset with ID {0} to group {0}
-organizations.group.cannotRemoveDataset=Could not remove Dataset with ID {0} from group {0}
-organizations.group.groupNotFound=Could not find group with ID {0}
-organizations.group.cannotSaveGroup=Could not save group, please try again
-organizations.group.confirmDeletion=Are you sure you want to delete this group?
-
-organization.datasets.dataSetNotFound=Dataset {0} was not found
-organization.datasets.cannotBeProcessed=Dataset cannot be processed in the current state
-organization.datasets.cannotBeReProcessed=Dataset cannot be re-processed in the current state
+organization.dataset.update=Update a dataset
 organization.datasets.cannotBeCancelled=Dataset indexing cannot be cancelled in the current state
+organization.datasets.cannotBeDeleted=Dataset cannot be deleted in the current state
 organization.datasets.cannotBeDisabled=Dataset cannot be disabled in the current state
 organization.datasets.cannotBeEnabled=Dataset cannot be enabled in the current state
-organization.datasets.cannotBeDeleted=Dataset cannot be deleted in the current state
 organization.datasets.cannotBeInvalidated=Dataset hashes cannot be reset in the current state
-
-search.backendConnectionError=Cannot connect to the search backend
-
-rendering.notViewable=The item cannot be displayed - {0}
-
-
-
-locale.en=English (en)
-locale.nl=Dutch (nl)
-locale.no=Norwegian (no)
-locale.nb=Norwegian b�kmal (nb)
-
-
-###### Plugin messages (TODO: move to plugin once that is available)
-
-accessControl.resourceType.dataSet=DataSets
-
-
-plugin.cms=Website pages
-plugin.cms.page.update=Update page
-plugin.cms.page.create=Create new page
-plugin.cms.page.key=Page key
-plugin.cms.page.save=Save page
-plugin.cms.page.menu.add=Add page to a menu
-plugin.cms.page.menu.position=Position in the menu
-plugin.cms.page.keyInvalid=Invalid key value. A page key must be lowercase and has to be from 3 to 35 characters long.
-plugin.cms.page.publish=Publish
-plugin.cms.page.publish.help=Checking this option will make this content visible
-plugin.cms.page.published=Published
-plugin.cms.page.notPublished=Not published
-plugin.cms.list.languageSwitch=List pages in
-plugin.cms.list.deletePage=Delete page
-plugin.cms.list.deletePageConfirm=Are you sure you want to delete this page and all of its versions? This cannot be undone.
-plugin.cms.upload=Upload file
-plugin.cms.upload.image=Upload image
-plugin.cms.upload.save=Save files
-plugin.cms.upload.help.toggle=Help with uploading images
-plugin.cms.upload.help.chooseImage=<ul><li>Begin by choosing an image from your own computer by pressing <span class="btn btn-success btn-mini"><i class="icon-plus icon-white"></i>Choose an image</span></li><li>Multiple images may be selected at once</li></ul>
-plugin.cms.upload.help.startUpload=<p>The images are then added to the list and are ready to be uploaded to the CultureHub.</p><ul><li>Press the <span class="btn btn-primary btn-mini"><i class="icon-upload icon-white"></i>Start upload</span> button to upload all images at once</li><li>Press the <span class="btn btn-primary btn-mini"><i class="icon-upload icon-white"></i>Start</span> button of the individual image in the image list for uploading one image at a time</li></ul>
-plugin.cms.upload.help.ready=Ready for use
-plugin.cms.upload.help.ready.info=<p>Once uploaded, go back to the <a href="/organizations/{0}/site">page list</a> and edit and existing page or create a <a href="/organizations/{0}/site/{1}/page/add">new page</a>. Click on the <span class="mceIcon mceImage"></span> icon to select the image from the <em>Image list</em> for use.</p>
-plugin.cms.adminRight=Site content administration rights
-plugin.cms.mainMenu=Main menu
-plugin.cms.homePage=Homepage
-plugin.cms.updateHomePage=Update homepage
-
-### CMS PAGE HELP ###
-plugin.cms.page.help.toggle=Help with website pages
-# FIELDS #
-plugin.cms.page.help.fields.tab=Fields explained
-plugin.cms.page.help.fields.key.info=Unique identifier for the page. This is used as the URL for the page.
-plugin.cms.page.help.fields.title.info=Used in the page&apos;s html <code>&lt;title&gt;&lt;/title&gt;</code> attribute and, if the page is added to a menu then this will appear as the link in the menu.
-plugin.cms.page.help.fields.theme.info=The Hub theme under which this page will be displayed.
-plugin.cms.page.help.fields.language.info=The language of this page's content. If language switching is active (i.e. you have your Hub available in multiple languages) then you should create a page for each language.
-plugin.cms.page.help.fields.menu.info=Select the menu you want to have the page link appear in.
-plugin.cms.page.help.fields.position.info=The position of your page link in the selected menu. The higher the number, the further to the right it will move.
-# IMAGES #
-plugin.cms.page.help.images.tab=Adding images
-plugin.cms.page.help.images.info=Images can be added in two ways: <ol><li><strong>Upload from a computer:</strong> this can be done on the <a href="/organizations/{0}/site/upload">Upload image</a> page. After the image is saved it can be used in your page content by clicking on the <span class="mceIcon mceImage"></span> icon and selecting your uploaded image from the <em>Image list</em></li><li><strong>Directly from the internet:</strong> klick on the <span class="mceIcon mceImage"></span> icon and type or paste the URL of the image in the </em>Image URL</em> field
-# TEMPLATES #
-plugin.cms.page.help.templates.tab=Using templates
-plugin.cms.page.help.templates.info=When creating page content the use of a template can help you get started quickly. By clicking on the <span class="mceIcon mceTemplate"></span> icon, a pop-up window will appear where you can preview and insert the templates
-# HOMEPAGE #
-plugin.cms.page.help.homepage.tab=Creating homepage content
-plugin.cms.page.help.homepage.info=Creating content for the homepage works exactly like creating a normal page except for the following: <ol><li>The <strong>Page key</strong> must be: <em>homepage</em></li><li>It cannot be added to a menu</li></ol>
-# AUTO-GEN PAGE KEY #
-plugin.cms.page.keyauto.button=Auto-generate page key
-plugin.cms.page.keyauto.error=Title mandatory for page key generation.
-
-plugin.hubNode.hubNode=Hub node
-plugin.hubNode.hubNodes=Hub nodes
-plugin.hubNode.list=List Hub nodes
+organization.datasets.cannotBeProcessed=Dataset cannot be processed in the current state
+organization.datasets.cannotBeReProcessed=Dataset cannot be re-processed in the current state
+organization.datasets.dataSetNotFound=Dataset {0} was not found
+organization.instant.create=Create an Instant Site
+organization.instant.list=List Instant Sites
+organization.members=Members
+organization.sipcreator.p1=The SIP-Creator is a stand-alone tool that you can use to manage your data sets.  It allows you to map any existing XML format to the record definitions that have been chosen as target for each data set individually. Once mapped and validated, the SIP-Creator lets you upload the source XML and the mapping instruction files to the Delving Culture Hub so that the mappings can also be executed there.
+organization.sipcreator.p2=Launch the SIP-Creator by clicking on the logo on the left. This will cause your browser to download a launch file called <strong>sip-creator.jnlp</strong> which should cause the application to be downloaded and installed on your machine.  You will need to have <strong>Java</strong> installed on your machine. Whenever you start up the SIP-Creator it will check the Culture Hub for a new version and update automatically.
+organizations.admin.userNotFound=Could not find user with userName {0}
+organizations.group.cannotAddDataset=Could not add Dataset with ID {0} to group {0}
+organizations.group.cannotAddUser=Could not add user with userName {0} to group {0}
+organizations.group.cannotRemoveDataset=Could not remove Dataset with ID {0} from group {0}
+organizations.group.cannotRemoveUser=Could not remove user with userName {0} to group {0}
+organizations.group.cannotSaveGroup=Could not save group, please try again
+organizations.group.confirmDeletion=Are you sure you want to delete this group?
+organizations.group.groupNotFound=Could not find group with ID {0}
+organizations.organization.orgNotFound=Could not find organization {0}
+plugin.advancedsearch.allProviders=All data providers
+plugin.advancedsearch.between=Between
+plugin.advancedsearch.booleanAnd=AND
+plugin.advancedsearch.booleanNot=NOT
+plugin.advancedsearch.booleanOr=OR
+plugin.advancedsearch.contains=Contains
+plugin.advancedsearch.searchIn=Search in
+plugin.advancedsearch.searchInAll=All
+plugin.advancedsearch.select=Select
+plugin.advancedsearch.selectProviders=Select data provider(s)
+plugin.advancedsearch=Advanced search
+plugin.chc.dataSetsHelp=Hold down the Ctrl key in order to select more than one DataSet
+plugin.chc.dataSetsNotEmpty=You must select at least one constraining DataSet
+plugin.chc.orKeywords=Keywords (OR)
+plugin.chc.publicSchemas=Public metadata formats
+plugin.chc.publicSchemasHelp=Hold down the Ctrl key in order to select more than one harvesting format
+plugin.chc.publicSchemasNotEmpty=You must select at least one metadata format for harvesting
+plugin.dataSet.creationQuotaExceeded=The quota of allowed DataSets for this organization is exceeded
+plugin.dataSet.specTaken=This DataSet identifier is already in use
 plugin.hubNode.create=Create Hub node
 plugin.hubNode.deleteConfirm=Are you sure you want to delete this Virtual Node as well as all of its data?
+plugin.hubNode.hubNode=Hub node
+plugin.hubNode.hubNodes=Hub nodes
+plugin.hubNode.invalidNodeName=Invalid node name: can only have letters and white spaces
+plugin.hubNode.list=List Hub nodes
+plugin.hubNode.name=Node name
+plugin.hubNode.nodeId=Node identifier
 plugin.hubNode.nodeIdTaken=A node with the same node identifier is already taken
 plugin.hubNode.orgId=Organization identifier
-plugin.hubNode.nodeId=Node identifier
-plugin.hubNode.name=Node name
 plugin.hubNode.orgIdValid=This organization doesn't exist. Contact support@delving.eu for help.
-plugin.hubNode.invalidNodeName=Invalid node name: can only have letters and white spaces
-
-
-plugin.musip.museum=Museum
-plugin.musip.museums=Museums
+plugin.instant.deleteConfirmation=The associated Instant Site will no longer function
+plugin.instant.edit=Edit Instant Site
+plugin.instant.list=List of Instant Sites
+plugin.mediator.mediator=Mediator
 plugin.musip.collection=Collection
 plugin.musip.collections=Collections
-plugin.musip.province=Province
 plugin.musip.municipality=Municipality
-plugin.musip.returnToMuseum=Return to museum
+plugin.musip.museum=Museum
+plugin.musip.museums=Museums
+plugin.musip.province=Province
 plugin.musip.returnToCollection=Return to collection
-
-plugin.statistics.statistics=Statistics
+plugin.musip.returnToMuseum=Return to museum
+plugin.relocation.alreadyMemberOfOrganization={0} is already member of the organization {1}
+plugin.relocation.alreadyReserved=This item is already reserved by your organization.
+plugin.relocation.archive=Archive
+plugin.relocation.archiveConfirmation=Are you sure you want to archive this item?
+plugin.relocation.confirmReservation=Are you sure you want to reserve this item? An e-mail will be sent upon reservation.
+plugin.relocation.emailSent=Email successfully sent
+plugin.relocation.form.basicInfo=Basic information
+plugin.relocation.form.creatorInfo=Creator information
+plugin.relocation.form.extraInfo=Extra information
+plugin.relocation.form.measurementsInfo=Dimensions
+plugin.relocation.homePageItems=Home page items
+plugin.relocation.imageUpload.attach=Attach images
+plugin.relocation.imageUpload.imageName=Image name
+plugin.relocation.imageUpload.imagesFound=Image to item matches found
+plugin.relocation.imageUpload=Upload images
+plugin.relocation.import.description=Here you can import relocation items via an Excel sheet, if you use the following template:
+plugin.relocation.import.emptyCell=Required cell is empty
+plugin.relocation.import.error=Problem
+plugin.relocation.import.failedImport=Problems while importing {0} items
+plugin.relocation.import.field=Field
+plugin.relocation.import.importObjects=Import objects
+plugin.relocation.import.invalidSheetFormat=The Excel Sheet could not be read
+plugin.relocation.import.noSheetFound=No sheet could be found!
+plugin.relocation.import.row=Row
+plugin.relocation.import.selectExcelFile=Select Excel file
+plugin.relocation.import.successfulImport=Successfully imported {0} items
+plugin.relocation.import.title=Excel Import for organization: <span>{0}</span>
+plugin.relocation.import=Import objects (from Excel sheet)
+plugin.relocation.incomingReservations=Incoming reservations
+plugin.relocation.itemReservationCancelled=[Relocation Database] A reservation was cancelled
+plugin.relocation.itemReserved=[Relocation Database] An item was reserved
+plugin.relocation.listAllArchived=List archived of all organizations
+plugin.relocation.listAllMadeReservations=List all made reservations
+plugin.relocation.listArchived=List archived
+plugin.relocation.listForAllOrganizations=List items of all organizations
+plugin.relocation.listIncomingReservations=List incoming reservations
+plugin.relocation.listMadeReservations=List made reservations
+plugin.relocation.listRelocationItems=List relocation items
+plugin.relocation.madeReservations=Placed reservations
+plugin.relocation.makeReservation=Reserve this object
+plugin.relocation.manageMembers=Manage members
+plugin.relocation.membersWithReservationRights=Members with reservation rights
+plugin.relocation.membersWithSupplierRights=Members with supplier rights
+plugin.relocation.migration.assignMember=Assign member
+plugin.relocation.migration.newUsers=Newly registered users
+plugin.relocation.migration.relocationRights=Relocation rights
+plugin.relocation.migration.roles=Roles
+plugin.relocation.migration.suggestedOrganization=Suggested organization
+plugin.relocation.migration.supplierRights=Supplier rights
+plugin.relocation.new=Create a new object
+plugin.relocation.owningOrganization=Owning organization
+plugin.relocation.relocationItems=Relocation items
+plugin.relocation.relocationItemsOfOrganization=Relocation items of <span>{0}</span>
+plugin.relocation.reservations=Reservations
+plugin.relocation.reservingOrganization=Reserving organization
+plugin.relocation.sendEmail=Send email
+plugin.rijks.rijks=Rijkscollectie
+plugin.simpledocumentupload.add=Upload document
+plugin.simpledocumentupload.deleteConfirmation=Are you sure you want to delete this item?
+plugin.simpledocumentupload.documentUpload=Document upload
+plugin.simpledocumentupload.list=List of uploaded documents
 plugin.statistics.dataset=DataSet
 plugin.statistics.geoData=With geographical data
 plugin.statistics.history=History
+plugin.statistics.landingPages=With landing-pages
+plugin.statistics.nrRecords=Number of records
+plugin.statistics.statistics=Statistics
 plugin.statistics.withObjects=With objects
 plugin.statistics.withoutObjects=Without objects
-plugin.statistics.nrRecords=Number of records
-plugin.statistics.landingPages=With landing-pages
-
-plugin.advancedsearch=Advanced search
-plugin.advancedsearch.searchIn=Search in
-plugin.advancedsearch.searchInAll=All
-plugin.advancedsearch.booleanAnd=AND
-plugin.advancedsearch.booleanOr=OR
-plugin.advancedsearch.booleanNot=NOT
-plugin.advancedsearch.allProviders=All data providers
-plugin.advancedsearch.selectProviders=Select data provider(s)
-plugin.advancedsearch.select=Select
-plugin.advancedsearch.contains=Contains
-plugin.advancedsearch.between=Between
-
-plugin.simpledocumentupload.documentUpload=Document upload
-plugin.simpledocumentupload.list=List of uploaded documents
-plugin.simpledocumentupload.add=Upload document
-plugin.simpledocumentupload.deleteConfirmation=Are you sure you want to delete this item?
-
-plugin.instant.list=List of Instant Sites
-plugin.instant.edit=Edit Instant Site
-plugin.instant.deleteConfirmation=The associated Instant Site will no longer function
-
-plugin.rijks.rijks=Rijkscollectie
+profile.activesince=Active since
+profile.profileNotFound=No profile was found for user {0}
+profile.title=Profile page for
+rendering.notViewable=The item cannot be displayed - {0}
+search.backendConnectionError=Cannot connect to the search backend
+search.facet.byCollection=Collection
+search.facet.byObjectType=Object type
+search.facet.byProvider=Provider
+search.facet.byYear=Year
+search.facets=Facets
+search.invalidQuery=Query "{0}" is not a valid query. Please try something else.
+search.nrfound= Found {0} results
+search.refineYourSearch=Refine your search
+search.resultsfor=Search results for
+search.sortby=Sort by
+search.trail=Results <strong>{0} - {1}</strong> of <strong>{2}</strong>
+search.viewInOriginalContext=View in original context
+servicessecurity.userNotFound=User {0} was not found
+site.nav.home=Home
+thing.action=Action
+thing.actions=Actions
+thing.addcomment=Add comment
+thing.addlabel=Add label
+thing.address=Address
+thing.admin=Administrator
+thing.admins=Administrators
+thing.bookmarksCollection=My bookmarks
+thing.bookmarksCollectionDescription=This is your bookmarks collection, visible only to you.
+thing.browse.of=Browse {0} of
+thing.browse.ownedby=Browse {0} owned by
+thing.browse=Browse {0}
+thing.city=City
+thing.collaborators=Collaborators
+thing.collection=Collection
+thing.collections=Collections
+thing.comment=Comment
+thing.comments=Comments
+thing.confirmation=Are you sure?
+thing.contact=Contact
+thing.contactEmail=Contact email
+thing.contactName=Contact name
+thing.content=Content
+thing.createnew=Create a new {0}
+thing.creator=Creator
+thing.dataset=Dataset
+thing.datasetcount=Number of Datasets
+thing.datasets=Datasets
+thing.datecreated=Date created
+thing.datemodified=Date modified
+thing.deleteConfirmation=Are you sure you want to delete this item?
+thing.description=Description
+thing.email=Email
+thing.endYear=End year
+thing.fax=Fax
+thing.geographicArea=Geographical area
+thing.grantType=This group grants
+thing.group=Group
+thing.groups=Groups
+thing.instant=Instant
+thing.keyword=Keyword
+thing.keywords=Keywords
+thing.label.explain=A label is a piece of text which you can attach to an item. A "free-text" label can be any descriptive term. A "place-name" label should refer to a geographic location.
+thing.label.freeText=Free-text label
+thing.label.placeName=Place-name label
+thing.label=Label
+thing.labels=Labels
+thing.landingPage=Landing page
+thing.measurements=Measurements
+thing.missionStatement=Mission statement
+thing.municipality=Municipality
+thing.museum=Museum
+thing.museums=Museums
+thing.name=Name
+thing.notavailable.plural=There are currently no {0} available
+thing.notavailable.single=There is currently no {0} available
+thing.object.heritage=Heritage object
+thing.object=Object
+thing.objects.heritage=Heritage objects
+thing.objects=Objects
+thing.organization=Organization
+thing.organizations=Organizations
+thing.owner=Owner
+thing.page=Site page
+thing.pages=Site pages
+thing.place=Place
+thing.postalCode=Postal code
+thing.provider=Provider
+thing.province=Province
+thing.relatedItems=Related items
+thing.resources=Resources
+thing.startYear=Start year
+thing.stories.info=Creating a captivating narrative is sometimes the only way to give cultural objects the context they deserve. Often their descriptions do not do them justice, and using them in a story with maybe a few of your own cultural treasures would be much better. This website makes it easy for us to build these stories and make them available for everyone to read.
+thing.stories=Stories
+thing.story=Story
+thing.title=Title
+thing.url=URL
+thing.user=User
+thing.users=Users
+thing.version=Version
+thing.virtualCollection=Virtual collection
+thing.virtualCollections=Virtual collections
+ui.message.activation.error=Error activating your account.
+ui.message.activation.success=Your account is now active!
+ui.message.charsLeft=characters left
+ui.message.noCookies=Your browser needs to support cookies in order for this site to work correctly.
+ui.message.nothingFound=Sorry! It seems there is nothing to be found right now.
+ui.message.oldBrowser=<strong>Warning!</strong> You are viewing this site with an outdated browser. This website requires a modern, standards compliant browser to function properly. Older browsers are not standards compliant and are also a serious security risk for <em>your</em> computer.
+ui.message.registration.error=Error creating your account, please try again. The cause of the error is: {0}
+ui.message.registration.success=Your account was successfully created! An email has been sent to {0} for activation
+ui.message.resetpassword.email.success=An e-mail has been sent to you with a link to reset your password
+ui.message.resetpassword.error=Error resetting your password: {0}
+ui.message.resetpassword.success=Your password has been successfully changed
+ui.message.statusPrivate=This object is visible only to you. If you want others to find and see it you can change it's <a href="{0}"><strong>visibility status</strong></a> to "Public".
+ui.widget.upload.actions=Actions
+ui.widget.upload.cancel=Cancel upload
+ui.widget.upload.chooseFile=Choose file
+ui.widget.upload.fileName=File name
+ui.widget.upload.fileSize=File size
+ui.widget.upload.header=Image/document upload
+ui.widget.upload.start=Start upload
+ui.widget.upload.thumbnail=Thumbnail
+ui.widget.upload.uploaded=Uploaded files
+user.admin.index.title=Account space
+user.admin.profile.gravatarHelp=Associate a <a href="http://www.gravatar.com" target="_blank">Gravatar</a> with your email adres
+user.admin.profile.help.aboutYou=A few words about yourself
+user.admin.profile.help.fixedPhone=Your phone number
+user.admin.profile.help.linkedIn=Your linkedIn public profile name, e.g. johndoe
+user.admin.profile.help.public=If you check this option, your profile is also visible to non-connected users
+user.admin.profile.help.twitter=Your twitter username, e.g. #johndoe
+user.admin.profile.save=Save profile
+user.admin.profile.saveError=Error saving your profile, please try again
+user.admin.profile.title=Your profile
+user.admin.userNotFound=Could not find user {0}
+user.fileupload.removeError=Error removing file, invalid id {0}
+user.index.title=User {0}
+user.list.browse=Browse users
+user.list.editProfile=Edit your profile
+user.list.noUsers=There are currently no users in the system (how did you even get here?)
+user.nav.create=Create
+user.nav.goto=Go to
+user.nav.yourprofile=Your profile
+user.profile.aboutYou=About you
+user.profile.fixedPhone=Phone
+user.profile.funFact=Fun fact
+user.secured.noAccess=We are deeply sorry - really, we are - but you do not have access here
+validation.range=Value out of range
+validation.required=Required
+validation.url=Not a valid URL
