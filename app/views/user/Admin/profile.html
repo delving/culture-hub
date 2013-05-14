@@ -15,7 +15,7 @@
           #{form.textField name:"lastName", form:profileForm, label:messages.get('ui.label.lastname'), dataBind:"value: lastName", labelClass:"required", required: true /}
           #{form.textField name:"email", form:profileForm, label:messages.get('ui.label.email'), dataBind:"value: email", labelClass:"required", required: true, help: messages.get('user.admin.profile.gravatarHelp').raw() /}
           <hr class="soften"/>
-          #{form.checkboxField name:"isPublic", form:profileForm, label:messages.get('ui.label.visibility.public'), dataBind:"checked: isPublic", help:messages.get('user.admin.profile.help.public') /}
+          #{form.checkboxField name:"isPublic", form:profileForm, label:messages.get('_hub.Public'), dataBind:"checked: isPublic", help:messages.get('user.admin.profile.help.public') /}
        </div>
     <div class="span6">
           #{form.textField name:"fixedPhone", form:profileForm, label:messages.get('user.profile.fixedPhone'), dataBind:"value: fixedPhone", extHelp:messages.get('user.admin.profile.help.fixedPhone'), dataMaxChars:"400", inputClass:"span5", extraCss:"height:120px;" /}

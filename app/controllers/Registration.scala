@@ -91,7 +91,7 @@ trait Registration extends ApplicationController { this: BoundController =>
       "userName" -> text.verifying(
         pattern(
           "^[a-z0-9]{3,15}$".r,
-          error = Messages("registration.userNameInvalid")
+          error = Messages("_hub.ThisUsernameIsNotValid")
         )
       ),
       "password1" -> nonEmptyText,

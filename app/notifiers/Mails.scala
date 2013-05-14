@@ -67,7 +67,7 @@ object Mails {
         |
         |http://%s/registration/resetPassword/%s
       """.stripMargin.format(
-          Messages("ui.label.hi"),
+          Messages("_hub.Hi"),
           Messages("mail.message.resetpassword", themeInfo.siteName),
           host,
           resetPasswordToken

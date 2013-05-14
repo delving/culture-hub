@@ -8,7 +8,7 @@
     <div class="span3">
       <p>#{gravatar.img user.email, size:200 /}</p>
       #{if user.userName == userName}
-        <p>#{btnHref label:messages.get('ui.label.edit'), extraClass:"btn-primary", href: "/" + user.userName + "/admin/profile/update", rel:"nofollow" /}</p>
+        <p>#{btnHref label:messages.get('_hub.Edit'), extraClass:"btn-primary", href: "/" + user.userName + "/admin/profile/update", rel:"nofollow" /}</p>
       #{/if}
     </div>
     <div class="span9">
@@ -16,7 +16,7 @@
             <dt>&{'ui.label.username'}:</dt>
             <dd>${user.userName}</dd>
             #{if isVisible}
-            <dt>&{'ui.label.fullname'}:</dt>
+            <dt>&{'_hub.FullName'}:</dt>
             <dd>${user.fullname()}</dd>
             <dt>&{'profile.activesince'}:</dt>
             <dd>${views.Helpers.niceTime(user._id.getTime())}</dd>
@@ -57,7 +57,7 @@
                     <hr/>
                     #{/list}
                     #{if objectsCount > objects.size()}
-                    #{btnHref label: messages.get('ui.label.more')+"...", href: user.userName + "/object", extraClass: "fright" /}
+                    #{btnHref label: messages.get('_hub.More')+"...", href: user.userName + "/object", extraClass: "fright" /}
                     #{/if}
 
                 </div>
@@ -74,7 +74,7 @@
                     <hr/>
                     #{/list}
                     #{if collectionsCount > collections.size()}
-                    #{btnHref label: messages.get('ui.label.more')+"...", href: user.userName + "/collection" /}
+                    #{btnHref label: messages.get('_hub.More')+"...", href: user.userName + "/collection" /}
                     #{/if}
                 </div>
             </div>
@@ -89,7 +89,7 @@
                     <hr/>
                     #{/list}
                     #{if storiesCount > stories.size()}
-                    #{btnHref label: messages.get('ui.label.more')+"...", href: user.userName + "/story" /}
+                    #{btnHref label: messages.get('_hub.More')+"...", href: user.userName + "/story" /}
                     #{/if}
 
                 </div>

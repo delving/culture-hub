@@ -143,8 +143,8 @@ class DataSetPlugin(app: Application) extends CultureHubPlugin(app) {
     ),
     MainMenuEntry(
       key = "sipcreator",
-      titleKey = "ui.label.sipcreator",
-      mainEntry = Some(MenuElement("/organizations/%s/sip-creator".format(configuration.orgId), "ui.label.sipcreator"))
+      titleKey = "_hub.SIPCreator",
+      mainEntry = Some(MenuElement("/organizations/%s/sip-creator".format(configuration.orgId), "_hub.SIPCreator"))
     )
   )
 

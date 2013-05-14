@@ -15,8 +15,8 @@
         *{<!-- ADDTHIS BUTTONS: any user can share --> }*
         <div class="addthis_toolbox addthis_default_style" style="display:table-cell; width:auto;">
             #{btnHref extraClass:"addthis_button_email left", iconClass:"icon125", label: messages.get('ui.label.email')/}
-            #{btnHref extraClass:"addthis_button_print middle", iconClass:"icon153", label: messages.get('ui.label.print')/}
-            #{btnHref extraClass:"addthis_button_compact right", iconClass:"icon203", label: messages.get('ui.label.share')/}
+            #{btnHref extraClass:"addthis_button_print middle", iconClass:"icon153", label: messages.get('_hub.Print')/}
+            #{btnHref extraClass:"addthis_button_compact right", iconClass:"icon203", label: messages.get('_hub.Share')/}
             <a class="addthis_counter addthis_bubble_style" style="margin-top: 10px;"></a>
         </div>
         *{<!--TODO: how would this work for someone who is a member of a group that can edit an organizations objects but is not the 'owner of the object? ...-->}*
@@ -24,9 +24,9 @@
         #{if _owner == _authUser}
            #{if _owner && _id}
             #{if !_cannotDelete}
-            #{btnHref label:messages.get('ui.label.remove', messages.get('thing.object')), id:"remove", extraClass:"beware fright" /}
+            #{btnHref label:messages.get('_hub.Remove', messages.get('thing.object')), id:"remove", extraClass:"beware fright" /}
             #{/if}
-            #{btnHref label:messages.get('ui.label.edit'), extraClass:"fright", iconClass:"icon145", href: "/" + _owner + "/" + _type + "/" + _id + "/update" /}
+            #{btnHref label:messages.get('_hub.Edit'), extraClass:"fright", iconClass:"icon145", href: "/" + _owner + "/" + _type + "/" + _id + "/update" /}
             <div id="removeConfirmation" title="${messages.get('thing.confirmation')}" style="display: none;"><p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>${messages.get(_type+'.confirmDeletion')}</p></div>
             <script type="text/javascript">
                 $(document).ready(function() {
@@ -44,7 +44,7 @@
         #{/if}
     </div>
 </div>
-<div id="add-label-dialog" title="${messages.get('ui.label.labeladd')}">
+<div id="add-label-dialog" title="${messages.get('_hub.AddLabel')}">
     <p>&{'thing.label.explain'}</p>
     <div class="field">
         <label class="label">${messages.get('thing.label.freeText')}</label>
@@ -63,7 +63,7 @@
 </div>
 
 *{  <!-- leave out until functional -->
-<div id="add-comment-dialog" title="${messages.get('ui.label.addcomment')}">
+<div id="add-comment-dialog" title="${messages.get('_hub.AddComment')}">
     <form action="#" method="GET" class="box">
     <div class="field">
         <label class="label">${messages.get('thing.comment')}</label>

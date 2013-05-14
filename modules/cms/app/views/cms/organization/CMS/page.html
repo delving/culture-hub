@@ -39,7 +39,7 @@
                                 <dd>&{'plugin.cms.page.help.fields.title.info'}</dd>
                                 <dt>&{'plugin.cms.page.key'}</dt>
                                 <dd>&{'plugin.cms.page.help.fields.key.info'}</dd>
-                                <dt>&{'ui.label.language'}</dt>
+                                <dt>&{'_hub.Language'}</dt>
                                 <dd>&{'plugin.cms.page.help.fields.language.info'}</dd>
                                 <dt>&{'plugin.cms.page.menu.add'}</dt>
                                 <dd>&{'plugin.cms.page.help.fields.menu.info'}</dd>
@@ -80,7 +80,7 @@
         </div>
 
         <div class="cms-page-lang span4">
-        #{form.populatedSelectField options:languages, name:"lang", form: pageForm, label:messages.get('ui.label.language'), dataBind:"value: lang", required: true /}
+        #{form.populatedSelectField options:languages, name:"lang", form: pageForm, label:messages.get('_hub.Language'), dataBind:"value: lang", required: true /}
         </div>
 
         <div class="cms-page-menu span4">
@@ -101,7 +101,7 @@
     </div>
     <div class="row">
         <div class="span12">
-        #{form.textArea id: "editor", name:"pageContent", form: pageForm, inputClass:"mceEditor", label:messages.get('ui.label.content'), dataBind:"tinymce: content, tinymceOptions: {orgId: '${orgId}'}", required: true /}
+        #{form.textArea id: "editor", name:"pageContent", form: pageForm, inputClass:"mceEditor", label:messages.get('_hub.Content'), dataBind:"tinymce: content, tinymceOptions: {orgId: '${orgId}'}", required: true /}
         </div>
     </div>
 
@@ -115,7 +115,7 @@
             <div class="well">
             #{btnButton label: messages.get('plugin.cms.page.save'), extraClass:"btn-success", iconClass:"icon-ok-circle icon-white", id:"saveButton", type:"submit" /}
             #{btnButton label: messages.get('ui.label.cancel'), extraClass:"cancelButton", id:"cancelButton", type:"reset" /}
-            #{btnButton label: messages.get('ui.label.reset'), extraClass:"", type:"reset" /}
+            #{btnButton label: messages.get('_hub.Reset'), extraClass:"", type:"reset" /}
                 <div class="wait"></div>
             </div>
         </div>
@@ -127,7 +127,7 @@
 <div class="row">
     <div class="span12">
         <table class="table table-striped" id="versions">
-            <caption>&{'ui.label.previousVersions'}</caption>
+            <caption>&{'_hub.PreviousVersions'}</caption>
             <thead>
             <tr>
                 <th>&{'thing.title'}</th>
@@ -149,7 +149,7 @@
                 </td>
                 <td>
                     <a class="" href="#" data-bind="click: function() { $parent.loadVersion($data) }" rel="nofollow">
-                        <span class="badge badge-info">&{'ui.label.load'}</span>
+                        <span class="badge badge-info">&{'_hub.Load'}</span>
                     </a>
                 </td>
             </tr>

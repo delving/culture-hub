@@ -23,9 +23,9 @@
                   <td><a data-bind="text: name, attr: { href: '/' + id().replace(new RegExp('_', 'g'), '/') }"></a></td>
                   <td><span data-bind="text: description"></span></td>
                   <td>
-                      <a class="btn btn-primary btn-mini" data-bind="attr: { href: '/organizations/${orgId}/simpledocument/' + id() + '/update' }">&{'ui.label.edit'}</a>
+                      <a class="btn btn-primary btn-mini" data-bind="attr: { href: '/organizations/${orgId}/simpledocument/' + id() + '/update' }">&{'_hub.Edit'}</a>
                       <a class="btn btn-danger btn-mini delete" data-bind="attr: { id: 'remove-' + id(), 'data-remove': id() }">
-                      ${messages.get('ui.label.delete')}
+                      ${messages.get('_hub.Delete')}
                       </a>
                   </td>
               </tr>
@@ -36,7 +36,7 @@
               <tr>
                 <td colspan="3">
                     No items defined
-                    <a class="btn btn-primary btn-mini pull-right" href="/organizations/${orgId}/simpledocument/add">&{'ui.label.create'}</a>
+                    <a class="btn btn-primary btn-mini pull-right" href="/organizations/${orgId}/simpledocument/add">&{'_hub.Create'}</a>
                 </td>
               </tr>
             </tbody>

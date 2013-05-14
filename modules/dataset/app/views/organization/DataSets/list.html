@@ -19,8 +19,8 @@
     <div class="dataset-filter-inner span12">
     <form id="filter-form" class="form-inline pull-left form-search">
         <input type='text' name='filter' id='filter' maxlength="30" size="30" class="search-query" placeholder="&{'org.list.filter'}"/>
-        <input onclick="saveFilter()" class="btn" type="button" value="&{'ui.label.save'}"/>
-        <input onclick="resetFilter()" class="btn" type="reset" value="&{'ui.label.reset'}"/>
+        <input onclick="saveFilter()" class="btn" type="button" value="&{'_hub.Save'}"/>
+        <input onclick="resetFilter()" class="btn" type="reset" value="&{'_hub.Reset'}"/>
         <a class="extHelp" href="#" rel="tooltip" title="Type in any dataset value(s) to filter the table. Press 'Save' to save the filter."><i class="icon-question-sign"></i>&#160;</a>
     </form>
     </div>
@@ -41,10 +41,10 @@
         <tr>
             <th class="sort">&{'thing.name'}</th>
             <th class="sort">&{'thing.organization'}</th>
-            <th class="sort">&{'ui.label.nritems'}</th>
-            <th class="sort">&{'ui.label.state'}</th>
-            <th class="sort">&{'ui.label.availability'}</th>
-            *{<th>&{'ui.label.options'}</th>}*
+            <th class="sort">&{'_hub.NumberOfItems'}</th>
+            <th class="sort">&{'_hub.State'}</th>
+            <th class="sort">&{'_hub.Availability'}</th>
+            *{<th>&{'_hub.Options'}</th>}*
         </tr>
         </thead>
         <tfoot>
@@ -89,7 +89,7 @@
                 <td width="80">
                   <!-- ko if: canEdit().indexOf('${userName}') > -1 -->
                     <a data-bind="attr: { href: '/organizations/' + orgId() + '/dataset/' + spec() + '/update' }" rel="nofollow">
-                        <i class="icon icon-edit"></i> ${messages.get('ui.label.edit')}
+                        <i class="icon icon-edit"></i> ${messages.get('_hub.Edit')}
                     </a>
                   <!-- /ko -->
 
