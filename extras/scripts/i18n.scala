@@ -114,7 +114,7 @@ case class MessageUsage(key: String, file: File, line: Int, matched: String) {
     val source = Source.fromFile(file, "utf-8").getLines().mkString("\n")
     val replacement = key.r.replaceAllIn(source, newKey)
 
-    println(Colors.blue(s"Replaced key '$key' with new key '$newKey' in file ${file.getAbsolutePath}"))
+    println(Colors.blue("Replaced key '%s' with new key '%s' in file %s".format(key, newKey, file.getAbsolutePath)))
 
     Some(new PrintWriter(file.getAbsolutePath)).foreach{p => p.write(replacement); p.close() }
   }
