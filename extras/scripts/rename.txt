@@ -1,0 +1,5 @@
+ui.label.administration=_hub.Administration
+ui.label.loggedInAs=_hub.LoggedInAs
+ui.label.login=_hub.Login
+ui.label.logout=_hub.Logout
+ui.label.register=_hub.Register
