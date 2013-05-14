@@ -112,9 +112,12 @@ case class MessageUsage(key: String, file: File, line: Int, matched: String) {
 
   def replace(newKey: String) {
     val source = Source.fromFile(file, "utf-8").getLines().mkString("\n")
-    val replacement = key.r.replaceAllIn(source, newKey)
+    val singleQuotePattern = "'%s'".format(key).r
+    val doubleQuotePattern = """"%s""".format(key).r
+    val first = singleQuotePattern.replaceAllIn(source, "'" + newKey)
+    val replacement = doubleQuotePattern.replaceAllIn(first, "\"" + newKey)
 
-    println(Colors.blue("Replaced key '%s' with new key '%s' in file %s".format(key, newKey, file.getAbsolutePath)))
+    println(Colors.blue("Replaced key '%s' with new key '%s' in file %s".format(key, newKey, file.getAbsolutePath )))
 
     Some(new PrintWriter(file.getAbsolutePath)).foreach{p => p.write(replacement); p.close() }
   }
