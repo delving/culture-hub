@@ -24,13 +24,13 @@
     <hr/>
     <div class="g-1of1">
         <div class="panel admin">
-            <h4>&{'ui.label.administratorOptions'}</h4>
+            <h4>&{'_hub.AdministratorOptions'}</h4>
                     #{if _type != 'user'}
-                    <p><a href="#" id="btn-disable-thing">&{'ui.label.block'} ${messages.get("thing."+_type)}</a>: &{'thing.admin.disable.explain', messages.get("thing.admin.disable."+_type)}</p>
-                    <p><a href="/${_userName}/">&{'ui.label.block'} ${messages.get("thing.user")}</a>: &{'thing.admin.disable.goProfile'}</p>
+                    <p><a href="#" id="btn-disable-thing">&{'_hub.Block'} ${messages.get("thing."+_type)}</a>: &{'thing.admin.disable.explain', messages.get("thing.admin.disable."+_type)}</p>
+                    <p><a href="/${_userName}/">&{'_hub.Block'} ${messages.get("thing.user")}</a>: &{'thing.admin.disable.goProfile'}</p>
                     #{/if}
                     #{else}
-                    <p><a href="#" id="btn-disable-user">&{'ui.label.block'} ${messages.get("thing.admin.disable.user")}</a>: &{'thing.admin.disable.user.explain'}
+                    <p><a href="#" id="btn-disable-user">&{'_hub.Block'} ${messages.get("thing.admin.disable.user")}</a>: &{'thing.admin.disable.user.explain'}
                     #{/else}
 
         </div>
@@ -65,11 +65,11 @@
             minHeight:150,
             modal:true,
             buttons:{
-                "&{'ui.label.disable'}":function () {
+                "&{'_hub.Disable'}":function () {
                     if (typeof onDisable === 'function') onDisable.call();
                     $(this).dialog("close");
                 },
-                "&{'ui.label.cancel'}":function () {
+                "&{'_hub.Cancel'}":function () {
                     $(this).dialog("close");
                 }
             }

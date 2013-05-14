@@ -175,8 +175,8 @@ class CMSPlugin(app: Application) extends CultureHubPlugin(app) {
             titleKey = "plugin.cms",
             roles = Seq(Role.OWN, CMSPlugin.ROLE_CMS_ADMIN),
             items = Seq(
-              MenuElement("/admin/site/%s/%s".format(lang, CMSPlugin.MAIN_MENU), "ui.label.list"),
-              MenuElement("/admin/site/%s/page/add".format(lang), "ui.label.new"),
+              MenuElement("/admin/site/%s/%s".format(lang, CMSPlugin.MAIN_MENU), "_hub.List"),
+              MenuElement("/admin/site/%s/page/add".format(lang), "_hub.New"),
               MenuElement("/admin/site/%s/page/homepage/update".format(lang), "plugin.cms.updateHomePage"),
               MenuElement("/admin/site/upload".format(configuration.orgId), "plugin.cms.upload.image")
             )
@@ -187,8 +187,8 @@ class CMSPlugin(app: Application) extends CultureHubPlugin(app) {
             titleKey = definition.title.get(lang).getOrElse(definition.title("en")),
             roles = Seq(Role.OWN, CMSPlugin.ROLE_CMS_ADMIN),
             items = Seq(
-              MenuElement("/admin/site/%s/%s".format(lang, definition.key), "ui.label.list"),
-              MenuElement("/admin/site/%s/page/add/%s".format(lang, definition.key), "ui.label.new"),
+              MenuElement("/admin/site/%s/%s".format(lang, definition.key), "_hub.List"),
+              MenuElement("/admin/site/%s/page/add/%s".format(lang, definition.key), "_hub.New"),
               MenuElement("/admin/site/upload", "plugin.cms.upload.image")
             )
           )

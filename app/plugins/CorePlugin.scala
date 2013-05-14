@@ -36,14 +36,14 @@ class CorePlugin(app: Application) extends CultureHubPlugin(app) {
   override def organizationMenuEntries(configuration: OrganizationConfiguration, lang: String, roles: Seq[String]): Seq[MainMenuEntry] = Seq(
     MainMenuEntry(
       key = "overview",
-      titleKey = "ui.label.overview",
-      mainEntry = Some(MenuElement("/organizations/" + configuration.orgId, "ui.label.overview")),
+      titleKey = "_hub.Overview",
+      mainEntry = Some(MenuElement("/organizations/" + configuration.orgId, "_hub.Overview")),
       membersOnly = false
     ),
     MainMenuEntry(
       key = "administration",
-      titleKey = "ui.label.administration",
-      mainEntry = Some(MenuElement("/organizations/%s/admin".format(configuration.orgId), "ui.label.administration")),
+      titleKey = "_hub.Administration",
+      mainEntry = Some(MenuElement("/organizations/%s/admin".format(configuration.orgId), "_hub.Administration")),
       roles = Seq(Role.OWN)
     ),
     MainMenuEntry(

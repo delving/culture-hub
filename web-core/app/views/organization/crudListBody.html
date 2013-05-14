@@ -10,8 +10,8 @@
     <div class="dataset-filter-inner span12">
         <form id="filter-form" class="form-inline pull-left form-search">
             <input type='text' name='filter' id='filter' maxlength="30" size="30" class="search-query" placeholder="&{'org.list.filter'}"/>
-            <input onclick="saveFilter()" class="btn" type="button" value="&{'ui.label.save'}"/>
-            <input onclick="resetFilter()" class="btn" type="reset" value="&{'ui.label.reset'}"/>
+            <input onclick="saveFilter()" class="btn" type="button" value="&{'_hub.Save'}"/>
+            <input onclick="resetFilter()" class="btn" type="reset" value="&{'_hub.Reset'}"/>
             <a class="icon icon-question-sign extHelp" href="#" rel="tooltip" title="&{'org.list.filterHelp'}"></a>
         </form>
     </div>
@@ -43,7 +43,7 @@
                 </td>
                 <td>
                     #{if createActionEnabled}
-                    <a class="btn btn-primary btn-mini" href="${request.path()}/add${request.rawQueryString() ? '?' + request.rawQueryString() : ''}" rel="nofollow">${messages.get('ui.label.new')}</a>
+                    <a class="btn btn-primary btn-mini" href="${request.path()}/add${request.rawQueryString() ? '?' + request.rawQueryString() : ''}" rel="nofollow">${messages.get('_hub.New')}</a>
                     #{/if}
                 </td>
             </tr>

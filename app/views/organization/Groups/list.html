@@ -22,9 +22,9 @@
                   <td><span data-bind="text: name"></span></td>
                   <td><span data-bind="text: description"></span></td>
                   <td>#{if isAdmin}
-                      <a class="btn btn-primary btn-mini" data-bind="attr: { href: '/organizations/${orgId}/groups/update/' + id() }">&{'ui.label.edit'}</a>
+                      <a class="btn btn-primary btn-mini" data-bind="attr: { href: '/organizations/${orgId}/groups/update/' + id() }">&{'_hub.Edit'}</a>
                       <a class="btn btn-danger btn-mini delete" data-bind="attr: { id: 'remove-' + id(), 'data-remove': id() }">
-                      ${messages.get('ui.label.delete')}
+                      ${messages.get('_hub.Delete')}
                       </a>
                   #{/if}</td>
               </tr>
