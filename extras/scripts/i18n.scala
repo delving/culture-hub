@@ -1,5 +1,6 @@
 import io.Source
 import java.io._
+import java.util.regex.Pattern
 
 println(Colors.green("i18n cruncher"))
 println(Colors.green("============="))
@@ -11,6 +12,7 @@ if (args.isEmpty) {
                            |~~ scala i18n.scala all ~~~~> prints all usages
                            |~~ scala i18n.scala "ui.label.name" ~~~~> prints usages for one key
                            |~~ scala i18n.scala unused <absolutePathToMessagesFile> ~~~~> prints which keys are not used for a given messages file
+                           |~~ scala i18n.scala replace <absolutePathToReplaceFile> ~~~~> replaces all key-value pairs from a source properties-style file
                            |""".stripMargin))
 } else {
 
@@ -31,29 +33,9 @@ def collectFiles(dir: File): Array[File] = {
   }
 }
 
-// &{'foo.bar'}
-// &{'foo.bar', baz}
-val HTML_TAG_PATTERN = """&\{'([^']+)'([^)])*}""".r
-
-// messages.get('foo.bar')
-// messages.get('foo.bar', baz)
-// messages.get("foo.bar")
-// messages.get("foo.bar", baz)
-val HTML_SQUOTE_MESSAGE_PATTERN = """\bmessages\.get\b\('([^']+)'([^)])*\)""".r
-val HTML_DQUOTE_MESSAGE_PATTERN = """\bmessages\.get\b\("([^"]+)"([^)])*\)""".r
-
-// Messages("foo.bar")
-// Messages("foo.bar", "bla")
-val SCALA_MESSAGE_PATTERN = """\bMessages\b\("([^"]+)"([^)])*\)""".r
-
-// label="foo.bar"
-val VIEW_DEFINITION_MESSAGE_PATTERN = """\blabel="([^"]+)"""".r
-
-val patterns = Seq(HTML_TAG_PATTERN, HTML_SQUOTE_MESSAGE_PATTERN, HTML_DQUOTE_MESSAGE_PATTERN, SCALA_MESSAGE_PATTERN, VIEW_DEFINITION_MESSAGE_PATTERN)
-
 val usages: Seq[MessageUsage] = collectFiles(new File("../..")).flatMap { file =>
   Source.fromFile(file, "utf-8").getLines().zipWithIndex.flatMap { line =>
-    patterns.flatMap { p =>
+    Patterns.patterns.flatMap { p =>
       p.findAllIn(line._1).matchData.map { m =>
         MessageUsage(m.group(1), file, line._2 + 1, m.matched)
       }
@@ -62,7 +44,7 @@ val usages: Seq[MessageUsage] = collectFiles(new File("../..")).flatMap { file =
 }
 
 def messageFilter(u: MessageUsage) =
-  if (args.length > 0 && args(0) == "all" || args(0) == "unused") true
+  if (args.length > 0 && args(0) == "all" || args(0) == "unused" || args(0) == "replace") true
   else if (args.length > 0) u.key == args(0)
   else false
 
@@ -81,6 +63,28 @@ if (args.length > 0 && args(0) == "unused") {
     println(Colors.blue("Unused keys for messages file " + messagesFile.getAbsolutePath))
     println()
     println(unusedKeys.mkString("\n"))
+  }
+
+} else if (args.length > 0 && args(0) == "replace") {
+
+  val replaceFile = new File(args(1))
+  if (!replaceFile.exists()) {
+    println("Can't find replace file " + replaceFile)
+  } else {
+    val replacements: Seq[(String, String)] = Source.fromFile(replaceFile, "utf-8").getLines().filter { line =>
+      line.indexOf("=") > 0
+    }.toSeq.map {line =>
+      val Array(key, newKey) = line.split("=")
+      (key, newKey)
+    }
+
+    replacements.foreach { r =>
+      matches.find(_.key == r._1) foreach { m =>
+        m.replace(r._2)
+      }
+    }
+
+
   }
 
 } else {
@@ -104,9 +108,42 @@ if (args.length > 0 && args(0) == "unused") {
 
 }
 
-case class MessageUsage(key: String, file: File, line: Int, matched: String)
+case class MessageUsage(key: String, file: File, line: Int, matched: String) {
 
+  def replace(newKey: String) {
+    val source = Source.fromFile(file, "utf-8").getLines().mkString("\n")
+    val replacement = key.r.replaceAllIn(source, newKey)
 
+    println(Colors.blue(s"Replaced key '$key' with new key '$newKey' in file ${file.getAbsolutePath}"))
+
+    Some(new PrintWriter(file.getAbsolutePath)).foreach{p => p.write(replacement); p.close() }
+  }
+
+}
+
+object Patterns {
+
+  // &{'foo.bar'}
+  // &{'foo.bar', baz}
+  val HTML_TAG_PATTERN = """&\{'([^']+)'([^)])*}""".r
+
+  // messages.get('foo.bar')
+  // messages.get('foo.bar', baz)
+  // messages.get("foo.bar")
+  // messages.get("foo.bar", baz)
+  val HTML_SQUOTE_MESSAGE_PATTERN = """\bmessages\.get\b\('([^']+)'([^)])*\)""".r
+  val HTML_DQUOTE_MESSAGE_PATTERN = """\bmessages\.get\b\("([^"]+)"([^)])*\)""".r
+
+  // Messages("foo.bar")
+  // Messages("foo.bar", "bla")
+  val SCALA_MESSAGE_PATTERN = """\bMessages\b\("([^"]+)"([^)])*\)""".r
+
+  // label="foo.bar"
+  val VIEW_DEFINITION_MESSAGE_PATTERN = """\blabel="([^"]+)"""".r
+
+  val patterns = Seq(HTML_TAG_PATTERN, HTML_SQUOTE_MESSAGE_PATTERN, HTML_DQUOTE_MESSAGE_PATTERN, SCALA_MESSAGE_PATTERN, VIEW_DEFINITION_MESSAGE_PATTERN)
+
+}
 
 // shamelessly stolen from Play - https://github.com/playframework/Play20/blob/master/framework/src/console/src/main/scala/Console.scala
 object Colors {
