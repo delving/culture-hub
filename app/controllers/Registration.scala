@@ -332,7 +332,7 @@ trait Registration extends ApplicationController { this: BoundController =>
                 )
               } else {
                 Redirect(controllers.routes.Application.index).flashing(
-                  ("resetPasswordError", Messages("registration.resetProblem"))
+                  ("resetPasswordError", Messages("_hub.ErrorResettingYourPassword"))
                 )
               }
             }

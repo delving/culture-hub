@@ -52,8 +52,8 @@ class CMSPlugin(app: Application) extends CultureHubPlugin(app) {
           Seq.empty
         }
 
-        val mainMenu = Menu("mainMenu", None, Lang.availables.map(lang => (lang.code -> Messages("plugin.cms.mainMenu")(lang))).toMap)
-        val homePage = Menu("homePage", None, Lang.availables.map(lang => (lang.code -> Messages("plugin.cms.homePage")(lang))).toMap)
+        val mainMenu = Menu("mainMenu", None, Lang.availables.map(lang => (lang.code -> Messages("_cms.MainMenu")(lang))).toMap)
+        val homePage = Menu("homePage", None, Lang.availables.map(lang => (lang.code -> Messages("_cms.Homepage")(lang))).toMap)
 
         CMSPluginConfiguration(Seq(mainMenu, homePage) ++ menus)
       }
@@ -115,7 +115,7 @@ class CMSPlugin(app: Application) extends CultureHubPlugin(app) {
           menuKey = CMSPlugin.HOME_PAGE,
           parentMenuKey = None,
           position = 0,
-          title = Lang.availables.map(lang => (lang.code -> Messages("plugin.cms.homePage")(lang))).toMap,
+          title = Lang.availables.map(lang => (lang.code -> Messages("_cms.Homepage")(lang))).toMap,
           targetPageKey = Some("homepage"),
           published = false
         )
@@ -172,13 +172,13 @@ class CMSPlugin(app: Application) extends CultureHubPlugin(app) {
           // default menu for site pages
           MainMenuEntry(
             key = CMSPlugin.MAIN_MENU,
-            titleKey = "plugin.cms",
+            titleKey = "_cms.WebsitePages",
             roles = Seq(Role.OWN, CMSPlugin.ROLE_CMS_ADMIN),
             items = Seq(
               MenuElement("/admin/site/%s/%s".format(lang, CMSPlugin.MAIN_MENU), "_hub.List"),
               MenuElement("/admin/site/%s/page/add".format(lang), "_hub.New"),
-              MenuElement("/admin/site/%s/page/homepage/update".format(lang), "plugin.cms.updateHomePage"),
-              MenuElement("/admin/site/upload".format(configuration.orgId), "plugin.cms.upload.image")
+              MenuElement("/admin/site/%s/page/homepage/update".format(lang), "_cms.UpdateHomepage"),
+              MenuElement("/admin/site/upload".format(configuration.orgId), "_cms.UploadImage")
             )
           )
         } else {

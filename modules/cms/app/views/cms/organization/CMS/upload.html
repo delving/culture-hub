@@ -1,6 +1,6 @@
 #{extends themeInfo.get('themeLayout') /}
 
-#{set title: messages.get('plugin.cms.upload') /}
+#{set title: messages.get('_cms.UploadFile') /}
 
 #{set bodyId: 'organization' /}
 
@@ -35,17 +35,17 @@
     <div class="accordion-group">
         <div class="accordion-heading  clearfix">
             <a class="accordion-toggle pull-right" href="#collapseOne" data-parent="instructions" data-toggle="collapse">
-                <i class="icon-question-sign"></i> &{'plugin.cms.upload.help.toggle'}
+                <i class="icon-question-sign"></i> &{'_cms.HelpWithUploadingImages'}
             </a>
         </div>
         <div id="collapseOne" class="accordion-body collapse">
             <div class="accordion-inner">
             <h6>&{'ui.widget.upload.chooseFile'}</h6>
-            &{'plugin.cms.upload.help.chooseImage'}
+            &{'_cms.BeginByChoosingAnImage'}
             <h6>&{'ui.widget.upload.start'}</h6>
-            &{'plugin.cms.upload.help.startUpload'}
-            <h6>&{'plugin.cms.upload.help.ready'}</h6>
-            &{'plugin.cms.upload.help.ready.info', orgId, lang}
+            &{'_cms.TheImagesAreThenAdded'}
+            <h6>&{'_cms.ReadyForUse'}</h6>
+            &{'_cms.OnceUploaded', orgId, lang}
             </div>
         </div>
     </div>

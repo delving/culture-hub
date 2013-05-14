@@ -11,7 +11,7 @@
 <div class="row">
     <div class="span12">
         <form class="form-inline well">
-            <label for="language">&{'plugin.cms.list.languageSwitch'}</label>
+            <label for="language">&{'_cms.ListPagesIn'}</label>
             <select id="language" name="language">
             #{list languages, as: 'option'}
                 <option #{if currentLanguage == option._1} selected="selected #{/if}value="${option._1}">${option._2}</option>
@@ -37,11 +37,11 @@
                 <td>
                     <!-- ko if: published() -->
                     <i class="icon-eye-open"></i>
-                &{'plugin.cms.page.published'}
+                &{'_cms.Published'}
                     <!-- /ko -->
                     <!-- ko if: !published() -->
                     <i class="icon-eye-close"></i>
-                &{'plugin.cms.page.notPublished'}
+                &{'_cms.NotPublished'}
                     <!-- /ko -->
                 </td>
                 <td>
@@ -89,7 +89,7 @@
             deletePage:function (page) {
                 bootboxConfirm({
                     'type': 'DELETE',
-                    'message' : '<h3 class="shout">'+page.key()+'</h3>&{'plugin.cms.list.deletePageConfirm'}',
+                    'message' : '<h3 class="shout">'+page.key()+'</h3>&{'_cms.AreYouSureYouWantToDelete'}',
                     'action_url' : '/admin/site/' + page.lang() + '/page/' + page.key(),
                     'success_callback' : function () {
                         pagesModel.pages.remove(function (item) {
