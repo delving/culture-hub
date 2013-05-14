@@ -46,7 +46,7 @@ val SCALA_MESSAGE_PATTERN = """\bMessages\b\("([^"]+)"([^)])*\)""".r
 val patterns = Seq(HTML_TAG_PATTERN, HTML_SQUOTE_MESSAGE_PATTERN, HTML_DQUOTE_MESSAGE_PATTERN, SCALA_MESSAGE_PATTERN)
 
 val usages: Seq[MessageUsage] = collectFiles(new File(".")).flatMap { file =>
-  Source.fromFile(file).getLines().zipWithIndex.flatMap { line =>
+  Source.fromFile(file, "utf-8").getLines().zipWithIndex.flatMap { line =>
     patterns.flatMap { p =>
       p.findAllIn(line._1).matchData.map { m =>
         MessageUsage(m.group(1), file, line._2, m.matched)
