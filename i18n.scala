@@ -22,6 +22,7 @@ def collectFiles(dir: File): Array[File] = {
         f.getName.endsWith(".scala") ||
         f.getName.endsWith(".html") ||
         f.isDirectory).
+      filterNot(_.getName == "target").
       flatMap(f => if (f.isDirectory) collectFiles(f) else Array(f))
   } else {
     Array[File]()
@@ -37,7 +38,7 @@ val HTML_TAG_PATTERN = """&\{'([^']+)'([^)])*}""".r
 // messages.get("foo.bar")
 // messages.get("foo.bar", baz)
 val HTML_SQUOTE_MESSAGE_PATTERN = """\bmessages\.get\b\('([^']+)'([^)])*\)""".r
-val HTML_DQUOTE_MESSAGE_PATTERN = """\bmessages\.get\b\('([^']+)'([^)])*\)""".r
+val HTML_DQUOTE_MESSAGE_PATTERN = """\bmessages\.get\b\("([^"]+)"([^)])*\)""".r
 
 // Messages("foo.bar")
 // Messages("foo.bar", "bla")
@@ -49,7 +50,7 @@ val usages: Seq[MessageUsage] = collectFiles(new File(".")).flatMap { file =>
   Source.fromFile(file, "utf-8").getLines().zipWithIndex.flatMap { line =>
     patterns.flatMap { p =>
       p.findAllIn(line._1).matchData.map { m =>
-        MessageUsage(m.group(1), file, line._2, m.matched)
+        MessageUsage(m.group(1), file, line._2 + 1, m.matched)
       }
     }
   }
