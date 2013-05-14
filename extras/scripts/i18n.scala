@@ -10,6 +10,7 @@ if (args.isEmpty) {
                            |
                            |~~ scala i18n.scala all ~~~~> prints all usages
                            |~~ scala i18n.scala "ui.label.name" ~~~~> prints usages for one key
+                           |~~ scala i18n.scala unused <absolutePathToMessagesFile> ~~~~> prints which keys are not used for a given messages file
                            |""".stripMargin))
 } else {
 
@@ -21,6 +22,7 @@ def collectFiles(dir: File): Array[File] = {
       filter(f =>
         f.getName.endsWith(".scala") ||
         f.getName.endsWith(".html") ||
+        f.getName.endsWith("-view-definition.xml") ||
         f.isDirectory).
       filterNot(_.getName == "target").
       flatMap(f => if (f.isDirectory) collectFiles(f) else Array(f))
@@ -44,9 +46,12 @@ val HTML_DQUOTE_MESSAGE_PATTERN = """\bmessages\.get\b\("([^"]+)"([^)])*\)""".r
 // Messages("foo.bar", "bla")
 val SCALA_MESSAGE_PATTERN = """\bMessages\b\("([^"]+)"([^)])*\)""".r
 
-val patterns = Seq(HTML_TAG_PATTERN, HTML_SQUOTE_MESSAGE_PATTERN, HTML_DQUOTE_MESSAGE_PATTERN, SCALA_MESSAGE_PATTERN)
+// label="foo.bar"
+val VIEW_DEFINITION_MESSAGE_PATTERN = """\blabel="([^"]+)"""".r
 
-val usages: Seq[MessageUsage] = collectFiles(new File(".")).flatMap { file =>
+val patterns = Seq(HTML_TAG_PATTERN, HTML_SQUOTE_MESSAGE_PATTERN, HTML_DQUOTE_MESSAGE_PATTERN, SCALA_MESSAGE_PATTERN, VIEW_DEFINITION_MESSAGE_PATTERN)
+
+val usages: Seq[MessageUsage] = collectFiles(new File("../..")).flatMap { file =>
   Source.fromFile(file, "utf-8").getLines().zipWithIndex.flatMap { line =>
     patterns.flatMap { p =>
       p.findAllIn(line._1).matchData.map { m =>
@@ -57,29 +62,46 @@ val usages: Seq[MessageUsage] = collectFiles(new File(".")).flatMap { file =>
 }
 
 def messageFilter(u: MessageUsage) =
-  if (args.length > 0 && args(0) == "all") true
+  if (args.length > 0 && args(0) == "all" || args(0) == "unused") true
   else if (args.length > 0) u.key == args(0)
   else false
 
 
 val matches = usages.filter(messageFilter)
 
-matches.groupBy(_.key).foreach { group =>
-  println(Colors.blue(group._1))
-  println()
-  group._2.groupBy(_.file).foreach { usage =>
-    println("  In " + Colors.yellow(usage._1.getPath.substring(2)))
+if (args.length > 0 && args(0) == "unused") {
+
+  val messagesFile = new File(args(1))
+  if (!messagesFile.exists()) {
+    println("Can't find messages file " + messagesFile)
+  } else {
+    val messages = Source.fromFile(messagesFile, "utf-8").getLines().filter { line => line.indexOf("=") > 0 }.toSeq
+    val keys = messages.map { l => l.split("=")(0) }
+    println(matches.map(_.key).mkString("\n"))
+    val unusedKeys = keys.filterNot(key => matches.exists(_.key == key))
+    println(Colors.blue("Unused keys for messages file " + messagesFile.getAbsolutePath))
     println()
-    usage._2.foreach { u =>
-      println("    " + Colors.red(u.line.toString) + "\t" + u.matched)
-      println()
-    }
+    println(unusedKeys.mkString("\n"))
   }
+
+} else {
+  matches.groupBy(_.key).foreach { group =>
+    println(Colors.blue(group._1))
+    println()
+    group._2.groupBy(_.file).foreach { usage =>
+      println("  In " + Colors.yellow(usage._1.getPath.substring(2)))
+      println()
+      usage._2.foreach { u =>
+        println("    " + Colors.red(u.line.toString) + "\t" + u.matched)
+        println()
+      }
+    }
+    println()
+  }
+
+  println("Found %s %s".format(matches.length, if (matches.length == 1) "match" else "matches"))
   println()
 }
-
-println("Found %s %s".format(matches.length, if (matches.length == 1) "match" else "matches"))
-println()
 
 }
 
