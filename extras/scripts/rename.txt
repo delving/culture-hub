@@ -8,3 +8,12 @@ ui.label.username=_hub.Username
 ui.label.password=_hub.Password
 authentication.label.rememberme=_hub.RememberMe
 authentication.label.forgotpassword=_hub.IForgotMyPassword
+
+registration.registerFor=_hub.RegisterFor
+ui.label.firstname=_hub.FirstName
+ui.label.lastname=_hub.LastName
+ui.label.email=_hub.Email
+ui.label.passwordrepeat=_hub.RepeatPassword
+ui.label.captcha=_hub.EnterTheCodeYouSeeHere
+ui.label.required=_hub.Required
+ui.label.cancel=_hub.Cancel
