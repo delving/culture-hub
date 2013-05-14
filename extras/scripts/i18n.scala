@@ -77,7 +77,6 @@ if (args.length > 0 && args(0) == "unused") {
   } else {
     val messages = Source.fromFile(messagesFile, "utf-8").getLines().filter { line => line.indexOf("=") > 0 }.toSeq
     val keys = messages.map { l => l.split("=")(0) }
-    println(matches.map(_.key).mkString("\n"))
     val unusedKeys = keys.filterNot(key => matches.exists(_.key == key))
     println(Colors.blue("Unused keys for messages file " + messagesFile.getAbsolutePath))
     println()
