@@ -37,7 +37,7 @@ registration.userNameInvalid=_hub.ThisUsernameIsNotValid
 
 ui.label.add=_hub.Add
 ui.label.addcomment=_hub.AddComment
-ui.label.administratorOptions=_hub.AdministratorPptions
+ui.label.administratorOptions=_hub.AdministratorOptions
 ui.label.all=_hub.All
 ui.label.availability=_hub.Availability
 ui.label.block=_hub.Block
