@@ -6,7 +6,7 @@
             <div><input id="${_name}" type="radio" value="false" name="${_name}" data-bind="${_dataBind}"> &{'_hub.No'}</div>
             <div><input id="${_name}" type="radio" value="true" name="${_name}" data-bind="${_dataBind}"> &{'_hub.Yes'}</div>
         </div>
-        #{if _required}<span class="label">&{'ui.label.required'}</span>#{/if}
+        #{if _required}<span class="label">&{'_hub.Required'}</span>#{/if}
         #{if _extHelp}<a href="#" rel="tooltip" title="${_extHelp}" class="extHelp"><i class="icon-question-sign"></i></a> #{/if}
 <span class="error" data-bind="text: errors().${_name.replaceAll("\\.", "_")}">${views.Helpers.showError(_name, _form)}</span>
 #{if _help}<span class="help-inline">${_help.raw()}</span>#{/if}

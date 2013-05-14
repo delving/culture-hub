@@ -11,9 +11,9 @@
 <form id="profileForm" action="" class="form delving-form">
 <div class="row">
        <div class="span6">
-          #{form.textField name:"firstName", form:profileForm, label:messages.get('ui.label.firstname'), dataBind:"value: firstName", labelClass:"required", required: true /}
-          #{form.textField name:"lastName", form:profileForm, label:messages.get('ui.label.lastname'), dataBind:"value: lastName", labelClass:"required", required: true /}
-          #{form.textField name:"email", form:profileForm, label:messages.get('ui.label.email'), dataBind:"value: email", labelClass:"required", required: true, help: messages.get('user.admin.profile.gravatarHelp').raw() /}
+          #{form.textField name:"firstName", form:profileForm, label:messages.get('_hub.FirstName'), dataBind:"value: firstName", labelClass:"required", required: true /}
+          #{form.textField name:"lastName", form:profileForm, label:messages.get('_hub.LastName'), dataBind:"value: lastName", labelClass:"required", required: true /}
+          #{form.textField name:"email", form:profileForm, label:messages.get('_hub.Email'), dataBind:"value: email", labelClass:"required", required: true, help: messages.get('user.admin.profile.gravatarHelp').raw() /}
           <hr class="soften"/>
           #{form.checkboxField name:"isPublic", form:profileForm, label:messages.get('_hub.Public'), dataBind:"checked: isPublic", help:messages.get('user.admin.profile.help.public') /}
        </div>
