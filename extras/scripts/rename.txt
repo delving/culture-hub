@@ -405,6 +405,7 @@ plugin.simpledocumentupload.documentUpload=_sdu.DocumentUpload
 plugin.simpledocumentupload.list=_sdu.ListOfUploadedDocuments
 
 metadata.searchfield.contributor=_md.dc.Contributor
+_md.dc.Contributor=_md.dc.contributor
 metadata.searchfield.creator=_md.dc.Creator
 metadata.searchfield.dataprovider=_md.delving.DataProvider
 metadata.searchfield.hasDigitalObject=_md.delving.HasDigitalObject
