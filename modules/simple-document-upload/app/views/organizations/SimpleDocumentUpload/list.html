@@ -1,6 +1,6 @@
 #{extends themeInfo.get('themeLayout') /}
 
-#{set title: messages.get('plugin.simpledocumentupload.list') /}
+#{set title: messages.get('_sdu.ListOfUploadedDocuments') /}
 
 #{set bodyId: 'organization' /}
 
@@ -11,7 +11,7 @@
 <div class="row">
     <div class="span12">
         <table class="table table-striped">
-            <caption>&{'plugin.simpledocumentupload.list'}</caption>
+            <caption>&{'_sdu.ListOfUploadedDocuments'}</caption>
             <thead>
                 <th>&{'thing.name'}</th>
                 <th>&{'thing.description'}</th>
@@ -80,4 +80,3 @@ $(document).ready(function() {
     });
 });
 </script>
-

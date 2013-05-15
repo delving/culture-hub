@@ -4,7 +4,7 @@
 
 <div class="row">
     <div class="span12">
-        <h3 class="page-header">&{'plugin.statistics.statistics'}</h3>
+        <h3 class="page-header">&{'_stats.Statistics'}</h3>
         <div class="tabbable">
             <ul class="nav nav-pills" id="stats-tabs" data-bind="foreach: facets">
                 <li data-bind="css: { active: $root.selected() === $data.name()  }"><a href='#' data-bind="click: function() { $root.selected($data.name()) }, text: i18n"></a></li>
@@ -15,10 +15,10 @@
                         <thead>
                         <tr>
                             <th class="sort">&{'thing.name'}</th>
-                            <th class="sort">&{'plugin.statistics.nrRecords'}</th>
-                            <th class="sort">&{'plugin.statistics.withObjects'}</th>
-                            <th class="sort">&{'plugin.statistics.landingPages'}</th>
-                            <th class="sort">&{'plugin.statistics.geoData'}</th>
+                            <th class="sort">&{'_stats.NumberOfRecords'}</th>
+                            <th class="sort">&{'_stats.WithObjects'}</th>
+                            <th class="sort">&{'_stats.WithLandingPages'}</th>
+                            <th class="sort">&{'_stats.WithGeographicalData'}</th>
                         </tr>
                         </thead>
                         <tbody data-bind="foreach: entries">
