@@ -1,7 +1,7 @@
 #{set 'visibility'}hidden#{/}
 #{extends themeInfo.get('themeLayout') /}
 
-#{set title: messages.get('thing.dataset') + ' ' + spec + ' - ' + messages.get('thing.organization') + ': ' + orgId /}
+#{set title: messages.get('_dataset.Dataset') + ' ' + spec + ' - ' + messages.get('thing.organization') + ': ' + orgId /}
 
 #{set 'moreScripts'}
 <script type="text/javascript" src="@{routes.Assets.at("common/javascripts/organizations/datasets.js")}"></script>
@@ -393,4 +393,3 @@
         </tbody>
     </table>
 </script>
-

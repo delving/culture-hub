@@ -1,6 +1,6 @@
 #{extends themeInfo.get('themeLayout') /}
 
-#{set title: messages.get('thing.browse.of', messages.get('thing.datasets')) + ': ' + orgId /}
+#{set title: messages.get('thing.browse.of', messages.get('_dataset.Datasets')) + ': ' + orgId /}
 
 #{set 'moreScripts'}
 <script type="text/javascript" src="@{routes.Assets.at("common/javascripts/jquery.tablesorter.min.js")}"></script>
@@ -36,7 +36,7 @@
 <div class="dataset-list row">
     <div class="dataset-list-inner span12">
     <table id="dataset-table" class="table table-striped sortable" data-bind="triggerUpdate: sets">
-        <caption>${messages.get('thing.datasets')}</caption>
+        <caption>${messages.get('_dataset.Datasets')}</caption>
         <thead>
         <tr>
             <th class="sort">&{'thing.name'}</th>
@@ -79,10 +79,10 @@
                 </td>
                 <td>
                     <!-- ko if: lockState() == 'locked' -->
-                    <span class="badge">&{'organization.dataset.lockedBy'} <span data-bind="text: lockedBy"></span></span>
+                    <span class="badge">&{'_dataset.LockedBy'} <span data-bind="text: lockedBy"></span></span>
                     <!-- /ko -->
                     <!-- ko if: lockState() == 'unlocked' -->
-                    <span class="badge badge-info">&{'organization.dataset.unlocked'}</span>
+                    <span class="badge badge-info">&{'_dataset.Unlocked'}</span>
                     <!-- /ko -->
                 </td>
                 *{

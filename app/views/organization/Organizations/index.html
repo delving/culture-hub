@@ -12,7 +12,7 @@
 <div class="row">
     #{if collections.size() > 0}
     <div class="span4">
-        <h3>&{'thing.datasets'}</h3>
+        <h3>&{'_dataset.Datasets'}</h3>
         <ol>
         #{list collections, as: 'c'}
             <li><a href=${"/organizations/"+orgId+"/dataset/"+c.spec}>${c.spec}</a></li>
