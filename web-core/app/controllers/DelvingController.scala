@@ -164,7 +164,7 @@ trait OrganizationController extends DelvingController with Secured {
             if (isAdmin) {
               action(request)
             } else {
-              Forbidden(Messages("user.secured.noAccess"))
+              Forbidden(Messages("_hub.YouDoNotHaveAccess"))
             }
           }
       }
@@ -178,7 +178,7 @@ trait OrganizationController extends DelvingController with Secured {
           implicit request =>
             {
               if (!isMember) {
-                Forbidden(Messages("user.secured.noAccess"))
+                Forbidden(Messages("_hub.YouDoNotHaveAccess"))
               } else {
                 action(request)
               }
@@ -307,7 +307,7 @@ trait DelvingController extends ApplicationController {
           implicit request =>
             {
               if (connectedUser != user) {
-                Forbidden(Messages("user.secured.noAccess"))
+                Forbidden(Messages("_hub.YouDoNotHaveAccess"))
               } else {
                 action(request)
               }
@@ -438,4 +438,3 @@ case class ApiItem(path: String, description: String, example: String = "") {
   )
 
 }
-

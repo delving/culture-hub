@@ -21,7 +21,7 @@
             <dt>&{'profile.activesince'}:</dt>
             <dd>${views.Helpers.niceTime(user._id.getTime())}</dd>
             #{ifnot user.userProfile.funFact().isEmpty()}
-                <dt>&{'user.profile.funFact'}:</dt><dd>${user.userProfile.funFact().get()}</dd>
+                <dt>&{'_hub.FunFact'}:</dt><dd>${user.userProfile.funFact().get()}</dd>
             #{/ifnot}
             #{ifnot user.userProfile.fixedPhone().isEmpty()}
                 <dt>Phone:</dt><dd>${user.userProfile.fixedPhone().get()}</dd>
@@ -33,7 +33,7 @@
                 <dt>LinkedIn:</dt><dd><a href="http://www.linkedin.com/in/${user.userProfile.linkedIn().get()}" target="_blank"><img src="http://www.linkedin.com/img/webpromo/btn_profile_bluetxt_80x15.png" width="80" height="15" border="0" alt="${user.fullname()}"></a></dd>
             #{/ifnot}
             #{ifnot user.userProfile.description().isEmpty()}
-                <dt>&{'user.profile.aboutYou'}:</dt>
+                <dt>&{'_hub.AboutYou'}:</dt>
                 <dd>${user.userProfile.description().get()}</dd>
             #{/ifnot}
             #{/if}

@@ -35,7 +35,7 @@ trait CMS extends OrganizationController { this: BoundController =>
             if (organizationServiceLocator.byDomain.isAdmin(configuration.orgId, connectedUser) || Group.dao.count(MongoDBObject("users" -> connectedUser, "grantType" -> CMSPlugin.ROLE_CMS_ADMIN.key)) > 0) {
               action(request)
             } else {
-              Forbidden(Messages("user.secured.noAccess"))
+              Forbidden(Messages("_hub.YouDoNotHaveAccess"))
             }
           }
       }

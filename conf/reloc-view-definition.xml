@@ -51,7 +51,7 @@
                 <container type="list" label="metadata.dc.subject" if="/record/dc:subject">
                     <enumeration path="/record/dc:subject" />
                 </container>
-                <container label="plugin.relocation.form.measurementsInfo" type="labelled-list" class="test">
+                <container label="_reloc.Dimensions" type="labelled-list" class="test">
                     <field label="metadata.reloc.height" path="/record/reloc:height" />
                     <field label="metadata.reloc.width" path="/record/reloc:width" />
                     <field label="metadata.reloc.length" path="/record/reloc:length" />

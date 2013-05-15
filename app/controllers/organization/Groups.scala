@@ -47,7 +47,7 @@ trait Groups extends OrganizationController { this: BoundController =>
     Action {
       implicit request =>
         if (groupId != None && !canUpdateGroup(orgId, groupId.get) || groupId == None && !canCreateGroup(orgId)) {
-          Forbidden(Messages("user.secured.noAccess"))
+          Forbidden(Messages("_hub.YouDoNotHaveAccess"))
         } else {
           val group: Option[Group] = groupId.flatMap(Group.dao.findOneById(_))
           val usersAsTokens = group match {
@@ -92,7 +92,7 @@ trait Groups extends OrganizationController { this: BoundController =>
             Logger("CultureHub").debug("Received group submission: " + groupForm)
             val groupId = groupForm.id
             if (groupForm.id != None && !canUpdateGroup(orgId, groupId.get) || groupId == None && !canCreateGroup(orgId)) {
-              Forbidden(Messages("user.secured.noAccess"))
+              Forbidden(Messages("_hub.YouDoNotHaveAccess"))
             } else {
               val role = try {
                 Role.get(groupForm.roleKey)

@@ -1,6 +1,6 @@
 #{extends themeInfo.get('themeLayout') /}
 
-#{set title:messages.get('user.admin.profile.title') /}
+#{set title:messages.get('_hub.YourProfile') /}
 
 #{set 'moreScripts'}
 <script type="text/javascript" src="@{routes.Assets.at("common/javascripts/jquery.limitChars.min.js")}"></script>
@@ -13,22 +13,22 @@
        <div class="span6">
           #{form.textField name:"firstName", form:profileForm, label:messages.get('_hub.FirstName'), dataBind:"value: firstName", labelClass:"required", required: true /}
           #{form.textField name:"lastName", form:profileForm, label:messages.get('_hub.LastName'), dataBind:"value: lastName", labelClass:"required", required: true /}
-          #{form.textField name:"email", form:profileForm, label:messages.get('_hub.Email'), dataBind:"value: email", labelClass:"required", required: true, help: messages.get('user.admin.profile.gravatarHelp').raw() /}
+          #{form.textField name:"email", form:profileForm, label:messages.get('_hub.Email'), dataBind:"value: email", labelClass:"required", required: true, help: messages.get('_hub.AssociateAGravatar').raw() /}
           <hr class="soften"/>
-          #{form.checkboxField name:"isPublic", form:profileForm, label:messages.get('_hub.Public'), dataBind:"checked: isPublic", help:messages.get('user.admin.profile.help.public') /}
+          #{form.checkboxField name:"isPublic", form:profileForm, label:messages.get('_hub.Public'), dataBind:"checked: isPublic", help:messages.get('_hub.ProfileVisibleForNonconnectedUsers') /}
        </div>
     <div class="span6">
-          #{form.textField name:"fixedPhone", form:profileForm, label:messages.get('user.profile.fixedPhone'), dataBind:"value: fixedPhone", extHelp:messages.get('user.admin.profile.help.fixedPhone'), dataMaxChars:"400", inputClass:"span5", extraCss:"height:120px;" /}
-          #{form.textArea name:"description", form:profileForm, label:messages.get('user.profile.aboutYou'), dataBind:"value: description", extHelp:messages.get('user.admin.profile.help.aboutYou'), dataMaxChars:"400", inputClass:"span5", extraCss:"height:120px;" /}
-          #{form.textField name:"funFact", form:profileForm, label:messages.get('user.profile.funFact'), dataBind:"value: funFact" /}
-          #{form.textField name:"twitter", form:profileForm, label:"Twitter", dataBind:"value: twitter", extHelp: messages.get('user.admin.profile.help.twitter') /}
-          #{form.textField name:"linkedIn", form:profileForm, label:"LinkedIn", dataBind:"value: linkedIn", extHelp: messages.get('user.admin.profile.help.linkedIn') /}
+          #{form.textField name:"fixedPhone", form:profileForm, label:messages.get('_hub.Phone'), dataBind:"value: fixedPhone", extHelp:messages.get('_hub.YourPhoneNumber'), dataMaxChars:"400", inputClass:"span5", extraCss:"height:120px;" /}
+          #{form.textArea name:"description", form:profileForm, label:messages.get('_hub.AboutYou'), dataBind:"value: description", extHelp:messages.get('_hub.AFewWordsAboutYourself'), dataMaxChars:"400", inputClass:"span5", extraCss:"height:120px;" /}
+          #{form.textField name:"funFact", form:profileForm, label:messages.get('_hub.FunFact'), dataBind:"value: funFact" /}
+          #{form.textField name:"twitter", form:profileForm, label:"Twitter", dataBind:"value: twitter", extHelp: messages.get('_hub.YourTwitter') /}
+          #{form.textField name:"linkedIn", form:profileForm, label:"LinkedIn", dataBind:"value: linkedIn", extHelp: messages.get('_hub.YourLinkedIn') /}
         </div>
 </div>
 <div class="row">
     <div class="span12 well">
           <div class="buttons">
-            #{btnButton label:messages.get('user.admin.profile.save'), id:"saveButton", extraClass:"blue", type:"submit"  /}
+            #{btnButton label:messages.get('_hub.SaveProfile'), id:"saveButton", extraClass:"blue", type:"submit"  /}
             <div class="wait"></div>
           </div>
     </div>
