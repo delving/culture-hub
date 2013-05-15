@@ -1,6 +1,6 @@
 import io.Source
 import java.io._
-import java.util.regex.Pattern
+import java.nio.charset.Charset
 
 println(Colors.green("i18n cruncher"))
 println(Colors.green("============="))
@@ -13,6 +13,7 @@ if (args.isEmpty) {
                            |~~ scala i18n.scala "ui.label.name" ~~~~> prints usages for one key
                            |~~ scala i18n.scala unused <absolutePathToMessagesFile> ~~~~> prints which keys are not used for a given messages file
                            |~~ scala i18n.scala replace <absolutePathToReplaceFile> ~~~~> replaces all key-value pairs from a source properties-style file
+                           |~~ scala i18n.scala renameKeys <absolutePathToMessagesFile> <absolutePathToReplaceFile> ~~~~> replaces all keys in a messages file given a source properties-style file
                            |""".stripMargin))
 } else {
 
@@ -48,6 +49,19 @@ def messageFilter(u: MessageUsage) =
   else if (args.length > 0) u.key == args(0)
   else false
 
+def fetchMessageKeys(messagesFile: File) = {
+  val messages = Source.fromFile(messagesFile, "utf-8").getLines().filter { line => line.indexOf("=") > 0 }.toSeq
+  messages.map { l => l.split("=")(0) }
+}
+
+def fetchReplacements(replaceFile: File) = {
+  Source.fromFile(replaceFile, "utf-8").getLines().filter { line =>
+    line.indexOf("=") > 0
+  }.toSeq.map {line =>
+    val Array(key, newKey) = line.split("=")
+    (key, newKey)
+  }
+}
 
 val matches = usages.filter(messageFilter)
 
@@ -57,12 +71,30 @@ if (args.length > 0 && args(0) == "unused") {
   if (!messagesFile.exists()) {
     println("Can't find messages file " + messagesFile)
   } else {
-    val messages = Source.fromFile(messagesFile, "utf-8").getLines().filter { line => line.indexOf("=") > 0 }.toSeq
-    val keys = messages.map { l => l.split("=")(0) }
+    val keys = fetchMessageKeys(messagesFile)
     val unusedKeys = keys.filterNot(key => matches.exists(_.key == key))
     println(Colors.blue("Unused keys for messages file " + messagesFile.getAbsolutePath))
     println()
     println(unusedKeys.mkString("\n"))
+  }
+
+} else if (args.length > 0 && args(0) == "replaceKeys") {
+
+  val messagesFile = new File(args(1))
+  if (!messagesFile.exists()) {
+    println("Can't find messages file " + messagesFile)
+  } else {
+    val replacementFile = new File(args(2))
+    if (!replacementFile.exists()) {
+      println("Can't find replacement file " + replacementFile)
+    } else {
+      val replacements = fetchReplacements(replacementFile)
+      val messages = fetchMessageKeys(messagesFile)
+
+      replacements.foreach { pair =>
+        Util.replace(messagesFile, pair._1, pair._2, false)
+      }
+    }
   }
 
 } else if (args.length > 0 && args(0) == "replace") {
@@ -71,12 +103,7 @@ if (args.length > 0 && args(0) == "unused") {
   if (!replaceFile.exists()) {
     println("Can't find replace file " + replaceFile)
   } else {
-    val replacements: Seq[(String, String)] = Source.fromFile(replaceFile, "utf-8").getLines().filter { line =>
-      line.indexOf("=") > 0
-    }.toSeq.map {line =>
-      val Array(key, newKey) = line.split("=")
-      (key, newKey)
-    }
+    val replacements: Seq[(String, String)] = fetchReplacements(replaceFile)
 
     replacements.foreach { r =>
       matches.find(_.key == r._1) foreach { m =>
@@ -111,15 +138,7 @@ if (args.length > 0 && args(0) == "unused") {
 case class MessageUsage(key: String, file: File, line: Int, matched: String) {
 
   def replace(newKey: String) {
-    val source = Source.fromFile(file, "utf-8").getLines().mkString("\n")
-    val singleQuotePattern = "'%s'".format(key).r
-    val doubleQuotePattern = """"%s"""".format(key).r
-    val first = singleQuotePattern.replaceAllIn(source, "'" + newKey + "'")
-    val replacement = doubleQuotePattern.replaceAllIn(first, "\"" + newKey + "\"")
-
-    println(Colors.blue("Replaced key '%s' with new key '%s' in file %s".format(key, newKey, file.getAbsolutePath )))
-
-    Some(new PrintWriter(file.getAbsolutePath)).foreach{p => p.write(replacement); p.close() }
+    Util.replace(file, key, newKey)
   }
 
 }
@@ -170,5 +189,25 @@ object Colors {
   def white(str: String): String = if (isANSISupported) (WHITE + str + RESET) else str
   def black(str: String): String = if (isANSISupported) (BLACK + str + RESET) else str
   def yellow(str: String): String = if (isANSISupported) (YELLOW + str + RESET) else str
+
+}
+
+object Util {
+
+  def replace(file: File, key: String, newKey: String, replaceWithinQuotes: Boolean = true) {
+    val source = Source.fromFile(file, "utf-8").getLines().mkString("\n")
+    val replacement = if (replaceWithinQuotes) {
+      val singleQuotePattern = "'%s'".format(key).r
+      val doubleQuotePattern = """"%s"""".format(key).r
+      val first = singleQuotePattern.replaceAllIn(source, "'" + newKey + "'")
+      doubleQuotePattern.replaceAllIn(first, "\"" + newKey + "\"")
+    } else {
+      key.r.replaceAllIn(source, newKey)
+    }
+
+    println(Colors.blue("Replaced key '%s' with new key '%s' in file %s".format(key, newKey, file.getAbsolutePath )))
+
+    Some(new PrintWriter(file.getAbsolutePath, "utf-8")).foreach{p => p.write(replacement); p.close() }
+  }
 
 }
