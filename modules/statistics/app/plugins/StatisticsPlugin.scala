@@ -25,8 +25,8 @@ class StatisticsPlugin(app: Application) extends CultureHubPlugin(app) {
     statisticsConfigurations = configurations.map { config =>
 
       val defaults = Map(
-        "delving_owner_facet" -> "metadata.delving.owner",
-        "delving_provider_facet" -> "metadata.delving.provider"
+        "delving_owner_facet" -> "_md.delving.owner",
+        "delving_provider_facet" -> "_md.delving.provider"
       )
 
       val facets = config._2.map { c =>
