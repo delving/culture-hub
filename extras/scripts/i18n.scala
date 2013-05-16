@@ -156,11 +156,14 @@ object Patterns {
   val HTML_SQUOTE_MESSAGE_PATTERN = """\bmessages\.get\b\('([^']+)'([^)])*\)""".r
   val HTML_DQUOTE_MESSAGE_PATTERN = """\bmessages\.get\b\("([^"]+)"([^)])*\)""".r
 
+  val HTML_DQUOTE_PATTERN_ALT = """\b&\b\{"([^"]+)"([^)])*\}""".r
+  val HTML_SQUOTE_PATTERN_ALT = """\b&\b\{'([^"]+)'([^)])*\}""".r
+
   // Messages("foo.bar")
   // Messages("foo.bar", "bla")
   val SCALA_MESSAGE_PATTERN = """\bMessages\b\("([^"]+)"([^)])*\)""".r
 
-  val SCALA_MESSAGE_PATTERN_ALT = """\b&\b\{"([^"]+)"([^)])*\}""".r
+
 
   // label="foo.bar"
   val VIEW_DEFINITION_MESSAGE_PATTERN = """\blabel="([^"]+)"""".r
@@ -169,7 +172,7 @@ object Patterns {
   // titleKey = "foo.bar"
   val TITLE_KEY_PATTERN = """\btitleKey = "([^"]+)"""".r
 
-  val patterns = Seq(HTML_TAG_PATTERN, HTML_SQUOTE_MESSAGE_PATTERN, HTML_DQUOTE_MESSAGE_PATTERN, SCALA_MESSAGE_PATTERN, VIEW_DEFINITION_MESSAGE_PATTERN, TITLE_KEY_PATTERN, SCALA_MESSAGE_PATTERN_ALT)
+  val patterns = Seq(HTML_TAG_PATTERN, HTML_SQUOTE_MESSAGE_PATTERN, HTML_DQUOTE_MESSAGE_PATTERN, SCALA_MESSAGE_PATTERN, VIEW_DEFINITION_MESSAGE_PATTERN, TITLE_KEY_PATTERN, HTML_DQUOTE_PATTERN_ALT, HTML_SQUOTE_PATTERN_ALT)
 
 }
 
