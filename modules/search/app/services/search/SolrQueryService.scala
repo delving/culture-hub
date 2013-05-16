@@ -83,10 +83,19 @@ object SolrQueryService extends SolrServer {
 
   def escapeValue(value: String) = if (value.startsWith("http")) value.replaceAll("&(?!amp;)", "&amp;") else StringEscapeUtils.escapeXml(value)
 
+  private val imageUrlFields = Seq("delving:imageUrl", "europeana:isShownBy", "europeana:object")
+  private val thumbnailUrlFields = Seq("delving:thumbnail")
+
   def prependImageCacheUrl(xmlKey: String, value: String, context: SearchContext) = {
-    val imageUrlFields = Seq("delving:thumbnail", "delving:imageUrl", "europeana:isShownBy", "europeana:object")
-    if (context.configuration.objectService.imageCacheEnabled && imageUrlFields.contains(xmlKey)) {
-      context.host + "/image/cache?id=%s".format(URLEncoder.encode(value, "utf-8"))
+    if (context.configuration.objectService.imageCacheEnabled) {
+      def url(imageType: String) = "http://%s/%s/cache?id=%s".format(context.host, imageType, URLEncoder.encode(value, "utf-8"))
+      if (imageUrlFields.contains(xmlKey)) {
+        url("image")
+      } else if (thumbnailUrlFields.contains(xmlKey)) {
+        url("thumbnail")
+      } else {
+        value
+      }
     } else {
       value
     }

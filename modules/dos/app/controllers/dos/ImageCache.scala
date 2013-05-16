@@ -75,7 +75,7 @@ class ImageCacheService extends HTTPClient with ThumbnailSupport {
           store = imageCacheStore(configuration)
         )(request)
       } else {
-        NotFound(sanitizedUrl)
+        NotFound
       }
 
     } catch {
@@ -84,7 +84,7 @@ class ImageCacheService extends HTTPClient with ThumbnailSupport {
         NotFound(sanitizeUrl(url))
       case ex: Exception =>
         log.error("Unable to find image: \"" + sanitizeUrl(url) + "\"\n", ex)
-        NotFound(sanitizeUrl(url))
+        NotFound
     }
   }
 
