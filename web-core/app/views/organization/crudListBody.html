@@ -9,10 +9,10 @@
 <div class="dataset-filter row">
     <div class="dataset-filter-inner span12">
         <form id="filter-form" class="form-inline pull-left form-search">
-            <input type='text' name='filter' id='filter' maxlength="30" size="30" class="search-query" placeholder="&{'org.list.filter'}"/>
-            <input onclick="saveFilter()" class="btn" type="button" value="&{'ui.label.save'}"/>
-            <input onclick="resetFilter()" class="btn" type="reset" value="&{'ui.label.reset'}"/>
-            <a class="icon icon-question-sign extHelp" href="#" rel="tooltip" title="&{'org.list.filterHelp'}"></a>
+            <input type='text' name='filter' id='filter' maxlength="30" size="30" class="search-query" placeholder="&{'_hub.TypeHereToNarrowDown'}"/>
+            <input onclick="saveFilter()" class="btn" type="button" value="&{'_hub.Save'}"/>
+            <input onclick="resetFilter()" class="btn" type="reset" value="&{'_hub.Reset'}"/>
+            <a class="icon icon-question-sign extHelp" href="#" rel="tooltip" title="&{'_hub.TypeInAnyValueToFilter'}"></a>
         </form>
     </div>
 </div>
@@ -27,7 +27,7 @@
                 #{list columnLabels, as: 'label'}
                 <th>&{label}</th>
                 #{/list}
-                <th>&{'thing.actions'}</th>
+                <th>&{'_hubb.Actions'}</th>
             </tr>
             </thead>
             <!-- ko if: items().length > 0 -->
@@ -43,7 +43,7 @@
                 </td>
                 <td>
                     #{if createActionEnabled}
-                    <a class="btn btn-primary btn-mini" href="${request.path()}/add${request.rawQueryString() ? '?' + request.rawQueryString() : ''}" rel="nofollow">${messages.get('ui.label.new')}</a>
+                    <a class="btn btn-primary btn-mini" href="${request.path()}/add${request.rawQueryString() ? '?' + request.rawQueryString() : ''}" rel="nofollow">${messages.get('_hub.New')}</a>
                     #{/if}
                 </td>
             </tr>
@@ -64,7 +64,7 @@
             delete: function(item) {
                 bootboxConfirm({
                     'type': 'DELETE',
-                    'message' : '<h3 class="shout">' + item.name() + '</h3>&{'thing.deleteConfirmation'}',
+                    'message' : '<h3 class="shout">' + item.name() + '</h3>&{'_hubb.AreYouSureYouWantToDelete'}',
                     'action_url' : "${request.path()}/" + item.id() + '/remove' + "${request.rawQueryString() ? '?' + request.rawQueryString() : ''}",
                     'success_callback' : function () {
                         viewModel.items.remove(function (i) {

@@ -5,13 +5,13 @@ switch (recordType) {
         recordType = messages.get('thing.object.user')
         break
     case "mdr":
-        recordType = messages.get('thing.object.heritage')
+        recordType = messages.get('_hubb.HeritageObject')
         break
     case "museum":
-    recordType = messages.get('thing.museum')
+    recordType = messages.get('_hubb.Museum')
     break
     case "collection":
-    recordType = messages.get('thing.collection')
+    recordType = messages.get('_hubb.Collection')
     break
     default:
     recordType = _data.getItemType()

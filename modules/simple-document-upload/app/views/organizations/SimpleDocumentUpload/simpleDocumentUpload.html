@@ -1,6 +1,6 @@
 #{extends themeInfo.get('themeLayout') /}
 
-#{set title: messages.get('plugin.simpledocumentupload.add') /}
+#{set title: messages.get('_sdu.UploadDocument') /}
 
 #{set bodyId: 'organization' /}
 
@@ -51,12 +51,12 @@
 <div class="well clearfix">
 
     <div class="pull-left">
-    #{btnButton label: messages.get('ui.label.save'), extraClass:"btn-success btn-large span6 pull-right", iconClass:"icon-ok-circle icon-white", id:"saveButton", type:"submit" /}
+    #{btnButton label: messages.get('_hub.Save'), extraClass:"btn-success btn-large span6 pull-right", iconClass:"icon-ok-circle icon-white", id:"saveButton", type:"submit" /}
         <div class="wait"></div>
     </div>
         <div class="pull-right">
-        #{btnButton label: messages.get('ui.label.cancel'), extraClass:"cancelButton", id:"cancelButton", type:"reset" /}
-    #{btnButton label: messages.get('ui.label.reset'), extraClass:"", type:"reset" /}
+        #{btnButton label: messages.get('_hub.Cancel'), extraClass:"cancelButton", id:"cancelButton", type:"reset" /}
+    #{btnButton label: messages.get('_hub.Reset'), extraClass:"", type:"reset" /}
         </div>
 
     *{</div>}*

@@ -46,7 +46,7 @@ class RegistrationSpec extends test.Specs2TestContext {
     browser.$("#submit").click()
     browser.url must equalTo("http://delving.localhost:3333/")
 
-    val msg = Messages("ui.message.registration.success", "alice@smith.com")(Lang("en"))
+    val msg = Messages("_hub.YourAccountWasCreated", "alice@smith.com")(Lang("en"))
     browser.$(".alert-success").first.getText must equalTo(msg)
 
   }
@@ -54,7 +54,7 @@ class RegistrationSpec extends test.Specs2TestContext {
   def activateAlice(browser: TestBrowser) = {
     browser.goTo("http://delving.localhost:3333/registration/activate/TESTACTIVATION")
     browser.url must equalTo("http://delving.localhost:3333/")
-    val msg = Messages("ui.message.activation.success")(Lang("en"))
+    val msg = Messages("_hub.YourAccountIsNowActive")(Lang("en"))
     browser.$(".alert-success").first.getText must equalTo(msg)
 
     implicit val configuration = OrganizationConfigurationHandler.getByOrgId("delving")
