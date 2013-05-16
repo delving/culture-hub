@@ -1,6 +1,6 @@
 #{extends themeInfo.get('themeLayout') /}
 
-#{set title: messages.get('plugin.hubNode.hubNodes') /}
+#{set title: messages.get('_hubnode.HubNodes') /}
 
 #{set bodyId: 'organization' /}
 
@@ -12,11 +12,11 @@
     <div class="span12">
 
         <table class="table table-striped">
-            <caption>&{'plugin.hubNode.hubNodes'}</caption>
+            <caption>&{'_hubnode.HubNodes'}</caption>
             <thead>
             <tr>
-                <th>&{'thing.name'}</th>
-                <th width="25%">&{'thing.actions'}</th>
+                <th>&{'_hubb.Name'}</th>
+                <th width="25%">&{'_hubb.Actions'}</th>
             </tr>
             </thead>
             <!-- ko if: nodes().length > 0 -->
@@ -43,7 +43,7 @@
                     No entries
                 </td>
                 <td>
-                    <a class="btn btn-primary btn-mini" href="/organizations/${orgId}/hubNode/add" rel="nofollow">${messages.get('plugin.hubNode.create')}</a>
+                    <a class="btn btn-primary btn-mini" href="/organizations/${orgId}/hubNode/add" rel="nofollow">${messages.get('_hubnode.CreateHubNode')}</a>
                 </td>
             </tr>
             </tbody>
@@ -63,7 +63,7 @@
             delete: function(node) {
                 bootboxConfirm({
                     'type': 'DELETE',
-                    'message' : '<h3 class="shout">' + node.name() + '</h3>&{'plugin.hubNode.deleteConfirm'}',
+                    'message' : '<h3 class="shout">' + node.name() + '</h3>&{'_hubnode.AreYouSureYouWantToDeleteThisHubNode'}',
                     'action_url' : '/organizations/${orgId}/hubNode/' + node.id() + '/remove',
                     'success_callback' : function () {
                         viewModel.nodes.remove(function (item) {

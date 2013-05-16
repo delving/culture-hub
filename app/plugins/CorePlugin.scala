@@ -24,8 +24,8 @@ class CorePlugin(app: Application) extends CultureHubPlugin(app) {
   override def mainMenuEntries(configuration: OrganizationConfiguration, lang: String): Seq[MainMenuEntry] = Seq(
     MainMenuEntry(
       key = "home",
-      titleKey = "site.nav.home",
-      mainEntry = Some(MenuElement(url = "/", titleKey = "site.nav.home"))
+      titleKey = "_hub.Home",
+      mainEntry = Some(MenuElement(url = "/", titleKey = "_hub.Home"))
     )
   )
 
@@ -48,10 +48,10 @@ class CorePlugin(app: Application) extends CultureHubPlugin(app) {
     ),
     MainMenuEntry(
       key = "groups",
-      titleKey = "thing.groups",
+      titleKey = "_hubb.Groups",
       items = Seq(
-        MenuElement("/organizations/%s/groups".format(configuration.orgId), "org.group.list"),
-        MenuElement("/organizations/%s/groups/create".format(configuration.orgId), "org.group.create", Seq(Role.OWN))
+        MenuElement("/organizations/%s/groups".format(configuration.orgId), "_hub.GroupList"),
+        MenuElement("/organizations/%s/groups/create".format(configuration.orgId), "_hub.CreateGroup", Seq(Role.OWN))
       )
     )
   )

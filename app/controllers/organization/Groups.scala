@@ -156,7 +156,7 @@ trait Groups extends OrganizationController { this: BoundController =>
 
               persisted match {
                 case Some(group) => Json(group)
-                case None => Error(Messages("organizations.group.cannotSaveGroup"))
+                case None => Error(Messages("_hub.CouldNotSaveGroup"))
               }
             }
           })

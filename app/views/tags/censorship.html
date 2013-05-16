@@ -15,7 +15,7 @@
   ~ limitations under the License.
   -->
 
-<div id="disableConfirmation" title="&{'thing.confirmation'}" style="display: none;">
+<div id="disableConfirmation" title="&{'_hubb.AreYouSure'}" style="display: none;">
     <p>
     <span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>&{'thing.admin.disable.confirm', messages.get("thing.admin.disable."+_type)}
     </p>
@@ -27,7 +27,7 @@
             <h4>&{'_hub.AdministratorOptions'}</h4>
                     #{if _type != 'user'}
                     <p><a href="#" id="btn-disable-thing">&{'_hub.Block'} ${messages.get("thing."+_type)}</a>: &{'thing.admin.disable.explain', messages.get("thing.admin.disable."+_type)}</p>
-                    <p><a href="/${_userName}/">&{'_hub.Block'} ${messages.get("thing.user")}</a>: &{'thing.admin.disable.goProfile'}</p>
+                    <p><a href="/${_userName}/">&{'_hub.Block'} ${messages.get("_hubb.User")}</a>: &{'thing.admin.disable.goProfile'}</p>
                     #{/if}
                     #{else}
                     <p><a href="#" id="btn-disable-user">&{'_hub.Block'} ${messages.get("thing.admin.disable.user")}</a>: &{'thing.admin.disable.user.explain'}

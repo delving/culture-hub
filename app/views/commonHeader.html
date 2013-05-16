@@ -54,7 +54,7 @@
     initializeElements();
 //        bindCSRFToken('${authenticityToken}');
       checkCookie(function() {
-        bootbox.alert("&{'ui.message.noCookies'}");
+        bootbox.alert("&{'_hub.YourBrowserNeedsToSupportCookies'}");
       });
     $.metadata.setType('html5');
   });
@@ -78,5 +78,5 @@
 
 <div class="alert alert-error hide" id="browser-alert">
     <button type="button" class="close" data-dismiss="alert">&times;</button>
-    &{'ui.message.oldBrowser'}
+    &{'_hub.WarningOutdatedBrowser'}
 </div>

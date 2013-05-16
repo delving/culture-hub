@@ -13,9 +13,9 @@
         <table class="table table-striped">
             <caption>&{'_sdu.ListOfUploadedDocuments'}</caption>
             <thead>
-                <th>&{'thing.name'}</th>
-                <th>&{'thing.description'}</th>
-                <th>&{'thing.action'}</th>
+                <th>&{'_hubb.Name'}</th>
+                <th>&{'_hubb.Description'}</th>
+                <th>&{'_hubb.Action'}</th>
             </thead>
             <!-- ko if: documents().length > 0 -->
             <tbody data-bind="foreach: documents">
@@ -56,7 +56,7 @@ $(document).ready(function() {
 
         $('.delete:not(.disabled)').click(function () {
             var item = $(this).attr('data-remove');
-            bootbox.dialog('<h3 class="shout beware">&{'thing.confirmation'}</h3>&{'plugin.simpledocumentupload.deleteConfirmation'}',
+            bootbox.dialog('<h3 class="shout beware">&{'_hubb.AreYouSure'}</h3>&{'plugin.simpledocumentupload.deleteConfirmation'}',
             [
                 {
                     "label":"No thanks!",

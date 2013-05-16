@@ -135,10 +135,10 @@ class DataSetPlugin(app: Application) extends CultureHubPlugin(app) {
   override def organizationMenuEntries(configuration: OrganizationConfiguration, lang: String, roles: Seq[String]): Seq[MainMenuEntry] = Seq(
     MainMenuEntry(
       key = "datasets",
-      titleKey = "thing.datasets",
+      titleKey = "_dataset.Datasets",
       items = Seq(
-        MenuElement("/organizations/%s/dataset".format(configuration.orgId), "organization.dataset.list"),
-        MenuElement("/organizations/%s/dataset/add".format(configuration.orgId), "organization.dataset.create", Seq(Role.OWN))
+        MenuElement("/organizations/%s/dataset".format(configuration.orgId), "_dataset.DatasetList"),
+        MenuElement("/organizations/%s/dataset/add".format(configuration.orgId), "_dataset.CreateADataset", Seq(Role.OWN))
       )
     ),
     MainMenuEntry(

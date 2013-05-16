@@ -1,6 +1,6 @@
 #{extends themeInfo.get('themeLayout') /}
 
-#{set title: messages.get('plugin.hubNode.create') /}
+#{set title: messages.get('_hubnode.CreateHubNode') /}
 
 #{set bodyId: 'organization' /}
 
@@ -13,9 +13,9 @@
     <div class="span6">
         <form id="hubNodeForm" method="POST" action="" class="form-delving form-horizontal well well-small">
             <div class="error" style="margin-bottom: 12px;" data-bind="text: errors().global"></div>
-            #{form.textField name:"nodeId", form: hubNodeForm, label: messages.get('plugin.hubNode.nodeId'), dataBind:"value: nodeId, disable: true", maxLength: 30 /}
-            #{form.textField name:"orgId", form: hubNodeForm, label: messages.get('plugin.hubNode.orgId'), dataBind:"value: orgId, disable: typeof id !== 'undefined'", maxLength: 30, required: true /}
-            #{form.textField name:"name", form: hubNodeForm, label: messages.get('plugin.hubNode.name'), dataBind:"value: name", maxLength: 30, required: true /}
+            #{form.textField name:"nodeId", form: hubNodeForm, label: messages.get('_hubnode.NodeIdentifier'), dataBind:"value: nodeId, disable: true", maxLength: 30 /}
+            #{form.textField name:"orgId", form: hubNodeForm, label: messages.get('_hubnode.OrganizationIdentifier'), dataBind:"value: orgId, disable: typeof id !== 'undefined'", maxLength: 30, required: true /}
+            #{form.textField name:"name", form: hubNodeForm, label: messages.get('_hubnode.NodeName'), dataBind:"value: name", maxLength: 30, required: true /}
         </form>
     </div>
     #{if nodeId}

@@ -189,7 +189,7 @@ class CMSPlugin(app: Application) extends CultureHubPlugin(app) {
             items = Seq(
               MenuElement("/admin/site/%s/%s".format(lang, definition.key), "_hub.List"),
               MenuElement("/admin/site/%s/page/add/%s".format(lang, definition.key), "_hub.New"),
-              MenuElement("/admin/site/upload", "plugin.cms.upload.image")
+              MenuElement("/admin/site/upload", "_cms.UploadImage")
             )
           )
         }
@@ -219,7 +219,7 @@ object CMSPlugin {
 
   val PLUGIN_KEY = "cms"
 
-  lazy val ROLE_CMS_ADMIN = Role("cms", Role.descriptions("plugin.cms.adminRight"), false, None)
+  lazy val ROLE_CMS_ADMIN = Role("cms", Role.descriptions("_cms.SiteContentAdministrationRights"), false, None)
 
   val MAIN_MENU = "mainMenu"
   val HOME_PAGE = "homePage"

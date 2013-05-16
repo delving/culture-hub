@@ -205,13 +205,13 @@ class ViewRenderSpec extends test.Specs2TestContext {
       <row>
         <column id="description">
           <container>
-            <field path="/record/delving:summaryFields/delving:description" label="metadata.dc.description"/>
+            <field path="/record/delving:summaryFields/delving:description" label="_md.dc.description"/>
           </container>
         </column>
         <column id="fields">
           <container>
             <enumeration type="concatenated" separator=", " label="random" path="/record/delving:summaryFields/delving:title, /record/icn:data/icn:general/icn:material"/>
-            <field path="/record/icn:data/icn:acquisition/icn:cost" label="metadata.icn.purchasePrice" role="administrator, own"/>
+            <field path="/record/icn:data/icn:acquisition/icn:cost" label="_md.icn.purchasePrice" role="administrator, own"/>
             <field path="/record/icn:data/icn:acquisition/@type" label="metadata.icn.purchaseType"/>
             <link urlExpr="/record/dc:data/dc:link" textExpr="/record/dc:data/dc:name"/>
           </container>

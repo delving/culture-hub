@@ -1,6 +1,6 @@
 #{extends themeInfo.get('themeLayout') /}
 
-#{set title: messages.get('thing.organization') + ': ' + orgId /}
+#{set title: messages.get('_hubb.Organization') + ': ' + orgId /}
 #{set bodyId: 'organization' /}
 #{breadcrumbs crumbs: breadcrumbs /}
 
@@ -21,7 +21,7 @@
     </div>
     #{/if}
     <div class="span4">
-        <h3>&{'organization.members'}</h3>
+        <h3>&{'_hub.Members'}</h3>
         <ol>
         #{list members, as: 'm'}
             <li><a href="/${m.userName}">${m.userName}</a></li>

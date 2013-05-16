@@ -1,6 +1,6 @@
 #{extends themeInfo.get('themeLayout') /}
 
-#{set title: messages.get('thing.pages') /}
+#{set title: messages.get('_hubb.SitePages') /}
 
 #{set bodyId: 'organization' /}
 
@@ -23,9 +23,9 @@
             <caption>Site pages</caption>
             <thead>
             <tr>
-                <th>&{'thing.title'}</th>
+                <th>&{'_hubb.Title'}</th>
                 <th>&{'_hub.Status'}</th>
-                <th width="25%">&{'thing.actions'}</th>
+                <th width="25%">&{'_hubb.Actions'}</th>
             </tr>
             </thead>
             <!-- ko if: pages().length > 0 -->

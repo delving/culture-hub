@@ -1,6 +1,6 @@
 #{extends themeInfo.get('themeLayout') /}
 
-#{set title: messages.get('thing.pages') /}
+#{set title: messages.get('_hubb.SitePages') /}
 
 #{set bodyId: 'organization' /}
 
@@ -35,7 +35,7 @@
                     <div class="tab-content">
                         <div class="tab-pane active" id="fields">
                             <dl>
-                                <dt>&{'thing.title'}</dt>
+                                <dt>&{'_hubb.Title'}</dt>
                                 <dd>&{'_cms.UsedInThePagesHTML'}</dd>
                                 <dt>&{'_cms.PageKey'}</dt>
                                 <dd>&{'_cms.UniqueIdentifierForThePage'}</dd>
@@ -75,7 +75,7 @@
     <div data-bind="text: errors().global"></div>
 
          <div class="cms-page-name span4">
-        #{form.textField name:"title", form:pageForm, label:messages.get('thing.title'), dataBind:"value: title", maxLength: 35, required: true /}
+        #{form.textField name:"title", form:pageForm, label:messages.get('_hubb.Title'), dataBind:"value: title", maxLength: 35, required: true /}
         #{form.textField name:"key", form:pageForm, label:messages.get('_cms.PageKey'), dataBind:"value: key", required: true, disabled: !isNew, extHtml: '<span id="createKey" class="btn btn-mini">'+messages.get("_cms.AutoGeneratePageKey")+'</span><p class="error"></p>' /}
         </div>
 
@@ -130,10 +130,10 @@
             <caption>&{'_hub.PreviousVersions'}</caption>
             <thead>
             <tr>
-                <th>&{'thing.title'}</th>
-                <th>&{'thing.user'}</th>
-                <th>&{'thing.datecreated'}</th>
-                <th>&{'thing.actions'}</th>
+                <th>&{'_hubb.Title'}</th>
+                <th>&{'_hubb.User'}</th>
+                <th>&{'_hubb.DateCreated'}</th>
+                <th>&{'_hubb.Actions'}</th>
             </tr>
             </thead>
             <tbody data-bind="foreach: versions()">

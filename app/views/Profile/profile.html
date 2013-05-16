@@ -1,5 +1,5 @@
 #{extends themeInfo.get('themeLayout') /}
-#{set title: messages.get('profile.title') + ': ' + browsedUserName /}
+#{set title: messages.get('_hub.ProfilePageFor') + ': ' + browsedUserName /}
 #{set bodyId: 'profile' /}
 
 #{breadcrumbs crumbs: breadcrumbs /}
@@ -18,7 +18,7 @@
             #{if isVisible}
             <dt>&{'_hub.FullName'}:</dt>
             <dd>${user.fullname()}</dd>
-            <dt>&{'profile.activesince'}:</dt>
+            <dt>&{'_hub.ProfileActiveSince'}:</dt>
             <dd>${views.Helpers.niceTime(user._id.getTime())}</dd>
             #{ifnot user.userProfile.funFact().isEmpty()}
                 <dt>&{'_hub.FunFact'}:</dt><dd>${user.userProfile.funFact().get()}</dd>
@@ -49,7 +49,7 @@
     <div class="row">
         <div class="span4">
             <div class="widget">
-                <div class="hd"><h3>&{'thing.objects'} (${objectsCount ? objectsCount : 0})</h3></div>
+                <div class="hd"><h3>&{'_hubb.Objects'} (${objectsCount ? objectsCount : 0})</h3></div>
                 <div class="bd">
 
                     #{list objects, as: 'o'}
@@ -67,7 +67,7 @@
 
         <div class="span4">
             <div class="widget">
-                <div class="hd"><h3>&{'thing.collections'} (${collectionsCount? collectionsCount : 0})</h3></div>
+                <div class="hd"><h3>&{'_hubb.Collections'} (${collectionsCount? collectionsCount : 0})</h3></div>
                 <div class="bd">
                     #{list collections, as: 'c'}
                     #{thingSummaryView data: c, iSize: 40, viewType: 'media'  /}
@@ -82,7 +82,7 @@
 
         <div class="span4">
             <div class="widget">
-                <div class="hd"><h3>&{'thing.stories'} (${storiesCount? storiesCount : 0})</h3></div>
+                <div class="hd"><h3>&{'_hubb.Stories'} (${storiesCount? storiesCount : 0})</h3></div>
                 <div class="bd">
                     #{list stories, as: 's'}
                     #{thingSummaryView data: s, iSize: 40, viewType: 'media'  /}

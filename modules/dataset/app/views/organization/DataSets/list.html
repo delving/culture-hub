@@ -1,6 +1,6 @@
 #{extends themeInfo.get('themeLayout') /}
 
-#{set title: messages.get('thing.browse.of', messages.get('_dataset.Datasets')) + ': ' + orgId /}
+#{set title: messages.get('_hubb.BrowseOf', messages.get('_dataset.Datasets')) + ': ' + orgId /}
 
 #{set 'moreScripts'}
 <script type="text/javascript" src="@{routes.Assets.at("common/javascripts/jquery.tablesorter.min.js")}"></script>
@@ -18,7 +18,7 @@
 <div class="dataset-filter row">
     <div class="dataset-filter-inner span12">
     <form id="filter-form" class="form-inline pull-left form-search">
-        <input type='text' name='filter' id='filter' maxlength="30" size="30" class="search-query" placeholder="&{'org.list.filter'}"/>
+        <input type='text' name='filter' id='filter' maxlength="30" size="30" class="search-query" placeholder="&{'_hub.TypeHereToNarrowDown'}"/>
         <input onclick="saveFilter()" class="btn" type="button" value="&{'_hub.Save'}"/>
         <input onclick="resetFilter()" class="btn" type="reset" value="&{'_hub.Reset'}"/>
         <a class="extHelp" href="#" rel="tooltip" title="Type in any dataset value(s) to filter the table. Press 'Save' to save the filter."><i class="icon-question-sign"></i>&#160;</a>
@@ -39,8 +39,8 @@
         <caption>${messages.get('_dataset.Datasets')}</caption>
         <thead>
         <tr>
-            <th class="sort">&{'thing.name'}</th>
-            <th class="sort">&{'thing.organization'}</th>
+            <th class="sort">&{'_hubb.Name'}</th>
+            <th class="sort">&{'_hubb.Organization'}</th>
             <th class="sort">&{'_hub.NumberOfItems'}</th>
             <th class="sort">&{'_hub.State'}</th>
             <th class="sort">&{'_hub.Availability'}</th>
