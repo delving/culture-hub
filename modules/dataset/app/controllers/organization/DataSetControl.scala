@@ -101,7 +101,7 @@ object DataSetCreationViewModel {
     if (o == Some("raw")) Invalid(ValidationError("error.notRaw")) else Valid
   }
 
-  def specTaken(implicit configuration: OrganizationConfiguration) = Constraint[DataSetCreationViewModel]("plugin.dataSet.specTaken") {
+  def specTaken(implicit configuration: OrganizationConfiguration) = Constraint[DataSetCreationViewModel]("_dataset.ThisDatasetIdentifierIsAlreadyInUse") {
     case r =>
       val maybeOne = DataSet.dao.findBySpecAndOrgId(r.spec, configuration.orgId)
       if (maybeOne.isDefined && r.id.isDefined) {
@@ -109,14 +109,14 @@ object DataSetCreationViewModel {
       } else if (maybeOne == None) {
         Valid
       } else {
-        Invalid(ValidationError(Messages("plugin.dataSet.specTaken")))
+        Invalid(ValidationError(Messages("_dataset.ThisDatasetIdentifierIsAlreadyInUse")))
       }
   }
 
-  def creationQuotaExceeded(implicit configuration: OrganizationConfiguration) = Constraint[DataSetCreationViewModel]("plugin.dataSet.creationQuotaExceeded") {
+  def creationQuotaExceeded(implicit configuration: OrganizationConfiguration) = Constraint[DataSetCreationViewModel]("_dataset.TheQuotaOfAllowedDatasetsExceeded") {
     case r =>
       if (CultureHubPlugin.isQuotaExceeded(DataSet.RESOURCE_TYPE)) {
-        Invalid(ValidationError(Messages("plugin.dataSet.creationQuotaExceeded")))
+        Invalid(ValidationError(Messages("_dataset.TheQuotaOfAllowedDatasetsExceeded")))
       } else {
         Valid
       }
@@ -399,4 +399,3 @@ trait DataSetControl extends OrganizationController { this: BoundController =>
   }
 
 }
-

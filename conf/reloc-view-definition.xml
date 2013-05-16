@@ -18,7 +18,7 @@
                         <link textValue="zoom" urlExpr="/record/delving:deepZoomUrl" type="zoom"/>
                     </container>
                     <container id="context-link" if="/record/reloc:isShownAt">
-                        <link textValue="search.viewInOriginalContext" urlExpr="/record/reloc:isShownAt" type="external"/>
+                        <link textValue="_search.ViewInOriginalContext" urlExpr="/record/reloc:isShownAt" type="external"/>
                     </container>
                 </container>
                 <!-- thumnail image navigation for object with multiple images (regular or zoom) -->
@@ -38,36 +38,36 @@
         </row>
         <row>
             <column proportion="1of3">
-                <field label="metadata.reloc.identifier" path="/record/dc:identifier" />
-                <field label="metadata.dc.title" path="/record/dc:title" />
-                <field label="metadata.dc.description" path="/record/dc:description" />
-                <field label="metadata.dc.date" path="/record/dc:date" />
-                <container type="list" label="metadata.dc.creator" if="/record/dc:creator">
+                <field label="_reloc.InventoryNumber" path="/record/dc:identifier" />
+                <field label="_md.dc.title" path="/record/dc:title" />
+                <field label="_md.dc.description" path="/record/dc:description" />
+                <field label="_md.dc.date" path="/record/dc:date" />
+                <container type="list" label="_md.dc.creator" if="/record/dc:creator">
                     <enumeration path="/record/dc:creator" />
                 </container>
-                <field label="metadata.reloc.creationPlace" path="/record/reloc:creationPlace" />
+                <field label="_reloc.PlaceOfCreation" path="/record/reloc:creationPlace" />
             </column>
             <column proportion="1of3">
-                <container type="list" label="metadata.dc.subject" if="/record/dc:subject">
+                <container type="list" label="_md.dc.subject" if="/record/dc:subject">
                     <enumeration path="/record/dc:subject" />
                 </container>
-                <container label="plugin.relocation.form.measurementsInfo" type="labelled-list" class="test">
-                    <field label="metadata.reloc.height" path="/record/reloc:height" />
-                    <field label="metadata.reloc.width" path="/record/reloc:width" />
-                    <field label="metadata.reloc.length" path="/record/reloc:length" />
-                    <field label="metadata.reloc.depth" path="/record/reloc:depth" />
-                    <field label="metadata.reloc.diameter" path="/record/reloc:diameter" />
+                <container label="_reloc.Dimensions" type="labelled-list" class="test">
+                    <field label="_reloc.Height" path="/record/reloc:height" />
+                    <field label="_reloc.Width" path="/record/reloc:width" />
+                    <field label="_reloc.Length" path="/record/reloc:length" />
+                    <field label="_reloc.Depth" path="/record/reloc:depth" />
+                    <field label="_reloc.Diameter" path="/record/reloc:diameter" />
                 </container>
-                <container type="list" label="metadata.reloc.material" if="/record/reloc:material">
+                <container type="list" label="_reloc.Material" if="/record/reloc:material">
                     <enumeration path="/record/reloc:material" />
                 </container>
                 <!-- TODO: physcal state should be role specific -->
-                <field label="metadata.reloc.physicalState" path="/record/reloc:physicalState"/>
-                <field label="thing.organization" path="/record/reloc:owner" />
+                <field label="_reloc.PhysicalState" path="/record/reloc:physicalState"/>
+                <field label="_hubb.Organization" path="/record/reloc:owner" />
                 <!-- TODO: contact should be role specific -->
-                <container label="thing.contact" type="labelled-list" role="">
-                    <field label="thing.contactName" path="/record/reloc:contactName"/>
-                    <link urlExpr="/record/reloc:contactEmail" urlValue="mailto:" textExpr="/record/reloc:contactEmail" label="thing.contactEmail"/>
+                <container label="_hubb.Contact" type="labelled-list" role="">
+                    <field label="_hubb.ContactName" path="/record/reloc:contactName"/>
+                    <link urlExpr="/record/reloc:contactEmail" urlValue="mailto:" textExpr="/record/reloc:contactEmail" label="_hubb.ContactEmail"/>
                 </container>
             </column>
         </row>

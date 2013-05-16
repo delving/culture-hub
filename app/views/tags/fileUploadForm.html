@@ -3,20 +3,20 @@
         <!-- The fileupload-buttonbar contains buttons to add/delete files and start/cancel the upload -->
         <div class="fileupload-buttonbar">
             <div class="span7">
-                <h3>&{'ui.widget.upload.header'}</h3>
+                <h3>&{'_hubb.ImageDocumentUpload'}</h3>
                 <!-- The fileinput-button span is used to style the file input field as button -->
            <span class="btn btn-success fileinput-button">
                <i class="icon-plus icon-white"></i>
-               <span>&{'ui.widget.upload.chooseFile'}</span>
+               <span>&{'_hubb.ChooseFile'}</span>
                <input type="file" name="files[]" multiple >
            </span>
                 <button type="reset" class="btn btn-warning cancel">
                     <i class="icon-ban-circle icon-white"></i>
-                    <span>&{'ui.widget.upload.cancel'}</span>
+                    <span>&{'_hubb.CancelUpload'}</span>
                 </button>
                 <button type="button" class="btn btn-danger delete">
                     <i class="icon-trash icon-white"></i>
-                    <span>&{'ui.label.delete'}</span>
+                    <span>&{'_hub.Delete'}</span>
                 </button>
                 <input type="checkbox" class="toggle">
             </div>
@@ -35,13 +35,13 @@
 
            <!-- The table listing the files available for upload/download -->
            <table class="table table-striped" style="margin-top: 21px;">
-               <caption>&{'ui.widget.upload.uploaded'}</caption>
+               <caption>&{'_hubb.UploadedFiles'}</caption>
                <thead>
-               <th>&{'ui.widget.upload.thumbnail'}</th>
-               <th>&{'ui.widget.upload.fileName'}</th>
-               <th>&{'ui.widget.upload.fileSize'}</th>
+               <th>&{'_hubb.Thumbnail'}</th>
+               <th>&{'_hubb.FileName'}</th>
+               <th>&{'_hubb.FileSize'}</th>
                <th colspan="2"></th>
-               <th>&{'ui.widget.upload.actions'}</th>
+               <th>&{'_hubb.Actions'}</th>
                </thead>
                <tbody class="files" data-toggle="modal-gallery" data-target="#modal-gallery"></tbody></table>
         </div>

@@ -1,6 +1,6 @@
 #{extends themeInfo.get('themeLayout') /}
 
-#{set title: messages.get('plugin.simpledocumentupload.list') /}
+#{set title: messages.get('_sdu.ListOfUploadedDocuments') /}
 
 #{set bodyId: 'organization' /}
 
@@ -11,11 +11,11 @@
 <div class="row">
     <div class="span12">
         <table class="table table-striped">
-            <caption>&{'plugin.simpledocumentupload.list'}</caption>
+            <caption>&{'_sdu.ListOfUploadedDocuments'}</caption>
             <thead>
-                <th>&{'thing.name'}</th>
-                <th>&{'thing.description'}</th>
-                <th>&{'thing.action'}</th>
+                <th>&{'_hubb.Name'}</th>
+                <th>&{'_hubb.Description'}</th>
+                <th>&{'_hubb.Action'}</th>
             </thead>
             <!-- ko if: documents().length > 0 -->
             <tbody data-bind="foreach: documents">
@@ -23,9 +23,9 @@
                   <td><a data-bind="text: name, attr: { href: '/' + id().replace(new RegExp('_', 'g'), '/') }"></a></td>
                   <td><span data-bind="text: description"></span></td>
                   <td>
-                      <a class="btn btn-primary btn-mini" data-bind="attr: { href: '/organizations/${orgId}/simpledocument/' + id() + '/update' }">&{'ui.label.edit'}</a>
+                      <a class="btn btn-primary btn-mini" data-bind="attr: { href: '/organizations/${orgId}/simpledocument/' + id() + '/update' }">&{'_hub.Edit'}</a>
                       <a class="btn btn-danger btn-mini delete" data-bind="attr: { id: 'remove-' + id(), 'data-remove': id() }">
-                      ${messages.get('ui.label.delete')}
+                      ${messages.get('_hub.Delete')}
                       </a>
                   </td>
               </tr>
@@ -36,7 +36,7 @@
               <tr>
                 <td colspan="3">
                     No items defined
-                    <a class="btn btn-primary btn-mini pull-right" href="/organizations/${orgId}/simpledocument/add">&{'ui.label.create'}</a>
+                    <a class="btn btn-primary btn-mini pull-right" href="/organizations/${orgId}/simpledocument/add">&{'_hub.Create'}</a>
                 </td>
               </tr>
             </tbody>
@@ -56,7 +56,7 @@ $(document).ready(function() {
 
         $('.delete:not(.disabled)').click(function () {
             var item = $(this).attr('data-remove');
-            bootbox.dialog('<h3 class="shout beware">&{'thing.confirmation'}</h3>&{'plugin.simpledocumentupload.deleteConfirmation'}',
+            bootbox.dialog('<h3 class="shout beware">&{'_hubb.AreYouSure'}</h3>&{'plugin.simpledocumentupload.deleteConfirmation'}',
             [
                 {
                     "label":"No thanks!",
@@ -80,4 +80,3 @@ $(document).ready(function() {
     });
 });
 </script>
-
