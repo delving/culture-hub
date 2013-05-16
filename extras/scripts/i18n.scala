@@ -160,10 +160,16 @@ object Patterns {
   // Messages("foo.bar", "bla")
   val SCALA_MESSAGE_PATTERN = """\bMessages\b\("([^"]+)"([^)])*\)""".r
 
+  val SCALA_MESSAGE_PATTERN_ALT = """\b&\b\{"([^"]+)"([^)])*\}""".r
+
   // label="foo.bar"
   val VIEW_DEFINITION_MESSAGE_PATTERN = """\blabel="([^"]+)"""".r
 
-  val patterns = Seq(HTML_TAG_PATTERN, HTML_SQUOTE_MESSAGE_PATTERN, HTML_DQUOTE_MESSAGE_PATTERN, SCALA_MESSAGE_PATTERN, VIEW_DEFINITION_MESSAGE_PATTERN)
+
+  // titleKey = "foo.bar"
+  val TITLE_KEY_PATTERN = """\btitleKey = "([^"]+)"""".r
+
+  val patterns = Seq(HTML_TAG_PATTERN, HTML_SQUOTE_MESSAGE_PATTERN, HTML_DQUOTE_MESSAGE_PATTERN, SCALA_MESSAGE_PATTERN, VIEW_DEFINITION_MESSAGE_PATTERN, TITLE_KEY_PATTERN, SCALA_MESSAGE_PATTERN_ALT)
 
 }
 
