@@ -4,14 +4,14 @@
 
 #{breadcrumbs crumbs: breadcrumbs /}
 
-<h1>&{'user.list.browse'} (${count})</h1>
+<h1>&{'_hub.BrowseUsers'} (${count})</h1>
 
 <div class="span12">
 #{if items.length() > themeInfo.pageSize()}
     #{pagination selector: ".pager", count: count, start: page /}
 #{/if}
 #{elseif items.length() == 0}
-    <p>&{'user.list.noUsers'}</p>
+    <p>&{'_hub.ThereAreCurrentlyNoUsers'}</p>
 #{/elseif}
 </div>
 
@@ -41,7 +41,7 @@
                                 #{if i.userName == userName}
                                     <div class="actions">
                                         <a class="action edit image-edit"
-                                           href="/${i.userName}/admin/profile/update">&{'user.list.editProfile'}</a>
+                                           href="/${i.userName}/admin/profile/update">&{'_hub.EditYourProfile'}</a>
                                     </div>
                                 #{/if}
                             </div>

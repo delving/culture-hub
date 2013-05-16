@@ -25,8 +25,8 @@ class StatisticsPlugin(app: Application) extends CultureHubPlugin(app) {
     statisticsConfigurations = configurations.map { config =>
 
       val defaults = Map(
-        "delving_owner_facet" -> "metadata.delving.owner",
-        "delving_provider_facet" -> "metadata.delving.provider"
+        "delving_owner_facet" -> "_md.delving.owner",
+        "delving_provider_facet" -> "_md.delving.provider"
       )
 
       val facets = config._2.map { c =>
@@ -75,10 +75,10 @@ class StatisticsPlugin(app: Application) extends CultureHubPlugin(app) {
   override def organizationMenuEntries(configuration: OrganizationConfiguration, lang: String, roles: Seq[String]): Seq[MainMenuEntry] = Seq(
     MainMenuEntry(
       key = "statistics",
-      titleKey = "plugin.statistics.statistics",
+      titleKey = "_stats.Statistics",
       roles = Seq(Role.OWN),
       mainEntry = Some(
-        MenuElement(url = "/organizations/%s/statistics".format(configuration.orgId), titleKey = "plugin.statistics.statistics")
+        MenuElement(url = "/organizations/%s/statistics".format(configuration.orgId), titleKey = "_stats.Statistics")
       )
     )
   )

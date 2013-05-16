@@ -26,7 +26,7 @@
                         <link textValue="zoom" urlExpr="/tib:record/delving:deepZoomUrl" type="zoom"/>
                     </container>
                     <container id="context-link" if="/tib:record/europeana:isShownAt">
-                        <link textValue="search.viewInOriginalContext" urlExpr="/tib:record/europeana:isShownAt" type="external"/>
+                        <link textValue="_search.ViewInOriginalContext" urlExpr="/tib:record/europeana:isShownAt" type="external"/>
                     </container>
 
                 </container>
@@ -64,31 +64,31 @@
                 <row>
                     <column proportion="1of3">
                         <container type="definition-list">
-                            <!--<field path="/tib:record/delving:title" label="metadata.dc.title"/>-->
-                            <field path="/tib:record/dc:title" label="metadata.dc.title"/>
-                            <field path="/tib:record/dc:creator" label="metadata.dc.creator"/>
-                            <field path="/tib:record/tib:creatorBirthYear" label="metadata.tib.creatorBirthYear"/>
-                            <enumeration label="metadata.dc.date" separator=", " path="/tib:record/dc:date,/tib:record/dcterms:created,/tib:record/dcterms:temporal,/tib:record/dcterms:issued"/>
-                            <field path="/tib:record/tib:theme" label="metadata.tib.theme"/>
-                            <field path="/tib:record/dc:description" label="metadata.dc.description"/>
-                            <field path="/tib:record/dc:type" label="metadata.dc.type"/>
-                            <enumeration label="metadata.dc.format" separator="lf" path="/tib:record/dc:format,/tib:record/dcterms:extent"/>
-                            <link path="/tib:record/delving:fullTextObjectUrl" textExpr="/tib:record/delving:fullTextObjectUrl" urlExpr="/tib:record/delving:fullTextObjectUrl" label="metadata.tib.fullTextObjectUrl"/>
+                            <!--<field path="/tib:record/delving:title" label="_md.dc.title"/>-->
+                            <field path="/tib:record/dc:title" label="_md.dc.title"/>
+                            <field path="/tib:record/dc:creator" label="_md.dc.creator"/>
+                            <field path="/tib:record/tib:creatorBirthYear" label="_md.tib.creatorBirthYear"/>
+                            <enumeration label="_md.dc.date" separator=", " path="/tib:record/dc:date,/tib:record/dcterms:created,/tib:record/dcterms:temporal,/tib:record/dcterms:issued"/>
+                            <field path="/tib:record/tib:theme" label="_md.tib.theme"/>
+                            <field path="/tib:record/dc:description" label="_md.dc.description"/>
+                            <field path="/tib:record/dc:type" label="_md.dc.type"/>
+                            <enumeration label="_md.dc.format" separator="lf" path="/tib:record/dc:format,/tib:record/dcterms:extent"/>
+                            <link path="/tib:record/delving:fullTextObjectUrl" textExpr="/tib:record/delving:fullTextObjectUrl" urlExpr="/tib:record/delving:fullTextObjectUrl" label="_md.tib.fullTextObjectUrl"/>
 
                         </container>
                    </column>
                    <column proportion="1of3">
                        <container type="definition-list">
-                           <field path="/tib:record/europeana:collectionTitle" label="metadata.europeana.collectionTitle"/>
-                           <!--<link textValue="${provider}" urlValue="${resolvedProviderUri}" label="metadata.europeana.provider"/>-->
-                           <link textValue="${dataProvider}" urlValue="${resolvedDataProviderUri}" label="metadata.europeana.dataProvider"/>
+                           <field path="/tib:record/europeana:collectionTitle" label="_md.europeana.collectionTitle"/>
+                           <!--<link textValue="${provider}" urlValue="${resolvedProviderUri}" label="_md.europeana.provider"/>-->
+                           <link textValue="${dataProvider}" urlValue="${resolvedDataProviderUri}" label="_md.europeana.dataProvider"/>
                            <field path="/tib:record/dc:contributor" label="searchfield.contributor"/>
-                           <!--<field path="/tib:record/europeana:country" label="metadata.europeana.country"/>-->
-                           <field path="/tib:record/dc:rights" label="metadata.dc.rights"/>
+                           <!--<field path="/tib:record/europeana:country" label="_md.europeana.country"/>-->
+                           <field path="/tib:record/dc:rights" label="_md.dc.rights"/>
                        </container>
                        <!-- Rights url -->
                        <!--<container if="/tib:record/europeana:rights" id="rightsUrl" type="labelled-list">-->
-                           <!--<link urlExpr="/tib:record/europeana:rights" urlValue="" textExpr="/tib:record/europeana:rights" label="metadata.dc.rights"/>-->
+                           <!--<link urlExpr="/tib:record/europeana:rights" urlValue="" textExpr="/tib:record/europeana:rights" label="_md.dc.rights"/>-->
                        <!--</container>-->
                     </column>
 

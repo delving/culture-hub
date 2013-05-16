@@ -279,7 +279,7 @@ class ViewRenderer(val schema: String, viewType: ViewType, configuration: Organi
 
               case "auto-layout-field" =>
                 val current = XPathWorking.selectNode(".", dataNode, namespaces.asJava)
-                val internationalizationKey = "metadata." + current.getNodeName.replaceAll(":", ".")
+                val internationalizationKey = "_md." + current.getNodeName.replaceAll(":", ".")
 
                 val renderNode = RenderNode("field", None)
                 renderNode += RenderNode("name", Some(current.getNodeName.replaceAll(":", "_")))

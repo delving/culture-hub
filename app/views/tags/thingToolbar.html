@@ -4,19 +4,19 @@
         *{<!-- LABEL BUTTON:  only an authenticated user can label -->}*
         #{ifnot _isSearch}
             #{if _authUser}
-                #{btnHref label: messages.get('thing.label'), iconClass:"icon202", id:"addLabel" /}
+                #{btnHref label: messages.get('_hubb.Label'), iconClass:"icon202", id:"addLabel" /}
             #{/if}
         #{/ifnot}
 
         *{<!-- leave out until functional; when functional add labelCommentDialog.js at bottom -->
-        #{btnHref label:messages.get('thing.comment'), extraClass:"right", iconClass:"icon201", id:"addComment"/}
+        #{btnHref label:messages.get('_hubb.Comment'), extraClass:"right", iconClass:"icon201", id:"addComment"/}
         }*
 
         *{<!-- ADDTHIS BUTTONS: any user can share --> }*
         <div class="addthis_toolbox addthis_default_style" style="display:table-cell; width:auto;">
-            #{btnHref extraClass:"addthis_button_email left", iconClass:"icon125", label: messages.get('ui.label.email')/}
-            #{btnHref extraClass:"addthis_button_print middle", iconClass:"icon153", label: messages.get('ui.label.print')/}
-            #{btnHref extraClass:"addthis_button_compact right", iconClass:"icon203", label: messages.get('ui.label.share')/}
+            #{btnHref extraClass:"addthis_button_email left", iconClass:"icon125", label: messages.get('_hub.Email')/}
+            #{btnHref extraClass:"addthis_button_print middle", iconClass:"icon153", label: messages.get('_hub.Print')/}
+            #{btnHref extraClass:"addthis_button_compact right", iconClass:"icon203", label: messages.get('_hub.Share')/}
             <a class="addthis_counter addthis_bubble_style" style="margin-top: 10px;"></a>
         </div>
         *{<!--TODO: how would this work for someone who is a member of a group that can edit an organizations objects but is not the 'owner of the object? ...-->}*
@@ -24,10 +24,10 @@
         #{if _owner == _authUser}
            #{if _owner && _id}
             #{if !_cannotDelete}
-            #{btnHref label:messages.get('ui.label.remove', messages.get('thing.object')), id:"remove", extraClass:"beware fright" /}
+            #{btnHref label:messages.get('_hub.Remove', messages.get('thing.object')), id:"remove", extraClass:"beware fright" /}
             #{/if}
-            #{btnHref label:messages.get('ui.label.edit'), extraClass:"fright", iconClass:"icon145", href: "/" + _owner + "/" + _type + "/" + _id + "/update" /}
-            <div id="removeConfirmation" title="${messages.get('thing.confirmation')}" style="display: none;"><p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>${messages.get(_type+'.confirmDeletion')}</p></div>
+            #{btnHref label:messages.get('_hub.Edit'), extraClass:"fright", iconClass:"icon145", href: "/" + _owner + "/" + _type + "/" + _id + "/update" /}
+            <div id="removeConfirmation" title="${messages.get('_hubb.AreYouSure')}" style="display: none;"><p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>${messages.get(_type+'.confirmDeletion')}</p></div>
             <script type="text/javascript">
                 $(document).ready(function() {
                     remove('#remove', '#removeConfirmation', '/${_owner}/${_type}/${_id}/remove', '/${_owner}/${_type}');
@@ -44,17 +44,17 @@
         #{/if}
     </div>
 </div>
-<div id="add-label-dialog" title="${messages.get('ui.label.labeladd')}">
-    <p>&{'thing.label.explain'}</p>
+<div id="add-label-dialog" title="${messages.get('_hub.AddLabel')}">
+    <p>&{'_hubb.ALabelIs'}</p>
     <div class="field">
-        <label class="label">${messages.get('thing.label.freeText')}</label>
+        <label class="label">${messages.get('_hubb.FreeTextLabel')}</label>
         <div class="inputs">
           <input type="text" class="textinput" id="labelInput"/>
         </div>
     </div>
     <div class="field">
         <label class="label">
-            ${messages.get('thing.label.placeName')}
+            ${messages.get('_hubb.PlaceNameLabel')}
         </label>
         <div class="inputs">
              <input type="text" class="textinput" id="placesInput"/>
@@ -63,10 +63,10 @@
 </div>
 
 *{  <!-- leave out until functional -->
-<div id="add-comment-dialog" title="${messages.get('ui.label.addcomment')}">
+<div id="add-comment-dialog" title="${messages.get('_hub.AddComment')}">
     <form action="#" method="GET" class="box">
     <div class="field">
-        <label class="label">${messages.get('thing.comment')}</label>
+        <label class="label">${messages.get('_hubb.Comment')}</label>
 
         <div class="inputs">
             <textarea name="comment" id="comment"></textarea>
