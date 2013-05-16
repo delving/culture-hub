@@ -22,7 +22,7 @@
                         <link textValue="zoom" urlExpr="/abm:record/delving:deepZoomUrl" type="zoom"/>
                     </container>
                     <container id="context-link" if="/abm:record/europeana:isShownAt">
-                        <link textValue="search.viewInOriginalContext" urlExpr="/abm:record/europeana:isShownAt" type="external"/>
+                        <link textValue="_search.ViewInOriginalContext" urlExpr="/abm:record/europeana:isShownAt" type="external"/>
                     </container>
                 </container>
             <row>
