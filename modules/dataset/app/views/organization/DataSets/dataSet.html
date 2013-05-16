@@ -1,7 +1,7 @@
 #{set 'visibility'}hidden#{/}
 #{extends themeInfo.get('themeLayout') /}
 
-#{set title: messages.get('thing.dataset') + ' ' + spec + ' - ' + messages.get('thing.organization') + ': ' + orgId /}
+#{set title: messages.get('_dataset.Dataset') + ' ' + spec + ' - ' + messages.get('_hubb.Organization') + ': ' + orgId /}
 
 #{set 'moreScripts'}
 <script type="text/javascript" src="@{routes.Assets.at("common/javascripts/organizations/datasets.js")}"></script>
@@ -19,7 +19,7 @@
             <caption>Basic information</caption>
             <tbody>
                 <tr>
-                    <th width="100">&{'thing.creator'}</th>
+                    <th width="100">&{'_hubb.Creator'}</th>
                     <td><span data-bind="text: creator"></span></td>
                 </tr>
                 <tr>
@@ -126,7 +126,7 @@
                     </ul>
                 </div>
                 <div class="btn-group pull-right">
-                    <a data-bind="css: { disabled: cannotEdit }, click: function() { if (!cannotEdit()) document.location = '/organizations/${orgId}/dataset/${spec}/update' }" class="btn"><i class="icon icon-edit"></i> ${messages.get('ui.label.edit')}</a>
+                    <a data-bind="css: { disabled: cannotEdit }, click: function() { if (!cannotEdit()) document.location = '/organizations/${orgId}/dataset/${spec}/update' }" class="btn"><i class="icon icon-edit"></i> ${messages.get('_hub.Edit')}</a>
                 </div>
             </div>
         </div>
@@ -393,4 +393,3 @@
         </tbody>
     </table>
 </script>
-

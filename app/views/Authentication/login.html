@@ -1,10 +1,10 @@
 #{extends themeInfo.get('themeLayout') /}
-#{set title: messages.get('ui.label.login') /}
+#{set title: messages.get('_hub.Login') /}
 #{set bodyId: 'authenticate' /}
 <div class="row">
     <div class="span4 offset4">
         <form method="POST" class="well" action="@{controllers.routes.Authentication.authenticate()}">
-            <h2>Login</h2>
+            <h2>&{'_hub.Login'}</h2>
             #{if flash.error}
             <p class="alert alert-error">
                 <a class="close" data-dismiss="alert">x</a>
@@ -28,21 +28,21 @@
             </div>
             #{/if}
 
-            #{form.textField name:"userName", placeholder: messages.get("ui.label.username"), form: loginForm /}
-            #{form.passwordField name:"password", placeholder: messages.get("ui.label.password"), form: loginForm /}
+            #{form.textField name:"userName", placeholder: messages.get("_hub.Username"), form: loginForm /}
+            #{form.passwordField name:"password", placeholder: messages.get("_hub.Password"), form: loginForm /}
 
             <div class="field">
                 <label for="remember" class="checkbox">
                     <input type="checkbox" name="remember" id="remember" value="true" ${flash.remember ? 'checked=\"true\"' : ''} />
-                    &{'authentication.label.rememberme'}
+                    &{'_hub.RememberMe'}
                 </label>
             </div>
 
             <div class="btn-group">
-                #{btnButton label: messages.get("ui.label.login"), extraClass:"btn-primary btn-block", type:"submit", id:"signin" /}
+                #{btnButton label: messages.get("_hub.Login"), extraClass:"btn-primary btn-block", type:"submit", id:"signin" /}
             </div>
             <p>
-                #{href label: messages.get('authentication.label.forgotpassword'), href:"/registration/lostPassword", rel:"nofollow" /}
+                #{href label: messages.get('_hub.IForgotMyPassword'), href:"/registration/lostPassword", rel:"nofollow" /}
             </p>
         </form>
     </div>
