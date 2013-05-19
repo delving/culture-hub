@@ -153,6 +153,8 @@ object Build extends sbt.Build {
 
     parallelExecution in (ThisBuild) := false,
 
+    testOptions in (ThisBuild) += Tests.Argument("junitxml", "console"),
+
     scalaVersion in (ThisBuild) := buildScalaVersion,
 
     watchTransitiveSources <<= watchTransitiveSources map { (sources: Seq[java.io.File]) =>
