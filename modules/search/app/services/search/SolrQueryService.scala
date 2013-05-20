@@ -133,7 +133,7 @@ object SolrQueryService extends SolrServer {
 
     def addGeoParams(hasGeoType: Boolean) {
       // set defaults
-      val sfield: String = if (params.allNonEmpty.getOrElse("sortBy", new ArrayBuffer()).head.toString.startsWith("geodist")) GEOHASH_SINGLE.key else GEOHASH.key
+      val sfield: String = if (params.allNonEmpty.getOrElse("sortBy", List("empty").toBuffer).head.toString.startsWith("geodist")) GEOHASH_MONO.key else GEOHASH.key
       if (!hasGeoType) queryParams setFilterQueries ("{!%s}".format("geofilt"))
 
       queryParams setParam ("d", "5")
