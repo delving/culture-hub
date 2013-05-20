@@ -34,7 +34,8 @@ object Build extends sbt.Build {
 
   val appDependencies = Seq(
     "org.apache.amber"          %  "amber-oauth2-authzserver"        % "0.22-incubating",
-    "org.apache.amber"          %  "amber-oauth2-client"             % "0.22-incubating"
+    "org.apache.amber"          %  "amber-oauth2-client"             % "0.22-incubating",
+    "com.typesafe.play.extras"  %% "iteratees-extras"                % "1.0.1"
   )
 
 
