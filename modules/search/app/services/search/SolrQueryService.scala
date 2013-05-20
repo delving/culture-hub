@@ -34,12 +34,32 @@ object SolrQueryService extends SolrServer {
   val FACET_PROMPT: String = "&qf="
   val QUERY_PROMPT: String = "query="
 
-  def renderXMLFields(field: FieldValue): (Seq[Elem], Seq[(String, String, Throwable)]) = {
+  def renderXMLFields(field: FieldValue, context: SearchContext): (Seq[Elem], Seq[(String, String, Throwable)]) = {
     val keyAsXml = field.getKeyAsXml
     val values = field.getValueAsArray.map(value => {
-      val cleanValue = if (value.startsWith("http")) value.replaceAll("&(?!amp;)", "&amp;") else StringEscapeUtils.escapeXml(value)
+      val withCacheUrl = prependImageCacheUrl(field.getKeyAsXml, value, context)
+      val cleanValue = escapeValue(withCacheUrl)
       try {
         Right(XML.loadString("<%s>%s</%s>\n".format(keyAsXml, cleanValue, keyAsXml)))
+      } catch {
+        case t: Throwable =>
+          Left((cleanValue, keyAsXml, t))
+      }
+    })
+
+    (values.filter(_.isRight).map(_.right.get), values.filter(_.isLeft).map(_.left.get))
+  }
+
+  def renderKMLSimpleDataFields(field: FieldValue, simpleData: Boolean, context: SearchContext): (Seq[Elem], Seq[(String, String, Throwable)]) = {
+    val keyAsXml = field.getKeyAsXml
+    val values = field.getValueAsArray.map(value => {
+      val withCacheUrl = prependImageCacheUrl(field.getKeyAsXml, value, context)
+      val cleanValue = escapeValue(withCacheUrl)
+      try {
+        if (simpleData)
+          Right(XML.loadString("<SimpleData name='%s'>%s</SimpleData>\n".format(field.getKey, cleanValue)))
+        else
+          Right(XML.loadString("<Data name='%s'><value>%s</value></Data>\n".format(field.getKeyAsXml, cleanValue)))
       } catch {
         case t: Throwable =>
           Left((cleanValue, keyAsXml, t))
@@ -59,6 +79,26 @@ object SolrQueryService extends SolrServer {
     )
 
     (values.filter(_.isRight).map(_.right.get), values.filter(_.isLeft).map(_.left.get))
+  }
+
+  def escapeValue(value: String) = if (value.startsWith("http")) value.replaceAll("&(?!amp;)", "&amp;") else StringEscapeUtils.escapeXml(value)
+
+  private val imageUrlFields = Seq("delving:imageUrl", "europeana:isShownBy", "europeana:object")
+  private val thumbnailUrlFields = Seq("delving:thumbnail")
+
+  def prependImageCacheUrl(xmlKey: String, value: String, context: SearchContext) = {
+    if (context.configuration.objectService.imageCacheEnabled) {
+      def url(imageType: String) = "http://%s/%s/cache?id=%s".format(context.host, imageType, URLEncoder.encode(value, "utf-8"))
+      if (imageUrlFields.contains(xmlKey)) {
+        url("image")
+      } else if (thumbnailUrlFields.contains(xmlKey)) {
+        url("thumbnail")
+      } else {
+        value
+      }
+    } else {
+      value
+    }
   }
 
   def encodeUrl(text: String): String = URLEncoder.encode(text, "utf-8")
