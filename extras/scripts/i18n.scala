@@ -12,29 +12,14 @@ if (args.isEmpty) {
                            |~~ scala i18n.scala all ~~~~> prints all usages
                            |~~ scala i18n.scala "ui.label.name" ~~~~> prints usages for one key
                            |~~ scala i18n.scala unused <absolutePathToMessagesFile> ~~~~> prints which keys are not used for a given messages file
-                           |~~ scala i18n.scala replace <absolutePathToReplaceFile> ~~~~> replaces all key-value pairs from a source properties-style file
-                           |~~ scala i18n.scala renameKeys <absolutePathToMessagesFile> <absolutePathToReplaceFile> ~~~~> replaces all keys in a messages file given a source properties-style file
+                           |~~ scala i18n.scala replace <absolutePathToReplaceFile> <unsafe> ~~~~> replaces all key-value pairs from a source properties-style file (unsafe: false by default)
+                           |~~ scala i18n.scala replaceKeys <absolutePathToMessagesFile> <absolutePathToReplaceFile> ~~~~> replaces all keys in a messages file given a source properties-style file
                            |""".stripMargin))
 } else {
 
+val root = new File("../..")
 
-def collectFiles(dir: File): Array[File] = {
-  val files = dir.listFiles()
-  if (files != null) {
-    files.
-      filter(f =>
-        f.getName.endsWith(".scala") ||
-        f.getName.endsWith(".html") ||
-        f.getName.endsWith("-view-definition.xml") ||
-        f.isDirectory).
-      filterNot(_.getName == "target").
-      flatMap(f => if (f.isDirectory) collectFiles(f) else Array(f))
-  } else {
-    Array[File]()
-  }
-}
-
-val usages: Seq[MessageUsage] = collectFiles(new File("../..")).flatMap { file =>
+val usages: Seq[MessageUsage] = Util.collectFiles(root).flatMap { file =>
   Source.fromFile(file, "utf-8").getLines().zipWithIndex.flatMap { line =>
     Patterns.patterns.flatMap { p =>
       p.findAllIn(line._1).matchData.map { m =>
@@ -65,7 +50,9 @@ def fetchReplacements(replaceFile: File) = {
 
 val matches = usages.filter(messageFilter)
 
-if (args.length > 0 && args(0) == "unused") {
+def isArg(arg: String) = args.length > 0 && args(0) == arg
+
+if (isArg("unused")) {
 
   val messagesFile = new File(args(1))
   if (!messagesFile.exists()) {
@@ -78,7 +65,7 @@ if (args.length > 0 && args(0) == "unused") {
     println(unusedKeys.mkString("\n"))
   }
 
-} else if (args.length > 0 && args(0) == "replaceKeys") {
+} else if (isArg("replaceKeys")) {
 
   val messagesFile = new File(args(1))
   if (!messagesFile.exists()) {
@@ -89,7 +76,8 @@ if (args.length > 0 && args(0) == "unused") {
       println("Can't find replacement file " + replacementFile)
     } else {
       val replacements = fetchReplacements(replacementFile)
-      val messages = fetchMessageKeys(messagesFile)
+
+      if (args)
 
       replacements.foreach { pair =>
         Util.replace(messagesFile, pair._1, pair._2, false)
@@ -97,7 +85,7 @@ if (args.length > 0 && args(0) == "unused") {
     }
   }
 
-} else if (args.length > 0 && args(0) == "replace") {
+} else if (isArg("replace")) {
 
   val replaceFile = new File(args(1))
   if (!replaceFile.exists()) {
@@ -105,12 +93,18 @@ if (args.length > 0 && args(0) == "unused") {
   } else {
     val replacements: Seq[(String, String)] = fetchReplacements(replaceFile)
 
-    replacements.foreach { r =>
-      matches.find(_.key == r._1) foreach { m =>
-        m.replace(r._2)
+    if (args.length > 1 && args(1) == "true") {
+      replacements.foreach { r =>
+        Util.replaceAll(root, r._1, r._2)
+      }
+
+    } else {
+      replacements.foreach { r =>
+        matches.find(_.key == r._1) foreach { m =>
+          m.replace(r._2)
+        }
       }
     }
-
 
   }
 
@@ -218,6 +212,30 @@ object Util {
     println(Colors.blue("Replaced key '%s' with new key '%s' in file %s".format(key, newKey, file.getAbsolutePath )))
 
     Some(new PrintWriter(file.getAbsolutePath, "utf-8")).foreach{p => p.write(replacement); p.close() }
+  }
+
+  def replaceAll(root: File, key: String, newKey: String) {
+    collectFiles(root) foreach { file =>
+      val source = Source.fromFile(file, "utf-8").getLines().mkString("\n")
+      val replacement = key.r.replaceAllIn(source, newKey)
+      Some(new PrintWriter(file.getAbsolutePath, "utf-8")).foreach{p => p.write(replacement); p.close() }
+    }
+  }
+
+  def collectFiles(dir: File): Array[File] = {
+    val files = dir.listFiles()
+    if (files != null) {
+      files.
+        filter(f =>
+          f.getName.endsWith(".scala") ||
+          f.getName.endsWith(".html") ||
+          f.getName.endsWith("-view-definition.xml") ||
+          f.isDirectory).
+        filterNot(_.getName == "target").
+        flatMap(f => if (f.isDirectory) collectFiles(f) else Array(f))
+    } else {
+      Array[File]()
+    }
   }
 
 }
