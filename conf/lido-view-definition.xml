@@ -1,0 +1,14 @@
+<?xml version ="1.0" encoding="UTF-8"?>
+
+<views>
+    <view name="html">
+        <row>
+            <column proportion="1of3">
+                <field path="/lido:lido/lido:descriptiveMetadata/lido:objectIdentificationWrap/lido:titleWrap/lido:titleSet/lido:appellationValue" label="thing.title"/>
+            </column>
+        </row>
+    </view>
+    <view name="api">
+        <verbatim/>
+    </view>
+</views>
