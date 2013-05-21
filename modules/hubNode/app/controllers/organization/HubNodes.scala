@@ -140,7 +140,7 @@ trait HubNodes extends OrganizationController { self: BoundController =>
 
     def apply(n: HubNode): HubNodeViewModel = HubNodeViewModel(Some(n._id), n.nodeId, n.orgId, n.name)
 
-    def nodeIdTaken(implicit configuration: OrganizationConfiguration) = Constraint[HubNodeViewModel]("_hubnode.ANodeWithTheSameNodeIdentifier") {
+    def nodeIdTaken(implicit configuration: OrganizationConfiguration) = Constraint[HubNodeViewModel]("hubnode.ANodeWithTheSameNodeIdentifier") {
       case r =>
         val maybeOne = nodeDirectoryServiceLocator.byDomain.findOneById(slugify(r.name))
         if (maybeOne.isDefined && r.id.isDefined) {
@@ -148,13 +148,13 @@ trait HubNodes extends OrganizationController { self: BoundController =>
         } else if (maybeOne == None) {
           Valid
         } else {
-          Invalid(ValidationError(Messages("_hubnode.ANodeWithTheSameNodeIdentifier")))
+          Invalid(ValidationError(Messages("hubnode.ANodeWithTheSameNodeIdentifier")))
         }
     }
 
-    def orgIdValid(implicit configuration: OrganizationConfiguration) = Constraint[String]("_hubnode.ThisOrganizationDoesntExist") {
+    def orgIdValid(implicit configuration: OrganizationConfiguration) = Constraint[String]("hubnode.ThisOrganizationDoesntExist") {
       case r if organizationServiceLocator.byDomain.exists(r) => Valid
-      case _ => Invalid(ValidationError(Messages("_hubnode.ThisOrganizationDoesntExist")))
+      case _ => Invalid(ValidationError(Messages("hubnode.ThisOrganizationDoesntExist")))
 
     }
 

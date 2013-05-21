@@ -67,4 +67,3 @@ class TaskQueueActor extends Actor with Logging {
 }
 
 case object Poll
-

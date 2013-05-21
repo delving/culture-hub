@@ -1,6 +1,6 @@
 #{extends themeInfo.get('themeLayout') /}
 
-#{set title: messages.get('_hubb.SitePages') /}
+#{set title: messages.get('hubb.SitePages') /}
 
 #{set bodyId: 'organization' /}
 
@@ -17,7 +17,7 @@
     <div class="accordion-group">
         <div class="accordion-heading  clearfix">
             <a class="accordion-toggle pull-right" href="#collapseOne" data-parent="instructions" data-toggle="collapse" rel="nofollow">
-                <i class="icon-question-sign"></i> &{'_cms.HelpWithWebsitePages'}
+                <i class="icon-question-sign"></i> &{'cms.HelpWithWebsitePages'}
             </a>
         </div>
         <div id="collapseOne" class="accordion-body collapse">
@@ -26,40 +26,40 @@
                 <div class="tabbable">
 
                     <ul class="nav nav-pills">
-                        <li class="active"><a href="#fields" data-toggle="tab" rel="nofollow">&{'_cms.FieldsExplained'}</a></li>
-                        <li><a href="#images" data-toggle="tab" rel="nofollow">&{'_cms.AddingImages'}</a></li>
-                        <li><a href="#templates" data-toggle="tab" rel="nofollow">&{'_cms.UsingTemplates'}</a></li>
-                        <li><a href="#homepage" data-toggle="tab" rel="nofollow">&{'_cms.CreatingHomepageContent'}</a></li>
+                        <li class="active"><a href="#fields" data-toggle="tab" rel="nofollow">&{'cms.FieldsExplained'}</a></li>
+                        <li><a href="#images" data-toggle="tab" rel="nofollow">&{'cms.AddingImages'}</a></li>
+                        <li><a href="#templates" data-toggle="tab" rel="nofollow">&{'cms.UsingTemplates'}</a></li>
+                        <li><a href="#homepage" data-toggle="tab" rel="nofollow">&{'cms.CreatingHomepageContent'}</a></li>
                     </ul>
 
                     <div class="tab-content">
                         <div class="tab-pane active" id="fields">
                             <dl>
-                                <dt>&{'_hubb.Title'}</dt>
-                                <dd>&{'_cms.UsedInThePagesHTML'}</dd>
-                                <dt>&{'_cms.PageKey'}</dt>
-                                <dd>&{'_cms.UniqueIdentifierForThePage'}</dd>
-                                <dt>&{'_hub.Language'}</dt>
-                                <dd>&{'_cms.TheLanguageOfThisPage'}</dd>
-                                <dt>&{'_cms.AddPageToAMenu'}</dt>
-                                <dd>&{'_cms.SelectTheMenu'}</dd>
-                                <dt>&{'_cms.PositionInTheMenu'}</dt>
-                                <dd>&{'_cms.ThePositionOfYourPageLink'}</dd>
+                                <dt>&{'hubb.Title'}</dt>
+                                <dd>&{'cms.UsedInThePagesHTML'}</dd>
+                                <dt>&{'cms.PageKey'}</dt>
+                                <dd>&{'cms.UniqueIdentifierForThePage'}</dd>
+                                <dt>&{'hub.Language'}</dt>
+                                <dd>&{'cms.TheLanguageOfThisPage'}</dd>
+                                <dt>&{'cms.AddPageToAMenu'}</dt>
+                                <dd>&{'cms.SelectTheMenu'}</dd>
+                                <dt>&{'cms.PositionInTheMenu'}</dt>
+                                <dd>&{'cms.ThePositionOfYourPageLink'}</dd>
                             </dl>
                         </div>
                         <div class="tab-pane" id="images">
                             <p>
-                                &{'_cms.ImagesCanBeAdded', orgId}
+                                &{'cms.ImagesCanBeAdded', orgId}
                             </p>
                         </div>
                         <div class="tab-pane" id="templates">
                             <p>
-                                &{'_cms.WhenCreatingPageContent'}
+                                &{'cms.WhenCreatingPageContent'}
                             </p>
                         </div>
                         <div class="tab-pane" id="homepage">
                             <p>
-                            &{'_cms.CreatingHomepageContent'}
+                            &{'cms.CreatingHomepageContent'}
                             </p>
                         </div>
                     </div>
@@ -75,17 +75,17 @@
     <div data-bind="text: errors().global"></div>
 
          <div class="cms-page-name span4">
-        #{form.textField name:"title", form:pageForm, label:messages.get('_hubb.Title'), dataBind:"value: title", maxLength: 35, required: true /}
-        #{form.textField name:"key", form:pageForm, label:messages.get('_cms.PageKey'), dataBind:"value: key", required: true, disabled: !isNew, extHtml: '<span id="createKey" class="btn btn-mini">'+messages.get("_cms.AutoGeneratePageKey")+'</span><p class="error"></p>' /}
+        #{form.textField name:"title", form:pageForm, label:messages.get('hubb.Title'), dataBind:"value: title", maxLength: 35, required: true /}
+        #{form.textField name:"key", form:pageForm, label:messages.get('cms.PageKey'), dataBind:"value: key", required: true, disabled: !isNew, extHtml: '<span id="createKey" class="btn btn-mini">'+messages.get("cms.AutoGeneratePageKey")+'</span><p class="error"></p>' /}
         </div>
 
         <div class="cms-page-lang span4">
-        #{form.populatedSelectField options:languages, name:"lang", form: pageForm, label:messages.get('_hub.Language'), dataBind:"value: lang", required: true /}
+        #{form.populatedSelectField options:languages, name:"lang", form: pageForm, label:messages.get('hub.Language'), dataBind:"value: lang", required: true /}
         </div>
 
         <div class="cms-page-menu span4">
             <div class="control-group">
-                <label>&{'_cms.AddPageToAMenu'}</label>
+                <label>&{'cms.AddPageToAMenu'}</label>
                 <div class="controls">
                     <select name="menu" id="menu" data-bind="value: menu">
                         <option value="none">None</option>
@@ -95,27 +95,27 @@
                     </select>
                 </div>
             </div>
-            #{form.textField name:"position", form: pageForm, label:messages.get('_cms.PositionInTheMenu'), dataBind:"value: position", required: true /}
+            #{form.textField name:"position", form: pageForm, label:messages.get('cms.PositionInTheMenu'), dataBind:"value: position", required: true /}
         </div>
 
     </div>
     <div class="row">
         <div class="span12">
-        #{form.textArea id: "editor", name:"pageContent", form: pageForm, inputClass:"mceEditor", label:messages.get('_hub.Content'), dataBind:"tinymce: content, tinymceOptions: {orgId: '${orgId}'}", required: true /}
+        #{form.textArea id: "editor", name:"pageContent", form: pageForm, inputClass:"mceEditor", label:messages.get('hub.Content'), dataBind:"tinymce: content, tinymceOptions: {orgId: '${orgId}'}", required: true /}
         </div>
     </div>
 
     <div class="row">
         <div class="span12">
-        #{form.checkboxField name: "published", label: messages.get('_cms.Publish'), value: "true", dataBind: "checked: published", extHelp: messages.get('_cms.MakeThisContentVisible') /}
+        #{form.checkboxField name: "published", label: messages.get('cms.Publish'), value: "true", dataBind: "checked: published", extHelp: messages.get('_cms.MakeThisContentVisible') /}
         </div>
     </div>
     <div class="row">
         <div class="span12">
             <div class="well">
-            #{btnButton label: messages.get('_cms.SavePage'), extraClass:"btn-success", iconClass:"icon-ok-circle icon-white", id:"saveButton", type:"submit" /}
-            #{btnButton label: messages.get('_hub.Cancel'), extraClass:"cancelButton", id:"cancelButton", type:"reset" /}
-            #{btnButton label: messages.get('_hub.Reset'), extraClass:"", type:"reset" /}
+            #{btnButton label: messages.get('cms.SavePage'), extraClass:"btn-success", iconClass:"icon-ok-circle icon-white", id:"saveButton", type:"submit" /}
+            #{btnButton label: messages.get('hub.Cancel'), extraClass:"cancelButton", id:"cancelButton", type:"reset" /}
+            #{btnButton label: messages.get('hub.Reset'), extraClass:"", type:"reset" /}
                 <div class="wait"></div>
             </div>
         </div>
@@ -127,13 +127,13 @@
 <div class="row">
     <div class="span12">
         <table class="table table-striped" id="versions">
-            <caption>&{'_hub.PreviousVersions'}</caption>
+            <caption>&{'hub.PreviousVersions'}</caption>
             <thead>
             <tr>
-                <th>&{'_hubb.Title'}</th>
-                <th>&{'_hubb.User'}</th>
-                <th>&{'_hubb.DateCreated'}</th>
-                <th>&{'_hubb.Actions'}</th>
+                <th>&{'hubb.Title'}</th>
+                <th>&{'hubb.User'}</th>
+                <th>&{'hubb.DateCreated'}</th>
+                <th>&{'hubb.Actions'}</th>
             </tr>
             </thead>
             <tbody data-bind="foreach: versions()">
@@ -149,7 +149,7 @@
                 </td>
                 <td>
                     <a class="" href="#" data-bind="click: function() { $parent.loadVersion($data) }" rel="nofollow">
-                        <span class="badge badge-info">&{'_hub.Load'}</span>
+                        <span class="badge badge-info">&{'hub.Load'}</span>
                     </a>
                 </td>
             </tr>
@@ -186,7 +186,7 @@
             $(this).next('.error').html("");
            var keyFromTitle = $('input#title').val().trim().replace(/\s+/g, '-').toLowerCase();
            if (keyFromTitle == '') {
-               $(this).next('.error').html("&{'_cms.TitleMandatory'}");
+               $(this).next('.error').html("&{'cms.TitleMandatory'}");
            }
            $('input#key').attr("value", keyFromTitle);
            pageModel.key(keyFromTitle);

@@ -1,12 +1,12 @@
 <form name="form-page-jump" action="?${_pQuery}&amp;searchIn=${_searchIn}&amp;facetBoolType=OR" method="GET">
 <ul class="pager">
 #{if _pagination.previous}
-    <li><a class="previous" rel="nofollow" href="?${_pQuery}&amp;searchIn=${_searchIn}&amp;start=1&facetBoolType=OR">${messages.get('_hub.First')}</a></li>
-    <li><a class="previous" rel="nofollow" href="?${_pQuery}&amp;searchIn=${_searchIn}&amp;start=${_pagination.previousPage}&facetBoolType=OR">&laquo;&#160;${messages.get('_hub.Previous')}</a></li>
+    <li><a class="previous" rel="nofollow" href="?${_pQuery}&amp;searchIn=${_searchIn}&amp;start=1&facetBoolType=OR">${messages.get('hub.First')}</a></li>
+    <li><a class="previous" rel="nofollow" href="?${_pQuery}&amp;searchIn=${_searchIn}&amp;start=${_pagination.previousPage}&facetBoolType=OR">&laquo;&#160;${messages.get('hub.Previous')}</a></li>
 #{/if}
 #{else}
-    <li class="disabled"><a href="#" rel="nofollow">${messages.get('_hub.First')}</a></li>
-    <li class="disabled"><a href="#" rel="nofollow">&laquo;&#160;${messages.get('_hub.Previous')}</a></li>
+    <li class="disabled"><a href="#" rel="nofollow">${messages.get('hub.First')}</a></li>
+    <li class="disabled"><a href="#" rel="nofollow">&laquo;&#160;${messages.get('hub.Previous')}</a></li>
 #{/else}
     <li>
 
@@ -14,12 +14,12 @@
 
     </li>
 #{if _pagination.next}
-    <li class="next"><a href="?${_pQuery}&amp;searchIn=${_searchIn}&amp;start=${_pagination.nextPage}&facetBoolType=OR" rel="nofollow">${messages.get('_hub.Next')}&#160;&raquo;</a></li>
-    <li class="next"><a href="?${_pQuery}&amp;searchIn=${_searchIn}&amp;start=${_lastPage}&facetBoolType=OR" rel="nofollow">${messages.get('_hub.Last')}</a></li>
+    <li class="next"><a href="?${_pQuery}&amp;searchIn=${_searchIn}&amp;start=${_pagination.nextPage}&facetBoolType=OR" rel="nofollow">${messages.get('hub.Next')}&#160;&raquo;</a></li>
+    <li class="next"><a href="?${_pQuery}&amp;searchIn=${_searchIn}&amp;start=${_lastPage}&facetBoolType=OR" rel="nofollow">${messages.get('hub.Last')}</a></li>
 #{/if}
 #{else}
-    <li class="disabled"><a href="#" rel="nofollow">${messages.get('_hub.Next')}&#160;&raquo;</a></li>
-    <li class="disabled"><a href="#" rel="nofollow">${messages.get('_hub.Last')}</a></li>
+    <li class="disabled"><a href="#" rel="nofollow">${messages.get('hub.Next')}&#160;&raquo;</a></li>
+    <li class="disabled"><a href="#" rel="nofollow">${messages.get('hub.Last')}</a></li>
 #{/else}
 </ul>
 </form>

@@ -40,7 +40,7 @@ trait Organizations extends DelvingController { this: BoundController =>
 
           ))
         } else {
-          NotFound(Messages("_hub.CouldNotFindOrganization", orgId))
+          NotFound(Messages("hub.CouldNotFindOrganization", orgId))
         }
     }
   }

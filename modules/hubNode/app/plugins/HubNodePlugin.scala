@@ -24,11 +24,11 @@ class HubNodePlugin(app: Application) extends CultureHubPlugin(app) {
   override def organizationMenuEntries(configuration: OrganizationConfiguration, lang: String, roles: Seq[String]): Seq[MainMenuEntry] = Seq(
     MainMenuEntry(
       key = "hubNode",
-      titleKey = "_hubnode.HubNodes",
+      titleKey = "hubnode.HubNodes",
       roles = Seq(Role.OWN),
       items = Seq(
-        MenuElement("/organizations/%s/hubNode".format(configuration.orgId), "_hubnode.ListHubNodes"),
-        MenuElement("/organizations/%s/hubNode/add".format(configuration.orgId), "_hubnode.CreateHubNode")
+        MenuElement("/organizations/%s/hubNode".format(configuration.orgId), "hubnode.ListHubNodes"),
+        MenuElement("/organizations/%s/hubNode/add".format(configuration.orgId), "hubnode.CreateHubNode")
       )
     )
   )

@@ -30,7 +30,7 @@ object DataSets extends OrganizationController {
       implicit request =>
         val maybeDataSet = DataSet.dao.findBySpecAndOrgId(spec, orgId)
         if (maybeDataSet.isEmpty) {
-          NotFound(Messages("_dataset.DatasetWasNotFound", spec))
+          NotFound(Messages("dataset.DatasetWasNotFound", spec))
         } else {
           val ds = maybeDataSet.get
           Ok(Template('spec -> ds.spec))

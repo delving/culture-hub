@@ -15,16 +15,16 @@
                     if (facet.getType() == "delving_recordType_facet") {
                         switch (link.getValue()) {
                             case 'mdr':
-                            thingType = messages.get('_hubb.HeritageObject')
+                            thingType = messages.get('hubb.HeritageObject')
                             break
                             case 'object':
                             thingType = messages.get('thing.object.user')
                             break
                             case 'collection':
-                            thingType = messages.get('_hubb.Collection')
+                            thingType = messages.get('hubb.Collection')
                             break
                             case 'museum':
-                            thingType = messages.get('_hubb.Museum')
+                            thingType = messages.get('hubb.Museum')
                             break
                             default:
                             thingType = link.getValue()
@@ -33,10 +33,10 @@
                     if (facet.getType() == "delving_hasDigitalObject_facet") {
                       switch (link.getValue()) {
                           case 'false':
-                          thingType = messages.get('_hub.WithoutDigitalObject')
+                          thingType = messages.get('hub.WithoutDigitalObject')
                           break
                           case 'true':
-                          thingType = messages.get('_hub.WithDigitalObject')
+                          thingType = messages.get('hub.WithDigitalObject')
                           break
                       }
                     }
@@ -77,16 +77,16 @@
                     if (facet.getType() == "delving_recordType_facet") {
                     switch (link.value()) {
                     case 'mdr':
-                    thingType = messages.get('_hubb.HeritageObject')
+                    thingType = messages.get('hubb.HeritageObject')
                     break
                     case 'object':
                     thingType = messages.get('thing.object.user')
                     break
                     case 'collection':
-                    thingType = messages.get('_hubb.Collection')
+                    thingType = messages.get('hubb.Collection')
                     break
                     case 'museum':
-                    thingType = messages.get('_hubb.Museum')
+                    thingType = messages.get('hubb.Museum')
                     break
                     default:
                     thingType = link.getValue()
@@ -133,16 +133,16 @@
                     *{if (facet.getType() == "delving_recordType_facet") {}*
                     *{switch (link.getValue()) {}*
                     *{case 'mdr':}*
-                    *{thingType = messages.get('_hubb.HeritageObject')}*
+                    *{thingType = messages.get('hubb.HeritageObject')}*
                     *{break}*
                     *{case 'object':}*
                     *{thingType = messages.get('thing.object.user')}*
                     *{break}*
                     *{case 'collection':}*
-                    *{thingType = messages.get('_hubb.Collection')}*
+                    *{thingType = messages.get('hubb.Collection')}*
                     *{break}*
                     *{case 'museum':}*
-                    *{thingType = messages.get('_hubb.Museum')}*
+                    *{thingType = messages.get('hubb.Museum')}*
                     *{break}*
                     *{default:}*
                     *{thingType = link.getValue()}*

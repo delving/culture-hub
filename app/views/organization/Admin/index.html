@@ -1,6 +1,6 @@
 #{extends themeInfo.get('themeLayout') /}
 
-#{set title: messages.get('_hub.OrganizationAdministration') /}
+#{set title: messages.get('hub.OrganizationAdministration') /}
 
 #{set bodyId: 'organization' /}
 
@@ -15,7 +15,7 @@
 <div class="org-admin row">
 
     <div class="administrators span4">
-        <h3>&{'_hub.Administrators'}</h3>
+        <h3>&{'hub.Administrators'}</h3>
         <div>
         #{addRemoveTokenField
               id:"adminInput",
@@ -26,17 +26,17 @@
               removeUrl: "/organizations/"+orgId+"/admin/admin/remove" /}
         </div>
         <div>
-            <p>&{'_hub.AddAnAdministrator'}</p>
+            <p>&{'hub.AddAnAdministrator'}</p>
         </div>
     </div>
 
     <div class="members span4">
-        <h3>&{'_hub.Members'}</h3>
+        <h3>&{'hub.Members'}</h3>
         <div>
-        #{addRemoveTokenField id:"members", searchUrl: "/users/search", prePopulate: members, addUrl:"/organizations/"+orgId+"/admin/users/add", removeUrl: "/organizations/"+orgId+"/admin/users/remove", removeConfirmation: messages.get('_hub.RemovingAMemberWillAlso') /}
+        #{addRemoveTokenField id:"members", searchUrl: "/users/search", prePopulate: members, addUrl:"/organizations/"+orgId+"/admin/users/add", removeUrl: "/organizations/"+orgId+"/admin/users/remove", removeConfirmation: messages.get('hub.RemovingAMemberWillAlso') /}
         </div>
         <div>
-            <p>&{'_hub.AddANewMember'}</p>
+            <p>&{'hub.AddANewMember'}</p>
         </div>
     </div>
 

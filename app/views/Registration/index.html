@@ -1,9 +1,9 @@
 #{extends themeInfo.get('themeLayout') /}
-#{set title: messages.get('_hub.Register') /}
+#{set title: messages.get('hub.Register') /}
 
 <div id="register">
 
-    <h3>${messages.get('_hub.RegisterFor', themeInfo.siteName())}</h3>
+    <h3>${messages.get('hub.RegisterFor', themeInfo.siteName())}</h3>
 
     <form id="registrationForm" action="@{controllers.routes.Registration.register()}" method="POST" class="form-delving">
 
@@ -12,7 +12,7 @@
         <div class="span6">
             #{if views.Helpers.hasErrors(registrationForm)}
             <div class="alert alert-error">
-                <p class="error">&{'_hub.ErrorCreatingYourAccount'}</p>
+                <p class="error">&{'hub.ErrorCreatingYourAccount'}</p>
                 <ul>
                     #{list views.Helpers.listGlobalErrors(registrationForm), as: 'e'}
                         <li>${e}</li>
@@ -21,30 +21,30 @@
             </div>
             #{/if}
 
-            #{form.textField form: registrationForm, name:"firstName", label: messages.get('_hub.FirstName') , required: true /}
-            #{form.textField form: registrationForm, name:"lastName", label: messages.get('_hub.LastName') , required: true /}
-            #{form.textField form: registrationForm, name:"email", label: messages.get('_hub.Email') , required: true /}
-            #{form.textField form: registrationForm, name:"userName", label:  messages.get('_hub.Username') , required: true /}
+            #{form.textField form: registrationForm, name:"firstName", label: messages.get('hub.FirstName') , required: true /}
+            #{form.textField form: registrationForm, name:"lastName", label: messages.get('hub.LastName') , required: true /}
+            #{form.textField form: registrationForm, name:"email", label: messages.get('hub.Email') , required: true /}
+            #{form.textField form: registrationForm, name:"userName", label:  messages.get('hub.Username') , required: true /}
         </div>
 
         <div class="span6">
-            #{form.passwordField form: registrationForm, name:"password1", label: messages.get('_hub.Password') , required: true /}
-            #{form.passwordField form: registrationForm, name:"password2", label: messages.get('_hub.RepeatPassword') , required: true /}
+            #{form.passwordField form: registrationForm, name:"password1", label: messages.get('hub.Password') , required: true /}
+            #{form.passwordField form: registrationForm, name:"password2", label: messages.get('hub.RepeatPassword') , required: true /}
             <div class="control-group">
-                <label class="" for="code">&{'_hub.EnterTheCodeYouSeeHere'}</label>
+                <label class="" for="code">&{'hub.EnterTheCodeYouSeeHere'}</label>
                 <div class="controls">
                     <input type="text" name="code" id="code" size="18" value="" class="textinput  #{if views.Helpers.showError('code', registrationForm)}required #{/if}">
                     <input type="hidden" name="randomId" value="${randomId}">
                     <span class="error">${views.Helpers.showError("code", registrationForm)}</span>
-                    <span class="help-inline"><strong>&{'_hub.Required'}</strong></span>
+                    <span class="help-inline"><strong>&{'hub.Required'}</strong></span>
                     <div class="extra">
                         <img src="@{controllers.routes.Registration.captcha(randomId)}" align="top"/>
                     </div>
                 </div>
             </div>
             <div class="well">
-                #{btnButton label: messages.get('_hub.Register'), id:"submit", extraClass:"btn-primary btn-prominent"/}
-                #{btnButton label: messages.get('_hub.Cancel'), extraClass:"cancelButton pull-right"/}
+                #{btnButton label: messages.get('hub.Register'), id:"submit", extraClass:"btn-primary btn-prominent"/}
+                #{btnButton label: messages.get('hub.Cancel'), extraClass:"cancelButton pull-right"/}
             </div>
         </div>
     </div>
@@ -53,4 +53,3 @@
 
     </form>
 </div>
-

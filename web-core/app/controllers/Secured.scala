@@ -30,7 +30,7 @@ trait Secured {
     }
 
     val session = request.session - USERNAME + ("uri", if (("GET" == request.method)) request.uri else "/")
-    Redirect("/login").withSession(session).flashing(("error" -> Messages("_hub.LoginIncorrect")))
+    Redirect("/login").withSession(session).flashing(("error" -> Messages("hub.LoginIncorrect")))
   }
 
   /**

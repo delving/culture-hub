@@ -102,7 +102,7 @@ trait CRUDController[Model <: CaseClass { def id: ObjectId }, D <: SalatDAO[Mode
   def view(id: ObjectId,
     titleKey: String = "",
     viewTemplate: String = "organization/crudView.html",
-    fields: Seq[(String, String)] = Seq(("_hubb.Name" -> "name")))(implicit mom: Manifest[Model], mod: Manifest[D]) = OrganizationAdmin {
+    fields: Seq[(String, String)] = Seq(("hubb.Name" -> "name")))(implicit mom: Manifest[Model], mod: Manifest[D]) = OrganizationAdmin {
     Action {
 
       implicit request =>
@@ -113,7 +113,7 @@ trait CRUDController[Model <: CaseClass { def id: ObjectId }, D <: SalatDAO[Mode
 
   def list(titleKey: String = "",
     listTemplate: String = "organization/crudList.html",
-    fields: Seq[(String, String)] = Seq(("_hubb.Name" -> "name")),
+    fields: Seq[(String, String)] = Seq(("hubb.Name" -> "name")),
     additionalActions: Seq[ListAction] = Seq.empty,
     isAdmin: RequestHeader => Boolean = { Unit => true },
     filter: Seq[(String, Any)] = Seq.empty)(implicit mom: Manifest[Model], mod: Manifest[D]) = OrganizationAdmin {
@@ -159,7 +159,7 @@ trait CRUDController[Model <: CaseClass { def id: ObjectId }, D <: SalatDAO[Mode
   def crudView(id: ObjectId,
     titleKey: String = "",
     viewTemplate: String = "organization/crudView.html",
-    fields: Seq[(String, String)] = Seq(("_hubb.Name" -> "name")))(implicit request: RequestHeader, configuration: OrganizationConfiguration,
+    fields: Seq[(String, String)] = Seq(("hubb.Name" -> "name")))(implicit request: RequestHeader, configuration: OrganizationConfiguration,
       mom: Manifest[Model], mod: Manifest[D]): Result = {
 
     dao.findOneById(id).map { item =>
@@ -182,7 +182,7 @@ trait CRUDController[Model <: CaseClass { def id: ObjectId }, D <: SalatDAO[Mode
 
   def crudList(titleKey: String = "",
     listTemplate: String = "organization/crudList.html",
-    fields: Seq[(String, String)] = Seq(("_hubb.Name" -> "name")),
+    fields: Seq[(String, String)] = Seq(("hubb.Name" -> "name")),
     createActionEnabled: Boolean = true,
     editActionEnabled: Boolean = true,
     deleteActionEnabled: Boolean = true,

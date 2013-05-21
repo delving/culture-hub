@@ -3,14 +3,14 @@
 #{if _showLogin == true}
     <li>
         <a href="/login" rel="nofollow" class="first" tabindex="1">
-            ${messages.get('_hub.Login')}
+            ${messages.get('hub.Login')}
         </a>
     </li>
     #{if _showRegistration == true}
     <li class="divider-vertical"></li>
     <li>
         <a href="/registration" rel="nofollow" class="" tabindex="2">
-            ${messages.get('_hub.Register')}
+            ${messages.get('hub.Register')}
         </a>
     </li>
     #{/if}
@@ -19,23 +19,22 @@
 #{else}
     <li class="user">
         <a href="/${_userName}" rel="nofollow" class="gravatar">
-            #{gravatar.img _email, size:21 /} ${messages.get('_hub.LoggedInAs')}: ${_userName}
+            #{gravatar.img _email, size:21 /} ${messages.get('hub.LoggedInAs')}: ${_userName}
         </a>
     </li>
     <li class="divider-vertical"></li>
     #{if _organization}
         <li>
             <a href="/organizations/${_organization}" rel="nofollow">
-                <i class="icon-dashboard"></i> ${messages.get('_hub.Administration')}
+                <i class="icon-dashboard"></i> ${messages.get('hub.Administration')}
              </a>
         </li>
         <li class="divider-vertical"></li>
     #{/if}
     <li>
         <a href="/logout" rel="nofollow">
-            ${messages.get('_hub.Logout')}
+            ${messages.get('hub.Logout')}
         </a>
     </li>
 #{/else}
 </ul>
-

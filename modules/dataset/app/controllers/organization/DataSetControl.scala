@@ -101,7 +101,7 @@ object DataSetCreationViewModel {
     if (o == Some("raw")) Invalid(ValidationError("error.notRaw")) else Valid
   }
 
-  def specTaken(implicit configuration: OrganizationConfiguration) = Constraint[DataSetCreationViewModel]("_dataset.ThisDatasetIdentifierIsAlreadyInUse") {
+  def specTaken(implicit configuration: OrganizationConfiguration) = Constraint[DataSetCreationViewModel]("dataset.ThisDatasetIdentifierIsAlreadyInUse") {
     case r =>
       val maybeOne = DataSet.dao.findBySpecAndOrgId(r.spec, configuration.orgId)
       if (maybeOne.isDefined && r.id.isDefined) {
@@ -109,14 +109,14 @@ object DataSetCreationViewModel {
       } else if (maybeOne == None) {
         Valid
       } else {
-        Invalid(ValidationError(Messages("_dataset.ThisDatasetIdentifierIsAlreadyInUse")))
+        Invalid(ValidationError(Messages("dataset.ThisDatasetIdentifierIsAlreadyInUse")))
       }
   }
 
-  def creationQuotaExceeded(implicit configuration: OrganizationConfiguration) = Constraint[DataSetCreationViewModel]("_dataset.TheQuotaOfAllowedDatasetsExceeded") {
+  def creationQuotaExceeded(implicit configuration: OrganizationConfiguration) = Constraint[DataSetCreationViewModel]("dataset.TheQuotaOfAllowedDatasetsExceeded") {
     case r =>
       if (CultureHubPlugin.isQuotaExceeded(DataSet.RESOURCE_TYPE)) {
-        Invalid(ValidationError(Messages("_dataset.TheQuotaOfAllowedDatasetsExceeded")))
+        Invalid(ValidationError(Messages("dataset.TheQuotaOfAllowedDatasetsExceeded")))
       } else {
         Valid
       }
