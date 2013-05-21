@@ -77,8 +77,6 @@ if (isArg("unused")) {
     } else {
       val replacements = fetchReplacements(replacementFile)
 
-      if (args)
-
       replacements.foreach { pair =>
         Util.replace(messagesFile, pair._1, pair._2, false)
       }
@@ -93,7 +91,7 @@ if (isArg("unused")) {
   } else {
     val replacements: Seq[(String, String)] = fetchReplacements(replaceFile)
 
-    if (args.length > 1 && args(1) == "true") {
+    if (args.length > 1 && args(2) == "true") {
       replacements.foreach { r =>
         Util.replaceAll(root, r._1, r._2)
       }
@@ -218,6 +216,7 @@ object Util {
     collectFiles(root) foreach { file =>
       val source = Source.fromFile(file, "utf-8").getLines().mkString("\n")
       val replacement = key.r.replaceAllIn(source, newKey)
+      println(Colors.blue("Replaced key '%s' with new key '%s' in file %s".format(key, newKey, file.getAbsolutePath )))
       Some(new PrintWriter(file.getAbsolutePath, "utf-8")).foreach{p => p.write(replacement); p.close() }
     }
   }

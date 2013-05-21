@@ -84,4 +84,3 @@ val lowerCaseDZFileUrls = deepZoomFileUrls.map(_.toLowerCase)
 val linksNotOnDiskCaseInsensitive = sipCreatorDeepZoomLinks.map(_.toLowerCase).filterNot(f => lowerCaseDZFileUrls.contains(f))
 println(s"Links not as tiles on disk (case insensitive): ${linksNotOnDiskCaseInsensitive.size}")
 printLinksToDisk(linksNotOnDiskCaseInsensitive, "linksNotOnDiskCaseInsensitive")
-

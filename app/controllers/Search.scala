@@ -68,7 +68,7 @@ object Search extends DelvingController {
               (SEARCH_TERM -> query))
         } catch {
           case MalformedQueryException(s, t) => BadRequest(Template("/Search/invalidQuery.html", 'query -> query))
-          case c: SolrConnectionException => Error(Messages("_search.CannotConnectToTheSearchBackend"))
+          case c: SolrConnectionException => Error(Messages("search.CannotConnectToTheSearchBackend"))
         }
     }
 

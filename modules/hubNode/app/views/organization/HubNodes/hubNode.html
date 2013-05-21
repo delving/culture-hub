@@ -1,6 +1,6 @@
 #{extends themeInfo.get('themeLayout') /}
 
-#{set title: messages.get('_hubnode.CreateHubNode') /}
+#{set title: messages.get('hubnode.CreateHubNode') /}
 
 #{set bodyId: 'organization' /}
 
@@ -13,14 +13,14 @@
     <div class="span6">
         <form id="hubNodeForm" method="POST" action="" class="form-delving form-horizontal well well-small">
             <div class="error" style="margin-bottom: 12px;" data-bind="text: errors().global"></div>
-            #{form.textField name:"nodeId", form: hubNodeForm, label: messages.get('_hubnode.NodeIdentifier'), dataBind:"value: nodeId, disable: true", maxLength: 30 /}
-            #{form.textField name:"orgId", form: hubNodeForm, label: messages.get('_hubnode.OrganizationIdentifier'), dataBind:"value: orgId, disable: typeof id !== 'undefined'", maxLength: 30, required: true /}
-            #{form.textField name:"name", form: hubNodeForm, label: messages.get('_hubnode.NodeName'), dataBind:"value: name", maxLength: 30, required: true /}
+            #{form.textField name:"nodeId", form: hubNodeForm, label: messages.get('hubnode.NodeIdentifier'), dataBind:"value: nodeId, disable: true", maxLength: 30 /}
+            #{form.textField name:"orgId", form: hubNodeForm, label: messages.get('hubnode.OrganizationIdentifier'), dataBind:"value: orgId, disable: typeof id !== 'undefined'", maxLength: 30, required: true /}
+            #{form.textField name:"name", form: hubNodeForm, label: messages.get('hubnode.NodeName'), dataBind:"value: name", maxLength: 30, required: true /}
         </form>
     </div>
     #{if nodeId}
     <div class="span6">
-        <h3>&{'_hub.Members'}</h3>
+        <h3>&{'hub.Members'}</h3>
         <div>
             #{addRemoveTokenField
                   id:"memberInput",
@@ -35,9 +35,9 @@
 </div>
 
 <div class="well">
-    #{btnButton label: messages.get('_hub.Save'), extraClass:"btn-success btn-large span6 pull-right", iconClass:"icon-ok-circle icon-white", id:"saveButton", type:"submit" /}
-    #{btnButton label: messages.get('_hub.Cancel'), extraClass:"cancelButton", id:"cancelButton", type:"reset" /}
-    #{btnButton label: messages.get('_hub.Reset'), extraClass:"", type:"reset" /}
+    #{btnButton label: messages.get('hub.Save'), extraClass:"btn-success btn-large span6 pull-right", iconClass:"icon-ok-circle icon-white", id:"saveButton", type:"submit" /}
+    #{btnButton label: messages.get('hub.Cancel'), extraClass:"cancelButton", id:"cancelButton", type:"reset" /}
+    #{btnButton label: messages.get('hub.Reset'), extraClass:"", type:"reset" /}
     <div class="wait"></div>
 </div>
 

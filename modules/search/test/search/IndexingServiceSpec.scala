@@ -29,4 +29,3 @@ class IndexingServiceSpec extends Specs2TestContext {
 
   }
 }
-

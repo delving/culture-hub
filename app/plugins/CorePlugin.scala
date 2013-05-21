@@ -24,8 +24,8 @@ class CorePlugin(app: Application) extends CultureHubPlugin(app) {
   override def mainMenuEntries(configuration: OrganizationConfiguration, lang: String): Seq[MainMenuEntry] = Seq(
     MainMenuEntry(
       key = "home",
-      titleKey = "_hub.Home",
-      mainEntry = Some(MenuElement(url = "/", titleKey = "_hub.Home"))
+      titleKey = "hub.Home",
+      mainEntry = Some(MenuElement(url = "/", titleKey = "hub.Home"))
     )
   )
 
@@ -36,22 +36,22 @@ class CorePlugin(app: Application) extends CultureHubPlugin(app) {
   override def organizationMenuEntries(configuration: OrganizationConfiguration, lang: String, roles: Seq[String]): Seq[MainMenuEntry] = Seq(
     MainMenuEntry(
       key = "overview",
-      titleKey = "_hub.Overview",
-      mainEntry = Some(MenuElement("/organizations/" + configuration.orgId, "_hub.Overview")),
+      titleKey = "hub.Overview",
+      mainEntry = Some(MenuElement("/organizations/" + configuration.orgId, "hub.Overview")),
       membersOnly = false
     ),
     MainMenuEntry(
       key = "administration",
-      titleKey = "_hub.Administration",
-      mainEntry = Some(MenuElement("/organizations/%s/admin".format(configuration.orgId), "_hub.Administration")),
+      titleKey = "hub.Administration",
+      mainEntry = Some(MenuElement("/organizations/%s/admin".format(configuration.orgId), "hub.Administration")),
       roles = Seq(Role.OWN)
     ),
     MainMenuEntry(
       key = "groups",
-      titleKey = "_hubb.Groups",
+      titleKey = "hubb.Groups",
       items = Seq(
-        MenuElement("/organizations/%s/groups".format(configuration.orgId), "_hub.GroupList"),
-        MenuElement("/organizations/%s/groups/create".format(configuration.orgId), "_hub.CreateGroup", Seq(Role.OWN))
+        MenuElement("/organizations/%s/groups".format(configuration.orgId), "hub.GroupList"),
+        MenuElement("/organizations/%s/groups/create".format(configuration.orgId), "hub.CreateGroup", Seq(Role.OWN))
       )
     )
   )

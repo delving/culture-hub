@@ -13,19 +13,19 @@
             <div class="bd">
                 <div class="metadata">
                     #{thingToolbar/}
-                    <h5>&{'_md.dc.description'}:</h5>
+                    <h5>&{'md.dc.description'}:</h5>
                     <p>${fullDoc.getDescription().isEmpty() ? "No description available" : fullDoc.getDescription()}</p>
                     <hr/>
                     <div class="row">
                         <div class="g-1of2 alpha">
-                            #{metadataField label: messages.get('_md.dc.title'), data: fullDoc.getTitle() /}
-                            #{metadataField label: messages.get('_md.dc.creator'), data: fullDoc.getCreator() /}
+                            #{metadataField label: messages.get('md.dc.title'), data: fullDoc.getTitle() /}
+                            #{metadataField label: messages.get('md.dc.creator'), data: fullDoc.getCreator() /}
                             #{metadataField label: messages.get('metadata.dc.year'), data: fullDoc.getYear() /}
                         </div>
 
                         <div class="g-1of2 omega">
-                            #{metadataField label: messages.get('_md.dc.language'), data: fullDoc.getLanguage() /}
-                            #{metadataField label: messages.get('_md.europeana.dataProvider'), data: fullDoc.getDataProvider() /}
+                            #{metadataField label: messages.get('md.dc.language'), data: fullDoc.getLanguage() /}
+                            #{metadataField label: messages.get('md.europeana.dataProvider'), data: fullDoc.getDataProvider() /}
                         </div>
                     </div>
                 </div>

@@ -236,4 +236,3 @@ object TikaIndexer extends HTTPClient {
     textHandler.toString
   }
 }
-

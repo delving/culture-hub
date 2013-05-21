@@ -414,4 +414,3 @@ class CommonsServices(commonsHost: String, orgId: String, apiToken: String, node
 }
 
 case class OrganizationProfile(orgId: String, name: Map[String, String])
-

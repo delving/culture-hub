@@ -50,4 +50,3 @@ class DataSetEventLogDAO(connection: MongoCollection) extends SalatDAO[DataSetEv
   }
 
 }
-

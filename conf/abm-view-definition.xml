@@ -22,48 +22,48 @@
                         <link textValue="zoom" urlExpr="/abm:record/delving:deepZoomUrl" type="zoom"/>
                     </container>
                     <container id="context-link" if="/abm:record/europeana:isShownAt">
-                        <link textValue="_search.ViewInOriginalContext" urlExpr="/abm:record/europeana:isShownAt" type="external"/>
+                        <link textValue="search.ViewInOriginalContext" urlExpr="/abm:record/europeana:isShownAt" type="external"/>
                     </container>
                 </container>
             <row>
                 <column proportion="1of3">
-                    <field label="_md.dc.title" path="/abm:record/dc:title" />
-                    <field label="_md.dc.date" path="/abm:record/dc:date" />
-                    <field label="_md.dc.creator" path="/abm:record/dc:creator"/>
-                    <field label="_md.dc.date" path="/abm:record/dc:date"/>
-                    <field label="_md.dcterms.date" path="/abm:record/dcterms:created"/>
-                    <field label="_md.dc.contributor" path="/abm:record/dc:contributor"/>
-                    <field label="_md.dc.description" path="/abm:record/dc:description"/>
-                    <field label="_md.dc.format" path="/abm:record/dc:format"/>
-                    <field label="_md.dcterms.medium" path="/abm:record/dcterms:medium"/>
-                    <field label="_md.dc.source" path="/abm:record/dc:source"/>
-                    <field label="_md.dc.publisher" path="/abm:record/dc:publisher"/>
-                    <!--<link  label="_md.dc.rights" urlExpr="/abm:record/dc:rights" textExpr="/abm:record/dc:rights" type="external"/>-->
+                    <field label="md.dc.title" path="/abm:record/dc:title" />
+                    <field label="md.dc.date" path="/abm:record/dc:date" />
+                    <field label="md.dc.creator" path="/abm:record/dc:creator"/>
+                    <field label="md.dc.date" path="/abm:record/dc:date"/>
+                    <field label="md.dcterms.date" path="/abm:record/dcterms:created"/>
+                    <field label="md.dc.contributor" path="/abm:record/dc:contributor"/>
+                    <field label="md.dc.description" path="/abm:record/dc:description"/>
+                    <field label="md.dc.format" path="/abm:record/dc:format"/>
+                    <field label="md.dcterms.medium" path="/abm:record/dcterms:medium"/>
+                    <field label="md.dc.source" path="/abm:record/dc:source"/>
+                    <field label="md.dc.publisher" path="/abm:record/dc:publisher"/>
+                    <!--<link  label="md.dc.rights" urlExpr="/abm:record/dc:rights" textExpr="/abm:record/dc:rights" type="external"/>-->
                     <!-- Rights url -->
                     <container if="/abm:record/dc:rights" id="rightsUrl">
-                        <link urlExpr="/abm:record/dc:rights" urlValue="" textExpr="/abm:record/dc:rights" label="_md.dc.rights"/>
+                        <link urlExpr="/abm:record/dc:rights" urlValue="" textExpr="/abm:record/dc:rights" label="md.dc.rights"/>
                     </container>
 
                     <container ifNot="/abm:record/dc:rights" id="rightsUrl">
-                        <link urlExpr="/abm:record/europeana:rights" urlValue="" textExpr="/abm:record/europeana:rights" label="_md.dc.rights"/>
+                        <link urlExpr="/abm:record/europeana:rights" urlValue="" textExpr="/abm:record/europeana:rights" label="md.dc.rights"/>
                     </container>
 
-                    <field label="_md.dcterms.rightsHolder" path="/abm:record/dcterms:rightsHolder"/>
-                    <field label="_md.europeana.provider" path="/abm:record/europeana:dataProvider"/>
+                    <field label="md.dcterms.rightsHolder" path="/abm:record/dcterms:rightsHolder"/>
+                    <field label="md.europeana.provider" path="/abm:record/europeana:dataProvider"/>
                 </column>
                 <column proportion="1of3">
-                    <container type="list" label="_md.dc.subject" if="/abm:record/dc:subject">
+                    <container type="list" label="md.dc.subject" if="/abm:record/dc:subject">
                         <enumeration path="/abm:record/dc:subject" />
                     </container>
-                    <field label="_md.europeana.country" path="/abm:record/europeana:country"/>
-                    <field label="_md.abm.county" path="/abm:record/abm:county"/>
-                    <field label="_md.abm.municipality" path="/abm:record/abm:municipality"/>
-                    <field label="_md.abm.namedPlace" path="/abm:record/abm:namedPlace"/>
-                    <field label="_md.dc.coverage" path="/abm:record/dc:coverage"/>
-                    <field label="_md.abm.aboutPerson" path="/abm:record/abm:aboutPerson"/>
-                    <field label="_md.dcterms.provenance" path="/abm:record/dcterms:provenance"/>
-                    <field label="_md.dc.relation" path="/abm:record/dc:relation"/>
-                    <field label="_md.dc.type" path="/abm:record/dc:type"/>
+                    <field label="md.europeana.country" path="/abm:record/europeana:country"/>
+                    <field label="md.abm.county" path="/abm:record/abm:county"/>
+                    <field label="md.abm.municipality" path="/abm:record/abm:municipality"/>
+                    <field label="md.abm.namedPlace" path="/abm:record/abm:namedPlace"/>
+                    <field label="md.dc.coverage" path="/abm:record/dc:coverage"/>
+                    <field label="md.abm.aboutPerson" path="/abm:record/abm:aboutPerson"/>
+                    <field label="md.dcterms.provenance" path="/abm:record/dcterms:provenance"/>
+                    <field label="md.dc.relation" path="/abm:record/dc:relation"/>
+                    <field label="md.dc.type" path="/abm:record/dc:type"/>
                 </column>
             </row>
         </column>
