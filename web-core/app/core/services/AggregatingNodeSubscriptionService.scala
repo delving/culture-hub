@@ -35,4 +35,3 @@ class AggregatingNodeSubscriptionService extends NodeSubscriptionService {
     nodeConnectionServices.foreach { s => s.processSubscriptionResponse(to, from, accepted) }
   }
 }
-

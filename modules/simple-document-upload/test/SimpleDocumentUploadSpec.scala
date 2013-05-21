@@ -166,4 +166,3 @@ import services.search.SolrQueryService
     )
 
 }
-

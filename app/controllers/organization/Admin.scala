@@ -23,7 +23,7 @@ trait Admin extends OrganizationController { this: BoundController =>
     Action {
       implicit request =>
         if (!organizationServiceLocator.byDomain.exists(orgId)) {
-          NotFound(Messages("_hub.CouldNotFindOrganization").format(orgId))
+          NotFound(Messages("hub.CouldNotFindOrganization").format(orgId))
         } else {
           val membersAsTokens = JJson.generate(HubUser.dao.listOrganizationMembers(orgId).map(m => Map("id" -> m, "name" -> m)))
           val adminsAsTokens = JJson.generate(organizationServiceLocator.byDomain.listAdmins(orgId).map(a => Map("id" -> a, "name" -> a)))
@@ -47,7 +47,7 @@ trait Admin extends OrganizationController { this: BoundController =>
           // TODO logging
           if (success) Ok else Error
         }.getOrElse {
-          Error(Messages("_hub.CouldNotFindUser", id))
+          Error(Messages("hub.CouldNotFindUser", id))
         }
     }
   }
@@ -64,7 +64,7 @@ trait Admin extends OrganizationController { this: BoundController =>
           // TODO logging
           if (success) Ok else Error
         }.getOrElse {
-          Error(Messages("_hub.CouldNotFindUser", id))
+          Error(Messages("hub.CouldNotFindUser", id))
         }
     }
   }
@@ -78,7 +78,7 @@ trait Admin extends OrganizationController { this: BoundController =>
           // TODO logging
           if (success) Ok else Error
         }.getOrElse {
-          Error(Messages("_hub.CouldNotFindUser", id))
+          Error(Messages("hub.CouldNotFindUser", id))
         }
     }
   }

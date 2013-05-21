@@ -1,6 +1,6 @@
 #{extends themeInfo.get('themeLayout') /}
 
-#{set title: messages.get('_hubnode.HubNodes') /}
+#{set title: messages.get('hubnode.HubNodes') /}
 
 #{set bodyId: 'organization' /}
 
@@ -12,11 +12,11 @@
     <div class="span12">
 
         <table class="table table-striped">
-            <caption>&{'_hubnode.HubNodes'}</caption>
+            <caption>&{'hubnode.HubNodes'}</caption>
             <thead>
             <tr>
-                <th>&{'_hubb.Name'}</th>
-                <th width="25%">&{'_hubb.Actions'}</th>
+                <th>&{'hubb.Name'}</th>
+                <th width="25%">&{'hubb.Actions'}</th>
             </tr>
             </thead>
             <!-- ko if: nodes().length > 0 -->
@@ -27,10 +27,10 @@
                 </td>
                 <td>
                     <a class="btn btn-primary btn-mini" href="#" data-bind="click: function() { $parent.update($data) }" rel="nofollow">
-                        <i class="icon-edit icon-white"></i> &{'_hub.Edit'}
+                        <i class="icon-edit icon-white"></i> &{'hub.Edit'}
                     </a>
                     <a class="btn btn-danger btn-mini pull-right delete" href="#" data-bind="click: function() { $parent.delete($data) }" rel="nofollow">
-                        <i class="icon-trash icon-white"></i> &{'_hub.Delete'}
+                        <i class="icon-trash icon-white"></i> &{'hub.Delete'}
                     </a>
                 </td>
             </tr>
@@ -43,7 +43,7 @@
                     No entries
                 </td>
                 <td>
-                    <a class="btn btn-primary btn-mini" href="/organizations/${orgId}/hubNode/add" rel="nofollow">${messages.get('_hubnode.CreateHubNode')}</a>
+                    <a class="btn btn-primary btn-mini" href="/organizations/${orgId}/hubNode/add" rel="nofollow">${messages.get('hubnode.CreateHubNode')}</a>
                 </td>
             </tr>
             </tbody>
@@ -63,7 +63,7 @@
             delete: function(node) {
                 bootboxConfirm({
                     'type': 'DELETE',
-                    'message' : '<h3 class="shout">' + node.name() + '</h3>&{'_hubnode.AreYouSureYouWantToDeleteThisHubNode'}',
+                    'message' : '<h3 class="shout">' + node.name() + '</h3>&{'hubnode.AreYouSureYouWantToDeleteThisHubNode'}',
                     'action_url' : '/organizations/${orgId}/hubNode/' + node.id() + '/remove',
                     'success_callback' : function () {
                         viewModel.nodes.remove(function (item) {

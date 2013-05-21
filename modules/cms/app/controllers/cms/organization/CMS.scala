@@ -35,7 +35,7 @@ trait CMS extends OrganizationController { this: BoundController =>
             if (organizationServiceLocator.byDomain.isAdmin(configuration.orgId, connectedUser) || Group.dao.count(MongoDBObject("users" -> connectedUser, "grantType" -> CMSPlugin.ROLE_CMS_ADMIN.key)) > 0) {
               action(request)
             } else {
-              Forbidden(Messages("_hub.YouDoNotHaveAccess"))
+              Forbidden(Messages("hub.YouDoNotHaveAccess"))
             }
           }
       }
@@ -198,7 +198,7 @@ object CMSPageViewModel {
   val pageForm = Form(
     mapping(
       "dateCreated" -> of[Long],
-      "key" -> text.verifying(pattern("^[-a-z0-9]{3,35}$".r, error = Messages("_cms.InvalidKeyValue"))),
+      "key" -> text.verifying(pattern("^[-a-z0-9]{3,35}$".r, error = Messages("cms.InvalidKeyValue"))),
       "lang" -> nonEmptyText,
       "title" -> nonEmptyText,
       "userName" -> text,

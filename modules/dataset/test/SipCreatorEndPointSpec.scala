@@ -363,4 +363,3 @@ class SipCreatorEndPointSpec extends BootstrapAwareSpec {
   }
 
 }
-

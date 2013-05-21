@@ -16,17 +16,17 @@
 <div class="results-header-block">
     <div class="results-header-inner">
         <h4>
-            &{'_search.ResultsOf', pagination.getStart(), pagination.getLastViewableRecord(), pagination.getNumFound() }
+            &{'search.ResultsOf', pagination.getStart(), pagination.getLastViewableRecord(), pagination.getNumFound() }
             <small>
             #{list hasDigitalObject, as: 'facet'}
                 #{list facet.getLinks(), as: 'link'}
                     #{if link.getValue() == 'true' && !facet.isFacetSelected()}
                         <input type="checkbox" class="include-without-digtalobjects" checked="checked" value="/search?query=${pagination.getPresentationQuery().getUserSubmittedQuery()}&searchIn=${params.searchIn ? params.searchIn[0]  : "all"}${link.url}">
-                        <a href="/search?query=${pagination.getPresentationQuery().getUserSubmittedQuery()}&searchIn=${params.searchIn ? params.searchIn[0]  : "all"}${link.url}">&{'_hub.AlsoIncludeResultsWithoutImages'}</a>
+                        <a href="/search?query=${pagination.getPresentationQuery().getUserSubmittedQuery()}&searchIn=${params.searchIn ? params.searchIn[0]  : "all"}${link.url}">&{'hub.AlsoIncludeResultsWithoutImages'}</a>
                     #{/if}
                     #{if link.getValue() == 'true' && facet.isFacetSelected()}
                         <input type="checkbox" class="include-without-digtalobjects" value="/search?query=${pagination.getPresentationQuery().getUserSubmittedQuery()}&searchIn=${params.searchIn ? params.searchIn[0]  : "all"}">
-                        <a href="/search?query=${pagination.getPresentationQuery().getUserSubmittedQuery()}&searchIn=${params.searchIn ? params.searchIn[0]  : "all"}">&{'_hub.AlsoIncludeResultsWithoutImages'}</a>
+                        <a href="/search?query=${pagination.getPresentationQuery().getUserSubmittedQuery()}&searchIn=${params.searchIn ? params.searchIn[0]  : "all"}">&{'hub.AlsoIncludeResultsWithoutImages'}</a>
                     #{/if}
                 #{/list}
             #{/list}
@@ -43,7 +43,7 @@
             #{results.resultGrid results: briefDocs  /}
         </div>
         <div class="span3">
-            <div class="facets-header">&{'_search.RefineYourSearch'}</div>
+            <div class="facets-header">&{'search.RefineYourSearch'}</div>
             #{list items: themeFacets, as: 'tf'}
                 #{facet facetMap: facets,
                 type: tf.facetName()+'_facet',
@@ -67,6 +67,6 @@
 #{/if}
 #{else}
     <div class="no-results">
-        &{'_hub.SorryNothingFound'}
+        &{'hub.SorryNothingFound'}
     </div>
 #{/else}

@@ -16,7 +16,7 @@ object Profile extends DelvingController {
       implicit request =>
         val u: HubUser = HubUser.dao.findByUsername(user) match {
           case Some(aUser) => aUser
-          case None => return Action { implicit request => NotFound(Messages("_hub.UserWasNotFound", user)) }
+          case None => return Action { implicit request => NotFound(Messages("hub.UserWasNotFound", user)) }
         }
 
         Ok(Template(

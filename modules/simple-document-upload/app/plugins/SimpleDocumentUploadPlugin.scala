@@ -132,17 +132,17 @@ class SimpleDocumentUploadPlugin(app: Application) extends CultureHubPlugin(app)
   override def organizationMenuEntries(configuration: OrganizationConfiguration, lang: String, roles: Seq[String]): Seq[MainMenuEntry] = Seq(
     MainMenuEntry(
       key = "simple-document-upload",
-      titleKey = "_sdu.DocumentUpload",
+      titleKey = "sdu.DocumentUpload",
       roles = Seq(Role.OWN, SimpleDocumentUploadPlugin.ROLE_DOCUMENT_EDITOR),
       items = Seq(
         MenuElement(
           url = "/organizations/%s/simpledocument".format(configuration.orgId),
-          titleKey = "_sdu.ListOfUploadedDocuments",
+          titleKey = "sdu.ListOfUploadedDocuments",
           roles = Seq(Role.OWN, SimpleDocumentUploadPlugin.ROLE_DOCUMENT_EDITOR)
         ),
         MenuElement(
           url = "/organizations/%s/simpledocument/add".format(configuration.orgId),
-          titleKey = "_sdu.UploadDocument",
+          titleKey = "sdu.UploadDocument",
           roles = Seq(Role.OWN, SimpleDocumentUploadPlugin.ROLE_DOCUMENT_EDITOR)
         )
       )

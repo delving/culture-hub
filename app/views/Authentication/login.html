@@ -1,10 +1,10 @@
 #{extends themeInfo.get('themeLayout') /}
-#{set title: messages.get('_hub.Login') /}
+#{set title: messages.get('hub.Login') /}
 #{set bodyId: 'authenticate' /}
 <div class="row">
     <div class="span4 offset4">
         <form method="POST" class="well" action="@{controllers.routes.Authentication.authenticate()}">
-            <h2>&{'_hub.Login'}</h2>
+            <h2>&{'hub.Login'}</h2>
             #{if flash.error}
             <p class="alert alert-error">
                 <a class="close" data-dismiss="alert">x</a>
@@ -28,21 +28,21 @@
             </div>
             #{/if}
 
-            #{form.textField name:"userName", placeholder: messages.get("_hub.Username"), form: loginForm /}
-            #{form.passwordField name:"password", placeholder: messages.get("_hub.Password"), form: loginForm /}
+            #{form.textField name:"userName", placeholder: messages.get("hub.Username"), form: loginForm /}
+            #{form.passwordField name:"password", placeholder: messages.get("hub.Password"), form: loginForm /}
 
             <div class="field">
                 <label for="remember" class="checkbox">
                     <input type="checkbox" name="remember" id="remember" value="true" ${flash.remember ? 'checked=\"true\"' : ''} />
-                    &{'_hub.RememberMe'}
+                    &{'hub.RememberMe'}
                 </label>
             </div>
 
             <div class="btn-group">
-                #{btnButton label: messages.get("_hub.Login"), extraClass:"btn-primary btn-block", type:"submit", id:"signin" /}
+                #{btnButton label: messages.get("hub.Login"), extraClass:"btn-primary btn-block", type:"submit", id:"signin" /}
             </div>
             <p>
-                #{href label: messages.get('_hub.IForgotMyPassword'), href:"/registration/lostPassword", rel:"nofollow" /}
+                #{href label: messages.get('hub.IForgotMyPassword'), href:"/registration/lostPassword", rel:"nofollow" /}
             </p>
         </form>
     </div>
