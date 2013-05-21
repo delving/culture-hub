@@ -40,14 +40,14 @@ object Breadcrumbs {
         val returnToResults = Option(p.get("search").get("returnToResults"))
         returnToResults match {
           case Some(r) if r.length() > 0 => List(("NOLINK", Messages("hub.Search")), ("/search?" + r, "%s".format(p.get("search").get("searchTerm"))), ("NOLINK", p.get("title").get("label")))
-          case _ => List(("/organizations/" + orgId, orgId), ("NOLINK", Messages("_musip.Museums")), ("NOLINK", p.get("title").get("label")))
+          case _ => List(("/organizations/" + orgId, orgId), ("NOLINK", Messages("musip.Museums")), ("NOLINK", p.get("title").get("label")))
         }
 
       case "org" :: orgId :: "collection" :: id :: Nil =>
         val returnToResults = Option(p.get("search").get("returnToResults"))
         returnToResults match {
           case Some(r) if r.length() > 0 => List(("NOLINK", Messages("hub.Search")), ("/search?" + r, "%s".format(p.get("search").get("searchTerm"))), ("NOLINK", p.get("title").get("label")))
-          case _ => List(("/organizations/" + orgId, orgId), ("NOLINK", Messages("_musip.Collections")), ("NOLINK", p.get("title").get("label")))
+          case _ => List(("/organizations/" + orgId, orgId), ("NOLINK", Messages("musip.Collections")), ("NOLINK", p.get("title").get("label")))
         }
 
       case "rijks" :: "search" :: Nil => List(("/rijks", Messages("_rijks.Rijkscollectie")), ("NOLINK", Messages("hub.Search")))
@@ -67,8 +67,8 @@ object Breadcrumbs {
       case "organizations" :: orgName :: "site" :: lang :: Nil => List(("NOLINK", Messages("hubb.Organizations")), ("/organizations/" + orgName, orgName), ("/organizations/" + orgName + "/site", Messages("cms.WebsitePages")), ("NOLINK", Messages("locale." + lang)))
       case "organizations" :: orgName :: "site" :: lang :: "page" :: "add" :: Nil => List(("NOLINK", Messages("hubb.Organizations")), ("/organizations/" + orgName, orgName), ("/organizations/" + orgName + "/site", Messages("cms.WebsitePages")), ("/organizations/" + orgName + "/site/" + lang, Messages("locale." + lang)), ("NOLINK", Messages("_cms.CreateNewPage")))
       case "organizations" :: orgName :: "site" :: lang :: "page" :: page :: "update" :: Nil => List(("NOLINK", Messages("hubb.Organizations")), ("/organizations/" + orgName, orgName), ("/organizations/" + orgName + "/site", Messages("cms.WebsitePages")), ("/organizations/" + orgName + "/site/" + lang, Messages("locale." + lang)), ("NOLINK", Messages("cms.UpdatePage") + " \"" + page + "\""))
-      case "organizations" :: orgName :: "virtualCollection" :: Nil => List(("NOLINK", Messages("hubb.Organizations")), ("/organizations/" + orgName, orgName), ("/organizations/" + orgName + "/virtualCollection", Messages("_chc.VirtualCollections")))
-      case "organizations" :: orgName :: "virtualCollection" :: "add" :: Nil => List(("NOLINK", Messages("hubb.Organizations")), ("/organizations/" + orgName, orgName), ("/organizations/" + orgName + "/virtualCollection", Messages("_chc.VirtualCollections")), ("/organizations/" + orgName + "/virtualCollection/add", Messages("_chc.NewVirtualCollection")))
+      case "organizations" :: orgName :: "virtualCollection" :: Nil => List(("NOLINK", Messages("hubb.Organizations")), ("/organizations/" + orgName, orgName), ("/organizations/" + orgName + "/virtualCollection", Messages("chc.VirtualCollections")))
+      case "organizations" :: orgName :: "virtualCollection" :: "add" :: Nil => List(("NOLINK", Messages("hubb.Organizations")), ("/organizations/" + orgName, orgName), ("/organizations/" + orgName + "/virtualCollection", Messages("chc.VirtualCollections")), ("/organizations/" + orgName + "/virtualCollection/add", Messages("chc.NewVirtualCollection")))
 
       case user :: Nil => List(("/" + user, user))
 
