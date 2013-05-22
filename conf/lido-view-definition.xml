@@ -4,7 +4,37 @@
     <view name="html">
         <row>
             <column proportion="1of3">
-                <field path="/lido:lido/lido:descriptiveMetadata/lido:objectIdentificationWrap/lido:titleWrap/lido:titleSet/lido:appellationValue" label="thing.title"/>
+                <field path="/lido:lido/lido:lidoRecID" label="_hub.hubId"/>
+                <field path="/lido:lido/lido:category/lido:term" label="_hub.category"/>
+
+                <container label="lido:descriptiveMetadata" class="aff-parent">
+                    <field path="/lido:lido/lido:descriptiveMetadata/lido:objectClassificationWrap/lido:objectWorkTypeWrap/lido:objectWorkType/lido:term" label="_hub.lido.work.type"/>
+                    <field path="/lido:lido/lido:descriptiveMetadata/lido:objectClassificationWrap/lido:classificationWrap/lido:classification/lido:term" label="_hub.lido.classification"/>
+                    <field path="/lido:lido/lido:descriptiveMetadata/lido:objectIdentificationWrap/lido:titleWrap/lido:titleSet/lido:appellationValue" label="_hub.lido.title"/>
+                    <field path="/lido:lido/lido:descriptiveMetadata/lido:objectIdentificationWrap/lido:repositoryWrap/lido:repositorySet/lido:workID" label="_hub.lido.workId"/>
+
+                </container>
+
+                <container label="lido:eventWrap" class="aff-parent">
+                    <list path="/lido:lido/lido:descriptiveMetadata/lido:eventWrap/lido:eventSet">
+                        <container class="aff-child">
+                            <field path="lido:event/lido:eventType/lido:term" label="_hub.lido.eventType"/>
+                            <container class="aff-child">
+                                <!--<field path="lido:event/lido:eventActor/lido:displayActorInRole" label="_hub.lido.eventActorInRole"/>-->
+                                <field path="lido:event/lido:eventActor/lido:actorInRole/lido:actor/lido:nameActorSet/lido:appellationValue" label="_hub.lido.actor"/>
+                                <field path="lido:event/lido:eventActor/lido:actorInRole/lido:actor/lido:nationalityActor/lido:term" label="_hub.lido.nationalityActor"/>
+                                <field path="lido:event/lido:eventActor/lido:actorInRole/lido:actor/lido:vitalDatesActor/lido:earliestDate" label="_hub.lido.earliestDate"/>
+                                <field path="lido:event/lido:eventActor/lido:actorInRole/lido:actor/lido:vitalDatesActor/lido:latestDate" label="_hub.lido.latestDate"/>
+                                <field path="lido:event/lido:eventActor/lido:actorInRole/lido:actor/lido:genderActor" label="_hub.lido.genderActor"/>
+                                <field path="lido:event/lido:eventActor/lido:actorInRole/lido:actor/lido:roleActor/lido:term" label="_hub.lido.roleActor"/>
+                                <!--<field path="lido:event/lido:eventActor/lido:roleActor/lido:term" label="_hub.lido.eventRoleActor"/>-->
+                            </container>
+                        </container>
+                    </list>
+                </container>
+            </column>
+            <column proportion="1of3">
+
             </column>
         </row>
     </view>
