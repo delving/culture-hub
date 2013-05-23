@@ -44,6 +44,10 @@
                         <link textValue="search.ViewInOriginalContext" urlExpr="/icn:record/europeana:isShownAt" type="external"/>
                     </container>
 
+                    <container if="/icn:record/europeana:rights" id="rightsUrl" class="unstyled" type="list">
+                        <link urlExpr="/icn:record/europeana:rights" urlValue="" textExpr="/icn:record/europeana:rights"/>
+                    </container>
+
                     <container id="deepZoomUrls" if="/icn:record/delving:deepZoomUrl">
                         <list path="/icn:record/delving:deepZoomUrl">
                             <link urlExpr="." textValue="zoom-url"/>
@@ -106,9 +110,6 @@
                             <field path="/icn:record/icn:province" label="metadata.icn.province"/>
                             <field path="/icn:record/europeana:country" label="metadata.europeana.country"/>
                             <field path="/icn:record/dc:rights" label="metadata.dc.rights"/>
-                            <container if="/icn:record/europeana:rights" id="rightsUrl" class="unstyled" type="list">
-                                <link urlExpr="/icn:record/europeana:rights" urlValue="" textExpr="/icn:record/europeana:rights"/>
-                            </container>
                             <field path="/icn:record/dc:identifier" label="metadata.dc.identifier"/>
                         </container>
 
