@@ -60,69 +60,66 @@
                         </list>
                     </container>
 
-
-
                 </container>
                 <row>
                     <column proportion="1of3">
                         <container type="definition-list">
-                            <field path="/icn:record/dc:title" label="md.dc.title"/>
-                            <field path="/icn:record/dc:description" label="md.dc.description" />
-                            <enumeration label="md.dc.creator" separator="lf" path="/icn:record/dc:creator"/>
-                            <field path="/icn:record/icn:creatorYearOfBirth" label="md.icn.creatorYearOfBirth"/>
-                            <field path="/icn:record/icn:creatorYearOfDeath" label="md.icn.creatorYearOfDeath"/>
-                            <enumeration label="md.dc.date" separator=", " path="/icn:record/dc:date,/icn:record/dcterms:created,/icn:record/dcterms:temportal,/icn:record/dcterms:issued"/>
-                            <enumeration label="md.dc.type" separator=", " path="/icn:record/dc:type, /icn:record/icn:material"/>
-                            <enumeration label="md.dc.format" separator="lf" path="/icn:record/dc:format,/icn:record/dcterms:extent"/>
-                            <enumeration label="md.icn.material" separator=", " path="/icn:record/icn:material" />
-                            <enumeration label="md.icn.technique" separator=", " path="/icn:record/icn:technique"/>
-                            <enumeration label="md.dc.subject" separator=", " path="/icn:record/dc:subject/icn:record/dcterms:temporal,/icn:record/dcterms:spatial,/icn:record/dc:coverage"/>
-                            <!--<field path="/icn:record/dc:coverage" label="md.dc.coverage"/>-->
-                            <enumeration label="md.dc.relation"
+                            <field path="/icn:record/dc:title" label="metadata.dc.title"/>
+                            <field path="/icn:record/dc:description" label="metadata.dc.description" />
+                            <enumeration label="metadata.dc.creator" separator="lf" path="/icn:record/dc:creator"/>
+                            <field path="/icn:record/icn:creatorYearOfBirth" label="metadata.icn.creatorYearOfBirth"/>
+                            <field path="/icn:record/icn:creatorYearOfDeath" label="metadata.icn.creatorYearOfDeath"/>
+                            <enumeration label="metadata.dc.date" separator=", " path="/icn:record/dc:date,/icn:record/dcterms:created,/icn:record/dcterms:temportal,/icn:record/dcterms:issued"/>
+                            <enumeration label="metadata.dc.type" separator=", " path="/icn:record/dc:type, /icn:record/icn:material"/>
+                            <enumeration label="metadata.dc.format" separator="lf" path="/icn:record/dc:format,/icn:record/dcterms:extent"/>
+                            <enumeration label="metadata.icn.material" separator=", " path="/icn:record/icn:material" />
+                            <enumeration label="metadata.icn.technique" separator=", " path="/icn:record/icn:technique"/>
+                            <enumeration label="metadata.dc.subject" separator=", " path="/icn:record/dc:subject/icn:record/dcterms:temporal,/icn:record/dcterms:spatial,/icn:record/dc:coverage"/>
+                            <!--<field path="/icn:record/dc:coverage" label="metadata.dc.coverage"/>-->
+                            <enumeration label="metadata.dc.relation"
                                          separator=", " path="/icn:record/dc:relation,/icn:record/dcterms:references,/icn:record/dcterms:isReferencedBy,/icn:record/dcterms:isReplacedBy,
                                  /icn:record/dcterms:isRequiredBy,/icn:record/dcterms:isPartOf,/icn:record/dcterms:hasPart,/icn:record/dcterms:replaces,/icn:record/dcterms:requires,
                                  /icn:record/dcterms:isVersionOf,/icn:record/dcterms:hasVersion,/icn:record/dcterms:conformsTo,/icn:record/dcterms:hasFormat"/>
-                            <field path="/icn:record/dcterms:provenance" label="md.dcterms.provenance"/>
+                            <field path="/icn:record/dcterms:provenance" label="metadata.dcterms.provenance"/>
                         </container>
                         <!-- MUSEOMETRIE FIELDS -->
                         <container id="admin" role="museometrie" type="definition-list">
-                            <field path="/icn:record/icn:currentLocation" label="md.icn.currentLocation" role="museometrie"/>
-                            <field path="/icn:record/icn:previousLocation" label="md.icn.previousLocation" role="museometrie"/>
-                            <field path="/icn:record/icn:acquisitionMeans" label="md.icn.acquisitionMeans" role="museometrie"/>
-                            <field path="/icn:record/icn:acquisitionYear" label="md.icn.acquisitionYear" role="museometrie"/>
-                            <field path="/icn:record/icn:acquiredWithHelpFrom" label="md.icn.acquiredWithHelpFrom" role="museometrie"/>
-                            <field path="/icn:record/icn:purchasePrice" label="md.icn.purchasePrice" role="museometrie"/>
-                            <field path="/icn:record/icn:physicalState" label="md.icn.physicalState" role="museometrie"/>
+                            <field path="/icn:record/icn:currentLocation" label="metadata.icn.currentLocation" role="museometrie"/>
+                            <field path="/icn:record/icn:previousLocation" label="metadata.icn.previousLocation" role="museometrie"/>
+                            <field path="/icn:record/icn:acquisitionMeans" label="metadata.icn.acquisitionMeans" role="museometrie"/>
+                            <field path="/icn:record/icn:acquisitionYear" label="metadata.icn.acquisitionYear" role="museometrie"/>
+                            <field path="/icn:record/icn:acquiredWithHelpFrom" label="metadata.icn.acquiredWithHelpFrom" role="museometrie"/>
+                            <field path="/icn:record/icn:purchasePrice" label="metadata.icn.purchasePrice" role="museometrie"/>
+                            <field path="/icn:record/icn:physicalState" label="metadata.icn.physicalState" role="museometrie"/>
                         </container>
 
                     </column>
                     <column proportion="1of3">
                         <container type="definition-list">
-                            <!--<field path="/icn:record/europeana:collectionName" label="md.europeana.collectionName"/>-->
-                            <field path="/icn:record/europeana:collectionTitle" label="md.icn.collection"/>
-                            <field path="/icn:record/icn:collectionPart" label="md.icn.collectionPart" />
-                            <field path="/icn:record/icn:collectionType" label="md.icn.collectionType" />
+                            <!--<field path="/icn:record/europeana:collectionName" label="metadata.europeana.collectionName"/>-->
+                            <field path="/icn:record/europeana:collectionTitle" label="metadata.icn.collection"/>
+                            <field path="/icn:record/icn:collectionPart" label="metadata.icn.collectionPart" />
+                            <field path="/icn:record/icn:collectionType" label="metadata.icn.collectionType" />
 
-                            <!--<link textValue="${provider}" urlValue="${resolvedProviderUri}" label="md.europeana.provider"/>-->
-                            <link textValue="${dataProvider}" urlValue="${resolvedDataProviderUri}" label="md.europeana.dataProvider"/>
+                            <!--<link textValue="${provider}" urlValue="${resolvedProviderUri}" label="metadata.europeana.provider"/>-->
+                            <link textValue="${dataProvider}" urlValue="${resolvedDataProviderUri}" label="metadata.europeana.dataProvider"/>
 
-                            <!--<field path="/icn:record/dc:source" label="md.dc.source"/>-->
+                            <!--<field path="/icn:record/dc:source" label="metadata.dc.source"/>-->
                             <field path="/icn:record/dc:contributor" label="searchfield.contributor"/>
-                            <field path="/icn:record/dc:source" label="md.dc.source"/>
-                            <field path="/icn:record/icn:province" label="md.icn.province"/>
-                            <field path="/icn:record/europeana:country" label="md.europeana.country"/>
-                            <field path="/icn:record/dc:rights" label="md.dc.rights"/>
-
-                            <field path="/icn:record/dc:identifier" label="md.dc.identifier"/>
+                            <field path="/icn:record/dc:source" label="metadata.dc.source"/>
+                            <field path="/icn:record/icn:province" label="metadata.icn.province"/>
+                            <field path="/icn:record/europeana:country" label="metadata.europeana.country"/>
+                            <field path="/icn:record/dc:rights" label="metadata.dc.rights"/>
+                            <field path="/icn:record/dc:identifier" label="metadata.dc.identifier"/>
                         </container>
 
                         <!-- RIJKS FIELDS -->
                         <container role="rijksMember" type="definition-list-horizontal">
-                            <field path="/icn:record/icn:legalStatus" label="md.icn.legalStatus" role="rijksMember"/>
-                            <field path="/icn:record/icn:acceptedStateCharges" label="md.icn.acceptedStateCharges" role="rijksMember"/>
-                            <field path="/icn:record/icn:acceptedStateChargesReason" label="md.icn.acceptedStateChargesReason" role="rijksMember"/>
-                            <field path="/icn:record/icn:expulsionYear" label="md.icn.expulsionYear" role="rijksMember"/>
-                            <field path="/icn:record/icn:expulsionMeans" label="md.icn.expulsionMeans" role="rijksMember"/>
+                            <field path="/icn:record/icn:legalStatus" label="metadata.icn.legalStatus" role="rijksMember"/>
+                            <field path="/icn:record/icn:acceptedStateCharges" label="metadata.icn.acceptedStateCharges" role="rijksMember"/>
+                            <field path="/icn:record/icn:acceptedStateChargesReason" label="metadata.icn.acceptedStateChargesReason" role="rijksMember"/>
+                            <field path="/icn:record/icn:expulsionYear" label="metadata.icn.expulsionYear" role="rijksMember"/>
+                            <field path="/icn:record/icn:expulsionMeans" label="metadata.icn.expulsionMeans" role="rijksMember"/>
                         </container>
                     </column>
                 </row>

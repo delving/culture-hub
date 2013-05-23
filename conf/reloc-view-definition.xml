@@ -39,16 +39,16 @@
         <row>
             <column proportion="1of3">
                 <field label="reloc.InventoryNumber" path="/record/dc:identifier" />
-                <field label="md.dc.title" path="/record/dc:title" />
-                <field label="md.dc.description" path="/record/dc:description" />
-                <field label="md.dc.date" path="/record/dc:date" />
-                <container type="list" label="md.dc.creator" if="/record/dc:creator">
+                <field label="metadata.dc.title" path="/record/dc:title" />
+                <field label="metadata.dc.description" path="/record/dc:description" />
+                <field label="metadata.dc.date" path="/record/dc:date" />
+                <container type="list" label="metadata.dc.creator" if="/record/dc:creator">
                     <enumeration path="/record/dc:creator" />
                 </container>
                 <field label="reloc.PlaceOfCreation" path="/record/reloc:creationPlace" />
             </column>
             <column proportion="1of3">
-                <container type="list" label="md.dc.subject" if="/record/dc:subject">
+                <container type="list" label="metadata.dc.subject" if="/record/dc:subject">
                     <enumeration path="/record/dc:subject" />
                 </container>
                 <container label="reloc.Dimensions" type="labelled-list" class="test">
