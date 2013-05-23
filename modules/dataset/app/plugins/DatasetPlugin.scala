@@ -138,7 +138,7 @@ class DataSetPlugin(app: Application) extends CultureHubPlugin(app) {
       titleKey = "dataset.Datasets",
       items = Seq(
         MenuElement("/organizations/%s/dataset".format(configuration.orgId), "dataset.DatasetList"),
-        MenuElement("/organizations/%s/dataset/add".format(configuration.orgId), "dataset.CreateADataset", Seq(Role.OWN))
+        MenuElement("/organizations/%s/dataset/add".format(configuration.orgId), "dataset.CreateADataset", Seq(Role.OWN, DataSetPlugin.ROLE_DATASET_ADMIN))
       )
     ),
     MainMenuEntry(
@@ -443,14 +443,14 @@ object DataSetPlugin {
 
   lazy val ROLE_DATASET_ADMIN = Role(
     key = "dataSetAdmin",
-    description = Map("en" -> "Dataset administration rights"),
+    description = Map("en" -> "Dataset administration rights", "se" -> "Adminstrationsrättigheter för dataset"),
     isResourceAdmin = true,
     resourceType = Some(DataSet.RESOURCE_TYPE)
   )
 
   lazy val ROLE_DATASET_EDITOR = Role(
     key = "dataSetEditor",
-    description = Map("en" -> "Dataset modification rights"),
+    description = Map("en" -> "Dataset modification rights", "se" -> "Dataset redigeringsrättigheter"),
     isResourceAdmin = false,
     resourceType = Some(DataSet.RESOURCE_TYPE)
   )
