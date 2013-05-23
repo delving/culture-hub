@@ -95,7 +95,7 @@ class MediatorPlugin(app: Application) extends CultureHubPlugin(app) {
       val commandFactoryFactory = new CommandFactoryFactory
 
       val dataConnectionConfigurationFactory = new DataConnectionConfigurationFactory()
-      dataConnectionConfigurationFactory.setPassivePorts("20000-20100")
+      dataConnectionConfigurationFactory.setPassivePorts("20000-20010")
       val dataConnectionConfiguration = dataConnectionConfigurationFactory.createDataConnectionConfiguration()
 
       listenerFactory.setPort(config.port)
