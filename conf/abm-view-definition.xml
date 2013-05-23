@@ -40,7 +40,7 @@
                     <field label="metadata.dc.publisher" path="/abm:record/dc:publisher"/>
                     <!--<link  label="metadata.dc.rights" urlExpr="/abm:record/dc:rights" textExpr="/abm:record/dc:rights" type="external"/>-->
                     <!-- Rights url -->
-                    <container if="/abm:record/dc:rights" id="rightsUrl">
+                    <container if="/abm:record/dc:rights">
                         <link urlExpr="/abm:record/dc:rights" urlValue="" textExpr="/abm:record/dc:rights" label="metadata.dc.rights"/>
                     </container>
 
