@@ -49,11 +49,12 @@ class MediatorPlugin(app: Application) extends CultureHubPlugin(app) {
         val port = c.getInt("port").getOrElse {
           throw missingConfigurationField("port", config._1.orgId)
         }
+        val passivePorts = c.getString("passivePorts").getOrElse("2100")
         val sourceDirFile = new File(sourceDir)
         sourceDirFile.mkdirs()
         val archiveDirFile = new File(archiveDir)
         archiveDirFile.mkdirs()
-        (config._1 -> MediatorPluginConfiguration(sourceDirFile, archiveDirFile, mediaServer, port, config._1))
+        (config._1 -> MediatorPluginConfiguration(sourceDirFile, archiveDirFile, mediaServer, port, passivePorts, config._1))
       }
     }
   }
@@ -95,7 +96,7 @@ class MediatorPlugin(app: Application) extends CultureHubPlugin(app) {
       val commandFactoryFactory = new CommandFactoryFactory
 
       val dataConnectionConfigurationFactory = new DataConnectionConfigurationFactory()
-      dataConnectionConfigurationFactory.setPassivePorts("20000-20010")
+      dataConnectionConfigurationFactory.setPassivePorts(config.passivePorts)
       val dataConnectionConfiguration = dataConnectionConfigurationFactory.createDataConnectionConfiguration()
 
       listenerFactory.setPort(config.port)
@@ -313,4 +314,5 @@ case class MediatorPluginConfiguration(
   archiveDirectory: File,
   mediaServerUrl: String,
   port: Int,
+  passivePorts: String,
   configuration: OrganizationConfiguration)
