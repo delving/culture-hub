@@ -5040,9 +5040,6 @@ div.token-input-dropdown ul li.token-input-selected-dropdown-item {
 /*---------------------------------
     Statistics
 -----------------------------------*/
-#home .statistics-block {
-  background: #000000;
-}
 #home .statistics-block .statistics-header {
   font-weight: bold;
 }
