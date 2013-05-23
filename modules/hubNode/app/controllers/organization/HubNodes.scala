@@ -163,7 +163,7 @@ trait HubNodes extends OrganizationController { self: BoundController =>
         "id" -> optional(of[ObjectId]),
         "nodeId" -> text,
         "orgId" -> nonEmptyText.verifying(orgIdValid),
-        "name" -> nonEmptyText.verifying(Constraints.pattern("^[A-Za-z0-9- ]{3,40}$".r, "plugin.hubNode.invalidNodeId", "plugin.hubNode.invalidNodeName"))
+        "name" -> nonEmptyText.verifying(Constraints.pattern("^[A-Za-z0-9- ]{3,40}$".r, "hubnode.InvalidNodeName", "hubnode.InvalidNodeName"))
       )(HubNodeViewModel.apply)(HubNodeViewModel.unapply).verifying(nodeIdTaken)
     )
   }

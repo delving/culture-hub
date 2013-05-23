@@ -443,14 +443,14 @@ object DataSetPlugin {
 
   lazy val ROLE_DATASET_ADMIN = Role(
     key = "dataSetAdmin",
-    description = Map("en" -> "Dataset administration rights", "se" -> "Adminstrationsrättigheter för dataset"),
+    description = Map("en" -> "Dataset administration rights", "sv" -> "Adminstrationsrättigheter för dataset"),
     isResourceAdmin = true,
     resourceType = Some(DataSet.RESOURCE_TYPE)
   )
 
   lazy val ROLE_DATASET_EDITOR = Role(
     key = "dataSetEditor",
-    description = Map("en" -> "Dataset modification rights", "se" -> "Dataset redigeringsrättigheter"),
+    description = Map("en" -> "Dataset modification rights", "sv" -> "Dataset redigeringsrättigheter"),
     isResourceAdmin = false,
     resourceType = Some(DataSet.RESOURCE_TYPE)
   )
