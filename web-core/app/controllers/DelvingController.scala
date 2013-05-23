@@ -37,7 +37,7 @@ trait ApplicationController extends Controller with GroovyTemplates with Control
 
   override implicit def lang(implicit request: RequestHeader): Lang = Lang(getLang)
 
-  def getLanguages = Lang.availables.map(l => (l.language, Messages("_lang." + l.language)))
+  def getLanguages = Lang.availables.map(l => (l.language, Messages("lang." + l.language)))
 
   def ApplicationAction[A](action: Action[A]): Action[A] = {
     OrganizationConfigured {

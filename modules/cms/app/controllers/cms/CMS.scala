@@ -17,7 +17,7 @@ object CMS extends DelvingController {
     Action {
       implicit request =>
         CMSPage.dao.find(
-          MongoDBObject("key" -> key, "lang" -> getLang, "orgId" -> configuration.orgId)
+          MongoDBObject("key" -> key, "lang" -> getLang)
         ).$orderby(MongoDBObject("_id" -> -1)).limit(1).toList.headOption match {
             case None => NotFound(key)
             case Some(page) =>
