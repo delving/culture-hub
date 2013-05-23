@@ -40,11 +40,11 @@
                         <link textValue="zoom" urlExpr="/icn:record/delving:deepZoomUrl" type="zoom"/>
                     </container>
 
-                    <container id="context-link" if="/icn:record/europeana:isShownAt">
+                    <container id="context-link" if="/icn:record/europeana:isShownAt" class="pull-left">
                         <link textValue="search.ViewInOriginalContext" urlExpr="/icn:record/europeana:isShownAt" type="external"/>
                     </container>
 
-                    <container if="/icn:record/europeana:rights" id="rightsUrl" class="unstyled" type="list">
+                    <container if="/icn:record/europeana:rights" id="rightsUrl" class="pull-right">
                         <link urlExpr="/icn:record/europeana:rights" urlValue="" textExpr="/icn:record/europeana:rights"/>
                     </container>
 
