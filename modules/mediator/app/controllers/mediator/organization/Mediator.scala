@@ -45,7 +45,7 @@ object Mediator extends OrganizationController with ThumbnailSupport {
       }
 
       val archivedSourceFiles: Seq[File] = {
-        val archive = new File(MediatorPlugin.pluginConfiguration.archiveDirectory, collection)
+        val archive = new File(MediatorPlugin.pluginConfiguration.archiveDirectory, s"/${configuration.orgId}/$collection")
         safeList(archive)
       }
 
