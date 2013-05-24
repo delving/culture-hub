@@ -154,7 +154,7 @@ object Build extends sbt.Build {
 
     parallelExecution in (ThisBuild) := false,
 
-    testOptions in (ThisBuild) += Tests.Argument("junitxml", "console"),
+    testOptions in (ThisBuild) += Tests.Argument(TestFrameworks.Specs2, "junitxml", "console"),
 
     scalaVersion in (ThisBuild) := buildScalaVersion,
 
