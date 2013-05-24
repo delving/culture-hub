@@ -35,7 +35,7 @@ trait CMS extends OrganizationController { this: BoundController =>
             if (organizationServiceLocator.byDomain.isAdmin(configuration.orgId, connectedUser) || Group.dao.count(MongoDBObject("users" -> connectedUser, "grantType" -> CMSPlugin.ROLE_CMS_ADMIN.key)) > 0) {
               action(request)
             } else {
-              Forbidden(Messages("user.secured.noAccess"))
+              Forbidden(Messages("hub.YouDoNotHaveAccess"))
             }
           }
       }
@@ -46,7 +46,7 @@ trait CMS extends OrganizationController { this: BoundController =>
     Action {
       implicit request =>
         val lang = language.getOrElse(getLang)
-        val pages = CMSPage.dao.list(configuration.orgId, lang, menu)
+        val pages = CMSPage.dao.list(lang, menu)
         Ok(Template('data -> JJson.generate(Map("pages" -> pages)), 'languages -> getLanguages, 'currentLanguage -> lang, 'menuKey -> menu.getOrElse("")))
     }
   }
@@ -81,7 +81,7 @@ trait CMS extends OrganizationController { this: BoundController =>
   def page(language: String, page: Option[String], menu: String): Action[AnyContent] = CMSAction {
     Action {
       implicit request =>
-        def menuEntries = MenuEntry.dao.findEntries(configuration.orgId, menu)
+        def menuEntries = MenuEntry.dao.findEntries(menu)
 
         val (viewModel: Option[CMSPageViewModel], versions: List[CMSPageViewModel]) = page match {
           case None =>
@@ -137,8 +137,8 @@ trait CMS extends OrganizationController { this: BoundController =>
           formWithErrors => handleValidationError(formWithErrors),
           pageModel => {
             // create / update the entry before we create / update the page since in the implicit conversion above we'll query for that page's position.
-            MenuEntry.dao.savePage(configuration.orgId, pageModel.menu, pageModel.key, pageModel.position, pageModel.title, pageModel.lang, pageModel.published)
-            val page: CMSPageViewModel = CMSPageViewModel(CMSPage.dao.create(configuration.orgId, pageModel.key, pageModel.lang, connectedUser, pageModel.title, pageModel.content, pageModel.published), pageModel.menu)
+            MenuEntry.dao.savePage(pageModel.menu, pageModel.key, pageModel.position, pageModel.title, pageModel.lang, pageModel.published)
+            val page: CMSPageViewModel = CMSPageViewModel(CMSPage.dao.create(pageModel.key, pageModel.lang, connectedUser, pageModel.title, pageModel.content, pageModel.published), pageModel.menu)
             CMSPage.dao.removeOldVersions(pageModel.key, pageModel.lang)
             Json(page)
           }
@@ -149,19 +149,20 @@ trait CMS extends OrganizationController { this: BoundController =>
   def pageDelete(key: String, language: String) = CMSAction {
     Action {
       implicit request =>
-        CMSPage.dao.delete(configuration.orgId, key, language)
+        CMSPage.dao.delete(key, language)
 
         // also delete menu entries that refer to that page
-        MenuEntry.dao.removePage(configuration.orgId, key, language)
+        log.info(s"[$connectedUser@${configuration.orgId}] Removed CMS page '$key' in '$language")
+        MenuEntry.dao.removePage(key, language)
 
         Ok
     }
   }
 
-  def pagePreview(language: String, key: String) = CMSAction {
+  def pagePreview(key: String, language: String) = CMSAction {
     Action {
       implicit request =>
-        CMSPage.dao.find(MongoDBObject("key" -> key, "lang" -> getLang, "orgId" -> configuration.orgId)).$orderby(MongoDBObject("_id" -> -1)).limit(1).toList.headOption match {
+        CMSPage.dao.find(MongoDBObject("key" -> key, "lang" -> getLang)).$orderby(MongoDBObject("_id" -> -1)).limit(1).toList.headOption match {
           case None => NotFound(key)
           case Some(pagePreview) => Ok(Template('page -> pagePreview))
         }
@@ -188,7 +189,7 @@ object CMSPageViewModel {
     val (menuEntryPosition, menuKey) = MenuEntry.dao.findOneByTargetPageKey(cmsPage.key).map { e =>
       (e.position, e.menuKey)
     }.getOrElse {
-      (MenuEntry.dao.findEntries(cmsPage.orgId, menu).length + 1, CMSPlugin.MAIN_MENU)
+      (MenuEntry.dao.findEntries(menu).length + 1, CMSPlugin.MAIN_MENU)
     }
 
     CMSPageViewModel(cmsPage._id.getTime, cmsPage.key, cmsPage.lang, cmsPage.title, cmsPage.userName, cmsPage.content, cmsPage.isSnippet, cmsPage.published, menuEntryPosition, menuKey)
@@ -197,7 +198,7 @@ object CMSPageViewModel {
   val pageForm = Form(
     mapping(
       "dateCreated" -> of[Long],
-      "key" -> text.verifying(pattern("^[-a-z0-9]{3,35}$".r, error = Messages("plugin.cms.page.keyInvalid"))),
+      "key" -> text.verifying(pattern("^[-a-z0-9]{3,35}$".r, error = Messages("cms.InvalidKeyValue"))),
       "lang" -> nonEmptyText,
       "title" -> nonEmptyText,
       "userName" -> text,

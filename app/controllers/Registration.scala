@@ -58,29 +58,29 @@ trait Registration extends ApplicationController { this: BoundController =>
     code: String,
     randomId: String)
 
-  def samePassword(implicit configuration: OrganizationConfiguration) = Constraint[RegistrationInfo]("registration.passwordsDiffer") {
+  def samePassword(implicit configuration: OrganizationConfiguration) = Constraint[RegistrationInfo]("hub.PasswordsAreNotTheSame") {
     case r if r.password1 == r.password2 => Valid
-    case _ => Invalid(ValidationError(Messages("registration.passwordsDiffer")))
+    case _ => Invalid(ValidationError(Messages("hub.PasswordsAreNotTheSame")))
   }
 
-  def captchaConstraint(implicit configuration: OrganizationConfiguration) = Constraint[RegistrationInfo]("registration.invalidCode") {
+  def captchaConstraint(implicit configuration: OrganizationConfiguration) = Constraint[RegistrationInfo]("hub.InvalidCode") {
     case r if Cache.get(r.randomId) == Some(r.code) || Play.isTest => Valid
-    case e => Invalid(ValidationError(Messages("registration.invalidCode")))
+    case e => Invalid(ValidationError(Messages("hub.InvalidCode")))
   }
 
-  def emailTaken(implicit configuration: OrganizationConfiguration) = Constraint[RegistrationInfo]("registration.duplicateEmail") {
+  def emailTaken(implicit configuration: OrganizationConfiguration) = Constraint[RegistrationInfo]("hub.ThereIsAlreadyAUserWithThisEmailAddress") {
     case r if !registrationServiceLocator.byDomain.isEmailTaken(r.email) => Valid
-    case _ => Invalid(ValidationError(Messages("registration.duplicateEmail")))
+    case _ => Invalid(ValidationError(Messages("hub.ThereIsAlreadyAUserWithThisEmailAddress")))
   }
 
-  def userNameTaken(implicit configuration: OrganizationConfiguration) = Constraint[RegistrationInfo]("registration.duplicateDisplayName") {
+  def userNameTaken(implicit configuration: OrganizationConfiguration) = Constraint[RegistrationInfo]("hub.ThereIsAlreadyAUserWithThisUsername") {
     case r if !registrationServiceLocator.byDomain.isUserNameTaken(r.userName) => Valid
-    case _ => Invalid(ValidationError(Messages("registration.duplicateDisplayName")))
+    case _ => Invalid(ValidationError(Messages("hub.ThereIsAlreadyAUserWithThisUsername")))
   }
 
-  def orgIdTaken(implicit configuration: OrganizationConfiguration) = Constraint[RegistrationInfo]("registration.duplicateDisplayName") {
+  def orgIdTaken(implicit configuration: OrganizationConfiguration) = Constraint[RegistrationInfo]("hub.ThereIsAlreadyAUserWithThisUsername") {
     case r if !organizationServiceLocator.byDomain.exists(r.userName) => Valid
-    case _ => Invalid(ValidationError(Messages("registration.duplicateDisplayName")))
+    case _ => Invalid(ValidationError(Messages("hub.ThereIsAlreadyAUserWithThisUsername")))
   }
 
   def registrationForm(implicit configuration: OrganizationConfiguration): Form[RegistrationInfo] = Form(
@@ -91,7 +91,7 @@ trait Registration extends ApplicationController { this: BoundController =>
       "userName" -> text.verifying(
         pattern(
           "^[a-z0-9]{3,15}$".r,
-          error = Messages("registration.userNameInvalid")
+          error = Messages("hub.ThisUsernameIsNotValid")
         )
       ),
       "password1" -> nonEmptyText,
@@ -157,7 +157,7 @@ trait Registration extends ApplicationController { this: BoundController =>
                 }
               case None =>
                 logError("Could not save new user %s", r.userName)
-                index.flashing(("registrationError" -> Messages("registration.errorCreating")))
+                index.flashing(("registrationError" -> Messages("hub.ErrorCreatingYourAccount")))
             }
           }
         )
@@ -240,15 +240,15 @@ trait Registration extends ApplicationController { this: BoundController =>
   }
 
   def accountNotFound(
-    implicit configuration: OrganizationConfiguration) = Constraint[String]("registration.accountNotFoundWithEmail") {
+    implicit configuration: OrganizationConfiguration) = Constraint[String]("hub.NoAccountCouldBeFound") {
     case r if registrationServiceLocator.byDomain.isEmailTaken(r) => Valid
-    case _ => Invalid(ValidationError(Messages("registration.accountNotFoundWithEmail")))
+    case _ => Invalid(ValidationError(Messages("hub.NoAccountCouldBeFound")))
   }
 
   def accountNotActive(
-    implicit configuration: OrganizationConfiguration) = Constraint[String]("registration.accountNotActive") {
+    implicit configuration: OrganizationConfiguration) = Constraint[String]("hub.ThisAccountIsNotActiveYet") {
     case r if registrationServiceLocator.byDomain.isAccountActive(r) => Valid
-    case _ => Invalid(ValidationError(Messages("registration.accountNotActive")))
+    case _ => Invalid(ValidationError(Messages("hub.ThisAccountIsNotActiveYet")))
   }
 
   case class ResetPassword(email: String)
@@ -289,16 +289,16 @@ trait Registration extends ApplicationController { this: BoundController =>
         renderArgs += ("themeInfo" -> new ThemeInfo(configuration))
         val indexAction = Redirect(controllers.routes.Application.index)
         if (Option(resetPasswordToken).isEmpty) {
-          indexAction.flashing(("resetPasswordError", Messages("registration.resetTokenNotFound")))
+          indexAction.flashing(("resetPasswordError", Messages("hub.ResetPasswordTokenNotFound")))
         } else {
           Ok(Template('resetPasswordToken -> resetPasswordToken, 'newPasswordForm -> newPasswordForm))
         }
     }
   }
 
-  val sameNewPassword = Constraint[NewPassword]("registration.passwordsDiffer") {
+  val sameNewPassword = Constraint[NewPassword]("hub.PasswordsAreNotTheSame") {
     case r if r.password1 == r.password2 => Valid
-    case _ => Invalid(ValidationError(Messages("registration.passwordsDiffer")))
+    case _ => Invalid(ValidationError(Messages("hub.PasswordsAreNotTheSame")))
   }
 
   case class NewPassword(password1: String, password2: String)
@@ -316,7 +316,7 @@ trait Registration extends ApplicationController { this: BoundController =>
         renderArgs += ("themeInfo" -> new ThemeInfo(configuration))
         if (Option(resetPasswordToken).isEmpty) {
           Redirect(controllers.routes.Application.index).flashing(
-            ("resetPasswordError", Messages("registration.resetTokenNotFound"))
+            ("resetPasswordError", Messages("hub.ResetPasswordTokenNotFound"))
           )
         } else {
           newPasswordForm.bindFromRequest().fold(
@@ -332,7 +332,7 @@ trait Registration extends ApplicationController { this: BoundController =>
                 )
               } else {
                 Redirect(controllers.routes.Application.index).flashing(
-                  ("resetPasswordError", Messages("registration.resetProblem"))
+                  ("resetPasswordError", Messages("hub.ErrorResettingYourPassword"))
                 )
               }
             }

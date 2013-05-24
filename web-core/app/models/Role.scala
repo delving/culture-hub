@@ -38,7 +38,7 @@ object Role {
     (lang.language -> Messages(key))
   }.toMap
 
-  val OWN = Role("own", descriptions("org.group.grantType.own"), false)
+  val OWN = Role("own", descriptions("hub.AdministratorRights"), false)
 
   val systemRoles = List(OWN)
 

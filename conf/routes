@@ -47,15 +47,16 @@ GET        /thumbnail/cache                                                     
 
 ## Lookup by GridFS file ID
 GET        /file/image/:id                                                          controllers.dos.ImageDisplay.displayImage(id, fileId: Boolean = true)
-GET        /file/thumbnail/:id/:width                                               controllers.dos.ImageDisplay.displayThumbnail(id: String, orgId: String = "", collectionId: String = "", width: Option[String], browse: Boolean = false, fileId: Boolean = true)
-GET        /file/thumbnail/*id                                                      controllers.dos.ImageDisplay.displayThumbnail(id, orgId = "", collectionId = "", width: Option[String] = None, browse: Boolean = false, fileId: Boolean = true)
+GET        /file/thumbnail/:id/:width                                               controllers.dos.ImageDisplay.displayThumbnail(id: String, orgId: String = "", collectionId: String = "", width: Option[String], browse: Boolean = false, fileId: Boolean = true, headOnly: Boolean = false)
+GET        /file/thumbnail/*id                                                      controllers.dos.ImageDisplay.displayThumbnail(id, orgId = "", collectionId = "", width: Option[String] = None, browse: Boolean = false, fileId: Boolean = true, headOnly: Boolean = false)
 
 ## Lookup by item ID or other form of IDs
 GET        /image/:id                                                               controllers.dos.ImageDisplay.displayImage(id, fileId: Boolean = true)
-GET        /thumbnail/:orgId/:collectionId/:id/:width                               controllers.dos.ImageDisplay.displayThumbnail(id, orgId, collectionId, width: Option[String], browse: Boolean = false, fileId: Boolean = false)
-GET        /thumbnail/:orgId/:collectionId/*id                                      controllers.dos.ImageDisplay.displayThumbnail(id, orgId, collectionId, width: Option[String], browse: Boolean = false, fileId: Boolean = false)
-GET        /thumbnail/:id/:width                                                    controllers.dos.ImageDisplay.displayThumbnail(id, orgId = "", collectionId = "", width: Option[String], browse: Boolean = false, fileId: Boolean = true)
-GET        /thumbnail/*id                                                           controllers.dos.ImageDisplay.displayThumbnail(id, orgId = "", collectionId = "", width: Option[String] = None, browse: Boolean = false, fileId: Boolean = true)
+HEAD       /thumbnail/:orgId/:collectionId/:id/:width                               controllers.dos.ImageDisplay.displayThumbnail(id, orgId, collectionId, width: Option[String], browse: Boolean = false, fileId: Boolean = false, headOnly: Boolean = true)
+GET        /thumbnail/:orgId/:collectionId/:id/:width                               controllers.dos.ImageDisplay.displayThumbnail(id, orgId, collectionId, width: Option[String], browse: Boolean = false, fileId: Boolean = false, headOnly: Boolean = false)
+GET        /thumbnail/:orgId/:collectionId/*id                                      controllers.dos.ImageDisplay.displayThumbnail(id, orgId, collectionId, width: Option[String], browse: Boolean = false, fileId: Boolean = false, headOnly: Boolean = false)
+GET        /thumbnail/:id/:width                                                    controllers.dos.ImageDisplay.displayThumbnail(id, orgId = "", collectionId = "", width: Option[String], browse: Boolean = false, fileId: Boolean = true, headOnly: Boolean = false)
+GET        /thumbnail/*id                                                           controllers.dos.ImageDisplay.displayThumbnail(id, orgId = "", collectionId = "", width: Option[String] = None, browse: Boolean = false, fileId: Boolean = true, headOnly: Boolean = false)
 
 
 # UI
@@ -73,8 +74,8 @@ GET     /@dos/task/status/:id                                                   
 GET     /@dos/log/list/:taskId                                                      controllers.dos.ui.Logs.list(taskId: org.bson.types.ObjectId, lastCount: Option[Int])
 GET     /@dos/log/view/:taskId                                                      controllers.dos.ui.Logs.view(taskId: org.bson.types.ObjectId)
 
-GET     /@dos/thumbnail/:id/:width                                                  controllers.dos.ImageDisplay.displayThumbnail(id, orgId = "", collectionId = "", width: Option[String], browse: Boolean = true, fileId: Boolean = false)
-GET     /@dos/thumbnail/*id                                                         controllers.dos.ImageDisplay.displayThumbnail(id, orgId = "", collectionId = "", width: Option[String], browse: Boolean = true, fileId: Boolean = false)
+GET     /@dos/thumbnail/:id/:width                                                  controllers.dos.ImageDisplay.displayThumbnail(id, orgId = "", collectionId = "", width: Option[String], browse: Boolean = true, fileId: Boolean = false, headOnly: Boolean = false)
+GET     /@dos/thumbnail/*id                                                         controllers.dos.ImageDisplay.displayThumbnail(id, orgId = "", collectionId = "", width: Option[String], browse: Boolean = true, fileId: Boolean = false, headOnly: Boolean = false)
 
 
 # User registration
@@ -144,6 +145,7 @@ POST        /organizations/:orgId/admin/admin/add                               
 DELETE      /organizations/:orgId/admin/admin/remove                                controllers.organization.Admin.removeAdmin(orgId)
 
 GET         /organizations/:orgId/admin/solrSearchProxy                             controllers.organization.Admin.solrSearchProxy(orgId)
+GET         /organizations/:orgId/admin/reProcessAll                                controllers.organization.Admin.reProcessAll(orgId)
 
 GET         /organizations/:orgId/users/search                                      controllers.Users.listAsTokens(orgId: Option[String], q: String ?= "")
 
@@ -160,6 +162,7 @@ GET         /organizations/:orgId/directory/organizationLookup                  
 
 ->           /                                                                      search.Routes
 ->           /                                                                      cms.Routes
+->           /                                                                      mediator.Routes
 
 
 # Map static resources from the /public folder to the /assets URL path

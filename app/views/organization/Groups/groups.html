@@ -1,7 +1,7 @@
 #{set 'visibility'}hidden#{/set}
 #{extends themeInfo.get('themeLayout') /}
 
-#{set title: messages.get('thing.groups') /}
+#{set title: messages.get('hubb.Groups') /}
 
 #{set bodyId: 'organization' /}
 
@@ -9,16 +9,16 @@
 
 #{organizationNavBar isReadOnly: isReadOnly, isAdmin: isAdmin, orgId: orgId, active:"groups", navigation: navigation /}
 
-<h3>&{'org.group.create'}</h3>
+<h3>&{'hub.CreateGroup'}</h3>
 <form action="" id="groupForm" class="form-delving">
 
 <div class="row">
     <div class="groups-name span4">
-        #{form.textField name:"name", form: groupForm, label:messages.get('thing.name'), dataBind:"value: name, enable: canChangeGrantType", required: true /}
+        #{form.textField name:"name", form: groupForm, label:messages.get('hubb.Name'), dataBind:"value: name, enable: canChangeGrantType", required: true /}
     </div>
     <div class="groups-grants span4">
         <div class="control-group" data-bind="visible: canChangeGrantType">
-            <label class="control-label" for="grantType">&{'thing.grantType'}<span class="label">&{'ui.label.required'}</span></label>
+            <label class="control-label" for="grantType">&{'hubb.ThisGroupGrants'}<span class="label">&{'hub.Required'}</span></label>
             <div class="controls">
                 <select id="grantType" name="grantType" data-bind="value: roleKey">
                 #{list roles, as: 'r'}
@@ -34,16 +34,16 @@
 <div class="row">
     <div class="groups-members span4">
         <div class="control-group">
-            <label class="control-label" for="users">&{'thing.users'}</label>
+            <label class="control-label" for="users">&{'hubb.Users'}</label>
             <div class="controls">
             #{boundAddRemoveTokenField id:"users", name:"users", searchUrl: "/users/search", dataBind:"tokens: users" /}
-                <p>&{'org.admin.index.addMembers'}</p>
+                <p>&{'hub.AddANewMember'}</p>
             </div>
         </div>
     </div>
     <div class="groups-resources span4" data-bind="visible: canChangeGrantType() && (rolesWithResources().indexOf(roleKey()) > -1)  && !(rolesWithResourceAdmin.indexOf(roleKey()) > -1)">
         <div class="control-group">
-            <label class="control-label" for="resourceTokenInput">&{'thing.resources'}</label>
+            <label class="control-label" for="resourceTokenInput">&{'hubb.Resources'}</label>
             <div class="controls">
                 <input type="text" id="resourceTokenInput" data-bind="tokens: resources">
             </div>
@@ -52,7 +52,7 @@
 </div>
 
 <div class="well">
-    #{btnButton label: messages.get('org.group.save'), extraClass:"btn-primary", id:"saveButton", type:"submit" /}
+    #{btnButton label: messages.get('hub.SaveGroup'), extraClass:"btn-primary", id:"saveButton", type:"submit" /}
     <div class="wait"></div>
 </div>
 

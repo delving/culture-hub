@@ -135,16 +135,16 @@ class DataSetPlugin(app: Application) extends CultureHubPlugin(app) {
   override def organizationMenuEntries(configuration: OrganizationConfiguration, lang: String, roles: Seq[String]): Seq[MainMenuEntry] = Seq(
     MainMenuEntry(
       key = "datasets",
-      titleKey = "thing.datasets",
+      titleKey = "dataset.Datasets",
       items = Seq(
-        MenuElement("/organizations/%s/dataset".format(configuration.orgId), "organization.dataset.list"),
-        MenuElement("/organizations/%s/dataset/add".format(configuration.orgId), "organization.dataset.create", Seq(Role.OWN))
+        MenuElement("/organizations/%s/dataset".format(configuration.orgId), "dataset.DatasetList"),
+        MenuElement("/organizations/%s/dataset/add".format(configuration.orgId), "dataset.CreateADataset", Seq(Role.OWN, DataSetPlugin.ROLE_DATASET_ADMIN))
       )
     ),
     MainMenuEntry(
       key = "sipcreator",
-      titleKey = "ui.label.sipcreator",
-      mainEntry = Some(MenuElement("/organizations/%s/sip-creator".format(configuration.orgId), "ui.label.sipcreator"))
+      titleKey = "hub.SIPCreator",
+      mainEntry = Some(MenuElement("/organizations/%s/sip-creator".format(configuration.orgId), "hub.SIPCreator"))
     )
   )
 
@@ -443,14 +443,14 @@ object DataSetPlugin {
 
   lazy val ROLE_DATASET_ADMIN = Role(
     key = "dataSetAdmin",
-    description = Map("en" -> "Dataset administration rights"),
+    description = Map("en" -> "Dataset administration rights", "sv" -> "Adminstrationsrättigheter för dataset"),
     isResourceAdmin = true,
     resourceType = Some(DataSet.RESOURCE_TYPE)
   )
 
   lazy val ROLE_DATASET_EDITOR = Role(
     key = "dataSetEditor",
-    description = Map("en" -> "Dataset modification rights"),
+    description = Map("en" -> "Dataset modification rights", "sv" -> "Dataset redigeringsrättigheter"),
     isResourceAdmin = false,
     resourceType = Some(DataSet.RESOURCE_TYPE)
   )

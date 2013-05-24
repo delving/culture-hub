@@ -37,7 +37,7 @@ trait ApplicationController extends Controller with GroovyTemplates with Control
 
   override implicit def lang(implicit request: RequestHeader): Lang = Lang(getLang)
 
-  def getLanguages = Lang.availables.map(l => (l.language, Messages("locale." + l.language)))
+  def getLanguages = Lang.availables.map(l => (l.language, Messages("lang." + l.language)))
 
   def ApplicationAction[A](action: Action[A]): Action[A] = {
     OrganizationConfigured {
@@ -164,7 +164,7 @@ trait OrganizationController extends DelvingController with Secured {
             if (isAdmin) {
               action(request)
             } else {
-              Forbidden(Messages("user.secured.noAccess"))
+              Forbidden(Messages("hub.YouDoNotHaveAccess"))
             }
           }
       }
@@ -178,7 +178,7 @@ trait OrganizationController extends DelvingController with Secured {
           implicit request =>
             {
               if (!isMember) {
-                Forbidden(Messages("user.secured.noAccess"))
+                Forbidden(Messages("hub.YouDoNotHaveAccess"))
               } else {
                 action(request)
               }
@@ -280,7 +280,7 @@ trait DelvingController extends ApplicationController {
               renderArgs += ("browsedUserId" -> u._id)
               renderArgs += ("browsedUserName" -> u.userName)
               action(request)
-            case None => NotFound(Messages("delvingcontroller.userNotFound", user))
+            case None => NotFound(Messages("hub.UserWasNotFound", user))
           }
       }
     }
@@ -307,7 +307,7 @@ trait DelvingController extends ApplicationController {
           implicit request =>
             {
               if (connectedUser != user) {
-                Forbidden(Messages("user.secured.noAccess"))
+                Forbidden(Messages("hub.YouDoNotHaveAccess"))
               } else {
                 action(request)
               }
@@ -438,4 +438,3 @@ case class ApiItem(path: String, description: String, example: String = "") {
   )
 
 }
-

@@ -4,21 +4,21 @@
 
 <div class="row">
     <div class="span12">
-        <h3 class="page-header">&{'plugin.statistics.statistics'}</h3>
+        <h3 class="page-header">&{'stats.Statistics'}</h3>
         <div class="tabbable">
             <ul class="nav nav-pills" id="stats-tabs" data-bind="foreach: facets">
                 <li data-bind="css: { active: $root.selected() === $data.name()  }"><a href='#' data-bind="click: function() { $root.selected($data.name()) }, text: i18n"></a></li>
             </ul>
             <div class="tab-content" data-bind="foreach: facets">
                 <div class="tab-pane" data-bind="css: { active: $root.selected() === $data.name() }">
-                    <table class="table table-striped sortable" id="statistics-table">
+                    <table class="table table-striped sortable">
                         <thead>
                         <tr>
-                            <th class="sort">&{'thing.name'}</th>
-                            <th class="sort">&{'plugin.statistics.nrRecords'}</th>
-                            <th class="sort">&{'plugin.statistics.withObjects'}</th>
-                            <th class="sort">&{'plugin.statistics.landingPages'}</th>
-                            <th class="sort">&{'plugin.statistics.geoData'}</th>
+                            <th class="sort">&{'hubb.Name'}</th>
+                            <th class="sort">&{'stats.NumberOfRecords'}</th>
+                            <th class="sort">&{'stats.WithObjects'}</th>
+                            <th class="sort">&{'stats.WithLandingPages'}</th>
+                            <th class="sort">&{'stats.WithGeographicalData'}</th>
                         </tr>
                         </thead>
                         <tbody data-bind="foreach: entries">
@@ -42,22 +42,16 @@
 
 <script>
     $(document).ready(function() {
-
       var viewModel = {
         selected: ko.observable("")
       };
-
       $.get('/organizations/${_orgId}/api/statistics${_filter}', function(data) {
         load(data.statistics, viewModel, null, function() {
           var name = viewModel.facets()[0].name();
           viewModel.selected(name);
           $('span[rel=tooltip]').tooltip();
-          $("#statistics-table").tablesorter();
+          $(".sortable").tablesorter();
         });
-
       });
-
-//        $("#statistics-table").tablesorter();
-
     })
 </script>

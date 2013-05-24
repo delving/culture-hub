@@ -26,7 +26,7 @@ object Mails {
         |http://%s/registration/activate/%s
       """.stripMargin.format(
           fullName,
-          Messages("mail.message.activateaccount", themeInfo.siteName),
+          Messages("mail.YourAccountHasBeenCreated", themeInfo.siteName),
           host,
           token
         )
@@ -67,8 +67,8 @@ object Mails {
         |
         |http://%s/registration/resetPassword/%s
       """.stripMargin.format(
-          Messages("ui.label.hi"),
-          Messages("mail.message.resetpassword", themeInfo.siteName),
+          Messages("hub.Hi"),
+          Messages("mail.InOrderToResetYourPassword", themeInfo.siteName),
           host,
           resetPasswordToken
         )).

@@ -15,7 +15,7 @@
        #{if (isAdmin && (editActionEnabled || deleteActionEnabled) || additionalActions.size() > 0) }
        <div class="btn-toolbar nom">
            <div class="btn-group">
-               <button class="btn btn-small input-small">&{'thing.actions'}</button>
+               <button class="btn btn-small input-small">&{'hubb.Actions'}</button>
                <button class="btn btn-small dropdown-toggle" data-toggle="dropdown">
                    <span class="caret"></span>
                </button>
@@ -23,7 +23,7 @@
                    #{if isAdmin}
                        #{if editActionEnabled}
                            <li><a class="" href="#" data-bind="click: function() { $parent.update($data) }" rel="nofollow">
-                               <i class="icon-edit"></i> &{'ui.label.edit'}
+                               <i class="icon-edit"></i> &{'hub.Edit'}
                            </a></li>
                             <li class="divider"></li>
                        #{/if}
@@ -39,7 +39,7 @@
                    #{if isAdmin}
                        #{if deleteActionEnabled}
                            <li><a class="btn-danger" href="#" data-bind="click: function() { $parent.delete($data) }" rel="nofollow">
-                               <i class="icon-trash icon-white"></i> &{'ui.label.delete'}
+                               <i class="icon-trash icon-white"></i> &{'hub.Delete'}
                            </a></li>
                        #{/if}
                    #{/if}

@@ -6,13 +6,13 @@
     #{search.searchIn searchIn: _searchIn, fields: _fields /}
     #{/if}
     <div class="input-append">
-        <input class="" placeholder="&{'ui.label.search'} ..." type="text" id="query" name="query" value='${params.get("query")? params.query[0] : ""}'/>
-        <button type="submit" class="btn" title="&{'ui.label.search'}">
+        <input class="" placeholder="&{'hub.Search'} ..." type="text" id="query" name="query" value='${params.get("query")? params.query[0] : ""}'/>
+        <button type="submit" class="btn" title="&{'hub.Search'}">
         #{if _iconOnly}<i class="icon icon-search"></i>#{/if}
-        #{else}&{'ui.label.search'}#{/else}
+        #{else}&{'hub.Search'}#{/else}
         </button>
     </div>
     #{if _advancedSearchLink}
-    &#160;<a href="/search/advanced" rel="nofollow" class="hidden-phone">&{'plugin.advancedsearch'}</a>
+    &#160;<a href="/search/advanced" rel="nofollow" class="hidden-phone">&{'asearch.AdvancedSearch'}</a>
     #{/if}
 </form>

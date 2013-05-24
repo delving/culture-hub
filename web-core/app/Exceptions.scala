@@ -77,4 +77,3 @@ package exceptions {
   class StorageInsertionException(s: String, throwable: Throwable) extends Exception(s, throwable)
 
 }
-

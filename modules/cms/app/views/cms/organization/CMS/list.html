@@ -1,6 +1,6 @@
 #{extends themeInfo.get('themeLayout') /}
 
-#{set title: messages.get('thing.pages') /}
+#{set title: messages.get('hubb.SitePages') /}
 
 #{set bodyId: 'organization' /}
 
@@ -11,7 +11,7 @@
 <div class="row">
     <div class="span12">
         <form class="form-inline well">
-            <label for="language">&{'plugin.cms.list.languageSwitch'}</label>
+            <label for="language">&{'cms.ListPagesIn'}</label>
             <select id="language" name="language">
             #{list languages, as: 'option'}
                 <option #{if currentLanguage == option._1} selected="selected #{/if}value="${option._1}">${option._2}</option>
@@ -23,9 +23,9 @@
             <caption>Site pages</caption>
             <thead>
             <tr>
-                <th>&{'thing.title'}</th>
-                <th>&{'ui.label.status'}</th>
-                <th width="25%">&{'thing.actions'}</th>
+                <th>&{'hubb.Title'}</th>
+                <th>&{'hub.Status'}</th>
+                <th width="25%">&{'hubb.Actions'}</th>
             </tr>
             </thead>
             <!-- ko if: pages().length > 0 -->
@@ -37,22 +37,22 @@
                 <td>
                     <!-- ko if: published() -->
                     <i class="icon-eye-open"></i>
-                &{'plugin.cms.page.published'}
+                &{'cms.Published'}
                     <!-- /ko -->
                     <!-- ko if: !published() -->
                     <i class="icon-eye-close"></i>
-                &{'plugin.cms.page.notPublished'}
+                &{'cms.NotPublished'}
                     <!-- /ko -->
                 </td>
                 <td>
                     <a class="btn btn-primary btn-mini" href="#" data-bind="click: function() { $parent.editPage($data) }" rel="nofollow">
-                        <i class="icon-edit icon-white"></i> &{'ui.label.edit'}
+                        <i class="icon-edit icon-white"></i> &{'hub.Edit'}
                     </a>
                     <a class="btn btn-inverse btn-mini" target="_blank" href="#" data-bind="click: function() { $parent.previewPage($data) }" rel="nofollow">
-                        <i class="icon-eye-open icon-white"></i> &{'ui.label.preview'}
+                        <i class="icon-eye-open icon-white"></i> &{'hub.Preview'}
                     </a>
                     <a class="btn btn-danger btn-mini pull-right delete" href="#" data-bind="click: function() { $parent.deletePage($data) }" rel="nofollow">
-                        <i class="icon-trash icon-white"></i> &{'ui.label.delete'}
+                        <i class="icon-trash icon-white"></i> &{'hub.Delete'}
                     </a>
                 </td>
             </tr>
@@ -65,7 +65,7 @@
                     No pages available
                 </td>
                 <td>
-                    <a class="btn btn-primary btn-mini" href="/admin/site/${currentLanguage}/page/add/${menuKey}" rel="nofollow">${messages.get('ui.label.new')}</a>
+                    <a class="btn btn-primary btn-mini" href="/admin/site/${currentLanguage}/page/add/${menuKey}" rel="nofollow">${messages.get('hub.New')}</a>
                 </td>
             </tr>
             </tbody>
@@ -89,7 +89,7 @@
             deletePage:function (page) {
                 bootboxConfirm({
                     'type': 'DELETE',
-                    'message' : '<h3 class="shout">'+page.key()+'</h3>&{'plugin.cms.list.deletePageConfirm'}',
+                    'message' : '<h3 class="shout">'+page.key()+'</h3>&{'cms.AreYouSureYouWantToDelete'}',
                     'action_url' : '/admin/site/' + page.lang() + '/page/' + page.key(),
                     'success_callback' : function () {
                         pagesModel.pages.remove(function (item) {

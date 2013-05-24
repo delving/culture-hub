@@ -1,5 +1,5 @@
 #{extends themeInfo.get('themeLayout') /}
-#{set title: messages.get('profile.title') + ': ' + browsedUserName /}
+#{set title: messages.get('hub.ProfilePageFor') + ': ' + browsedUserName /}
 #{set bodyId: 'profile' /}
 
 #{breadcrumbs crumbs: breadcrumbs /}
@@ -8,20 +8,20 @@
     <div class="span3">
       <p>#{gravatar.img user.email, size:200 /}</p>
       #{if user.userName == userName}
-        <p>#{btnHref label:messages.get('ui.label.edit'), extraClass:"btn-primary", href: "/" + user.userName + "/admin/profile/update", rel:"nofollow" /}</p>
+        <p>#{btnHref label:messages.get('hub.Edit'), extraClass:"btn-primary", href: "/" + user.userName + "/admin/profile/update", rel:"nofollow" /}</p>
       #{/if}
     </div>
     <div class="span9">
         <dl class="dl-horizontal">
-            <dt>&{'ui.label.username'}:</dt>
+            <dt>&{'hub.Username'}:</dt>
             <dd>${user.userName}</dd>
             #{if isVisible}
-            <dt>&{'ui.label.fullname'}:</dt>
+            <dt>&{'hub.FullName'}:</dt>
             <dd>${user.fullname()}</dd>
-            <dt>&{'profile.activesince'}:</dt>
+            <dt>&{'hub.ProfileActiveSince'}:</dt>
             <dd>${views.Helpers.niceTime(user._id.getTime())}</dd>
             #{ifnot user.userProfile.funFact().isEmpty()}
-                <dt>&{'user.profile.funFact'}:</dt><dd>${user.userProfile.funFact().get()}</dd>
+                <dt>&{'hub.FunFact'}:</dt><dd>${user.userProfile.funFact().get()}</dd>
             #{/ifnot}
             #{ifnot user.userProfile.fixedPhone().isEmpty()}
                 <dt>Phone:</dt><dd>${user.userProfile.fixedPhone().get()}</dd>
@@ -33,7 +33,7 @@
                 <dt>LinkedIn:</dt><dd><a href="http://www.linkedin.com/in/${user.userProfile.linkedIn().get()}" target="_blank"><img src="http://www.linkedin.com/img/webpromo/btn_profile_bluetxt_80x15.png" width="80" height="15" border="0" alt="${user.fullname()}"></a></dd>
             #{/ifnot}
             #{ifnot user.userProfile.description().isEmpty()}
-                <dt>&{'user.profile.aboutYou'}:</dt>
+                <dt>&{'hub.AboutYou'}:</dt>
                 <dd>${user.userProfile.description().get()}</dd>
             #{/ifnot}
             #{/if}
@@ -49,7 +49,7 @@
     <div class="row">
         <div class="span4">
             <div class="widget">
-                <div class="hd"><h3>&{'thing.objects'} (${objectsCount ? objectsCount : 0})</h3></div>
+                <div class="hd"><h3>&{'hubb.Objects'} (${objectsCount ? objectsCount : 0})</h3></div>
                 <div class="bd">
 
                     #{list objects, as: 'o'}
@@ -57,7 +57,7 @@
                     <hr/>
                     #{/list}
                     #{if objectsCount > objects.size()}
-                    #{btnHref label: messages.get('ui.label.more')+"...", href: user.userName + "/object", extraClass: "fright" /}
+                    #{btnHref label: messages.get('hub.More')+"...", href: user.userName + "/object", extraClass: "fright" /}
                     #{/if}
 
                 </div>
@@ -67,14 +67,14 @@
 
         <div class="span4">
             <div class="widget">
-                <div class="hd"><h3>&{'thing.collections'} (${collectionsCount? collectionsCount : 0})</h3></div>
+                <div class="hd"><h3>&{'hubb.Collections'} (${collectionsCount? collectionsCount : 0})</h3></div>
                 <div class="bd">
                     #{list collections, as: 'c'}
                     #{thingSummaryView data: c, iSize: 40, viewType: 'media'  /}
                     <hr/>
                     #{/list}
                     #{if collectionsCount > collections.size()}
-                    #{btnHref label: messages.get('ui.label.more')+"...", href: user.userName + "/collection" /}
+                    #{btnHref label: messages.get('hub.More')+"...", href: user.userName + "/collection" /}
                     #{/if}
                 </div>
             </div>
@@ -82,14 +82,14 @@
 
         <div class="span4">
             <div class="widget">
-                <div class="hd"><h3>&{'thing.stories'} (${storiesCount? storiesCount : 0})</h3></div>
+                <div class="hd"><h3>&{'hubb.Stories'} (${storiesCount? storiesCount : 0})</h3></div>
                 <div class="bd">
                     #{list stories, as: 's'}
                     #{thingSummaryView data: s, iSize: 40, viewType: 'media'  /}
                     <hr/>
                     #{/list}
                     #{if storiesCount > stories.size()}
-                    #{btnHref label: messages.get('ui.label.more')+"...", href: user.userName + "/story" /}
+                    #{btnHref label: messages.get('hub.More')+"...", href: user.userName + "/story" /}
                     #{/if}
 
                 </div>

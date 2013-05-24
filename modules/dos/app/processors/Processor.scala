@@ -20,6 +20,7 @@ import util.{ OrganizationConfigurationHandler, Logging }
 import models.dos.{ Task }
 import play.api.Play
 import play.api.Play.current
+import models.OrganizationConfiguration
 
 /**
  *
@@ -31,22 +32,13 @@ trait Processor extends Logging {
   /**
    * Does its thing given a path and optional parameters. The path may or may not exist on the file system.
    */
-  def process(task: Task, processorParams: Map[String, AnyRef] = Map.empty[String, AnyRef])
+  def process(task: Task, processorParams: Map[String, AnyRef] = Map.empty[String, AnyRef])(implicit configuration: OrganizationConfiguration)
 
   def isImage(name: String) = name.contains(".") && !name.startsWith(".") && (
     name.split("\\.").last.toLowerCase match {
       case "jpg" | "tif" | "tiff" => true
       case _ => false
     })
-
-  def getGMCommand(task: Task): Option[String] = {
-    // this is needed because OS X won't run commands unless given the full path
-    val gmCommand = Play.configuration.getString("dos.graphicsmagic.cmd")
-    if (gmCommand == None) {
-      error(task, "Could not find path to GraphicsMagick in application.conf under key 'dos.graphicsmagic.cmd'")
-      None
-    } else gmCommand
-  }
 
   def parameterList(task: Task) = task.params.map(p => s"${p._1}:${p._2}").mkString(", ")
 

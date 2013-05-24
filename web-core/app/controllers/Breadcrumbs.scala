@@ -23,15 +23,15 @@ object Breadcrumbs {
 
     val crumbs = crumbList match {
 
-      case "users" :: Nil => List(("/users", Messages("thing.users")))
+      case "users" :: Nil => List(("/users", Messages("hubb.Users")))
 
-      case "search" :: Nil => List(("NOLINK", Messages("ui.label.search")))
+      case "search" :: Nil => List(("NOLINK", Messages("hub.Search")))
 
       case "org" :: orgId :: "thing" :: spec :: recordId :: Nil =>
         val returnToResults = Option(p.get("search").get("returnToResults"))
         returnToResults match {
-          case Some(r) if r.length() > 0 => List(("NOLINK", Messages("ui.label.search")), ("/search?" + r, "%s".format(p.get("search").get("searchTerm"))), ("NOLINK", p.get("title").get("label")))
-          case _ => List(("/organizations/" + orgId, orgId), ("NOLINK", Messages("thing.objects")), ("NOLINK", spec), ("NOLINK", p.get("title").get("label")))
+          case Some(r) if r.length() > 0 => List(("NOLINK", Messages("hub.Search")), ("/search?" + r, "%s".format(p.get("search").get("searchTerm"))), ("NOLINK", p.get("title").get("label")))
+          case _ => List(("/organizations/" + orgId, orgId), ("NOLINK", Messages("hubb.Objects")), ("NOLINK", spec), ("NOLINK", p.get("title").get("label")))
         }
 
       // TODO fetch these crumbs from the plugin
@@ -39,42 +39,42 @@ object Breadcrumbs {
       case "org" :: orgId :: "museum" :: id :: Nil =>
         val returnToResults = Option(p.get("search").get("returnToResults"))
         returnToResults match {
-          case Some(r) if r.length() > 0 => List(("NOLINK", Messages("ui.label.search")), ("/search?" + r, "%s".format(p.get("search").get("searchTerm"))), ("NOLINK", p.get("title").get("label")))
-          case _ => List(("/organizations/" + orgId, orgId), ("NOLINK", Messages("plugin.musip.museums")), ("NOLINK", p.get("title").get("label")))
+          case Some(r) if r.length() > 0 => List(("NOLINK", Messages("hub.Search")), ("/search?" + r, "%s".format(p.get("search").get("searchTerm"))), ("NOLINK", p.get("title").get("label")))
+          case _ => List(("/organizations/" + orgId, orgId), ("NOLINK", Messages("musip.Museums")), ("NOLINK", p.get("title").get("label")))
         }
 
       case "org" :: orgId :: "collection" :: id :: Nil =>
         val returnToResults = Option(p.get("search").get("returnToResults"))
         returnToResults match {
-          case Some(r) if r.length() > 0 => List(("NOLINK", Messages("ui.label.search")), ("/search?" + r, "%s".format(p.get("search").get("searchTerm"))), ("NOLINK", p.get("title").get("label")))
-          case _ => List(("/organizations/" + orgId, orgId), ("NOLINK", Messages("plugin.musip.collections")), ("NOLINK", p.get("title").get("label")))
+          case Some(r) if r.length() > 0 => List(("NOLINK", Messages("hub.Search")), ("/search?" + r, "%s".format(p.get("search").get("searchTerm"))), ("NOLINK", p.get("title").get("label")))
+          case _ => List(("/organizations/" + orgId, orgId), ("NOLINK", Messages("musip.Collections")), ("NOLINK", p.get("title").get("label")))
         }
 
-      case "rijks" :: "search" :: Nil => List(("/rijks", Messages("plugin.rijks.rijks")), ("NOLINK", Messages("ui.label.search")))
+      case "rijks" :: "search" :: Nil => List(("/rijks", Messages("_rijks.Rijkscollectie")), ("NOLINK", Messages("hub.Search")))
 
-      case "organizations" :: orgName :: Nil => List(("NOLINK", Messages("thing.organizations")), ("/organizations/" + orgName, orgName))
-      case "organizations" :: orgName :: "admin" :: Nil => List(("NOLINK", Messages("thing.organizations")), ("/organizations/" + orgName, orgName), ("/organizations/" + orgName + "/admin", Messages("org.admin.index.title")))
-      case "organizations" :: orgName :: "dataset" :: Nil => List(("NOLINK", Messages("thing.organizations")), ("/organizations/" + orgName, orgName), ("/organizations/" + orgName + "/dataset", Messages("thing.datasets")))
-      case "organizations" :: orgName :: "dataset" :: "add" :: Nil => List(("NOLINK", Messages("thing.organizations")), ("/organizations/" + orgName, orgName), ("/organizations/" + orgName + "/dataset", Messages("organization.dataset.create")))
-      case "organizations" :: orgName :: "dataset" :: name :: Nil => List(("NOLINK", Messages("thing.organizations")), ("/organizations/" + orgName, orgName), ("/organizations/" + orgName + "/dataset", Messages("thing.datasets")), ("/organizations/" + orgName + "/dataset" + name, name))
-      case "organizations" :: orgName :: "dataset" :: name :: "update" :: Nil => List(("NOLINK", Messages("thing.organizations")), ("/organizations/" + orgName, orgName), ("/organizations/" + orgName + "/dataset", Messages("thing.datasets")), ("/organizations/" + orgName + "/dataset/" + name, name), ("/organizations/" + orgName + "/dataset/" + name + "/update", Messages("ui.label.edit")))
-      case "organizations" :: orgName :: "groups" :: Nil => List(("NOLINK", Messages("thing.organizations")), ("/organizations/" + orgName, orgName), ("/organizations/" + orgName + "/groups", Messages("thing.groups")))
-      case "organizations" :: orgName :: "groups" :: "create" :: Nil => List(("NOLINK", Messages("thing.organizations")), ("/organizations/" + orgName, orgName), ("/organizations/" + orgName + "/groups", Messages("thing.groups")), ("NOLINK", Messages("ui.label.create")))
-      case "organizations" :: orgName :: "groups" :: "update" :: id :: Nil => List(("NOLINK", Messages("thing.organizations")), ("/organizations/" + orgName, orgName), ("/organizations/" + orgName + "/groups", Messages("thing.groups")), ("/organizations/" + orgName + "/groups/update/" + id, Messages("ui.label.edit")))
-      case "organizations" :: orgName :: "sip-creator" :: Nil => List(("NOLINK", Messages("thing.organizations")), ("/organizations/" + orgName, orgName), ("/organizations/" + orgName + "/sip-creator", Messages("ui.label.sipcreator")))
-      case "organizations" :: orgName :: "site" :: Nil => List(("NOLINK", Messages("thing.organizations")), ("/organizations/" + orgName, orgName), ("/organizations/" + orgName + "/site", Messages("plugin.cms")), ("NOLINK", Messages("locale." + request.session.get("lang").getOrElse(configuration.ui.defaultLanguage))))
-      case "organizations" :: orgName :: "site" :: "upload" :: Nil => List(("NOLINK", Messages("thing.organizations")), ("/organizations/" + orgName, orgName), ("/organizations/" + orgName + "/site", Messages("plugin.cms")), ("NOLINK", Messages("plugin.cms.upload")))
-      case "organizations" :: orgName :: "site" :: lang :: Nil => List(("NOLINK", Messages("thing.organizations")), ("/organizations/" + orgName, orgName), ("/organizations/" + orgName + "/site", Messages("plugin.cms")), ("NOLINK", Messages("locale." + lang)))
-      case "organizations" :: orgName :: "site" :: lang :: "page" :: "add" :: Nil => List(("NOLINK", Messages("thing.organizations")), ("/organizations/" + orgName, orgName), ("/organizations/" + orgName + "/site", Messages("plugin.cms")), ("/organizations/" + orgName + "/site/" + lang, Messages("locale." + lang)), ("NOLINK", Messages("plugin.cms.page.create")))
-      case "organizations" :: orgName :: "site" :: lang :: "page" :: page :: "update" :: Nil => List(("NOLINK", Messages("thing.organizations")), ("/organizations/" + orgName, orgName), ("/organizations/" + orgName + "/site", Messages("plugin.cms")), ("/organizations/" + orgName + "/site/" + lang, Messages("locale." + lang)), ("NOLINK", Messages("plugin.cms.page.update") + " \"" + page + "\""))
-      case "organizations" :: orgName :: "virtualCollection" :: Nil => List(("NOLINK", Messages("thing.organizations")), ("/organizations/" + orgName, orgName), ("/organizations/" + orgName + "/virtualCollection", Messages("thing.virtualCollections")))
-      case "organizations" :: orgName :: "virtualCollection" :: "add" :: Nil => List(("NOLINK", Messages("thing.organizations")), ("/organizations/" + orgName, orgName), ("/organizations/" + orgName + "/virtualCollection", Messages("thing.virtualCollections")), ("/organizations/" + orgName + "/virtualCollection/add", Messages("org.vc.new")))
+      case "organizations" :: orgName :: Nil => List(("NOLINK", Messages("hubb.Organizations")), ("/organizations/" + orgName, orgName))
+      case "organizations" :: orgName :: "admin" :: Nil => List(("NOLINK", Messages("hubb.Organizations")), ("/organizations/" + orgName, orgName), ("/organizations/" + orgName + "/admin", Messages("hub.OrganizationAdministration")))
+      case "organizations" :: orgName :: "dataset" :: Nil => List(("NOLINK", Messages("hubb.Organizations")), ("/organizations/" + orgName, orgName), ("/organizations/" + orgName + "/dataset", Messages("dataset.Datasets")))
+      case "organizations" :: orgName :: "dataset" :: "add" :: Nil => List(("NOLINK", Messages("hubb.Organizations")), ("/organizations/" + orgName, orgName), ("/organizations/" + orgName + "/dataset", Messages("dataset.CreateADataset")))
+      case "organizations" :: orgName :: "dataset" :: name :: Nil => List(("NOLINK", Messages("hubb.Organizations")), ("/organizations/" + orgName, orgName), ("/organizations/" + orgName + "/dataset", Messages("dataset.Datasets")), ("/organizations/" + orgName + "/dataset" + name, name))
+      case "organizations" :: orgName :: "dataset" :: name :: "update" :: Nil => List(("NOLINK", Messages("hubb.Organizations")), ("/organizations/" + orgName, orgName), ("/organizations/" + orgName + "/dataset", Messages("dataset.Datasets")), ("/organizations/" + orgName + "/dataset/" + name, name), ("/organizations/" + orgName + "/dataset/" + name + "/update", Messages("hub.Edit")))
+      case "organizations" :: orgName :: "groups" :: Nil => List(("NOLINK", Messages("hubb.Organizations")), ("/organizations/" + orgName, orgName), ("/organizations/" + orgName + "/groups", Messages("hubb.Groups")))
+      case "organizations" :: orgName :: "groups" :: "create" :: Nil => List(("NOLINK", Messages("hubb.Organizations")), ("/organizations/" + orgName, orgName), ("/organizations/" + orgName + "/groups", Messages("hubb.Groups")), ("NOLINK", Messages("hub.Create")))
+      case "organizations" :: orgName :: "groups" :: "update" :: id :: Nil => List(("NOLINK", Messages("hubb.Organizations")), ("/organizations/" + orgName, orgName), ("/organizations/" + orgName + "/groups", Messages("hubb.Groups")), ("/organizations/" + orgName + "/groups/update/" + id, Messages("hub.Edit")))
+      case "organizations" :: orgName :: "sip-creator" :: Nil => List(("NOLINK", Messages("hubb.Organizations")), ("/organizations/" + orgName, orgName), ("/organizations/" + orgName + "/sip-creator", Messages("hub.SIPCreator")))
+      case "organizations" :: orgName :: "site" :: Nil => List(("NOLINK", Messages("hubb.Organizations")), ("/organizations/" + orgName, orgName), ("/organizations/" + orgName + "/site", Messages("cms.WebsitePages")), ("NOLINK", Messages("locale." + request.session.get("lang").getOrElse(configuration.ui.defaultLanguage))))
+      case "organizations" :: orgName :: "site" :: "upload" :: Nil => List(("NOLINK", Messages("hubb.Organizations")), ("/organizations/" + orgName, orgName), ("/organizations/" + orgName + "/site", Messages("cms.WebsitePages")), ("NOLINK", Messages("cms.WebsitePages.upload")))
+      case "organizations" :: orgName :: "site" :: lang :: Nil => List(("NOLINK", Messages("hubb.Organizations")), ("/organizations/" + orgName, orgName), ("/organizations/" + orgName + "/site", Messages("cms.WebsitePages")), ("NOLINK", Messages("locale." + lang)))
+      case "organizations" :: orgName :: "site" :: lang :: "page" :: "add" :: Nil => List(("NOLINK", Messages("hubb.Organizations")), ("/organizations/" + orgName, orgName), ("/organizations/" + orgName + "/site", Messages("cms.WebsitePages")), ("/organizations/" + orgName + "/site/" + lang, Messages("locale." + lang)), ("NOLINK", Messages("_cms.CreateNewPage")))
+      case "organizations" :: orgName :: "site" :: lang :: "page" :: page :: "update" :: Nil => List(("NOLINK", Messages("hubb.Organizations")), ("/organizations/" + orgName, orgName), ("/organizations/" + orgName + "/site", Messages("cms.WebsitePages")), ("/organizations/" + orgName + "/site/" + lang, Messages("locale." + lang)), ("NOLINK", Messages("cms.UpdatePage") + " \"" + page + "\""))
+      case "organizations" :: orgName :: "virtualCollection" :: Nil => List(("NOLINK", Messages("hubb.Organizations")), ("/organizations/" + orgName, orgName), ("/organizations/" + orgName + "/virtualCollection", Messages("chc.VirtualCollections")))
+      case "organizations" :: orgName :: "virtualCollection" :: "add" :: Nil => List(("NOLINK", Messages("hubb.Organizations")), ("/organizations/" + orgName, orgName), ("/organizations/" + orgName + "/virtualCollection", Messages("chc.VirtualCollections")), ("/organizations/" + orgName + "/virtualCollection/add", Messages("chc.NewVirtualCollection")))
 
       case user :: Nil => List(("/" + user, user))
 
       case _ => List()
     }
-    (("/", Messages("site.nav.home")) :: crumbs).zipWithIndex
+    (("/", Messages("hub.Home")) :: crumbs).zipWithIndex
   }
 
 }

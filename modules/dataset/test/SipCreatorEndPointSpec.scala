@@ -152,6 +152,35 @@ class SipCreatorEndPointSpec extends BootstrapAwareSpec {
       }
     }
 
+    "accept a links file" in {
+      withTestConfig {
+        val linksFile = bootstrap.file("links_abm.csv.gz")
+
+        val result = controllers.SipCreatorEndPoint.acceptFile(
+          bootstrap.org,
+          bootstrap.spec,
+          linksFile.getName,
+          Some("TEST")
+        )(
+            FakeRequest(
+              method = "POST",
+              uri = "",
+              headers = FakeHeaders(Seq(CONTENT_TYPE -> Seq("application/octet-stream"))),
+              body = TemporaryFile(linksFile)
+            )
+          )
+        status(result) must equalTo(OK)
+
+        val original = linksFile
+
+        val uploaded = DataSet.dao(bootstrap.org).getLinksFile(bootstrap.spec, bootstrap.org, "abm")
+
+        uploaded must beSome
+
+        IOUtils.contentEquals(new FileInputStream(original), uploaded.get.inputStream) must beTrue
+      }
+    }
+
     "accept a source file" in {
       withTestConfig {
         val sourceFile = bootstrap.file("source.xml.gz")
@@ -281,7 +310,7 @@ class SipCreatorEndPointSpec extends BootstrapAwareSpec {
         zis.close()
 
         XML.loadString(downloadedSource).size must equalTo(1)
-        downloadedEntries.size must equalTo(4)
+        downloadedEntries.size must equalTo(5)
 
         val fis2 = new FileInputStream(sourceFile)
         val gis2 = new GZIPInputStream(fis2)
@@ -334,4 +363,3 @@ class SipCreatorEndPointSpec extends BootstrapAwareSpec {
   }
 
 }
-

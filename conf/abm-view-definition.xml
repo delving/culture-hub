@@ -22,7 +22,7 @@
                         <link textValue="zoom" urlExpr="/abm:record/delving:deepZoomUrl" type="zoom"/>
                     </container>
                     <container id="context-link" if="/abm:record/europeana:isShownAt">
-                        <link textValue="search.viewInOriginalContext" urlExpr="/abm:record/europeana:isShownAt" type="external"/>
+                        <link textValue="search.ViewInOriginalContext" urlExpr="/abm:record/europeana:isShownAt" type="external"/>
                     </container>
                 </container>
             <row>
@@ -31,7 +31,7 @@
                     <field label="metadata.dc.date" path="/abm:record/dc:date" />
                     <field label="metadata.dc.creator" path="/abm:record/dc:creator"/>
                     <field label="metadata.dc.date" path="/abm:record/dc:date"/>
-                    <field label="metadata.dcterms.created" path="/abm:record/dcterms:created"/>
+                    <field label="metadata.dcterms.date" path="/abm:record/dcterms:created"/>
                     <field label="metadata.dc.contributor" path="/abm:record/dc:contributor"/>
                     <field label="metadata.dc.description" path="/abm:record/dc:description"/>
                     <field label="metadata.dc.format" path="/abm:record/dc:format"/>
@@ -40,7 +40,7 @@
                     <field label="metadata.dc.publisher" path="/abm:record/dc:publisher"/>
                     <!--<link  label="metadata.dc.rights" urlExpr="/abm:record/dc:rights" textExpr="/abm:record/dc:rights" type="external"/>-->
                     <!-- Rights url -->
-                    <container if="/abm:record/dc:rights" id="rightsUrl">
+                    <container if="/abm:record/dc:rights">
                         <link urlExpr="/abm:record/dc:rights" urlValue="" textExpr="/abm:record/dc:rights" label="metadata.dc.rights"/>
                     </container>
 

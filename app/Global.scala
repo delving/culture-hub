@@ -8,13 +8,14 @@ import core.CultureHubPlugin
 import play.api.libs.concurrent._
 import akka.actor._
 import play.api._
-import mvc.{ Handler, RequestHeader }
+import play.api.mvc.{ WithFilters, Handler, RequestHeader }
 import play.api.Play.current
+import play.extras.iteratees.GzipFilter
 import util.OrganizationConfigurationHandler
 import eu.delving.culturehub.BuildInfo
 import play.api.mvc.Results._
 
-object Global extends GlobalSettings {
+object Global extends WithFilters(new GzipFilter()) {
 
   override def onStart(app: Application) {
 

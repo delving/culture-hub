@@ -4,7 +4,7 @@ import exceptions.{ StorageInsertionException, AccessKeyException }
 import play.api.mvc._
 import java.util.zip.{ ZipEntry, ZipOutputStream, GZIPInputStream }
 import java.io._
-import org.apache.commons.io.IOUtils
+import org.apache.commons.io.{ FileUtils, IOUtils }
 import play.api.libs.iteratee.Enumerator
 import play.libs.Akka
 import akka.actor.Actor
@@ -33,6 +33,8 @@ import models.statistics.FieldValues
 import play.api.libs.MimeTypes
 import play.api.libs.concurrent.Execution.Implicits._
 import scala.concurrent.duration._
+import com.mongodb.casbah.Imports._
+import com.mongodb.casbah.gridfs.{ GridFSDBFile, GridFS }
 
 /**
  * This Controller is responsible for all the interaction with the SIP-Creator.
@@ -265,6 +267,9 @@ trait SipCreatorEndPoint extends Controller with OrganizationConfigurationAware 
                 case x if x.startsWith("stats-") =>
                   receiveSourceStats(dataSet.get, inputStream, prefix, fileName, request.body.file)
 
+                case "links" =>
+                  receiveLinks(dataSet.get, prefix, fileName, request.body.file)
+
                 case "image" =>
                   FileStorage.storeFile(
                     request.body.file,
@@ -347,7 +352,7 @@ trait SipCreatorEndPoint extends Controller with OrganizationConfigurationAware 
       f.put("uploadDate", context.uploadDate)
       f.put("hubFileType", "source-statistics")
       f.put("filename", fileName)
-      f.save
+      f.save()
 
       val dss = DataSetStatistics(
         context = context,
@@ -401,6 +406,40 @@ trait SipCreatorEndPoint extends Controller with OrganizationConfigurationAware 
     Right("Allright")
   }
 
+  private def receiveLinks(dataSet: DataSet, schemaPrefix: String, fileName: String, file: File)(implicit configuration: OrganizationConfiguration) = {
+    val store = hubFileStores.getResource(configuration)
+    import com.mongodb.casbah.gridfs.Imports._
+
+    // remove previous version
+    findLinksFile(dataSet.orgId, dataSet.spec, schemaPrefix, store) foreach { previous =>
+      store.remove(previous._id.get)
+    }
+
+    val f = store.createFile(file)
+
+    try {
+      f.put("contentType", "application/x-gzip")
+      f.put("orgId", dataSet.orgId)
+      f.put("spec", dataSet.spec)
+      f.put("schema", schemaPrefix)
+      f.put("uploadDate", new Date())
+      f.put("hubFileType", "links")
+      f.put("filename", fileName)
+      f.save()
+
+      Right("Ok")
+
+    } catch {
+      case t: Throwable =>
+        log.error("SipCreatorEndPoint: Could not store links", t)
+        Left("Error while receiving links: " + t.getMessage)
+    }
+  }
+
+  private def findLinksFile(orgId: String, spec: String, schemaPrefix: String, store: GridFS): Option[GridFSDBFile] = {
+    store.findOne(MongoDBObject("orgId" -> orgId, "spec" -> spec, "schema" -> schemaPrefix, "hubFileType" -> "links"))
+  }
+
   def fetchSIP(orgId: String, spec: String, accessToken: Option[String]) = OrganizationAction(orgId, accessToken) {
     Action {
       implicit request =>
@@ -439,6 +478,7 @@ trait SipCreatorEndPoint extends Controller with OrganizationConfigurationAware 
     val temp = TemporaryFile(dataSet.spec)
     val fos = new FileOutputStream(temp.file)
     val zipOut = new ZipOutputStream(fos)
+    val store = hubFileStores.getResource(configuration)
 
     writeEntry("dataset_facts.txt", zipOut) {
       out => IOUtils.write(dataSet.details.getFactsAsText, out)
@@ -448,7 +488,87 @@ trait SipCreatorEndPoint extends Controller with OrganizationConfigurationAware 
       out => IOUtils.copy(new ByteArrayInputStream(dataSet.hints), out)
     }
 
+    store.find(MongoDBObject("orgId" -> dataSet.orgId, "spec" -> dataSet.spec, "hubFileType" -> "links")).toSeq.foreach { links =>
+      {
+        val prefix: String = links.get("schema").toString
+        writeEntry(s"links_$prefix.csv.gz", zipOut) {
+          out => IOUtils.copy(links.getInputStream, out)
+        }
+      }
+    }
+
     val recordCount = basexStorage.count(dataSet)
+
+    if (recordCount > 0) {
+      writeEntry("source.xml", zipOut) {
+        out => writeDataSetSource(dataSet, out)
+      }
+    }
+
+    for (mapping <- dataSet.mappings) {
+      if (mapping._2.recordMapping != None) {
+        writeEntry("mapping_%s.xml".format(mapping._1), zipOut) {
+          out => writeContent(mapping._2.recordMapping.get, out)
+        }
+      }
+    }
+
+    zipOut.close()
+    fos.close()
+    temp.file
+  }
+
+  /**
+   * Writes the contents of the DataSet, i.e. the data, to the output stream.
+   * Rather than going to BaseX each time, we cache the result of the serialization
+   * @param dataSet the DataSet for which to write the source data
+   * @param out the outputStream
+   */
+  private def writeDataSetSource(dataSet: DataSet, out: OutputStream)(implicit configuration: OrganizationConfiguration) {
+    // is there an already prepared version cached on disk?
+    // assume we have a hash
+    dataSet.hashes.get("source--xml--gz").map { hash =>
+      val prepared = new File(System.getProperty("java.io.tmpdir"), s"/source_${dataSet.orgId}_${dataSet.spec}_$hash.xml")
+      if (prepared.exists()) {
+        log.info(s"DataSet source ${dataSet.spec} has been cached, writing it directly from ${prepared.getAbsolutePath}")
+        IOUtils.copy(new FileInputStream(prepared), out)
+      } else {
+        log.info(s"DataSet source ${dataSet.spec} has not yet been cached, preparing it")
+
+        try {
+          // remove any prior version of a cached stream for this set
+          val tmpDir = new File(System.getProperty("java.io.tmpdir"))
+          tmpDir.listFiles().find(f => f.getName.startsWith(s"source_${dataSet.orgId}_${dataSet.spec}")) foreach { f =>
+            FileUtils.deleteQuietly(f)
+          }
+        } catch {
+          case t: Throwable =>
+            log.error("Could not remove prior version of prepared DataSet file", t)
+        }
+
+        prepared.createNewFile()
+        val fOut = new FileOutputStream(prepared)
+        try {
+          prepareDataSetSource(dataSet, fOut)
+          IOUtils.copy(new FileInputStream(prepared), out)
+        } catch {
+          case t: Throwable =>
+            log.error("Cannot prepare DataSet source file", t)
+        } finally {
+          fOut.close()
+        }
+      }
+    }.getOrElse {
+      log.error("Cannot prepare DataSet source file: no hash found")
+    }
+  }
+
+  private def prepareDataSetSource(dataSet: DataSet, out: OutputStream)(implicit configuration: OrganizationConfiguration) {
+
+    val now = System.currentTimeMillis()
+
+    val tagContentMatcher = """>([^<]+)<""".r
+    val inputTagMatcher = """<input (.*) id="(.*)">""".r
 
     def buildNamespaces(attrs: Map[String, String]): String = {
       val attrBuilder = new StringBuilder
@@ -496,76 +616,56 @@ trait SipCreatorEndPoint extends Controller with OrganizationConfigurationAware 
         replaceAll("'", "&apos;")
     }
 
-    val tagContentMatcher = """>([^<]+)<""".r
-    val inputTagMatcher = """<input (.*) id="(.*)">""".r
+    val pw = new PrintWriter(new OutputStreamWriter(out, "utf-8"))
+    val builder = new StringBuilder
+    builder.append("<?xml version='1.0' encoding='UTF-8'?>").append("\n")
+    builder.append("<delving-sip-source ")
+    builder.append("%s".format(buildNamespaces(dataSet.getNamespaces)))
+    builder.append(">")
+    write(builder.toString(), pw, out)
 
-    if (recordCount > 0) {
-      writeEntry("source.xml", zipOut) {
-        out =>
-          val pw = new PrintWriter(new OutputStreamWriter(out, "utf-8"))
-          val builder = new StringBuilder
-          builder.append("<?xml version='1.0' encoding='UTF-8'?>").append("\n")
-          builder.append("<delving-sip-source ")
-          builder.append("%s".format(buildNamespaces(dataSet.getNamespaces)))
-          builder.append(">")
-          write(builder.toString(), pw, out)
+    basexStorage.withSession(dataSet) {
+      implicit session =>
+        val total = basexStorage.count
+        var count = 0
+        basexStorage.findAllCurrentDocuments foreach {
+          record =>
 
-          basexStorage.withSession(dataSet) {
-            implicit session =>
-              val total = basexStorage.count
-              var count = 0
-              basexStorage.findAllCurrentDocuments foreach {
-                record =>
+            // the output coming from BaseX differs from the original source as follows:
+            // - the <input> tags contain the namespace declarations
+            // - the formatted XML escapes all entities including UTF-8 characters
+            // the following lines fix this
+            val noNamespaces = inputTagMatcher.replaceSomeIn(record, {
+              m => Some("""<input id="%s">""".format(m.group(2)))
+            })
 
-                  // the output coming from BaseX differs from the original source as follows:
-                  // - the <input> tags contain the namespace declarations
-                  // - the formatted XML escapes all entities including UTF-8 characters
-                  // the following lines fix this
-                  val noNamespaces = inputTagMatcher.replaceSomeIn(record, {
-                    m => Some("""<input id="%s">""".format(m.group(2)))
-                  })
+            def cleanup: Match => String = {
+              s => ">" + escapeXml(StringEscapeUtils.unescapeXml(s.group(1))) + "<"
+            }
 
-                  def cleanup: Match => String = {
-                    s => ">" + escapeXml(StringEscapeUtils.unescapeXml(s.group(1))) + "<"
-                  }
+            val escapeForRegex = Matcher.quoteReplacement(noNamespaces)
+            try {
+              val cleaned = tagContentMatcher.replaceAllIn(escapeForRegex, cleanup)
+              pw.println(cleaned)
+            } catch {
+              case t: Throwable =>
+                log.error(
+                  "Error while trying to sanitize following record:\n\n" + escapeForRegex
+                )
+                throw t
+            }
 
-                  val escapeForRegex = Matcher.quoteReplacement(noNamespaces)
-                  try {
-                    val cleaned = tagContentMatcher.replaceAllIn(escapeForRegex, cleanup)
-                    pw.println(cleaned)
-                  } catch {
-                    case t: Throwable =>
-                      log.error(
-                        "Error while trying to sanitize following record:\n\n" + escapeForRegex
-                      )
-                      throw t
-                  }
-
-                  if (count % 10000 == 0) pw.flush()
-                  if (count % 10000 == 0) {
-                    log.info("%s: Prepared %s of %s records for download".format(dataSet
-                      .spec, count, total))
-                  }
-                  count += 1
-              }
-              pw.print("</delving-sip-source>")
-              log.info("Done preparing DataSet %s for download".format(dataSet.spec))
-              pw.flush()
-          }
-      }
-    }
-
-    for (mapping <- dataSet.mappings) {
-      if (mapping._2.recordMapping != None) {
-        writeEntry("mapping_%s.xml".format(mapping._1), zipOut) {
-          out => writeContent(mapping._2.recordMapping.get, out)
+            if (count % 10000 == 0) pw.flush()
+            if (count % 10000 == 0) {
+              log.info("%s: Prepared %s of %s records for download".format(dataSet
+                .spec, count, total))
+            }
+            count += 1
         }
-      }
+        pw.print("</delving-sip-source>")
+        log.info(s"Done preparing DataSet ${dataSet.spec} for download, it took ${System.currentTimeMillis() - now} ms")
+        pw.flush()
     }
-
-    zipOut.close()
-    fos.close()
-    temp.file
   }
 
   private def writeEntry(name: String, out: ZipOutputStream)(f: ZipOutputStream => Unit) {

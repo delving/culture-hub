@@ -36,6 +36,7 @@ import com.escalatesoft.subcut.inject.{ BindingModule, Injectable }
 import core.SchemaService
 import play.api.Play
 import com.novus.salat.dao.SalatDAO
+import com.mongodb.casbah.gridfs.GridFSDBFile
 
 /**
  * DataSet model
@@ -288,23 +289,6 @@ class DataSetDAO(collection: MongoCollection)(implicit val configuration: Organi
     (groupDataSets ++ adminDataSets).distinct
   }
 
-  // TODO generify, move to Group... (see above)
-  // FIXME TODO use view rights. no rights are used at all here...
-  def findAllCanSee(orgId: String, userName: String)(implicit configuration: OrganizationConfiguration): List[DataSet] = {
-
-    if (organizationServiceLocator.byDomain.isAdmin(orgId, userName)) {
-      findAllByOrgId(orgId).toList
-    } else {
-      // lookup by Group membership
-      Group.dao.
-        find(MongoDBObject("orgId" -> orgId, "users" -> userName)).
-        flatMap(_.resources).
-        filter(r => r.getResourceType == DataSet.RESOURCE_TYPE).
-        flatMap(dataSetResource => findBySpecAndOrgId(dataSetResource.getResourceKey, orgId)).
-        toList
-    }
-  }
-
   def findAllByOrgId(orgId: String): Seq[DataSet] = find(MongoDBObject("orgId" -> orgId, "deleted" -> false)).$orderby(MongoDBObject("details.name" -> 1)).toSeq
 
   def canEdit(ds: DataSet, userName: String)(implicit configuration: OrganizationConfiguration) = {
@@ -493,6 +477,17 @@ class DataSetDAO(collection: MongoCollection)(implicit val configuration: Organi
 
   def getMostRecentDataSetStatistics(implicit configuration: OrganizationConfiguration) = {
     DataSetStatistics.dao.find(MongoDBObject()).$orderby(MongoDBObject("_id" -> -1)).limit(1).toList.headOption
+  }
+
+  // links from the link-checker
+
+  def getLinksFile(spec: String, orgId: String, prefix: String): Option[GridFSDBFile] = {
+    hubFileStores.getResource(configuration).findOne(MongoDBObject(
+      "orgId" -> orgId,
+      "spec" -> spec,
+      "schema" -> prefix,
+      "hubFileType" -> "links"
+    ))
   }
 
 }

@@ -21,6 +21,7 @@ import models.dos.Task
 import java.io.File
 import util.OrganizationConfigurationHandler
 import libs.PTIFTiling
+import models.OrganizationConfiguration
 
 /**
  *
@@ -29,7 +30,7 @@ import libs.PTIFTiling
 
 object PTIFTilingProcessor extends Processor {
 
-  def process(task: Task, processorParams: Map[String, AnyRef]) {
+  def process(task: Task, processorParams: Map[String, AnyRef])(implicit configuration: OrganizationConfiguration) {
 
     val configuration = OrganizationConfigurationHandler.getByOrgId(task.orgId)
 

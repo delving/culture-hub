@@ -38,6 +38,7 @@ import models.Mapping
 import models.FactDefinition
 import controllers.ShortDataSet
 import play.api.i18n.Messages
+import core.messages._
 
 /**
  *
@@ -100,7 +101,7 @@ object DataSetCreationViewModel {
     if (o == Some("raw")) Invalid(ValidationError("error.notRaw")) else Valid
   }
 
-  def specTaken(implicit configuration: OrganizationConfiguration) = Constraint[DataSetCreationViewModel]("plugin.dataSet.specTaken") {
+  def specTaken(implicit configuration: OrganizationConfiguration) = Constraint[DataSetCreationViewModel]("dataset.ThisDatasetIdentifierIsAlreadyInUse") {
     case r =>
       val maybeOne = DataSet.dao.findBySpecAndOrgId(r.spec, configuration.orgId)
       if (maybeOne.isDefined && r.id.isDefined) {
@@ -108,14 +109,14 @@ object DataSetCreationViewModel {
       } else if (maybeOne == None) {
         Valid
       } else {
-        Invalid(ValidationError(Messages("plugin.dataSet.specTaken")))
+        Invalid(ValidationError(Messages("dataset.ThisDatasetIdentifierIsAlreadyInUse")))
       }
   }
 
-  def creationQuotaExceeded(implicit configuration: OrganizationConfiguration) = Constraint[DataSetCreationViewModel]("plugin.dataSet.creationQuotaExceeded") {
+  def creationQuotaExceeded(implicit configuration: OrganizationConfiguration) = Constraint[DataSetCreationViewModel]("dataset.TheQuotaOfAllowedDatasetsExceeded") {
     case r =>
       if (CultureHubPlugin.isQuotaExceeded(DataSet.RESOURCE_TYPE)) {
-        Invalid(ValidationError(Messages("plugin.dataSet.creationQuotaExceeded")))
+        Invalid(ValidationError(Messages("dataset.TheQuotaOfAllowedDatasetsExceeded")))
       } else {
         Valid
       }
@@ -315,6 +316,7 @@ trait DataSetControl extends OrganizationController { this: BoundController =>
                   log.info(s"Renaming DataSet spec ${existing.spec} to ${dataSetForm.spec}")
                   HubServices.basexStorages.getResource(configuration).renameCollection(existing, dataSetForm.spec)
                   indexingServiceLocator.byDomain.deleteBySpec(configuration.orgId, existing.spec)
+                  CultureHubPlugin.broadcastMessage(CollectionRenamed(existing.spec, dataSetForm.spec, configuration))
                 }
 
                 val removed: Seq[String] = removedSchemas(submittedSchemaConfigurations, existing.mappings)
@@ -361,6 +363,7 @@ trait DataSetControl extends OrganizationController { this: BoundController =>
                 )
 
                 DataSetEvent ! DataSetEvent.Created(orgId, dataSetForm.spec, connectedUser)
+                CultureHubPlugin.broadcastMessage(CollectionCreated(dataSetForm.spec, configuration))
 
             }
             Json(dataSetForm)
@@ -379,7 +382,7 @@ trait DataSetControl extends OrganizationController { this: BoundController =>
   // ~~~
 
   private def parseFactDefinitionList: Seq[FactDefinition] = {
-    schemaService.getSchema("facts", "1.0.0", SchemaType.FACT_DEFINITIONS).map { source =>
+    schemaService.getSchema("facts", "1.0.2", SchemaType.FACT_DEFINITIONS).map { source =>
       val xml = scala.xml.XML.loadString(source)
       for (e <- (xml \ "fact-definition")) yield parseFactDefinition(e)
     }.getOrElse(Seq.empty)
@@ -396,4 +399,3 @@ trait DataSetControl extends OrganizationController { this: BoundController =>
   }
 
 }
-

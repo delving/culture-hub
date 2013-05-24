@@ -2,12 +2,12 @@
 <div class="pagination ${_extraClass ? _extraClass : ''}">
  <ul>
     #{if _pageLinks.previous}
-        <li><a rel="nofollow" href="?${_pQuery}&amp;searchIn=${_searchIn}&amp;start=1&facetBoolType=OR">${messages.get('ui.label.first')}</a></li>
-        <li><a rel="nofollow" href="?${_pQuery}&amp;searchIn=${_searchIn}&amp;start=${_pageLinks.previousPage}&facetBoolType=OR">&laquo;&#160;${messages.get('ui.label.previous')}</a></li>
+        <li><a rel="nofollow" href="?${_pQuery}&amp;searchIn=${_searchIn}&amp;start=1&facetBoolType=OR">${messages.get('hub.First')}</a></li>
+        <li><a rel="nofollow" href="?${_pQuery}&amp;searchIn=${_searchIn}&amp;start=${_pageLinks.previousPage}&facetBoolType=OR">&laquo;&#160;${messages.get('hub.Previous')}</a></li>
     #{/if}
     #{else}
-        <li class="disabled"><a href="#" rel="nofollow">${messages.get('ui.label.first')}</a></li>
-        <li class="disabled"><a href="#" rel="nofollow">&laquo;&#160;${messages.get('ui.label.previous')}</a></li>
+        <li class="disabled"><a href="#" rel="nofollow">${messages.get('hub.First')}</a></li>
+        <li class="disabled"><a href="#" rel="nofollow">&laquo;&#160;${messages.get('hub.Previous')}</a></li>
     #{/else}
     #{list _pageLinks.getPageLinks(), as:'link'}
 
@@ -19,12 +19,12 @@
     #{/else}
     #{/list}
     #{if _pageLinks.next}
-       <li class="next"><a href="?${_pQuery}&amp;searchIn=${_searchIn}&amp;start=${_pageLinks.nextPage}&facetBoolType=OR" rel="nofollow">${messages.get('ui.label.next')}&#160;&raquo;</a></li>
-       <li class="next"><a href="?${_pQuery}&amp;searchIn=${_searchIn}&amp;start=${_lastPage}&facetBoolType=OR" rel="nofollow">${messages.get('ui.label.last')}</a></li>
+       <li class="next"><a href="?${_pQuery}&amp;searchIn=${_searchIn}&amp;start=${_pageLinks.nextPage}&facetBoolType=OR" rel="nofollow">${messages.get('hub.Next')}&#160;&raquo;</a></li>
+       <li class="next"><a href="?${_pQuery}&amp;searchIn=${_searchIn}&amp;start=${_lastPage}&facetBoolType=OR" rel="nofollow">${messages.get('hub.Last')}</a></li>
     #{/if}
     #{else}
-        <li class="disabled"><a href="#" rel="nofollow">${messages.get('ui.label.next')}&#160;&raquo;</a></li>
-        <li class="disabled"><a href="#" rel="nofollow">${messages.get('ui.label.last')}</a></li>
+        <li class="disabled"><a href="#" rel="nofollow">${messages.get('hub.Next')}&#160;&raquo;</a></li>
+        <li class="disabled"><a href="#" rel="nofollow">${messages.get('hub.Last')}</a></li>
     #{/else}
  </ul>
 </div>

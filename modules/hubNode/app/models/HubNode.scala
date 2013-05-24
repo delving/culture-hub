@@ -55,4 +55,3 @@ class HubNodeDAO(collection: MongoCollection) extends SalatDAO[HubNode, ObjectId
   def findOne(nodeId: String): Option[HubNode] = findOne(MongoDBObject("nodeId" -> nodeId))
 
 }
-

@@ -1,0 +1,54 @@
+#{extends themeInfo.get('themeLayout') /}
+#{set title: messages.get('mediator.Mediator') /}
+#{set bodyId:'mediator' /}
+#{set pageId:'Mediator - Collection ' + collection /}
+
+#{breadcrumbs crumbs: breadcrumbs /}
+
+#{set 'moreScripts'}
+<script type="text/javascript" src="@{routes.Assets.at("common/javascripts/jquery.tablesorter.min.js")}"></script>
+#{/set}
+
+
+<h1>Media representations for collection ${collection}</h1>
+
+<table id="fileTable" class="table table-striped sortable">
+    <thead>
+        <th>Thumbnail</th>
+        <th class="sort">File name</th>
+        <th>Thumbnail widths</th>
+        <th>DeepZoom tile</th>
+        <th class="sort">Is source file archived</th>
+    </thead>
+    #{list items, as: 'i'}
+    <tr>
+        <td>
+            <img src="${i.thumbnailUrl}/80"></img>
+        </td>
+        <td>
+            ${i.fileName}
+        </td>
+        <td>
+            #{list i.thumbnailWidths, as: 'w'}<a href="${i.thumbnailUrl}/${w}">${w}</a>#{if !w_isLast}, #{/if}#{/list}
+        </td>
+        <td>
+            #{if i.tileUrl}
+                <a href="${i.tileUrl}">${i.tileName}</a>
+            #{/if}
+            #{else}
+                No tile
+            #{/else}
+        </td>
+        <td>
+          ${i.hasSourceFile ? "Yes": "No"}
+        </td>
+    </tr>
+
+
+    #{/list}
+</table>
+<script type="text/javascript">
+    $(document).ready(function() {
+        $("#fileTable").tablesorter();
+    })
+</script>
