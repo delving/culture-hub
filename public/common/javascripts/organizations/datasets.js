@@ -43,20 +43,19 @@ function feed(orgId, spec, onopen, onmessage, connectionRetries) {
     ws = new WebSocket(url);
     ws.onopen = function() {
         localRetries = 0;
+        $('div#ws-connection-alert').hide();
         onopen();
     };
     ws.onmessage = onmessage;
     ws.onclose = function() {
-        if (connectionRetries < 3) {
+        if (connectionRetries < 10) {
             console.log("WebSocket disconnected, attempting to reconnect, attempt " + connectionRetries);
             setTimeout(function() { feed(orgId, spec, onopen, onmessage, localRetries + 1) }, 5000);
-        } else {
-            // TODO here we might want to retry, but with a bigger timeout
-            // show connection warning
             $('div#ws-connection-alert').show();
-            // sroll to top in case use is working below the page-view line and will not see the warning
+            // scroll to top in case use is working below the page-view line and will not see the warning
             window.scrollTo(0,0);
-
+        } else {
+            bootbox.alert("There appears to be something wrong with the connection to the server. Please refresh the page.");
         }
     };
     return clientId;
