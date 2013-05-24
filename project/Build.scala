@@ -19,7 +19,7 @@ object Build extends sbt.Build {
   val schemaRepoVersion = "1.1.4"
   val playExtensionsVersion = "1.4-SNAPSHOT"
 
-  val buildScalaVersion = "2.10.0"
+  val buildScalaVersion = "2.10.1"
 
   val delvingReleases = "Delving Releases Repository" at "http://nexus.delving.org/nexus/content/repositories/releases"
   val delvingSnapshots = "Delving Snapshot Repository" at "http://nexus.delving.org/nexus/content/repositories/snapshots"
