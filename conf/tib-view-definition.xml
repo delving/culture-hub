@@ -26,7 +26,7 @@
                         <link textValue="zoom" urlExpr="/tib:record/delving:deepZoomUrl" type="zoom"/>
                     </container>
                     <container id="context-link" if="/tib:record/europeana:isShownAt">
-                        <link textValue="search.viewInOriginalContext" urlExpr="/tib:record/europeana:isShownAt" type="external"/>
+                        <link textValue="search.ViewInOriginalContext" urlExpr="/tib:record/europeana:isShownAt" type="external"/>
                     </container>
 
                 </container>

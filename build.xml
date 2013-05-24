@@ -5,7 +5,7 @@
     <property name="root" value="."/>
     <property name="target" value="${root}/target"/>
     <property name="tmp" value="${root}/tmp"/>
-    <property name="sip-creator.version" value="1.1.3"/>
+    <property name="sip-creator.version" value="1.1.4"/>
     <property name="sip-creator.path" value="${root}/public/sip-creator/"/>
 
     <taskdef resource="net/sf/antcontrib/antlib.xml">
@@ -21,32 +21,68 @@
 
     <artifact:remoteRepository id="delving.snapshots"
                                url="http://nexus.delving.org/nexus/content/repositories/snapshots"/>
+    <artifact:remoteRepository id="delving.releases"
+                               url="http://nexus.delving.org/nexus/content/repositories/releases"/>
 
     <target name="startSolr">
         <java jar="extras/servlet-server/start.jar" fork="true" dir="extras/servlet-server" spawn="true"/>
     </target>
 
     <target name="stopSolr">
-        <exec executable="jps" output="pid.out.file"/>
-        <loadfile srcfile="pid.out.file" property="pid">
-            <filterchain>
-                <linecontains>
-                    <contains value="start.jar"/>
-                </linecontains>
-                <tokenfilter>
-                    <deletecharacters chars="start.jar"/>
-                    <trim/>
-                    <ignoreblank/>
-                </tokenfilter>
-                <striplinebreaks/>
-            </filterchain>
-        </loadfile>
-        <exec command="kill">
-            <arg value="-9"/>
-            <arg value="${pid}"/>
+        <exec executable="jps">
+            <arg value="-l"/>
+            <redirector outputproperty="process.pid">
+                <outputfilterchain>
+                    <linecontains>
+                        <contains value="start.jar"/>
+                    </linecontains>
+                    <tokenfilter>
+                        <deletecharacters chars="start.jar"/>
+                        <trim/>
+                        <ignoreblank/>
+                    </tokenfilter>
+                    <striplinebreaks/>
+                </outputfilterchain>
+            </redirector>
         </exec>
-        <delete file="pid.out.file"/>
+        <exec executable="kill">
+            <arg value="-9"/>
+            <arg value="${process.pid}"/>
+        </exec>
     </target>
+
+    <target name="startBasex">
+        <java classname="org.basex.BaseXServer" dir="extras/basex/" fork="true" spawn="true">
+            <arg value="-S"/>
+            <classpath>
+                <pathelement location="extras/basex/BaseX.jar"/>
+            </classpath>
+        </java>
+    </target>
+
+    <target name="stopBasex">
+        <exec executable="jps">
+            <arg value="-l"/>
+            <redirector outputproperty="process.pid">
+                <outputfilterchain>
+                    <linecontains>
+                        <contains value="org.basex.BaseXServer"/>
+                    </linecontains>
+                    <tokenfilter>
+                        <deletecharacters chars="org.basex.BaseXServer"/>
+                        <trim/>
+                        <ignoreblank/>
+                    </tokenfilter>
+                    <striplinebreaks/>
+                </outputfilterchain>
+            </redirector>
+        </exec>
+        <exec executable="kill">
+            <arg value="-9"/>
+            <arg value="${process.pid}"/>
+        </exec>
+    </target>
+
 
     <target name="downloadSipCreator">
         <property name="pubdir" value="${sip-creator.path}"/>
@@ -55,6 +91,7 @@
         </delete>
         <artifact:dependencies fileSetId="dependency.fileset">
             <dependency groupId="eu.delving" artifactId="sip-app" version="${sip-creator.version}" type="zip"/>
+            <remoteRepository refid="delving.releases"/>
             <remoteRepository refid="delving.snapshots"/>
         </artifact:dependencies>
         <copy todir="${pubdir}" verbose="true" flatten="true">

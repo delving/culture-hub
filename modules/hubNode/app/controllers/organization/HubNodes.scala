@@ -140,7 +140,7 @@ trait HubNodes extends OrganizationController { self: BoundController =>
 
     def apply(n: HubNode): HubNodeViewModel = HubNodeViewModel(Some(n._id), n.nodeId, n.orgId, n.name)
 
-    def nodeIdTaken(implicit configuration: OrganizationConfiguration) = Constraint[HubNodeViewModel]("plugin.hubNode.nodeIdTaken") {
+    def nodeIdTaken(implicit configuration: OrganizationConfiguration) = Constraint[HubNodeViewModel]("hubnode.ANodeWithTheSameNodeIdentifier") {
       case r =>
         val maybeOne = nodeDirectoryServiceLocator.byDomain.findOneById(slugify(r.name))
         if (maybeOne.isDefined && r.id.isDefined) {
@@ -148,13 +148,13 @@ trait HubNodes extends OrganizationController { self: BoundController =>
         } else if (maybeOne == None) {
           Valid
         } else {
-          Invalid(ValidationError(Messages("plugin.hubNode.nodeIdTaken")))
+          Invalid(ValidationError(Messages("hubnode.ANodeWithTheSameNodeIdentifier")))
         }
     }
 
-    def orgIdValid(implicit configuration: OrganizationConfiguration) = Constraint[String]("plugin.hubNode.orgIdValid") {
+    def orgIdValid(implicit configuration: OrganizationConfiguration) = Constraint[String]("hubnode.ThisOrganizationDoesntExist") {
       case r if organizationServiceLocator.byDomain.exists(r) => Valid
-      case _ => Invalid(ValidationError(Messages("plugin.hubNode.orgIdValid")))
+      case _ => Invalid(ValidationError(Messages("hubnode.ThisOrganizationDoesntExist")))
 
     }
 
@@ -163,7 +163,7 @@ trait HubNodes extends OrganizationController { self: BoundController =>
         "id" -> optional(of[ObjectId]),
         "nodeId" -> text,
         "orgId" -> nonEmptyText.verifying(orgIdValid),
-        "name" -> nonEmptyText.verifying(Constraints.pattern("^[A-Za-z0-9- ]{3,40}$".r, "plugin.hubNode.invalidNodeId", "plugin.hubNode.invalidNodeName"))
+        "name" -> nonEmptyText.verifying(Constraints.pattern("^[A-Za-z0-9- ]{3,40}$".r, "hubnode.InvalidNodeName", "hubnode.InvalidNodeName"))
       )(HubNodeViewModel.apply)(HubNodeViewModel.unapply).verifying(nodeIdTaken)
     )
   }

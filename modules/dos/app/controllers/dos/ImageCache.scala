@@ -52,7 +52,7 @@ object ImageCache extends Controller with RespondWithDefaultImage with Organizat
   }
 }
 
-class ImageCacheService extends HTTPClient with Thumbnail {
+class ImageCacheService extends HTTPClient with ThumbnailSupport {
 
   private val log: Logger = Logger("ImageCacheService")
 
@@ -75,7 +75,7 @@ class ImageCacheService extends HTTPClient with Thumbnail {
           store = imageCacheStore(configuration)
         )(request)
       } else {
-        NotFound(sanitizedUrl)
+        NotFound
       }
 
     } catch {
@@ -84,7 +84,7 @@ class ImageCacheService extends HTTPClient with Thumbnail {
         NotFound(sanitizeUrl(url))
       case ex: Exception =>
         log.error("Unable to find image: \"" + sanitizeUrl(url) + "\"\n", ex)
-        NotFound(sanitizeUrl(url))
+        NotFound
     }
   }
 

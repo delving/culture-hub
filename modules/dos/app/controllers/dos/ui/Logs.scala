@@ -17,7 +17,7 @@ object Logs extends Controller with Extensions with OrganizationConfigurationAwa
   def list(taskId: ObjectId, lastCount: Option[Int]) = OrganizationConfigured {
     Action {
       implicit request =>
-        val cursor: SalatMongoCursor[Log] = Log.dao.find(MongoDBObject("task_id" -> taskId)).sort(MongoDBObject("date" -> 1))
+        val cursor: SalatMongoCursor[Log] = Log.dao.find(MongoDBObject("task_id" -> taskId)).limit(500).sort(MongoDBObject("date" -> 1))
         val (logs, skipped) = if (lastCount != None && lastCount.get > 0) {
           if (cursor.count - lastCount.get > 100) {
             (cursor.skip(cursor.count - 100), true)

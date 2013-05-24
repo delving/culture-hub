@@ -151,4 +151,3 @@ class BaseXStorage(configuration: BaseXConfiguration) {
   private def storageName(c: Collection) = c.getOwner + "____" + c.spec
 
 }
-

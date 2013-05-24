@@ -41,7 +41,7 @@ trait Organization extends Controller with OrganizationConfigurationAware with R
           DOk(xmlResponse, List("providers"))
 
         } else {
-          NotFound(Messages("organizations.organization.orgNotFound", orgId))
+          NotFound(Messages("hub.CouldNotFindOrganization", orgId))
         }
     }
   }
@@ -66,7 +66,7 @@ trait Organization extends Controller with OrganizationConfigurationAware with R
           DOk(xmlResponse, List("dataProviders"))
 
         } else {
-          NotFound(Messages("organizations.organization.orgNotFound", orgId))
+          NotFound(Messages("hub.CouldNotFindOrganization", orgId))
         }
     }
   }
@@ -93,7 +93,7 @@ trait Organization extends Controller with OrganizationConfigurationAware with R
           DOk(xmlResponse, List("collection"))
 
         } else {
-          NotFound(Messages("organizations.organization.orgNotFound", orgId))
+          NotFound(Messages("hub.CouldNotFindOrganization", orgId))
         }
     }
   }

@@ -1,5 +1,5 @@
 <select name="searchIn">
-    <option #{if _searchIn && _searchIn.contains("all")}selected="selected"#{/} value="all">&{'ui.label.all'}</option>
+    <option #{if _searchIn && _searchIn.contains("all")}selected="selected"#{/} value="all">&{'hub.All'}</option>
     #{list _fields, as: 'field'}
       <option #{if _searchIn && _searchIn.contains(field.key)}selected="selected"#{/} value="${field.key}">&{field.value}</option>
     #{/list}

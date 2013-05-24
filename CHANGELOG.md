@@ -2,6 +2,33 @@
 
 This is the changelog of the CultureHub. It documents changes of the main platform, without modules.
 
+# 13.04
+
+## New features
+
+- manu: First version of the Mediator - replacement for the Delving Object Server. Supports direct FTP connection to a hub and takes care of processing files one-by-one
+- manu: "Links" files are also sent back on download. #881
+- manu: Caching DataSet source for download, hence speeding up download time considerably for large sets (#837)
+- manu: Admin Action to queue all sets for processing at once
+- manu: when asked for via the Accept-Encoding directive, resources are now GZIPed. This causes a known issue with lighttpd, which does not seem to handle this encoding properly in a proxy set-up.
+- manu: graceful reconnection mechanism for WebSocket failures (DataSet pages)
+- bajomi: Swedish internationalization
+
+## Fixes and refactoring
+
+- manu: Simplifying dynamic build
+- sjoerd: Created a geosort field from the first coordinate in a the multivalued delving_geoHash field
+- manu: Updating facts file. Closes #877
+- manu: Fixing bug causing language-keyed pages to disappear, small refactoring
+- manu: new themes inclusion mechanism
+- manu: First shot at refactoring the rendering mechanism in the search API
+- manu: Prepending image cache URL when the image cache is enabled
+- sjoerd: Update to the mechanism that enables sorting by distance
+- manu: Fixing query building for MLT
+- manu: fixes related to CMS links
+- eric: common css for rights url and context link
+- eric, gerald, manu: i18n refactoring
+
 # 13.03
 
 ### New features
@@ -9,7 +36,7 @@ This is the changelog of the CultureHub. It documents changes of the main platfo
 manu: the hub can now function in a "read only mode", in case of failover
 manu: CSV rendering of statistics
 
-### Fixes and refactorign
+### Fixes and refactoring
 
 manu: initializing all plugin actors using a parent actor (for each plugin)
 manu: stability improvement: The SchemaRepository must have been initialized at least once in order to start

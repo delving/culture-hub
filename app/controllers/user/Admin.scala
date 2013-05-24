@@ -80,7 +80,7 @@ trait Admin extends DelvingController { this: BoundController =>
               Json(profileModel)
               Ok
             } else {
-              Json(Map("errors" -> (Map("global" -> Messages("user.admin.profile.saveError")))), BAD_REQUEST)
+              Json(Map("errors" -> (Map("global" -> Messages("hub.ErrorSavingYourProfile")))), BAD_REQUEST)
             }
           }
         )
@@ -118,4 +118,3 @@ object ProfileViewModel {
   )
 
 }
-

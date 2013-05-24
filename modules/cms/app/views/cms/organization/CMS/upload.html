@@ -1,6 +1,6 @@
 #{extends themeInfo.get('themeLayout') /}
 
-#{set title: messages.get('plugin.cms.upload') /}
+#{set title: messages.get('cms.UploadFile') /}
 
 #{set bodyId: 'organization' /}
 
@@ -35,17 +35,17 @@
     <div class="accordion-group">
         <div class="accordion-heading  clearfix">
             <a class="accordion-toggle pull-right" href="#collapseOne" data-parent="instructions" data-toggle="collapse">
-                <i class="icon-question-sign"></i> &{'plugin.cms.upload.help.toggle'}
+                <i class="icon-question-sign"></i> &{'cms.HelpWithUploadingImages'}
             </a>
         </div>
         <div id="collapseOne" class="accordion-body collapse">
             <div class="accordion-inner">
-            <h6>&{'ui.widget.upload.chooseFile'}</h6>
-            &{'plugin.cms.upload.help.chooseImage'}
-            <h6>&{'ui.widget.upload.start'}</h6>
-            &{'plugin.cms.upload.help.startUpload'}
-            <h6>&{'plugin.cms.upload.help.ready'}</h6>
-            &{'plugin.cms.upload.help.ready.info', orgId, lang}
+            <h6>&{'hubb.ChooseFile'}</h6>
+            &{'cms.BeginByChoosingAnImage'}
+            <h6>&{'hubb.StartUpload'}</h6>
+            &{'cms.TheImagesAreThenAdded'}
+            <h6>&{'cms.ReadyForUse'}</h6>
+            &{'cms.OnceUploaded', orgId, lang}
             </div>
         </div>
     </div>
@@ -58,20 +58,20 @@
            <!-- The fileinput-button span is used to style the file input field as button -->
            <span class="btn btn-success fileinput-button">
                <i class="icon-plus icon-white"></i>
-               <span>&{'ui.widget.upload.chooseFile'}</span>
+               <span>&{'hubb.ChooseFile'}</span>
                <input type="file" name="files[]" multiple >
            </span>
            <button type="submit" class="btn btn-primary start">
                <i class="icon-upload icon-white"></i>
-               <span>&{'ui.widget.upload.start'}</span>
+               <span>&{'hubb.StartUpload'}</span>
            </button>
            <button type="reset" class="btn btn-warning cancel">
                <i class="icon-ban-circle icon-white"></i>
-               <span>&{'ui.widget.upload.cancel'}</span>
+               <span>&{'hubb.CancelUpload'}</span>
            </button>
            <button type="button" class="btn btn-danger delete">
                <i class="icon-trash icon-white"></i>
-               <span>&{'ui.label.delete'}</span>
+               <span>&{'hub.Delete'}</span>
            </button>
            <input type="checkbox" class="toggle">
        </div>

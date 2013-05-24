@@ -22,8 +22,8 @@
             pageObject.count = ${count};
             pageObject.page = ${page};
             pageObject.link = '?page=__id__';
-            pageObject.previous = "${messages.get('ui.label.previous')}";
-            pageObject.next = "${messages.get('ui.label.next')}";
+            pageObject.previous = "${messages.get('hub.Previous')}";
+            pageObject.next = "${messages.get('hub.Next')}";
             pageObject.itemsPerPage = ${themeInfo.pageSize()}
             pageObject.selector = ".pg"
         });
@@ -34,12 +34,12 @@
 #{breadcrumbs crumbs: breadcrumbs /}
 
 #{if browsedUserName}
-    #{set title: messages.get('ui.label.browse') + ' ' + messages.get("thing.${itemName.pluralize()}") + ': ' + browsedUserName + ' (' + count +')' /}
-    <h2>&{'ui.label.browse'} ${messages.get("thing.${itemName.pluralize()}")}: <span>${browsedUserName}</span> (${count})</h2>
+    #{set title: messages.get('hub.Browse') + ' ' + messages.get("thing.${itemName.pluralize()}") + ': ' + browsedUserName + ' (' + count +')' /}
+    <h2>&{'hub.Browse'} ${messages.get("thing.${itemName.pluralize()}")}: <span>${browsedUserName}</span> (${count})</h2>
 #{/if}
 #{else}
-    #{set title: messages.get('ui.label.browse') + ' ' + messages.get("thing.${itemName.pluralize()}") + ' (' + count +')' /}
-    <h2>&{'ui.label.browse'} ${messages.get("thing.${itemName.pluralize()}")} (${count})</h2>
+    #{set title: messages.get('hub.Browse') + ' ' + messages.get("thing.${itemName.pluralize()}") + ' (' + count +')' /}
+    <h2>&{'hub.Browse'} ${messages.get("thing.${itemName.pluralize()}")} (${count})</h2>
 #{/else}
 
 #{if count > themeInfo.pageSize()}
@@ -47,7 +47,7 @@
 #{/if}
 #{elseif items.length() == 0}
 <p>
-    &{'ui.message.nothingFound'}
+    &{'hub.SorryNothingFound'}
 </p>
 #{/elseif}
 

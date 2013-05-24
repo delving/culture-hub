@@ -33,7 +33,7 @@ trait Authentication extends ApplicationController { this: BoundController =>
       "userName" -> nonEmptyText,
       "password" -> nonEmptyText,
       "remember" -> boolean
-    ) verifying (Messages("authentication.error"), result => result match {
+    ) verifying (Messages("hub.LoginIncorrect"), result => result match {
         case (u, p, r) =>
           authenticationServiceLocator.byDomain.connect(resolveEmail(u), p)
       }))
@@ -57,7 +57,7 @@ trait Authentication extends ApplicationController { this: BoundController =>
 
   def logout = Action {
     Redirect(routes.Authentication.login).withNewSession.discardingCookies(DiscardingCookie(REMEMBER_COOKIE)).flashing(
-      "success" -> Messages("authentication.logout")
+      "success" -> Messages("hub.YouWereLoggedOutSuccessfully")
     )
   }
 

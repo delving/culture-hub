@@ -19,6 +19,7 @@ import org.apache.solr.common.util.SimpleOrderedMap
 import core.indexing.IndexField._
 import core.Constants._
 import core.search._
+import scala.collection.mutable.ArrayBuffer
 
 /**
  *
@@ -33,12 +34,32 @@ object SolrQueryService extends SolrServer {
   val FACET_PROMPT: String = "&qf="
   val QUERY_PROMPT: String = "query="
 
-  def renderXMLFields(field: FieldValue): (Seq[Elem], Seq[(String, String, Throwable)]) = {
+  def renderXMLFields(field: FieldValue, context: SearchContext): (Seq[Elem], Seq[(String, String, Throwable)]) = {
     val keyAsXml = field.getKeyAsXml
     val values = field.getValueAsArray.map(value => {
-      val cleanValue = if (value.startsWith("http")) value.replaceAll("&(?!amp;)", "&amp;") else StringEscapeUtils.escapeXml(value)
+      val withCacheUrl = prependImageCacheUrl(field.getKeyAsXml, value, context)
+      val cleanValue = escapeValue(withCacheUrl)
       try {
         Right(XML.loadString("<%s>%s</%s>\n".format(keyAsXml, cleanValue, keyAsXml)))
+      } catch {
+        case t: Throwable =>
+          Left((cleanValue, keyAsXml, t))
+      }
+    })
+
+    (values.filter(_.isRight).map(_.right.get), values.filter(_.isLeft).map(_.left.get))
+  }
+
+  def renderKMLSimpleDataFields(field: FieldValue, simpleData: Boolean, context: SearchContext): (Seq[Elem], Seq[(String, String, Throwable)]) = {
+    val keyAsXml = field.getKeyAsXml
+    val values = field.getValueAsArray.map(value => {
+      val withCacheUrl = prependImageCacheUrl(field.getKeyAsXml, value, context)
+      val cleanValue = escapeValue(withCacheUrl)
+      try {
+        if (simpleData)
+          Right(XML.loadString("<SimpleData name='%s'>%s</SimpleData>\n".format(field.getKey, cleanValue)))
+        else
+          Right(XML.loadString("<Data name='%s'><value>%s</value></Data>\n".format(field.getKeyAsXml, cleanValue)))
       } catch {
         case t: Throwable =>
           Left((cleanValue, keyAsXml, t))
@@ -58,6 +79,26 @@ object SolrQueryService extends SolrServer {
     )
 
     (values.filter(_.isRight).map(_.right.get), values.filter(_.isLeft).map(_.left.get))
+  }
+
+  def escapeValue(value: String) = if (value.startsWith("http")) value.replaceAll("&(?!amp;)", "&amp;") else StringEscapeUtils.escapeXml(value)
+
+  private val imageUrlFields = Seq("delving:imageUrl", "europeana:isShownBy", "europeana:object")
+  private val thumbnailUrlFields = Seq("delving:thumbnail")
+
+  def prependImageCacheUrl(xmlKey: String, value: String, context: SearchContext) = {
+    if (context.configuration.objectService.imageCacheEnabled) {
+      def url(imageType: String) = "http://%s/%s/cache?id=%s".format(context.host, imageType, URLEncoder.encode(value, "utf-8"))
+      if (imageUrlFields.contains(xmlKey)) {
+        url("image")
+      } else if (thumbnailUrlFields.contains(xmlKey)) {
+        url("thumbnail")
+      } else {
+        value
+      }
+    } else {
+      value
+    }
   }
 
   def encodeUrl(text: String): String = URLEncoder.encode(text, "utf-8")
@@ -91,10 +132,12 @@ object SolrQueryService extends SolrServer {
     params.put("facet.field", facetFields)
 
     def addGeoParams(hasGeoType: Boolean) {
-      if (!hasGeoType) queryParams setFilterQueries ("{!%s}".format("geofilt"))
       // set defaults
+      val sfield: String = if (params.allNonEmpty.getOrElse("sortBy", List("empty").toBuffer).head.toString.startsWith("geodist")) GEOHASH_MONO.key else GEOHASH.key
+      if (!hasGeoType) queryParams setFilterQueries ("{!%s}".format("geofilt"))
+
       queryParams setParam ("d", "5")
-      queryParams setParam ("sfield", "delving_geohash")
+      queryParams setParam ("sfield", sfield)
 
       params.all.filter(!_._2.isEmpty).map(params => (params._1, params._2.head)).toMap.filterKeys(key => List("geoType", "d", "sfield").contains(key)).foreach {
         item =>
@@ -104,7 +147,7 @@ object SolrQueryService extends SolrServer {
                 case "bbox" =>
                   queryParams setFilterQueries ("{!%s}".format("bbox"))
                 case _ =>
-                  queryParams setFilterQueries ("{!%s}".format("gh_geofilt"))
+                  queryParams setFilterQueries ("{!%s}".format("geofilt"))
               }
             case "d" =>
               queryParams setParam ("d", item._2)
@@ -133,7 +176,9 @@ object SolrQueryService extends SolrServer {
               queryParams setFacetLimit (values.head.toInt)
             case "sortBy" =>
               val sortOrder = if (params.hasKeyAndValue("sortOrder", "desc")) SolrQuery.ORDER.desc else SolrQuery.ORDER.asc
-              val sortField = if (values.head.equalsIgnoreCase("random")) createRandomSortKey else values.head
+              val sortField = if (values.head.equalsIgnoreCase("random")) createRandomSortKey
+              else if (values.head.equalsIgnoreCase("geodist")) "geodist()"
+              else values.head
               queryParams setSortField (sortField, sortOrder)
             case "facet.field" | "facet.field[]" =>
               values foreach (facet => {
@@ -192,7 +237,7 @@ object SolrQueryService extends SolrServer {
           field =>
             field match {
               case FacetExtractor(prefix, facetName) => (facetName, prefix)
-              case _ => (field, "p%i".format(solrFacetFields.indexOf(field)))
+              case _ => (field, s"p${solrFacetFields.indexOf(field)}")
             }
         }.toMap
       }
@@ -250,8 +295,8 @@ object SolrQueryService extends SolrServer {
     val query = new SolrQuery(solrQuery)
     if (findRelatedItems) {
       val mlt = configuration.searchService.moreLikeThis
+      query.set("fq", s"${IndexField.ORG_ID.key}:${configuration.orgId}")
       query.set("mlt", true)
-      query.set("mlt.fq", s"${IndexField.ORG_ID}:${configuration.orgId}")
       query.set("mlt.count", relatedItemsCount)
       query.set("mlt.fl", mlt.fieldList.mkString(","))
       query.set("mlt.mintf", mlt.minTermFrequency)

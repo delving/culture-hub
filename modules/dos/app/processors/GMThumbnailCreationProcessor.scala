@@ -22,24 +22,16 @@ import play.api.Play.current
 import org.apache.commons.io.FileUtils
 import controllers.dos._
 import java.io._
-import org.im4java.process.{ ErrorConsumer }
-import org.im4java.core.{ ImageCommand, IMOperation }
+import models.OrganizationConfiguration
 
 /**
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-object GMThumbnailCreationProcessor extends ThumbnailCreationProcessor with Thumbnail {
+object GMThumbnailCreationProcessor extends ThumbnailCreationProcessor with ThumbnailSupport {
 
-  protected def createThumbnailsForSize(images: Seq[File], width: Int, task: Task, orgId: String, collectionId: String) {
-
-    val gmCommand = getGMCommand(task) getOrElse (return )
-    val gmCommandPath = new File(gmCommand)
-    if (!gmCommandPath.exists()) {
-      error(task, "Could not find GM executable at '%s'".format(gmCommand))
-      return
-    }
+  protected def createThumbnailsForSize(images: Seq[File], width: Int, task: Task, orgId: String, collectionId: String)(implicit configuration: OrganizationConfiguration) {
 
     val tmpDir = new File(Play.configuration.getString("dos.tmpDir").getOrElse("/tmp"))
 
@@ -53,54 +45,28 @@ object GMThumbnailCreationProcessor extends ThumbnailCreationProcessor with Thum
     }
 
     for (image <- images; if (!task.isCancelled)) {
-      // we want JPG thumbnails
-      val imageName = getImageName(image.getName) + ".jpg"
-      val thumbnailFile = new File(thumbnailTmpDir, imageName)
-      val cmd = new ImageCommand(gmCommand, "convert")
-      var e: List[String] = List()
-      cmd.setErrorConsumer(new ErrorConsumer() {
-        def consumeError(is: InputStream) {
-          val br = new BufferedReader(new InputStreamReader(is))
-          e = Stream.continually(br.readLine()).takeWhile(_ != null).toList
-        }
-      })
+      val params = Map(
+        ORIGIN_PATH_FIELD -> image.getAbsolutePath,
+        IMAGE_ID_FIELD -> getImageName(image.getName),
+        TASK_ID -> task._id,
+        ORGANIZATION_IDENTIFIER_FIELD -> orgId,
+        COLLECTION_IDENTIFIER_FIELD -> collectionId
+      )
 
-      val resizeOperation = new IMOperation()
-      resizeOperation.size(width, width)
-      resizeOperation.addImage(image.getAbsolutePath)
-      resizeOperation.resize(width, width)
-      resizeOperation.p_profile("\"*\"")
-      resizeOperation.addImage(thumbnailFile.getAbsolutePath)
-      try {
-        cmd.run(resizeOperation)
-        if (thumbnailFile.exists()) {
-          val imageName = getImageName(image.getName)
-          val thumb = storeThumbnail(
-            thumbnailStream = new BufferedInputStream(new FileInputStream(thumbnailFile)),
-            filename = image.getName,
-            contentType = "image/jpeg",
-            width = width,
-            store = getStore(task.orgId),
-            params = Map(
-              ORIGIN_PATH_FIELD -> image.getAbsolutePath,
-              IMAGE_ID_FIELD -> imageName,
-              TASK_ID -> task._id,
-              ORGANIZATION_IDENTIFIER_FIELD -> orgId,
-              COLLECTION_IDENTIFIER_FIELD -> collectionId
-            )
-          )
-          info(task, "Created thumbnail of size '%s' for image '%s'".format(width, image.getAbsolutePath), Some(image.getAbsolutePath), Some(thumb._2.toString))
-        } else {
-          error(task, "Error creating thumbnail for image '%s': %s".format(image.getAbsolutePath, e.mkString("\n")), Some(image.getAbsolutePath))
-        }
-      } catch {
-        case t: Throwable =>
-          t.printStackTrace()
-          error(task, "Error creating thumbnail for image '%s': %s".format(image.getAbsolutePath, t.getMessage), Some(image.getAbsolutePath))
-      } finally {
-        Task.dao(task.orgId).incrementProcessedItems(task, 1)
-      }
+      createAndStoreThumbnail(
+        image,
+        width,
+        params,
+        getStore(task.orgId),
+        thumbnailTmpDir,
+        onSuccess = { (size, file) => info(task, "Created thumbnail of size '%s' for image '%s'".format(width, image.getAbsolutePath), Some(image.getAbsolutePath), None) },
+        onFailure = { (size, file, reason) => error(task, "Error creating thumbnail for image '%s': %s".format(file.getAbsolutePath, reason, Some(image.getAbsolutePath))) }
+      )
+
+      Task.dao(task.orgId).incrementProcessedItems(task, 1)
+
     }
     FileUtils.deleteDirectory(thumbnailTmpDir)
   }
+
 }

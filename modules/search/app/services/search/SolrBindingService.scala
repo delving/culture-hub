@@ -2,7 +2,7 @@ package services.search
 
 import scala.collection.JavaConversions._
 import org.apache.solr.client.solrj.response.{ FacetField, QueryResponse }
-import collection.immutable.{ HashMap, Map => ImMap }
+import scala.collection.immutable.{ Map => ImMap, ListMap, HashMap }
 import org.apache.solr.client.solrj.response.FacetField.Count
 import collection.mutable.{ ListBuffer, Map }
 import org.apache.solr.common.SolrDocumentList
@@ -10,8 +10,7 @@ import java.lang.{ Boolean => JBoolean, Float => JFloat }
 import java.util.{ Date, ArrayList, List => JList, Map => JMap }
 import models.MetadataAccessors
 import play.api.Logger
-import xml.{ XML, Elem }
-import org.apache.commons.lang.StringEscapeUtils
+import xml.Elem
 
 /**
  *
@@ -159,10 +158,6 @@ case class SolrResultDocument(fieldMap: Map[String, List[FieldValueNode]] = Map[
 
   def getFieldValuesFiltered(include: Boolean, fields: List[String]): List[FieldValue] = getFieldValueList.filter((fv => fields.contains(fv.getKey) == include))
 
-  def getConcatenatedArray(key: String, fields: List[String]): FieldFormatted = {
-    val concatArray: Array[String] = getFieldValuesFiltered(true, fields).map(fv => fv.getValueAsArray).flatten.toArray
-    FieldFormatted(key, concatArray)
-  }
 }
 
 case class FieldFormatted(key: String, values: Array[String]) {
@@ -257,9 +252,7 @@ case class BriefDocItem(solrDocument: SolrResultDocument) extends MetadataAccess
 
   def getFieldValue(key: String): FieldValue = FieldValue(key, solrDocument)
 
-  def getFieldValuesFiltered(include: Boolean, fields: Seq[String]): List[FieldValue] = solrDocument.getFieldValuesFiltered(include, fields.toList)
-
-  def getFieldValueList: List[FieldValue] = solrDocument.getFieldValueList
+  protected def getFieldValuesFiltered(include: Boolean, fields: Seq[String]): List[FieldValue] = solrDocument.getFieldValuesFiltered(include, fields.toList)
 
   def getAsString(key: String): String = assign(key)
 
@@ -272,29 +265,14 @@ case class BriefDocItem(solrDocument: SolrResultDocument) extends MetadataAccess
   var score: Int = _
   var debugQuery: String = _
 
+  protected def filteredAndOrderedFields(filteredFields: Seq[String]) = {
+    getFieldValuesFiltered(include = false, filteredFields).sortWith((fv1, fv2) => fv1.getKey < fv2.getKey)
+  }
+
   // todo clean up and make more dry
-  def toKmFields(filteredFields: Seq[String] = Seq.empty, include: Boolean = false, language: String = "en", simpleData: Boolean = true): List[Elem] = {
-    def renderKMLSimpleDataFields(field: FieldValue): (Seq[Elem], Seq[(String, String, Throwable)]) = {
-      val keyAsXml = field.getKeyAsXml
-      val values = field.getValueAsArray.map(value => {
-        val cleanValue = if (value.startsWith("http")) value.replaceAll("&(?!amp;)", "&amp;") else StringEscapeUtils.escapeXml(value)
-        try {
-          if (simpleData)
-            Right(XML.loadString("<SimpleData name='%s'>%s</SimpleData>\n".format(field.getKey, cleanValue)))
-          else
-            Right(XML.loadString("<Data name='%s'><value>%s</value></Data>\n".format(field.getKeyAsXml, cleanValue)))
-        } catch {
-          case t: Throwable =>
-            Left((cleanValue, keyAsXml, t))
-        }
-      })
+  def toKmFields(filteredFields: Seq[String] = Seq.empty, simpleData: Boolean = true, context: SearchContext): List[Elem] = {
 
-      (values.filter(_.isRight).map(_.right.get), values.filter(_.isLeft).map(_.left.get))
-    }
-
-    val renderedFields = getFieldValuesFiltered(include, filteredFields).
-      sortWith((fv1, fv2) => fv1.getKey < fv2.getKey).
-      map(field => renderKMLSimpleDataFields(field))
+    val renderedFields = filteredAndOrderedFields(filteredFields).map(field => SolrQueryService.renderKMLSimpleDataFields(field, simpleData, context))
 
     val (fields, fieldErrors) = (renderedFields.flatMap(f => f._1), renderedFields.flatMap(f => f._2))
 
@@ -304,14 +282,13 @@ case class BriefDocItem(solrDocument: SolrResultDocument) extends MetadataAccess
           e._1, e._2, e._3
         ), e._3)
     }
+
     fields
   }
 
-  def toXml(filteredFields: Seq[String] = Seq.empty, include: Boolean = false): Elem = {
+  def toXml(filteredFields: Seq[String] = Seq.empty, context: SearchContext): Elem = {
 
-    val renderedFields = getFieldValuesFiltered(include, filteredFields).
-      sortWith((fv1, fv2) => fv1.getKey < fv2.getKey).
-      map(field => SolrQueryService.renderXMLFields(field))
+    val renderedFields = filteredAndOrderedFields(filteredFields).map(field => SolrQueryService.renderXMLFields(field, context))
 
     val (fields, fieldErrors) = (renderedFields.flatMap(f => f._1), renderedFields.flatMap(f => f._2))
 
@@ -339,6 +316,20 @@ case class BriefDocItem(solrDocument: SolrResultDocument) extends MetadataAccess
           <highlights>{ highlights }</highlights>
       }
     </item>
+  }
+
+  def toJson(filteredFields: Seq[String] = Seq.empty, context: SearchContext) = {
+    val renderedFields = filteredAndOrderedFields(filteredFields).map { fv =>
+      (fv.getKey -> (fv.getValueAsArray.map { value =>
+        SolrQueryService.prependImageCacheUrl(fv.getKeyAsXml, value, context)
+      }))
+    }
+
+    ListMap("item" ->
+      ListMap("fields" ->
+        ListMap(renderedFields.toSeq: _*)
+      )
+    )
   }
 
 }

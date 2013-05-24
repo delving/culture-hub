@@ -1,11 +1,10 @@
 import sbt._
 import scala._
-import play.Project._
 import sbt.Keys._
 import com.typesafe.sbt._
+import play.Project._
 import sbtbuildinfo.Plugin._
 import eu.delving.templates.Plugin._
-import scala.Some
 
 object Build extends sbt.Build {
 
@@ -14,35 +13,33 @@ object Build extends sbt.Build {
   val sipCore    = SettingKey[String]("sip-core", "Version of the SIP-Core")
   val schemaRepo = SettingKey[String]("schema-repo", "Version of the Schema Repository")
 
-  val cultureHubPath = ""
-
-  val appName = "culture-hub"
-  val cultureHubVersion = "master"
-  val sipAppVersion = "1.1.3"
-  val sipCoreVersion = "1.1.3"
-  val schemaRepoVersion = "1.1.3"
+  val cultureHubVersion = "13.04"
+  val sipAppVersion = "1.1.4"
+  val sipCoreVersion = "1.1.4"
+  val schemaRepoVersion = "1.1.4"
   val playExtensionsVersion = "1.4-SNAPSHOT"
-
-  val dosVersion = "1.5"
-
-  val webCoreVersion = "1.0-SNAPSHOT"
 
   val buildScalaVersion = "2.10.0"
 
   val delvingReleases = "Delving Releases Repository" at "http://nexus.delving.org/nexus/content/repositories/releases"
   val delvingSnapshots = "Delving Snapshot Repository" at "http://nexus.delving.org/nexus/content/repositories/snapshots"
 
-  def delvingRepository(version: String) = if (version.endsWith("SNAPSHOT")) delvingSnapshots else delvingReleases
-
   val commonResolvers = Seq(
     "Delving Proxy repository" at "http://nexus.delving.org/nexus/content/groups/public/"
   )
 
+  def delvingRepository(version: String) = if (version.endsWith("SNAPSHOT")) delvingSnapshots else delvingReleases
+
+  val scalarifromSettings = SbtScalariform.scalariformSettings
+
   val appDependencies = Seq(
     "org.apache.amber"          %  "amber-oauth2-authzserver"        % "0.22-incubating",
     "org.apache.amber"          %  "amber-oauth2-client"             % "0.22-incubating",
-    "eu.delving"                %  "themes"                          % "1.0-SNAPSHOT"      changing()
+    "com.typesafe.play.extras"  %% "iteratees-extras"                % "1.0.1"
   )
+
+
+    // ~~~ core
 
   val webCoreDependencies = Seq(
     "eu.delving"                %% "play2-extensions"                % playExtensionsVersion,
@@ -52,7 +49,7 @@ object Build extends sbt.Build {
     "eu.delving"                %  "schema-repo"                     % schemaRepoVersion,
     "eu.delving"                %% "basex-scala-client"              % "0.6.1",
 
-    "com.escalatesoft.subcut"   %% "subcut"                          % "2.0-SNAPSHOT" exclude ("org.scalatest", "scalatest"),
+    "com.escalatesoft.subcut"   %% "subcut"                          % "2.0" exclude ("org.scalatest", "scalatest"),
     "com.yammer.metrics"        %  "metrics-core"                    % "2.2.0",
     "nl.grons"                  %% "metrics-scala"                   % "2.2.0",
 
@@ -65,21 +62,11 @@ object Build extends sbt.Build {
 
     // temporary until https://play.lighthouseapp.com/projects/82401-play-20/tickets/970-xpathselecttext-regression is fixed
     "org.apache.ws.commons"             %    "ws-commons-util"          %   "1.0.1" exclude("junit", "junit")
-
   )
 
-
-  val scalarifromSettings = SbtScalariform.scalariformSettings
-
-  val webCore = play.Project("web-core", webCoreVersion, webCoreDependencies, file(cultureHubPath + "web-core/"), settings = Defaults.defaultSettings ++ buildInfoSettings).settings(
-    organization := "eu.delving",
-    version := webCoreVersion,
-    publishTo := Some(delvingRepository(webCoreVersion)),
-    credentials += Credentials(Path.userHome / ".ivy2" / ".credentials"),
-    publishMavenStyle := true,
+  val webCore = play.Project("web-core", "1.0-SNAPSHOT", webCoreDependencies, file("web-core/"), settings = Defaults.defaultSettings ++ buildInfoSettings).settings(
     resolvers ++= commonResolvers,
     publish := { },
-    testOptions in Test := Nil, // Required to use scalatest.
     cultureHub := cultureHubVersion,
     sipApp := sipAppVersion,
     sipCore := sipCoreVersion,
@@ -91,85 +78,83 @@ object Build extends sbt.Build {
     scalaVersion in (ThisBuild) := buildScalaVersion
   ).settings(scalarifromSettings :_*)
 
-
-  val dosDependencies = Seq(
-    "eu.delving"                %% "play2-extensions"                 % playExtensionsVersion,
-    "org.imgscalr"               %  "imgscalr-lib"                    % "4.2"
-  )
-
-  val dos = play.Project("dos", dosVersion, dosDependencies, path = file(cultureHubPath + "modules/dos")).settings(
+  lazy val search = play.Project("search", "1.0-SNAPSHOT", Seq.empty, path = file("modules/search")).settings(
     resolvers ++= commonResolvers,
     publish := { }
   ).dependsOn(webCore % "test->test;compile->compile").settings(scalarifromSettings :_*)
 
-  val thumbnail = play.Project("thumbnail", "1.0-SNAPSHOT", Seq.empty, path = file(cultureHubPath + "modules/thumbnail")).settings(
+  lazy val dataset = play.Project("dataset", "1.0-SNAPSHOT", Seq.empty, path = file("modules/dataset")).settings(
     resolvers ++= commonResolvers,
     publish := { }
-  ).dependsOn(webCore % "test->test;compile->compile", dos).settings(scalarifromSettings :_*)
+  ).dependsOn(webCore % "test->test;compile->compile", search % "test->test;compile->compile").settings(scalarifromSettings :_*)
 
-  val deepZoom = play.Project("deepZoom", "1.0-SNAPSHOT", Seq.empty, path = file(cultureHubPath + "modules/deepZoom")).settings(
+  lazy val dos = play.Project("dos", "1.0-SNAPSHOT", Seq.empty, path = file("modules/dos")).settings(
     resolvers ++= commonResolvers,
-    publish := { }
-  ).dependsOn(webCore % "test->test;compile->compile", dos).settings(scalarifromSettings :_*)
-
-  val hubNode = play.Project("hubNode", "1.0-SNAPSHOT", Seq.empty, path = file(cultureHubPath + "modules/hubNode")).settings(
-    resolvers ++= commonResolvers,
-    publish := {}
-  ).dependsOn(webCore % "test->test;compile->compile").settings(scalarifromSettings :_*)
-
-  val search = play.Project("search", "1.0-SNAPSHOT", Seq.empty, path = file(cultureHubPath + "modules/search")).settings(
-    resolvers ++= commonResolvers,
-    libraryDependencies ++= Seq(
-      "org.apache.solr"           %  "solr-solrj"                      % "3.6.0",
-      "org.apache.tika"           %  "tika-parsers"                    % "1.2"
-    ),
-    publish := {}
-  ).dependsOn(webCore % "test->test;compile->compile").settings(scalarifromSettings :_*)
-
-  val dataSet = play.Project("dataset", "1.0-SNAPSHOT", Seq.empty, path = file(cultureHubPath + "modules/dataset"), settings = Defaults.defaultSettings ++ buildInfoSettings).settings(
-    libraryDependencies += "eu.delving" % "sip-core" % sipCoreVersion,
-    resolvers ++= commonResolvers,
-    sipApp := sipAppVersion,
-    sipCore := sipCoreVersion,
-    schemaRepo := schemaRepoVersion,
-    publish := { }
-  ).dependsOn(webCore % "test->test;compile->compile", search).settings(scalarifromSettings :_*)
-
-  val cms = play.Project("cms", "1.0-SNAPSHOT", Seq.empty, path = file(cultureHubPath + "modules/cms")).settings(
-    resolvers ++= commonResolvers,
-    publish := {},
+    publish := { },
+    libraryDependencies += "eu.delving"                %% "play2-extensions"                % playExtensionsVersion,
     routesImport += "extensions.Binders._"
-  ).dependsOn(webCore % "test->test;compile->compile", dos).settings(scalarifromSettings :_*)
+  ).dependsOn(webCore % "test->test;compile->compile").settings(scalarifromSettings :_*)
 
-  val indexApi = play.Project("indexApi", "1.0-SNAPSHOT", Seq.empty, path = file(cultureHubPath + "modules/indexApi")).settings(
+
+  // ~~~ dynamic modules, to avoid hard-coded definitions
+
+  val excludes = Seq("cms", "search", "dataset", "simple-document-upload", "dos")
+
+  def discoverModules(base: File, dir: String): Seq[Project] = {
+    val dirs: Seq[sbt.File] = if((base / dir).listFiles != null) (base / dir).listFiles else Seq.empty[sbt.File]
+    for (x <- dirs if x.isDirectory && !excludes.contains(x.getName)) yield
+        play.Project(x.getName, "1.0-SNAPSHOT", Seq.empty, path = x).settings(
+          resolvers ++= commonResolvers,
+          publish := { }
+        ).dependsOn(
+          webCore % "test->test;compile->compile",
+          search % "test->test;compile->compile",
+          dataset % "test->test;compile->compile",
+          dos % "test->test;compile->compile"
+        ).settings(scalarifromSettings :_*)
+  }
+
+  def modules(base: File): Seq[Project] = discoverModules(base, "modules") ++ discoverModules(base, "additionalModules")
+
+  def module(base: File, id: String): Project = modules(base).find(_.id == id).get
+
+
+  // the following projects have dependencies on other modules, and need to be declared separately
+
+  def cms(base: File) = play.Project("cms", "1.0-SNAPSHOT", Seq.empty, path = file("modules/cms")).settings(
     resolvers ++= commonResolvers,
-    publish := {}
-  ).dependsOn(webCore % "test->test;compile->compile", dos, search).settings(scalarifromSettings :_*)
+    publish := { },
+    libraryDependencies += "eu.delving"                %% "play2-extensions"                % playExtensionsVersion,
+    routesImport += "extensions.Binders._"
+  ).dependsOn(webCore % "test->test;compile->compile", dos % "test->test;compile->compile").settings(scalarifromSettings :_*)
 
-  val statistics = play.Project("statistics", "1.0-SNAPSHOT", Seq.empty, path = file(cultureHubPath + "modules/statistics")).settings(
-    resolvers ++= commonResolvers,
-    publish := { }
-  ).dependsOn(webCore, dataSet, search).settings(scalarifromSettings :_*)
+  def allModules(base: File) = Seq(webCore, search, dataset, dos, cms(base)) ++ modules(base)
 
-  val root = play.Project(appName, cultureHubVersion, appDependencies, settings = Defaults.defaultSettings ++ groovyTemplatesSettings, path = file(cultureHubPath)).settings(
+  def allModuleReferences(base: File) = allModules(base).map {x => x: ProjectReference }
+
+  override def projectDefinitions(baseDirectory: File): Seq[Project] = allModules(baseDirectory) ++ Seq(root(baseDirectory))
+
+
+
+  def root(base: File): Project = play.Project("culture-hub", cultureHubVersion, appDependencies, settings = Defaults.defaultSettings ++ groovyTemplatesSettings).settings(
 
     onLoadMessage := "May the force be with you",
 
-    resolvers += Resolver.file("local-ivy-repo", file(Path.userHome + "/.ivy2/local"))(Resolver.ivyStylePatterns),
-    resolvers ++= commonResolvers,
-
     sourceGenerators in Compile <+= groovyTemplatesList,
 
+    resolvers += Resolver.file("local-ivy-repo", file(Path.userHome + "/.ivy2/local"))(Resolver.ivyStylePatterns),
+    resolvers ++= commonResolvers,
     publishArtifact in (Compile, packageDoc) := false,
     publishArtifact in (Compile, packageSrc) := false,
     publishTo := Some(delvingRepository(cultureHubVersion)),
     credentials += Credentials(Path.userHome / ".ivy2" / ".credentials"),
 
+
     routesImport += "extensions.Binders._",
 
-    testOptions in Test := Nil, // Required to use scalatest.
-
     parallelExecution in (ThisBuild) := false,
+
+    testOptions in (ThisBuild) += Tests.Argument("junitxml", "console"),
 
     scalaVersion in (ThisBuild) := buildScalaVersion,
 
@@ -185,32 +170,9 @@ object Build extends sbt.Build {
       files.filterNot(file => file.contains("src_managed"))
     }
 
-
-
-  ).settings(scalarifromSettings :_*) // .settings(addArtifact(Artifact((appName + "-" + cultureHubVersion), "zip", "zip"), dist).settings :_*)
-   .dependsOn(
-    webCore                 % "test->test;compile->compile",
-    thumbnail               % "test->test;compile->compile",
-    deepZoom                % "test->test;compile->compile",
-    hubNode                 % "test->test;compile->compile",
-    search                  % "test->test;compile->compile",
-    dataSet                 % "test->test;compile->compile",
-    dos                     % "test->test;compile->compile",
-    cms                     % "test->test;compile->compile",
-    indexApi                % "test->test;compile->compile",
-    statistics              % "test->test;compile->compile"
-  ).aggregate(
-    webCore,
-    thumbnail,
-    deepZoom,
-    hubNode,
-    search,
-    dataSet,
-    dos,
-    cms,
-    indexApi,
-    statistics
-  )
+  ).settings(scalarifromSettings :_*)
+   .dependsOn(allModules(base) map { x => x % "test->test;compile->compile"} : _*)
+   .aggregate(allModuleReferences(base) : _*)
 
 
 }

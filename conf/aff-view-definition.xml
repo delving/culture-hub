@@ -5,8 +5,8 @@
         <row>
             <column id="general">
                 <container>
-                    <field path="/aff:record/aff:thing/aff:displayTitle" label="thing.title"/>
-                    <field path="/aff:record/aff:thing/aff:displayDescription" label="thing.description"/>
+                    <field path="/aff:record/aff:thing/aff:displayTitle" label="hubb.Title"/>
+                    <field path="/aff:record/aff:thing/aff:displayDescription" label="hubb.Description"/>
                 </container>
             </column>
         </row>

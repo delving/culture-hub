@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content=""/>
     <meta name="keywords" content=""/>
-    <link rel="shortcut icon" href="${themeInfo.path("images/favicon.ico")}" >
+    <link rel="shortcut icon" href="@{routes.Assets.at("common/favicon.ico")}" >
     <meta charset="utf-8">
     <title>#{get 'title' /}</title>
     <link rel="stylesheet" type="text/css" href="@{routes.Assets.at("common/stylesheets/media/media.css")}"/>
@@ -27,9 +27,9 @@
         var themePath = "${themeInfo.path('')}";
         // i18n messages
         jsLabels = new Object();
-        jsLabels.add = "${messages.get('ui.label.add')}";
-        jsLabels.cancel = "${messages.get('ui.label.cancel')}";
-        jsLabels.remove = "${messages.get('ui.label.delete')}";
+        jsLabels.add = "${messages.get('hub.Add')}";
+        jsLabels.cancel = "${messages.get('hub.Cancel')}";
+        jsLabels.remove = "${messages.get('hub.Delete')}";
         jsLabels.enlargeImage = "${messages.get('ui.label.enlargeImage')}";
     </script>
     <script src="@{routes.Assets.at("common/javascripts/jquery-1.7.2.min.js")}"></script>
@@ -54,7 +54,7 @@
     initializeElements();
 //        bindCSRFToken('${authenticityToken}');
       checkCookie(function() {
-        bootbox.alert("&{'ui.message.noCookies'}");
+        bootbox.alert("&{'hub.YourBrowserNeedsToSupportCookies'}");
       });
     $.metadata.setType('html5');
   });
@@ -75,3 +75,8 @@
 
 </head>
 <body class="${userName ? 'logged-in' : 'anonymous'}" id="#{get 'bodyId' /}" style="visibility: ${play.templates.BaseTemplate.layoutData.get().get('visibility') ? play.templates.BaseTemplate.layoutData.get().get('visibility') : 'visible'}">
+
+<div class="alert alert-error hide" id="browser-alert">
+    <button type="button" class="close" data-dismiss="alert">&times;</button>
+    &{'hub.WarningOutdatedBrowser'}
+</div>

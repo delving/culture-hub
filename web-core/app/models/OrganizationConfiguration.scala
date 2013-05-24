@@ -137,7 +137,8 @@ package models {
     imageCacheDatabaseName: String,
     imageCacheEnabled: Boolean,
     tilesOutputBaseDir: String,
-    tilesWorkingBaseDir: String)
+    tilesWorkingBaseDir: String,
+    graphicsMagickCommand: String)
 
   case class OaiPmhServiceConfiguration(
     repositoryName: String,
@@ -220,6 +221,7 @@ package models {
     val IMAGE_CACHE_ENABLED = "services.dos.imageCacheEnabled"
     val TILES_WORKING_DIR = "services.dos.tilesWorkingBaseDir"
     val TILES_OUTPUT_DIR = "services.dos.tilesOutputBaseDir"
+    val GM_COMMAND = "services.dos.graphicsmagic.cmd"
 
     val PLUGINS = "plugins"
 
@@ -266,7 +268,7 @@ package models {
       SOLR_BASE_URL,
       CULTUREHUB_INSTANCE_IDENTIFIER,
       COMMONS_HOST, COMMONS_NODE_NAME,
-      IMAGE_CACHE_DATABASE, FILESTORE_DATABASE, TILES_WORKING_DIR, TILES_OUTPUT_DIR,
+      IMAGE_CACHE_DATABASE, FILESTORE_DATABASE, TILES_WORKING_DIR, TILES_OUTPUT_DIR, GM_COMMAND,
       OAI_REPO_NAME, OAI_ADMIN_EMAIL, OAI_EARLIEST_TIMESTAMP, OAI_REPO_IDENTIFIER, OAI_SAMPLE_IDENTIFIER, OAI_RESPONSE_LIST_SIZE, OAI_ALLOW_RAW_HARVESTING,
       SEARCH_FACETS, SEARCH_SORTFIELDS,
       BASEX_HOST, BASEX_PORT, BASEX_EPORT, BASEX_USER, BASEX_PASSWORD,
@@ -471,7 +473,8 @@ package models {
         imageCacheDatabaseName = getString(configuration, IMAGE_CACHE_DATABASE),
         imageCacheEnabled = configuration.getBoolean(IMAGE_CACHE_ENABLED).getOrElse(false),
         tilesWorkingBaseDir = getString(configuration, TILES_WORKING_DIR),
-        tilesOutputBaseDir = getString(configuration, TILES_OUTPUT_DIR)
+        tilesOutputBaseDir = getString(configuration, TILES_OUTPUT_DIR),
+        graphicsMagickCommand = getString(configuration, GM_COMMAND)
       ),
       directoryService = DirectoryServiceConfiguration(
         providerDirectoryUrl = configuration.getString(PROVIDER_DIRECTORY_URL).getOrElse("")

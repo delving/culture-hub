@@ -42,7 +42,7 @@ class SOLRSearchService extends SearchService {
    */
   override def getApiResult(queryString: Map[String, Seq[String]], host: String, hiddenQueryFilters: Seq[String] = Seq.empty)(implicit configuration: OrganizationConfiguration): PlainResult = {
 
-    val context = SearchContext(queryString, host, hiddenQueryFilters)
+    val context = SearchContext(queryString, host, hiddenQueryFilters, configuration)
 
     val response = try {
       if (configuration.searchService.apiWsKeyEnabled) {
@@ -50,15 +50,13 @@ class SOLRSearchService extends SearchService {
         val wsKeyProvided = !wsKey.equalsIgnoreCase("unknown")
         if ((configuration.searchService.apiWsKeyEnabled && !wsKeyProvided) ||
           (configuration.searchService.apiWsKeyEnabled && wsKeyProvided && !configuration.searchService.apiWsKeys.exists(_ == wsKey.trim))) {
-          Logger("CultureHub").warn("[%s] Service Access Key %s invalid!".format(configuration.orgId, wsKey))
+          log.warn("[%s] Service Access Key %s invalid!".format(configuration.orgId, wsKey))
           throw new AccessKeyException(String.format("Access Key %s not accepted", wsKey))
         }
       }
       context.format match {
-        case "json" => getJSONResultResponse(context)
-        case "jsonp" =>
-          getJSONResultResponse(context, callback = context.params.getValueOrElse("callback", "delvingCallback"))
-        // todo add simile and similep support later
+        case "json" => renderResponse(context, callback = None, representation = Representation.JSON)
+        case "jsonp" => renderResponse(context, callback = Some(context.params.getValueOrElse("callback", "delvingCallback")), representation = Representation.JSON)
         case "simile" => getSimileResultResponse(context)
         case "similep" =>
           getSimileResultResponse(callback = context.params.getValueOrElse("callback", "delvingCallback"), context = context)
@@ -74,11 +72,12 @@ class SOLRSearchService extends SearchService {
               Ok(template.render(args).replaceAll("""(?m)^\s+""", "")).as(HTML)
             }
           )
-        case _ => getXMLResultResponse(context)
+
+        case _ => renderResponse(context, callback = context.params.getFirst("callback"), representation = Representation.XML)
       }
     } catch {
       case t: Throwable =>
-        Logger("CultureHub").error("something went wrong", t)
+        log.error("something went wrong", t)
         errorResponse(errorMessage = t.getLocalizedMessage, format = context.format)
     }
     response
@@ -86,7 +85,7 @@ class SOLRSearchService extends SearchService {
 
   def search(user: Option[String], query: List[String], params: Map[String, Seq[String]], host: String)(implicit configuration: OrganizationConfiguration): (Seq[ListItem], SearchResult) = {
 
-    val searchContext = SearchContext(params, host, query)
+    val searchContext = SearchContext(params, host, query, configuration)
     val chQuery = SolrQueryService.createCHQuery(searchContext, user)
     val queryResponse = SolrQueryService.getSolrResponseFromServer(chQuery.solrQuery, true)
     val chResponse = CHResponse(queryResponse, chQuery, configuration)
@@ -108,38 +107,28 @@ class SOLRSearchService extends SearchService {
 
   }
 
-  def getJSONResultResponse(context: SearchContext, authorized: Boolean = true, callback: String = "")(implicit configuration: OrganizationConfiguration): PlainResult = {
+  def renderResponse(context: SearchContext, authorized: Boolean = true, callback: Option[String], representation: Representation.Value)(implicit configuration: OrganizationConfiguration): PlainResult = {
 
     require(context.params._contains("query") || context.params._contains("id") || context.params._contains("explain"))
 
     val renderRelatedItems = context.params.getFirst("mlt").getOrElse("false") == "true"
 
-    val response: String = context.params match {
-      case x if x._contains("explain") && x.getValueOrElse("explain", "nothing").equalsIgnoreCase("fieldValue") => FacetAutoComplete(context.params, configuration).renderAsJson
-      case x if x._contains("explain") => ExplainResponse(context.params, configuration).renderAsJson
+    val response: Renderable = context.params match {
+      case x if x._contains("explain") && x.getValueOrElse("explain", "nothing").equalsIgnoreCase("fieldValue") => FacetAutoComplete(context.params, configuration)
+      case x if x._contains("explain") => ExplainResponse(context.params, configuration)
       case x if x.valueIsNonEmpty("id") => getFullView("api", x.getFirst("schema"), renderRelatedItems, context) match {
-        case Right(rendered) => rendered.toJson
+        case Right(rendered) => new Renderable {
+          def toJson(context: SearchContext) = None
+          def asXml(context: SearchContext) = Some(rendered.toXml)
+          override def asJson(callback: Option[String], context: SearchContext): Option[String] = Some({
+            callback map { c =>
+              "%s(%s)".format(c, rendered.toJson)
+            } getOrElse {
+              rendered.toJson
+            }
+          })
+        }
         case Left(error) => return errorResponse("Unable to render full record", error, "json")
-      }
-      case _ =>
-        val briefView = getBriefResultsFromSolr(context)
-        SearchSummary(result = briefView, chResponse = briefView.chResponse, context = context).renderAsJSON(authorized)
-    }
-    Ok(if (!callback.isEmpty) "%s(%s)".format(callback, response) else response).as(JSON)
-
-  }
-
-  def getXMLResultResponse(context: SearchContext, authorized: Boolean = true)(implicit configuration: OrganizationConfiguration): PlainResult = {
-    require(context.params._contains("query") || context.params._contains("id") || context.params._contains("explain"))
-
-    val renderRelatedItems = context.params.getFirst("mlt").getOrElse("false") == "true"
-
-    val response: Elem = context.params match {
-      case x if x._contains("explain") && x.getValueOrElse("explain", "nothing").equalsIgnoreCase("fieldValue") => FacetAutoComplete(context.params, configuration).renderAsXml
-      case x if x._contains("explain") => ExplainResponse(context.params, configuration).renderAsXml
-      case x if x.valueIsNonEmpty("id") => getFullView("api", x.getFirst("schema"), renderRelatedItems, context) match {
-        case Right(rendered) => return Ok(rendered.toXmlString).as(XML)
-        case Left(error) => return errorResponse("Unable to render full record", error, "xml")
       }
       case _ =>
         val briefView = getBriefResultsFromSolr(context)
@@ -149,14 +138,25 @@ class SOLRSearchService extends SearchService {
             summary.renderAsKML(authorized, context.params)
           case "kml-a" =>
             summary.renderAsABCKML(authorized, context.params)
-          case "kn-reise" =>
+          case "kml-knr" =>
             summary.renderAsKNreiseKML(authorized, context.params)
           case _ =>
-            summary.renderAsXML(authorized)
+            summary
         }
     }
 
-    Ok("<?xml version='1.0' encoding='utf-8' ?>\n" + prettyPrinter.format(response)).as(XML)
+    (representation match {
+      case Representation.XML =>
+        response.asXml(context) map { r =>
+          Ok("<?xml version='1.0' encoding='utf-8' ?>\n" + prettyPrinter.format(r.asInstanceOf[Elem])).as(XML)
+        }
+      case Representation.JSON =>
+        response.asJson(callback, context) map { r =>
+          Ok(r).as(JSON)
+        }
+    }) getOrElse {
+      errorResponse(errorMessage = s"Format ${context.format} is not available as $representation")
+    }
   }
 
   private def getBriefResultsFromSolr(context: SearchContext)(implicit configuration: OrganizationConfiguration): BriefItemView = {
@@ -171,7 +171,7 @@ class SOLRSearchService extends SearchService {
     val idTypeParam = context.params.getValueOrElse("idType", HUB_ID.key)
     val mltCount = context.params.getValueOrElse("mlt.count", configuration.searchService.moreLikeThis.count.toString)
     val viewType = ViewType.fromName(viewName)
-    renderFullView(id, DelvingIdType(idTypeParam), viewType, Lang(context.apiLanguage), schema, renderRelatedItems, mltCount.toInt, context.queryString)
+    renderFullView(id, DelvingIdType(idTypeParam), viewType, Lang(context.apiLanguage), context, schema, renderRelatedItems, mltCount.toInt, context.queryString)
   }
 
   def errorResponse(error: String = "Unable to respond to the API request",
@@ -221,7 +221,7 @@ class SOLRSearchService extends SearchService {
         Ok(outputJson)
     } catch {
       case ex: Exception =>
-        Logger("CultureHub").error("something went wrong", ex)
+        log.error("something went wrong", ex)
         errorResponse(errorMessage = ex.getMessage, format = "json")
     }
   }
@@ -257,6 +257,7 @@ class SOLRSearchService extends SearchService {
     idType: DelvingIdType,
     viewType: ViewType,
     lang: Lang,
+    context: SearchContext,
     schema: Option[String] = None,
     renderRelatedItems: Boolean,
     relatedItemsCount: Int,
@@ -287,22 +288,22 @@ class SOLRSearchService extends SearchService {
         idType match {
           case DelvingIdType.ITIN =>
             // TODO legacy support, to be removed on 01.06.2013
-            renderItinItem(item, relatedItems)
+            renderItinItem(item, relatedItems, context)
           case DelvingIdType.INDEX_ITEM =>
             renderIndexItem(id)
           case _ =>
-            renderMetadataRecord(prefix, URLDecoder.decode(hubId, "utf-8"), viewType, lang, renderRelatedItems, filterByDataOwner(relatedItems, "delving_owner", relatedItemsCount), requestParameters)
+            renderMetadataRecord(prefix, URLDecoder.decode(hubId, "utf-8"), viewType, lang, context, renderRelatedItems, filterByDataOwner(relatedItems, "delving_owner", relatedItemsCount), requestParameters)
         }
       case None =>
         Left("Could not resolve identifier for hubId '%s' and idType '%s'".format(id, idType.idType))
     }
   }
 
-  private def renderItinItem(item: Option[BriefDocItem], relatedItems: Seq[BriefDocItem]) = {
+  private def renderItinItem(item: Option[BriefDocItem], relatedItems: Seq[BriefDocItem], context: SearchContext) = {
 
     val document = <result xmlns:delving="http://www.delving.eu/schemas/" xmlns:icn="http://www.icn.nl/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:custom="http://www.delving.eu/schemas/" xmlns:dcterms="http://purl.org/dc/termes/" xmlns:itin="http://www.itin.nl/namespace" xmlns:drup="http://www.itin.nl/drupal" xmlns:europeana="http://www.europeana.eu/schemas/ese/">
-                     { item.map { i => { i.toXml() } }.getOrElse(<item/>) }
-                     <relatedItems>{ relatedItems.map { ri => { ri.toXml() } } }</relatedItems>
+                     { item.map { i => { i.toXml(context = context) } }.getOrElse(<item/>) }
+                     <relatedItems>{ relatedItems.map { ri => { ri.toXml(context = context) } } }</relatedItems>
                    </result>
 
     Right(new RenderedView {
@@ -334,6 +335,7 @@ class SOLRSearchService extends SearchService {
     hubId: String,
     viewType: ViewType,
     lang: Lang,
+    context: SearchContext,
     renderRelatedItems: Boolean,
     relatedItems: Seq[BriefDocItem],
     parameters: Map[String, Seq[String]])(implicit configuration: OrganizationConfiguration): Either[String, RenderedView] = {
@@ -359,7 +361,7 @@ class SOLRSearchService extends SearchService {
 
       val schemaVersion = record.get.schemaVersions(prefix)
 
-      RecordRenderer.renderMetadataRecord(hubId, rawRecord.get, new SchemaVersion(prefix, schemaVersion), viewDefinitionFormatName, viewType, lang, renderRelatedItems, relatedItems.map(_.toXml()), Seq.empty, parameters)
+      RecordRenderer.renderMetadataRecord(hubId, rawRecord.get, new SchemaVersion(prefix, schemaVersion), viewDefinitionFormatName, viewType, lang, renderRelatedItems, relatedItems.map(_.toXml(Seq.empty, context)), Seq.empty, parameters)
     }
   }
 
@@ -379,7 +381,7 @@ object SOLRSearchService {
 
 }
 
-case class SearchContext(queryString: Map[String, Seq[String]], host: String, hiddenQueryFilters: Seq[String]) {
+case class SearchContext(queryString: Map[String, Seq[String]], host: String, hiddenQueryFilters: Seq[String], configuration: OrganizationConfiguration) {
   val params = Params(queryString)
   val format = params.getValueOrElse("format", "default")
   val apiLanguage = params.getValueOrElse("lang", "en")
@@ -387,7 +389,7 @@ case class SearchContext(queryString: Map[String, Seq[String]], host: String, hi
 
 case class RecordLabel(name: String, fieldValue: String, multivalued: Boolean = false)
 
-case class SearchSummary(result: BriefItemView, context: SearchContext, chResponse: CHResponse) {
+case class SearchSummary(result: BriefItemView, context: SearchContext, chResponse: CHResponse) extends Renderable {
 
   private val pagination = result.getPagination
   private val searchTerms = pagination.getPresentationQuery.getUserSubmittedQuery
@@ -413,204 +415,219 @@ case class SearchSummary(result: BriefItemView, context: SearchContext, chRespon
       value
   }
 
-  def renderAsABCKML(authorized: Boolean, params: Params): Elem = {
-    def renderData(field: String, fieldName: String, item: BriefDocItem, cdata: Boolean = false, customString: String = "%s"): Elem = {
-      if (cdata)
-        <Data name={ fieldName }><value>{ PCData(customString.format(item.getAsString(field))) }</value></Data>
-      else
-        <Data name={ fieldName }><value>{ item.getAsString(field) }</value></Data>
+  def renderAsABCKML(authorized: Boolean, params: Params): Renderable = new Renderable {
+    def toJson(context: SearchContext) = None
 
-    }
+    def asXml(context: SearchContext) = Some({
 
-    def renderComposedDescription(item: BriefDocItem): String = {
-      def renderStrong(label: String, field: String, out: StringBuffer) {
-        val fv = item.getFieldValue(field)
-        if (fv.isNotEmpty) out append ("<strong>%s</strong>: %s </br>".format(label, fv.getArrayAsString(", ")))
+      def renderData(field: String, fieldName: String, item: BriefDocItem, cdata: Boolean = false, customString: String = "%s"): Elem = {
+        if (cdata)
+          <Data name={ fieldName }><value>{ PCData(customString.format(item.getAsString(field))) }</value></Data>
+        else
+          <Data name={ fieldName }><value>{ item.getAsString(field) }</value></Data>
+
       }
 
-      val output = new StringBuffer()
-      output append ("<strong>%s</strong>".format(item.getAsString("dc_title"))) append ("</br></br>")
-      renderStrong("Vervaardiger", "dc_creator", output)
-      renderStrong("Soort object", "dc_type", output)
-      renderStrong("Vervaardigingsdatum", "dc_date", output)
-      renderStrong("Vervaardiging plaats", "dc_coverage", output)
-      renderStrong("Vindplaats", "icn_location", output)
-      renderStrong("Afgebeelde plaats", "dc_subject", output)
-      if (item.getFieldValue("dc_coverage").isNotEmpty || item.getFieldValue("icn_location").isNotEmpty) {
-        renderStrong("Geassocieerde plaats", "dcterms_spatial", output)
-      }
-      renderStrong("Afmeting", "dc_format", output)
-      renderStrong("Materiaal", "icn_material", output)
-      renderStrong("Objectnummer", "dc_identifier", output)
-      output append ("</br>")
-      output append (item.getAsString("delving_description"))
-      output.toString
-    }
-
-    def renderDoc(item: BriefDocItem, crd: String, crdNr: String) = {
-      <Placemark id={ "%s-%s".format(item.getAsString(HUB_ID.key), crdNr) }>
-        <name>{ item.getAsString("delving_title") }</name>
-        <Point>
-          <coordinates>{ crd.split(",").reverse.mkString(",") }</coordinates>
-        </Point>
-        {
-          if (item.getFieldValue(ADDRESS.key).isNotEmpty) {
-            <address>
-              { item.getAsString(ADDRESS.key) }
-            </address>
-          }
+      def renderComposedDescription(item: BriefDocItem): String = {
+        def renderStrong(label: String, field: String, out: StringBuffer) {
+          val fv = item.getFieldValue(field)
+          if (fv.isNotEmpty) out append ("<strong>%s</strong>: %s </br>".format(label, fv.getArrayAsString(", ")))
         }
-        <description>
-          { PCData(renderComposedDescription(item)) }
-        </description>
-        <ExtendedData>
-          { renderData("delving_title", "titel", item) }
-          { renderData("dcterms_spatial", "ondertitel", item) }
-          {
-            renderData("delving_landingPage", "bron", item, cdata = true,
-              """<a href="%s" target="_blank">Naar online collectie %s</a>""".format(item.getAsString("delving_landingPage"), item.getAsString("delving_owner")))
-          }
-          { renderData("delving_thumbnail", "thumbnail", item) }
-          { renderData("europeana_isShownBy", "image", item) }
-        </ExtendedData>
-      </Placemark>
-    }
 
-    val response: Elem =
-      <kml xmlns="http://earth.google.com/kml/2.0">
-        <Document>
+        val output = new StringBuffer()
+        output append ("<strong>%s</strong>".format(item.getAsString("dc_title"))) append ("</br></br>")
+        renderStrong("Vervaardiger", "dc_creator", output)
+        renderStrong("Soort object", "dc_type", output)
+        renderStrong("Vervaardigingsdatum", "dc_date", output)
+        renderStrong("Vervaardiging plaats", "dc_coverage", output)
+        renderStrong("Vindplaats", "icn_location", output)
+        renderStrong("Afgebeelde plaats", "dc_subject", output)
+        if (item.getFieldValue("dc_coverage").isNotEmpty || item.getFieldValue("icn_location").isNotEmpty) {
+          renderStrong("Geassocieerde plaats", "dcterms_spatial", output)
+        }
+        renderStrong("Afmeting", "dc_format", output)
+        renderStrong("Materiaal", "icn_material", output)
+        renderStrong("Objectnummer", "dc_identifier", output)
+        output append ("</br>")
+        output append (item.getAsString("delving_description"))
+        output.toString
+      }
+
+      def renderDoc(item: BriefDocItem, crd: String, crdNr: String) = {
+        <Placemark id={ "%s-%s".format(item.getAsString(HUB_ID.key), crdNr) }>
+          <name>{ item.getAsString("delving_title") }</name>
+          <Point>
+            <coordinates>{ crd.split(",").reverse.mkString(",") }</coordinates>
+          </Point>
           {
-            briefDocs.map(
-              (item: BriefDocItem) =>
-                {
-                  val coordinates: Array[String] = item.getFieldValue(GEOHASH.key).getValueAsArray
-                  coordinates.map(crd => renderDoc(item, crd, coordinates.indexOf(crd).toString))
+            if (item.getFieldValue(ADDRESS.key).isNotEmpty) {
+              <address>
+                { item.getAsString(ADDRESS.key) }
+              </address>
+            }
+          }
+          <description>
+            { PCData(renderComposedDescription(item)) }
+          </description>
+          <ExtendedData>
+            { renderData("delving_title", "titel", item) }
+            { renderData("dcterms_spatial", "ondertitel", item) }
+            {
+              renderData("delving_landingPage", "bron", item, cdata = true,
+                """<a href="%s" target="_blank">Naar online collectie %s</a>""".format(item.getAsString("delving_landingPage"), item.getAsString("delving_owner")))
+            }
+            { renderData("delving_thumbnail", "thumbnail", item) }
+            { renderData("europeana_isShownBy", "image", item) }
+          </ExtendedData>
+        </Placemark>
+      }
+
+      val response: Elem =
+        <kml xmlns="http://earth.google.com/kml/2.0">
+          <Document>
+            {
+              briefDocs.map(
+                (item: BriefDocItem) =>
+                  {
+                    val coordinates: Array[String] = item.getFieldValue(GEOHASH.key).getValueAsArray
+                    coordinates.map(crd => renderDoc(item, crd, coordinates.indexOf(crd).toString))
+                  }
+              )
+            }
+          </Document>
+        </kml>
+      response
+    })
+  }
+
+  def renderAsKML(authorized: Boolean, params: Params): Renderable = new Renderable {
+
+    def toJson(context: SearchContext) = None
+
+    def asXml(context: SearchContext) = Some({
+
+      // todo remove this hack later
+      val sfield = params.getValueOrElse("sfield", GEOHASH.key) match {
+        case "abm_geo_geohash" => "abm_geo"
+        case _ => GEOHASH.key
+      }
+
+      val useSchema = false
+
+      val response: Elem =
+        <kml xmlns="http://earth.google.com/kml/2.0">
+          <Document>
+            <Folder>
+              <name>Culture-Hub</name>
+              {
+                if (useSchema) {
+                  <Schema name="Culture-Hub" id="Culture-HubId">
+                    {
+                      uniqueKeyNamesWithDelving.map {
+                        item =>
+                          <SimpleField name={ item } type="string">{ SOLRSearchService.localiseKey(item, context.apiLanguage) }</SimpleField>
+                      }
+                    }
+                  </Schema>
                 }
-            )
-          }
-        </Document>
-      </kml>
-    response
-  }
-
-  def renderAsKML(authorized: Boolean, params: Params): Elem = {
-
-    // todo remove this hack later
-    val sfield = params.getValueOrElse("sfield", GEOHASH.key) match {
-      case "abm_geo_geohash" => "abm_geo"
-      case _ => GEOHASH.key
-    }
-
-    val useSchema = false
-
-    val response: Elem =
-      <kml xmlns="http://earth.google.com/kml/2.0">
-        <Document>
-          <Folder>
-            <name>Culture-Hub</name>
-            {
-              if (useSchema) {
-                <Schema name="Culture-Hub" id="Culture-HubId">
-                  {
-                    uniqueKeyNamesWithDelving.map {
-                      item =>
-                        <SimpleField name={ item } type="string">{ SOLRSearchService.localiseKey(item, context.apiLanguage) }</SimpleField>
-                    }
-                  }
-                </Schema>
               }
-            }
-            {
-              briefDocs.map(
-                (item: BriefDocItem) =>
-                  <Placemark id={ item.getAsString(HUB_ID.key) }>
-                    <name>{ item.getAsString("delving_title") }</name>
-                    <Point>
-                      <coordinates>{ item.getAsString(sfield).split(",").reverse.mkString(",") }</coordinates>
-                    </Point>
-                    <ExtendedData>
-                      {
-                        if (useSchema) {
-                          <SchemaData schemaUrl="#Culture-HubId">
-                            { item.toKmFields(filteredFields = filteredFields, language = context.apiLanguage).map(field => field) }
-                          </SchemaData>
-                        } else {
-                          List(<Data name='delving:linkHome'><value>{ "http://%s/%s/%s/%s".format(context.host, item.getOrgId, item.getSpec, item.getRecordId) }</value></Data>) :::
-                            item.toKmFields(filteredFields = filteredFields, language = context.apiLanguage, simpleData = useSchema).map(field => field)
+              {
+                briefDocs.map(
+                  (item: BriefDocItem) =>
+                    <Placemark id={ item.getAsString(HUB_ID.key) }>
+                      <name>{ item.getAsString("delving_title") }</name>
+                      <Point>
+                        <coordinates>{ item.getAsString(sfield).split(",").reverse.mkString(",") }</coordinates>
+                      </Point>
+                      <ExtendedData>
+                        {
+                          if (useSchema) {
+                            <SchemaData schemaUrl="#Culture-HubId">
+                              { item.toKmFields(filteredFields = filteredFields, context = context).map(field => field) }
+                            </SchemaData>
+                          } else {
+                            List(<Data name='delving:linkHome'><value>{ "http://%s/%s/%s/%s".format(context.host, item.getOrgId, item.getSpec, item.getRecordId) }</value></Data>) :::
+                              item.toKmFields(filteredFields = filteredFields, simpleData = useSchema, context).map(field => field)
+                          }
                         }
-                      }
-                    </ExtendedData>
-                  </Placemark>
-              )
-            }
-          </Folder>
-        </Document>
-      </kml>
-    response
-  }
-
-  def renderAsKNreiseKML(authorized: Boolean, params: Params): Elem = {
-
-    val sfield = params.getValueOrElse("sfield", GEOHASH.key) match {
-      case "abm_geo_geohash" => "abm_geo"
-      case _ => GEOHASH.key
-    }
-
-    val knReiseFilterFields = Seq("delving_snippet", IndexField.FULL_TEXT.key, "delving_SNIPPET", "delving_description",
-      "delving_currentSchema", "delving_recordType", "delving_provider", "delving_pmhId", "delving_allSchemas",
-      "delving_geohash", "delving_schema", "delving_creator", "delving_landing", "delving_collection",
-      "delving_hasDigitalObject", "delving_hasGeoHash", "delving_hasLandingPage", "delving_landingPage", "delving_orgId",
-      "delving_spec", "delving_thumbnail", "delving_title", "delving_visibility", "delving_hubId", "delving_owner")
-
-    val useSchema = false
-
-    val response: Elem =
-      <kml xmlns="http://earth.google.com/kml/2.0">
-        <Document>
-          <Folder>
-            <name>Culture-Hub</name>
-            {
-              if (useSchema) {
-                <Schema name="Culture-Hub" id="Culture-HubId">
-                  {
-                    uniqueKeyNamesWithDelving.map {
-                      item =>
-                        <SimpleField name={ item } type="string">{ SOLRSearchService.localiseKey(item, context.apiLanguage) }</SimpleField>
-                    }
-                  }
-                </Schema>
+                      </ExtendedData>
+                    </Placemark>
+                )
               }
-            }
-            {
-              briefDocs.map(
-                (item: BriefDocItem) =>
-                  <Placemark id={ item.getAsString(HUB_ID.key) }>
-                    <name>{ item.getAsString("delving_title") }</name>
-                    <Point>
-                      <coordinates>{ item.getAsString(sfield).split(",").reverse.mkString(",") }</coordinates>
-                    </Point>
-                    <ExtendedData>
-                      {
-                        if (useSchema) {
-                          <SchemaData schemaUrl="#Culture-HubId">
-                            { item.toKmFields(filteredFields = filteredFields, language = context.apiLanguage).map(field => field) }
-                          </SchemaData>
-                        } else {
-                          List(<Data name='delving:linkHome'><value>{ "http://%s/%s/%s/%s".format(context.host, item.getOrgId, item.getSpec, item.getRecordId) }</value></Data>) :::
-                            item.toKmFields(filteredFields = knReiseFilterFields, language = context.apiLanguage, simpleData = useSchema).map(field => field)
-                        }
-                      }
-                    </ExtendedData>
-                  </Placemark>
-              )
-            }
-          </Folder>
-        </Document>
-      </kml>
-    response
+            </Folder>
+          </Document>
+        </kml>
+      response
+    })
   }
 
-  def renderAsXML(authorized: Boolean): Elem = {
+  def renderAsKNreiseKML(authorized: Boolean, params: Params): Renderable = new Renderable {
+    def toJson(context: SearchContext) = None
+
+    def asXml(context: SearchContext) = Some({
+      // TODO remove this hack later
+      val sfield = params.getValueOrElse("sfield", GEOHASH.key) match {
+        case "abm_geo_geohash" => "abm_geo"
+        case _ => GEOHASH.key
+      }
+
+      val knReiseFilterFields = Seq("delving_snippet", IndexField.FULL_TEXT.key, "delving_SNIPPET", "delving_description",
+        "delving_currentSchema", "delving_recordType", "delving_provider", "delving_pmhId", "delving_allSchemas",
+        "delving_geohash", "delving_schema", "delving_creator", "delving_landing", "delving_collection",
+        "delving_hasDigitalObject", "delving_hasGeoHash", "delving_hasLandingPage", "delving_landingPage", "delving_orgId",
+        "delving_spec", "delving_thumbnail", "delving_title", "delving_visibility", "delving_hubId", "delving_owner")
+
+      val useSchema = false
+
+      val response: Elem =
+        <kml xmlns="http://earth.google.com/kml/2.0">
+          <Document>
+            <Folder>
+              <name>Culture-Hub</name>
+              {
+                if (useSchema) {
+                  <Schema name="Culture-Hub" id="Culture-HubId">
+                    {
+                      uniqueKeyNamesWithDelving.map {
+                        item =>
+                          <SimpleField name={ item } type="string">{ SOLRSearchService.localiseKey(item, context.apiLanguage) }</SimpleField>
+                      }
+                    }
+                  </Schema>
+                }
+              }
+              {
+                briefDocs.map(
+                  (item: BriefDocItem) =>
+                    <Placemark id={ item.getAsString(HUB_ID.key) }>
+                      <name>{ item.getAsString("delving_title") }</name>
+                      <Point>
+                        <coordinates>{ item.getAsString(sfield).split(",").reverse.mkString(",") }</coordinates>
+                      </Point>
+                      <ExtendedData>
+                        {
+                          if (useSchema) {
+                            <SchemaData schemaUrl="#Culture-HubId">
+                              { item.toKmFields(filteredFields, simpleData = true, context).map(field => field) }
+                            </SchemaData>
+                          } else {
+                            List(<Data name='delving:linkHome'><value>{ "http://%s/%s/%s/%s".format(context.host, item.getOrgId, item.getSpec, item.getRecordId) }</value></Data>) :::
+                              item.toKmFields(filteredFields = knReiseFilterFields, simpleData = useSchema, context).map(field => field)
+                          }
+                        }
+                      </ExtendedData>
+                    </Placemark>
+                )
+              }
+            </Folder>
+          </Document>
+        </kml>
+      response
+
+    })
+  }
+
+  def asXml(context: SearchContext) = Some({
 
     // todo add years from query if they exist
     val response: Elem =
@@ -662,7 +679,7 @@ case class SearchSummary(result: BriefItemView, context: SearchContext, chRespon
             }
           </fields>
         </layout>
-        <items>{ briefDocs.map(item => item.toXml(filteredFields)) }</items>
+        <items>{ briefDocs.map(item => item.toXml(filteredFields, context)) }</items>
         <facets>
           {
             result.getFacetQueryLinks.map(fql =>
@@ -679,22 +696,9 @@ case class SearchSummary(result: BriefItemView, context: SearchContext, chRespon
         </facets>
       </results>
     response
-  }
+  })
 
-  def renderAsJSON(authorized: Boolean): String = {
-    import net.liftweb.json.{ Extraction, JsonAST, Printer }
-    implicit val formats = net.liftweb.json.DefaultFormats
-
-    def createJsonRecord(doc: BriefDocItem): ListMap[String, Any] = {
-      val recordMap = collection.mutable.ListMap[String, Any]();
-      doc.getFieldValuesFiltered(false, filteredFields)
-        .sortWith((fv1, fv2) => fv1.getKey < fv2.getKey).foreach(fv => recordMap.put(fv.getKey, fv.getValueAsArray))
-      ListMap("item" ->
-        ListMap("fields" ->
-          ListMap(recordMap.toSeq: _*)
-        )
-      )
-    }
+  def toJson(context: SearchContext) = Some({
 
     def createFacetList: List[ListMap[String, Any]] = {
       result.getFacetQueryLinks.map(fql =>
@@ -703,30 +707,27 @@ case class SearchSummary(result: BriefItemView, context: SearchContext, chRespon
       ).toList
     }
 
-    val outputJson = Printer.pretty(JsonAST.render(Extraction.decompose(
-      ListMap("result" ->
-        ListMap("query" ->
-          ListMap("numfound" -> pagination.getNumFound, "terms" -> searchTerms,
-            "breadCrumbs" -> pagination.getBreadcrumbs.map(bc => ListMap("field" -> bc.field, "href" -> minusAmp(bc.href), "value" -> bc.display))),
-          "pagination" ->
-            ListMap("start" -> pagination.getStart, "rows" -> pagination.getRows, "numFound" -> pagination.getNumFound,
-              "hasNext" -> pagination.isNext, "nextPage" -> pagination.getNextPage, "hasPrevious" -> pagination.isPrevious,
-              "previousPage" -> pagination.getPreviousPage, "currentPage" -> pagination.getStart,
-              "links" -> pagination.getPageLinks.map(pageLink => ListMap("start" -> pageLink.start, "isLinked" -> pageLink.isLinked, "pageNumber" -> pageLink.display))
-            ),
-          "layout" ->
-            ListMap[String, Any]("layout" -> uniqueKeyNames.map(item => ListMap("name" -> item, "i18n" -> SOLRSearchService.localiseKey(item, context.apiLanguage)))),
-          "items" ->
-            result.getBriefDocs.map(doc => createJsonRecord(doc)).toList,
-          "facets" -> createFacetList
-        )
+    ListMap("result" ->
+      ListMap("query" ->
+        ListMap("numfound" -> pagination.getNumFound, "terms" -> searchTerms,
+          "breadCrumbs" -> pagination.getBreadcrumbs.map(bc => ListMap("field" -> bc.field, "href" -> minusAmp(bc.href), "value" -> bc.display))),
+        "pagination" ->
+          ListMap("start" -> pagination.getStart, "rows" -> pagination.getRows, "numFound" -> pagination.getNumFound,
+            "hasNext" -> pagination.isNext, "nextPage" -> pagination.getNextPage, "hasPrevious" -> pagination.isPrevious,
+            "previousPage" -> pagination.getPreviousPage, "currentPage" -> pagination.getStart,
+            "links" -> pagination.getPageLinks.map(pageLink => ListMap("start" -> pageLink.start, "isLinked" -> pageLink.isLinked, "pageNumber" -> pageLink.display))
+          ),
+        "layout" ->
+          ListMap[String, Any]("layout" -> uniqueKeyNames.map(item => ListMap("name" -> item, "i18n" -> SOLRSearchService.localiseKey(item, context.apiLanguage)))),
+        "items" ->
+          result.getBriefDocs.map(doc => doc.toJson(filteredFields, context)).toList,
+        "facets" -> createFacetList
       )
-    )))
-    outputJson
-  }
+    )
+  })
 }
 
-case class FacetAutoComplete(params: Params, configuration: OrganizationConfiguration) {
+case class FacetAutoComplete(params: Params, configuration: OrganizationConfiguration) extends Renderable {
   require(params._contains("field"))
   val facet = params.getValueOrElse("field", "nothing")
   val query = params.getValueOrElse("value", "")
@@ -741,7 +742,7 @@ case class FacetAutoComplete(params: Params, configuration: OrganizationConfigur
   else
     SolrServer.getSolrFields(configuration).sortBy(_.name).filter(_.fieldCanBeUsedAsFacet).map(field => new FacetField.Count(new FacetField("facets"), field.name, field.distinct))
 
-  def renderAsXml: Elem = {
+  def asXml(context: SearchContext) = Some({
     <results>
       {
         autocomplete.map(item =>
@@ -749,24 +750,17 @@ case class FacetAutoComplete(params: Params, configuration: OrganizationConfigur
         )
       }
     </results>
-  }
+  })
 
-  def renderAsJson: String = {
-    import net.liftweb.json.JsonAST._
-    import net.liftweb.json.{ Extraction, Printer }
-    import scala.collection.immutable.ListMap
-    implicit val formats = net.liftweb.json.DefaultFormats
-
-    val outputJson = Printer.pretty(render(Extraction.decompose(
-      ListMap("results" ->
-        autocomplete.map(item => ListMap("value" -> item.getName, "count" -> item.getCount)
-        )))))
-    outputJson
-  }
+  def toJson(context: SearchContext) = Some({
+    ListMap("results" ->
+      autocomplete.map(item => ListMap("value" -> item.getName, "count" -> item.getCount)
+      ))
+  })
 
 }
 
-case class ExplainResponse(params: Params, configuration: OrganizationConfiguration) {
+case class ExplainResponse(params: Params, configuration: OrganizationConfiguration) extends Renderable {
 
   val excludeList = List("europeana_unstored", "europeana_source", "europeana_userTag", "europeana_collectionTitle")
 
@@ -804,7 +798,7 @@ case class ExplainResponse(params: Params, configuration: OrganizationConfigurat
 
   val explainType = params.getValueOrElse("explain", "light")
 
-  def renderAsXml: Elem = {
+  def asXml(context: SearchContext) = Some({
 
     <results>
       <api>
@@ -863,22 +857,39 @@ case class ExplainResponse(params: Params, configuration: OrganizationConfigurat
         </solr-dynamic>
       </api>
     </results>
-  }
+  })
 
-  def renderAsJson: String = {
+  def toJson(context: SearchContext) = Some({
+    ListMap("results" ->
+      ListMap("api" ->
+        ListMap(
+          "parameters" -> paramOptions.map(param => param.toJson).toIterable,
+          "search-fields" -> solrFields.map(facet => ListMap("search" -> facet.name, "xml" -> facet.xmlFieldName, "distinct" -> facet.distinct.toString,
+            "docs" -> facet.docs.toString, "fieldType" -> facet.fieldType)),
+          "facets" -> solrFieldsWithFacets.map(facet => ListMap("search" -> facet.name, "xml" -> facet.xmlFieldName, "distinct" -> facet.distinct.toString,
+            "docs" -> facet.docs.toString, "fieldType" -> facet.fieldType))
+        ))
+    )
+  })
+}
+
+object Representation extends Enumeration {
+  val XML = Value
+  val JSON = Value
+}
+
+trait Renderable {
+  def toJson(context: SearchContext): Option[ListMap[String, AnyRef]]
+  def asXml(context: SearchContext): Option[NodeSeq]
+  def asJson(callback: Option[String] = None, context: SearchContext): Option[String] = {
     implicit val formats = net.liftweb.json.DefaultFormats
-
-    val outputJson = Printer.pretty(render(Extraction.decompose(
-      ListMap("results" ->
-        ListMap("api" ->
-          ListMap(
-            "parameters" -> paramOptions.map(param => param.toJson).toIterable,
-            "search-fields" -> solrFields.map(facet => ListMap("search" -> facet.name, "xml" -> facet.xmlFieldName, "distinct" -> facet.distinct.toString,
-              "docs" -> facet.docs.toString, "fieldType" -> facet.fieldType)),
-            "facets" -> solrFieldsWithFacets.map(facet => ListMap("search" -> facet.name, "xml" -> facet.xmlFieldName, "distinct" -> facet.distinct.toString,
-              "docs" -> facet.docs.toString, "fieldType" -> facet.fieldType))
-          ))
-      ))))
-    outputJson
+    toJson(context) map { json =>
+      val rendered = Printer.pretty(render(Extraction.decompose(json)))
+      callback map { c =>
+        "%s(%s)".format(c, rendered)
+      } getOrElse {
+        rendered
+      }
+    }
   }
 }

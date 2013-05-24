@@ -1,6 +1,6 @@
 #{extends themeInfo.get('themeLayout') /}
 
-#{set title: messages.get('thing.browse.of', messages.get('thing.datasets')) + ': ' + orgId /}
+#{set title: messages.get('hubb.BrowseOf', messages.get('dataset.Datasets')) + ': ' + orgId /}
 
 #{set 'moreScripts'}
 <script type="text/javascript" src="@{routes.Assets.at("common/javascripts/jquery.tablesorter.min.js")}"></script>
@@ -15,12 +15,14 @@
 
 #{organizationNavBar isReadOnly: isReadOnly, isAdmin: isAdmin, orgId: orgId, active:"datasets", navigation: navigation /}
 
+#{connectionLost /}
+
 <div class="dataset-filter row">
     <div class="dataset-filter-inner span12">
     <form id="filter-form" class="form-inline pull-left form-search">
-        <input type='text' name='filter' id='filter' maxlength="30" size="30" class="search-query" placeholder="&{'org.list.filter'}"/>
-        <input onclick="saveFilter()" class="btn" type="button" value="&{'ui.label.save'}"/>
-        <input onclick="resetFilter()" class="btn" type="reset" value="&{'ui.label.reset'}"/>
+        <input type='text' name='filter' id='filter' maxlength="30" size="30" class="search-query" placeholder="&{'hub.TypeHereToNarrowDown'}"/>
+        <input onclick="saveFilter()" class="btn" type="button" value="&{'hub.Save'}"/>
+        <input onclick="resetFilter()" class="btn" type="reset" value="&{'hub.Reset'}"/>
         <a class="extHelp" href="#" rel="tooltip" title="Type in any dataset value(s) to filter the table. Press 'Save' to save the filter."><i class="icon-question-sign"></i>&#160;</a>
     </form>
     </div>
@@ -29,15 +31,15 @@
 <div class="dataset-list row">
     <div class="dataset-list-inner span12">
     <table id="dataset-table" class="table table-striped sortable" data-bind="triggerUpdate: sets">
-        <caption>${messages.get('thing.datasets')}</caption>
+        <caption>${messages.get('dataset.Datasets')}</caption>
         <thead>
         <tr>
-            <th class="sort">&{'thing.name'}</th>
-            <th class="sort">&{'thing.organization'}</th>
-            <th class="sort">&{'ui.label.nritems'}</th>
-            <th class="sort">&{'ui.label.state'}</th>
-            <th class="sort">&{'ui.label.availability'}</th>
-            *{<th>&{'ui.label.options'}</th>}*
+            <th class="sort">&{'hubb.Name'}</th>
+            <th class="sort">&{'hubb.Organization'}</th>
+            <th class="sort">&{'hub.NumberOfItems'}</th>
+            <th class="sort">&{'hub.State'}</th>
+            <th class="sort">&{'hub.Availability'}</th>
+            *{<th>&{'hub.Options'}</th>}*
         </tr>
         </thead>
         <tfoot>
@@ -72,17 +74,17 @@
                 </td>
                 <td>
                     <!-- ko if: lockState() == 'locked' -->
-                    <span class="badge">&{'organization.dataset.lockedBy'} <span data-bind="text: lockedBy"></span></span>
+                    <span class="badge">&{'dataset.LockedBy'} <span data-bind="text: lockedBy"></span></span>
                     <!-- /ko -->
                     <!-- ko if: lockState() == 'unlocked' -->
-                    <span class="badge badge-info">&{'organization.dataset.unlocked'}</span>
+                    <span class="badge badge-info">&{'dataset.Unlocked'}</span>
                     <!-- /ko -->
                 </td>
                 *{
                 <td width="80">
                   <!-- ko if: canEdit().indexOf('${userName}') > -1 -->
                     <a data-bind="attr: { href: '/organizations/' + orgId() + '/dataset/' + spec() + '/update' }" rel="nofollow">
-                        <i class="icon icon-edit"></i> ${messages.get('ui.label.edit')}
+                        <i class="icon icon-edit"></i> ${messages.get('hub.Edit')}
                     </a>
                   <!-- /ko -->
 
@@ -100,6 +102,8 @@
 
 <script type="text/javascript" language="javascript">
     $(document).ready(function () {
+
+        var clientId;
 
         var viewModel = {
             sets: ko.observableArray(),
@@ -120,17 +124,14 @@
             }
         };
 
-        var clientId = Math.floor(1 + 10001 * Math.random());
-        var ws = new WebSocket("ws://" + location.host + "/organizations/${orgId}/dataset/feed?clientId=" + clientId);
-
-        ws.onopen = function() {
+        var onopen = function() {
             ws.send(JSON.stringify({
                 eventType: "sendList",
                 clientId: clientId
             }));
         };
 
-        ws.onmessage = function(evt) {
+        var onmessage = function(evt) {
             var data = $.parseJSON(evt.data);
             switch(data.eventType) {
                 case "loadList":
@@ -189,6 +190,8 @@
                     break;
             }
         };
+
+        clientId = feed('${orgId}', '${spec}', onopen, onmessage, 0);
 
         ko.applyBindings(viewModel);
 

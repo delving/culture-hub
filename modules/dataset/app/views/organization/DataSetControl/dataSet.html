@@ -1,6 +1,6 @@
 #{set 'visibility'}hidden#{/}
 #{extends themeInfo.get('themeLayout') /}
-#{set title: messages.get('organization.dataset.create') /}
+#{set title: messages.get('dataset.CreateADataset') /}
 #{set bodyId: 'organization' /}
 
 <style>
@@ -60,7 +60,7 @@
 #{organizationNavBar isReadOnly: isReadOnly, isAdmin: isAdmin, orgId: orgId, active:"datasets", navigation: navigation /}
 
 <div class="page-header">
-    <h2>${spec.isEmpty() ? messages.get('organization.dataset.create') : messages.get('organization.dataset.update') }</h2>
+    <h2>${spec.isEmpty() ? messages.get('dataset.CreateADataset') : messages.get('dataset.UpdateADataset') }</h2>
 </div>
 
 #{if !creationQuotaExceeded}
@@ -70,7 +70,7 @@
             <div class="error" style="margin-bottom: 12px;" data-bind="text: errors().global"></div>
 
 
-            #{form.textField name:"spec", form: dataSetForm, label: messages.get('organization.dataset.label.identifier'), dataBind:"value: spec", help: messages.get('organization.dataset.help.identifier') /}
+            #{form.textField name:"spec", form: dataSetForm, label: messages.get('dataset.Identifier'), dataBind:"value: spec", help: messages.get('dataset.TheUniqueIdentifierOfThisDataset') /}
 
             %{for(i in 0..factDefinitions.size() - 1) {
                 def factDef = factDefinitions.apply(i);
@@ -85,7 +85,7 @@
 
             %{ }}%
 
-            #{form.textArea name: "descriptionField", form: dataSetForm, label: messages.get('thing.description'), dataBind: "value: description" /}
+            #{form.textArea name: "descriptionField", form: dataSetForm, label: messages.get('hubb.Description'), dataBind: "value: description" /}
 
         </div>
         <div class="dataset-schemas span6">
@@ -139,7 +139,7 @@
             <hr/>
             <div class="well">
                 <div class="row">
-                    #{btnHref id:"saveButton", name:"saveButton", label:messages.get('organization.dataset.save'), extraClass:"btn-success btn-large span4", iconClass:"icon-ok-circle icon-white", rel:"nofollow"/}
+                    #{btnHref id:"saveButton", name:"saveButton", label:messages.get('dataset.SaveDataset'), extraClass:"btn-success btn-large span4", iconClass:"icon-ok-circle icon-white", rel:"nofollow"/}
                     <button type="reset" class="btn btn-large pull-right">Reset</button>
                 </div>
             </div>
@@ -148,7 +148,7 @@
 </form>
 #{/if}
 #{if creationQuotaExceeded}
-    &{'plugin.dataSet.creationQuotaExceeded'}
+    &{'dataset.TheQuotaOfAllowedDatasetsExceeded'}
 #{/if}
 
 <script type="text/javascript">

@@ -1,5 +1,5 @@
 #{extends themeInfo.get('themeLayout') /}
-#{set title: messages.get('ui.label.welcome') /}
+#{set title: messages.get('hub.Welcome') /}
 #{set bodyId:'home' /}
 #{set pageId:'home'/}
 #{set 'moreScripts'}
@@ -12,37 +12,37 @@
     <div class="messages span12">
         #{if flash.registrationSuccess}
         <p class="alert alert-success">
-            ${messages.get("ui.message.registration.success", flash.registrationSuccess)}
+            ${messages.get("hub.YourAccountWasCreated", flash.registrationSuccess)}
         </p>
         #{/}
         #{if flash.registrationError}
         <p class="alert alert-error">
-            ${messages.get("ui.message.registration.error", flash.registrationError)}
+            ${messages.get("hub.ErrorCreatingYourAccount", flash.registrationError)}
         </p>
         #{/}
         #{if flash.activation && flash.activation == "true"}
         <p class="alert alert-success">
-            ${messages.get("ui.message.activation.success")}
+            ${messages.get("hub.YourAccountIsNowActive")}
         </p>
         #{/}
         #{if flash.activation && flash.activation == "false"}
         <p class="alert alert-error">
-            ${messages.get("ui.message.activation.error")}
+            ${messages.get("hub.ErrorActivatingYourAccount.")}
         </p>
         #{/}
         #{if flash.resetPasswordEmail && flash.resetPasswordEmail == "true"}
         <p class="alert alert-success">
-            ${messages.get("ui.message.resetpassword.email.success")}
+            ${messages.get("hub.AnEmailHasBeenSentToResetYourPassword")}
         </p>
         #{/}
         #{if flash.resetPasswordError}
         <p class="alert alert-error">
-            ${messages.get("ui.message.resetpassword.error", flash.resetPasswordError)}
+            ${messages.get("hub.ErrorResettingYourPassword", flash.resetPasswordError)}
         </p>
         #{/}
         #{if flash.resetPasswordSuccess && flash.resetPasswordSuccess == "true"}
         <p class="alert alert-success">
-            ${messages.get("ui.message.resetpassword.success")}
+            ${messages.get("hub.YourPasswordHasBeenChanged")}
         </p>
         #{/}
     </div>
@@ -59,6 +59,3 @@
     </div>
 </div>
 #{/if}
-
-
-
