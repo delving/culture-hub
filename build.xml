@@ -5,7 +5,7 @@
     <property name="root" value="."/>
     <property name="target" value="${root}/target"/>
     <property name="tmp" value="${root}/tmp"/>
-    <property name="sip-creator.version" value="1.1.4-SNAPSHOT"/>
+    <property name="sip-creator.version" value="1.1.4"/>
     <property name="sip-creator.path" value="${root}/public/sip-creator/"/>
 
     <taskdef resource="net/sf/antcontrib/antlib.xml">
@@ -21,6 +21,8 @@
 
     <artifact:remoteRepository id="delving.snapshots"
                                url="http://nexus.delving.org/nexus/content/repositories/snapshots"/>
+    <artifact:remoteRepository id="delving.releases"
+                               url="http://nexus.delving.org/nexus/content/repositories/releases"/>
 
     <target name="startSolr">
         <java jar="extras/servlet-server/start.jar" fork="true" dir="extras/servlet-server" spawn="true"/>
@@ -89,6 +91,7 @@
         </delete>
         <artifact:dependencies fileSetId="dependency.fileset">
             <dependency groupId="eu.delving" artifactId="sip-app" version="${sip-creator.version}" type="zip"/>
+            <remoteRepository refid="delving.releases"/>
             <remoteRepository refid="delving.snapshots"/>
         </artifact:dependencies>
         <copy todir="${pubdir}" verbose="true" flatten="true">

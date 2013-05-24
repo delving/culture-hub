@@ -5,6 +5,8 @@ import controllers.OrganizationController
 import eu.delving.LaunchFile
 import java.util.Date
 import java.text.SimpleDateFormat
+import play.api.Play
+import play.api.Play.current
 
 /**
  *
@@ -26,7 +28,7 @@ object SipCreator extends OrganizationController {
     Action {
       implicit request =>
 
-        val host = request.domain + ":80" // we need the port for the sip-creator
+        val host = request.domain + (if (Play.isDev) ":9000" else ":80") // we need the port for the sip-creator
         val home = "http://" + host + "/" + user
         val codebase = "http://" + host + "/assets/sip-creator/"
 
