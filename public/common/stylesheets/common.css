@@ -4266,6 +4266,17 @@ a.badge:hover {
   width: 300px;
   text-align: right;
 }
+#object-media {
+  *zoom: 1;
+}
+#object-media:before,
+#object-media:after {
+  display: table;
+  content: "";
+}
+#object-media:after {
+  clear: both;
+}
 .object-title header {
   float: left;
   margin-left: 20px;
