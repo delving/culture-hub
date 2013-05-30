@@ -8,7 +8,7 @@ import org.apache.commons.io.{ FileUtils, IOUtils }
 import play.api.libs.iteratee.Enumerator
 import play.libs.Akka
 import akka.actor.Actor
-import play.api.Logger
+import play.api.{ Play, Logger }
 import core._
 import scala.{ Either, Option }
 import storage.FileStorage
@@ -35,6 +35,7 @@ import play.api.libs.concurrent.Execution.Implicits._
 import scala.concurrent.duration._
 import com.mongodb.casbah.Imports._
 import com.mongodb.casbah.gridfs.{ GridFSDBFile, GridFS }
+import play.api.Play.current
 
 /**
  * This Controller is responsible for all the interaction with the SIP-Creator.
@@ -43,7 +44,12 @@ import com.mongodb.casbah.gridfs.{ GridFSDBFile, GridFS }
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-object SipCreatorEndPoint extends BoundController(HubModule) with SipCreatorEndPoint
+object SipCreatorEndPoint extends BoundController(HubModule) with SipCreatorEndPoint {
+
+  // HASH__type[_prefix].extension
+  val FileName = """([^_]*)__([^._]*)_?([^.]*).(.*)""".r
+
+}
 
 trait SipCreatorEndPoint extends Controller with OrganizationConfigurationAware with Logging {
   this: BoundController with Controller with OrganizationConfigurationAware with Logging =>
@@ -54,16 +60,16 @@ trait SipCreatorEndPoint extends Controller with OrganizationConfigurationAware 
 
   private def basexStorage(implicit configuration: OrganizationConfiguration) = HubServices.basexStorages.getResource(configuration)
 
-  // HASH__type[_prefix].extension
-  private val FileName = """([^_]*)__([^._]*)_?([^.]*).(.*)""".r
-
   private var connectedUserObject: Option[HubUser] = None
 
   def AuthenticatedAction[A](accessToken: Option[String])(action: Action[A]): Action[A] = OrganizationConfigured {
     Action(action.parser) {
       implicit request =>
         {
-          if (accessToken.isEmpty) {
+          if (accessToken.isEmpty && Play.isDev) {
+            connectedUserObject = HubUser.dao.findByUsername(request.queryString.get("userName").get.head)
+            action(request)
+          } else if (accessToken.isEmpty) {
             Unauthorized("No access token provided")
           } else if (!HubUser.isValidToken(accessToken.get)) {
             Unauthorized("Access Key %s not accepted".format(accessToken.get))
@@ -225,7 +231,7 @@ trait SipCreatorEndPoint extends Controller with OrganizationConfigurationAware 
             val msg = "DataSet with spec %s not found".format(spec)
             NotFound(msg)
           } else {
-            val FileName(hash, kind, prefix, extension) = fileName
+            val SipCreatorEndPoint.FileName(hash, kind, prefix, extension) = fileName
             if (hash.isEmpty) {
               val msg = "No hash available for file name " + fileName
               Error(msg)

@@ -71,11 +71,20 @@ object Statistics extends OrganizationController {
           new SolrFacetBasedStatistics(orgId, facets, filter, facetLimit, query)
         }
 
-        if (request.queryString.getFirst("format") == Some("csv")) {
+        val result = if (request.queryString.getFirst("format") == Some("csv")) {
           Ok(statistics.renderAsCSV(canSeeFullStatistics)).as("text/csv")
         } else {
           Ok(statistics.renderAsJSON(canSeeFullStatistics)).as(JSON)
         }
+
+        // CORS
+        result.withHeaders(
+          ("Access-Control-Allow-Origin" -> "*"),
+          ("Access-Control-Allow-Methods" -> "GET, POST, OPTIONS"),
+          ("Access-Control-Allow-Headers" -> "X-Requested-With"),
+          ("Access-Control-Max-Age" -> "86400")
+        )
+
     }
   }
 
