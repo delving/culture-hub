@@ -21,6 +21,9 @@ import ExecutionContext.Implicits.global
 import play.api.libs.MimeTypes
 
 /**
+ * Importer, useful for development and debugging, use e.g. like this::
+ *
+ *  curl -i -F name=RAEAD_delving.zip -F filedata=@RAEAD_delving.zip http://delving.localhost:9000/organizations/delving/dataset/import\?userName\=bob
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
