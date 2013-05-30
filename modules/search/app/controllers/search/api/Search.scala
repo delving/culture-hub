@@ -55,7 +55,6 @@ trait Search extends DelvingController { this: Controller with BoundController w
                 ("Access-Control-Allow-Methods" -> "GET, POST, OPTIONS"),
                 ("Access-Control-Allow-Headers" -> "X-Requested-With"),
                 ("Access-Control-Max-Age" -> "86400")
-
               )
           }
         }

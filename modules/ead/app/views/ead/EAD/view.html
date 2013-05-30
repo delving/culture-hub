@@ -1,6 +1,5 @@
-<html>
-<head>
-    <!-- Include the required JavaScript libraries: -->
+#{extends '/Search/searchObject.html' /}
+
     <script src='@{controllers.ead.routes.Assets.at("fancytree/jquery/jquery.js"}' type="text/javascript"></script>
     <script src='@{controllers.ead.routes.Assets.at("fancytree/jquery/jquery-ui.custom.js"}' type="text/javascript"></script>
     <script src='@{controllers.ead.routes.Assets.at("fancytree/jquery/jquery.cookie.js"}' type="text/javascript"></script>
@@ -68,7 +67,7 @@
                     mode: "hide"
                 },
                 init: function(event, data, flag) {
-                    var d = "${id}" !== 'None' ? { path: "/", hubId: '${id}' } : { path: "/" }
+                    var d = "${id}" !== 'None' ? { path: "/", hubId: '${id.get()}' } : { path: "/" }
                     $.getJSON('/experiments/ead/sourceTree', d, function(data) {
                         var tpl = $('#ead-header-tpl').html();
                         var html = Mustache.to_html(tpl, data);
@@ -108,7 +107,7 @@
 
 
                         if (node.data.path) {
-                            var d = "${id}" !== 'None' ? { path: node.data.path, hubId: '${id}' } : { path: node.data.path }
+                            var d = "${id}" !== 'None' ? { path: node.data.path, hubId: '${id.get()}' } : { path: node.data.path }
                             $.getJSON('/experiments/ead/sourceTree', d, function(data) {
                                 var tpl = $(template).html();
                                 var html = Mustache.to_html(tpl, data);
@@ -243,12 +242,3 @@
         </div>
     </div>
 </div>
-
-
-
-</body>
-</html>
-
-
-
-
