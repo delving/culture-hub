@@ -2,7 +2,7 @@ package services.search
 
 import scala.collection.JavaConversions._
 import org.apache.solr.client.solrj.response.{ FacetField, QueryResponse }
-import scala.collection.immutable.{Map => ImMap, ListMap, HashMap}
+import scala.collection.immutable.{ Map => ImMap, ListMap, HashMap }
 import org.apache.solr.client.solrj.response.FacetField.Count
 import collection.mutable.{ ListBuffer, Map }
 import org.apache.solr.common.SolrDocumentList

@@ -19,8 +19,6 @@ class EADIndexingAnalysisService extends IndexingAnalysisService {
 
   def analyze(hubId: HubId, schemaVersion: SchemaVersion, document: Node): Seq[IndexingService#IndexDocument] = {
 
-    println("indexing " + hubId)
-
     val documentAsScala = asXml(document)
 
     val doc = EADSimplifier.simplify(documentAsScala)

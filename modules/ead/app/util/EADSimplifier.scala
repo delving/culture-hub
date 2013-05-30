@@ -12,7 +12,10 @@ object EADSimplifier {
 
   def simplify(source: NodeSeq) = {
 
-    val title = (source \ "eadheader" \ "filedesc" \ "titlestmt" \ "titleproper").text
+    val title = {
+      val t = (source \ "eadheader" \ "filedesc" \ "titlestmt" \ "titleproper").text
+      if (t.trim.isEmpty) "MISSING TITLE" else t
+    }
 
     val id = (source \ "eadheader" \ "eadid" \ "@identifier").text
 
