@@ -126,7 +126,7 @@ class FullView(implicit val bindingModule: BindingModule) extends DelvingControl
 
                 renderedRecord.fold(
                   error => Left(error),
-                  success => Right(("Search/object.html", Seq('fullView -> renderedRecord.right.get.toViewTree)))
+                  success => Right(("Search/fullView.html", Seq('fullView -> renderedRecord.right.get.toViewTree)))
                 )
 
               case _ =>
