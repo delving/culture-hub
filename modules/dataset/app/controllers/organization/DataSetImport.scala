@@ -87,6 +87,7 @@ object DataSetImport extends OrganizationController {
                     name = factsMap("name"),
                     facts = new BasicDBObject(factsMap.asJava)
                   ),
+                  invalidRecords = formats.map(f => (f._1, List.empty)),
                   mappings = formats.map(f => (f._1, Mapping(schemaPrefix = f._1, schemaVersion = f._2))),
                   formatAccessControl = formats.map(f => (f._1 -> FormatAccessControl(accessType = "public")))
                 )
@@ -110,13 +111,17 @@ object DataSetImport extends OrganizationController {
                 t.createNewFile()
                 val temp = TemporaryFile(t) // auto-cleanup on GC
                 FileUtils.copyInputStreamToFile(file._2, t)
-                log.info("Temporary extracted file at " + t.getAbsolutePath)
+                val mimeType = {
+                  val m = MimeTypes.forFileName(cleanName).getOrElse("unknown/unknown")
+                  if (m == "application/x-compressed") "application/x-gzip" else m
+                }
+                log.info(s"Temporary extracted file at ${t.getAbsolutePath} with mimeType $mimeType")
                 (
                   file._1,
                   WS.url(s"http://delving.localhost:9000/api/sip-creator/submit/${configuration.orgId}/$spec/$cleanName")
                   .withQueryString("userName" -> user)
                   .withHeaders(
-                    "Content-Type" -> MimeTypes.forFileName(cleanName).getOrElse("unknown/unknown")
+                    "Content-Type" -> mimeType
                   )
                   .post(t).map(r => r.body))
               }.toMap
