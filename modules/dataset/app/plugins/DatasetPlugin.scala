@@ -92,6 +92,10 @@ class DataSetPlugin(app: Application) extends CultureHubPlugin(app) {
       (pathArgs: List[String], queryString: Map[String, String]) =>
         controllers.organization.DataSetControl.dataSetSubmit(pathArgs(0))
     },
+    ("POST", """^/organizations/([A-Za-z0-9-]+)/dataset/import""".r) -> {
+      (pathArgs: List[String], queryString: Map[String, String]) =>
+        controllers.organization.DataSetImport.importSIP(queryString.get("userName"))
+    },
     ("GET", """^/organizations/([A-Za-z0-9-]+)/dataset/([A-Za-z0-9-]+)""".r) -> {
       (pathArgs: List[String], queryString: Map[String, String]) =>
         controllers.organization.DataSets.dataSet(pathArgs(0), pathArgs(1))
