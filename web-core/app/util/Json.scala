@@ -15,10 +15,11 @@ object Json {
    *
    * @param xml the input xml document
    * @param escapeNamespaces escapes XML namespace declarations
+   * @param removeNamespacePrefix removes the XML namespace prefix
    * @param sequences paths of objects that should only contain arrays
    * @return a string formatted as JSON
    */
-  def toJson(xml: NodeSeq, escapeNamespaces: Boolean = false, sequences: Seq[List[String]] = List.empty): JValue = {
+  def toJson(xml: NodeSeq, escapeNamespaces: Boolean = false, removeNamespacePrefix: Boolean = false, sequences: Seq[List[String]] = List.empty): JValue = {
 
     // because lift-json doesn't group XML nodes that have the same name under an array if there's more than one potential group, we do it ourselves here
     // NOTE: lift-json is flattening leaf elements, i.e. considering
@@ -42,9 +43,10 @@ object Json {
     }
 
     // escape the namespace prefixes so that the JSON values can be easily accessed
-    val js = if (escapeNamespaces) {
+    val js = if (escapeNamespaces || removeNamespacePrefix) {
       mutated.transform {
-        case JField(name, v) if (name.contains(":")) => JField(name.replaceAll(":", "_"), v)
+        case JField(name, v) if escapeNamespaces && !removeNamespacePrefix && name.contains(":") => JField(name.replaceAll(":", "_"), v)
+        case JField(name, v) if removeNamespacePrefix && name.contains(":") => JField(name.substring(name.indexOf(":") + 1), v)
       }
     } else {
       mutated
@@ -54,7 +56,7 @@ object Json {
   }
 
   def renderToJson(xml: NodeSeq, escapeNamespaces: Boolean = false, sequences: Seq[List[String]] = List.empty): String = {
-    compact(render(toJson(xml, escapeNamespaces, sequences)))
+    compact(render(toJson(xml, escapeNamespaces, sequences = sequences)))
 
   }
 

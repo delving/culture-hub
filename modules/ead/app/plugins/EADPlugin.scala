@@ -2,7 +2,7 @@ package plugins
 
 import play.api.Application
 import core.CultureHubPlugin
-import services.EADIndexingAnalysisService
+import services.{ EADFullViewService, EADIndexingAnalysisService }
 
 /**
  *
@@ -13,6 +13,7 @@ class EADPlugin(app: Application) extends CultureHubPlugin(app) {
   val pluginKey: String = "ead"
 
   override def services: Seq[Any] = Seq(
-    new EADIndexingAnalysisService
+    new EADIndexingAnalysisService,
+    new EADFullViewService
   )
 }

@@ -41,7 +41,7 @@ object Prototype extends DelvingController {
   @ApiOperation(value = "Sample view")
   def sampleView(hubId: Option[String]) = Root {
     Action {
-      implicit request => Ok(Template('id -> hubId))
+      implicit request => Ok(Template("ead/EAD/view.html", 'id -> hubId))
     }
   }
 
@@ -110,7 +110,7 @@ object Prototype extends DelvingController {
         sourceDocument map { src =>
           {
             val processed = preProcess(src)
-            val json = util.Json.toJson(processed)
+            val json = util.Json.toJson(processed, removeNamespacePrefix = true)
             val transformed = transformTree(json, path, !limited, transformer, renderAsArray, skipRoot)
             transformed map { t =>
               Ok(pretty(net.liftweb.json.render(t))).as(JSON)
