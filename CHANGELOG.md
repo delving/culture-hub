@@ -2,6 +2,12 @@
 
 This is the changelog of the CultureHub. It documents changes of the main platform, without modules.
 
+# 13.04.1
+
+## Hotfixes
+
+- re-enabling the simple-document-upload plugin, that got disabled due to a merge issue
+
 # 13.04
 
 ## New features
