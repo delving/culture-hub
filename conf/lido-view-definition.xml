@@ -6,15 +6,41 @@
 
             <column proportion="1of3">
                 <!-- DIGITAL OBJECT REPRESENTATION -->
-                <container id="object-media">
+                <container id="object-media" class="lido-object">
                     <container id="image-viewer">
-                        <list path="/lido:lido/lido:administrativeMetadata/lido:resourceWrap/lido:resourceSet/lido:resourceRepresentation/@lido:type">
-                            <container if=".='image_preview'">
-                                <field path="."/>
-                            </container>
+                        <!-- FIRST CHECK FOR DELVING:IMAGEURL -->
+                        <container if="/lido:lido/delving:imageUrl">
+                            <image path="/lido:lido/delving:imageUrl"/>
+                        </container>
+                    </container>
+
+                    <container id="context-link" if="/lido:lido/delving:landingPage" class="pull-right">
+                        <link textValue="search.ViewInOriginalContext" urlExpr="/lido:lido/delving:landingPage" type="external"/>
+                    </container>
+
+                    <container id="zoom-viewer" if="/lido:lido/delving:deepZoomUrl">
+                        <link textValue="zoom" urlExpr="/lido:lido/delving:deepZoomUrl" type="zoom"/>
+                    </container>
+
+                    <container id="deepZoomUrls" if="/lido:lido/delving:deepZoomUrl">
+                        <list path="/lido:lido/delving:deepZoomUrl">
+                            <link urlExpr="." textValue="zoom-url"/>
                         </list>
                     </container>
+
+                    <container  if="/lido:lido/delving:imageUrl" id="imageUrls">
+                        <list path="/lido:lido/delving:imageUrl">
+                            <link urlExpr="." textValue="image-url"/>
+                        </list>
+                    </container>
+
+                    <container class="lido-delving">
+                        <field path="/lido:lido/delving:title" label="delving.title" />
+                        <field path="/lido:lido/delving:creator" label="delving.creator" />
+                    </container>
+
                 </container>
+
             </column>
 
             <column proportion="1of3">
@@ -82,7 +108,8 @@
                         </container>
 
                         <!-- TODO: get labelExpr to work on a container -->
-                        <container labelExpr="lido:subject/@lido:type" class="aff-child" type="definition-list">
+                        <!--<container labelExpr="lido:subject/@lido:type" class="aff-child" type="definition-list">-->
+                        <container class="aff-child" type="definition-list">
                             <field labelExpr="lido:subject/@lido:type" path="lido:subject/lido:subjectConcept/lido:term"/>
                             <field labelExpr="lido:subject/@lido:type" path="lido:subject/lido:subjectPlace/lido:displayPlace"/>
                             <list path="lido:subject/lido:subjectPlace/lido:place/lido:namePlaceSet">
@@ -96,9 +123,10 @@
                 </container>
 
                 <container label="lido:administrativeMetadata/lido:rightsWorkWrap" class="aff-parent">
-                    <container labelExpr="lido:lido/lido:administrativeMetadata/lido:rightsWorkWrap/lido:rightsWorkSet/lido:rightsType/lido:conceptID/@lido:type" class="aff-child" label="rights" type="definition-list">
+                    <container class="aff-child" type="definition-list">
                         <link textExpr="/lido:lido/lido:administrativeMetadata/lido:rightsWorkWrap/lido:rightsWorkSet/lido:rightsType/lido:conceptID"
-                          urlExpr="/lido:lido/lido:administrativeMetadata/lido:rightsWorkWrap/lido:rightsWorkSet/lido:rightsType/lido:conceptID/@lido:source"/>
+                          urlExpr="/lido:lido/lido:administrativeMetadata/lido:rightsWorkWrap/lido:rightsWorkSet/lido:rightsType/lido:conceptID/@lido:source"
+                          labelExpr="lido:lido/lido:administrativeMetadata/lido:rightsWorkWrap/lido:rightsWorkSet/lido:rightsType/lido:conceptID/@lido:type"/>
                         <field path="/lido:lido/lido:administrativeMetadata/lido:rightsWorkWrap/lido:rightsWorkSet/lido:rightsHolder/lido:legalBodyName/lido:appellationValue" label="lido:rightsHolder/lido:legalBodyName"/>
                         <field path="/lido:lido/lido:administrativeMetadata/lido:rightsWorkWrap/lido:rightsWorkSet/lido:rightsHolder/lido:legalBodyWeblink" label="lido:rightsHolder/lido:legalBodyWeblink"/>
                     </container>
