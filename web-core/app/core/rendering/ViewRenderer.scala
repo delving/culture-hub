@@ -38,6 +38,7 @@ import util.XPathWorking
  * - the tree walking and building methods should be encapsulated in their own TreeWalker class which gets initialized with an empty stack
  * - since there is a number of common attributes shared amongst elements (especially in the ViewRendering DSL), those elements
  *   should be resolved upfront and inherited by all special cases. so a more generic way of declaring elements or their results needs to be put into place
+ * - optimize XPath rendering, now we call the whole document factory chain on each call, which is suboptimal
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
@@ -399,7 +400,7 @@ class ViewRenderer(val schema: String, viewType: ViewType, configuration: Organi
           log.trace("Node " + n)
           walk(n, dataNode)
       }
-      pop
+      pop()
     }
 
     /** enters a view definition node, but without appending a new node on the the current tree **/
@@ -428,7 +429,7 @@ class ViewRenderer(val schema: String, viewType: ViewType, configuration: Organi
       treeStack.head += newNode
       push(newNode)
       block(newNode)
-      pop
+      pop()
     }
 
     /** simply appends a node to the current tree head **/
