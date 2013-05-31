@@ -73,6 +73,7 @@
                 </container>
             </column>
             <column proportion="1of3">
+
                 <container label="lido:objectRelationWrap/lido:subjectWrap/lido:subjectSet" class="aff-parent">
                     <!--<list path="/lido:lido/lido:descriptiveMetadata/lido:objectRelationWrap/lido:subjectWrap/lido:subjectSet/lido:subject/lido:subjectConcept/lido:term">-->
                     <list path="/lido:lido/lido:descriptiveMetadata/lido:objectRelationWrap/lido:subjectWrap/lido:subjectSet">

@@ -292,7 +292,7 @@ class ViewRenderer(val schema: String, viewType: ViewType, configuration: Organi
               case "column" => enterAndAppendOne(n, dataNode, "column", true, 'proportion -> n.attr("proportion"))
               case "container" => withAccessControl(roleList) {
                 role =>
-                  enterAndAppendOne(n, dataNode, "container", true, 'id -> n.attr("id"), 'class -> n.attr("class"), 'title -> n.attr("title"), 'label -> n.attr("label"), 'type -> n.attr("type"), 'role -> role.map(_.getDescription(lang)).getOrElse(""))
+                  enterAndAppendOne(n, dataNode, "container", true, 'id -> n.attr("id"), 'class -> n.attr("class"), 'title -> n.attr("title"), 'label -> label, 'type -> n.attr("type"), 'role -> role.map(_.getDescription(lang)).getOrElse(""))
               }
               case "image" => withAccessControl(roleList) {
                 role =>
