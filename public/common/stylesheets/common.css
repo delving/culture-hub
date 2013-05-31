@@ -4509,12 +4509,14 @@ a.badge:hover {
 .navbar .divider-vertical {
   background-color: transparent;
   height: 44px;
-  margin: 0 9px;
   border-left: none;
   border-right: none;
 }
 .navbar .nav > li > a {
+  text-align: center;
   text-shadow: none;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
 }
 .navbar-form .input-append .btn {
   margin-top: 0px;
@@ -4736,6 +4738,30 @@ select[name=searchIn] {
 }
 #object-media #rightsUrl img {
   margin-left: 8px;
+}
+#object-media.lido-object {
+  background: #ffffff;
+  border: 1px solid #999999;
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  border-radius: 4px;
+}
+#object-media.lido-object #image-viewer {
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  border-radius: 4px;
+}
+#object-media.lido-object .img {
+  height: auto;
+}
+#object-media.lido-object #context-link p {
+  padding: 10.5px 21px;
+  margin: 0;
+}
+#object-media .lido-delving {
+  clear: both;
+  display: block;
+  padding: 0 21px;
 }
 #object #thumbnails ul {
   margin: 0;
@@ -5110,6 +5136,29 @@ div.token-input-dropdown ul li.token-input-selected-dropdown-item {
     margin-right: 5px;
     width: 100%;
   }
+}
+/*---------------------------------
+    Hierarchical metadata 
+    parent/child syles
+-----------------------------------*/
+.aff-parent h5 {
+  font-size: 18px;
+  color: blue;
+}
+.aff-child {
+  margin-left: 20px;
+}
+.aff-child h5 {
+  font-size: 14px;
+  margin-bottom: 4px;
+  color: green;
+}
+.aff-child dl {
+  margin: 0 0 4px 0;
+}
+.aff-child dt {
+  font-weight: bold !important;
+  color: #ff4500;
 }
 .pull-right {
   float: right;
