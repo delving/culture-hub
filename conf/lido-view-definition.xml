@@ -14,6 +14,10 @@
                         </container>
                     </container>
 
+                    <container id="map">
+                        <map coordinates="//lido:appellationValue" />
+                    </container>
+
                     <container id="context-link" if="/lido:lido/delving:landingPage" class="pull-right">
                         <link textValue="search.ViewInOriginalContext" urlExpr="/lido:lido/delving:landingPage" type="external"/>
                     </container>
