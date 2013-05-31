@@ -349,6 +349,31 @@ class ViewRenderer(val schema: String, viewType: ViewType, configuration: Organi
 
                 appendSimple("link", 'url -> url, 'text -> text, 'label -> label, 'type -> n.attr("type")) { node => }
 
+              case "map" =>
+                val coordinates = fetchPaths(dataNode, n.attr("coordinates").split(",").map(_.trim).toList, namespaces)
+                val srsName = n.attr("srsName") // srsName, from GML - see http://en.wikipedia.org/wiki/Geography_Markup_Language#Coordinate_Reference_System
+
+                // temporary hack for LIDO demo, we don't have proper coordinates available yet
+                // Torsåker socken [63.05834,17.54562] [id:http://api.geonames.org/get?geonameId= 8127860&amp;style=full&amp;username=zoomzky]
+                // in fact we should find another way to pass the geo-markers to the view
+                val latLonExtractor = "\\[(.*?)\\]".r
+
+                val nameLonLatFormatted: String = coordinates.flatMap { c =>
+                  val m = latLonExtractor.findAllMatchIn(c)
+                  val nameLatLong = m.toSeq.headOption.map { m =>
+                    if (m.groupCount > 0) {
+                      (c.substring(0, m.start - 1).trim, m.group(0).trim)
+                    } else ("", "")
+                  }
+                  nameLatLong map { l =>
+                    val name = l._1
+                    val coord = l._2.drop(1).dropRight(1).split(",")
+                    s"$name,${coord(1)},${coord(0)}"
+                  }
+                }.mkString("|")
+
+                append("map", Some(nameLonLatFormatted)) { node => }
+
               case u @ _ => throw new RuntimeException("Unknown element '%s'".format(u))
 
             }
