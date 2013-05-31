@@ -4754,7 +4754,8 @@ select[name=searchIn] {
 #object-media.lido-object .img {
   height: auto;
 }
-#object-media.lido-object #context-link p {
+#object-media.lido-object #context-link p,
+#object-media.lido-object #resource-link p {
   padding: 10.5px 21px;
   margin: 0;
 }

@@ -18,6 +18,10 @@
                         <link textValue="search.ViewInOriginalContext" urlExpr="/lido:lido/delving:landingPage" type="external"/>
                     </container>
 
+                    <container id="resource-link" if="/lido:lido/delving:fullTextObjectUrl" class="pull-left">
+                          <link urlExpr="/lido:lido/delving:fullTextObjectUrl" textValue="view.full.text"/>
+                    </container>
+
                     <container id="zoom-viewer" if="/lido:lido/delving:deepZoomUrl">
                         <link textValue="zoom" urlExpr="/lido:lido/delving:deepZoomUrl" type="zoom"/>
                     </container>
@@ -37,6 +41,13 @@
                     <container class="lido-delving">
                         <field path="/lido:lido/delving:title" label="delving.title" />
                         <field path="/lido:lido/delving:creator" label="delving.creator" />
+                        <container if="/lido:lido/delving:description">
+                            <field path="/lido:lido/delving:description" label="delving.description" />
+                        </container>
+                        <container ifNot="/lido:lido/delving:description">
+                            <enumeration path="/lido:lido/lido:descriptiveMetadata/lido:objectIdentificationWrap/lido:objectDescriptionWrap/lido:objectDescriptionSet/lido:descriptiveNoteValue"
+                                     label="description" separator=" "/>
+                        </container>
                     </container>
 
                 </container>
