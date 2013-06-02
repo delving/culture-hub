@@ -14,10 +14,6 @@
                         </container>
                     </container>
 
-                    <container id="map">
-                        <map coordinates="//lido:appellationValue" />
-                    </container>
-
                     <container id="context-link" if="/lido:lido/delving:landingPage" class="pull-right">
                         <link textValue="search.ViewInOriginalContext" urlExpr="/lido:lido/delving:landingPage" type="external"/>
                     </container>
@@ -42,6 +38,7 @@
                         </list>
                     </container>
 
+                    <!-- The Basics -->
                     <container class="lido-delving">
                         <field path="/lido:lido/delving:title" label="delving.title" />
                         <field path="/lido:lido/delving:creator" label="delving.creator" />
@@ -51,6 +48,9 @@
                         <container ifNot="/lido:lido/delving:description">
                             <enumeration path="/lido:lido/lido:descriptiveMetadata/lido:objectIdentificationWrap/lido:objectDescriptionWrap/lido:objectDescriptionSet/lido:descriptiveNoteValue"
                                      label="description" separator=" "/>
+                        </container>
+                        <container id="map" if="//lido:appellationValue">
+                            <map coordinates="//lido:appellationValue" />
                         </container>
                     </container>
 

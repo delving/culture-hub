@@ -139,8 +139,7 @@ switch (_view.nodeType) {
     break
 
     case "map": if (_view.text()){ }%
-        <style>img { max-width: none; }</style>
-        <div id="mapdiv" style="height: 300px; "></div>
+        <div id="mapdiv"></div>
         <script type="text/javascript">
         var map = new OpenLayers.Map("mapdiv");
         map.addLayer(new OpenLayers.Layer.OSM());
