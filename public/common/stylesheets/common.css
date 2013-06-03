@@ -4713,7 +4713,7 @@ select[name=searchIn] {
 }
 #object-media #image-viewer {
   background: #eeeeee;
-  margin: 21px 21px 0;
+  margin: 0;
 }
 #object-media .img {
   height: 300px;
