@@ -14,9 +14,9 @@ object Build extends sbt.Build {
   val schemaRepo = SettingKey[String]("schema-repo", "Version of the Schema Repository")
 
   val cultureHubVersion = "13.05-SNAPSHOT"
-  val sipAppVersion = "1.1.4"
-  val sipCoreVersion = "1.1.4"
-  val schemaRepoVersion = "1.1.4"
+  val sipAppVersion = "1.1.5"
+  val sipCoreVersion = "1.1.5"
+  val schemaRepoVersion = "1.1.5"
   val playExtensionsVersion = "1.4-SNAPSHOT"
 
   val buildScalaVersion = "2.10.1"
@@ -98,7 +98,7 @@ object Build extends sbt.Build {
 
   // ~~~ dynamic modules, to avoid hard-coded definitions
 
-  val excludes = Seq("cms", "search", "dataset", "dos")
+  val excludes = Seq("cms", "search", "dataset", "simple-document-upload", "dos")
 
   def discoverModules(base: File, dir: String): Seq[Project] = {
     val dirs: Seq[sbt.File] = if((base / dir).listFiles != null) (base / dir).listFiles else Seq.empty[sbt.File]
