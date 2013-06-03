@@ -5148,20 +5148,24 @@ div.token-input-dropdown ul li.token-input-selected-dropdown-item {
   font-size: 18px;
   color: blue;
 }
-.aff-child {
+.aff-parent .aff-child {
   margin-left: 20px;
 }
-.aff-child h5 {
+.aff-parent .aff-child h5 {
   font-size: 14px;
   margin-bottom: 4px;
   color: green;
 }
-.aff-child dl {
+.aff-parent .aff-child dl {
   margin: 0 0 4px 0;
 }
-.aff-child dt {
+.aff-parent .aff-child dt {
   font-weight: bold !important;
   color: #ff4500;
+}
+.aff-parent .aff-parent h5 {
+  font-size: 14px;
+  color: orange;
 }
 .object-main #map img {
   max-width: none;
