@@ -28,7 +28,7 @@
             <row>
                 <column proportion="1of3">
                     <field label="metadata.dc.title" path="/abm:record/dc:title" />
-                    <field label="metadata.dc.date" path="/abm:record/dc:date" />
+                    <!--<field label="metadata.dc.date" path="/abm:record/dc:date" />-->
                     <field label="metadata.dc.creator" path="/abm:record/dc:creator"/>
                     <field label="metadata.dc.date" path="/abm:record/dc:date"/>
                     <field label="metadata.dcterms.date" path="/abm:record/dcterms:created"/>

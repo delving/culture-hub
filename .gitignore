@@ -42,3 +42,6 @@ test-logger.xml
 
 .idea
 .idea_modules
+.settings
+.project
+.classpath
