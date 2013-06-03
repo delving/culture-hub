@@ -1,0 +1,178 @@
+<?xml version ="1.0" encoding="UTF-8"?>
+
+<views>
+    <view name="html">
+        <row>
+
+            <column proportion="1of3">
+                <!-- DIGITAL OBJECT REPRESENTATION -->
+                <container id="object-media" class="lido-object">
+                    <container id="image-viewer">
+                        <!-- FIRST CHECK FOR DELVING:IMAGEURL -->
+                        <container if="/lido:lido/delving:imageUrl">
+                            <image path="/lido:lido/delving:imageUrl"/>
+                        </container>
+                    </container>
+
+                    <container id="context-link" if="/lido:lido/delving:landingPage" class="pull-right">
+                        <link textValue="search.ViewInOriginalContext" urlExpr="/lido:lido/delving:landingPage" type="external"/>
+                    </container>
+
+                    <container id="resource-link" if="/lido:lido/delving:fullTextObjectUrl" class="pull-left">
+                          <link urlExpr="/lido:lido/delving:fullTextObjectUrl" textValue="metadata.delving.fullTextObjectUrl"/>
+                    </container>
+
+                    <container id="zoom-viewer" if="/lido:lido/delving:deepZoomUrl">
+                        <link textValue="zoom" urlExpr="/lido:lido/delving:deepZoomUrl" type="zoom"/>
+                    </container>
+
+                    <container id="deepZoomUrls" if="/lido:lido/delving:deepZoomUrl">
+                        <list path="/lido:lido/delving:deepZoomUrl">
+                            <link urlExpr="." textValue="zoom-url"/>
+                        </list>
+                    </container>
+
+                    <container  if="/lido:lido/delving:imageUrl" id="imageUrls">
+                        <list path="/lido:lido/delving:imageUrl">
+                            <link urlExpr="." textValue="image-url"/>
+                        </list>
+                    </container>
+
+                    <!-- The Basics -->
+                    <container class="lido-delving">
+                        <field path="/lido:lido/delving:title" label="metadata.delving.title" />
+                        <field path="/lido:lido/delving:provider" label="metadata.delving.provider" />
+                        <container if="/lido:lido/delving:description">
+                            <field path="/lido:lido/delving:description" label="metadata.delving.description" />
+                        </container>
+                        <container ifNot="/lido:lido/delving:description">
+                            <enumeration path="/lido:lido/lido:descriptiveMetadata/lido:objectIdentificationWrap/lido:objectDescriptionWrap/lido:objectDescriptionSet/lido:descriptiveNoteValue"
+                                     label="description" separator=" "/>
+                        </container>
+                        <container id="map" if="//lido:appellationValue">
+                            <!-- TODO this is a temporary path and needs to be fixed to go fetch the GML coordinates once these are correctly mapped -->
+                            <map coordinates="//lido:appellationValue" />
+                        </container>
+                    </container>
+
+                </container>
+
+            </column>
+
+            <column proportion="1of3">
+                <field path="/lido:lido/lido:lidoRecID/@lido:source" label="metadata.lido.lidoRecId.source"/>
+                <field path="/lido:lido/lido:lidoRecID" label="metadata.lido.lidoRecId"/>
+
+                <container label="metadata.lido.category" class="aff-parent">
+                    <container class="aff-child" type="definition-list">
+                        <link urlExpr="/lido:lido/lido:category/lido:conceptID" textExpr="/lido:lido/lido:category/lido:term" label="metadata.lido.conceptID"/>
+                    </container>
+                </container>
+
+                <container label="metadata.lido.objectClassificationWrap" class="aff-parent">
+                    <container class="aff-child" type="definition-list">
+                        <list path="/lido:lido/lido:descriptiveMetadata/lido:objectClassificationWrap/lido:objectWorkTypeWrap/lido:objectWorkType/lido:term">
+                            <field path="." labelExpr="./@xml:lang"/>
+                        </list>
+                        <list path="/lido:lido/lido:descriptiveMetadata/lido:objectClassificationWrap/lido:classificationWrap/lido:classification">
+                            <field path="./lido:term" labelExpr="./@lido:type"/>
+                        </list>
+                    </container>
+               </container>
+
+                <container label="metadata.lido.objectIdentificationWrap" class="aff-parent">
+                    <container class="aff-child"  type="definition-list">
+                        <field path="/lido:lido/lido:descriptiveMetadata/lido:objectIdentificationWrap/lido:titleWrap/lido:titleSet/lido:appellationValue" label="metadata.lido.titleSet"/>
+                        <field path="/lido:lido/lido:descriptiveMetadata/lido:objectIdentificationWrap/lido:repositoryWrap/lido:repositorySet/lido:repositoryName/lido:legalBodyName/lido:appellationValue" label="metadata.lido.legalBodyName"/>
+                        <link urlExpr="/lido:lido/lido:descriptiveMetadata/lido:objectIdentificationWrap/lido:repositoryWrap/lido:repositorySet/lido:repositoryName/lido:legalBodyWeblink"
+                              textExpr="/lido:lido/lido:descriptiveMetadata/lido:objectIdentificationWrap/lido:repositoryWrap/lido:repositorySet/lido:repositoryName/lido:legalBodyWeblink"
+                              label="metadata.lido.legalBodyWeblink"/>
+                        <field path="/lido:lido/lido:descriptiveMetadata/lido:objectIdentificationWrap/lido:repositoryWrap/lido:repositorySet/lido:workID" label="metadata.lido.workID"/>
+                   </container>
+
+                </container>
+
+                <container label="metadata.lido.eventWrap" class="aff-parent">
+                    <list path="/lido:lido/lido:descriptiveMetadata/lido:eventWrap/lido:eventSet">
+                        <container class="aff-child" type="definition-list" labelExpr="lido:event/lido:eventType/lido:term">
+                            <container class="aff-parent" label="metadata.lido.event.eventActor">
+                                <list path="lido:event/lido:eventActor">
+                                    <container class="aff-child" labelExpr="lido:displayActorInRole">
+                                        <container type="definition-list-horizontal">
+                                        <field path="lido:actorInRole/lido:actor/@lido:type" label="metadata.lido.type"/>
+                                        <enumeration path="lido:actorInRole/lido:roleActor/lido:term" separator=" | " label="metadata.lido.actor.roleActor"/>
+                                        <field path="lido:actorInRole/lido:actor/lido:nationalityActor/lido:term" label="metadata.lido.actor.nationalityActor.term"/>
+                                        <field path="lido:actorInRole/lido:actor/lido:vitalDatesActor/lido:earliestDate" label="metadata.lido.earliestDate"/>
+                                        <field path="lido:actorInRole/lido:actor/lido:vitalDatesActor/lido:latestDate" label="metadata.lido.latestDate"/>
+                                        <field path="lido:actorInRole/lido:actor/lido:genderActor" label="metadata.lido.actor.genderActor"/>
+                                        </container>
+                                    </container>
+                                </list>
+                            </container>
+                            <field path="lido:event/lido:eventDate/lido:displayDate" label="metadata.lido.displayDate"/>
+                            <field path="lido:event/lido:eventDate/lido:date/lido:earliestDate" label="metadata.lido.earliestDate"/>
+                            <field path="lido:event/lido:eventDate/lido:date/lido:latestDate" label="metadata.lido.latestDate"/>
+                        </container>
+                    </list>
+                </container>
+            </column>
+            <column proportion="1of3">
+
+                <container label="metadata.lido.objectRelationWrap.subjectWrap" class="aff-parent">
+                    <!--<list path="/lido:lido/lido:descriptiveMetadata/lido:objectRelationWrap/lido:subjectWrap/lido:subjectSet/lido:subject/lido:subjectConcept/lido:term">-->
+                    <list path="/lido:lido/lido:descriptiveMetadata/lido:objectRelationWrap/lido:subjectWrap/lido:subjectSet">
+                        <container class="aff-child" labelExpr="lido:subject/@lido:type" type="definition-list">
+                            <field path="lido:displaySubject" label="metadata.lido.displaySubject"/>
+                            <field label="metadata.lido.subject.subjectConcept.term" path="lido:subject/lido:subjectConcept/lido:term"/>
+                            <field labelExpr="lido:subject/@lido:type" path="lido:subject/lido:subjectPlace/lido:displayPlace"/>
+                            <list path="lido:subject/lido:subjectPlace/lido:place/lido:namePlaceSet">
+                               <field path="lido:appellationValue" label="metadata.lido.displayPlace"/>
+                            </list>
+                        </container>
+
+
+                    </list>
+                </container>
+
+                <container label="metadata.lido.administrativeMetadata.rightsWorkWrap" class="aff-parent">
+                    <container class="aff-child" type="definition-list">
+                        <link textExpr="/lido:lido/lido:administrativeMetadata/lido:rightsWorkWrap/lido:rightsWorkSet/lido:rightsType/lido:conceptID"
+                          urlExpr="/lido:lido/lido:administrativeMetadata/lido:rightsWorkWrap/lido:rightsWorkSet/lido:rightsType/lido:conceptID/@lido:source"
+                          labelExpr="lido:lido/lido:administrativeMetadata/lido:rightsWorkWrap/lido:rightsWorkSet/lido:rightsType/lido:conceptID/@lido:type"/>
+                        <field path="/lido:lido/lido:administrativeMetadata/lido:rightsWorkWrap/lido:rightsWorkSet/lido:rightsHolder/lido:legalBodyName/lido:appellationValue" label="metadata.lido.legalBodyName"/>
+                        <link urlExpr="/lido:lido/lido:administrativeMetadata/lido:rightsWorkWrap/lido:rightsWorkSet/lido:rightsHolder/lido:legalBodyWeblink"
+                              textExpr="/lido:lido/lido:administrativeMetadata/lido:rightsWorkWrap/lido:rightsWorkSet/lido:rightsHolder/lido:legalBodyWeblink"
+                              label="metadata.lido.legalBodyWeblink"/>
+                    </container>
+                </container>
+
+                <container class="aff-parent" label="metadata.lido.administrativeMetadata.recordWrap">
+                    <container class="aff-child" type="definition-list">
+                        <field path="/lido:lido/lido:administrativeMetadata/lido:recordWrap/lido:recordID" label="metadata.lido.administrativeMetadata.recordWrap.recordID"/>
+                        <field path="/lido:lido/lido:administrativeMetadata/lido:recordWrap/lido:recordType/lido:term" label="metadata.lido.recordType"/>
+                        <field path="/lido:lido/lido:administrativeMetadata/lido:recordWrap/lido:recordSource/lido:legalBodyName/lido:appellationValue" label="metadata.lido.legalBodyName"/>
+                        <link urlExpr="/lido:lido/lido:administrativeMetadata/lido:recordWrap/lido:recordSource/lido:legalBodyWeblink"
+                              textExpr="/lido:lido/lido:administrativeMetadata/lido:recordWrap/lido:recordSource/lido:legalBodyWeblink"
+                              label="metadata.lido.legalBodyWeblink"/>
+                        <field path="/lido:lido/lido:administrativeMetadata/lido:recordWrap/lido:recordRights/lido:rightsType/lido:conceptID" label="metadata.lido.rightsType"/>
+                        <field path="/lido:lido/lido:administrativeMetadata/lido:recordWrap/lido:recordInfoSet/lido:recordInfoID" label="metadata.lido.recordInfoID"/>
+                        <field path="/lido:lido/lido:administrativeMetadata/lido:recordWrap/lido:recordInfoSet/lido:recordInfoLink" label="metadata.lido.recordInfoLink"/>
+                    </container>
+                </container>
+
+                <container class="aff-parent" label="metadata.lido.administrativeMetadata.resourceWrap">
+                    <container class="aff-child" type="definition-list">
+                        <list path="/lido:lido/lido:administrativeMetadata/lido:resourceWrap/lido:resourceSet/lido:resourceRepresentation">
+                            <field path="lido:linkResource" labelExpr="@lido:type"/>
+                        </list>
+                        <field path="/lido:lido/lido:administrativeMetadata/lido:resourceWrap/lido:resourceSet/lido:resourceType/lido:term" label="metadata.lido.resourceType"/>
+                    </container>
+                </container>
+
+            </column>
+        </row>
+    </view>
+    <view name="api">
+        <verbatim/>
+    </view>
+</views>

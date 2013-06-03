@@ -38,6 +38,7 @@ import util.XPathWorking
  * - the tree walking and building methods should be encapsulated in their own TreeWalker class which gets initialized with an empty stack
  * - since there is a number of common attributes shared amongst elements (especially in the ViewRendering DSL), those elements
  *   should be resolved upfront and inherited by all special cases. so a more generic way of declaring elements or their results needs to be put into place
+ * - optimize XPath rendering, now we call the whole document factory chain on each call, which is suboptimal
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
@@ -292,7 +293,7 @@ class ViewRenderer(val schema: String, viewType: ViewType, configuration: Organi
               case "column" => enterAndAppendOne(n, dataNode, "column", true, 'proportion -> n.attr("proportion"))
               case "container" => withAccessControl(roleList) {
                 role =>
-                  enterAndAppendOne(n, dataNode, "container", true, 'id -> n.attr("id"), 'class -> n.attr("class"), 'title -> n.attr("title"), 'label -> n.attr("label"), 'type -> n.attr("type"), 'role -> role.map(_.getDescription(lang)).getOrElse(""))
+                  enterAndAppendOne(n, dataNode, "container", true, 'id -> n.attr("id"), 'class -> n.attr("class"), 'title -> n.attr("title"), 'label -> label, 'type -> n.attr("type"), 'role -> role.map(_.getDescription(lang)).getOrElse(""))
               }
               case "image" => withAccessControl(roleList) {
                 role =>
@@ -337,7 +338,9 @@ class ViewRenderer(val schema: String, viewType: ViewType, configuration: Organi
                 val url: String = evaluateParamExpression(urlValue, parameters) + urlExpr.getOrElse("")
 
                 val text: String = if (n.attribute("textExpr").isDefined) {
-                  Option(XPathWorking.selectText(n.attr("textExpr"), dataNode, namespaces.asJava)).getOrElse("")
+                  val textValues = fetchPaths(dataNode, n.attr("textExpr").split(",").map(_.trim).toList, namespaces)
+                  val sep = if (n.attribute("separator").isDefined) n.attr("separator") else ", "
+                  textValues.mkString(sep)
                 } else if (n.attribute("textValue").isDefined) {
                   evaluateParamExpression(n.attr("textValue"), parameters)
                 } else {
@@ -345,6 +348,31 @@ class ViewRenderer(val schema: String, viewType: ViewType, configuration: Organi
                 }
 
                 appendSimple("link", 'url -> url, 'text -> text, 'label -> label, 'type -> n.attr("type")) { node => }
+
+              case "map" =>
+                val coordinates = fetchPaths(dataNode, n.attr("coordinates").split(",").map(_.trim).toList, namespaces)
+                val srsName = n.attr("srsName") // srsName, from GML - see http://en.wikipedia.org/wiki/Geography_Markup_Language#Coordinate_Reference_System
+
+                // temporary hack for LIDO demo, we don't have proper coordinates available yet
+                // Torsåker socken [63.05834,17.54562] [id:http://api.geonames.org/get?geonameId= 8127860&amp;style=full&amp;username=zoomzky]
+                // in fact we should find another way to pass the geo-markers to the view
+                val latLonExtractor = "\\[(.*?)\\]".r
+
+                val nameLonLatFormatted: String = coordinates.flatMap { c =>
+                  val m = latLonExtractor.findAllMatchIn(c)
+                  val nameLatLong = m.toSeq.headOption.map { m =>
+                    if (m.groupCount > 0) {
+                      (c.substring(0, m.start - 1).trim, m.group(0).trim)
+                    } else ("", "")
+                  }
+                  nameLatLong map { l =>
+                    val name = l._1
+                    val coord = l._2.drop(1).dropRight(1).split(",")
+                    s"$name,${coord(1)},${coord(0)}"
+                  }
+                }.mkString("|")
+
+                append("map", Some(nameLonLatFormatted)) { node => }
 
               case u @ _ => throw new RuntimeException("Unknown element '%s'".format(u))
 
@@ -397,7 +425,7 @@ class ViewRenderer(val schema: String, viewType: ViewType, configuration: Organi
           log.trace("Node " + n)
           walk(n, dataNode)
       }
-      pop
+      pop()
     }
 
     /** enters a view definition node, but without appending a new node on the the current tree **/
@@ -426,7 +454,7 @@ class ViewRenderer(val schema: String, viewType: ViewType, configuration: Organi
       treeStack.head += newNode
       push(newNode)
       block(newNode)
-      pop
+      pop()
     }
 
     /** simply appends a node to the current tree head **/

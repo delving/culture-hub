@@ -10,13 +10,16 @@ import org.joda.time.format.DateTimeFormat
 import org.apache.solr.client.solrj.SolrQuery
 import extensions.HTTPClient
 import java.io.InputStream
-import org.apache.commons.httpclient.methods.GetMethod
 import org.apache.tika.sax.BodyContentHandler
 import org.apache.tika.metadata.Metadata
 import org.apache.tika.parser.pdf.PDFParser
 import org.apache.tika.parser.ParseContext
 import core.IndexingService
 import search.{ SolrServer, SolrBindingService }
+import scala.concurrent.{ Await, Future }
+import play.api.libs.ws.WS
+import play.api.libs.concurrent.Execution.Implicits._
+import scala.concurrent.duration._
 
 /**
  * Indexing API
@@ -61,12 +64,15 @@ class SOLRIndexingService extends SolrServer with IndexingService {
     }
 
     // add full text from digital objects
-    val fullTextUrl = "%s_link".format(FULL_TEXT_OBJECT_URL.key)
-    if (doc.containsKey(fullTextUrl)) {
+    val fullTextUrl: Option[SolrInputField] =
+      Option((doc.get("%s_link".format(FULL_TEXT_OBJECT_URL.key))))
+
+    fullTextUrl foreach { url =>
       // we try to index this object - we don't know its type yet because the URL does not necessarily reflect the file name.
-      val digitalObjectUrl = doc.get(fullTextUrl).getFirstValue.toString
-      TikaIndexer.getFullTextFromRemoteURL(digitalObjectUrl).foreach { text =>
-        doc.addField("%s_text".format(FULL_TEXT.key), text)
+      log.debug(s"Indexing: Found a full text object for record: $url")
+      val digitalObjectUrl = doc.get(url).getFirstValue.toString
+      Await.result(TikaIndexer.getFullTextFromRemoteURL(digitalObjectUrl), 10 seconds).map { text =>
+        text.map(t => doc.addField("%s_text".format(FULL_TEXT.key), t))
       }
     }
 
@@ -209,30 +215,33 @@ object TikaIndexer extends HTTPClient {
 
   val log = Logger("CultureHub")
 
-  def getFullTextFromRemoteURL(url: String): Option[String] = {
+  def getFullTextFromRemoteURL(url: String): Future[Option[String]] = {
     try {
       log.info("Retrieving document for indexing with Tika at " + url)
-      Some(parseFullTextFromPdf(getObject(url)))
+      getObject(url).map(parseFullTextFromPdf)
     } catch {
       case t: Throwable =>
         log.error("Unable to process digital object found at " + url)
-        None
+        Future(None)
     }
   }
 
-  def getObject(url: String): InputStream = {
-    val method = new GetMethod(url)
-    getHttpClient executeMethod (method)
-    method.getResponseBodyAsStream
+  def getObject(url: String): Future[InputStream] = {
+    WS.url(url).get().map(_.getAHCResponse.getResponseBodyAsStream)
   }
 
-  def parseFullTextFromPdf(input: InputStream): String = {
+  def parseFullTextFromPdf(input: InputStream): Option[String] = {
     val textHandler = new BodyContentHandler()
     val metadata = new Metadata()
     val parser = new PDFParser()
-    parser.parse(input, textHandler, metadata, new ParseContext)
-    input.close()
-    log.debug("Found following text via Tika for indexing:\n\n" + textHandler.toString)
-    textHandler.toString
+    try {
+      parser.parse(input, textHandler, metadata, new ParseContext)
+      log.debug("Found following text via Tika for indexing:\n\n" + textHandler.toString)
+      Some(textHandler.toString)
+    } catch {
+      case t: Throwable => None
+    } finally {
+      input.close()
+    }
   }
 }
