@@ -95,15 +95,17 @@
                 <container label="metadata.lido.eventWrap" class="aff-parent">
                     <list path="/lido:lido/lido:descriptiveMetadata/lido:eventWrap/lido:eventSet">
                         <container class="aff-child" type="definition-list" labelExpr="lido:event/lido:eventType/lido:term">
-                            <container class="aff-child" label="metadata.lido.event.eventActor">
+                            <container class="aff-parent" label="metadata.lido.event.eventActor">
                                 <list path="lido:event/lido:eventActor">
                                     <container class="aff-child" labelExpr="lido:displayActorInRole">
+                                        <container type="definition-list-horizontal">
                                         <field path="lido:actorInRole/lido:actor/@lido:type" label="metadata.lido.type"/>
                                         <enumeration path="lido:actorInRole/lido:roleActor/lido:term" separator=" | " label="metadata.lido.actor.roleActor"/>
                                         <field path="lido:actorInRole/lido:actor/lido:nationalityActor/lido:term" label="metadata.lido.actor.nationalityActor.term"/>
                                         <field path="lido:actorInRole/lido:actor/lido:vitalDatesActor/lido:earliestDate" label="metadata.lido.earliestDate"/>
                                         <field path="lido:actorInRole/lido:actor/lido:vitalDatesActor/lido:latestDate" label="metadata.lido.latestDate"/>
                                         <field path="lido:actorInRole/lido:actor/lido:genderActor" label="metadata.lido.actor.genderActor"/>
+                                        </container>
                                     </container>
                                 </list>
                             </container>
