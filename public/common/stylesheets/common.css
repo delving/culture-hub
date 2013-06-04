@@ -5173,6 +5173,9 @@ div.token-input-dropdown ul li.token-input-selected-dropdown-item {
 .object-main #map #mapdiv {
   height: 300px;
 }
+.object-main #map .olControlAttribution.olControlNoSelect {
+  bottom: 0px;
+}
 .pull-right {
   float: right;
 }
