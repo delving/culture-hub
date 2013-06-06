@@ -36,7 +36,7 @@ class SipCreatorEndPointSpec extends BootstrapAwareSpec {
     "unlock a DataSet" in {
 
       import com.mongodb.casbah.Imports._
-      DataSet.dao(bootstrap.org).update(MongoDBObject("spec" -> bootstrap.spec), $set(Seq("lockedBy" -> "bob")))
+      DataSet.dao(bootstrap.org).update(MongoDBObject("spec" -> bootstrap.spec), $set("lockedBy" -> "bob"))
 
       withTestConfig {
         val result = controllers.SipCreatorEndPoint.unlock(

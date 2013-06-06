@@ -67,7 +67,7 @@ class ImageCacheService extends HTTPClient with ThumbnailSupport {
 
       val isAvailable = checkOrInsert(sanitizedUrl)
       if (isAvailable) {
-        imageCacheStore(configuration).db.getCollection("fs.files").update(MongoDBObject("filename" -> sanitizedUrl), ($inc("viewed" -> 1)) ++ $set(Seq("lastViewed" -> new Date)))
+        imageCacheStore(configuration).db.getCollection("fs.files").update(MongoDBObject("filename" -> sanitizedUrl), ($inc("viewed" -> 1)) ++ $set("lastViewed" -> new Date))
         ImageDisplay.renderImage(
           id = sanitizedUrl,
           thumbnail = thumbnail,

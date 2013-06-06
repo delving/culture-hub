@@ -377,16 +377,16 @@ class DataSetDAO(collection: MongoCollection)(implicit val configuration: Organi
   }
 
   def updateNamespaces(spec: String, namespaces: Map[String, String]) {
-    update(MongoDBObject("spec" -> spec), $set(Seq("namespaces" -> namespaces.asDBObject)))
+    update(MongoDBObject("spec" -> spec), $set("namespaces" -> namespaces.asDBObject))
   }
 
   def lock(dataSet: DataSet, userName: String) {
-    update(MongoDBObject("_id" -> dataSet._id), $set(Seq("lockedBy" -> userName)))
+    update(MongoDBObject("_id" -> dataSet._id), $set("lockedBy" -> userName))
     DataSetEvent ! DataSetEvent.Locked(dataSet.orgId, dataSet.spec, userName)
   }
 
   def unlock(dataSet: DataSet, userName: String) {
-    update(MongoDBObject("_id" -> dataSet._id), $unset(Seq("lockedBy")))
+    update(MongoDBObject("_id" -> dataSet._id), $unset("lockedBy"))
     DataSetEvent ! DataSetEvent.Unlocked(dataSet.orgId, dataSet.spec, userName)
   }
 
@@ -408,21 +408,21 @@ class DataSetDAO(collection: MongoCollection)(implicit val configuration: Organi
 
   def updateProcessingInstanceIdentifier(dataSet: DataSet, instanceIdentifier: Option[String]) {
     if (instanceIdentifier == None) {
-      update(MongoDBObject("_id" -> dataSet._id), $unset(Seq("processingInstanceIdentifier")))
+      update(MongoDBObject("_id" -> dataSet._id), $unset("processingInstanceIdentifier"))
     } else {
-      update(MongoDBObject("_id" -> dataSet._id), $set(Seq("processingInstanceIdentifier" -> instanceIdentifier.get)))
+      update(MongoDBObject("_id" -> dataSet._id), $set("processingInstanceIdentifier" -> instanceIdentifier.get))
     }
   }
 
   def updateState(dataSet: DataSet, state: DataSetState, userName: Option[String] = None, errorMessage: Option[String] = None) {
     if (errorMessage.isDefined) {
-      update(MongoDBObject("_id" -> dataSet._id), $set(Seq(
+      update(MongoDBObject("_id" -> dataSet._id), $set(
         "state.name" -> state.name, "errorMessage" -> errorMessage.get
-      )))
+      ))
       DataSetEvent ! DataSetEvent.StateChanged(dataSet.orgId, dataSet.spec, state, userName)
       DataSetEvent ! DataSetEvent.Error(dataSet.orgId, dataSet.spec, errorMessage.get, userName)
     } else {
-      update(MongoDBObject("_id" -> dataSet._id), $set(Seq("state.name" -> state.name)) ++ $unset(Seq("errorMessage")))
+      update(MongoDBObject("_id" -> dataSet._id), $set("state.name" -> state.name) ++ $unset("errorMessage"))
       DataSetEvent ! DataSetEvent.StateChanged(dataSet.orgId, dataSet.spec, state, userName)
     }
   }
@@ -432,7 +432,7 @@ class DataSetDAO(collection: MongoCollection)(implicit val configuration: Organi
   def updateIndexingControlState(dataSet: DataSet, mapping: String, facets: List[String], sortFields: List[String]) {
     update(
       MongoDBObject("_id" -> dataSet._id),
-      $addToSet("idxMappings" -> mapping) ++ $set(Seq("idxFacets" -> facets, "idxSortFields" -> sortFields))
+      $addToSet("idxMappings" -> mapping) ++ $set("idxFacets" -> facets, "idxSortFields" -> sortFields)
     )
   }
 
@@ -453,7 +453,7 @@ class DataSetDAO(collection: MongoCollection)(implicit val configuration: Organi
   }
 
   def invalidateHashes(dataSet: DataSet) {
-    update(MongoDBObject("_id" -> dataSet._id), $unset(Seq("hashes")))
+    update(MongoDBObject("_id" -> dataSet._id), $unset("hashes"))
     // TODO fire appropriate event or state change event
   }
 
