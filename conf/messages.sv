@@ -129,6 +129,7 @@ hub.Cancel=Avbryt
 hub.CancelUpload=Avbryt uppladdningen
 hub.CharactersLeft=bokstäver kvar
 hub.ChooseALanguage=Välj ett språk
+hub.Compute=Beräkna
 hub.Content=Innehåll
 hub.CouldNotAddUser=Kunde inte lägga till användaren {0} till gruppen {0}
 hub.CouldNotFindGroup=Kunde inte hitta någon grupp med id {0}
