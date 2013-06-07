@@ -3,10 +3,62 @@
 <views>
     <view name="html">
         <row>
-            <column id="general">
-                <container>
-                    <field path="/aff:record/aff:thing/aff:displayTitle" label="hubb.Title"/>
-                    <field path="/aff:record/aff:thing/aff:displayDescription" label="hubb.Description"/>
+            <column proportion="1of3">
+                <container id="admin" class="aff-parent" label="aff:admin">
+                    <container class="aff-child">
+                        <list path="/aff:record/aff:admin">
+                            <field path="aff:displayDataProvider" label="DataProvider"/>
+                            <field path="aff:displayDataProviderCountry" label="Country"/>
+
+                        </list>
+                    </container>
+                </container>
+                <container class="aff-parent" label="aff:thing">
+                    <container class="aff-child">
+                        <field path="/aff:record/aff:thing/aff:displayTitle" label="thing.title"/>
+                        <field path="/aff:record/aff:thing/aff:displayDescription" label="thing.description"/>
+                        <list path="/aff:record/aff:thing/aff:displayActor" label="thing.creator">
+                            <field path="."/>
+                        </list>
+                        <enumeration path="/aff:record/aff:thing/aff:displayActor" label="thing.creator" separator=", "/>
+                    </container>
+                </container>
+            </column>
+
+            <column id="general" proportion="1of3">
+
+                <container id="concepts" label="aff:concepts" class="aff-parent">
+                    <list path="/aff:record/aff:concepts/aff:concept">
+                         <container class="aff-child" type="definition-list-horizontal">
+                             <field ifNot="@aff:key" path="./aff:displayConcept" labelExpr="@aff:type"/>
+                             <link if="@aff:key" path="aff:displayConcept" textExpr="aff:displayConcept/@aff:conceptType, aff:displayConcept" separator=" " urlExpr="@aff:key" labelExpr="@aff:type"/>
+                         </container>
+                    </list>
+                </container>
+            </column>
+            <column proportion="1of3">
+                <container id="events" label="aff:events" class="aff-parent">
+                    <list path="/aff:record/aff:events/aff:event">
+                        <container class="aff-child" labelExpr="@aff:type" type="definition-list-horizontal">
+                            <!-- dates -->
+                            <field path="./aff:date/aff:earliestDate" label="earliestDate"/>
+                            <field path="./aff:date/aff:latestDate" label="latestDate"/>
+                            <!-- actors -->
+                            <field path="./aff:eventActor/aff:displayRoleInEvent" label="displayRoleInEvent"/>
+                            <field path="./aff:eventActor/aff:displayActor" label="displayActor"/>
+                            <field path="./aff:eventActor/aff:displayNationality" label="displayNationality"/>
+                            <list path="./aff:eventActor/aff:relatedEvent">
+                                <field path="aff:displayDate" labelExpr="@aff:type"/>
+                            </list>
+                            <!-- places -->
+                            <field path="./aff:eventPlace/aff:displayPlace" label="displayPlace"/>
+                            <field path="./aff:eventPlace/aff:displayRoleInEvent" label="displayRoleInEvent"/>
+                            <list path="./aff:eventPlace/aff:partOfPlace">
+                                <field ifNot="@aff:key" path="aff:displayPlace" labelExpr="@aff:type"/>
+                                <link if="@aff:key" path="aff:displayPlace" textExpr="aff:displayPlace" urlExpr="@aff:key" labelExpr="@aff:type"/>
+                            </list>
+                        </container>
+                    </list>
                 </container>
             </column>
         </row>

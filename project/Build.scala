@@ -13,13 +13,13 @@ object Build extends sbt.Build {
   val sipCore    = SettingKey[String]("sip-core", "Version of the SIP-Core")
   val schemaRepo = SettingKey[String]("schema-repo", "Version of the Schema Repository")
 
-  val cultureHubVersion = "13.04.1"
-  val sipAppVersion = "1.1.4"
-  val sipCoreVersion = "1.1.4"
-  val schemaRepoVersion = "1.1.4"
-  val playExtensionsVersion = "1.4-SNAPSHOT"
+  val cultureHubVersion = "13.05"
+  val sipAppVersion = "1.1.5"
+  val sipCoreVersion = "1.1.5"
+  val schemaRepoVersion = "1.1.5"
+  val playExtensionsVersion = "1.5-SNAPSHOT"
 
-  val buildScalaVersion = "2.10.0"
+  val buildScalaVersion = "2.10.1"
 
   val delvingReleases = "Delving Releases Repository" at "http://nexus.delving.org/nexus/content/repositories/releases"
   val delvingSnapshots = "Delving Snapshot Repository" at "http://nexus.delving.org/nexus/content/repositories/snapshots"
@@ -154,7 +154,7 @@ object Build extends sbt.Build {
 
     parallelExecution in (ThisBuild) := false,
 
-    testOptions in (ThisBuild) += Tests.Argument("junitxml", "console"),
+    testOptions in (ThisBuild) += Tests.Argument(TestFrameworks.Specs2, "junitxml", "console"),
 
     scalaVersion in (ThisBuild) := buildScalaVersion,
 

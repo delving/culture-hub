@@ -138,6 +138,37 @@ switch (_view.nodeType) {
     %{ }
     break
 
+    case "map": if (_view.text()){ }%
+        <div id="mapdiv"></div>
+        <script type="text/javascript">
+        var map = new OpenLayers.Map("mapdiv");
+        map.addLayer(new OpenLayers.Layer.OSM());
+
+        var lonLatCoordinates = "${_view.text()}".split("|");
+        var points = [];
+        for (var i = 0; i < lonLatCoordinates.length; i++) {
+            var nameAndPoint = lonLatCoordinates[i].split(",");
+            var ll = new OpenLayers.LonLat( (nameAndPoint[1]), (nameAndPoint[2]) )
+                          .transform(
+                            new OpenLayers.Projection("EPSG:4326"), // transform from WGS 1984
+                            map.getProjectionObject() // to Spherical Mercator Projection
+                          );
+            points[i] = ll;
+        }
+
+        var markers = new OpenLayers.Layer.Markers( "Markers" );
+        map.addLayer(markers);
+
+        for (var i = 0; i < points.length; i++) {
+            markers.addMarker(new OpenLayers.Marker(points[i]));
+        }
+
+        map.setCenter (points[0], 4);
+        </script>
+
+        %{ }
+        break
+
     case "enumeration":
 
         def separator;
