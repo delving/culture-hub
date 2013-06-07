@@ -15,6 +15,7 @@ import xml.NodeSeq
 import org.apache.commons.lang.StringEscapeUtils
 import play.api.mvc.Cookie
 import core.ExplainItem
+import com.escalatesoft.subcut.inject.{ Injectable, BindingModule }
 
 /**
  * TODO document the default renderArgs attributes available to templates
@@ -25,9 +26,10 @@ import core.ExplainItem
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-trait ApplicationController extends Controller with GroovyTemplates with ControllerBase {
+abstract class ApplicationController extends Controller with GroovyTemplates with ControllerBase with Injectable {
 
   // ~~~ i18n
+  // TODO the elaborate session gymnastics below were developed during the migration from Play 1 to Play 2 beta. Check if they still make sense.
 
   private val LANG = "lang"
 
@@ -146,7 +148,7 @@ case class RichBody[A <: AnyContent](body: A) {
 /**
  * Organization controller making sure you're an owner
  */
-trait OrganizationController extends DelvingController with Secured {
+abstract class OrganizationController extends DelvingController with Secured {
 
   def isAdmin(implicit request: RequestHeader, configuration: OrganizationConfiguration): Boolean = organizationServiceLocator.byDomain.isAdmin(configuration.orgId, connectedUser)
 
@@ -189,7 +191,7 @@ trait OrganizationController extends DelvingController with Secured {
   }
 }
 
-trait DelvingController extends ApplicationController {
+abstract class DelvingController extends ApplicationController {
 
   // TODO proper injection, now that Play supports it
   lazy val organizationServiceLocator: DomainServiceLocator[OrganizationService] = HubModule.inject[DomainServiceLocator[OrganizationService]](name = None)
@@ -349,9 +351,9 @@ trait DelvingController extends ApplicationController {
     }
   }
 
-  def isConnected(implicit request: RequestHeader) = request.session.get(Constants.USERNAME).isDefined
+  def isConnected(implicit request: RequestHeader): Boolean = request.session.get(Constants.USERNAME).isDefined
 
-  def connectedUser(implicit request: RequestHeader) = renderArgs("userName").map(_.asInstanceOf[String]).getOrElse(null)
+  def connectedUser(implicit request: RequestHeader): String = renderArgs("userName").map(_.asInstanceOf[String]).getOrElse(null)
 
   def browsedUserName(implicit request: RequestHeader): String = renderArgs("browsedUserName").map(_.asInstanceOf[String]).getOrElse(null)
 

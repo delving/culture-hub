@@ -8,18 +8,13 @@ import core._
 import core.collection.OrganizationCollection
 import com.mongodb.casbah.Imports._
 import controllers.Token
-import java.util.regex.Pattern
-import controllers.Token
 
 /**
  *
  * @author Gerald de Jong <gerald@delving.eu>
  * @author Manuel Bernhardt <manuel@delving.eu>
  */
-
-object Organizations extends BoundController(HubModule) with Organizations
-
-trait Organizations extends DelvingController { this: BoundController =>
+class Organizations extends DelvingController {
 
   val harvestCollectionLookupService = inject[HarvestCollectionLookupService]
 

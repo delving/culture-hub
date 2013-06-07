@@ -3,7 +3,7 @@ package controllers.organizations
 import play.api.mvc._
 import models._
 import plugins.SimpleDocumentUploadPlugin
-import controllers.{ BoundController, OrganizationController }
+import controllers.OrganizationController
 import core._
 import extensions.{ MissingLibs, JJson }
 import org.bson.types.ObjectId
@@ -23,9 +23,7 @@ import scala.collection.mutable
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
-object SimpleDocumentUpload extends BoundController(HubModule) with SimpleDocumentUpload
-
-trait SimpleDocumentUpload extends OrganizationController { this: BoundController =>
+class SimpleDocumentUpload extends OrganizationController {
 
   val schemaService = inject[SchemaService]
 

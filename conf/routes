@@ -13,12 +13,12 @@ GET     /                                                                       
 GET     /browsers.html                                                              controllers.Assets.at(path="/public", file="browsers.html")
 
 # Form-based authentication
-GET        /login                                                                   controllers.Authentication.login
-POST       /login                                                                   controllers.Authentication.authenticate
-GET        /logout                                                                  controllers.Authentication.logout
+GET        /login                                                                   @controllers.Authentication.login
+POST       /login                                                                   @controllers.Authentication.authenticate
+GET        /logout                                                                  @controllers.Authentication.logout
 
 # OAuth2
-GET        /token                                                                   controllers.OAuth2TokenEndpoint.token
+GET        /token                                                                   @controllers.OAuth2TokenEndpoint.token
 
 # Demo space
 GET        /demo/viewer                                                             controllers.Demo.view(image: Option[String])
@@ -79,14 +79,14 @@ GET     /@dos/thumbnail/*id                                                     
 
 
 # User registration
-GET        /registration                                                            controllers.Registration.index
-POST       /registration/register                                                   controllers.Registration.register
-GET        /registration/captcha/:id                                                controllers.Registration.captcha(id)
-GET        /registration/activate/:activationToken                                  controllers.Registration.activate(activationToken)
-GET        /registration/lostPassword                                               controllers.Registration.lostPassword
-POST       /registration/resetPasswordEmail                                         controllers.Registration.resetPasswordEmail
-GET        /registration/resetPassword/:resetPasswordToken                          controllers.Registration.resetPassword(resetPasswordToken)
-POST       /registration/newPassword/:resetPasswordToken                            controllers.Registration.newPassword(resetPasswordToken)
+GET        /registration                                                            @controllers.Registration.index
+POST       /registration/register                                                   @controllers.Registration.register
+GET        /registration/captcha/:id                                                @controllers.Registration.captcha(id)
+GET        /registration/activate/:activationToken                                  @controllers.Registration.activate(activationToken)
+GET        /registration/lostPassword                                               @controllers.Registration.lostPassword
+POST       /registration/resetPasswordEmail                                         @controllers.Registration.resetPasswordEmail
+GET        /registration/resetPassword/:resetPasswordToken                          @controllers.Registration.resetPassword(resetPasswordToken)
+POST       /registration/newPassword/:resetPasswordToken                            @controllers.Registration.newPassword(resetPasswordToken)
 
 
 
@@ -111,7 +111,7 @@ POST         /:user/admin/profile                                               
 
 GET         /organizations/:orgId/api                                               controllers.api.Api.api(orgId)
 
-GET         /organizations/search                                                   controllers.organization.Organizations.listAsTokens(q: String ?= "")
+GET         /organizations/search                                                   @controllers.organization.Organizations.listAsTokens(q: String ?= "")
 
 GET         /organizations/:orgId/api/oai-pmh                                       controllers.api.OaiPmh.oaipmh(orgId: String, format: Option[String] = None, accessKey: Option[String] = None)
 GET         /organizations/:orgId/api/oai-pmh/:accessKey                            controllers.api.OaiPmh.oaipmh(orgId: String, format: Option[String] = None, accessKey: Option[String])
@@ -123,9 +123,9 @@ GET         /organizations/:orgId/api/proxy/list                                
 GET         /organizations/:orgId/api/proxy/:proxyKey/search                        controllers.api.Proxy.query(orgId, proxyKey)
 GET         /organizations/:orgId/api/proxy/:proxyKey/item/*itemKey                 controllers.api.Proxy.item(orgId, proxyKey, itemKey)
 
-GET         /organizations/:orgId/api/providers                                     controllers.api.Organization.providers(orgId)
-GET         /organizations/:orgId/api/dataProviders                                 controllers.api.Organization.dataProviders(orgId)
-GET         /organizations/:orgId/api/collections                                   controllers.api.Organization.collections(orgId)
+GET         /organizations/:orgId/api/providers                                     @controllers.api.Organization.providers(orgId)
+GET         /organizations/:orgId/api/dataProviders                                 @controllers.api.Organization.dataProviders(orgId)
+GET         /organizations/:orgId/api/collections                                   @controllers.api.Organization.collections(orgId)
 
 ## Deprecated - legacy routes support
 GET         /organizations/:orgId/oai-pmh                                           controllers.api.OaiPmh.oaipmh(orgId: String, format: Option[String] = None, accessKey: Option[String] = None)
@@ -136,28 +136,28 @@ GET         /organizations/:orgId/proxy/:proxyKey/item/*itemKey                 
 
 
 # Organizations UI
-GET         /organizations/:orgId                                                   controllers.organization.Organizations.index(orgId, language: Option[String] = None)
+GET         /organizations/:orgId                                                   @controllers.organization.Organizations.index(orgId, language: Option[String] = None)
 
-GET         /organizations/:orgId/admin                                             controllers.organization.Admin.index(orgId)
-POST        /organizations/:orgId/admin/users/add                                   controllers.organization.Admin.addUser(orgId)
-DELETE      /organizations/:orgId/admin/users/remove                                controllers.organization.Admin.removeUser(orgId)
-POST        /organizations/:orgId/admin/admin/add                                   controllers.organization.Admin.addAdmin(orgId)
-DELETE      /organizations/:orgId/admin/admin/remove                                controllers.organization.Admin.removeAdmin(orgId)
+GET         /organizations/:orgId/admin                                             @controllers.organization.Admin.index(orgId)
+POST        /organizations/:orgId/admin/users/add                                   @controllers.organization.Admin.addUser(orgId)
+DELETE      /organizations/:orgId/admin/users/remove                                @controllers.organization.Admin.removeUser(orgId)
+POST        /organizations/:orgId/admin/admin/add                                   @controllers.organization.Admin.addAdmin(orgId)
+DELETE      /organizations/:orgId/admin/admin/remove                                @controllers.organization.Admin.removeAdmin(orgId)
 
-GET         /organizations/:orgId/admin/solrSearchProxy                             controllers.organization.Admin.solrSearchProxy(orgId)
-GET         /organizations/:orgId/admin/reProcessAll                                controllers.organization.Admin.reProcessAll(orgId)
+GET         /organizations/:orgId/admin/solrSearchProxy                             @controllers.organization.Admin.solrSearchProxy(orgId)
+GET         /organizations/:orgId/admin/reProcessAll                                @controllers.organization.Admin.reProcessAll(orgId)
 
 GET         /organizations/:orgId/users/search                                      controllers.Users.listAsTokens(orgId: Option[String], q: String ?= "")
 
-GET         /organizations/:orgId/groups/resources/:resourceType/search             controllers.organization.Groups.searchResourceTokens(orgId, resourceType, q: String ?= "")
+GET         /organizations/:orgId/groups/resources/:resourceType/search             @controllers.organization.Groups.searchResourceTokens(orgId, resourceType, q: String ?= "")
 
-GET         /organizations/:orgId/groups                                            controllers.organization.Groups.list(orgId)
-GET         /organizations/:orgId/groups/create                                     controllers.organization.Groups.groups(orgId, groupId: Option[org.bson.types.ObjectId] = None)
-GET         /organizations/:orgId/groups/update/:groupId                            controllers.organization.Groups.groups(orgId, groupId: Option[org.bson.types.ObjectId])
-DELETE      /organizations/:orgId/groups/remove/:groupId                            controllers.organization.Groups.remove(orgId, groupId: Option[org.bson.types.ObjectId])
-POST        /organizations/:orgId/groups/submit                                     controllers.organization.Groups.submit(orgId)
+GET         /organizations/:orgId/groups                                            @controllers.organization.Groups.list(orgId)
+GET         /organizations/:orgId/groups/create                                     @controllers.organization.Groups.groups(orgId, groupId: Option[org.bson.types.ObjectId] = None)
+GET         /organizations/:orgId/groups/update/:groupId                            @controllers.organization.Groups.groups(orgId, groupId: Option[org.bson.types.ObjectId])
+DELETE      /organizations/:orgId/groups/remove/:groupId                            @controllers.organization.Groups.remove(orgId, groupId: Option[org.bson.types.ObjectId])
+POST        /organizations/:orgId/groups/submit                                     @controllers.organization.Groups.submit(orgId)
 
-GET         /organizations/:orgId/directory/organizationLookup                      controllers.organization.DataSetControl.organizationLookup(orgId, term)
+GET         /organizations/:orgId/directory/organizationLookup                      @controllers.organization.DataSetControl.organizationLookup(orgId, term)
 
 
 ->           /                                                                      search.Routes
@@ -169,6 +169,6 @@ GET         /organizations/:orgId/directory/organizationLookup                  
 GET         /assets/*file                                                           controllers.Assets.at(path="/public", file)
 
 
-GET          /:orgId/:spec/*recordId                                                controllers.FullView.render(orgId, spec, recordId, format: Option[String])
+GET          /:orgId/:spec/*recordId                                                @controllers.FullView.render(orgId, spec, recordId, format: Option[String])
 
 

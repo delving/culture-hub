@@ -16,10 +16,7 @@ import core.{ UserProfileService, DomainServiceLocator, HubModule }
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
-
-object Admin extends BoundController(HubModule) with Admin
-
-trait Admin extends DelvingController { this: BoundController =>
+class Admin extends DelvingController {
 
   val userProfileServiceLocator = inject[DomainServiceLocator[UserProfileService]]
 

@@ -15,7 +15,7 @@ import org.apache.amber.oauth2.as.validator._
 import play.api._
 import play.api.Play.current
 import mvc._
-import core.{ AuthenticationService, DomainServiceLocator, HubModule }
+import core.{ AuthenticationService, DomainServiceLocator }
 import models.HubUser
 import scala.Left
 import scala.Right
@@ -30,9 +30,7 @@ import scala.Right
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
-object OAuth2TokenEndpoint extends BoundController(HubModule) with OAuth2TokenEndpoint
-
-trait OAuth2TokenEndpoint extends Controller with OrganizationConfigurationAware { this: BoundController with Controller with OrganizationConfigurationAware =>
+class OAuth2TokenEndpoint extends ApplicationController {
 
   val authenticationServiceLocator = inject[DomainServiceLocator[AuthenticationService]]
 

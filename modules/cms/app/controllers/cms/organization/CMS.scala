@@ -7,12 +7,11 @@ import play.api.data.Forms._
 import play.api.data.format.Formats._
 import play.api.data.validation.Constraints._
 import extensions.Formatters._
-import controllers.{ BoundController, ViewModel, OrganizationController }
+import controllers.OrganizationController
 import extensions.{ MissingLibs, JJson }
 import models._
 import cms.{ MenuEntry, CMSPage }
 import com.mongodb.casbah.Imports._
-import core.HubModule
 import plugins.CMSPlugin
 import scala.collection.JavaConverters._
 import core.storage.{ FileUploadResponse, FileStorage }
@@ -23,9 +22,7 @@ import controllers.dos.FileUpload
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-object CMS extends BoundController(HubModule) with CMS
-
-trait CMS extends OrganizationController { this: BoundController =>
+class CMS extends OrganizationController {
 
   def CMSAction[A](action: Action[A]): Action[A] = {
     OrganizationMember {

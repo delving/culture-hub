@@ -1,5 +1,5 @@
 import collection.mutable.{ Buffer, ListBuffer }
-import controllers.SipCreatorEndPoint
+import core.HubModule
 import java.io._
 import java.util.zip.{ ZipInputStream, GZIPInputStream }
 import org.apache.commons.io.IOUtils
@@ -21,10 +21,12 @@ class SipCreatorEndPointSpec extends BootstrapAwareSpec {
 
   "SipCreatorEndPoint" should {
 
+    def endPoint = new controllers.SipCreatorEndPoint()(HubModule)
+
     "list all DataSets" in {
 
       withTestConfig {
-        val result = controllers.SipCreatorEndPoint.listAll(Some("TEST"))(FakeRequest())
+        val result = endPoint.listAll(Some("TEST"))(FakeRequest())
         status(result) must equalTo(OK)
         val stringResult: String = contentAsString(result)
         stringResult must contain("<spec>sample-a</spec>")
@@ -39,7 +41,7 @@ class SipCreatorEndPointSpec extends BootstrapAwareSpec {
       DataSet.dao(bootstrap.org).update(MongoDBObject("spec" -> bootstrap.spec), $set("lockedBy" -> "bob"))
 
       withTestConfig {
-        val result = controllers.SipCreatorEndPoint.unlock(
+        val result = endPoint.unlock(
           bootstrap.org,
           bootstrap.spec,
           Some("TEST")
@@ -53,7 +55,7 @@ class SipCreatorEndPointSpec extends BootstrapAwareSpec {
     "accept a list of files" in {
       withTestConfig {
         val lines = bootstrap.fileNamesString()
-        val result = controllers.SipCreatorEndPoint.acceptFileList(
+        val result = endPoint.acceptFileList(
           bootstrap.org,
           bootstrap.spec,
           Some("TEST")
@@ -74,7 +76,7 @@ class SipCreatorEndPointSpec extends BootstrapAwareSpec {
     "accept a hints file" in {
       withTestConfig {
         val hintsFile = bootstrap.file("hints.txt")
-        val result = controllers.SipCreatorEndPoint.acceptFile(
+        val result = endPoint.acceptFile(
           bootstrap.org,
           bootstrap.spec,
           hintsFile.getName,
@@ -100,7 +102,7 @@ class SipCreatorEndPointSpec extends BootstrapAwareSpec {
     "accept a mappings file" in {
       withTestConfig {
         val mappingFile = bootstrap.file("mapping_icn.xml")
-        val result = controllers.SipCreatorEndPoint.acceptFile(
+        val result = endPoint.acceptFile(
           bootstrap.org,
           bootstrap.spec,
           mappingFile.getName,
@@ -127,7 +129,7 @@ class SipCreatorEndPointSpec extends BootstrapAwareSpec {
       withTestConfig {
         val intFile = bootstrap.file("validation_icn.int")
 
-        val result = controllers.SipCreatorEndPoint.acceptFile(
+        val result = endPoint.acceptFile(
           bootstrap.org,
           bootstrap.spec,
           intFile.getName,
@@ -156,7 +158,7 @@ class SipCreatorEndPointSpec extends BootstrapAwareSpec {
       withTestConfig {
         val linksFile = bootstrap.file("links_abm.csv.gz")
 
-        val result = controllers.SipCreatorEndPoint.acceptFile(
+        val result = endPoint.acceptFile(
           bootstrap.org,
           bootstrap.spec,
           linksFile.getName,
@@ -185,7 +187,7 @@ class SipCreatorEndPointSpec extends BootstrapAwareSpec {
       withTestConfig {
         val sourceFile = bootstrap.file("source.xml.gz")
 
-        val result = controllers.SipCreatorEndPoint.acceptFile(
+        val result = endPoint.acceptFile(
           bootstrap.org,
           bootstrap.spec,
           sourceFile.getName,
@@ -215,7 +217,7 @@ class SipCreatorEndPointSpec extends BootstrapAwareSpec {
       withTestConfig {
         bootstrap.init()
         val lines = bootstrap.fileNamesString()
-        val result = controllers.SipCreatorEndPoint.acceptFileList(
+        val result = endPoint.acceptFileList(
           bootstrap.org,
           bootstrap.spec,
           Some("TEST")
@@ -235,7 +237,7 @@ class SipCreatorEndPointSpec extends BootstrapAwareSpec {
       withTestConfig {
         bootstrap.init()
         val intFile = bootstrap.file("validation_icn.int")
-        val result = controllers.SipCreatorEndPoint.acceptFile(
+        val result = endPoint.acceptFile(
           bootstrap.org,
           bootstrap.spec,
           intFile.getName,
@@ -275,10 +277,10 @@ class SipCreatorEndPointSpec extends BootstrapAwareSpec {
 
         // first, ingest all sorts of things
         val gis = new GZIPInputStream(new FileInputStream(sourceFile))
-        SipCreatorEndPoint.loadSourceData(dataSet, gis)
+        controllers.SipCreatorEndPoint.loadSourceData(dataSet, gis)
         gis.close()
 
-        val result = asyncToResult(controllers.SipCreatorEndPoint.fetchSIP(
+        val result = asyncToResult(endPoint.fetchSIP(
           bootstrap.org,
           bootstrap.spec,
           Some("TEST")
@@ -292,7 +294,7 @@ class SipCreatorEndPointSpec extends BootstrapAwareSpec {
         lockedDataSet.lockedBy must equalTo(Some("bob")) // TEST user
 
         // check the resulting set, indirectly
-        val is = SipCreatorEndPoint.getSipStream(lockedDataSet)
+        val is = endPoint.getSipStream(lockedDataSet)
         Thread.sleep(1000)
 
         var downloadedSource = ""

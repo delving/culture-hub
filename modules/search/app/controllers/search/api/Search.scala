@@ -4,12 +4,13 @@ import play.api.mvc._
 import core.Constants._
 import core.indexing.IndexField._
 import play.api.libs.concurrent.Promise
-import controllers.{ DelvingController, BoundController, OrganizationConfigurationAware }
+import controllers.{ DelvingController }
 import play.api.Logger
-import core.{ OrganizationCollectionLookupService, HubModule }
+import core.OrganizationCollectionLookupService
 import play.api.cache.Cache
 import play.api.Play.current
 import play.api.libs.concurrent.Execution.Implicits._
+import com.escalatesoft.subcut.inject.BindingModule
 
 /**
  * Search API
@@ -17,9 +18,7 @@ import play.api.libs.concurrent.Execution.Implicits._
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-object Search extends BoundController(HubModule) with Search
-
-trait Search extends DelvingController { this: Controller with BoundController with OrganizationConfigurationAware =>
+class Search(implicit val bindingModule: BindingModule) extends DelvingController {
 
   val organizationCollectionLookupService = inject[OrganizationCollectionLookupService]
 

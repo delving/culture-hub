@@ -21,7 +21,7 @@ import controllers._
 import extensions.JJson
 import extensions.Formatters._
 import com.mongodb.casbah.Imports._
-import play.api.mvc.{ AnyContent, Action }
+import play.api.mvc._
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.data.validation._
@@ -39,6 +39,8 @@ import models.FactDefinition
 import controllers.ShortDataSet
 import play.api.i18n.Messages
 import core.messages._
+import com.escalatesoft.subcut.inject.BindingModule
+import eu.delving.schema.xml.Schema
 
 /**
  *
@@ -153,9 +155,7 @@ object DataSetCreationViewModel {
 
 }
 
-object DataSetControl extends BoundController(HubModule) with DataSetControl
-
-trait DataSetControl extends OrganizationController { this: BoundController =>
+class DataSetControl(implicit val bindingModule: BindingModule) extends OrganizationController {
 
   val schemaService = inject[SchemaService]
   val directoryServiceLocator = inject[DomainServiceLocator[DirectoryService]]
@@ -181,69 +181,44 @@ trait DataSetControl extends OrganizationController { this: BoundController =>
 
   implicit def dSListToSdSList(dsl: List[DataSet]) = dsl map { ds => dataSetToShort(ds) }
 
-  def dataSet(orgId: String, spec: Option[String]): Action[AnyContent] = OrganizationMember {
+  private def schemaInformation(implicit configuration: OrganizationConfiguration): (Seq[Schema], Seq[String], Map[String, Seq[String]]) = {
+    val schemas = schemaService.getSchemas
+
+    val allSchemaPrefixes: Seq[String] = schemas.map(_.prefix) ++
+      (if (configuration.oaiPmhService.allowRawHarvesting) Seq("raw") else Seq.empty)
+
+    val versions: Map[String, Seq[String]] = schemas.map { schema =>
+      (schema.prefix -> schema.versions.asScala.map(_.number))
+    }.toMap ++
+      (if (configuration.oaiPmhService.allowRawHarvesting) Map("raw" -> Seq("1.0.0")) else Map.empty)
+
+    (schemas, allSchemaPrefixes, versions)
+
+  }
+
+  def add = OrganizationMember {
     Action {
       implicit request =>
-        val dataSet = if (spec == None) None else DataSet.dao.findBySpecAndOrgId(spec.get, orgId)
-        val schemas = schemaService.getSchemas
-
-        val allSchemaPrefixes: Seq[String] = schemas.map(_.prefix) ++
-          (if (configuration.oaiPmhService.allowRawHarvesting) Seq("raw") else Seq.empty)
-
-        val versions: Map[String, Seq[String]] = schemas.map { schema =>
-          (schema.prefix -> schema.versions.asScala.map(_.number))
-        }.toMap ++
-          (if (configuration.oaiPmhService.allowRawHarvesting) Map("raw" -> Seq("1.0.0")) else Map.empty)
-
-        if (dataSet != None && !DataSet.dao.canEdit(dataSet.get, connectedUser)) {
-          Forbidden("You are not allowed to edit DataSet %s".format(spec.get))
-        } else if (dataSet == None && !DataSet.dao.canAdministrate(connectedUser)) {
+        if (!DataSet.dao.canAdministrate(connectedUser)) {
           Forbidden("You are not allowed to create DataSets")
         } else {
-          val (data, quotaExceeded) = if (dataSet == None) {
-
-            (JJson.generate(DataSetCreationViewModel(
-              allAvailableSchemas = allSchemaPrefixes,
-              schemaProcessingConfigurations = allSchemaPrefixes.map { prefix =>
-                SchemaProcessingConfiguration(
-                  prefix = prefix,
-                  availableVersions = versions(prefix),
-                  version = versions(prefix).sorted.head
-                )
-              },
-              indexingMappingPrefix = Some("None")
-            )), CultureHubPlugin.isQuotaExceeded(DataSet.RESOURCE_TYPE))
-          } else {
-            val dS = dataSet.get
-
-            def acl(prefix: String) = dS.formatAccessControl.get(prefix).map(f => (f.accessType, f.accessKey)).getOrElse(("none", None))
-
-            (JJson.generate(
-              DataSetCreationViewModel(
-                id = Some(dS._id),
-                spec = dS.spec,
-                description = dS.description.getOrElse(""),
-                facts = HardcodedFacts.fromMap(dS.getStoredFacts),
-                selectedSchemas = dS.recordDefinitions,
-                allAvailableSchemas = allSchemaPrefixes,
-                schemaProcessingConfigurations = allSchemaPrefixes.map { prefix =>
-                  SchemaProcessingConfiguration(
-                    prefix = prefix,
-                    availableVersions = versions(prefix),
-                    version = dS.mappings.get(prefix).map(_.schemaVersion).getOrElse(versions(prefix).headOption.getOrElse("")),
-                    accessType = acl(prefix)._1,
-                    accessKey = acl(prefix)._2.getOrElse("")
-                  )
-                },
-                indexingMappingPrefix = if (dS.getIndexingMappingPrefix.isEmpty) Some("None") else dS.getIndexingMappingPrefix
+          val (_, allSchemaPrefixes, versions) = schemaInformation
+          val data = JJson.generate(DataSetCreationViewModel(
+            allAvailableSchemas = allSchemaPrefixes,
+            schemaProcessingConfigurations = allSchemaPrefixes.map { prefix =>
+              SchemaProcessingConfiguration(
+                prefix = prefix,
+                availableVersions = versions(prefix),
+                version = versions(prefix).sorted.head
               )
-            ), false)
-          }
+            },
+            indexingMappingPrefix = Some("None")
+          ))
 
-          Ok(Template(
-            'spec -> spec,
+          Ok(Template("organization/DataSets/dataSet.html",
+            'spec -> None,
             'data -> data,
-            'creationQuotaExceeded -> quotaExceeded,
+            'creationQuotaExceeded -> CultureHubPlugin.isQuotaExceeded(DataSet.RESOURCE_TYPE),
             'dataSetForm -> DataSetCreationViewModel.dataSetForm,
             'factDefinitions -> factDefinitionList.filterNot(factDef => factDef.automatic || factDef.name == "spec").toList
           ))
@@ -251,7 +226,62 @@ trait DataSetControl extends OrganizationController { this: BoundController =>
     }
   }
 
-  def dataSetSubmit(orgId: String): Action[AnyContent] = OrganizationMember {
+  def update(spec: String): Action[AnyContent] = OrganizationMember {
+    Action {
+      implicit request =>
+
+        val maybeDataSet: Option[DataSet] = DataSet.dao.findBySpecAndOrgId(spec, configuration.orgId)
+
+        maybeDataSet.map { set =>
+          {
+            if (!DataSet.dao.canEdit(set, connectedUser)) {
+              super.Forbidden(s"You are not allowed to edit DataSet $spec")
+            } else {
+              val data = {
+
+                def acl(prefix: String) = set.formatAccessControl.get(prefix).map(f => (f.accessType, f.accessKey)).getOrElse(("none", None))
+                val (_, allSchemaPrefixes, versions) = schemaInformation
+
+                JJson.generate(
+                  DataSetCreationViewModel(
+                    id = Some(set._id),
+                    spec = set.spec,
+                    description = set.description.getOrElse(""),
+                    facts = HardcodedFacts.fromMap(set.getStoredFacts),
+                    selectedSchemas = set.recordDefinitions,
+                    allAvailableSchemas = allSchemaPrefixes,
+                    schemaProcessingConfigurations = allSchemaPrefixes.map { prefix =>
+                      SchemaProcessingConfiguration(
+                        prefix = prefix,
+                        availableVersions = versions(prefix),
+                        version = set.mappings.get(prefix).map(_.schemaVersion).getOrElse(versions(prefix).headOption.getOrElse("")),
+                        accessType = acl(prefix)._1,
+                        accessKey = acl(prefix)._2.getOrElse("")
+                      )
+                    },
+                    indexingMappingPrefix = if (set.getIndexingMappingPrefix.isEmpty) Some("None") else set.getIndexingMappingPrefix
+                  )
+                )
+              }
+
+              Ok(
+                Template("organization/DataSets/dataSet.html",
+                  'spec -> Some(spec),
+                  'data -> data,
+                  'creationQuotaExceeded -> false,
+                  'dataSetForm -> DataSetCreationViewModel.dataSetForm,
+                  'factDefinitions -> factDefinitionList.filterNot(factDef => factDef.automatic || factDef.name == "spec").toList
+                )
+              )
+            }
+          }
+        } getOrElse {
+          Results.NotFound(s"Couldn't find DataSet $spec")
+        }
+    }
+  }
+
+  def dataSetSubmit = OrganizationMember {
     Action {
       implicit request =>
         DataSetCreationViewModel.dataSetForm.bind(request.body.asJson.get).fold(
@@ -293,7 +323,7 @@ trait DataSetControl extends OrganizationController { this: BoundController =>
 
             // TODO handle all "automatic facts"
             factsObject.append("spec", dataSetForm.spec)
-            factsObject.append("orgId", orgId)
+            factsObject.append("orgId", configuration.orgId)
 
             val formatAccessControl = dataSetForm.schemaProcessingConfigurations.
               filter(a => dataSetForm.selectedSchemas.contains(a.prefix)).
@@ -307,63 +337,64 @@ trait DataSetControl extends OrganizationController { this: BoundController =>
               case Some(id) => {
                 val existing = DataSet.dao.findOneById(id).get
                 if (!DataSet.dao.canEdit(existing, connectedUser)) {
-                  return Action {
-                    implicit request => Forbidden("You have no rights to edit this DataSet")
+                  Forbidden("You have no rights to edit this DataSet")
+                } else {
+
+                  if (existing.spec != dataSetForm.spec) {
+                    log.info(s"Renaming DataSet spec ${existing.spec} to ${dataSetForm.spec}")
+                    HubServices.basexStorages.getResource(configuration).renameCollection(existing, dataSetForm.spec)
+                    indexingServiceLocator.byDomain.deleteBySpec(configuration.orgId, existing.spec)
+                    CultureHubPlugin.broadcastMessage(CollectionRenamed(existing.spec, dataSetForm.spec, configuration))
                   }
-                }
 
-                if (existing.spec != dataSetForm.spec) {
-                  log.info(s"Renaming DataSet spec ${existing.spec} to ${dataSetForm.spec}")
-                  HubServices.basexStorages.getResource(configuration).renameCollection(existing, dataSetForm.spec)
-                  indexingServiceLocator.byDomain.deleteBySpec(configuration.orgId, existing.spec)
-                  CultureHubPlugin.broadcastMessage(CollectionRenamed(existing.spec, dataSetForm.spec, configuration))
-                }
+                  val removed: Seq[String] = removedSchemas(submittedSchemaConfigurations, existing.mappings)
+                  val updatedDetails = existing.details.copy(
+                    name = dataSetForm.facts.name,
+                    facts = factsObject,
+                    invalidRecordCount = existing.details.invalidRecordCount.filterNot(i => removed.contains(i._1))
+                  )
+                  val updatedInvalidRecords = existing.invalidRecords.filterNot(e => removed.contains(e._1))
 
-                val removed: Seq[String] = removedSchemas(submittedSchemaConfigurations, existing.mappings)
-                val updatedDetails = existing.details.copy(
-                  name = dataSetForm.facts.name,
-                  facts = factsObject,
-                  invalidRecordCount = existing.details.invalidRecordCount.filterNot(i => removed.contains(i._1))
-                )
-                val updatedInvalidRecords = existing.invalidRecords.filterNot(e => removed.contains(e._1))
-
-                val updated = existing.copy(
-                  spec = dataSetForm.spec,
-                  description = strToOpt(dataSetForm.description),
-                  details = updatedDetails,
-                  mappings = updateMappings(submittedSchemaConfigurations, existing.mappings),
-                  formatAccessControl = formatAccessControl,
-                  invalidRecords = updatedInvalidRecords,
-                  idxMappings = dataSetForm.indexingMappingPrefix.map(List(_)).getOrElse(List.empty)
-                )
-                DataSet.dao.save(updated)
-                DataSetEvent ! DataSetEvent.Updated(orgId, dataSetForm.spec, connectedUser)
-              }
-              case None =>
-                // TODO for now only admins can do
-                if (!DataSet.dao.canAdministrate(connectedUser)) return Action {
-                  implicit request => Forbidden("You are not allowed to create a DataSet.")
-                }
-
-                DataSet.dao.insert(
-                  DataSet(
+                  val updated = existing.copy(
                     spec = dataSetForm.spec,
-                    orgId = orgId,
-                    userName = connectedUser,
                     description = strToOpt(dataSetForm.description),
-                    state = DataSetState.INCOMPLETE,
-                    details = Details(
-                      name = dataSetForm.facts.name,
-                      facts = factsObject
-                    ),
-                    mappings = buildMappings(submittedSchemaConfigurations),
+                    details = updatedDetails,
+                    mappings = updateMappings(submittedSchemaConfigurations, existing.mappings),
                     formatAccessControl = formatAccessControl,
+                    invalidRecords = updatedInvalidRecords,
                     idxMappings = dataSetForm.indexingMappingPrefix.map(List(_)).getOrElse(List.empty)
                   )
-                )
+                  DataSet.dao.save(updated)
+                  DataSetEvent ! DataSetEvent.Updated(configuration.orgId, dataSetForm.spec, connectedUser)
+                }
+              }
 
-                DataSetEvent ! DataSetEvent.Created(orgId, dataSetForm.spec, connectedUser)
-                CultureHubPlugin.broadcastMessage(CollectionCreated(dataSetForm.spec, configuration))
+              case None =>
+                // TODO for now only admins can do
+                if (!DataSet.dao.canAdministrate(connectedUser)) {
+                  Forbidden("You are not allowed to create a DataSet.")
+                } else {
+                  DataSet.dao.insert(
+                    DataSet(
+                      spec = dataSetForm.spec,
+                      orgId = configuration.orgId,
+                      userName = connectedUser,
+                      description = strToOpt(dataSetForm.description),
+                      state = DataSetState.INCOMPLETE,
+                      details = Details(
+                        name = dataSetForm.facts.name,
+                        facts = factsObject
+                      ),
+                      mappings = buildMappings(submittedSchemaConfigurations),
+                      formatAccessControl = formatAccessControl,
+                      idxMappings = dataSetForm.indexingMappingPrefix.map(List(_)).getOrElse(List.empty)
+                    )
+                  )
+
+                  DataSetEvent ! DataSetEvent.Created(configuration.orgId, dataSetForm.spec, connectedUser)
+                  CultureHubPlugin.broadcastMessage(CollectionCreated(dataSetForm.spec, configuration))
+
+                }
 
             }
             Json(dataSetForm)

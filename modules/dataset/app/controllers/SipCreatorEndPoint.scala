@@ -11,7 +11,7 @@ import akka.actor.Actor
 import play.api.Logger
 import core._
 import scala.{ Either, Option }
-import storage.FileStorage
+import core.storage.{ BaseXStorage, FileStorage }
 import util.SimpleDataSetParser
 import java.util.concurrent.TimeUnit
 import models._
@@ -35,6 +35,7 @@ import play.api.libs.concurrent.Execution.Implicits._
 import scala.concurrent.duration._
 import com.mongodb.casbah.Imports._
 import com.mongodb.casbah.gridfs.{ GridFSDBFile, GridFS }
+import com.escalatesoft.subcut.inject.BindingModule
 
 /**
  * This Controller is responsible for all the interaction with the SIP-Creator.
@@ -43,10 +44,7 @@ import com.mongodb.casbah.gridfs.{ GridFSDBFile, GridFS }
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-object SipCreatorEndPoint extends BoundController(HubModule) with SipCreatorEndPoint
-
-trait SipCreatorEndPoint extends Controller with OrganizationConfigurationAware with Logging {
-  this: BoundController with Controller with OrganizationConfigurationAware with Logging =>
+class SipCreatorEndPoint(implicit val bindingModule: BindingModule) extends ApplicationController with Logging {
 
   val organizationServiceLocator = HubModule.inject[DomainServiceLocator[OrganizationService]](name = None)
 
@@ -685,6 +683,12 @@ trait SipCreatorEndPoint extends Controller with OrganizationConfigurationAware 
     pw.flush()
   }
 
+}
+
+object SipCreatorEndPoint {
+
+  private def basexStorage(implicit configuration: OrganizationConfiguration) = HubServices.basexStorages.getResource(configuration)
+
   def loadSourceData(dataSet: DataSet, source: InputStream)(implicit configuration: OrganizationConfiguration): Long = {
 
     // until we have a better concept on how to deal with per-collection versions, do not make use of them here, but drop the data instead
@@ -711,7 +715,6 @@ trait SipCreatorEndPoint extends Controller with OrganizationConfigurationAware 
 
     basexStorage.store(collection, parser, parser.namespaces, onRecordInserted)
   }
-
 }
 
 class ReceiveSource extends Actor {

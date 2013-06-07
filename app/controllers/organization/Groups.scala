@@ -6,7 +6,7 @@ import com.mongodb.casbah.Imports._
 import models._
 import models.HubMongoContext._
 import play.api.i18n.Messages
-import controllers.{ BoundController, OrganizationController, ViewModel, Token }
+import controllers.{ OrganizationController, ViewModel, Token }
 import play.api.mvc.{ Results, AnyContent, RequestHeader, Action }
 import play.api.data.Forms._
 import extensions.Formatters._
@@ -21,9 +21,7 @@ import scala.Some
  *
  * @author Gerald de Jong <gerald@delving.eu>
  */
-object Groups extends BoundController(HubModule) with Groups
-
-trait Groups extends OrganizationController { this: BoundController =>
+class Groups extends OrganizationController {
 
   def list(orgId: String) = OrganizationMember {
     Action {

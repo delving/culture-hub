@@ -10,13 +10,14 @@ import play.api.libs.json.{ JsString, JsValue }
 import play.api.libs.concurrent.Promise
 import play.api.libs.iteratee.{ Concurrent, Enumerator, Done, Input }
 import util.OrganizationConfigurationHandler
+import com.escalatesoft.subcut.inject.BindingModule
 
 /**
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-object DataSets extends OrganizationController {
+class DataSets(implicit val bindingModule: BindingModule) extends OrganizationController {
 
   def list(orgId: String) = OrganizationMember {
     Action {
@@ -25,10 +26,10 @@ object DataSets extends OrganizationController {
     }
   }
 
-  def dataSet(orgId: String, spec: String) = OrganizationMember {
+  def dataSet(spec: String) = OrganizationMember {
     Action {
       implicit request =>
-        val maybeDataSet = DataSet.dao.findBySpecAndOrgId(spec, orgId)
+        val maybeDataSet = DataSet.dao.findBySpecAndOrgId(spec, configuration.orgId)
         if (maybeDataSet.isEmpty) {
           NotFound(Messages("dataset.DatasetWasNotFound", spec))
         } else {
@@ -49,9 +50,10 @@ object DataSets extends OrganizationController {
     }
   }
 
-  def listAsTokens(q: String, formats: Seq[String]) = Root {
+  def listAsTokens(q: String, maybeFormats: Option[String]) = Root {
     Action {
       implicit request =>
+        val formats = maybeFormats.map(_.split(",").toSeq.map(_.trim).filterNot(_.isEmpty)).getOrElse(Seq.empty)
         val query = MongoDBObject("spec" -> Pattern.compile(q, Pattern.CASE_INSENSITIVE))
         val sets = DataSet.dao.find(query).filter { set =>
           formats.isEmpty ||

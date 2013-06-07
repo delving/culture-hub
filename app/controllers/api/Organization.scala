@@ -1,7 +1,7 @@
 package controllers.api
 
-import controllers.{ RenderingExtensions, OrganizationConfigurationAware, BoundController }
-import play.api.mvc.{ Controller, Action }
+import controllers.{ ApplicationController, RenderingExtensions, OrganizationConfigurationAware }
+import play.api.mvc.Action
 import core._
 import play.api.i18n.Messages
 import models.OrganizationConfiguration
@@ -13,10 +13,7 @@ import core.collection.OrganizationCollectionInformation
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-object Organization extends BoundController(HubModule) with Organization
-
-trait Organization extends Controller with OrganizationConfigurationAware with RenderingExtensions {
-  this: BoundController with Controller with OrganizationConfigurationAware with RenderingExtensions =>
+class Organization extends ApplicationController with OrganizationConfigurationAware with RenderingExtensions {
 
   val organizationCollectionLookupService = inject[OrganizationCollectionLookupService]
   val organizationServiceLocator = inject[DomainServiceLocator[OrganizationService]]

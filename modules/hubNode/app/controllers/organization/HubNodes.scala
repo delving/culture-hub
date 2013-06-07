@@ -7,16 +7,14 @@ import extensions.Formatters._
 import models.{ OrganizationConfiguration, HubNode }
 import extensions.JJson
 import org.bson.types.ObjectId
-import controllers.{ BoundController, OrganizationController }
+import controllers.OrganizationController
 import play.api.data.validation._
 import play.api.i18n.Messages
 import play.api.data.validation.ValidationError
 import core.{ DomainServiceLocator, HubModule }
 import core.node.{ NodeDirectoryService, NodeSubscriptionService, NodeRegistrationService }
 
-object HubNodes extends BoundController(HubModule) with HubNodes
-
-trait HubNodes extends OrganizationController { self: BoundController =>
+class HubNodes extends OrganizationController {
 
   val nodeRegistrationServiceLocator = inject[DomainServiceLocator[NodeRegistrationService]]
   val nodeDirectoryServiceLocator = inject[DomainServiceLocator[NodeDirectoryService]]

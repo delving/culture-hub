@@ -33,16 +33,14 @@ import play.api.i18n.Messages
 import validation.{ ValidationError, Valid, Invalid, Constraint }
 import play.libs.Time
 import play.libs.Images.Captcha
-import core.{ RegistrationService, DomainServiceLocator, HubModule, ThemeInfo, OrganizationService, UserProfileService }
+import core.{ RegistrationService, DomainServiceLocator, ThemeInfo, OrganizationService, UserProfileService }
 
 /**
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-object Registration extends BoundController(HubModule) with Registration
-
-trait Registration extends ApplicationController { this: BoundController =>
+class Registration extends ApplicationController {
 
   val registrationServiceLocator = inject[DomainServiceLocator[RegistrationService]]
   val organizationServiceLocator = inject[DomainServiceLocator[OrganizationService]]

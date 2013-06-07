@@ -11,11 +11,10 @@ import util.OrganizationConfigurationHandler
 import java.util.zip.GZIPInputStream
 import com.mongodb.BasicDBObject
 import io.Source
-import play.api.libs.concurrent.Akka
 import akka.actor._
 import akka.routing._
 import akka.actor.SupervisorStrategy._
-import controllers.{ organization, ReceiveSource }
+import controllers.ReceiveSource
 import scala.collection.immutable.ListMap
 import scala.collection.JavaConverters._
 import scala.util.matching.Regex
@@ -59,71 +58,68 @@ class DataSetPlugin(app: Application) extends CultureHubPlugin(app) {
    *
    */
 
-  override val routes: ListMap[(String, Regex), (List[String], Map[String, String]) => Handler] = ListMap(
-
-    ("GET", """^/([A-Za-z0-9-]+)/sip-creator.jnlp""".r) -> {
-      (pathArgs: List[String], queryString: Map[String, String]) => organization.SipCreator.jnlp(pathArgs(0))
-    },
-
-    ("GET", """^/organizations/([A-Za-z0-9-]+)/dataset""".r) -> {
-      (pathArgs: List[String], queryString: Map[String, String]) =>
-        controllers.organization.DataSets.list(pathArgs(0))
-    },
-    ("GET", """^/organizations/([A-Za-z0-9-]+)/dataset/search""".r) -> {
-      (pathArgs: List[String], queryString: Map[String, String]) =>
-        controllers.organization.DataSets.listAsTokens(
-          queryString("q"),
-          queryString.get("formats").map(_.split(",").toSeq.map(_.trim).filterNot(_.isEmpty)).getOrElse(Seq.empty)
-        )
-    },
-    ("GET", """^/organizations/([A-Za-z0-9-]+)/dataset/feed""".r) -> {
-      (pathArgs: List[String], queryString: Map[String, String]) =>
-        controllers.organization.DataSets.feed(pathArgs(0), queryString("clientId"), queryString.get("spec"))
-    },
-    ("GET", """^/organizations/([A-Za-z0-9-]+)/dataset/add""".r) -> {
-      (pathArgs: List[String], queryString: Map[String, String]) =>
-        controllers.organization.DataSetControl.dataSet(pathArgs(0), None)
-    },
-    ("GET", """^/organizations/([A-Za-z0-9-]+)/dataset/([A-Za-z0-9-]+)/update""".r) -> {
-      (pathArgs: List[String], queryString: Map[String, String]) =>
-        controllers.organization.DataSetControl.dataSet(pathArgs(0), Some(pathArgs(1)))
-    },
-    ("POST", """^/organizations/([A-Za-z0-9-]+)/dataset/submit""".r) -> {
-      (pathArgs: List[String], queryString: Map[String, String]) =>
-        controllers.organization.DataSetControl.dataSetSubmit(pathArgs(0))
-    },
-    ("GET", """^/organizations/([A-Za-z0-9-]+)/dataset/([A-Za-z0-9-]+)""".r) -> {
-      (pathArgs: List[String], queryString: Map[String, String]) =>
-        controllers.organization.DataSets.dataSet(pathArgs(0), pathArgs(1))
-    },
-
-    ("GET", """^/organizations/([A-Za-z0-9-]+)/sip-creator""".r) -> {
-      (pathArgs: List[String], queryString: Map[String, String]) => organization.SipCreator.index(pathArgs(0))
-    },
-
-    ("GET", """^/api/sip-creator/list""".r) -> {
-      (pathArgs: List[String], queryString: Map[String, String]) =>
-        controllers.SipCreatorEndPoint.listAll(queryString.get("accessKey"))
-    },
-    ("GET", """^/api/sip-creator/unlock/([A-Za-z0-9-]+)/([A-Za-z0-9-]+)""".r) -> {
-      (pathArgs: List[String], queryString: Map[String, String]) =>
-        controllers.SipCreatorEndPoint.unlock(pathArgs(0), pathArgs(1), queryString.get("accessKey"))
-    },
-    ("POST", """^/api/sip-creator/submit/([A-Za-z0-9-]+)/([A-Za-z0-9-]+)/(.*)""".r) -> {
-      (pathArgs: List[String], queryString: Map[String, String]) =>
-        controllers.SipCreatorEndPoint.acceptFile(
-          pathArgs(0), pathArgs(1), pathArgs(2), queryString.get("accessKey")
-        )
-    },
-    ("POST", """^/api/sip-creator/submit/([A-Za-z0-9-]+)/(.*)""".r) -> {
-      (pathArgs: List[String], queryString: Map[String, String]) =>
-        controllers.SipCreatorEndPoint.acceptFileList(pathArgs(0), pathArgs(1), queryString.get("accessKey"))
-    },
-    ("GET", """^/api/sip-creator/fetch/([A-Za-z0-9-]+)/([A-Za-z0-9-]+)-sip.zip""".r) -> {
-      (pathArgs: List[String], queryString: Map[String, String]) =>
-        controllers.SipCreatorEndPoint.fetchSIP(pathArgs(0), pathArgs(1), queryString.get("accessKey"))
-    }
-
+  override val routes: ListMap[(String, Regex), (List[String], Map[String, String]) => Handler] = ListMap( //    ("GET", """^/([A-Za-z0-9-]+)/sip-creator.jnlp""".r) -> {
+  //      (pathArgs: List[String], queryString: Map[String, String]) => organization.SipCreator.jnlp(pathArgs(0))
+  //    },
+  //
+  //    ("GET", """^/organizations/([A-Za-z0-9-]+)/dataset""".r) -> {
+  //      (pathArgs: List[String], queryString: Map[String, String]) =>
+  //        controllers.organization.DataSets.list(pathArgs(0))
+  //    },
+  //    ("GET", """^/organizations/([A-Za-z0-9-]+)/dataset/search""".r) -> {
+  //      (pathArgs: List[String], queryString: Map[String, String]) =>
+  //        controllers.organization.DataSets.listAsTokens(
+  //          queryString("q"),
+  //          queryString.get("formats").map(_.split(",").toSeq.map(_.trim).filterNot(_.isEmpty)).getOrElse(Seq.empty)
+  //        )
+  //    },
+  //    ("GET", """^/organizations/([A-Za-z0-9-]+)/dataset/feed""".r) -> {
+  //      (pathArgs: List[String], queryString: Map[String, String]) =>
+  //        controllers.organization.DataSets.feed(pathArgs(0), queryString("clientId"), queryString.get("spec"))
+  //    },
+  //    ("GET", """^/organizations/([A-Za-z0-9-]+)/dataset/add""".r) -> {
+  //      (pathArgs: List[String], queryString: Map[String, String]) =>
+  //        controllers.organization.DataSetControl.dataSet(pathArgs(0), None)
+  //    },
+  //    ("GET", """^/organizations/([A-Za-z0-9-]+)/dataset/([A-Za-z0-9-]+)/update""".r) -> {
+  //      (pathArgs: List[String], queryString: Map[String, String]) =>
+  //        controllers.organization.DataSetControl.dataSet(pathArgs(0), Some(pathArgs(1)))
+  //    },
+  //    ("POST", """^/organizations/([A-Za-z0-9-]+)/dataset/submit""".r) -> {
+  //      (pathArgs: List[String], queryString: Map[String, String]) =>
+  //        controllers.organization.DataSetControl.dataSetSubmit(pathArgs(0))
+  //    },
+  //    ("GET", """^/organizations/([A-Za-z0-9-]+)/dataset/([A-Za-z0-9-]+)""".r) -> {
+  //      (pathArgs: List[String], queryString: Map[String, String]) =>
+  //        controllers.organization.DataSets.dataSet(pathArgs(0), pathArgs(1))
+  //    },
+  //
+  //    ("GET", """^/organizations/([A-Za-z0-9-]+)/sip-creator""".r) -> {
+  //      (pathArgs: List[String], queryString: Map[String, String]) => organization.SipCreator.index(pathArgs(0))
+  //    },
+  //
+  //    ("GET", """^/api/sip-creator/list""".r) -> {
+  //      (pathArgs: List[String], queryString: Map[String, String]) =>
+  //        controllers.SipCreatorEndPoint.listAll(queryString.get("accessKey"))
+  //    },
+  //    ("GET", """^/api/sip-creator/unlock/([A-Za-z0-9-]+)/([A-Za-z0-9-]+)""".r) -> {
+  //      (pathArgs: List[String], queryString: Map[String, String]) =>
+  //        controllers.SipCreatorEndPoint.unlock(pathArgs(0), pathArgs(1), queryString.get("accessKey"))
+  //    },
+  //    ("POST", """^/api/sip-creator/submit/([A-Za-z0-9-]+)/([A-Za-z0-9-]+)/(.*)""".r) -> {
+  //      (pathArgs: List[String], queryString: Map[String, String]) =>
+  //        controllers.SipCreatorEndPoint.acceptFile(
+  //          pathArgs(0), pathArgs(1), pathArgs(2), queryString.get("accessKey")
+  //        )
+  //    },
+  //    ("POST", """^/api/sip-creator/submit/([A-Za-z0-9-]+)/(.*)""".r) -> {
+  //      (pathArgs: List[String], queryString: Map[String, String]) =>
+  //        controllers.SipCreatorEndPoint.acceptFileList(pathArgs(0), pathArgs(1), queryString.get("accessKey"))
+  //    },
+  //    ("GET", """^/api/sip-creator/fetch/([A-Za-z0-9-]+)/([A-Za-z0-9-]+)-sip.zip""".r) -> {
+  //      (pathArgs: List[String], queryString: Map[String, String]) =>
+  //        controllers.SipCreatorEndPoint.fetchSIP(pathArgs(0), pathArgs(1), queryString.get("accessKey"))
+  //    }
   )
 
   /**
@@ -208,13 +204,14 @@ class DataSetPlugin(app: Application) extends CultureHubPlugin(app) {
    */
   override def onActorInitialization(context: ActorContext) {
     // DataSet source parsing
-    context.actorOf(
-      Props[ReceiveSource].withRouter(
-        RoundRobinRouter(Runtime.getRuntime.availableProcessors(), supervisorStrategy = OneForOneStrategy() {
-          case _ => Restart
-        })
-      ), name = "dataSetParser"
-    )
+    val basexStorage =
+      context.actorOf(
+        Props[ReceiveSource].withRouter(
+          RoundRobinRouter(Runtime.getRuntime.availableProcessors(), supervisorStrategy = OneForOneStrategy() {
+            case _ => Restart
+          })
+        ), name = "dataSetParser"
+      )
 
     // DataSet processing
     context.actorOf(Props[Processor].withRouter(

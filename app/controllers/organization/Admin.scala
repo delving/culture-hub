@@ -1,6 +1,6 @@
 package controllers.organization
 
-import controllers.{ BoundController, OrganizationController }
+import controllers.OrganizationController
 import extensions.JJson
 import play.api.i18n.Messages
 import play.api.mvc.Action
@@ -15,9 +15,7 @@ import concurrent.duration._
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-object Admin extends BoundController(HubModule) with Admin
-
-trait Admin extends OrganizationController { this: BoundController =>
+class Admin extends OrganizationController {
 
   def index(orgId: String) = OrganizationAdmin {
     Action {

@@ -2,9 +2,7 @@ package controllers
 
 import core._
 import play.api.mvc._
-import core.rendering.{ ViewType, RecordRenderer }
-import core.Constants._
-import com.mongodb.BasicDBList
+import core.rendering.RecordRenderer
 import com.mongodb.casbah.Imports._
 import play.api.i18n.Messages
 import core.Constants.SEARCH_TERM
@@ -15,10 +13,7 @@ import core.Constants.RETURN_TO_RESULTS
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
-object FullView extends BoundController(HubModule) with FullView
-
-trait FullView extends DelvingController {
-  this: BoundController =>
+class FullView extends DelvingController {
 
   def render(orgId: String, spec: String, localId: String, format: Option[String]) = Root {
     Action {

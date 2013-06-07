@@ -16,9 +16,7 @@ import play.api.mvc.Cookie
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-object Authentication extends BoundController(HubModule) with Authentication
-
-trait Authentication extends ApplicationController { this: BoundController =>
+class Authentication extends ApplicationController {
 
   val authenticationServiceLocator = inject[DomainServiceLocator[AuthenticationService]]
   val userProfileServiceLocator = inject[DomainServiceLocator[UserProfileService]]
