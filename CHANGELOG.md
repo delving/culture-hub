@@ -2,11 +2,24 @@
 
 This is the changelog of the CultureHub. It documents changes of the main platform, without modules.
 
+# 13.05
+
+## New features
+
+- manu: CORS support for statistics API
+- eric: favicon per CSS theme
+- eric, manu: view definition for LIDO, with experimental map rendering
+
+## Fixes and refactoring
+
+- manu: updating to SBT 0.12.3 and Scala 2.10.1
+- manu: updating to new version of play extensions library
+
 # 13.04.1
 
 ## Hotfixes
 
-- re-enabling the simple-document-upload plugin, that got disabled due to a merge issue
+- manu: re-enabling the simple-document-upload plugin, that got disabled due to a merge issue
 
 # 13.04
 
