@@ -15,15 +15,18 @@ import core.{ IndexingService, ItemType, OrganizationCollectionLookupService }
 import core.collection.OrganizationCollection
 import play.api.libs.concurrent.Execution.Implicits._
 import collection.mutable
+import com.escalatesoft.subcut.inject.BindingModule
 
 /**
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-object Index extends DelvingController with RenderingExtensions {
-
+object Index {
   val CACHE_COLLECTION = "indexApiItems"
+}
+
+class Index(implicit val bindingModule: BindingModule) extends DelvingController with RenderingExtensions {
 
   def explain(path: List[String]) = path match {
     case Nil =>
@@ -72,13 +75,13 @@ object Index extends DelvingController with RenderingExtensions {
     case _ => None
   }
 
-  def status(orgId: String) = Action {
+  def status = Action {
     implicit request =>
       // TODO provide some stats
       Ok
   }
 
-  def submit(orgId: String) = OrganizationConfigured {
+  def submit = OrganizationConfigured {
     Action(parse.tolerantXml) {
       implicit request =>
         {
@@ -90,7 +93,7 @@ object Index extends DelvingController with RenderingExtensions {
                   <error>The system is in read-only mode and cannot process the request</error>
                 </indexResponse>
               } else {
-                val (valid, invalid) = parseIndexRequest(orgId, request.body)
+                val (valid, invalid) = parseIndexRequest(configuration.orgId, request.body)
 
                 var indexed: Int = 0
                 var deleted: Int = 0
@@ -98,13 +101,13 @@ object Index extends DelvingController with RenderingExtensions {
                 for (i <- valid.zipWithIndex) {
                   val item = i._1
                   val index = i._2
-                  val cache = MetadataCache.get(orgId, CACHE_COLLECTION, item.itemType)
+                  val cache = MetadataCache.get(configuration.orgId, Index.CACHE_COLLECTION, item.itemType)
                   if (item.deleted) {
                     cache.remove(item.itemId)
                     indexingServiceLocator.byDomain.deleteByQuery("""id:%s_%s_%s""".format(item.orgId, item.itemType, item.itemId))
                     deleted += 1
                   } else {
-                    val cacheItem = MetadataItem(collection = CACHE_COLLECTION, itemType = item.itemType, itemId = item.itemId, xml = Map("raw" -> item.rawXml), schemaVersions = Map("raw" -> "1.0.0"), index = index)
+                    val cacheItem = MetadataItem(collection = Index.CACHE_COLLECTION, itemType = item.itemType, itemId = item.itemId, xml = Map("raw" -> item.rawXml), schemaVersions = Map("raw" -> "1.0.0"), index = index)
                     cache.saveOrUpdate(cacheItem)
                     indexingServiceLocator.byDomain.stageForIndexing(item.toIndexDocument)
                     indexed += 1
@@ -186,7 +189,7 @@ object Index extends DelvingController with RenderingExtensions {
         var reIndexed = 0
         val error = new ArrayBuffer[String]()
         itemTypes map { t =>
-          val cache = MetadataCache.get(configuration.orgId, CACHE_COLLECTION, t)
+          val cache = MetadataCache.get(configuration.orgId, Index.CACHE_COLLECTION, t)
           cache.iterate() foreach { item =>
             try {
               indexingServiceLocator.byDomain.stageForIndexing(IndexItem(configuration.orgId, item).toIndexDocument)

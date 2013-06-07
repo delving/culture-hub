@@ -4,9 +4,15 @@ import play.api.{ Logger, Configuration, Application }
 import scala.util.matching.Regex
 import play.api.mvc.Handler
 import models.{ OrganizationConfiguration, Role }
-import core.{ RequestContext, MenuElement, MainMenuEntry, CultureHubPlugin }
-import collection.immutable.ListMap
-import collection.JavaConverters._
+import core._
+import scala.collection.immutable.ListMap
+import scala.collection.JavaConverters._
+import scala.collection
+import core.MainMenuEntry
+import core.RequestContext
+import plugins.StatisticsPluginConfiguration
+import scala.Some
+import core.MenuElement
 
 /**
  *
@@ -62,15 +68,6 @@ class StatisticsPlugin(app: Application) extends CultureHubPlugin(app) {
     }.toMap
 
   }
-
-  override val routes: ListMap[(String, Regex), (List[String], Map[String, String]) => Handler] = ListMap(
-    ("GET", """^/organizations/([A-Za-z0-9-]+)/statistics""".r) -> {
-      (pathArgs: List[String], queryString: Map[String, String]) => controllers.statistics.Statistics.statistics(pathArgs(0))
-    },
-    ("GET", """^/organizations/([A-Za-z0-9-]+)/api/statistics$""".r) -> {
-      (pathArgs: List[String], queryString: Map[String, String]) => controllers.statistics.Statistics.legacyStatistics(pathArgs(0))
-    }
-  )
 
   override def organizationMenuEntries(configuration: OrganizationConfiguration, lang: String, roles: Seq[String]): Seq[MainMenuEntry] = Seq(
     MainMenuEntry(

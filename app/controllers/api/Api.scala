@@ -8,6 +8,7 @@ import scala._
 import xml.NodeSeq
 import org.apache.commons.lang.StringEscapeUtils
 import core.ExplainItem
+import com.escalatesoft.subcut.inject.BindingModule
 
 /**
  * The API documentation
@@ -17,7 +18,7 @@ import core.ExplainItem
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-object Api extends DelvingController with RenderingExtensions {
+class Api(implicit val bindingModule: BindingModule) extends DelvingController with RenderingExtensions {
 
   def explanations(orgId: String, path: String): Action[AnyContent] = {
     val pathList = path.split("/").drop(1).toList

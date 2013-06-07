@@ -11,12 +11,13 @@ import extensions.Formatters._
 import play.api.i18n._
 import extensions.JJson
 import core.{ UserProfileService, DomainServiceLocator, HubModule }
+import com.escalatesoft.subcut.inject.BindingModule
 
 /**
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
-class Admin extends DelvingController {
+class Admin(implicit val bindingModule: BindingModule) extends DelvingController {
 
   val userProfileServiceLocator = inject[DomainServiceLocator[UserProfileService]]
 

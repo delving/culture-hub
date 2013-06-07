@@ -9,12 +9,13 @@ import akka.actor.ActorRef
 import play.api.libs.concurrent.Akka
 import actors.ProcessImage
 import play.api.Play.current
+import com.escalatesoft.subcut.inject.BindingModule
 
 /**
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
-object MediatorServer extends DelvingController {
+class MediatorServer(implicit val bindingModule: BindingModule) extends DelvingController {
 
   def imageProcessor: ActorRef = Akka.system.actorFor("akka://application/user/plugin-mediator/imageProcessor")
 

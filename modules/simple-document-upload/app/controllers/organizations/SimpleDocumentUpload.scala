@@ -18,16 +18,17 @@ import play.api.data.Forms.mapping
 import storage.{ FileStorage, FileUploadResponse, StoredFile }
 import controllers.dos.FileUpload
 import scala.collection.mutable
+import com.escalatesoft.subcut.inject.BindingModule
 
 /**
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
-class SimpleDocumentUpload extends OrganizationController {
+class SimpleDocumentUpload(implicit val bindingModule: BindingModule) extends OrganizationController {
 
   val schemaService = inject[SchemaService]
 
-  def list(orgId: String) = OrganizationMember {
+  def list = OrganizationMember {
     Action {
       implicit request =>
         withAccess {
@@ -47,77 +48,83 @@ class SimpleDocumentUpload extends OrganizationController {
     }
   }
 
-  def simpleDocumentUpload(orgId: String, id: Option[String]) = OrganizationMember {
+  def add = OrganizationMember {
+    Action {
+      implicit request =>
+        withAccess {
+          val config = SimpleDocumentUploadPlugin.pluginConfiguration
+          val generatedId = "%s_%s_%s".format(configuration.orgId, config.collectionName, new ObjectId().toString)
+          val itemViewModel = ItemViewModel(
+            generatedId,
+            config.fields.flatMap { f =>
+              for (i <- 0 until f.multiplicity) yield {
+                Field(f.key, f.fieldType, Messages("metadata." + f.key.replaceAll(":", ".")), "", f.hasOptions, f.options)
+              }
+            }
+          )
+          val itemViewModelAsJson = JJson.generate(itemViewModel)
+
+          Ok(Template('data -> itemViewModelAsJson, 'uid -> MissingLibs.UUID, 'id -> generatedId))
+
+        }
+    }
+  }
+
+  def update(itemId: String) = OrganizationMember {
     Action {
       implicit request =>
         withAccess {
 
           val config = SimpleDocumentUploadPlugin.pluginConfiguration
 
-          id.map { itemId =>
-            cache.findOne(itemId).map { item =>
+          cache.findOne(itemId).map { item =>
 
-              item.xml.get(config.schemaPrefix).map { rawXml =>
+            item.xml.get(config.schemaPrefix).map { rawXml =>
 
-                try {
-                  val document = scala.xml.XML.loadString(rawXml)
+              try {
+                val document = scala.xml.XML.loadString(rawXml)
 
-                  val fields: Seq[Field] = config.fields.flatMap { field =>
-                    val Array(prefix, label) = field.key.split(":")
-                    val maybeField = document.child.filter(node => node.prefix == prefix && node.label == label)
-                    val existing = maybeField.map { fieldValue =>
-                      Field(field.key, field.fieldType, Messages("metadata." + field.key.replaceAll(":", ".")), fieldValue.text, field.hasOptions, field.options)
-                    }
-                    val delta = field.multiplicity - maybeField.length
-                    val additional = if (delta >= 0) {
-                      for (i <- 0 until delta) yield {
-                        Field(field.key, field.fieldType, Messages("metadata." + field.key.replaceAll(":", ".")), "", field.hasOptions, field.options)
-                      }
-                    } else {
-                      Seq.empty
-                    }
-                    existing ++ additional
+                val fields: Seq[Field] = config.fields.flatMap { field =>
+                  val Array(prefix, label) = field.key.split(":")
+                  val maybeField = document.child.filter(node => node.prefix == prefix && node.label == label)
+                  val existing = maybeField.map { fieldValue =>
+                    Field(field.key, field.fieldType, Messages("metadata." + field.key.replaceAll(":", ".")), fieldValue.text, field.hasOptions, field.options)
                   }
-
-                  val files = core.storage.FileStorage.listFiles(itemId).map(f => FileUploadResponse(f))
-
-                  val itemViewModel = ItemViewModel(item.itemId, fields, files)
-                  val itemViewModelAsJson = JJson.generate(itemViewModel)
-
-                  Ok(Template('data -> itemViewModelAsJson, 'uid -> MissingLibs.UUID, 'id -> itemId))
-
-                } catch {
-                  case t: Throwable =>
-                    Error("Could not parse content for item " + itemId, t)
+                  val delta = field.multiplicity - maybeField.length
+                  val additional = if (delta >= 0) {
+                    for (i <- 0 until delta) yield {
+                      Field(field.key, field.fieldType, Messages("metadata." + field.key.replaceAll(":", ".")), "", field.hasOptions, field.options)
+                    }
+                  } else {
+                    Seq.empty
+                  }
+                  existing ++ additional
                 }
 
-              }.getOrElse {
-                Error("Could not find document content for item " + itemId)
+                val files = core.storage.FileStorage.listFiles(itemId).map(f => FileUploadResponse(f))
+
+                val itemViewModel = ItemViewModel(item.itemId, fields, files)
+                val itemViewModelAsJson = JJson.generate(itemViewModel)
+
+                Ok(Template('data -> itemViewModelAsJson, 'uid -> MissingLibs.UUID, 'id -> itemId))
+
+              } catch {
+                case t: Throwable =>
+                  Error("Could not parse content for item " + itemId, t)
               }
 
             }.getOrElse {
-              NotFound("Item with ID %s was not found".format(id))
+              Error("Could not find document content for item " + itemId)
             }
+
           }.getOrElse {
-            val generatedId = "%s_%s_%s".format(orgId, config.collectionName, new ObjectId().toString)
-            val itemViewModel = ItemViewModel(
-              generatedId,
-              config.fields.flatMap { f =>
-                for (i <- 0 until f.multiplicity) yield {
-                  Field(f.key, f.fieldType, Messages("metadata." + f.key.replaceAll(":", ".")), "", f.hasOptions, f.options)
-                }
-              }
-            )
-            val itemViewModelAsJson = JJson.generate(itemViewModel)
-
-            Ok(Template('data -> itemViewModelAsJson, 'uid -> MissingLibs.UUID, 'id -> generatedId))
+            NotFound(s"Item with ID $itemId was not found")
           }
-
         }
     }
   }
 
-  def submit(orgId: String) = OrganizationMember {
+  def submit = OrganizationMember {
     Action {
       implicit request =>
         withAccess {
@@ -220,7 +227,7 @@ class SimpleDocumentUpload extends OrganizationController {
 
               solrDocument += (ID -> itemModel.id)
               solrDocument += (HUB_ID -> itemModel.id)
-              solrDocument += (ORG_ID -> orgId)
+              solrDocument += (ORG_ID -> configuration.orgId)
               solrDocument += (RECORD_TYPE -> SimpleDocumentUploadPlugin.ITEM_TYPE.itemType)
 
               indexingServiceLocator.byDomain.stageForIndexing(solrDocument.toMap)
@@ -232,7 +239,7 @@ class SimpleDocumentUpload extends OrganizationController {
     }
   }
 
-  def delete(orgId: String, id: String) = OrganizationMember {
+  def delete(id: String) = OrganizationMember {
     Action {
       implicit request =>
         withAccess {
@@ -244,7 +251,7 @@ class SimpleDocumentUpload extends OrganizationController {
     }
   }
 
-  def upload(orgId: String, uid: String, id: String) = OrganizationMember {
+  def upload(uid: String, id: String) = OrganizationMember {
     Action {
       implicit request =>
         withAccess {

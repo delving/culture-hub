@@ -4,8 +4,9 @@ import play.api.mvc._
 import core.{ RequestContext, CultureHubPlugin, ThemeInfo }
 import core.Constants._
 import core.indexing.IndexField._
+import com.escalatesoft.subcut.inject.BindingModule
 
-object Application extends DelvingController {
+class Application(implicit val bindingModule: BindingModule) extends DelvingController {
 
   def index = Root {
     Action {

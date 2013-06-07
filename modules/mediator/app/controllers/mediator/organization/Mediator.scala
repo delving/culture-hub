@@ -9,12 +9,13 @@ import models.HubUser
 import util.Quotes
 import controllers.dos.{ Thumbnail, ThumbnailSupport }
 import scala.collection.JavaConverters._
+import com.escalatesoft.subcut.inject.BindingModule
 
 /**
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
-object Mediator extends OrganizationController with ThumbnailSupport {
+class Mediator(implicit val bindingModule: BindingModule) extends OrganizationController with ThumbnailSupport {
 
   def index = OrganizationAdmin {
     Action {

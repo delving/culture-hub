@@ -4,6 +4,7 @@ import play.api.mvc._
 import play.api.Play
 import play.api.Play.current
 import play.api.mvc.Results._
+import com.escalatesoft.subcut.inject.BindingModule
 
 /**
  * Various things, for demonstration purposes
@@ -11,7 +12,7 @@ import play.api.mvc.Results._
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-object Demo extends DelvingController {
+class Demo(implicit val bindingModule: BindingModule) extends DelvingController {
 
   /**
    * DeepZoom viewer

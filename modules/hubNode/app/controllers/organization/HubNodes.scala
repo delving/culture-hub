@@ -13,8 +13,9 @@ import play.api.i18n.Messages
 import play.api.data.validation.ValidationError
 import core.{ DomainServiceLocator, HubModule }
 import core.node.{ NodeDirectoryService, NodeSubscriptionService, NodeRegistrationService }
+import com.escalatesoft.subcut.inject.BindingModule
 
-class HubNodes extends OrganizationController {
+class HubNodes(implicit val bindingModule: BindingModule) extends OrganizationController {
 
   val nodeRegistrationServiceLocator = inject[DomainServiceLocator[NodeRegistrationService]]
   val nodeDirectoryServiceLocator = inject[DomainServiceLocator[NodeDirectoryService]]

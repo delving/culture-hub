@@ -8,13 +8,14 @@ import core._
 import core.collection.OrganizationCollection
 import com.mongodb.casbah.Imports._
 import controllers.Token
+import com.escalatesoft.subcut.inject.BindingModule
 
 /**
  *
  * @author Gerald de Jong <gerald@delving.eu>
  * @author Manuel Bernhardt <manuel@delving.eu>
  */
-class Organizations extends DelvingController {
+class Organizations(implicit val bindingModule: BindingModule) extends DelvingController {
 
   val harvestCollectionLookupService = inject[HarvestCollectionLookupService]
 

@@ -7,13 +7,14 @@ import com.mongodb.casbah.Imports._
 import play.api.i18n.Messages
 import core.Constants.SEARCH_TERM
 import core.Constants.RETURN_TO_RESULTS
+import com.escalatesoft.subcut.inject.BindingModule
 
 /**
  * Renders the full view of an object
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
-class FullView extends DelvingController {
+class FullView(implicit val bindingModule: BindingModule) extends DelvingController {
 
   def render(orgId: String, spec: String, localId: String, format: Option[String]) = Root {
     Action {

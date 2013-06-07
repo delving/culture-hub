@@ -16,13 +16,14 @@ import plugins.CMSPlugin
 import scala.collection.JavaConverters._
 import core.storage.{ FileUploadResponse, FileStorage }
 import controllers.dos.FileUpload
+import com.escalatesoft.subcut.inject.BindingModule
 
 /**
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-class CMS extends OrganizationController {
+class CMS(implicit val bindingModule: BindingModule) extends OrganizationController {
 
   def CMSAction[A](action: Action[A]): Action[A] = {
     OrganizationMember {

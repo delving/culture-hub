@@ -1,0 +1,6 @@
+GET         /organizations/[A-Za-z0-9-]+/simpledocument                  @controllers.organizations.SimpleDocumentUpload.list
+GET         /organizations/[A-Za-z0-9-]+/simpledocument/add              @controllers.organizations.SimpleDocumentUpload.add
+GET         /organizations/[A-Za-z0-9-]+/simpledocument/:itemId/update   @controllers.organizations.SimpleDocumentUpload.update(itemId)
+POST        /organizations/[A-Za-z0-9-]+/simpledocument/submit           @controllers.organizations.SimpleDocumentUpload.submit
+DELETE      /organizations/[A-Za-z0-9-]+/simpledocument/:id/remove       @controllers.organizations.SimpleDocumentUpload.delete(id)
+GET         /organizations/[A-Za-z0-9-]+/simpledocument/upload/:uid      @controllers.organizations.SimpleDocumentUpload.upload(uid, id)

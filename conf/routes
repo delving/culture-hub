@@ -161,6 +161,8 @@ GET         /organizations/:orgId/directory/organizationLookup                  
 
 
 ->           /                                                                      search.Routes
+->           /                                                                      dataset.Routes
+->           /                                                                      indexApi.Routes
 ->           /                                                                      cms.Routes
 ->           /                                                                      mediator.Routes
 

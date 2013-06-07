@@ -9,13 +9,14 @@ import core.HubModule
 import play.api.libs.ws.WS
 import concurrent.Await
 import concurrent.duration._
+import com.escalatesoft.subcut.inject.BindingModule
 
 /**
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-class Admin extends OrganizationController {
+class Admin(implicit val bindingModule: BindingModule) extends OrganizationController {
 
   def index(orgId: String) = OrganizationAdmin {
     Action {

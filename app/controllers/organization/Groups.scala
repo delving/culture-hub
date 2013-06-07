@@ -1,27 +1,27 @@
 package controllers.organization
 
-import org.bson.types.ObjectId
 import extensions.JJson
 import com.mongodb.casbah.Imports._
 import models._
 import models.HubMongoContext._
 import play.api.i18n.Messages
-import controllers.{ OrganizationController, ViewModel, Token }
+import controllers.{ OrganizationController, Token }
 import play.api.mvc.{ Results, AnyContent, RequestHeader, Action }
 import play.api.data.Forms._
 import extensions.Formatters._
 import play.api.data.Form
-import core.{ HubModule, CultureHubPlugin, HubServices }
+import core.CultureHubPlugin
 import core.access.{ ResourceType, Resource }
 import collection.JavaConverters._
 import play.api.Logger
 import scala.Some
+import com.escalatesoft.subcut.inject.BindingModule
 
 /**
  *
  * @author Gerald de Jong <gerald@delving.eu>
  */
-class Groups extends OrganizationController {
+class Groups(implicit val bindingModule: BindingModule) extends OrganizationController {
 
   def list(orgId: String) = OrganizationMember {
     Action {
