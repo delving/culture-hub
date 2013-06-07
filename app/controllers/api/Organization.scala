@@ -1,11 +1,12 @@
 package controllers.api
 
-import controllers.{ ApplicationController, RenderingExtensions, OrganizationConfigurationAware }
+import controllers.{ ApplicationController, RenderingExtensions }
 import play.api.mvc.Action
 import core._
 import play.api.i18n.Messages
 import models.OrganizationConfiguration
 import core.collection.OrganizationCollectionInformation
+import com.escalatesoft.subcut.inject.BindingModule
 
 /**
  * Organization API
@@ -13,7 +14,7 @@ import core.collection.OrganizationCollectionInformation
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-class Organization extends ApplicationController with OrganizationConfigurationAware with RenderingExtensions {
+class Organization(implicit val bindingModule: BindingModule) extends ApplicationController with RenderingExtensions {
 
   val organizationCollectionLookupService = inject[OrganizationCollectionLookupService]
   val organizationServiceLocator = inject[DomainServiceLocator[OrganizationService]]

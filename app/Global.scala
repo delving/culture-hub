@@ -4,7 +4,8 @@
  */
 
 import actors._
-import core.CultureHubPlugin
+import controllers.ApplicationController
+import core.{ HubModule, CultureHubPlugin }
 import play.api.libs.concurrent._
 import akka.actor._
 import play.api._
@@ -93,6 +94,19 @@ object Global extends WithFilters(new GzipFilter()) {
 
   }
 
+  override def getControllerInstance[A](controllerClass: Class[A]): A = {
+
+    if (controllerClass.isAssignableFrom(classOf[ApplicationController])) {
+      val ct = controllerClass.getConstructors()(0)
+      val args = Array[AnyRef](HubModule)
+      ct.newInstance(args).asInstanceOf[A]
+    } else {
+      super.getControllerInstance(controllerClass)
+    }
+  }
+
+  val apiController = new controllers.api.Api()(HubModule)
+
   override def onRouteRequest(request: RequestHeader): Option[Handler] = {
 
     val domain: String = request.queryString.get("domain").map(v => v.head).getOrElse(request.domain)
@@ -116,7 +130,7 @@ object Global extends WithFilters(new GzipFilter()) {
         // TODO proper routing for search
         if (request.queryString.contains("explain") && request.queryString("explain").head == "true" && !request.path.contains("search")) {
           // redirect to the standard explain response
-          return Some(controllers.api.Api.explainPath(matcher.group(1), request.path))
+          return Some(apiController.explainPath(matcher.group(1), request.path))
         }
       }
 

@@ -425,7 +425,7 @@ package models {
 
       groupedPluginConfigurations.foreach { pluginConfig =>
         CultureHubPlugin.hubPlugins.find(_.pluginKey == pluginConfig._1).map { plugin =>
-          log.debug(s"Loading configuration for plugin ${plugin.pluginKey}")
+          log.trace(s"Loading configuration for plugin ${plugin.pluginKey}")
           try {
             plugin.onBuildConfiguration(pluginConfig._2)
           } catch {

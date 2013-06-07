@@ -10,13 +10,14 @@ import extensions.MissingLibs
 import models.{ OrganizationConfiguration, HubUser }
 import core._
 import play.api.mvc.Cookie
+import com.escalatesoft.subcut.inject.BindingModule
 
 /**
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-class Authentication extends ApplicationController {
+class Authentication(implicit val bindingModule: BindingModule) extends ApplicationController {
 
   val authenticationServiceLocator = inject[DomainServiceLocator[AuthenticationService]]
   val userProfileServiceLocator = inject[DomainServiceLocator[UserProfileService]]

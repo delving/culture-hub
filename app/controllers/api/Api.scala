@@ -3,17 +3,14 @@ package controllers.api
 import controllers._
 import play.api.mvc._
 import extensions.JJson
-import scala.Predef._
-import scala._
-import xml.NodeSeq
-import org.apache.commons.lang.StringEscapeUtils
-import core.ExplainItem
+import core.{ HubModule, ExplainItem }
 import com.escalatesoft.subcut.inject.BindingModule
 
 /**
  * The API documentation
  *
  * TODO document all APIs
+ * TODO remove or re-think this stuff
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
@@ -27,7 +24,7 @@ class Api(implicit val bindingModule: BindingModule) extends DelvingController w
     } else {
       val explanation = pathList(0) match {
         case "proxy" => controllers.api.Proxy.explain(pathList.drop(1))
-        case "index" => controllers.api.Index.explain(pathList.drop(1))
+        case "index" => (new controllers.api.Index()(HubModule)).explain(pathList.drop(1))
         case _ => return noDocumentation(orgId, path)
       }
       explanation match {

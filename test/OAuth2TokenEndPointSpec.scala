@@ -1,3 +1,4 @@
+import core.HubModule
 import org.apache.amber.oauth2.client.request.OAuthClientRequest
 import org.apache.amber.oauth2.client.response.{ OAuthClientResponseFactory, OAuthJSONAccessTokenResponse }
 import org.apache.amber.oauth2.common.message.types.GrantType
@@ -19,6 +20,8 @@ class OAuth2TokenEndPointSpec extends Specs2TestContext {
 
   "the OAuth2 token end-point" should {
 
+    val controller = new controllers.OAuth2TokenEndpoint()(HubModule)
+
     "accept a password grant request" in {
 
       withTestData() {
@@ -39,7 +42,7 @@ class OAuth2TokenEndPointSpec extends Specs2TestContext {
           headers = FakeHeaders()
         )
 
-        val resp = controllers.OAuth2TokenEndpoint.token()(fakeRequest)
+        val resp = controller.token()(fakeRequest)
 
         status(resp) must equalTo(OK)
 
@@ -75,7 +78,7 @@ class OAuth2TokenEndPointSpec extends Specs2TestContext {
           headers = FakeHeaders()
         )
 
-        val resp = controllers.OAuth2TokenEndpoint.token()(fakeRequest)
+        val resp = controller.token()(fakeRequest)
 
         status(resp) must equalTo(BAD_REQUEST)
 

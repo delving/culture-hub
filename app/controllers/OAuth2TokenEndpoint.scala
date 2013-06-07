@@ -19,6 +19,7 @@ import core.{ AuthenticationService, DomainServiceLocator }
 import models.HubUser
 import scala.Left
 import scala.Right
+import com.escalatesoft.subcut.inject.BindingModule
 
 /**
  * OAuth2 TokenEndPoint inspired by the Apache Amber examples and the RFC draft 10
@@ -30,7 +31,7 @@ import scala.Right
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
-class OAuth2TokenEndpoint extends ApplicationController {
+class OAuth2TokenEndpoint(implicit val bindingModule: BindingModule) extends ApplicationController {
 
   val authenticationServiceLocator = inject[DomainServiceLocator[AuthenticationService]]
 

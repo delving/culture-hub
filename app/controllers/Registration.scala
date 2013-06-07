@@ -34,13 +34,14 @@ import validation.{ ValidationError, Valid, Invalid, Constraint }
 import play.libs.Time
 import play.libs.Images.Captcha
 import core.{ RegistrationService, DomainServiceLocator, ThemeInfo, OrganizationService, UserProfileService }
+import com.escalatesoft.subcut.inject.BindingModule
 
 /**
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-class Registration extends ApplicationController {
+class Registration(implicit val bindingModule: BindingModule) extends ApplicationController {
 
   val registrationServiceLocator = inject[DomainServiceLocator[RegistrationService]]
   val organizationServiceLocator = inject[DomainServiceLocator[OrganizationService]]

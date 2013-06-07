@@ -110,16 +110,4 @@ trait ControllerBase extends Extensions with OrganizationConfigurationAware with
     Normalizer.normalize(str, Normalizer.Form.NFD).replaceAll("[^\\w ]", "").replace(" ", "-").toLowerCase
   }
 
-  // ~~~ Form utilities
-  import extensions.Formatters._
-
-  val tokenListMapping = seq(
-    play.api.data.Forms.mapping(
-      "id" -> text,
-      "name" -> text,
-      "tokenType" -> optional(text),
-      "data" -> optional(of[Map[String, String]])
-    )(Token.apply)(Token.unapply)
-  )
-
 }

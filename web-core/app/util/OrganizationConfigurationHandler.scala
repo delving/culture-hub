@@ -310,7 +310,7 @@ class OrganizationConfigurationHandler(plugins: Seq[CultureHubPlugin]) extends A
   private def configureResourceHolders(holders: Seq[OrganizationConfigurationResourceHolder[_, _]]) {
     try {
       holders foreach { holder => holder.configure(organizationConfigurations) }
-      log.debug(s"Initialized ${holders.size} resource holders")
+      log.trace(s"Initialized ${holders.size} resource holders")
     } catch {
       case t: Throwable =>
         t.printStackTrace()

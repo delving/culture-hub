@@ -15,7 +15,7 @@ import xml.NodeSeq
 import org.apache.commons.lang.StringEscapeUtils
 import play.api.mvc.Cookie
 import core.ExplainItem
-import com.escalatesoft.subcut.inject.{ Injectable, BindingModule }
+import com.escalatesoft.subcut.inject.{ BindingModule, Injectable }
 
 /**
  * TODO document the default renderArgs attributes available to templates
@@ -27,6 +27,8 @@ import com.escalatesoft.subcut.inject.{ Injectable, BindingModule }
  */
 
 abstract class ApplicationController extends Controller with GroovyTemplates with ControllerBase with Injectable {
+
+  implicit def bindingModule: BindingModule
 
   // ~~~ i18n
   // TODO the elaborate session gymnastics below were developed during the migration from Play 1 to Play 2 beta. Check if they still make sense.

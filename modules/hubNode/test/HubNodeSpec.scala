@@ -1,3 +1,4 @@
+import core.HubModule
 import core.services.AggregatingNodeSubscriptionService
 import models.HubNode
 import play.api.libs.json.{ JsString, JsObject }
@@ -13,6 +14,8 @@ import util.OrganizationConfigurationHandler
  */
 class HubNodeSpec extends test.Specs2TestContext {
 
+  val controller = new controllers.organization.HubNodes()(HubModule)
+
   step {
     loadStandalone()
   }
@@ -23,7 +26,7 @@ class HubNodeSpec extends test.Specs2TestContext {
 
       withTestConfig {
 
-        val response = controllers.organization.HubNodes.submit(fakeRequest)
+        val response = controller.submit(fakeRequest)
         status(response) must equalTo(200)
 
         HubNode.dao("delving").findOne("rotterdam-node") must beSome
@@ -50,7 +53,7 @@ class HubNodeSpec extends test.Specs2TestContext {
     "not allow to create two nodes with the same ID" in {
 
       withTestConfig {
-        val response = controllers.organization.HubNodes.submit(fakeRequest)
+        val response = controller.submit(fakeRequest)
         status(response) must equalTo(400)
       }
 
@@ -60,7 +63,7 @@ class HubNodeSpec extends test.Specs2TestContext {
 
       withTestConfig {
         val node = HubNode.dao("delving").findOne("rotterdam-node").get
-        val response = controllers.organization.HubNodes.delete(node._id)(
+        val response = controller.delete(node._id)(
           FakeRequest(method = "DELETE", path = "/organizations/delving/hubNode/delete/" + node._id.toString).withSession(
             ("userName" -> "bob")
           )

@@ -7,13 +7,14 @@ import controllers.OrganizationConfigurationAware
 import play.api.Logger
 import core.HubModule
 import play.api.libs.concurrent.Execution.Implicits._
+import com.escalatesoft.subcut.inject.BindingModule
 
 /**
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-object OaiPmh extends Controller with OrganizationConfigurationAware {
+class OaiPmh(implicit val bindingModule: BindingModule) extends Controller with OrganizationConfigurationAware {
 
   // TODO API documentation
 
@@ -21,7 +22,6 @@ object OaiPmh extends Controller with OrganizationConfigurationAware {
     Action {
       implicit request =>
         Async {
-          implicit val bindingModule = HubModule
           val oaiPmhService = new OaiPmhService(request.queryString, request.uri, orgId, format, accessKey)
           Promise.pure(oaiPmhService.parseRequest).map { response =>
 

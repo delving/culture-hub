@@ -225,14 +225,26 @@ case class RoleResourceType(roleKey: String, resourceType: String, resourceTypeN
 
 object GroupViewModel {
 
+  // ~~~ Form utilities
+  import extensions.Formatters._
+
+  val tokenListMapping = seq(
+    play.api.data.Forms.mapping(
+      "id" -> text,
+      "name" -> text,
+      "tokenType" -> optional(text),
+      "data" -> optional(of[Map[String, String]])
+    )(Token.apply)(Token.unapply)
+  )
+
   val groupForm: Form[GroupViewModel] = Form(
     mapping(
       "id" -> optional(of[ObjectId]),
       "name" -> nonEmptyText,
       "roleKey" -> nonEmptyText,
       "canChangeGrantType" -> boolean,
-      "users" -> Groups.tokenListMapping,
-      "resources" -> Groups.tokenListMapping,
+      "users" -> tokenListMapping,
+      "resources" -> tokenListMapping,
       "rolesWithResources" -> seq(nonEmptyText),
       "rolesWithResourceAdmin" -> seq(nonEmptyText),
       "rolesResourceType" -> seq(

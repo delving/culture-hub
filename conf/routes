@@ -2,15 +2,14 @@
 # This file defines all application routes (Higher priority routes first)
 # ~~~~
 
-GET         /favicon.ico                                                            controllers.Application.notFound(what = "favicon.ico")
-GET         /assets/themes/:theme/info.conf                                         controllers.Application.notFound(theme)
+GET         /assets/themes/:theme/info.conf                                         @controllers.Application.notFound(theme)
 
 GET         /robots.txt                                                             controllers.Assets.at(path="/public", file="robots.txt")
+GET         /browsers.html                                                          controllers.Assets.at(path="/public", file="browsers.html")
 
 # Home page
-GET     /                                                                           controllers.Application.index
+GET     /                                                                           @controllers.Application.index
 
-GET     /browsers.html                                                              controllers.Assets.at(path="/public", file="browsers.html")
 
 # Form-based authentication
 GET        /login                                                                   @controllers.Authentication.login
@@ -21,15 +20,15 @@ GET        /logout                                                              
 GET        /token                                                                   @controllers.OAuth2TokenEndpoint.token
 
 # Demo space
-GET        /demo/viewer                                                             controllers.Demo.view(image: Option[String])
-GET        /demo/yumaImage                                                          controllers.Demo.yumaImage()
-GET        /demo/yumaMap                                                            controllers.Demo.yumaMap()
-GET        /fcgi-bin/iipsrv.fcgi                                                    controllers.Demo.iipsrv
+GET        /demo/viewer                                                             @controllers.Demo.view(image: Option[String])
+GET        /demo/yumaImage                                                          @controllers.Demo.yumaImage()
+GET        /demo/yumaMap                                                            @controllers.Demo.yumaMap()
+GET        /fcgi-bin/iipsrv.fcgi                                                    @controllers.Demo.iipsrv
 
 
 # Image Upload - with authentication
-POST       /file/upload/:uid                                                        controllers.user.FileUpload.uploadFile(uid)
-DELETE     /file/:id                                                                controllers.user.FileUpload.deleteFile(id)
+POST       /file/upload/:uid                                                        @controllers.user.FileUpload.uploadFile(uid)
+DELETE     /file/:id                                                                @controllers.user.FileUpload.deleteFile(id)
 
 
 ##################################
@@ -92,33 +91,33 @@ POST       /registration/newPassword/:resetPasswordToken                        
 
 # Enrichment lookups
 
-GET         /places/search                                                          controllers.ws.Places.listAsTokens(q: String ?= "", countryCode: Option[String])
+GET         /places/search                                                          @controllers.ws.Places.listAsTokens(q: String ?= "", countryCode: Option[String])
 
 # Delving URL scheme
 
-GET          /users                                                                 controllers.Users.list(query: String ?= "", page: Int ?= 1)
-GET          /users/search                                                          controllers.Users.listAsTokens(orgId: Option[String] = None, q: String ?= "")
+GET          /users                                                                 @controllers.Users.list(query: String ?= "", page: Int ?= 1)
+GET          /users/search                                                          @controllers.Users.listAsTokens(orgId: Option[String] = None, q: String ?= "")
 
-GET          /search                                                                controllers.Search.index(query ?= "*:*", page: Int ?= 1)
+GET          /search                                                                @controllers.Search.index(query ?= "*:*", page: Int ?= 1)
 
-GET          /:user                                                                 controllers.Profile.profile(user)
+GET          /:user                                                                 @controllers.Profile.profile(user)
 
-GET          /:user/admin/profile/update                                            controllers.user.Admin.profile(user)
-POST         /:user/admin/profile                                                   controllers.user.Admin.profileSubmit(user)
+GET          /:user/admin/profile/update                                            @controllers.user.Admin.profile(user)
+POST         /:user/admin/profile                                                   @controllers.user.Admin.profileSubmit(user)
 
 
 # Organizations API
 
-GET         /organizations/:orgId/api                                               controllers.api.Api.api(orgId)
+GET         /organizations/:orgId/api                                               @controllers.api.Api.api(orgId)
 
 GET         /organizations/search                                                   @controllers.organization.Organizations.listAsTokens(q: String ?= "")
 
-GET         /organizations/:orgId/api/oai-pmh                                       controllers.api.OaiPmh.oaipmh(orgId: String, format: Option[String] = None, accessKey: Option[String] = None)
-GET         /organizations/:orgId/api/oai-pmh/:accessKey                            controllers.api.OaiPmh.oaipmh(orgId: String, format: Option[String] = None, accessKey: Option[String])
-GET         /organizations/:orgId/api/oai-pmh/format/:format                        controllers.api.OaiPmh.oaipmh(orgId: String, format: Option[String], accessKey: Option[String] = None)
-GET         /organizations/:orgId/api/oai-pmh/format/:format/:accessKey             controllers.api.OaiPmh.oaipmh(orgId: String, format: Option[String], accessKey: Option[String])
+GET         /organizations/:orgId/api/oai-pmh                                       @controllers.api.OaiPmh.oaipmh(orgId: String, format: Option[String] = None, accessKey: Option[String] = None)
+GET         /organizations/:orgId/api/oai-pmh/:accessKey                            @controllers.api.OaiPmh.oaipmh(orgId: String, format: Option[String] = None, accessKey: Option[String])
+GET         /organizations/:orgId/api/oai-pmh/format/:format                        @controllers.api.OaiPmh.oaipmh(orgId: String, format: Option[String], accessKey: Option[String] = None)
+GET         /organizations/:orgId/api/oai-pmh/format/:format/:accessKey             @controllers.api.OaiPmh.oaipmh(orgId: String, format: Option[String], accessKey: Option[String])
 
-GET         /organizations/:orgId/api/proxy                                         controllers.api.Api.explain(orgId)
+GET         /organizations/:orgId/api/proxy                                         @controllers.api.Api.explain(orgId)
 GET         /organizations/:orgId/api/proxy/list                                    controllers.api.Proxy.list(orgId)
 GET         /organizations/:orgId/api/proxy/:proxyKey/search                        controllers.api.Proxy.query(orgId, proxyKey)
 GET         /organizations/:orgId/api/proxy/:proxyKey/item/*itemKey                 controllers.api.Proxy.item(orgId, proxyKey, itemKey)
@@ -128,8 +127,8 @@ GET         /organizations/:orgId/api/dataProviders                             
 GET         /organizations/:orgId/api/collections                                   @controllers.api.Organization.collections(orgId)
 
 ## Deprecated - legacy routes support
-GET         /organizations/:orgId/oai-pmh                                           controllers.api.OaiPmh.oaipmh(orgId: String, format: Option[String] = None, accessKey: Option[String] = None)
-GET         /organizations/:orgId/oai-pmh/:accessKey                                controllers.api.OaiPmh.oaipmh(orgId: String, format: Option[String] = None, accessKey: Option[String])
+GET         /organizations/:orgId/oai-pmh                                           @controllers.api.OaiPmh.oaipmh(orgId: String, format: Option[String] = None, accessKey: Option[String] = None)
+GET         /organizations/:orgId/oai-pmh/:accessKey                                @controllers.api.OaiPmh.oaipmh(orgId: String, format: Option[String] = None, accessKey: Option[String])
 GET         /organizations/:orgId/proxy/list                                        controllers.api.Proxy.list(orgId)
 GET         /organizations/:orgId/proxy/:proxyKey/search                            controllers.api.Proxy.query(orgId, proxyKey)
 GET         /organizations/:orgId/proxy/:proxyKey/item/*itemKey                     controllers.api.Proxy.item(orgId, proxyKey, itemKey)
@@ -147,7 +146,7 @@ DELETE      /organizations/:orgId/admin/admin/remove                            
 GET         /organizations/:orgId/admin/solrSearchProxy                             @controllers.organization.Admin.solrSearchProxy(orgId)
 GET         /organizations/:orgId/admin/reProcessAll                                @controllers.organization.Admin.reProcessAll(orgId)
 
-GET         /organizations/:orgId/users/search                                      controllers.Users.listAsTokens(orgId: Option[String], q: String ?= "")
+GET         /organizations/:orgId/users/search                                      @controllers.Users.listAsTokens(orgId: Option[String], q: String ?= "")
 
 GET         /organizations/:orgId/groups/resources/:resourceType/search             @controllers.organization.Groups.searchResourceTokens(orgId, resourceType, q: String ?= "")
 

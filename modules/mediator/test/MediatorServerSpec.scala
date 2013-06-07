@@ -1,4 +1,4 @@
-import controllers.mediator.MediatorServer
+import core.HubModule
 import java.io.File
 import models.OrganizationConfiguration
 import play.api.test._
@@ -11,18 +11,20 @@ import test.Specs2TestContext
  */
 class MediatorServerSpec extends Specs2TestContext {
 
+  val controller = new controllers.mediator.MediatorServer()(HubModule)
+
   "The Mediator Server" should {
 
     "return 404 if an image was not found" in {
       withTestConfig { implicit configuration: OrganizationConfiguration =>
-        val result = MediatorServer.newFile("delving", "fooSet", "fooFile.jpg", "bob", s"http://${configuration.domains.head}:9000/media/fault/newFile")(FakeRequest())
+        val result = controller.newFile("delving", "fooSet", "fooFile.jpg", "bob", s"http://${configuration.domains.head}:9000/media/fault/newFile")(FakeRequest())
         status(result) must equalTo(404)
       }
     }
     "return 400 if a file is not an image" in {
       val here = (new File("modules/mediator"))
       withTestConfig(Map("configurations.delving.plugin.mediator.sourceDirectory" -> here.getAbsolutePath)) { implicit configuration: OrganizationConfiguration =>
-        val result = MediatorServer.newFile("delving", "conf", "mediator.routes", "bob", s"http://${configuration.domains.head}:9000/media/fault/newFile")(FakeRequest())
+        val result = controller.newFile("delving", "conf", "mediator.routes", "bob", s"http://${configuration.domains.head}:9000/media/fault/newFile")(FakeRequest())
         status(result) must equalTo(400)
       }
     }
