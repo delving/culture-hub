@@ -415,7 +415,7 @@ package models {
         }
       }.toMap
 
-      log.debug("Found following plugin configurations: " + pluginConfigurations.keys.map(_._1).mkString(", "))
+      log.trace("Found following plugin configurations: " + pluginConfigurations.keys.map(_._1).mkString(", "))
 
       val groupedPluginConfigurations: Map[String, Map[OrganizationConfiguration, Option[Configuration]]] = pluginConfigurations.groupBy(_._1._1).map { g =>
         (g._1 -> {
