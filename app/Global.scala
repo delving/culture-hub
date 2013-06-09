@@ -96,10 +96,10 @@ object Global extends WithFilters(new GzipFilter()) {
 
   override def getControllerInstance[A](controllerClass: Class[A]): A = {
 
-    if (controllerClass.isAssignableFrom(classOf[ApplicationController])) {
+    if (classOf[ApplicationController].isAssignableFrom(controllerClass)) {
+      Logger("CultureHub").info("Constructors " + controllerClass.getConstructors)
       val ct = controllerClass.getConstructors()(0)
-      val args = Array[AnyRef](HubModule)
-      ct.newInstance(args).asInstanceOf[A]
+      ct.newInstance(HubModule).asInstanceOf[A]
     } else {
       super.getControllerInstance(controllerClass)
     }
