@@ -1,17 +1,11 @@
 package plugins
 
 import play.api.{ Logger, Configuration, Application }
-import scala.util.matching.Regex
-import play.api.mvc.Handler
 import models.{ OrganizationConfiguration, Role }
 import core._
-import scala.collection.immutable.ListMap
 import scala.collection.JavaConverters._
-import scala.collection
 import core.MainMenuEntry
 import core.RequestContext
-import plugins.StatisticsPluginConfiguration
-import scala.Some
 import core.MenuElement
 
 /**
@@ -75,7 +69,7 @@ class StatisticsPlugin(app: Application) extends CultureHubPlugin(app) {
       titleKey = "stats.Statistics",
       roles = Seq(Role.OWN),
       mainEntry = Some(
-        MenuElement(url = "/organizations/%s/statistics".format(configuration.orgId), titleKey = "stats.Statistics")
+        MenuElement(url = "/statistics".format(configuration.orgId), titleKey = "stats.Statistics")
       )
     )
   )

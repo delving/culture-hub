@@ -18,31 +18,27 @@ import com.escalatesoft.subcut.inject.BindingModule
 
 class Admin(implicit val bindingModule: BindingModule) extends OrganizationController {
 
-  def index(orgId: String) = OrganizationAdmin {
+  def index = OrganizationAdmin {
     Action {
       implicit request =>
-        if (!organizationServiceLocator.byDomain.exists(orgId)) {
-          NotFound(Messages("hub.CouldNotFindOrganization").format(orgId))
-        } else {
-          val membersAsTokens = JJson.generate(HubUser.dao.listOrganizationMembers(orgId).map(m => Map("id" -> m, "name" -> m)))
-          val adminsAsTokens = JJson.generate(organizationServiceLocator.byDomain.listAdmins(orgId).map(a => Map("id" -> a, "name" -> a)))
-          Ok(Template(
-            'members -> membersAsTokens,
-            'admins -> adminsAsTokens
-          ))
-        }
+        val membersAsTokens = JJson.generate(HubUser.dao.listOrganizationMembers(configuration.orgId).map(m => Map("id" -> m, "name" -> m)))
+        val adminsAsTokens = JJson.generate(organizationServiceLocator.byDomain.listAdmins(configuration.orgId).map(a => Map("id" -> a, "name" -> a)))
+        Ok(Template(
+          'members -> membersAsTokens,
+          'admins -> adminsAsTokens
+        ))
     }
   }
 
   /**
    * Add to organization
    */
-  def addUser(orgId: String) = OrganizationAdmin {
+  def addUser = OrganizationAdmin {
     Action {
       implicit request =>
         val id = request.body.getFirstAsString("id").get
         HubUser.dao.findByUsername(id).map { user =>
-          val success = HubUser.dao.addToOrganization(id, orgId)
+          val success = HubUser.dao.addToOrganization(id, configuration.orgId)
           // TODO logging
           if (success) Ok else Error
         }.getOrElse {
@@ -54,12 +50,12 @@ class Admin(implicit val bindingModule: BindingModule) extends OrganizationContr
   /**
    * Remove from organization
    */
-  def removeUser(orgId: String) = OrganizationAdmin {
+  def removeUser = OrganizationAdmin {
     Action {
       implicit request =>
         val id = request.body.getFirstAsString("id").get
         HubUser.dao.findByUsername(id).map { user =>
-          val success = HubUser.dao.removeFromOrganization(id, orgId)
+          val success = HubUser.dao.removeFromOrganization(id, configuration.orgId)
           // TODO logging
           if (success) Ok else Error
         }.getOrElse {
@@ -68,12 +64,12 @@ class Admin(implicit val bindingModule: BindingModule) extends OrganizationContr
     }
   }
 
-  def addAdmin(orgId: String) = OrganizationAdmin {
+  def addAdmin = OrganizationAdmin {
     Action {
       implicit request =>
         val id = request.body.getFirstAsString("id").get
         HubUser.dao.findByUsername(id).map { user =>
-          val success = organizationServiceLocator.byDomain.addAdmin(orgId, id)
+          val success = organizationServiceLocator.byDomain.addAdmin(configuration.orgId, id)
           // TODO logging
           if (success) Ok else Error
         }.getOrElse {
@@ -82,16 +78,16 @@ class Admin(implicit val bindingModule: BindingModule) extends OrganizationContr
     }
   }
 
-  def removeAdmin(orgId: String) = OrganizationAdmin {
+  def removeAdmin = OrganizationAdmin {
     Action {
       implicit request =>
         val id = request.body.getFirstAsString("id").get
-        val success = organizationServiceLocator.byDomain.removeAdmin(orgId, id)
+        val success = organizationServiceLocator.byDomain.removeAdmin(configuration.orgId, id)
         if (success) Ok else Error
     }
   }
 
-  def solrSearchProxy(orgId: String) = OrganizationAdmin {
+  def solrSearchProxy = OrganizationAdmin {
     Action {
       implicit request =>
         val solrQueryString: String = request.rawQueryString
@@ -108,7 +104,7 @@ class Admin(implicit val bindingModule: BindingModule) extends OrganizationContr
     }
   }
 
-  def reProcessAll(orgId: String) = OrganizationAdmin {
+  def reProcessAll = OrganizationAdmin {
     Action {
       implicit request =>
 

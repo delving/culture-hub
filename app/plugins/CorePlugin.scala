@@ -37,21 +37,21 @@ class CorePlugin(app: Application) extends CultureHubPlugin(app) {
     MainMenuEntry(
       key = "overview",
       titleKey = "hub.Overview",
-      mainEntry = Some(MenuElement("/organizations/" + configuration.orgId, "hub.Overview")),
+      mainEntry = Some(MenuElement("/admin", "hub.Overview")),
       membersOnly = false
     ),
     MainMenuEntry(
       key = "administration",
       titleKey = "hub.Administration",
-      mainEntry = Some(MenuElement("/organizations/%s/admin".format(configuration.orgId), "hub.Administration")),
+      mainEntry = Some(MenuElement("/admin/admin", "hub.Administration")),
       roles = Seq(Role.OWN)
     ),
     MainMenuEntry(
       key = "groups",
       titleKey = "hubb.Groups",
       items = Seq(
-        MenuElement("/organizations/%s/groups".format(configuration.orgId), "hub.GroupList"),
-        MenuElement("/organizations/%s/groups/create".format(configuration.orgId), "hub.CreateGroup", Seq(Role.OWN))
+        MenuElement("/admin/groups", "hub.GroupList"),
+        MenuElement("/admin/groups/create", "hub.CreateGroup", Seq(Role.OWN))
       )
     )
   )

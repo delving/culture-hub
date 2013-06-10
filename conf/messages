@@ -22,13 +22,13 @@ cms.FieldsExplained=Fields explained
 cms.HelpWithUploadingImages=Help with uploading images
 cms.HelpWithWebsitePages=Help with website pages
 cms.Homepage=Homepage
-cms.ImagesCanBeAdded=Images can be added in two ways: <ol><li><strong>Upload from a computer:</strong> this can be done on the <a href="/organizations/{0}/site/upload">Upload image</a> page. After the image is saved it can be used in your page content by clicking on the <span class="mceIcon mceImage"></span> icon and selecting your uploaded image from the <em>Image list</em></li><li><strong>Directly from the internet:</strong> klick on the <span class="mceIcon mceImage"></span> icon and type or paste the URL of the image in the </em>Image URL</em> field
+cms.ImagesCanBeAdded=Images can be added in two ways: <ol><li><strong>Upload from a computer:</strong> this can be done on the <a href="/admin/site/upload">Upload image</a> page. After the image is saved it can be used in your page content by clicking on the <span class="mceIcon mceImage"></span> icon and selecting your uploaded image from the <em>Image list</em></li><li><strong>Directly from the internet:</strong> klick on the <span class="mceIcon mceImage"></span> icon and type or paste the URL of the image in the </em>Image URL</em> field
 cms.InvalidKeyValue=Invalid key value. A page key must be lowercase and has to be from 3 to 35 characters long.
 cms.ListPagesIn=List pages in
 cms.MainMenu=Main menu
 cms.MakeThisContentAvailable=Checking this option will make this content visible
 cms.NotPublished=Not published
-cms.OnceUploaded=<p>Once uploaded, go back to the <a href="/organizations/{0}/site">page list</a> and edit and existing page or create a <a href="/organizations/{0}/site/{1}/page/add">new page</a>. Click on the <span class="mceIcon mceImage"></span> icon to select the image from the <em>Image list</em> for use.</p>
+cms.OnceUploaded=<p>Once uploaded, go back to the <a href="/admin/site">page list</a> and edit and existing page or create a <a href="/admin/site/{0}/page/add">new page</a>. Click on the <span class="mceIcon mceImage"></span> icon to select the image from the <em>Image list</em> for use.</p>
 cms.PageKey=Page key
 cms.PositionInTheMenu=Position in the menu
 cms.Publish=Publish

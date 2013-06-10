@@ -23,10 +23,10 @@ import com.escalatesoft.subcut.inject.BindingModule
  */
 class Groups(implicit val bindingModule: BindingModule) extends OrganizationController {
 
-  def list(orgId: String) = OrganizationMember {
+  def list = OrganizationMember {
     Action {
       implicit request =>
-        val groups = Group.dao.list(userName, orgId).filterNot(_.isSystemGroup).map { group =>
+        val groups = Group.dao.list(userName, configuration.orgId).filterNot(_.isSystemGroup).map { group =>
           GroupListModel(
             id = group._id.toString,
             name = group.name,
@@ -41,10 +41,10 @@ class Groups(implicit val bindingModule: BindingModule) extends OrganizationCont
     }
   }
 
-  def groups(orgId: String, groupId: Option[ObjectId]) = OrganizationMember {
+  def groups(groupId: Option[ObjectId]) = OrganizationMember {
     Action {
       implicit request =>
-        if (groupId != None && !canUpdateGroup(orgId, groupId.get) || groupId == None && !canCreateGroup(orgId)) {
+        if (groupId != None && !canUpdateGroup(configuration.orgId, groupId.get) || groupId == None && !canCreateGroup(configuration.orgId)) {
           Forbidden(Messages("hub.YouDoNotHaveAccess"))
         } else {
           val group: Option[Group] = groupId.flatMap(Group.dao.findOneById(_))
@@ -56,7 +56,7 @@ class Groups(implicit val bindingModule: BindingModule) extends OrganizationCont
           }
           Ok(Template(
             'id -> groupId,
-            'data -> load(orgId, groupId),
+            'data -> load(configuration.orgId, groupId),
             'groupForm -> GroupViewModel.groupForm,
             'users -> usersAsTokens,
             'roles -> Role.allPrimaryRoles(configuration).
@@ -68,19 +68,19 @@ class Groups(implicit val bindingModule: BindingModule) extends OrganizationCont
     }
   }
 
-  def remove(orgId: String, groupId: Option[ObjectId]) = OrganizationAdmin {
+  def remove(groupId: Option[ObjectId]) = OrganizationAdmin {
     Action {
       implicit request =>
         if (!groupId.isDefined) {
           Results.BadRequest
         } else {
-          Group.dao.remove(MongoDBObject("_id" -> groupId, "orgId" -> orgId))
+          Group.dao.remove(MongoDBObject("_id" -> groupId, "orgId" -> configuration.orgId))
           Ok
         }
     }
   }
 
-  def submit(orgId: String): Action[AnyContent] = OrganizationMember {
+  def submit: Action[AnyContent] = OrganizationMember {
     Action {
       implicit request =>
 
@@ -89,7 +89,7 @@ class Groups(implicit val bindingModule: BindingModule) extends OrganizationCont
           groupForm => {
             Logger("CultureHub").debug("Received group submission: " + groupForm)
             val groupId = groupForm.id
-            if (groupForm.id != None && !canUpdateGroup(orgId, groupId.get) || groupId == None && !canCreateGroup(orgId)) {
+            if (groupForm.id != None && !canUpdateGroup(configuration.orgId, groupId.get) || groupId == None && !canCreateGroup(configuration.orgId)) {
               Forbidden(Messages("hub.YouDoNotHaveAccess"))
             } else {
               val role = try {
@@ -115,14 +115,14 @@ class Groups(implicit val bindingModule: BindingModule) extends OrganizationCont
                   Group.dao.insert(
                     Group(
                       name = groupForm.name,
-                      orgId = orgId,
+                      orgId = configuration.orgId,
                       roleKey = role.key
                     )
                   ) match {
                       case None => None
                       case Some(id) =>
-                        groupForm.users.foreach(u => Group.dao.addUser(orgId, u.id, id))
-                        groupForm.resources.foreach(r => Group.dao.addResource(orgId, r.id, role.resourceType.get, id))
+                        groupForm.users.foreach(u => Group.dao.addUser(configuration.orgId, u.id, id))
+                        groupForm.resources.foreach(r => Group.dao.addResource(configuration.orgId, r.id, role.resourceType.get, id))
                         Some(groupForm.copy(id = Some(id)))
                     }
                 case Some(id) =>
@@ -139,13 +139,13 @@ class Groups(implicit val bindingModule: BindingModule) extends OrganizationCont
                           val resources: Seq[Resource] = role.resourceType.map { resourceType =>
                             val lookup = CultureHubPlugin.getResourceLookup(role.resourceType.get).get
                             groupForm.resources.flatMap { resourceToken =>
-                              lookup.findResourceByKey(orgId, resourceToken.id)
+                              lookup.findResourceByKey(configuration.orgId, resourceToken.id)
                             }
                           }.getOrElse {
                             Seq.empty
                           }
                           Group.dao.updateGroupInfo(id, groupForm.name, role, groupForm.users.map(_.id), resources.map(r => PersistedResource(r)))
-                          groupForm.users.foreach(u => Group.dao.addUser(orgId, u.id, id))
+                          groupForm.users.foreach(u => Group.dao.addUser(configuration.orgId, u.id, id))
 
                       }
                       Some(groupForm)
@@ -161,12 +161,12 @@ class Groups(implicit val bindingModule: BindingModule) extends OrganizationCont
     }
   }
 
-  def searchResourceTokens(orgId: String, resourceType: String, q: String) = OrganizationMember {
+  def searchResourceTokens(resourceType: String, q: String) = OrganizationMember {
     Action {
       implicit request =>
         val maybeLookup = CultureHubPlugin.getResourceLookup(ResourceType(resourceType))
         maybeLookup.map { lookup =>
-          val tokens = lookup.findResources(orgId, q).map { resource =>
+          val tokens = lookup.findResources(configuration.orgId, q).map { resource =>
             Token(resource.getResourceKey, resource.getResourceKey, Some(resource.getResourceType.resourceType))
           }
           Json(tokens)

@@ -64,7 +64,7 @@ class SimpleDocumentUpload(implicit val bindingModule: BindingModule) extends Or
           )
           val itemViewModelAsJson = JJson.generate(itemViewModel)
 
-          Ok(Template('data -> itemViewModelAsJson, 'uid -> MissingLibs.UUID, 'id -> generatedId))
+          Ok(Template("organizations/SimpleDocumentUpload/simpleDocumentUpload.html", 'data -> itemViewModelAsJson, 'uid -> MissingLibs.UUID, 'id -> generatedId))
 
         }
     }
@@ -106,7 +106,7 @@ class SimpleDocumentUpload(implicit val bindingModule: BindingModule) extends Or
                 val itemViewModel = ItemViewModel(item.itemId, fields, files)
                 val itemViewModelAsJson = JJson.generate(itemViewModel)
 
-                Ok(Template('data -> itemViewModelAsJson, 'uid -> MissingLibs.UUID, 'id -> itemId))
+                Ok(Template("organizations/SimpleDocumentUpload/simpleDocumentUpload.html", 'data -> itemViewModelAsJson, 'uid -> MissingLibs.UUID, 'id -> itemId))
 
               } catch {
                 case t: Throwable =>
@@ -261,43 +261,6 @@ class SimpleDocumentUpload(implicit val bindingModule: BindingModule) extends Or
     }
   }
 
-  case class ListItemViewModel(id: String, name: String, description: String)
-
-  case class ItemViewModel(id: String, fields: Seq[Field], files: Seq[FileUploadResponse] = Seq.empty)
-
-  object ItemViewModel {
-
-    val itemForm = Form(
-      mapping(
-        "id" -> nonEmptyText,
-        "fields" -> seq(
-          mapping(
-            "key" -> nonEmptyText,
-            "fieldType" -> nonEmptyText,
-            "label" -> nonEmptyText,
-            "value" -> text,
-            "hasOptions" -> boolean,
-            "options" -> seq(text)
-          )(Field.apply)(Field.unapply)
-        ),
-        "files" -> seq(
-          mapping(
-            "name" -> text,
-            "size" -> longNumber,
-            "url" -> text,
-            "thumbnail_url" -> text,
-            "delete_url" -> text,
-            "delete_type" -> text,
-            "error" -> text,
-            "id" -> text
-          )(FileUploadResponse.apply)(FileUploadResponse.unapply))
-      )(ItemViewModel.apply)(ItemViewModel.unapply)
-    )
-
-  }
-
-  case class Field(key: String, fieldType: String, label: String, value: String, hasOptions: Boolean, options: Seq[String])
-
   private def withAccess(block: => Result)(implicit request: RequestHeader, configuration: OrganizationConfiguration): Result = {
     if (Group.dao.hasAnyRole(connectedUser, Seq(SimpleDocumentUploadPlugin.ROLE_DOCUMENT_EDITOR, Role.OWN))) {
       block
@@ -312,3 +275,40 @@ class SimpleDocumentUpload(implicit val bindingModule: BindingModule) extends Or
   }
 
 }
+
+case class ListItemViewModel(id: String, name: String, description: String)
+
+case class ItemViewModel(id: String, fields: Seq[Field], files: Seq[FileUploadResponse] = Seq.empty)
+
+object ItemViewModel {
+
+  val itemForm = Form(
+    mapping(
+      "id" -> nonEmptyText,
+      "fields" -> seq(
+        mapping(
+          "key" -> nonEmptyText,
+          "fieldType" -> nonEmptyText,
+          "label" -> nonEmptyText,
+          "value" -> text,
+          "hasOptions" -> boolean,
+          "options" -> seq(text)
+        )(Field.apply)(Field.unapply)
+      ),
+      "files" -> seq(
+        mapping(
+          "name" -> text,
+          "size" -> longNumber,
+          "url" -> text,
+          "thumbnail_url" -> text,
+          "delete_url" -> text,
+          "delete_type" -> text,
+          "error" -> text,
+          "id" -> text
+        )(FileUploadResponse.apply)(FileUploadResponse.unapply))
+    )(ItemViewModel.apply)(ItemViewModel.unapply)
+  )
+
+}
+
+case class Field(key: String, fieldType: String, label: String, value: String, hasOptions: Boolean, options: Seq[String])

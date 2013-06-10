@@ -45,14 +45,14 @@ class DataSetPlugin(app: Application) extends CultureHubPlugin(app) {
       key = "datasets",
       titleKey = "dataset.Datasets",
       items = Seq(
-        MenuElement("/organizations/%s/dataset".format(configuration.orgId), "dataset.DatasetList"),
-        MenuElement("/organizations/%s/dataset/add".format(configuration.orgId), "dataset.CreateADataset", Seq(Role.OWN, DataSetPlugin.ROLE_DATASET_ADMIN))
+        MenuElement("/admin/dataset", "dataset.DatasetList"),
+        MenuElement("/admin/dataset/add", "dataset.CreateADataset", Seq(Role.OWN, DataSetPlugin.ROLE_DATASET_ADMIN))
       )
     ),
     MainMenuEntry(
       key = "sipcreator",
       titleKey = "hub.SIPCreator",
-      mainEntry = Some(MenuElement("/organizations/%s/sip-creator".format(configuration.orgId), "hub.SIPCreator"))
+      mainEntry = Some(MenuElement("/admin/sip-creator", "hub.SIPCreator"))
     )
   )
 

@@ -97,7 +97,6 @@ object Global extends WithFilters(new GzipFilter()) {
   override def getControllerInstance[A](controllerClass: Class[A]): A = {
 
     if (classOf[ApplicationController].isAssignableFrom(controllerClass)) {
-      Logger("CultureHub").info("Constructors " + controllerClass.getConstructors)
       val ct = controllerClass.getConstructors()(0)
       ct.newInstance(HubModule).asInstanceOf[A]
     } else {
@@ -120,7 +119,7 @@ object Global extends WithFilters(new GzipFilter()) {
       val routes = CultureHubPlugin.getEnabledPlugins.flatMap(_.routes)
 
       val routeLogger = Akka.system.actorFor("akka://application/user/routeLogger")
-      val apiRouteMatcher = """^/organizations/([A-Za-z0-9-]+)/api/(.)*""".r
+      val apiRouteMatcher = """^/api/(.)*""".r
       val matcher = apiRouteMatcher.pattern.matcher(request.uri)
 
       if (matcher.matches()) {
@@ -130,7 +129,7 @@ object Global extends WithFilters(new GzipFilter()) {
         // TODO proper routing for search
         if (request.queryString.contains("explain") && request.queryString("explain").head == "true" && !request.path.contains("search")) {
           // redirect to the standard explain response
-          return Some(apiController.explainPath(matcher.group(1), request.path))
+          return Some(apiController.explainPath(request.path))
         }
       }
 

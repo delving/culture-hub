@@ -215,7 +215,7 @@ class DataSetControl(implicit val bindingModule: BindingModule) extends Organiza
             indexingMappingPrefix = Some("None")
           ))
 
-          Ok(Template("organization/DataSets/dataSet.html",
+          Ok(Template("organization/DataSetControl/dataSet.html",
             'spec -> None,
             'data -> data,
             'creationQuotaExceeded -> CultureHubPlugin.isQuotaExceeded(DataSet.RESOURCE_TYPE),
@@ -265,7 +265,7 @@ class DataSetControl(implicit val bindingModule: BindingModule) extends Organiza
               }
 
               Ok(
-                Template("organization/DataSets/dataSet.html",
+                Template("organization/DataSetControl/dataSet.html",
                   'spec -> Some(spec),
                   'data -> data,
                   'creationQuotaExceeded -> false,
@@ -403,7 +403,7 @@ class DataSetControl(implicit val bindingModule: BindingModule) extends Organiza
     }
   }
 
-  def organizationLookup(orgId: String, term: String) = OrganizationMember {
+  def organizationLookup(term: String) = OrganizationMember {
     Action {
       implicit request =>
         Json(directoryServiceLocator.byDomain.findOrganization(term).map(_.name))

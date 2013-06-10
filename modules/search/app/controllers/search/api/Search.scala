@@ -22,7 +22,7 @@ class Search(implicit val bindingModule: BindingModule) extends DelvingControlle
 
   val organizationCollectionLookupService = inject[OrganizationCollectionLookupService]
 
-  def searchApi(orgId: String, provider: Option[String], dataProvider: Option[String], collection: Option[String]) = OrganizationConfigured {
+  def searchApi(provider: Option[String], dataProvider: Option[String], collection: Option[String]) = OrganizationConfigured {
     Action {
       implicit request =>
         Async {
@@ -38,9 +38,9 @@ class Search(implicit val bindingModule: BindingModule) extends DelvingControlle
 
             val orgIdFilter = "%s:%s".format(ORG_ID.key, configuration.orgId)
 
-            val itemTypesFilter = ("(%s)".format(
+            val itemTypesFilter = "(%s)".format(
               itemTypes.map(t => "%s:%s".format(RECORD_TYPE.key, t.itemType)).mkString(" OR ")
-            ))
+            )
 
             val hiddenQueryFilters = if (itemTypes.isEmpty) List(orgIdFilter) else List(itemTypesFilter, orgIdFilter)
 
@@ -50,11 +50,10 @@ class Search(implicit val bindingModule: BindingModule) extends DelvingControlle
             // CORS - see http://www.w3.org/TR/cors/
             result =>
               result.withHeaders(
-                ("Access-Control-Allow-Origin" -> "*"),
-                ("Access-Control-Allow-Methods" -> "GET, POST, OPTIONS"),
-                ("Access-Control-Allow-Headers" -> "X-Requested-With"),
-                ("Access-Control-Max-Age" -> "86400")
-
+                "Access-Control-Allow-Origin" -> "*",
+                "Access-Control-Allow-Methods" -> "GET, POST, OPTIONS",
+                "Access-Control-Allow-Headers" -> "X-Requested-With",
+                "Access-Control-Max-Age" -> "86400"
               )
           }
         }

@@ -17,7 +17,7 @@ class PlatformSpec extends Specs2TestContext {
 
   val organizationConfigurationHandler = OrganizationConfigurationHandler
 
-  "The OrganizationConfigurationHandler handled" should {
+  "The OrganizationConfigurationHandler" should {
 
     "load configurations from disk into memory" in {
       withTestConfig {

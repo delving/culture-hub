@@ -19,90 +19,74 @@ class Organization(implicit val bindingModule: BindingModule) extends Applicatio
   val organizationCollectionLookupService = inject[OrganizationCollectionLookupService]
   val organizationServiceLocator = inject[DomainServiceLocator[OrganizationService]]
 
-  def providers(orgId: String) = OrganizationConfigured {
+  def providers = OrganizationConfigured {
     Action {
       implicit request =>
-        if (organizationServiceLocator.byDomain.exists(orgId)) {
+        val providers = getAllOrganiztationCollectionInformation.map(_.getProvider)
 
-          val providers = getAllOrganiztationCollectionInformation.map(_.getProvider)
+        val xmlResponse =
+          <providers>
+            {
+              for (p <- providers) yield <provider>
+                                           <id>{ toIdentifier(p) }</id>
+                                           <name>{ p }</name>
+                                         </provider>
+            }
+          </providers>
 
-          val xmlResponse =
-            <providers>
-              {
-                for (p <- providers) yield <provider>
-                                             <id>{ toIdentifier(p) }</id>
-                                             <name>{ p }</name>
-                                           </provider>
-              }
-            </providers>
-
-          DOk(xmlResponse, List("providers"))
-
-        } else {
-          NotFound(Messages("hub.CouldNotFindOrganization", orgId))
-        }
+        DOk(xmlResponse, List("providers"))
     }
   }
 
-  def dataProviders(orgId: String) = OrganizationConfigured {
+  def dataProviders = OrganizationConfigured {
     Action {
       implicit request =>
-        if (organizationServiceLocator.byDomain.exists(orgId)) {
+        val dataProviders = getAllOrganiztationCollectionInformation.map(_.getDataProvider)
 
-          val dataProviders = getAllOrganiztationCollectionInformation.map(_.getDataProvider)
+        val xmlResponse =
+          <dataProviders>
+            {
+              for (p <- dataProviders) yield <dataProvider>
+                                               <id>{ toIdentifier(p) }</id>
+                                               <name>{ p }</name>
+                                             </dataProvider>
+            }
+          </dataProviders>
 
-          val xmlResponse =
-            <dataProviders>
-              {
-                for (p <- dataProviders) yield <dataProvider>
-                                                 <id>{ toIdentifier(p) }</id>
-                                                 <name>{ p }</name>
-                                               </dataProvider>
-              }
-            </dataProviders>
-
-          DOk(xmlResponse, List("dataProviders"))
-
-        } else {
-          NotFound(Messages("hub.CouldNotFindOrganization", orgId))
-        }
+        DOk(xmlResponse, List("dataProviders"))
     }
   }
 
-  def collections(orgId: String) = OrganizationConfigured {
+  def collections = OrganizationConfigured {
     Action {
       implicit request =>
-        if (organizationServiceLocator.byDomain.exists(orgId)) {
-          val collections = organizationCollectionLookupService.findAll
+        val collections = organizationCollectionLookupService.findAll
 
-          val xmlResponse =
-            <collections>
-              {
-                for (c <- collections) yield <collection>
-                                               <id>{ toIdentifier(c.spec) }</id>{
-                                                 if (c.isInstanceOf[OrganizationCollectionInformation]) {
-                                                   <name>{ c.asInstanceOf[OrganizationCollectionInformation].getName }</name>
-                                                 }
+        val xmlResponse =
+          <collections>
+            {
+              for (c <- collections) yield <collection>
+                                             <id>{ toIdentifier(c.spec) }</id>{
+                                               if (c.isInstanceOf[OrganizationCollectionInformation]) {
+                                                 <name>{ c.asInstanceOf[OrganizationCollectionInformation].getName }</name>
                                                }
-                                             </collection>
-              }
-            </collections>
+                                             }
+                                           </collection>
+            }
+          </collections>
 
-          DOk(xmlResponse, List("collection"))
-
-        } else {
-          NotFound(Messages("hub.CouldNotFindOrganization", orgId))
-        }
+        DOk(xmlResponse, List("collection"))
     }
   }
 
-  private def getAllOrganiztationCollectionInformation(implicit configuration: OrganizationConfiguration) = organizationCollectionLookupService.findAll.flatMap { collection =>
-    if (collection.isInstanceOf[OrganizationCollectionInformation]) {
-      Some(collection.asInstanceOf[OrganizationCollectionInformation])
-    } else {
-      None
+  private def getAllOrganiztationCollectionInformation(implicit configuration: OrganizationConfiguration) =
+    organizationCollectionLookupService.findAll.flatMap { collection =>
+      if (collection.isInstanceOf[OrganizationCollectionInformation]) {
+        Some(collection.asInstanceOf[OrganizationCollectionInformation])
+      } else {
+        None
+      }
     }
-  }
 
   private def toIdentifier(name: String) = name.replaceAll(" ", "_")
 

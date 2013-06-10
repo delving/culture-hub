@@ -64,7 +64,7 @@ class HubNodeSpec extends test.Specs2TestContext {
       withTestConfig {
         val node = HubNode.dao("delving").findOne("rotterdam-node").get
         val response = controller.delete(node._id)(
-          FakeRequest(method = "DELETE", path = "/organizations/delving/hubNode/delete/" + node._id.toString).withSession(
+          FakeRequest(method = "DELETE", path = "/admin/hubNode/delete/" + node._id.toString).withSession(
             ("userName" -> "bob")
           )
         )

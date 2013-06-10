@@ -18,11 +18,11 @@ cms.DeletePageConfirm=Weet u zeker dat u deze pagina en alle versies van deze pa
 cms.FieldsExplained=Invoer velden
 cms.HelpWithUploadingImages=Hulp met bestanden uploaden
 cms.HelpWithWebsitePages=Hulp met website paginas
-cms.ImagesCanBeAdded=Plaatjes kunnen toegevoegd worden op twee manieren: <ol><li><strong>Uploaden van een computer:</strong> dit kan via de <a href="/organizations/{0}/site/upload">Afbeelding uploaden</a> pagina. Wanneer de afbeelding is bewaard kan deze in de pagina gebruikt worden door op het <span class="mceIcon mceImage"></span> ikoontje te klikken en de afbeelding uit de <em>Image list</em> te kiezen</li><li><strong>Direct vanaf het internet:</strong> klik op het <span class="mceIcon mceImage"></span> ikoontje en type of plak de URL van de afbeelding in het <em>Image URL</em> veld</li></ol>
+cms.ImagesCanBeAdded=Plaatjes kunnen toegevoegd worden op twee manieren: <ol><li><strong>Uploaden van een computer:</strong> dit kan via de <a href="/admin/site/upload">Afbeelding uploaden</a> pagina. Wanneer de afbeelding is bewaard kan deze in de pagina gebruikt worden door op het <span class="mceIcon mceImage"></span> ikoontje te klikken en de afbeelding uit de <em>Image list</em> te kiezen</li><li><strong>Direct vanaf het internet:</strong> klik op het <span class="mceIcon mceImage"></span> ikoontje en type of plak de URL van de afbeelding in het <em>Image URL</em> veld</li></ol>
 cms.ListPagesIn=Bekijk paginas in
 _cms.MakeThisContentVisible=Aanvinken om inhoud zichtbaar te maken
 cms.NotPublished=Niet gepubliceerd
-cms.OnceUploaded=<p>Eenmaal klaar, ga terug naar de <a href="/organizations/{0}/site">pagina lijst</a> en bewerk een bestaande pagina of maak een <a href="/organizations/{0}/site/{1}/page/add">nieuwe pagina</a> aan. Klik op het <span class="mceIcon mceImage"></span> ikoontje om de plaatjes van de <em>Image list</em> te selecteren voor gebruik.</p>
+cms.OnceUploaded=<p>Eenmaal klaar, ga terug naar de <a href="/admin/site">pagina lijst</a> en bewerk een bestaande pagina of maak een <a href="/admin/site/{0}/page/add">nieuwe pagina</a> aan. Klik op het <span class="mceIcon mceImage"></span> ikoontje om de plaatjes van de <em>Image list</em> te selecteren voor gebruik.</p>
 cms.PageKey=Pagina sleutel
 cms.PageKeyInvalid=Sleutel niet juist. Een sleutel bestaat uit kleine letters en is 4 tot 35 characters lang.
 cms.PageKeyauto.button=Pagina sleutel aanmaken.

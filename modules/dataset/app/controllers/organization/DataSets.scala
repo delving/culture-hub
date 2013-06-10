@@ -19,7 +19,7 @@ import com.escalatesoft.subcut.inject.BindingModule
 
 class DataSets(implicit val bindingModule: BindingModule) extends OrganizationController {
 
-  def list(orgId: String) = OrganizationMember {
+  def list = OrganizationMember {
     Action {
       implicit request =>
         Ok(Template('title -> listPageTitle("dataset"), 'canAdministrate -> DataSet.dao.canAdministrate(connectedUser)))
@@ -39,10 +39,10 @@ class DataSets(implicit val bindingModule: BindingModule) extends OrganizationCo
     }
   }
 
-  def feed(orgId: String, clientId: String, spec: Option[String]) = WebSocket.async[JsValue] { implicit request =>
+  def feed(clientId: String, spec: Option[String]) = WebSocket.async[JsValue] { implicit request =>
     if (request.session.get("userName").isDefined) {
       val organizationConfiguration = OrganizationConfigurationHandler.getByDomain(request.domain)
-      DataSetEventFeed.subscribe(orgId, clientId, session.get("userName").get, organizationConfiguration.orgId, spec)
+      DataSetEventFeed.subscribe(organizationConfiguration.orgId, clientId, session.get("userName").get, organizationConfiguration.orgId, spec)
     } else {
       // return a fake pair
       // TODO perhaps a better way here ?

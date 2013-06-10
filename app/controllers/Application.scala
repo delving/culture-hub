@@ -41,4 +41,30 @@ class Application(implicit val bindingModule: BindingModule) extends DelvingCont
     implicit request => Results.NotFound(what)
   }
 
+  /**
+   * Permanent redirection for legacy routes of the kind /organizations/:orgId/...
+   */
+  def legacyOrganizationsPath(path: String, orgId: String = "fooBar") = Action {
+    implicit request =>
+
+      val url = path.split("/").toList match {
+        case "api" :: Nil => s"/api"
+        case "api" :: tail => s"/api/${tail.mkString("/")}"
+
+        case "proxy" :: "list" :: Nil => s"/api/proxy/list"
+        case "proxy" :: proxyKey :: "search" :: Nil => s"/api/proxy/$proxyKey/search"
+        case "proxy" :: proxyKey :: "item" :: itemKey => s"/api/proxy/$proxyKey/item/${itemKey.mkString("/")}"
+
+        case "statistics" :: Nil => "/statistics"
+
+        case "search" :: Nil => "/api/search"
+
+        case "root" :: Nil => "/admin"
+
+        case _ => s"/admin/$path"
+      }
+
+      Redirect(url, request.queryString, MOVED_PERMANENTLY)
+  }
+
 }

@@ -115,12 +115,12 @@ class SimpleDocumentUploadPlugin(app: Application) extends CultureHubPlugin(app)
       roles = Seq(Role.OWN, SimpleDocumentUploadPlugin.ROLE_DOCUMENT_EDITOR),
       items = Seq(
         MenuElement(
-          url = "/organizations/%s/simpledocument".format(configuration.orgId),
+          url = "/admin/simpledocument",
           titleKey = "sdu.ListOfUploadedDocuments",
           roles = Seq(Role.OWN, SimpleDocumentUploadPlugin.ROLE_DOCUMENT_EDITOR)
         ),
         MenuElement(
-          url = "/organizations/%s/simpledocument/add".format(configuration.orgId),
+          url = "/admin/simpledocument/add",
           titleKey = "sdu.UploadDocument",
           roles = Seq(Role.OWN, SimpleDocumentUploadPlugin.ROLE_DOCUMENT_EDITOR)
         )

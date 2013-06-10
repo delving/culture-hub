@@ -17,19 +17,19 @@ import com.escalatesoft.subcut.inject.BindingModule
 
 class Api(implicit val bindingModule: BindingModule) extends DelvingController with RenderingExtensions {
 
-  def explanations(orgId: String, path: String): Action[AnyContent] = {
+  def explanations(path: String): Action[AnyContent] = {
     val pathList = path.split("/").drop(1).toList
     if (pathList.isEmpty) {
-      api(orgId)
+      api
     } else {
       val explanation = pathList(0) match {
         case "proxy" => controllers.api.Proxy.explain(pathList.drop(1))
         case "index" => (new controllers.api.Index()(HubModule)).explain(pathList.drop(1))
-        case _ => return noDocumentation(orgId, path)
+        case _ => return noDocumentation(path)
       }
       explanation match {
         case Some(e) => renderExplanation(e)
-        case None => noDocumentation(orgId, path)
+        case None => noDocumentation(path)
       }
     }
   }
@@ -37,7 +37,7 @@ class Api(implicit val bindingModule: BindingModule) extends DelvingController w
   /**
    * Index of APIs. The idea is not to explain each of them in detail, the root path of each should do that instead
    */
-  def api(orgId: String) = Root {
+  def api = Root {
     Action {
       implicit request =>
 
@@ -78,17 +78,17 @@ class Api(implicit val bindingModule: BindingModule) extends DelvingController w
     }
   }
 
-  def explain(orgId: String) = Action {
-    implicit request => explainPath(orgId, request.path)(request)
+  def explain = Action {
+    implicit request => explainPath(request.path)(request)
   }
 
   /** routes to the appropriate explain response **/
-  def explainPath(orgId: String, path: String): Action[AnyContent] = {
-    val apiPath = path.substring(("/organizations/" + orgId + "/api").length)
-    explanations(orgId, apiPath)
+  def explainPath(path: String): Action[AnyContent] = {
+    val apiPath = path.substring("/api".length)
+    explanations(apiPath)
   }
 
-  def noDocumentation(orgId: String, path: String) = Action {
+  def noDocumentation(path: String) = Action {
     implicit request =>
       val sorry = "Sorry, no documentation found for path " + path
       if (wantsXml) {

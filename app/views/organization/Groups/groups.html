@@ -78,7 +78,7 @@
             }
           },
           resourceTokensUrl: function() {
-            return '/organizations/${orgId}/groups/resources/' + groupModel.resourceTypeKey() + '/search';
+            return '/admin/groups/resources/' + groupModel.resourceTypeKey() + '/search';
           }
         };
 
@@ -90,7 +90,7 @@
 
         $('#saveButton').click(function (event) {
             event.preventDefault();
-            handleSubmit('/organizations/${orgId}/groups/submit', groupModel, '#groupForm', '/organizations/${orgId}/groups');
+            handleSubmit('/admin/groups/submit', groupModel, '#groupForm', '/admin/groups');
         });
     });
 </script>

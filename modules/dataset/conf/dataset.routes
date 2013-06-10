@@ -1,110 +1,16 @@
-#    ("GET", """^/([A-Za-z0-9-]+)/sip-creator.jnlp""".r) -> {
-#      (pathArgs: List[String], queryString: Map[String, String]) => organization.SipCreator.jnlp(pathArgs(0))
-#    },
-#
+GET               /:user/sip-creator.jnlp                           @controllers.organization.SipCreator.jnlp(user)
 
-GET                 /:user/sip-creator.jnlp                         @controllers.organization.SipCreator.jnlp(user)
+GET               /admin/dataset                                    @controllers.organization.DataSets.list
+GET               /admin/dataset/search                             @controllers.organization.DataSets.listAsTokens(q, formats: Option[String])
+GET               /admin/dataset/feed                               @controllers.organization.DataSets.feed(clientId, spec: Option[String])
+GET               /admin/dataset/add                                @controllers.organization.DataSetControl.add
+GET               /admin/dataset/:spec/update                       @controllers.organization.DataSetControl.update(spec: String)
+POST              /admin/dataset/submit                             @controllers.organization.DataSetControl.dataSetSubmit
+GET               /admin/dataset/:spec                              @controllers.organization.DataSets.dataSet(spec: String)
+GET               /admin/sip-creator                                @controllers.organization.SipCreator.index
 
-#    ("GET", """^/organizations/([A-Za-z0-9-]+)/dataset""".r) -> {
-#      (pathArgs: List[String], queryString: Map[String, String]) =>
-#        controllers.organization.DataSets.list(pathArgs(0))
-#    },
-
-GET                /organizations/:orgId/dataset                    @controllers.organization.DataSets.list(orgId)
-#    ("GET", """^/organizations/([A-Za-z0-9-]+)/dataset/search""".r) -> {
-#      (pathArgs: List[String], queryString: Map[String, String]) =>
-#        controllers.organization.DataSets.listAsTokens(
-#          queryString("q"),
-#          queryString.get("formats").map(_.split(",").toSeq.map(_.trim).filterNot(_.isEmpty)).getOrElse(Seq.empty)
-#        )
-#    },
-
-GET               /organizations/[A-Za-z0-9-]+/dataset/search              @controllers.organization.DataSets.listAsTokens(q, formats: Option[String])
-
-#    ("GET", """^/organizations/([A-Za-z0-9-]+)/dataset/feed""".r) -> {
-#      (pathArgs: List[String], queryString: Map[String, String]) =>
-#        controllers.organization.DataSets.feed(pathArgs(0), queryString("clientId"), queryString.get("spec"))
-#    },
-
-GET               /organizations/:orgId/dataset/feed              @controllers.organization.DataSets.feed(orgId, clientId, spec: Option[String])
-
-
-#    ("GET", """^/organizations/([A-Za-z0-9-]+)/dataset/add""".r) -> {
-#      (pathArgs: List[String], queryString: Map[String, String]) =>
-#        controllers.organization.DataSetControl.dataSet(pathArgs(0), None)
-#    },
-
-GET               /organizations/[A-Za-z0-9-]+/dataset/add               @controllers.organization.DataSetControl.add
-
-
-#    ("GET", """^/organizations/([A-Za-z0-9-]+)/dataset/([A-Za-z0-9-]+)/update""".r) -> {
-#      (pathArgs: List[String], queryString: Map[String, String]) =>
-#        controllers.organization.DataSetControl.dataSet(pathArgs(0), Some(pathArgs(1)))
-#    },
-
-GET               /organizations/[A-Za-z0-9-]+/dataset/:spec/update               @controllers.organization.DataSetControl.update(spec: String)
-
-
-#    ("POST", """^/organizations/([A-Za-z0-9-]+)/dataset/submit""".r) -> {
-#      (pathArgs: List[String], queryString: Map[String, String]) =>
-#        controllers.organization.DataSetControl.dataSetSubmit(pathArgs(0))
-#    },
-
-GET               /organizations/[A-Za-z0-9-]+/dataset/submit               @controllers.organization.DataSetControl.dataSetSubmit
-
-#    ("GET", """^/organizations/([A-Za-z0-9-]+)/dataset/([A-Za-z0-9-]+)""".r) -> {
-#      (pathArgs: List[String], queryString: Map[String, String]) =>
-#        controllers.organization.DataSets.dataSet(pathArgs(0), pathArgs(1))
-#    },
-
-GET               /organizations/[A-Za-z0-9-]+/dataset/:spec               @controllers.organization.DataSets.dataSet(spec: String)
-
-
-#
-#    ("GET", """^/organizations/([A-Za-z0-9-]+)/sip-creator""".r) -> {
-#      (pathArgs: List[String], queryString: Map[String, String]) => organization.SipCreator.index(pathArgs(0))
-#    },
-
-GET               /organizations/[A-Za-z0-9-]+/sip-creator               @controllers.organization.SipCreator.index
-
-#
-#    ("GET", """^/api/sip-creator/list""".r) -> {
-#      (pathArgs: List[String], queryString: Map[String, String]) =>
-#        controllers.SipCreatorEndPoint.listAll(queryString.get("accessKey"))
-#    },
-
-GET               /api/sip-creator/list               @controllers.SipCreatorEndPoint.listAll(accessKey: Option[String])
-
-
-#    ("GET", """^/api/sip-creator/unlock/([A-Za-z0-9-]+)/([A-Za-z0-9-]+)""".r) -> {
-#      (pathArgs: List[String], queryString: Map[String, String]) =>
-#        controllers.SipCreatorEndPoint.unlock(pathArgs(0), pathArgs(1), queryString.get("accessKey"))
-#    },
-
-GET               /api/sip-creator/unlock/:orgId/:spec               @controllers.SipCreatorEndPoint.unlock(orgId, spec, accessKey: Option[String])
-
-
-#    ("POST", """^/api/sip-creator/submit/([A-Za-z0-9-]+)/([A-Za-z0-9-]+)/(.*)""".r) -> {
-#      (pathArgs: List[String], queryString: Map[String, String]) =>
-#        controllers.SipCreatorEndPoint.acceptFile(
-#          pathArgs(0), pathArgs(1), pathArgs(2), queryString.get("accessKey")
-#        )
-#    },
-
-POST              /api/sip-creator/submit/:orgId/:spec/*fileName              @controllers.SipCreatorEndPoint.acceptFile(orgId, spec, fileName, accessKey: Option[String])
-
-
-#    ("POST", """^/api/sip-creator/submit/([A-Za-z0-9-]+)/(.*)""".r) -> {
-#      (pathArgs: List[String], queryString: Map[String, String]) =>
-#        controllers.SipCreatorEndPoint.acceptFileList(pathArgs(0), pathArgs(1), queryString.get("accessKey"))
-#    },
-
+GET               /api/sip-creator/list                             @controllers.SipCreatorEndPoint.listAll(accessKey: Option[String])
+GET               /api/sip-creator/unlock/:orgId/:spec              @controllers.SipCreatorEndPoint.unlock(orgId, spec, accessKey: Option[String])
+POST              /api/sip-creator/submit/:orgId/:spec/*fileName    @controllers.SipCreatorEndPoint.acceptFile(orgId, spec, fileName, accessKey: Option[String])
 POST              /api/sip-creator/submit/:orgId/:spec              @controllers.SipCreatorEndPoint.acceptFileList(orgId, spec, accessKey: Option[String])
-
-
-#    ("GET", """^/api/sip-creator/fetch/([A-Za-z0-9-]+)/([A-Za-z0-9-]+)-sip.zip""".r) -> {
-#      (pathArgs: List[String], queryString: Map[String, String]) =>
-#        controllers.SipCreatorEndPoint.fetchSIP(pathArgs(0), pathArgs(1), queryString.get("accessKey"))
-#    }
-
-GET              /api/sip-creator/fetch/:orgId/:spec-sip.zip            @controllers.SipCreatorEndPoint.fetchSIP(orgId, spec, accessKey: Option[String])
+GET               /api/sip-creator/fetch/:orgId/:spec-sip.zip       @controllers.SipCreatorEndPoint.fetchSIP(orgId, spec, accessKey: Option[String])

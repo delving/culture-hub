@@ -10,7 +10,7 @@
 </section>
 <script type="text/javascript">
     $(document).ready(function() {
-        $.get('/organizations/${orgId}/api/statistics', function(data) {
+        $.get('/api/statistics', function(data) {
             $('#nrRecords').text(data.statistics.totalRecords);
             $('#nrDigitalObjects').text(data.statistics.totalRecordsWithDigitalObjects);
             $('#owners').text(data.statistics.facetCounts['delving_owner_facet']);

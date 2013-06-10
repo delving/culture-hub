@@ -1,2 +1,2 @@
-GET     /organizations/[A-Za-z0-9-]+/statistics         @controllers.statistics.Statistics.statistics
-GET     /organizations/[A-Za-z0-9-]+/api/statistics     @controllers.statistics.Statistics.legacyStatistics
+GET     /statistics         @controllers.statistics.Statistics.statistics
+GET     /api/statistics     @controllers.statistics.Statistics.legacyStatistics

@@ -2,11 +2,8 @@ import core.harvesting.OaiPmhService
 import core.HubModule
 import java.util.Date
 import org.joda.time.DateTime
-import org.joda.time.format.ISODateTimeFormat
-import org.specs2.mutable._
 import play.api.test._
 import play.api.test.Helpers._
-import test.Specs2TestContext
 
 /**
  * TODO actually test the things we get back
@@ -31,7 +28,7 @@ class OAIPMHSpec extends test.Specs2TestContext {
       withTestConfig {
 
         val request = FakeRequest("GET", "?verb=Identify")
-        val r = controller.oaipmh("delving", None, None)(request)
+        val r = controller.oaipmh(None, None)(request)
 
         val response = asyncToResult(r)
 
@@ -50,7 +47,7 @@ class OAIPMHSpec extends test.Specs2TestContext {
       withTestConfig {
 
         val request = FakeRequest("GET", "?verb=ListSets")
-        val r = controller.oaipmh("delving", None, None)(request)
+        val r = controller.oaipmh(None, None)(request)
 
         val response = asyncToResult(r)
 
@@ -71,7 +68,7 @@ class OAIPMHSpec extends test.Specs2TestContext {
 
       withTestConfig {
         val request = FakeRequest("GET", "?verb=ListMetadataFormats")
-        val r = controller.oaipmh("delving", Some("icn"), None)(request)
+        val r = controller.oaipmh(Some("icn"), None)(request)
 
         val response = asyncToResult(r)
 
@@ -89,7 +86,7 @@ class OAIPMHSpec extends test.Specs2TestContext {
       withTestConfig {
 
         val request = FakeRequest("GET", "?verb=ListRecords&set=" + spec + "&metadataPrefix=icn")
-        val r = controller.oaipmh("delving", None, None)(request)
+        val r = controller.oaipmh(None, None)(request)
 
         val response = asyncToResult(r)
 
@@ -109,7 +106,7 @@ class OAIPMHSpec extends test.Specs2TestContext {
       withTestConfig {
         val today = OaiPmhService.dateFormat.format(new Date())
         val request = FakeRequest("GET", "?verb=ListRecords&set=" + spec + "&metadataPrefix=icn&from=" + today)
-        val r = controller.oaipmh("delving", None, None)(request)
+        val r = controller.oaipmh(None, None)(request)
 
         val response = asyncToResult(r)
 
@@ -128,7 +125,7 @@ class OAIPMHSpec extends test.Specs2TestContext {
       withTestConfig {
         val today = OaiPmhService.dateFormat.format(new Date())
         val request = FakeRequest("GET", "?verb=ListRecords&set=" + spec + "&metadataPrefix=icn&until=" + today)
-        val r = controller.oaipmh("delving", None, None)(request)
+        val r = controller.oaipmh(None, None)(request)
 
         val response = asyncToResult(r)
 
@@ -146,7 +143,7 @@ class OAIPMHSpec extends test.Specs2TestContext {
         val d = new DateTime()
         val tomorrow = OaiPmhService.dateFormat.format(d.plusDays(1).toDate)
         val request = FakeRequest("GET", "?verb=ListRecords&set=" + spec + "&metadataPrefix=icn&from=" + tomorrow)
-        val r = controller.oaipmh("delving", None, None)(request)
+        val r = controller.oaipmh(None, None)(request)
 
         val response = asyncToResult(r)
 
@@ -164,7 +161,7 @@ class OAIPMHSpec extends test.Specs2TestContext {
         val d = new DateTime()
         val yesterday = OaiPmhService.dateFormat.format(d.minusDays(1).toDate)
         val request = FakeRequest("GET", "?verb=ListRecords&set=" + spec + "&metadataPrefix=icn&until=" + yesterday)
-        val r = controller.oaipmh("delving", None, None)(request)
+        val r = controller.oaipmh(None, None)(request)
 
         val response = asyncToResult(r)
 
