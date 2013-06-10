@@ -5,7 +5,7 @@ import play.api.mvc.Action
 import core._
 import play.api.i18n.Messages
 import models.OrganizationConfiguration
-import core.collection.OrganizationCollectionInformation
+import core.collection.OrganizationCollectionMetadata
 import com.escalatesoft.subcut.inject.BindingModule
 
 /**
@@ -67,8 +67,12 @@ class Organization(implicit val bindingModule: BindingModule) extends Applicatio
             {
               for (c <- collections) yield <collection>
                                              <id>{ toIdentifier(c.spec) }</id>{
-                                               if (c.isInstanceOf[OrganizationCollectionInformation]) {
-                                                 <name>{ c.asInstanceOf[OrganizationCollectionInformation].getName }</name>
+                                               c match {
+                                                 case metadata: OrganizationCollectionMetadata =>
+                                                   <name>
+                                                     { metadata.getName }
+                                                   </name>
+                                                 case _ =>
                                                }
                                              }
                                            </collection>
@@ -81,10 +85,11 @@ class Organization(implicit val bindingModule: BindingModule) extends Applicatio
 
   private def getAllOrganiztationCollectionInformation(implicit configuration: OrganizationConfiguration) =
     organizationCollectionLookupService.findAll.flatMap { collection =>
-      if (collection.isInstanceOf[OrganizationCollectionInformation]) {
-        Some(collection.asInstanceOf[OrganizationCollectionInformation])
-      } else {
-        None
+      collection match {
+        case metadata: OrganizationCollectionMetadata =>
+          Some(metadata)
+        case _ =>
+          None
       }
     }
 

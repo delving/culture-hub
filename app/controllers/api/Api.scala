@@ -24,7 +24,7 @@ class Api(implicit val bindingModule: BindingModule) extends DelvingController w
     } else {
       val explanation = pathList(0) match {
         case "proxy" => controllers.api.Proxy.explain(pathList.drop(1))
-        case "index" => (new controllers.api.Index()(HubModule)).explain(pathList.drop(1))
+        case "index" => new controllers.api.Index()(HubModule).explain(pathList.drop(1))
         case _ => return noDocumentation(path)
       }
       explanation match {

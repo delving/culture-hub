@@ -24,7 +24,7 @@ class Demo(implicit val bindingModule: BindingModule) extends DelvingController 
         if (image.isEmpty)
           Ok(Template('image -> smallballs))
         else
-          Ok(Template('image -> (image.get)))
+          Ok(Template('image -> image.get))
     }
   }
 

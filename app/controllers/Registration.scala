@@ -136,7 +136,7 @@ class Registration(implicit val bindingModule: BindingModule) extends Applicatio
               r.password1
             )
 
-            val index = Redirect(controllers.routes.Application.index)
+            val index = Redirect(controllers.routes.Application.index())
 
             activationToken match {
               case Some(token) =>
@@ -151,12 +151,12 @@ class Registration(implicit val bindingModule: BindingModule) extends Applicatio
                 } catch {
                   case t: Throwable => {
                     logError(t, t.getMessage, r.userName)
-                    index.flashing(("registrationError" -> t.getMessage))
+                    index.flashing("registrationError" -> t.getMessage)
                   }
                 }
               case None =>
                 logError("Could not save new user %s", r.userName)
-                index.flashing(("registrationError" -> Messages("hub.ErrorCreatingYourAccount")))
+                index.flashing("registrationError" -> Messages("hub.ErrorCreatingYourAccount"))
             }
           }
         )
@@ -179,7 +179,7 @@ class Registration(implicit val bindingModule: BindingModule) extends Applicatio
   def activate(activationToken: String) = ApplicationAction {
     Action {
       implicit request =>
-        val indexAction = Redirect(controllers.routes.Application.index)
+        val indexAction = Redirect(controllers.routes.Application.index())
         if (Option(activationToken).isEmpty) {
           log.warn("Empty activation token received")
           indexAction.flashing(("activation", "false"))
@@ -221,7 +221,7 @@ class Registration(implicit val bindingModule: BindingModule) extends Applicatio
               )
               indexAction.flashing(("activation", "true"))
             } catch {
-              case t =>
+              case t: Throwable =>
                 logError(t, "Could not send activation email")
                 indexAction.flashing(("activation", "false"))
             }
@@ -271,10 +271,10 @@ class Registration(implicit val bindingModule: BindingModule) extends Applicatio
                   resetPasswordToken,
                   request.host
                 )
-                Redirect(controllers.routes.Application.index).flashing(("resetPasswordEmail", "true"))
+                Redirect(controllers.routes.Application.index()).flashing(("resetPasswordEmail", "true"))
               case None =>
                 // TODO adjust view for this case
-                Redirect(controllers.routes.Application.index).flashing(("resetPasswordEmail", "false"))
+                Redirect(controllers.routes.Application.index()).flashing(("resetPasswordEmail", "false"))
             }
           }
         )
@@ -286,7 +286,7 @@ class Registration(implicit val bindingModule: BindingModule) extends Applicatio
     Action {
       implicit request =>
         renderArgs += ("themeInfo" -> new ThemeInfo(configuration))
-        val indexAction = Redirect(controllers.routes.Application.index)
+        val indexAction = Redirect(controllers.routes.Application.index())
         if (Option(resetPasswordToken).isEmpty) {
           indexAction.flashing(("resetPasswordError", Messages("hub.ResetPasswordTokenNotFound")))
         } else {
@@ -306,7 +306,7 @@ class Registration(implicit val bindingModule: BindingModule) extends Applicatio
     mapping(
       "password1" -> nonEmptyText,
       "password2" -> nonEmptyText
-    )(NewPassword.apply)(NewPassword.unapply) verifying (sameNewPassword)
+    )(NewPassword.apply)(NewPassword.unapply) verifying sameNewPassword
   )
 
   def newPassword(resetPasswordToken: String) = OrganizationConfigured {
@@ -314,7 +314,7 @@ class Registration(implicit val bindingModule: BindingModule) extends Applicatio
       implicit request =>
         renderArgs += ("themeInfo" -> new ThemeInfo(configuration))
         if (Option(resetPasswordToken).isEmpty) {
-          Redirect(controllers.routes.Application.index).flashing(
+          Redirect(controllers.routes.Application.index()).flashing(
             ("resetPasswordError", Messages("hub.ResetPasswordTokenNotFound"))
           )
         } else {
@@ -326,11 +326,11 @@ class Registration(implicit val bindingModule: BindingModule) extends Applicatio
                 newPassword.password1
               )
               if (passwordChanged) {
-                Redirect(controllers.routes.Application.index).flashing(
+                Redirect(controllers.routes.Application.index()).flashing(
                   ("resetPasswordSuccess", "true")
                 )
               } else {
-                Redirect(controllers.routes.Application.index).flashing(
+                Redirect(controllers.routes.Application.index()).flashing(
                   ("resetPasswordError", Messages("hub.ErrorResettingYourPassword"))
                 )
               }

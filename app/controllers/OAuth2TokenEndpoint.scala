@@ -132,15 +132,15 @@ class PlayOAuthTokenRequest(request: RequestHeader) extends OAuthRequest {
     validators.put(GrantType.PASSWORD.toString, classOf[PasswordValidator])
     validators.put(GrantType.AUTHORIZATION_CODE.toString, classOf[AuthorizationCodeValidator])
     validators.put(GrantType.REFRESH_TOKEN.toString, classOf[RefreshTokenValidator])
-    val requestTypeValue: String = getParam(OAuth.OAUTH_GRANT_TYPE).asInstanceOf[String]
+    val requestTypeValue: String = getParam(OAuth.OAUTH_GRANT_TYPE)
     if (OAuthUtils.isEmpty(requestTypeValue)) {
       throw OAuthUtils.handleOAuthProblemException("Missing grant_type parameter value")
     }
-    val clazz = validators.get(requestTypeValue);
+    val clazz = validators.get(requestTypeValue)
     if (clazz == null) {
       throw OAuthUtils.handleOAuthProblemException("Invalid grant_type parameter value")
     }
-    (OAuthUtils.instantiateClass(clazz)).asInstanceOf[OAuthValidator[HttpServletRequest]];
+    OAuthUtils.instantiateClass(clazz)
   }
 
   override def getParam(name: String) = request.queryString.get(name).getOrElse(Seq("")).head

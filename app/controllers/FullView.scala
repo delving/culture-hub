@@ -48,7 +48,7 @@ class FullView(implicit val bindingModule: BindingModule) extends DelvingControl
               val navigateFromRelatedItem = request.queryString.getFirst("mlt").getOrElse("false").toBoolean
               val updatedSession = if (!navigateFromSearch && !navigateFromRelatedItem) {
                 // we're coming from someplace else then a search, remove the return to results cookie
-                request.session - (RETURN_TO_RESULTS)
+                request.session - RETURN_TO_RESULTS
               } else {
                 request.session
               }
@@ -86,7 +86,7 @@ class FullView(implicit val bindingModule: BindingModule) extends DelvingControl
 
               val snippets: Seq[(String, Unit)] = CultureHubPlugin.getEnabledPlugins.flatMap { plugin =>
                 plugin.fullViewSnippet.map { snippet =>
-                  (snippet._1 -> snippet._2(RequestContext(request, configuration, renderArgs, getLang), hubId))
+                  snippet._1 -> snippet._2(RequestContext(request, configuration, renderArgs, getLang), hubId)
                 }
               }
 

@@ -16,7 +16,7 @@
 
 package core.indexing
 
-import core.collection.{ Collection, OrganizationCollectionInformation }
+import core.collection.{ Collection, OrganizationCollectionMetadata }
 import play.api.Logger
 import core.SystemField._
 import core.indexing.IndexField._
@@ -38,7 +38,7 @@ object Indexing {
 
   lazy val indexingServiceLocator = HubModule.inject[DomainServiceLocator[IndexingService]](name = None)
 
-  type IndexableCollection = Collection with OrganizationCollectionInformation
+  type IndexableCollection = Collection with OrganizationCollectionMetadata
 
   def indexOne(collection: IndexableCollection, hubId: HubId, mapped: Map[String, List[Any]], metadataFormatForIndexing: String)(implicit configuration: OrganizationConfiguration): Either[Throwable, String] = {
     val doc = createSolrInputDocument(mapped)

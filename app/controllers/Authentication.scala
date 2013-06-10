@@ -47,7 +47,7 @@ class Authentication(implicit val bindingModule: BindingModule) extends Applicat
     Action {
       implicit request =>
         if (session.get("userName").isDefined) {
-          Redirect(controllers.routes.Application.index)
+          Redirect(controllers.routes.Application.index())
         } else {
           Ok(Template('loginForm -> loginForm))
         }
@@ -55,7 +55,7 @@ class Authentication(implicit val bindingModule: BindingModule) extends Applicat
   }
 
   def logout = Action {
-    Redirect(routes.Authentication.login).withNewSession.discardingCookies(DiscardingCookie(REMEMBER_COOKIE)).flashing(
+    Redirect(routes.Authentication.login()).withNewSession.discardingCookies(DiscardingCookie(REMEMBER_COOKIE)).flashing(
       "success" -> Messages("hub.YouWereLoggedOutSuccessfully")
     )
   }
@@ -94,7 +94,7 @@ class Authentication(implicit val bindingModule: BindingModule) extends Applicat
             }.map { u =>
               val action = (request.session.get("uri") match {
                 case Some(uri) => Redirect(uri)
-                case None => Redirect(controllers.routes.Application.index)
+                case None => Redirect(controllers.routes.Application.index())
               }).withSession(
                 Constants.USERNAME -> userName,
                 AT_KEY -> authenticityToken)
@@ -110,7 +110,7 @@ class Authentication(implicit val bindingModule: BindingModule) extends Applicat
               }
             }.getOrElse {
               ErrorReporter.reportError(request, "Could not create local HubUser for user %s".format(userName))
-              Redirect(controllers.routes.Authentication.login).flashing(("error", "Sorry, something went wrong while logging in, please try again"))
+              Redirect(controllers.routes.Authentication.login()).flashing(("error", "Sorry, something went wrong while logging in, please try again"))
             }
           }
         )

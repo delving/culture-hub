@@ -148,7 +148,7 @@ object Global extends WithFilters(new GzipFilter()) {
 
       if (matches.headOption.isDefined) {
         val handlerCall = matches.head
-        val handler = handlerCall._2(handlerCall._1, request.queryString.filterNot(_._2.isEmpty).map(qs => (qs._1 -> qs._2.head)))
+        val handler = handlerCall._2(handlerCall._1, request.queryString.filterNot(_._2.isEmpty).map(qs => qs._1 -> qs._2.head))
         Some(handler)
       } else {
         super.onRouteRequest(request)

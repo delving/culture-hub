@@ -78,7 +78,7 @@ class Admin(implicit val bindingModule: BindingModule) extends DelvingController
               Json(profileModel)
               Ok
             } else {
-              Json(Map("errors" -> (Map("global" -> Messages("hub.ErrorSavingYourProfile")))), BAD_REQUEST)
+              Json(Map("errors" -> Map("global" -> Messages("hub.ErrorSavingYourProfile"))), BAD_REQUEST)
             }
           }
         )

@@ -49,7 +49,7 @@ class Groups(implicit val bindingModule: BindingModule) extends OrganizationCont
         } else {
           val group: Option[Group] = groupId.flatMap(Group.dao.findOneById(_))
           val usersAsTokens = group match {
-            case None => (JJson.generate(List()))
+            case None => JJson.generate(List())
             case Some(g) =>
               val userTokens = g.users.map(m => Token(m, m))
               JJson.generate(userTokens)
@@ -61,7 +61,7 @@ class Groups(implicit val bindingModule: BindingModule) extends OrganizationCont
             'users -> usersAsTokens,
             'roles -> Role.allPrimaryRoles(configuration).
               filterNot(_ == Role.OWN).
-              map(role => (role.key -> role.getDescription(lang))).
+              map(role => role.key -> role.getDescription(lang)).
               toMap.asJava
           ))
         }
@@ -102,7 +102,7 @@ class Groups(implicit val bindingModule: BindingModule) extends OrganizationCont
                   }
               }
 
-              if (role == Role.OWN && (groupForm.id == None || (groupForm.id != None && Group.dao.findOneById(groupForm.id.get) == None))) {
+              if (role == Role.OWN && (groupForm.id == None || groupForm.id != None && Group.dao.findOneById(groupForm.id.get) == None)) {
                 reportSecurity("User %s tried to create an owners team!".format(connectedUser))
                 return Action {
                   Forbidden("Your IP has been logged and reported to the police.")

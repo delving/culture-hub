@@ -29,8 +29,8 @@ trait Secured {
         }
     }
 
-    val session = request.session - USERNAME + ("uri", if (("GET" == request.method)) request.uri else "/")
-    Redirect("/login").withSession(session).flashing(("error" -> Messages("hub.LoginIncorrect")))
+    val session = request.session - USERNAME + ("uri", if ("GET" == request.method) request.uri else "/")
+    Redirect("/login").withSession(session).flashing("error" -> Messages("hub.LoginIncorrect"))
   }
 
   /**
@@ -46,7 +46,7 @@ trait Secured {
       implicit request =>
         {
           if (username(request).isEmpty) {
-            val session = request.session - USERNAME + ("uri", if (("GET" == request.method)) request.uri else "/")
+            val session = request.session - USERNAME + ("uri", if ("GET" == request.method) request.uri else "/")
             Redirect("/login").withSession(session)
           } else {
             action(request)

@@ -17,7 +17,6 @@
 package core.rendering
 
 import models.{ OrganizationConfiguration, Role }
-import play.libs.XPath
 import collection.JavaConverters._
 import javax.xml.parsers.DocumentBuilderFactory
 import java.io.ByteArrayInputStream
@@ -29,7 +28,8 @@ import play.api.Play.current
 import org.w3c.dom.{ Node => WNode, NodeList, Text }
 import java.net.URLEncoder
 import collection.mutable.{ HashMap, ArrayBuffer, Stack }
-import util.XPathWorking
+import javax.xml.xpath.{ XPathConstants, XPathFactory }
+import org.apache.ws.commons.util.NamespaceContextImpl
 
 /**
  * View Rendering mechanism. Reads a ViewDefinition from a given record definition, and applies it onto the input data (a node tree).
@@ -45,10 +45,12 @@ import util.XPathWorking
 
 object ViewRenderer {
 
-  def fromDefinition(schema: String, viewType: ViewType)(implicit configuration: OrganizationConfiguration) = {
+  def canRender(schema: String, viewType: ViewType) = getViewDefinition(schema, viewType).isDefined
+
+  def fromDefinition(schema: String, viewType: ViewType, namespaces: Map[String, String])(implicit configuration: OrganizationConfiguration) = {
     val definition = getViewDefinition(schema, viewType)
     if (definition.isDefined) {
-      Some(new ViewRenderer(schema, viewType, configuration))
+      Some(new ViewRenderer(schema, viewType, namespaces, configuration))
     } else {
       None
     }
@@ -60,13 +62,13 @@ object ViewRenderer {
       None
     } else {
       val xml = XML.load(definitionResource.get)
-      (xml \ "view").filter(v => (v \ "@name").text == viewType.name).headOption
+      (xml \ "view").find(v => (v \ "@name").text == viewType.name)
     }
   }
 
 }
 
-class ViewRenderer(val schema: String, viewType: ViewType, configuration: OrganizationConfiguration) {
+class ViewRenderer(val schema: String, viewType: ViewType, namespaces: Map[String, String], configuration: OrganizationConfiguration) {
 
   implicit class RichNodeList(nodeList: NodeList) {
     def asIterator: Iterator[org.w3c.dom.Node] = new Iterator[org.w3c.dom.Node] {
@@ -90,12 +92,28 @@ class ViewRenderer(val schema: String, viewType: ViewType, configuration: Organi
   dbFactory.setNamespaceAware(true)
   val dBuilder = dbFactory.newDocumentBuilder
 
-  def renderRecord(record: String, userRoles: Seq[Role], namespaces: Map[String, String], lang: Lang, parameters: Map[String, Seq[String]] = Map.empty): RenderedView = {
+  val xpath = {
+    val factory = XPathFactory.newInstance()
+    val xpath = factory.newXPath()
+    val nsContext = new NamespaceContextImpl
+    namespaces foreach { ns => nsContext.startPrefixMapping(ns._1, ns._2) }
+    xpath.setNamespaceContext(nsContext)
+    xpath
+  }
+
+  def selectNodes(path: String, node: AnyRef) =
+    xpath.evaluate(path, node, XPathConstants.NODESET).asInstanceOf[NodeList].asIterator.toSeq
+
+  def selectNode(path: String, node: AnyRef) = xpath.evaluate(path, node, XPathConstants.NODE).asInstanceOf[org.w3c.dom.Node]
+
+  def selectText(path: String, node: AnyRef) = xpath.evaluate(path, node, XPathConstants.STRING).asInstanceOf[String]
+
+  def renderRecord(record: String, userRoles: Seq[Role], lang: Lang, parameters: Map[String, Seq[String]] = Map.empty): RenderedView = {
     viewDef match {
       case Some(viewDefinition) =>
         log.debug("Starting view rendering")
         log.debug("Namespaces: " + namespaces.toString)
-        renderRecordWithView(schema, viewType, viewDefinition, record, userRoles, namespaces, lang, parameters)
+        renderRecordWithView(schema, viewType, viewDefinition, record, userRoles, lang, parameters)
       case None => throw new RuntimeException("Could not find view definition '%s' for schema '%s'".format(viewType.name, schema))
     }
   }
@@ -105,7 +123,6 @@ class ViewRenderer(val schema: String, viewType: ViewType, configuration: Organi
     viewDefinition: Node,
     rawRecord: String,
     userRoles: Seq[Role],
-    namespaces: Map[String, String],
     lang: Lang,
     parameters: Map[String, Seq[String]]): RenderedView = {
 
@@ -149,13 +166,13 @@ class ViewRenderer(val schema: String, viewType: ViewType, configuration: Organi
           val ifNotExpr = n.attr("ifNot")
 
           val ifValue = if (!ifExpr.isEmpty) {
-            val v = XPathWorking.selectText(ifExpr, dataNode, namespaces.asJava)
+            val v = selectText(ifExpr, dataNode)
             v != null && !v.isEmpty
           } else {
             true
           }
           val ifNotValue = if (!ifNotExpr.isEmpty) {
-            val v = XPathWorking.selectText(ifNotExpr, dataNode, namespaces.asJava)
+            val v = selectText(ifNotExpr, dataNode)
             v != null && !v.isEmpty
           } else {
             false
@@ -164,7 +181,7 @@ class ViewRenderer(val schema: String, viewType: ViewType, configuration: Organi
           if (n.label != "#PCDATA" && ifValue && !ifNotValue) {
 
             // common attributes
-            val label = if (n.attr("labelExpr").isEmpty) n.attr("label") else XPathWorking.selectText(n.attr("labelExpr"), dataNode, namespaces.asJava)
+            val label = if (n.attr("labelExpr").isEmpty) n.attr("label") else selectText(n.attr("labelExpr"), dataNode)
 
             val role = n.attr("role")
             val path = n.attr("path")
@@ -196,7 +213,7 @@ class ViewRenderer(val schema: String, viewType: ViewType, configuration: Organi
                   val attrs = fetchNestedAttributes(n, dataNode)
 
                   val elemValue = if (!n.attr("expr").isEmpty) {
-                    Some(XPathWorking.selectText(n.attr("expr"), dataNode, namespaces.asJava))
+                    Some(selectText(n.attr("expr"), dataNode))
                   } else if (!n.attr("value").isEmpty) {
                     Some(n.attr("value"))
                   } else {
@@ -242,7 +259,7 @@ class ViewRenderer(val schema: String, viewType: ViewType, configuration: Organi
 
                   arrays += stackPath.toList.drop(1) // drop root
 
-                  val allChildren = XPathWorking.selectNodes(path, dataNode, namespaces.asJava).asIterator.toSeq
+                  val allChildren = selectNodes(path, dataNode).toSeq
                   val children = if (distinct == "name") {
                     val distinctNames = allChildren.map(c => c.getPrefix + c.getLocalName).distinct
                     distinctNames.flatMap(n => allChildren.find(c => (c.getPrefix + c.getLocalName) == n))
@@ -274,12 +291,12 @@ class ViewRenderer(val schema: String, viewType: ViewType, configuration: Organi
               // ~~~ legacy support
 
               case "auto-field" =>
-                val current = XPathWorking.selectNode(".", dataNode, namespaces.asJava)
+                val current = selectNode(".", dataNode)
                 val renderNode = RenderNode(current.getNodeName, Some(current.getTextContent))
                 appendNode(renderNode)
 
               case "auto-layout-field" =>
-                val current = XPathWorking.selectNode(".", dataNode, namespaces.asJava)
+                val current = selectNode(".", dataNode)
                 val internationalizationKey = "metadata." + current.getNodeName.replaceAll(":", ".")
 
                 val renderNode = RenderNode("field", None)
@@ -332,7 +349,7 @@ class ViewRenderer(val schema: String, viewType: ViewType, configuration: Organi
                   }
               }
               case "link" =>
-                val urlExpr = n.attribute("urlExpr").map(e => XPathWorking.selectText(e.text, dataNode, namespaces.asJava))
+                val urlExpr = n.attribute("urlExpr").map(e => selectText(e.text, dataNode))
                 val urlValue = n.attr("urlValue")
 
                 val url: String = evaluateParamExpression(urlValue, parameters) + urlExpr.getOrElse("")
@@ -394,7 +411,7 @@ class ViewRenderer(val schema: String, viewType: ViewType, configuration: Organi
 
         val attrName = if (prefix.isEmpty) name else prefix + ":" + name
         val attrValue = if (!a.attr("expr").isEmpty) {
-          XPathWorking.selectText(a.attr("expr"), dataNode, namespaces.asJava)
+          selectText(a.attr("expr"), dataNode)
         } else if (!a.attr("value").isEmpty) {
           a.attr("value")
         } else {
@@ -485,7 +502,7 @@ class ViewRenderer(val schema: String, viewType: ViewType, configuration: Organi
 
   def fetchPaths(dataNode: Object, paths: Seq[String], namespaces: Map[String, String]): Seq[String] = {
     (for (path <- paths) yield {
-      XPathWorking.selectNodes(path, dataNode, namespaces.asJava).asIterator.toSeq.flatMap {
+      selectNodes(path, dataNode).flatMap {
         node =>
           var rnode = node
           try {

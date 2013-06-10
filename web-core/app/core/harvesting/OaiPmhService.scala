@@ -26,7 +26,7 @@ import xml._
 import java.net.URLEncoder
 import core.Constants._
 import models._
-import core.collection.{ OrganizationCollectionInformation, Harvestable }
+import core.collection.{ OrganizationCollectionMetadata, Harvestable }
 import com.escalatesoft.subcut.inject.{ Injectable, BindingModule }
 import models.MetadataItem
 import models.Namespace
@@ -34,7 +34,7 @@ import xml.NamespaceBinding
 import collection.mutable.ArrayBuffer
 
 /**
- *  This class is used to parse an OAI-PMH instruction from an HttpServletRequest and return the proper XML response
+ *  This class is used to parse an OAI-PMH instruction and returns the proper XML response
  *
  *  This implementation is based on the v.2.0 specification that can be found here: http://www.openarchives.org/OAI/openarchivesprotocol.html
  *
@@ -159,8 +159,8 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
                                            <setDescription>
                                              <description>{ set.getDescription.getOrElse("") }</description>
                                              <totalRecords>{ set.getTotalRecords }</totalRecords>{
-                                               if (set.isInstanceOf[OrganizationCollectionInformation]) {
-                                                 val organizationCollectionInformation = set.asInstanceOf[OrganizationCollectionInformation]
+                                               if (set.isInstanceOf[OrganizationCollectionMetadata]) {
+                                                 val organizationCollectionInformation = set.asInstanceOf[OrganizationCollectionMetadata]
                                                  <dataProvider>{ organizationCollectionInformation.getDataProvider }</dataProvider>
                                                }
                                              }

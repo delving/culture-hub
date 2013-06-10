@@ -17,7 +17,7 @@ object XMLUtils {
   }.mkString(" ")
 
   def namespacesToString(namespaces: Seq[Namespace]): String = namespacesToString(
-    namespaces.map(ns => (ns.prefix -> ns.uri)).toMap
+    namespaces.map(ns => ns.prefix -> ns.uri).toMap
   )
 
 }
