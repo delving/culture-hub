@@ -70,7 +70,7 @@ class SOLRIndexingService extends SolrServer with IndexingService {
     fullTextUrl foreach { url =>
       // we try to index this object - we don't know its type yet because the URL does not necessarily reflect the file name.
       log.debug(s"Indexing: Found a full text object for record: $url")
-      val digitalObjectUrl = doc.get(url).getFirstValue.toString
+      val digitalObjectUrl = url.getFirstValue.toString
       Await.result(TikaIndexer.getFullTextFromRemoteURL(digitalObjectUrl), 10 seconds).map { text =>
         text.map(t => doc.addField("%s_text".format(FULL_TEXT.key), t))
       }

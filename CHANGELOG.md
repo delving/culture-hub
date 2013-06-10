@@ -4,6 +4,12 @@ This is the changelog of the CultureHub. It documents changes of the main platfo
 
 # 13.05
 
+## Hotfixes
+
+- manu: Fixing an issue with submitting new SimpleDocuments
+
+# 13.05
+
 ## New features
 
 - manu: CORS support for statistics API
