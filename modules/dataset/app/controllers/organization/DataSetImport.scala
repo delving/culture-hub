@@ -19,18 +19,16 @@ import org.apache.commons.io.FileUtils
 import java.io.File
 import ExecutionContext.Implicits.global
 import play.api.libs.MimeTypes
+import com.escalatesoft.subcut.inject.BindingModule
 
 /**
  * Importer, useful for development and debugging, use e.g. like this::
  *
- *  curl -i -F name=RAEAD_delving.zip -F filedata=@RAEAD_delving.zip http://delving.localhost:9000/organizations/delving/dataset/import\?userName\=bob
+ *  curl -i -F name=RAEAD_delving.zip -F filedata=@RAEAD_delving.zip http://delving.localhost:9000/admin/dataset/import\?userName\=bob
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
-object DataSetImport extends OrganizationController {
-
-  // [dir/]HASH__type[_prefix].extension
-  val FileName = """([^/]*)/([^_]*)__([^._]*)_?([^.]*).(.*)""".r
+class DataSetImport(implicit val bindingModule: BindingModule) extends OrganizationController {
 
   def importSIP(userName: Option[String]) = Root {
     Action(parse.temporaryFile) {
@@ -49,10 +47,10 @@ object DataSetImport extends OrganizationController {
             }.toMap
 
           val entries = allEntries.groupBy { e =>
-            if (FileName.findAllMatchIn(e._1).isEmpty) {
+            if (SipCreatoeEndPoint.FileName.findAllMatchIn(e._1).isEmpty) {
               e._1
             } else {
-              val FileName(dir, hash, kind, prefix, extension) = e._1
+              val SipCreatoeEndPoint.FileName(dir, hash, kind, prefix, extension) = e._1
               kind
             }
           }.map { grouped =>
@@ -105,7 +103,7 @@ object DataSetImport extends OrganizationController {
 
             // and now upload the stuff, hacky way
             val commands: Map[String, Future[String]] = entries
-              .filterNot(f => FileName.findAllMatchIn(f._1).isEmpty)
+              .filterNot(f => SipCreatoeEndPoint.FileName.findAllMatchIn(f._1).isEmpty)
               .filterNot(_._1.contains("_imported"))
               .map { file =>
                 val cleanName = file._1.substring(file._1.indexOf("/") + 1)

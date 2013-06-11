@@ -6,6 +6,7 @@ GET               /admin/dataset/feed                               @controllers
 GET               /admin/dataset/add                                @controllers.organization.DataSetControl.add
 GET               /admin/dataset/:spec/update                       @controllers.organization.DataSetControl.update(spec: String)
 POST              /admin/dataset/submit                             @controllers.organization.DataSetControl.dataSetSubmit
+POST              /admin/dataset/import                             @controllers.organization.DataSetImport.importSIP(userName: Option[String])
 GET               /admin/dataset/:spec                              @controllers.organization.DataSets.dataSet(spec: String)
 GET               /admin/sip-creator                                @controllers.organization.SipCreator.index
 

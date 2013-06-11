@@ -11,7 +11,7 @@ import akka.actor.Actor
 import play.api.{ Play, Logger }
 import core._
 import scala.{ Either, Option }
-import core.storage.{ BaseXStorage, FileStorage }
+import core.storage.FileStorage
 import util.SimpleDataSetParser
 import java.util.concurrent.TimeUnit
 import models._
@@ -687,6 +687,9 @@ class SipCreatorEndPoint(implicit val bindingModule: BindingModule) extends Appl
 }
 
 object SipCreatorEndPoint {
+
+  // [dir/]HASH__type[_prefix].extension
+  val FileName = """([^/]*)/([^_]*)__([^._]*)_?([^.]*).(.*)""".r
 
   private def basexStorage(implicit configuration: OrganizationConfiguration) = HubServices.basexStorages.getResource(configuration)
 
