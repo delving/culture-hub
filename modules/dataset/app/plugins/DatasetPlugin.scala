@@ -116,14 +116,13 @@ class DataSetPlugin(app: Application) extends CultureHubPlugin(app) {
    */
   override def onActorInitialization(context: ActorContext) {
     // DataSet source parsing
-    val basexStorage =
-      context.actorOf(
-        Props[ReceiveSource].withRouter(
-          RoundRobinRouter(Runtime.getRuntime.availableProcessors(), supervisorStrategy = OneForOneStrategy() {
-            case _ => Restart
-          })
-        ), name = "dataSetParser"
-      )
+    context.actorOf(
+      Props[ReceiveSource].withRouter(
+        RoundRobinRouter(Runtime.getRuntime.availableProcessors(), supervisorStrategy = OneForOneStrategy() {
+          case _ => Restart
+        })
+      ), name = "dataSetParser"
+    )
 
     // DataSet processing
     context.actorOf(Props[Processor].withRouter(
