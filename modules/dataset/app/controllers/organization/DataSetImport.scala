@@ -47,10 +47,10 @@ class DataSetImport(implicit val bindingModule: BindingModule) extends Organizat
             }.toMap
 
           val entries = allEntries.groupBy { e =>
-            if (SipCreatoeEndPoint.FileName.findAllMatchIn(e._1).isEmpty) {
+            if (SipCreatorEndPoint.FileName.findAllMatchIn(e._1).isEmpty) {
               e._1
             } else {
-              val SipCreatoeEndPoint.FileName(dir, hash, kind, prefix, extension) = e._1
+              val SipCreatorEndPoint.FileName(dir, hash, kind, prefix, extension) = e._1
               kind
             }
           }.map { grouped =>
@@ -103,7 +103,7 @@ class DataSetImport(implicit val bindingModule: BindingModule) extends Organizat
 
             // and now upload the stuff, hacky way
             val commands: Map[String, Future[String]] = entries
-              .filterNot(f => SipCreatoeEndPoint.FileName.findAllMatchIn(f._1).isEmpty)
+              .filterNot(f => SipCreatorEndPoint.FileName.findAllMatchIn(f._1).isEmpty)
               .filterNot(_._1.contains("_imported"))
               .map { file =>
                 val cleanName = file._1.substring(file._1.indexOf("/") + 1)
