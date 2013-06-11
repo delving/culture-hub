@@ -3,7 +3,7 @@ package core
 import models.OrganizationConfiguration
 
 /**
- * Messages for communication with plugins
+ * Messages for communication amongst plugins
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */

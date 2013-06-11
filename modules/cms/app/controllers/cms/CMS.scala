@@ -6,12 +6,13 @@ import com.mongodb.casbah.Imports._
 import core.MenuElement
 import scala.collection.JavaConverters._
 import controllers.DelvingController
+import com.escalatesoft.subcut.inject.BindingModule
 
 /**
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
-object CMS extends DelvingController {
+class CMS(implicit val bindingModule: BindingModule) extends DelvingController {
 
   def page(key: String, menuKey: Option[String]): Action[AnyContent] = Root {
     Action {

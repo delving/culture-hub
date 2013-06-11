@@ -15,7 +15,7 @@
         <h3>&{'dataset.Datasets'}</h3>
         <ol>
         #{list collections, as: 'c'}
-            <li><a href=${"/organizations/"+orgId+"/dataset/"+c.spec}>${c.spec}</a></li>
+            <li><a href=${"/admin/dataset/"+c.spec}>${c.spec}</a></li>
         #{/list}
         </ol>
     </div>

@@ -1,6 +1,6 @@
 package core.processing
 
-import core.collection.{ OrganizationCollectionInformation, Collection }
+import core.collection.{ OrganizationCollectionMetadata, Collection }
 import eu.delving.schema.SchemaVersion
 import org.joda.time.{ DateTimeZone, DateTime }
 
@@ -9,7 +9,7 @@ import org.joda.time.{ DateTimeZone, DateTime }
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 case class ProcessingContext(
-    collection: Collection with OrganizationCollectionInformation,
+    collection: Collection with OrganizationCollectionMetadata,
     targetSchemas: Seq[ProcessingSchema],
     sourceNamespaces: Map[String, String],
     renderingSchema: Option[SchemaVersion],

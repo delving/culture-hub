@@ -11,15 +11,13 @@ import extensions.Formatters._
 import play.api.i18n._
 import extensions.JJson
 import core.{ UserProfileService, DomainServiceLocator, HubModule }
+import com.escalatesoft.subcut.inject.BindingModule
 
 /**
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
-
-object Admin extends BoundController(HubModule) with Admin
-
-trait Admin extends DelvingController { this: BoundController =>
+class Admin(implicit val bindingModule: BindingModule) extends DelvingController {
 
   val userProfileServiceLocator = inject[DomainServiceLocator[UserProfileService]]
 
@@ -80,7 +78,7 @@ trait Admin extends DelvingController { this: BoundController =>
               Json(profileModel)
               Ok
             } else {
-              Json(Map("errors" -> (Map("global" -> Messages("hub.ErrorSavingYourProfile")))), BAD_REQUEST)
+              Json(Map("errors" -> Map("global" -> Messages("hub.ErrorSavingYourProfile"))), BAD_REQUEST)
             }
           }
         )

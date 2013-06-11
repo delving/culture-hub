@@ -1,7 +1,3 @@
-GET         /organizations/:orgId/api/search                 controllers.search.api.Search.searchApi(orgId, provider: Option[String] = None, dataProvider: Option[String] = None, collection: Option[String] = None)
+GET         /api/search                 @controllers.search.api.Search.searchApi(provider: Option[String] = None, dataProvider: Option[String] = None, collection: Option[String] = None)
 
-# legacy - TODO replace with redirect
-GET         /organizations/:orgId/search                     controllers.search.api.Search.searchApi(orgId, provider: Option[String] = None, dataProvider: Option[String] = None, collection: Option[String] = None)
-
-
-GET         /assets/*file                                    controllers.search.Assets.at(path="/public", file)
+GET         /assets/*file               controllers.search.Assets.at(path="/public", file)

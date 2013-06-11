@@ -95,7 +95,7 @@ trait CRUDController[Model <: CaseClass { def id: ObjectId }, D <: SalatDAO[Mode
   /**
    * Base URL of all actions for this CRUD model
    */
-  def baseUrl(implicit configuration: OrganizationConfiguration): String = "/organizations/%s/%s".format(configuration.orgId, urlPath)
+  def baseUrl(implicit configuration: OrganizationConfiguration): String = "/admin/%s".format(urlPath)
 
   // ~~~ default actions, override if necessary
 

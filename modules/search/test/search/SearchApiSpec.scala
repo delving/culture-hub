@@ -4,6 +4,7 @@ import play.api.test.Helpers._
 import play.api.test.FakeRequest
 import test.Specs2TestContext
 import util.OrganizationConfigurationHandler
+import core.HubModule
 
 /**
  * TODO better check of the content of all records & search by ID
@@ -58,13 +59,15 @@ class SearchApiSpec extends Specs2TestContext {
 
   private def query(query: String) = {
     val request = FakeRequest("GET", "?query=" + query)
-    val r = controllers.search.api.Search.searchApi("delving", None, None, None)(request)
+    val c = new controllers.search.api.Search()(HubModule)
+    val r = c.searchApi(None, None, None)(request)
     asyncToResult(r)
   }
 
   private def id(id: String) = {
     val request = FakeRequest("GET", "?id=" + id)
-    val r = controllers.search.api.Search.searchApi("delving", None, None, None)(request)
+    val c = new controllers.search.api.Search()(HubModule)
+    val r = c.searchApi(None, None, None)(request)
     asyncToResult(r)
   }
 

@@ -4,13 +4,14 @@ import play.api.mvc.Action
 import com.mongodb.casbah.Imports._
 import models.HubUser
 import java.util.regex.Pattern
+import com.escalatesoft.subcut.inject.BindingModule
 
 /**
  *
  * @author Gerald de Jong <gerald@delving.eu>
  */
 
-object Users extends DelvingController {
+class Users(implicit val bindingModule: BindingModule) extends DelvingController {
 
   def list(query: String, page: Int) = Root {
     Action {

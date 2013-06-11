@@ -12,6 +12,7 @@ import scala.concurrent.duration._
 import play.api.libs.concurrent.Akka
 import play.api.Play.current
 import play.api.libs.concurrent.Execution.Implicits._
+import scala.collection.mutable
 
 /**
  *
@@ -38,14 +39,14 @@ class RouteLogger extends Actor {
   val fileLog = Logger("routes")
 
   // TODO make multi-tenant, i.e. Map DomainConfig -> Arraybuffer
-  val mongoLogBuffer: Map[OrganizationConfiguration, ArrayBuffer[RouteAccess]] = new HashMap[OrganizationConfiguration, ArrayBuffer[RouteAccess]]()
+  val mongoLogBuffer: mutable.Map[OrganizationConfiguration, ArrayBuffer[RouteAccess]] = new mutable.HashMap[OrganizationConfiguration, ArrayBuffer[RouteAccess]]()
 
   def receive = {
 
     case RouteRequest(request) =>
       val configuration = OrganizationConfigurationHandler.getByDomain(request.domain)
       fileLog.info("%s %s".format(request.path, request.rawQueryString))
-      val routeAccess = RouteAccess(uri = request.path, queryString = request.queryString.map(a => (a._1.replaceAll("\\.", "_dot_") -> a._2)))
+      val routeAccess = RouteAccess(uri = request.path, queryString = request.queryString.map(a => a._1.replaceAll("\\.", "_dot_") -> a._2))
       if (mongoLogBuffer.contains(configuration)) {
         mongoLogBuffer(configuration).append(routeAccess)
       } else {

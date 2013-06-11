@@ -15,27 +15,6 @@ class IndexApiPlugin(app: Application) extends CultureHubPlugin(app) {
 
   val pluginKey: String = "indexApi"
 
-  /*
-  GET         /organizations/:orgId/api/index                                   controllers.api.Index.status(orgId)
-  POST        /organizations/:orgId/api/index                                   controllers.api.Index.submit(orgId)
-  POST        /organizations/:orgId/api/reIndex                                 controllers.api.Index.reIndex(orgId)
-
-   */
-  override val routes: ListMap[(String, Regex), (List[String], Map[String, String]) => Handler] = ListMap(
-    ("GET", """^/organizations/([A-Za-z0-9-]+)/api/index""".r) -> {
-      (pathArgs: List[String], queryString: Map[String, String]) =>
-        controllers.api.Index.status(pathArgs(0))
-    },
-    ("POST", """^/organizations/([A-Za-z0-9-]+)/api/index""".r) -> {
-      (pathArgs: List[String], queryString: Map[String, String]) =>
-        controllers.api.Index.submit(pathArgs(0))
-    },
-    ("POST", """^/organizations/([A-Za-z0-9-]+)/api/reIndex""".r) -> {
-      (pathArgs: List[String], queryString: Map[String, String]) =>
-        controllers.api.Index.reIndex()
-    }
-  )
-
   /**
    * Service instances this plugin provides
    */

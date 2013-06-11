@@ -1,16 +1,16 @@
-GET             /page/:key                                       controllers.cms.CMS.page(key, menuKey: Option[String] = None)
-GET             /site/:menuKey/page/:key                         controllers.cms.CMS.page(key, menuKey: Option[String])
-GET             /admin/site/upload                               controllers.cms.organization.CMS.upload
-POST            /admin/site/upload/:uid                          controllers.cms.organization.CMS.uploadSubmit(uid)
-GET             /admin/site/listImages                           controllers.cms.organization.CMS.listImages
-GET             /admin/site                                      controllers.cms.organization.CMS.list(language: Option[String] = None, menu: Option[String] = None)
-GET             /admin/site/:language                            controllers.cms.organization.CMS.list(language: Option[String], menu: Option[String] = None)
-GET             /admin/site/:language/:menu                      controllers.cms.organization.CMS.list(language: Option[String], menu: Option[String])
-GET             /admin/site/:language/page/add                   controllers.cms.organization.CMS.page(language: String, page: Option[String] = None, menu = plugins.CMSPlugin.MAIN_MENU)
-GET             /admin/site/:language/page/add/:menu             controllers.cms.organization.CMS.page(language: String, page: Option[String] = None, menu)
-GET             /admin/site/:language/page/:page/update          controllers.cms.organization.CMS.page(language: String, page: Option[String], menu = plugins.CMSPlugin.MAIN_MENU)
-POST            /admin/site/page                                 controllers.cms.organization.CMS.pageSubmit
-DELETE          /admin/site/:language/page/:key                  controllers.cms.organization.CMS.pageDelete(key, language)
-GET             /admin/site/:language/page/:key/preview          controllers.cms.organization.CMS.pagePreview(key, language)
+GET             /page/:key                                       @controllers.cms.CMS.page(key, menuKey: Option[String] = None)
+GET             /site/:menuKey/page/:key                         @controllers.cms.CMS.page(key, menuKey: Option[String])
+GET             /admin/site/upload                               @controllers.cms.organization.CMS.upload
+POST            /admin/site/upload/:uid                          @controllers.cms.organization.CMS.uploadSubmit(uid)
+GET             /admin/site/listImages                           @controllers.cms.organization.CMS.listImages
+GET             /admin/site                                      @controllers.cms.organization.CMS.list(language: Option[String] = None, menu: Option[String] = None)
+GET             /admin/site/:language                            @controllers.cms.organization.CMS.list(language: Option[String], menu: Option[String] = None)
+GET             /admin/site/:language/:menu                      @controllers.cms.organization.CMS.list(language: Option[String], menu: Option[String])
+GET             /admin/site/:language/page/add                   @controllers.cms.organization.CMS.page(language: String, page: Option[String] = None, menu = plugins.CMSPlugin.MAIN_MENU)
+GET             /admin/site/:language/page/add/:menu             @controllers.cms.organization.CMS.page(language: String, page: Option[String] = None, menu)
+GET             /admin/site/:language/page/:page/update          @controllers.cms.organization.CMS.page(language: String, page: Option[String], menu = plugins.CMSPlugin.MAIN_MENU)
+POST            /admin/site/page                                 @controllers.cms.organization.CMS.pageSubmit
+DELETE          /admin/site/:language/page/:key                  @controllers.cms.organization.CMS.pageDelete(key, language)
+GET             /admin/site/:language/page/:key/preview          @controllers.cms.organization.CMS.pagePreview(key, language)
 
 GET             /assets/*file                                    controllers.cms.Assets.at(path="/public", file)

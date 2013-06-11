@@ -1,0 +1,2 @@
+GET     /statistics         @controllers.statistics.Statistics.statistics
+GET     /api/statistics     @controllers.statistics.Statistics.legacyStatistics

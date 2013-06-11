@@ -45,7 +45,7 @@
       var viewModel = {
         selected: ko.observable("")
       };
-      $.get('/organizations/${_orgId}/api/statistics${_filter}', function(data) {
+      $.get('/api/statistics${_filter}', function(data) {
         load(data.statistics, viewModel, null, function() {
           var name = viewModel.facets()[0].name();
           viewModel.selected(name);

@@ -31,6 +31,8 @@ class IndexApiSpec extends Specs2TestContext {
                     </indexItem>
                   </indexRequest>
 
+  val indexController = new controllers.api.Index()(HubModule)
+
   "The Index Api" should {
 
     "process a request with 2 valid items" in {
@@ -46,7 +48,7 @@ class IndexApiSpec extends Specs2TestContext {
           body = testItems
         )
 
-        val result = asyncToResult(controllers.api.Index.submit("delving")(fakeRequest))
+        val result = asyncToResult(indexController.submit(fakeRequest))
         status(result) must equalTo(OK)
 
         val expected = <indexResponse>
@@ -95,7 +97,7 @@ class IndexApiSpec extends Specs2TestContext {
 
         )
 
-        val result = asyncToResult(controllers.api.Index.submit("delving")(fakeRequest))
+        val result = asyncToResult(indexController.submit(fakeRequest))
         status(result) must equalTo(OK)
 
         val expected = <indexResponse>
@@ -131,7 +133,7 @@ class IndexApiSpec extends Specs2TestContext {
           headers = FakeHeaders(Seq(CONTENT_TYPE -> Seq("application/xml"))),
           body = testItems
         )
-        val result = asyncToResult(controllers.api.Index.submit("delving")(fakeRequest))
+        val result = asyncToResult(indexController.submit(fakeRequest))
         status(result) must equalTo(OK)
 
         val fakeDeleteRequest: FakeRequest[scala.xml.NodeSeq] = FakeRequest(
@@ -142,7 +144,7 @@ class IndexApiSpec extends Specs2TestContext {
                    <indexItem itemId="123" itemType="book" delete="true"/>
                  </indexRequest>)
 
-        val deleteResult = asyncToResult(controllers.api.Index.submit("delving")(fakeDeleteRequest))
+        val deleteResult = asyncToResult(indexController.submit(fakeDeleteRequest))
         status(deleteResult) must equalTo(OK)
 
         val expected = <indexResponse>
@@ -178,7 +180,7 @@ class IndexApiSpec extends Specs2TestContext {
                </indexRequest>
       )
 
-      val result = asyncToResult(controllers.api.Index.submit("delving")(fakeRequest))
+      val result = asyncToResult(indexController.submit(fakeRequest))
       status(result) must equalTo(OK)
 
       val expected = <indexResponse>
@@ -214,7 +216,7 @@ class IndexApiSpec extends Specs2TestContext {
                </indexRequest>
       )
 
-      val result = asyncToResult(controllers.api.Index.submit("delving")(fakeRequest))
+      val result = asyncToResult(indexController.submit(fakeRequest))
       status(result) must equalTo(OK)
 
       val expected = <indexResponse>
@@ -250,7 +252,7 @@ class IndexApiSpec extends Specs2TestContext {
         body = AnyContentAsEmpty
       )
 
-      val result = controllers.api.Index.reIndex()(fakeRequest)
+      val result = indexController.reIndex()(fakeRequest)
       status(result) must equalTo(OK)
 
       val expected = "ReIndexed 3 items successfully, error for "

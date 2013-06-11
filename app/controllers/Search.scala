@@ -8,13 +8,14 @@ import exceptions._
 import play.api.i18n.Messages
 import core.{ RequestContext, SearchInService, CultureHubPlugin }
 import core.indexing.IndexField
+import com.escalatesoft.subcut.inject.BindingModule
 
 /**
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-object Search extends DelvingController {
+class Search(implicit val bindingModule: BindingModule) extends DelvingController {
 
   def index(query: String, page: Int) = search(query)
 

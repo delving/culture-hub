@@ -20,8 +20,6 @@ import models.{ Visibility, ViewableItem }
 
 // ~~ short models, mainly for browsing & displaying things view full rendering
 
-case class Fact(name: String, prompt: String, value: String)
-
 case class Token(id: String,
   name: String,
   tokenType: Option[String] = None,

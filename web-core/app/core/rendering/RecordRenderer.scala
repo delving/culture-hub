@@ -48,8 +48,7 @@ object RecordRenderer {
     // let's do some rendering
     RecordDefinition.getRecordDefinition(schema) match {
       case Some(definition) =>
-        val viewRenderer = ViewRenderer.fromDefinition(viewDefinitionFormatName, viewType)
-        if (viewRenderer.isEmpty) {
+        if (!ViewRenderer.canRender(viewDefinitionFormatName, viewType)) {
           log.warn("Tried rendering full record with id '%s' for non-existing view type '%s'".format(hubId, viewType.name))
           Left("Could not render full record with hubId '%s' for view type '%s': view type does not exist".format(hubId, viewType.name))
         } else {
@@ -70,7 +69,7 @@ object RecordRenderer {
                 }.distinct
                   .filterNot(_.trim.isEmpty)
                   .map { prefix =>
-                    (prefix -> RecordDefinition.getNamespaceURI(prefix))
+                    prefix -> RecordDefinition.getNamespaceURI(prefix)
                   }
               }
 
@@ -82,7 +81,7 @@ object RecordRenderer {
                 ))
               }
 
-              resolved.map(r => (r._1 -> r._2.get))
+              resolved.map(r => r._1 -> r._2.get)
             }
 
             val cleanRawRecord = {
@@ -119,7 +118,9 @@ object RecordRenderer {
 
             log.debug(cleanRawRecord)
 
-            val rendered: RenderedView = viewRenderer.get.renderRecord(cleanRawRecord, roles, definition.getNamespaces ++ relatedItemsNamespaces ++ defaultNamespaces, lang, parameters)
+            val allNamespaces = definition.getNamespaces ++ relatedItemsNamespaces ++ defaultNamespaces
+            val viewRenderer = ViewRenderer.fromDefinition(viewDefinitionFormatName, viewType, allNamespaces)
+            val rendered: RenderedView = viewRenderer.get.renderRecord(cleanRawRecord, roles, lang, parameters)
             Right(rendered)
           } catch {
             case t: Throwable =>

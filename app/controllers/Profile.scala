@@ -3,13 +3,14 @@ package controllers
 import play.api.mvc._
 import models._
 import play.api.i18n.Messages
+import com.escalatesoft.subcut.inject.BindingModule
 
 /**
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-object Profile extends DelvingController {
+class Profile(implicit val bindingModule: BindingModule) extends DelvingController {
 
   def profile(user: String): Action[AnyContent] = UserAction(user) {
     Action {

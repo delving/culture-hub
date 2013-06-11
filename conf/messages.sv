@@ -22,13 +22,13 @@ cms.FieldsExplained=Fältförklaring
 cms.HelpWithUploadingImages=Hjälp att ladda upp bilder
 cms.HelpWithWebsitePages=Hjälp med webbsidor
 cms.Homepage=Hemsida
-cms.ImagesCanBeAdded=Bilder kan läggas till på två sätt: <ol><li><strong>Ladda upp från en dator:</strong> detta kan du göra på <a href="/organizations/{0}/site/upload">Ladda upp bild</a> sidan. När bilden sparats kan den användas i din webbsida genom att klicka på <span class="mceIcon mceImage"></span> ikonen och välj din bild i <em>bildlistan</em></li><li><strong>Direkt från Internet:</strong> Klicka på <span class="mceIcon mceImage"></span> ikonen och skriv in webbadressen till bilden i </em>Bild URL</em> fältet
+cms.ImagesCanBeAdded=Bilder kan läggas till på två sätt: <ol><li><strong>Ladda upp från en dator:</strong> detta kan du göra på <a href="/admin/site/upload">Ladda upp bild</a> sidan. När bilden sparats kan den användas i din webbsida genom att klicka på <span class="mceIcon mceImage"></span> ikonen och välj din bild i <em>bildlistan</em></li><li><strong>Direkt från Internet:</strong> Klicka på <span class="mceIcon mceImage"></span> ikonen och skriv in webbadressen till bilden i </em>Bild URL</em> fältet
 cms.InvalidKeyValue=Felaktig inmatning. Sidnamnet får bara vara med små bokstäver och mellan 3 och 35 tecken långt.
 cms.ListPagesIn=Lista sidor i 
 cms.MainMenu=Huvudmeny
 cms.MakeThisContentAvailable=Om du kryssar i här gör du innehållet publikt
 cms.NotPublished=Ej publicerad
-cms.OnceUploaded=<p>När du har laddat upp, gå tillbaks till <a href="/organizations/{0}/site">sidlista</a> och redigera en sida eller skapa en <a href="/organizations/{0}/site/{1}/page/add">ny sida</a>. Klicka på <span class="mceIcon mceImage"></span> ikonen för att välja bild från <em>bildlistan</em>.</p>
+cms.OnceUploaded=<p>När du har laddat upp, gå tillbaks till <a href="/admin/site">sidlista</a> och redigera en sida eller skapa en <a href="/admin/site/{0}/page/add">ny sida</a>. Klicka på <span class="mceIcon mceImage"></span> ikonen för att välja bild från <em>bildlistan</em>.</p>
 cms.PageKey=Sidnamn
 cms.PositionInTheMenu=Position i menyn
 cms.Publish=Publicera

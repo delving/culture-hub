@@ -15,6 +15,7 @@ import core.indexing.IndexField
 import play.api.cache.Cache
 import play.api.Play.current
 import services.search.{ SolrQueryService, SolrBindingService }
+import com.escalatesoft.subcut.inject.BindingModule
 
 /**
  * Prototype statistics plugin based on the statistics provided by the Sip-Creator.
@@ -26,9 +27,9 @@ import services.search.{ SolrQueryService, SolrBindingService }
  * @author Sjoerd Siebinga <sjoerd.siebinga@gmail.com>
  */
 
-object Statistics extends OrganizationController {
+class Statistics(implicit val bindingModule: BindingModule) extends OrganizationController {
 
-  def statistics(orgId: String) = OrganizationBrowsing {
+  def statistics = OrganizationBrowsing {
     Action {
       implicit request =>
         if (getStatisticsConfig.map(_.public).getOrElse(false)) {
@@ -43,7 +44,7 @@ object Statistics extends OrganizationController {
     }
   }
 
-  def legacyStatistics(orgId: String) = OrganizationConfigured {
+  def legacyStatistics = OrganizationConfigured {
     Action {
       implicit request =>
 
@@ -68,7 +69,7 @@ object Statistics extends OrganizationController {
 
         // cache stats for 3 hours
         val statistics = Cache.getOrElse("facetStatistics-" + request.queryString.mkString.hashCode, 10800) {
-          new SolrFacetBasedStatistics(orgId, facets, filter, facetLimit, query)
+          new SolrFacetBasedStatistics(configuration.orgId, facets, filter, facetLimit, query)
         }
 
         val result = if (request.queryString.getFirst("format") == Some("csv")) {

@@ -10,15 +10,14 @@ import extensions.MissingLibs
 import models.{ OrganizationConfiguration, HubUser }
 import core._
 import play.api.mvc.Cookie
+import com.escalatesoft.subcut.inject.BindingModule
 
 /**
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-object Authentication extends BoundController(HubModule) with Authentication
-
-trait Authentication extends ApplicationController { this: BoundController =>
+class Authentication(implicit val bindingModule: BindingModule) extends ApplicationController {
 
   val authenticationServiceLocator = inject[DomainServiceLocator[AuthenticationService]]
   val userProfileServiceLocator = inject[DomainServiceLocator[UserProfileService]]
@@ -48,7 +47,7 @@ trait Authentication extends ApplicationController { this: BoundController =>
     Action {
       implicit request =>
         if (session.get("userName").isDefined) {
-          Redirect(controllers.routes.Application.index)
+          Redirect(controllers.routes.Application.index())
         } else {
           Ok(Template('loginForm -> loginForm))
         }
@@ -56,7 +55,7 @@ trait Authentication extends ApplicationController { this: BoundController =>
   }
 
   def logout = Action {
-    Redirect(routes.Authentication.login).withNewSession.discardingCookies(DiscardingCookie(REMEMBER_COOKIE)).flashing(
+    Redirect(routes.Authentication.login()).withNewSession.discardingCookies(DiscardingCookie(REMEMBER_COOKIE)).flashing(
       "success" -> Messages("hub.YouWereLoggedOutSuccessfully")
     )
   }
@@ -95,7 +94,7 @@ trait Authentication extends ApplicationController { this: BoundController =>
             }.map { u =>
               val action = (request.session.get("uri") match {
                 case Some(uri) => Redirect(uri)
-                case None => Redirect(controllers.routes.Application.index)
+                case None => Redirect(controllers.routes.Application.index())
               }).withSession(
                 Constants.USERNAME -> userName,
                 AT_KEY -> authenticityToken)
@@ -111,7 +110,7 @@ trait Authentication extends ApplicationController { this: BoundController =>
               }
             }.getOrElse {
               ErrorReporter.reportError(request, "Could not create local HubUser for user %s".format(userName))
-              Redirect(controllers.routes.Authentication.login).flashing(("error", "Sorry, something went wrong while logging in, please try again"))
+              Redirect(controllers.routes.Authentication.login()).flashing(("error", "Sorry, something went wrong while logging in, please try again"))
             }
           }
         )

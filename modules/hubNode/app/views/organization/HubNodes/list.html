@@ -43,7 +43,7 @@
                     No entries
                 </td>
                 <td>
-                    <a class="btn btn-primary btn-mini" href="/organizations/${orgId}/hubNode/add" rel="nofollow">${messages.get('hubnode.CreateHubNode')}</a>
+                    <a class="btn btn-primary btn-mini" href="/admin/hubNode/add" rel="nofollow">${messages.get('hubnode.CreateHubNode')}</a>
                 </td>
             </tr>
             </tbody>
@@ -58,16 +58,16 @@
 
         var viewModel = {
             update: function(node) {
-                document.location = "/organizations/${orgId}/hubNode/" + node.id() + "/update"
+                document.location = "/admin/hubNode/" + node.id() + "/update"
             },
             delete: function(node) {
                 bootboxConfirm({
                     'type': 'DELETE',
                     'message' : '<h3 class="shout">' + node.name() + '</h3>&{'hubnode.AreYouSureYouWantToDeleteThisHubNode'}',
-                    'action_url' : '/organizations/${orgId}/hubNode/' + node.id() + '/remove',
+                    'action_url' : '/admin/hubNode/' + node.id() + '/remove',
                     'success_callback' : function () {
                         viewModel.nodes.remove(function (item) {
-                            return item.key === node.key;
+                            return item.id() === node.id();
                         });
                     }
 

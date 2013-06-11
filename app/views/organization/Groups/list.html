@@ -22,7 +22,7 @@
                   <td><span data-bind="text: name"></span></td>
                   <td><span data-bind="text: description"></span></td>
                   <td>#{if isAdmin}
-                      <a class="btn btn-primary btn-mini" data-bind="attr: { href: '/organizations/${orgId}/groups/update/' + id() }">&{'hub.Edit'}</a>
+                      <a class="btn btn-primary btn-mini" data-bind="attr: { href: '/admin/groups/update/' + id() }">&{'hub.Edit'}</a>
                       <a class="btn btn-danger btn-mini delete" data-bind="attr: { id: 'remove-' + id(), 'data-remove': id() }">
                       ${messages.get('hub.Delete')}
                       </a>
@@ -34,7 +34,7 @@
           <tbody>
             <tr>
                 <td>No groups defined</td>
-                <td>#{if isAdmin}<a class="btn btn-primary btn-mini" href="/organizations/${orgId}/groups/create">&{'hub.CreateGroup'}</a>#{/if}</td>
+                <td>#{if isAdmin}<a class="btn btn-primary btn-mini" href="/admin/groups/create">&{'hub.CreateGroup'}</a>#{/if}</td>
             </tr>
           </tbody>
           <!-- /ko -->
@@ -58,10 +58,10 @@ $(document).ready(function() {
                     "class":"btn-primary",
                     "callback":function () {
                         $.ajax({
-                            url:'/organizations/${orgId}/groups/remove/' + group,
+                            url:'/admin/groups/remove/' + group,
                             type:"DELETE",
                             success:function () {
-                                document.location = '/organizations/${orgId}/groups'
+                                document.location = '/admin/groups'
                             }
                         });
                     }

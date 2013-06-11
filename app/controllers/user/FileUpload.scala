@@ -20,6 +20,7 @@ import play.api.mvc._
 import org.bson.types.ObjectId
 import controllers.DelvingController
 import core.storage.FileStorage
+import com.escalatesoft.subcut.inject.BindingModule
 
 /**
  * Router for the FileUpload service that either directly invokes the module API when running locally or invokes the remote
@@ -28,7 +29,7 @@ import core.storage.FileStorage
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-object FileUpload extends DelvingController {
+class FileUpload(implicit val bindingModule: BindingModule) extends DelvingController {
 
   def uploadFile(uid: String) = ConnectedUserAction {
     controllers.dos.FileUpload.uploadFile(uid)
