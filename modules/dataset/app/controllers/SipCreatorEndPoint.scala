@@ -8,10 +8,10 @@ import org.apache.commons.io.{ FileUtils, IOUtils }
 import play.api.libs.iteratee.Enumerator
 import play.libs.Akka
 import akka.actor.Actor
-import play.api.Logger
+import play.api.{ Play, Logger }
 import core._
 import scala.{ Either, Option }
-import core.storage.{ BaseXStorage, FileStorage }
+import core.storage.FileStorage
 import util.SimpleDataSetParser
 import java.util.concurrent.TimeUnit
 import models._
@@ -36,6 +36,7 @@ import scala.concurrent.duration._
 import com.mongodb.casbah.Imports._
 import com.mongodb.casbah.gridfs.{ GridFSDBFile, GridFS }
 import com.escalatesoft.subcut.inject.BindingModule
+import play.api.Play.current
 
 /**
  * This Controller is responsible for all the interaction with the SIP-Creator.
@@ -52,16 +53,16 @@ class SipCreatorEndPoint(implicit val bindingModule: BindingModule) extends Appl
 
   private def basexStorage(implicit configuration: OrganizationConfiguration) = HubServices.basexStorages.getResource(configuration)
 
-  // HASH__type[_prefix].extension
-  private val FileName = """([^_]*)__([^._]*)_?([^.]*).(.*)""".r
-
   private var connectedUserObject: Option[HubUser] = None
 
   def AuthenticatedAction[A](accessToken: Option[String])(action: Action[A]): Action[A] = OrganizationConfigured {
     Action(action.parser) {
       implicit request =>
         {
-          if (accessToken.isEmpty) {
+          if (accessToken.isEmpty && Play.isDev) {
+            connectedUserObject = HubUser.dao.findByUsername(request.queryString.get("userName").get.head)
+            action(request)
+          } else if (accessToken.isEmpty) {
             Unauthorized("No access token provided")
           } else if (!HubUser.isValidToken(accessToken.get)) {
             Unauthorized("Access Key %s not accepted".format(accessToken.get))
@@ -223,7 +224,7 @@ class SipCreatorEndPoint(implicit val bindingModule: BindingModule) extends Appl
             val msg = "DataSet with spec %s not found".format(spec)
             NotFound(msg)
           } else {
-            val FileName(hash, kind, prefix, extension) = fileName
+            val SipCreatorEndPoint.FileName(hash, kind, prefix, extension) = fileName
             if (hash.isEmpty) {
               val msg = "No hash available for file name " + fileName
               Error(msg)
@@ -686,6 +687,9 @@ class SipCreatorEndPoint(implicit val bindingModule: BindingModule) extends Appl
 }
 
 object SipCreatorEndPoint {
+
+  // [dir/]HASH__type[_prefix].extension
+  val FileName = """([^/]*)/([^_]*)__([^._]*)_?([^.]*).(.*)""".r
 
   private def basexStorage(implicit configuration: OrganizationConfiguration) = HubServices.basexStorages.getResource(configuration)
 
