@@ -58,8 +58,6 @@ object Build extends sbt.Build {
 
     "org.scalesxml"             %% "scales-xml"                      % "0.4.4",
 
-    "com.wordnik"               %% "swagger-play2"                   % "1.2.1-SNAPSHOT",
-
     "org.scalatest"             %% "scalatest"                       % "2.0.M5b"             % "test",
 
     // temporary until https://play.lighthouseapp.com/projects/82401-play-20/tickets/970-xpathselecttext-regression is fixed
@@ -100,7 +98,7 @@ object Build extends sbt.Build {
 
   // ~~~ dynamic modules, to avoid hard-coded definitions
 
-  val excludes = Seq("cms", "search", "dataset", "simple-document-upload", "dos")
+  val excludes = Seq("cms", "search", "dataset", "dos")
 
   def discoverModules(base: File, dir: String): Seq[Project] = {
     val dirs: Seq[sbt.File] = if((base / dir).listFiles != null) (base / dir).listFiles else Seq.empty[sbt.File]

@@ -2,7 +2,7 @@ package controllers
 
 import core._
 import play.api.mvc._
-import core.rendering.RecordRenderer
+import core.rendering.{ FullViewService, RecordRenderer }
 import com.mongodb.casbah.Imports._
 import play.api.i18n.Messages
 import core.Constants.SEARCH_TERM

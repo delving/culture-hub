@@ -17,11 +17,6 @@ import com.escalatesoft.subcut.inject.BindingModule
 
 class Api(implicit val bindingModule: BindingModule) extends DelvingController with RenderingExtensions {
 
-  def ui = Action {
-    implicit request =>
-      Ok(Template)
-  }
-
   def explanations(path: String): Action[AnyContent] = {
     val pathList = path.split("/").drop(1).toList
     if (pathList.isEmpty) {

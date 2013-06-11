@@ -1,7 +1,7 @@
-GET             /experiments/ead/sample                          controllers.ead.Prototype.sampleData
-GET             /experiments/ead/view                            controllers.ead.Prototype.sampleView(hubId: Option[String])
-GET             /experiments/ead/tree                            controllers.ead.Prototype.tree(hubId: Option[String], path: Option[String] ?= None, limited: Boolean ?= true)
-GET             /experiments/ead/sourceTree                      controllers.ead.Prototype.sourceTree(hubId: Option[String], path: Option[String] ?= None, limited: Boolean ?= true)
-GET             /experiments/ead/simplifiedTree                  controllers.ead.Prototype.simplifiedTree(hubId: Option[String], path: Option[String] ?= None, limited: Boolean ?= true)
+GET             /experiments/ead/sample                          @controllers.ead.Prototype.sampleData
+GET             /experiments/ead/view                            @controllers.ead.Prototype.sampleView(hubId: Option[String])
+GET             /experiments/ead/tree                            @controllers.ead.Prototype.tree(hubId: Option[String], path: Option[String] ?= None, limited: Boolean ?= true)
+GET             /experiments/ead/sourceTree                      @controllers.ead.Prototype.sourceTree(hubId: Option[String], path: Option[String] ?= None, limited: Boolean ?= true)
+GET             /experiments/ead/simplifiedTree                  @controllers.ead.Prototype.simplifiedTree(hubId: Option[String], path: Option[String] ?= None, limited: Boolean ?= true)
 
 GET             /assets/*file                                    controllers.ead.Assets.at(path="/public", file)

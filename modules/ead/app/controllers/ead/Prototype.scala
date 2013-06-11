@@ -8,20 +8,18 @@ import scala.xml._
 import net.liftweb.json._
 import collection.immutable.Stack
 import collection.mutable.ArrayBuffer
-import com.wordnik.swagger.annotations.{ ApiParam, ApiOperation, Api }
-import util.EADSimplifier
 import core.{ HubId, RecordResolverService, CultureHubPlugin }
+import com.escalatesoft.subcut.inject.BindingModule
+import util.EADSimplifier
 
 /**
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
-@Api(value = "/experiments/ead", listingPath = "/api-docs.{format}/experiments/ead", description = "EAD prototype")
-object Prototype extends DelvingController {
+class Prototype(implicit val bindingModule: BindingModule) extends DelvingController {
 
   val source = "apeEAD_SE_KrA_0058.xml"
 
-  @ApiOperation(value = "Sample data")
   def sampleData = Action {
     implicit request =>
 
@@ -38,41 +36,28 @@ object Prototype extends DelvingController {
       }
   }
 
-  @ApiOperation(value = "Sample view")
   def sampleView(hubId: Option[String]) = Root {
     Action {
       implicit request => Ok(Template("ead/EAD/view.html", 'id -> hubId))
     }
   }
 
-  @ApiOperation(
-    value = "Render a tree so that it can be displayed by FancyTree",
-    notes = "Returns the JSON representation of the tree",
-    responseClass = "tree",
-    httpMethod = "GET"
-  )
   def tree(
-    @ApiParam(value = "Identifier of the document, optional atm") hubId: Option[String],
-    @ApiParam(value = "Optional path for which to render a subtree") path: Option[String],
-    @ApiParam(value = "Whether or not to limit the depth of the tree, for lazy loading (true by default)") limited: Boolean) =
+    hubId: Option[String],
+    path: Option[String],
+    limited: Boolean) =
     renderTree(hubId, path, limited, EADSimplifier.simplify, transformSimplifiedTreeToFancyNode, renderAsArray = true, skipRoot = true)
 
-  @ApiOperation(
-    value = "Render a source tree, eventually only rendering parts of it",
-    notes = "Returns the JSON representation of the source document",
-    responseClass = "sourceTree",
-    httpMethod = "GET"
-  )
   def sourceTree(
-    @ApiParam(value = "Identifier of the document, optional atm") hubId: Option[String],
-    @ApiParam(value = "Optional path for which to render a subtree") path: Option[String],
-    @ApiParam(value = "Whether or not to limit the depth of the tree (true by default)") limited: Boolean) =
+    hubId: Option[String],
+    path: Option[String],
+    limited: Boolean) =
     renderTree(hubId, path, limited, x => x, transformSourceNode)
 
   def simplifiedTree(
-    @ApiParam(value = "Identifier of the document, optional atm") hubId: Option[String],
-    @ApiParam(value = "Optional path for which to render a subtree") path: Option[String],
-    @ApiParam(value = "Whether or not to limit the depth of the tree (true by default)") limited: Boolean) =
+    hubId: Option[String],
+    path: Option[String],
+    limited: Boolean) =
     renderTree(hubId, path, limited, EADSimplifier.simplify, transformSourceNode)
 
   def renderTree(
