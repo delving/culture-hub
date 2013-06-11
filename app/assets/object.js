@@ -139,7 +139,7 @@ $(document).ready(function () {
      */
 
     // Endpoint to retrieve related items for this object
-    var mltEndpoint = '/organizations/' + Thing.orgId + '/api/search?id=' + Thing.hubId + '&format=json&mlt=true';
+    var mltEndpoint = '/api/search?id=' + Thing.hubId + '&format=json&mlt=true';
 
     if(jsLabels.objTitle.length && $('#object-title-big').length) {
         $('#object-title-big').html(jsLabels.objTitle);

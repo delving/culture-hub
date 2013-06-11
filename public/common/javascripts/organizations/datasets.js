@@ -39,7 +39,7 @@ function stateToClass(state) {
 function feed(orgId, spec, onopen, onmessage, connectionRetries) {
     var localRetries = connectionRetries;
     var clientId = Math.floor(1 + 10001 * Math.random());
-    var url = "ws://" + location.host + "/organizations/" + orgId + "/dataset/feed?clientId=" + clientId + '&spec=' + spec;
+    var url = "ws://" + location.host + "/admin/dataset/feed?clientId=" + clientId + '&spec=' + spec;
     ws = new WebSocket(url);
     ws.onopen = function() {
         localRetries = 0;

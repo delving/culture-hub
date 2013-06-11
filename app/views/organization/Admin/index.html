@@ -22,8 +22,8 @@
               name: "adminInput",
               searchUrl: "/users/search",
               prePopulate: admins,
-              addUrl: "/organizations/"+orgId+"/admin/admin/add",
-              removeUrl: "/organizations/"+orgId+"/admin/admin/remove" /}
+              addUrl: "/admin/admin/add",
+              removeUrl: "/admin/admin/remove" /}
         </div>
         <div>
             <p>&{'hub.AddAnAdministrator'}</p>
@@ -33,7 +33,7 @@
     <div class="members span4">
         <h3>&{'hub.Members'}</h3>
         <div>
-        #{addRemoveTokenField id:"members", searchUrl: "/users/search", prePopulate: members, addUrl:"/organizations/"+orgId+"/admin/users/add", removeUrl: "/organizations/"+orgId+"/admin/users/remove", removeConfirmation: messages.get('hub.RemovingAMemberWillAlso') /}
+        #{addRemoveTokenField id:"members", searchUrl: "/users/search", prePopulate: members, addUrl:"/admin/users/add", removeUrl: "/admin/users/remove", removeConfirmation: messages.get('hub.RemovingAMemberWillAlso') /}
         </div>
         <div>
             <p>&{'hub.AddANewMember'}</p>

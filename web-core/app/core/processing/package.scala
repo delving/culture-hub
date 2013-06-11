@@ -20,7 +20,7 @@ package object processing {
     def getSearchFields: MultiMap = mappingResult.searchFields()
 
     def getCopyFields: MultiMap = {
-      mappingResult.copyFields().asScala.map(f => (f._1.replaceAll(":", "_") -> f._2.asScala.toList)).toMap[String, List[String]]
+      mappingResult.copyFields().asScala.map(f => f._1.replaceAll(":", "_") -> f._2.asScala.toList).toMap[String, List[String]]
     }
 
     def getSystemFields: MultiMap = {

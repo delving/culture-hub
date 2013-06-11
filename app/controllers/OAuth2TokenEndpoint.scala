@@ -15,10 +15,11 @@ import org.apache.amber.oauth2.as.validator._
 import play.api._
 import play.api.Play.current
 import mvc._
-import core.{ AuthenticationService, DomainServiceLocator, HubModule }
+import core.{ AuthenticationService, DomainServiceLocator }
 import models.HubUser
 import scala.Left
 import scala.Right
+import com.escalatesoft.subcut.inject.BindingModule
 
 /**
  * OAuth2 TokenEndPoint inspired by the Apache Amber examples and the RFC draft 10
@@ -30,9 +31,7 @@ import scala.Right
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
-object OAuth2TokenEndpoint extends BoundController(HubModule) with OAuth2TokenEndpoint
-
-trait OAuth2TokenEndpoint extends Controller with OrganizationConfigurationAware { this: BoundController with Controller with OrganizationConfigurationAware =>
+class OAuth2TokenEndpoint(implicit val bindingModule: BindingModule) extends ApplicationController {
 
   val authenticationServiceLocator = inject[DomainServiceLocator[AuthenticationService]]
 
@@ -133,15 +132,15 @@ class PlayOAuthTokenRequest(request: RequestHeader) extends OAuthRequest {
     validators.put(GrantType.PASSWORD.toString, classOf[PasswordValidator])
     validators.put(GrantType.AUTHORIZATION_CODE.toString, classOf[AuthorizationCodeValidator])
     validators.put(GrantType.REFRESH_TOKEN.toString, classOf[RefreshTokenValidator])
-    val requestTypeValue: String = getParam(OAuth.OAUTH_GRANT_TYPE).asInstanceOf[String]
+    val requestTypeValue: String = getParam(OAuth.OAUTH_GRANT_TYPE)
     if (OAuthUtils.isEmpty(requestTypeValue)) {
       throw OAuthUtils.handleOAuthProblemException("Missing grant_type parameter value")
     }
-    val clazz = validators.get(requestTypeValue);
+    val clazz = validators.get(requestTypeValue)
     if (clazz == null) {
       throw OAuthUtils.handleOAuthProblemException("Invalid grant_type parameter value")
     }
-    (OAuthUtils.instantiateClass(clazz)).asInstanceOf[OAuthValidator[HttpServletRequest]];
+    OAuthUtils.instantiateClass(clazz)
   }
 
   override def getParam(name: String) = request.queryString.get(name).getOrElse(Seq("")).head

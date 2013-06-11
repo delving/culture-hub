@@ -41,7 +41,7 @@ object Proxy extends Controller with OrganizationConfigurationAware with Renderi
     case _ => None
   }
 
-  def list(orgId: String) = OrganizationConfigured {
+  def list = OrganizationConfigured {
     Action {
       implicit request =>
 
@@ -66,7 +66,7 @@ object Proxy extends Controller with OrganizationConfigurationAware with Renderi
     }
   }
 
-  def query(orgId: String, proxyKey: String) = Action {
+  def query(proxyKey: String) = Action {
     implicit request =>
       Async {
 
@@ -91,7 +91,7 @@ object Proxy extends Controller with OrganizationConfigurationAware with Renderi
       }
   }
 
-  def item(orgId: String, proxyKey: String, itemKey: String) = Action {
+  def item(proxyKey: String, itemKey: String) = Action {
     implicit request =>
       Async {
 

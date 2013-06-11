@@ -1,4 +1,4 @@
-import core.SystemField
+import core.{ HubModule, SystemField }
 import java.io.File
 import models.MetadataCache
 import org.apache.solr.client.solrj.SolrQuery
@@ -22,13 +22,15 @@ import services.search.SolrQueryService
  */
 @Ignore class SimpleDocumentUploadSpec extends FlatSpec with ShouldMatchers with TestContext {
 
+  val controller = new controllers.organizations.SimpleDocumentUpload()(HubModule)
+
   "The SimpleDocumentUpload" should "submit and store a document" in {
 
     withTestData() {
 
       implicit val configuration = OrganizationConfigurationHandler.getByOrgId("delving")
 
-      val result = controllers.organizations.SimpleDocumentUpload.submit("delving")(fakeRequest)
+      val result = controller.submit(fakeRequest)
       status(result) should equal(OK)
 
       val maybeDoc = MetadataCache.get("delving", "uploadDocuments", "uploadDocument").findOne("delving_uploadDocuments_503e203903643da47461306e")
@@ -48,7 +50,7 @@ import services.search.SolrQueryService
 
       implicit val configuration = OrganizationConfigurationHandler.getByOrgId("delving")
 
-      val result = controllers.organizations.SimpleDocumentUpload.submit("delving")(fakeRequest)
+      val result = controller.submit(fakeRequest)
       status(result) should equal(OK)
 
       val queryById = SolrQueryService.getSolrResponseFromServer(new SolrQuery("delving_orgId:delving id:delving_uploadDocuments_503e203903643da47461306e"))
@@ -73,14 +75,14 @@ import services.search.SolrQueryService
       val (f, thumbnailUrl) = controllers.dos.FileUpload.storeFile(pdf, "sample.pdf", "application/pdf", uid).get
       val (f1, thumbnailUrl1) = controllers.dos.FileUpload.storeFile(png, "delving-team.jpg", "image/jpg", uid).get
 
-      val simulatedAttachment = controllers.organizations.SimpleDocumentUpload.upload("delving", uid, "delving_uploadDocuments_503e203903643da47461306e")(
+      val simulatedAttachment = controller.upload(uid, "delving_uploadDocuments_503e203903643da47461306e")(
         FakeRequest().withSession(
           ("userName" -> "bob")
         ))
 
       status(simulatedAttachment) should equal(OK)
 
-      val result = controllers.organizations.SimpleDocumentUpload.submit("delving")(fakeRequest)
+      val result = controller.submit(fakeRequest)
       status(result) should equal(OK)
 
       val maybeDoc = MetadataCache.get("delving", "uploadDocuments", SimpleDocumentUploadPlugin.ITEM_TYPE).findOne("delving_uploadDocuments_503e203903643da47461306e")
@@ -127,14 +129,14 @@ import services.search.SolrQueryService
   //
   //      val (f, thumbnailUrl) = controllers.dos.FileUpload.storeFile(pdf, "sample.pdf", "application/pdf", uid).get
   //
-  //      val simulatedAttachment = controllers.organizations.SimpleDocumentUpload.upload("delving", uid, "delving_uploadDocuments_503e203903643da47461306e")(
+  //      val simulatedAttachment = controller.upload("delving", uid, "delving_uploadDocuments_503e203903643da47461306e")(
   //        FakeRequest().withSession(
   //          ("userName" -> "bob")
   //        ))
   //
   //      status(simulatedAttachment) should equal(OK)
   //
-  //      val result = controllers.organizations.SimpleDocumentUpload.submit("delving")(fakeRequest)
+  //      val result = controller.submit("delving")(fakeRequest)
   //      status(result) should equal(OK)
   //
   //      val queryFullText = SolrQueryService.getSolrResponseFromServer(new SolrQuery("Anticonstitutionellement"))

@@ -5,13 +5,14 @@ import controllers.{ Token, DelvingController, Secured }
 import models.HubMongoContext._
 import com.mongodb.casbah.Imports._
 import java.util.regex.Pattern
+import com.escalatesoft.subcut.inject.BindingModule
 
 /**
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-object Places extends DelvingController with Secured {
+class Places(implicit val bindingModule: BindingModule) extends DelvingController with Secured {
 
   def listAsTokens(q: String, countryCode: Option[String]) = Root {
     Action {

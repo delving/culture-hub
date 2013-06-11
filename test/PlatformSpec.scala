@@ -17,14 +17,14 @@ class PlatformSpec extends Specs2TestContext {
 
   val organizationConfigurationHandler = OrganizationConfigurationHandler
 
-  "The OrganizationConfigurationHandler handled" should {
+  "The OrganizationConfigurationHandler" should {
 
     "load configurations from disk into memory" in {
       withTestConfig {
 
         organizationConfigurationHandler.configure()
         val (configurations, errors) = OrganizationConfiguration.buildConfigurations(Play.application.configuration, CultureHubPlugin.hubPlugins)
-        configurations.size should not equalTo (0)
+        configurations.size should not equalTo 0
         errors.size should equalTo(0)
       }
     }

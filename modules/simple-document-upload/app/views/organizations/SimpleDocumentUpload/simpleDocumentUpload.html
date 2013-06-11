@@ -79,7 +79,7 @@
                 downloadTemplate: _renderDownloadTemplate,
                 acceptFileTypes: /(\.|\/)(pdf|jpg|png|jpeg)$/i
             }).bind('fileuploaddone', function (e, data) {
-                $.post('/organizations/${orgId}/simpledocument/upload/${uid}?id=${id}');
+                $.post('/admin/simpledocument/upload/${uid}?id=${id}');
             });
 
             $("table.files td.delete button").addClass("btn btn-danger");
@@ -94,8 +94,8 @@
 
         $('#saveButton').click(function (event) {
             event.preventDefault();
-            handleSubmit('/organizations/${orgId}/simpledocument/submit', viewModel, '#itemForm', null, function () {
-                document.location = '/organizations/${orgId}/simpledocument';
+            handleSubmit('/admin/simpledocument/submit', viewModel, '#itemForm', null, function () {
+                document.location = '/admin/simpledocument';
             });
         });
     });

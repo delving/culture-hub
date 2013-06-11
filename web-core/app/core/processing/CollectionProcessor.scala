@@ -2,7 +2,7 @@ package core.processing
 
 import scala.collection.JavaConverters._
 import play.api.Logger
-import core.collection.{ OrganizationCollectionInformation, Collection }
+import core.collection.{ OrganizationCollectionMetadata, Collection }
 import core.storage.BaseXStorage
 import models._
 import xml.{ Elem, NodeSeq, Node }
@@ -24,7 +24,7 @@ import akka.util.Timeout
  * - indexing the record in the selected indexingSchema
  *
  */
-class CollectionProcessor(collection: Collection with OrganizationCollectionInformation,
+class CollectionProcessor(collection: Collection with OrganizationCollectionMetadata,
     sourceNamespaces: Map[String, String],
     targetSchemas: List[ProcessingSchema],
     indexingSchema: Option[ProcessingSchema],

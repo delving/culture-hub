@@ -7,19 +7,20 @@ import java.util.Date
 import java.text.SimpleDateFormat
 import play.api.Play
 import play.api.Play.current
+import com.escalatesoft.subcut.inject.BindingModule
 
 /**
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-object SipCreator extends OrganizationController {
+class SipCreator(implicit val bindingModule: BindingModule) extends OrganizationController {
 
   private val format = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz")
 
-  def index(orgId: String) = OrganizationMember {
+  def index = OrganizationMember {
     Action {
-      implicit request => Ok(Template('orgId -> orgId))
+      implicit request => Ok(Template('orgId -> configuration.orgId))
     }
   }
 
@@ -35,7 +36,7 @@ object SipCreator extends OrganizationController {
         val jnlp = LaunchFile.createJNLP(home, codebase, user)
 
         val lastModified = {
-          val url = SipCreator.getClass.getResource("/eu/delving/LaunchFile.class")
+          val url = this.getClass.getResource("/eu/delving/LaunchFile.class")
           new Date(url.openConnection().getLastModified)
         }
 

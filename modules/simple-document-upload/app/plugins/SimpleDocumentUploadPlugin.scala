@@ -101,27 +101,6 @@ class SimpleDocumentUploadPlugin(app: Application) extends CultureHubPlugin(app)
     new UploadDocumentOrganizationCollectionLookupService
   )
 
-  override val routes: ListMap[(String, Regex), (List[String], Map[String, String]) => Handler] = ListMap(
-    ("GET", """^/organizations/([A-Za-z0-9-]+)/simpledocument""".r) -> {
-      (pathArgs: List[String], queryString: Map[String, String]) => controllers.organizations.SimpleDocumentUpload.list(pathArgs(0))
-    },
-    ("GET", """^/organizations/([A-Za-z0-9-]+)/simpledocument/add""".r) -> {
-      (pathArgs: List[String], queryString: Map[String, String]) => controllers.organizations.SimpleDocumentUpload.simpleDocumentUpload(pathArgs(0), None)
-    },
-    ("GET", """^/organizations/([A-Za-z0-9-]+)/simpledocument/([A-Za-z0-9-_]+)/update""".r) -> {
-      (pathArgs: List[String], queryString: Map[String, String]) => controllers.organizations.SimpleDocumentUpload.simpleDocumentUpload(pathArgs(0), Some(pathArgs(1)))
-    },
-    ("POST", """^/organizations/([A-Za-z0-9-]+)/simpledocument/submit""".r) -> {
-      (pathArgs: List[String], queryString: Map[String, String]) => controllers.organizations.SimpleDocumentUpload.submit(pathArgs(0))
-    },
-    ("DELETE", """^/organizations/([A-Za-z0-9-]+)/simpledocument/([A-Za-z0-9-_]+)/remove""".r) -> {
-      (pathArgs: List[String], queryString: Map[String, String]) => controllers.organizations.SimpleDocumentUpload.delete(pathArgs(0), pathArgs(1))
-    },
-    ("POST", """^/organizations/([A-Za-z0-9-]+)/simpledocument/upload/([A-Za-z0-9-]+)""".r) -> {
-      (pathArgs: List[String], queryString: Map[String, String]) => controllers.organizations.SimpleDocumentUpload.upload(pathArgs(0), pathArgs(1), queryString("id"))
-    }
-  )
-
   /**
    * Override this to add menu entries to the organization menu
    * @param configuration the organization ID
@@ -136,12 +115,12 @@ class SimpleDocumentUploadPlugin(app: Application) extends CultureHubPlugin(app)
       roles = Seq(Role.OWN, SimpleDocumentUploadPlugin.ROLE_DOCUMENT_EDITOR),
       items = Seq(
         MenuElement(
-          url = "/organizations/%s/simpledocument".format(configuration.orgId),
+          url = "/admin/simpledocument",
           titleKey = "sdu.ListOfUploadedDocuments",
           roles = Seq(Role.OWN, SimpleDocumentUploadPlugin.ROLE_DOCUMENT_EDITOR)
         ),
         MenuElement(
-          url = "/organizations/%s/simpledocument/add".format(configuration.orgId),
+          url = "/admin/simpledocument/add",
           titleKey = "sdu.UploadDocument",
           roles = Seq(Role.OWN, SimpleDocumentUploadPlugin.ROLE_DOCUMENT_EDITOR)
         )

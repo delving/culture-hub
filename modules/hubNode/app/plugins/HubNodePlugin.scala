@@ -27,33 +27,35 @@ class HubNodePlugin(app: Application) extends CultureHubPlugin(app) {
       titleKey = "hubnode.HubNodes",
       roles = Seq(Role.OWN),
       items = Seq(
-        MenuElement("/organizations/%s/hubNode".format(configuration.orgId), "hubnode.ListHubNodes"),
-        MenuElement("/organizations/%s/hubNode/add".format(configuration.orgId), "hubnode.CreateHubNode")
+        MenuElement("/admin/hubNode", "hubnode.ListHubNodes"),
+        MenuElement("/admin/hubNode/add", "hubnode.CreateHubNode")
       )
     )
   )
 
+  private val hubNodeController = new controllers.organization.HubNodes()(HubModule)
+
   override val routes: ListMap[(String, Regex), (List[String], Map[String, String]) => Handler] = ListMap(
-    ("GET", """^/organizations/([A-Za-z0-9-]+)/hubNode""".r) -> {
-      (pathArgs: List[String], queryString: Map[String, String]) => controllers.organization.HubNodes.list
+    ("GET", """^/admin/hubNode""".r) -> {
+      (pathArgs: List[String], queryString: Map[String, String]) => hubNodeController.list
     },
-    ("GET", """^/organizations/([A-Za-z0-9-]+)/hubNode/add""".r) -> {
-      (pathArgs: List[String], queryString: Map[String, String]) => controllers.organization.HubNodes.hubNode(None)
+    ("GET", """^/admin/hubNode/add""".r) -> {
+      (pathArgs: List[String], queryString: Map[String, String]) => hubNodeController.hubNode(None)
     },
-    ("GET", """^/organizations/([A-Za-z0-9-]+)/hubNode/([A-Za-z0-9-_]+)/update""".r) -> {
-      (pathArgs: List[String], queryString: Map[String, String]) => controllers.organization.HubNodes.hubNode(Some(new ObjectId(pathArgs(1))))
+    ("GET", """^/admin/hubNode/([A-Za-z0-9-_]+)/update""".r) -> {
+      (pathArgs: List[String], queryString: Map[String, String]) => hubNodeController.hubNode(Some(new ObjectId(pathArgs(0))))
     },
-    ("POST", """^/organizations/([A-Za-z0-9-]+)/hubNode/submit""".r) -> {
-      (pathArgs: List[String], queryString: Map[String, String]) => controllers.organization.HubNodes.submit
+    ("POST", """^/admin/hubNode/submit""".r) -> {
+      (pathArgs: List[String], queryString: Map[String, String]) => hubNodeController.submit
     },
-    ("POST", """^/organizations/([A-Za-z0-9-]+)/hubNode/([A-Za-z0-9-_]+)/addMember""".r) -> {
-      (pathArgs: List[String], queryString: Map[String, String]) => controllers.organization.HubNodes.addMember(new ObjectId(pathArgs(1)))
+    ("POST", """^/admin/hubNode/([A-Za-z0-9-_]+)/addMember""".r) -> {
+      (pathArgs: List[String], queryString: Map[String, String]) => hubNodeController.addMember(new ObjectId(pathArgs(0)))
     },
-    ("DELETE", """^/organizations/([A-Za-z0-9-]+)/hubNode/([A-Za-z0-9-_]+)/removeMember""".r) -> {
-      (pathArgs: List[String], queryString: Map[String, String]) => controllers.organization.HubNodes.removeMember(new ObjectId(pathArgs(1)))
+    ("DELETE", """^/admin/hubNode/([A-Za-z0-9-_]+)/removeMember""".r) -> {
+      (pathArgs: List[String], queryString: Map[String, String]) => hubNodeController.removeMember(new ObjectId(pathArgs(0)))
     },
-    ("DELETE", """^/organizations/([A-Za-z0-9-]+)/hubNode/([A-Za-z0-9-_]+)/remove""".r) -> {
-      (pathArgs: List[String], queryString: Map[String, String]) => controllers.organization.HubNodes.delete(new ObjectId(pathArgs(1)))
+    ("DELETE", """^/admin/hubNode/([A-Za-z0-9-_]+)/remove""".r) -> {
+      (pathArgs: List[String], queryString: Map[String, String]) => hubNodeController.delete(new ObjectId(pathArgs(0)))
     }
   )
 

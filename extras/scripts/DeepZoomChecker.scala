@@ -17,10 +17,10 @@ val dataSetName = dataSetDir.getParentFile.getName
 
 // read and parse the statistics file *_stastistics.gz
 val resultStatisticsFile =
-  dataSetDir.listFiles().filter(_.getName.endsWith(s"stats-result_${recDef}.xml.gz")).sortBy(f => f.lastModified() > f.lastModified()).headOption
+  dataSetDir.listFiles().filter(_.getName.endsWith(s"stats-result_recDef.xml.gz")).sortBy(f => f.lastModified() > f.lastModified()).headOption
 
 if (resultStatisticsFile == None) {
-  println(s"Unable to find the result statistics file. Please make sure you have validated ${recDef} for DataSet ${dataSetName}.")
+  println(s"Unable to find the result statistics file. Please make sure you have validated $recDef for DataSet $dataSetName.")
   System.exit(1)
 }
 

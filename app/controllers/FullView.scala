@@ -2,23 +2,19 @@ package controllers
 
 import core._
 import play.api.mvc._
-import core.rendering.{ ViewType, RecordRenderer }
-import core.Constants._
-import com.mongodb.BasicDBList
+import core.rendering.RecordRenderer
 import com.mongodb.casbah.Imports._
 import play.api.i18n.Messages
 import core.Constants.SEARCH_TERM
 import core.Constants.RETURN_TO_RESULTS
+import com.escalatesoft.subcut.inject.BindingModule
 
 /**
  * Renders the full view of an object
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
-object FullView extends BoundController(HubModule) with FullView
-
-trait FullView extends DelvingController {
-  this: BoundController =>
+class FullView(implicit val bindingModule: BindingModule) extends DelvingController {
 
   def render(orgId: String, spec: String, localId: String, format: Option[String]) = Root {
     Action {
@@ -52,7 +48,7 @@ trait FullView extends DelvingController {
               val navigateFromRelatedItem = request.queryString.getFirst("mlt").getOrElse("false").toBoolean
               val updatedSession = if (!navigateFromSearch && !navigateFromRelatedItem) {
                 // we're coming from someplace else then a search, remove the return to results cookie
-                request.session - (RETURN_TO_RESULTS)
+                request.session - RETURN_TO_RESULTS
               } else {
                 request.session
               }
@@ -90,7 +86,7 @@ trait FullView extends DelvingController {
 
               val snippets: Seq[(String, Unit)] = CultureHubPlugin.getEnabledPlugins.flatMap { plugin =>
                 plugin.fullViewSnippet.map { snippet =>
-                  (snippet._1 -> snippet._2(RequestContext(request, configuration, renderArgs, getLang), hubId))
+                  snippet._1 -> snippet._2(RequestContext(request, configuration, renderArgs, getLang), hubId)
                 }
               }
 

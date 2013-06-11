@@ -1,0 +1,3 @@
+GET         /api/index                                   @controllers.api.Index.status
+POST        /api/index                                   @controllers.api.Index.submit
+POST        /api/reIndex                                 @controllers.api.Index.reIndex

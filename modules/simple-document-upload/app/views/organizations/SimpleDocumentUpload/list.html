@@ -23,7 +23,7 @@
                   <td><a data-bind="text: name, attr: { href: '/' + id().replace(new RegExp('_', 'g'), '/') }"></a></td>
                   <td><span data-bind="text: description"></span></td>
                   <td>
-                      <a class="btn btn-primary btn-mini" data-bind="attr: { href: '/organizations/${orgId}/simpledocument/' + id() + '/update' }">&{'hub.Edit'}</a>
+                      <a class="btn btn-primary btn-mini" data-bind="attr: { href: '/admin/simpledocument/' + id() + '/update' }">&{'hub.Edit'}</a>
                       <a class="btn btn-danger btn-mini delete" data-bind="attr: { id: 'remove-' + id(), 'data-remove': id() }">
                       ${messages.get('hub.Delete')}
                       </a>
@@ -36,7 +36,7 @@
               <tr>
                 <td colspan="3">
                     No items defined
-                    <a class="btn btn-primary btn-mini pull-right" href="/organizations/${orgId}/simpledocument/add">&{'hub.Create'}</a>
+                    <a class="btn btn-primary btn-mini pull-right" href="/admin/simpledocument/add">&{'hub.Create'}</a>
                 </td>
               </tr>
             </tbody>
@@ -67,10 +67,10 @@ $(document).ready(function() {
                     "class":"btn-primary",
                     "callback": function () {
                         $.ajax({
-                            url: '/organizations/${orgId}/simpledocument/' + item + '/remove',
+                            url: '/admin/simpledocument/' + item + '/remove',
                             type: "DELETE",
                             success: function () {
-                                document.location = '/organizations/${orgId}/simpledocument'
+                                document.location = '/admin/simpledocument'
                             }
                         });
                     }

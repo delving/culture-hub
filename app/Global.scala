@@ -4,7 +4,8 @@
  */
 
 import actors._
-import core.CultureHubPlugin
+import controllers.ApplicationController
+import core.{ HubModule, CultureHubPlugin }
 import play.api.libs.concurrent._
 import akka.actor._
 import play.api._
@@ -93,6 +94,18 @@ object Global extends WithFilters(new GzipFilter()) {
 
   }
 
+  override def getControllerInstance[A](controllerClass: Class[A]): A = {
+
+    if (classOf[ApplicationController].isAssignableFrom(controllerClass)) {
+      val ct = controllerClass.getConstructors()(0)
+      ct.newInstance(HubModule).asInstanceOf[A]
+    } else {
+      super.getControllerInstance(controllerClass)
+    }
+  }
+
+  val apiController = new controllers.api.Api()(HubModule)
+
   override def onRouteRequest(request: RequestHeader): Option[Handler] = {
 
     val domain: String = request.queryString.get("domain").map(v => v.head).getOrElse(request.domain)
@@ -106,7 +119,7 @@ object Global extends WithFilters(new GzipFilter()) {
       val routes = CultureHubPlugin.getEnabledPlugins.flatMap(_.routes)
 
       val routeLogger = Akka.system.actorFor("akka://application/user/routeLogger")
-      val apiRouteMatcher = """^/organizations/([A-Za-z0-9-]+)/api/(.)*""".r
+      val apiRouteMatcher = """^/api/(.)*""".r
       val matcher = apiRouteMatcher.pattern.matcher(request.uri)
 
       if (matcher.matches()) {
@@ -116,7 +129,7 @@ object Global extends WithFilters(new GzipFilter()) {
         // TODO proper routing for search
         if (request.queryString.contains("explain") && request.queryString("explain").head == "true" && !request.path.contains("search")) {
           // redirect to the standard explain response
-          return Some(controllers.api.Api.explainPath(matcher.group(1), request.path))
+          return Some(apiController.explainPath(request.path))
         }
       }
 
@@ -135,7 +148,7 @@ object Global extends WithFilters(new GzipFilter()) {
 
       if (matches.headOption.isDefined) {
         val handlerCall = matches.head
-        val handler = handlerCall._2(handlerCall._1, request.queryString.filterNot(_._2.isEmpty).map(qs => (qs._1 -> qs._2.head)))
+        val handler = handlerCall._2(handlerCall._1, request.queryString.filterNot(_._2.isEmpty).map(qs => qs._1 -> qs._2.head))
         Some(handler)
       } else {
         super.onRouteRequest(request)

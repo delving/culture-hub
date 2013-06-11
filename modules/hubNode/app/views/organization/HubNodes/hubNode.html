@@ -25,10 +25,10 @@
             #{addRemoveTokenField
                   id:"memberInput",
                   name: "memberInput",
-                  searchUrl: "/organizations/"+orgId+"/users/search",
+                  searchUrl: "/admin/users/search",
                   prePopulate: members,
-                  addUrl: "/organizations/"+orgId+"/hubNode/"+nodeId+"/addMember",
-                  removeUrl: "/organizations/"+orgId+"/hubNode/"+nodeId+"/removeMember" /}
+                  addUrl: "/admin/hubNode/"+nodeId+"/addMember",
+                  removeUrl: "/admin/hubNode/"+nodeId+"/removeMember" /}
         </div>
     </div>
     #{/if}
@@ -65,8 +65,8 @@
 
         $('#saveButton').click(function (event) {
             event.preventDefault();
-            handleSubmit('/organizations/${orgId}/hubNode/submit', viewModel, '#hubNodeForm', null, function () {
-                document.location = '/organizations/${orgId}/hubNode';
+            handleSubmit('/admin/hubNode/submit', viewModel, '#hubNodeForm', null, function () {
+                document.location = '/admin/hubNode';
             });
         });
     });

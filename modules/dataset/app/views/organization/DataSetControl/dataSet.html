@@ -157,22 +157,22 @@
 
         $('#saveButton').click(function(event) {
             event.preventDefault();
-            handleSubmit('/organizations/${orgId}/dataset/submit', dataSetModel, '#collectionForm', null, function() {
-                window.location.href = '/organizations/${orgId}/dataset/' + dataSetModel.spec.call();
+            handleSubmit('/admin/dataset/submit', dataSetModel, '#collectionForm', null, function() {
+                window.location.href = '/admin/dataset/' + dataSetModel.spec.call();
             });
         });
 
         load(${data.raw()}, dataSetModel, null, function() {
 
             $("[id='facts.provider']").autocomplete({
-                source: '/organizations/${orgId}/directory/organizationLookup',
+                source: '/admin/directory/organizationLookup',
                 select: function(event, ui) {
                    dataSetModel.facts.provider(ui.item.value);
                 }
             });
 
             $("[id='facts.dataProvider']").autocomplete({
-                source: '/organizations/${orgId}/directory/organizationLookup',
+                source: '/admin/directory/organizationLookup',
                 select: function(event, ui) {
                    dataSetModel.facts.dataProvider(ui.item.value);
                 }

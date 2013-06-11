@@ -65,7 +65,7 @@ class SOLRIndexingService extends SolrServer with IndexingService {
 
     // add full text from digital objects
     val fullTextUrl: Option[SolrInputField] =
-      Option((doc.get("%s_link".format(FULL_TEXT_OBJECT_URL.key))))
+      Option(doc.get("%s_link".format(FULL_TEXT_OBJECT_URL.key)))
 
     fullTextUrl foreach { url =>
       // we try to index this object - we don't know its type yet because the URL does not necessarily reflect the file name.

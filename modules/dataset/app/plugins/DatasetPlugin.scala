@@ -3,7 +3,6 @@ package plugins
 import services.{ DataSetLookupService, MetadataRecordResolverService }
 import jobs._
 import play.api.{ Play, Application }
-import play.api.mvc.Handler
 import Play.current
 import models._
 import processing.{ ProcessDataSetCollection, DataSetCollectionProcessor }
@@ -11,14 +10,11 @@ import util.OrganizationConfigurationHandler
 import java.util.zip.GZIPInputStream
 import com.mongodb.BasicDBObject
 import io.Source
-import play.api.libs.concurrent.Akka
 import akka.actor._
 import akka.routing._
 import akka.actor.SupervisorStrategy._
-import controllers.{ organization, ReceiveSource }
-import scala.collection.immutable.ListMap
+import controllers.ReceiveSource
 import scala.collection.JavaConverters._
-import scala.util.matching.Regex
 import core._
 import core.access.{ ResourceType, Resource, ResourceLookup }
 import com.mongodb.casbah.commons.MongoDBObject
@@ -39,94 +35,6 @@ class DataSetPlugin(app: Application) extends CultureHubPlugin(app) {
   lazy val indexingServiceLocator = HubModule.inject[DomainServiceLocator[IndexingService]](name = None)
 
   /**
-   *
-   * GET         /:user/sip-creator.jnlp                                           controllers.organization.SipCreator.jnlp(user)
-   *
-   * GET         /organizations/:orgId/dataset                                     controllers.organization.DataSets.list(orgId)
-   * GET         /organizations/:orgId/dataset/feed                                controllers.organization.DataSets.feed(orgId, clientId: String, spec: Option[String])
-   * GET         /organizations/:orgId/dataset/add                                 controllers.organization.DataSetControl.dataSet(orgId, spec: Option[String] = None)
-   * GET         /organizations/:orgId/dataset/:spec/update                        controllers.organization.DataSetControl.dataSet(orgId, spec: Option[String])
-   * POST        /organizations/:orgId/dataset/submit                              controllers.organization.DataSetControl.dataSetSubmit(orgId)
-   * GET         /organizations/:orgId/dataset/:spec                               controllers.organization.DataSets.dataSet(orgId, spec)
-   *
-   * GET         /organizations/:orgId/sip-creator                                 controllers.organization.SipCreator.index(orgId)
-   *
-   * GET         /api/sip-creator/list                                             controllers.SipCreatorEndPoint.listAll(accessKey: Option[String] ?= None)
-   * GET         /api/sip-creator/unlock/:orgId/:spec                              controllers.SipCreatorEndPoint.unlock(orgId, spec, accessKey: Option[String] ?= None)
-   * POST        /api/sip-creator/submit/:orgId/:spec                              controllers.SipCreatorEndPoint.acceptFileList(orgId, spec, accessKey: Option[String] ?= None)
-   * POST        /api/sip-creator/submit/:orgId/:spec/:fileName                    controllers.SipCreatorEndPoint.acceptFile(orgId, spec, fileName, accessKey: Option[String] ?= None)
-   * GET         /api/sip-creator/fetch/:orgId/:spec-sip.zip                       controllers.SipCreatorEndPoint.fetchSIP(orgId, spec, accessKey: Option[String] ?= None)
-   *
-   */
-
-  override val routes: ListMap[(String, Regex), (List[String], Map[String, String]) => Handler] = ListMap(
-
-    ("GET", """^/([A-Za-z0-9-]+)/sip-creator.jnlp""".r) -> {
-      (pathArgs: List[String], queryString: Map[String, String]) => organization.SipCreator.jnlp(pathArgs(0))
-    },
-
-    ("GET", """^/organizations/([A-Za-z0-9-]+)/dataset""".r) -> {
-      (pathArgs: List[String], queryString: Map[String, String]) =>
-        controllers.organization.DataSets.list(pathArgs(0))
-    },
-    ("GET", """^/organizations/([A-Za-z0-9-]+)/dataset/search""".r) -> {
-      (pathArgs: List[String], queryString: Map[String, String]) =>
-        controllers.organization.DataSets.listAsTokens(
-          queryString("q"),
-          queryString.get("formats").map(_.split(",").toSeq.map(_.trim).filterNot(_.isEmpty)).getOrElse(Seq.empty)
-        )
-    },
-    ("GET", """^/organizations/([A-Za-z0-9-]+)/dataset/feed""".r) -> {
-      (pathArgs: List[String], queryString: Map[String, String]) =>
-        controllers.organization.DataSets.feed(pathArgs(0), queryString("clientId"), queryString.get("spec"))
-    },
-    ("GET", """^/organizations/([A-Za-z0-9-]+)/dataset/add""".r) -> {
-      (pathArgs: List[String], queryString: Map[String, String]) =>
-        controllers.organization.DataSetControl.dataSet(pathArgs(0), None)
-    },
-    ("GET", """^/organizations/([A-Za-z0-9-]+)/dataset/([A-Za-z0-9-]+)/update""".r) -> {
-      (pathArgs: List[String], queryString: Map[String, String]) =>
-        controllers.organization.DataSetControl.dataSet(pathArgs(0), Some(pathArgs(1)))
-    },
-    ("POST", """^/organizations/([A-Za-z0-9-]+)/dataset/submit""".r) -> {
-      (pathArgs: List[String], queryString: Map[String, String]) =>
-        controllers.organization.DataSetControl.dataSetSubmit(pathArgs(0))
-    },
-    ("GET", """^/organizations/([A-Za-z0-9-]+)/dataset/([A-Za-z0-9-]+)""".r) -> {
-      (pathArgs: List[String], queryString: Map[String, String]) =>
-        controllers.organization.DataSets.dataSet(pathArgs(0), pathArgs(1))
-    },
-
-    ("GET", """^/organizations/([A-Za-z0-9-]+)/sip-creator""".r) -> {
-      (pathArgs: List[String], queryString: Map[String, String]) => organization.SipCreator.index(pathArgs(0))
-    },
-
-    ("GET", """^/api/sip-creator/list""".r) -> {
-      (pathArgs: List[String], queryString: Map[String, String]) =>
-        controllers.SipCreatorEndPoint.listAll(queryString.get("accessKey"))
-    },
-    ("GET", """^/api/sip-creator/unlock/([A-Za-z0-9-]+)/([A-Za-z0-9-]+)""".r) -> {
-      (pathArgs: List[String], queryString: Map[String, String]) =>
-        controllers.SipCreatorEndPoint.unlock(pathArgs(0), pathArgs(1), queryString.get("accessKey"))
-    },
-    ("POST", """^/api/sip-creator/submit/([A-Za-z0-9-]+)/([A-Za-z0-9-]+)/(.*)""".r) -> {
-      (pathArgs: List[String], queryString: Map[String, String]) =>
-        controllers.SipCreatorEndPoint.acceptFile(
-          pathArgs(0), pathArgs(1), pathArgs(2), queryString.get("accessKey")
-        )
-    },
-    ("POST", """^/api/sip-creator/submit/([A-Za-z0-9-]+)/(.*)""".r) -> {
-      (pathArgs: List[String], queryString: Map[String, String]) =>
-        controllers.SipCreatorEndPoint.acceptFileList(pathArgs(0), pathArgs(1), queryString.get("accessKey"))
-    },
-    ("GET", """^/api/sip-creator/fetch/([A-Za-z0-9-]+)/([A-Za-z0-9-]+)-sip.zip""".r) -> {
-      (pathArgs: List[String], queryString: Map[String, String]) =>
-        controllers.SipCreatorEndPoint.fetchSIP(pathArgs(0), pathArgs(1), queryString.get("accessKey"))
-    }
-
-  )
-
-  /**
    * Override this to add menu entries to the organization menu
    * @param lang the active language
    * @param roles the roles of the current user
@@ -137,14 +45,14 @@ class DataSetPlugin(app: Application) extends CultureHubPlugin(app) {
       key = "datasets",
       titleKey = "dataset.Datasets",
       items = Seq(
-        MenuElement("/organizations/%s/dataset".format(configuration.orgId), "dataset.DatasetList"),
-        MenuElement("/organizations/%s/dataset/add".format(configuration.orgId), "dataset.CreateADataset", Seq(Role.OWN, DataSetPlugin.ROLE_DATASET_ADMIN))
+        MenuElement("/admin/dataset", "dataset.DatasetList"),
+        MenuElement("/admin/dataset/add", "dataset.CreateADataset", Seq(Role.OWN, DataSetPlugin.ROLE_DATASET_ADMIN))
       )
     ),
     MainMenuEntry(
       key = "sipcreator",
       titleKey = "hub.SIPCreator",
-      mainEntry = Some(MenuElement("/organizations/%s/sip-creator".format(configuration.orgId), "hub.SIPCreator"))
+      mainEntry = Some(MenuElement("/admin/sip-creator", "hub.SIPCreator"))
     )
   )
 
@@ -208,13 +116,14 @@ class DataSetPlugin(app: Application) extends CultureHubPlugin(app) {
    */
   override def onActorInitialization(context: ActorContext) {
     // DataSet source parsing
-    context.actorOf(
-      Props[ReceiveSource].withRouter(
-        RoundRobinRouter(Runtime.getRuntime.availableProcessors(), supervisorStrategy = OneForOneStrategy() {
-          case _ => Restart
-        })
-      ), name = "dataSetParser"
-    )
+    val basexStorage =
+      context.actorOf(
+        Props[ReceiveSource].withRouter(
+          RoundRobinRouter(Runtime.getRuntime.availableProcessors(), supervisorStrategy = OneForOneStrategy() {
+            case _ => Restart
+          })
+        ), name = "dataSetParser"
+      )
 
     // DataSet processing
     context.actorOf(Props[Processor].withRouter(

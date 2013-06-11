@@ -7,7 +7,6 @@ import core.ItemType
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
-
 abstract class Collection {
 
   // the identifier of this collection. may only contain alphanumericals and dashes
