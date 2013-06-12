@@ -14,7 +14,7 @@ object EADSimplifier {
 
     val title = {
       val t = (source \ "eadheader" \ "filedesc" \ "titlestmt" \ "titleproper").text
-      if (t.trim.isEmpty) "MISSING TITLE" else t
+      if (t.trim.isEmpty) "-- MISSING TITLE --" else t
     }
 
     val id = (source \ "eadheader" \ "eadid" \ "@identifier").text
@@ -57,8 +57,12 @@ object EADSimplifier {
         node match {
           case n if n.label == "c" =>
             val kids = n \ "c"
+            val title = {
+              val t = (n \ "did" \ "unittitle").text
+              if (t.trim.isEmpty) (n \ "did" \ "unitdate").text else t
+            }
             <node>
-              <title>{ (n \ "did" \ "unittitle").text }</title>
+              <title>{ title }</title>
               <id>{ (n \ "did" \ "unitid").text }</id>
               <date>{ (n \ "did" \ "unitdate").text }</date>
               <odd>{ (n \ "odd" \ "p").text }</odd>
