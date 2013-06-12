@@ -4,7 +4,33 @@
 
 #{set bodyId: 'object'/}
 
+#{set 'moreCss'}
+<style>
+    .aff-parent h5 {
+        font-size: 18px;
+        color: blue;
+    }
+    .aff-child {
+        margin-left: 20px;
+    }
+    .aff-child h5 {
+        font-size: 14px;
+        margin-bottom: 4px;
+        color: green;
+    }
+    .aff-child dl {
+        margin: 0 0 4px 0;
+    }
+    .aff-child dt {
+        font-weight: bold !important;
+        color: #ff4500;
+    }
+
+</style>
+#{/set}
+
 #{set 'moreScripts'}
+<script src="http://www.openlayers.org/api/OpenLayers.js"></script>
 <script>
     *{ Set dynamic values to use in object.js }*
     // i18n messages
@@ -63,7 +89,6 @@
     #{include pluginInclude /}
 #{/list}
 </div>
-
 #{if hasRelatedItems}
 <script type="text/javascript">
     renderRelatedItems();
