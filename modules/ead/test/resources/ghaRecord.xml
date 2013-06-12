@@ -1,0 +1,396 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<ead:ead xmlns:ead="urn:isbn:1-931666-22-9" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.w3.org/1999/xlink http://www.loc.gov/standards/xlink/xlink.xsd urn:isbn:1-931666-22-9 http://schemas.archivesportaleurope.net/profiles/apeEAD.xsd">
+    <ead:eadheader>
+        <ead:eadid countrycode="NL" identifier="0044" mainagencycode="NL-GHA">0044</ead:eadid>
+        <ead:filedesc>
+            <ead:titlestmt>
+                <ead:titleproper encodinganalog="245">Archieven van de notarissen residerende te Gouda, 1843-1925</ead:titleproper>
+                <ead:author>H. Bordewijk; J.C.T.M. Piepenbrock en M.N.J. Lucassen (aanvullingen en herzieningen)</ead:author>
+            </ead:titlestmt>
+        </ead:filedesc>
+    </ead:eadheader>
+    <ead:archdesc level="fonds">
+        <ead:did>
+            <ead:origination>
+                <ead:corpname>Streekarchief Midden-Holland</ead:corpname>
+            </ead:origination>
+            <ead:repository>
+                <ead:address>
+                    <ead:addressline>http://www.archieven.nl/pls/m/zk2.get_inv?p_vast=66&amp;p_nummer=0044&amp;p_adt_id=66&amp;p_zk=</ead:addressline>
+                </ead:address>
+            </ead:repository>
+            <ead:unitid>0044</ead:unitid>
+            <ead:unittitle>Archieven van de notarissen residerende te Gouda, 1843-1925</ead:unittitle>
+        </ead:did>
+        <ead:dsc type="othertype">
+            <ead:c level="fonds">
+                <ead:did>
+                    <ead:unitid>01.</ead:unitid>
+                    <ead:unittitle>G.J. ten Brummeler (1819-1860)</ead:unittitle>
+                </ead:did>
+                <ead:c level="item">
+                    <ead:did>
+                        <ead:unitid>30</ead:unitid>
+                        <ead:unittitle>Jaarlijkse klapper op de comparanten, 1819-1860</ead:unittitle>
+                    </ead:did>
+                </ead:c>
+                <ead:c level="file">
+                    <ead:did>
+                        <ead:unittitle>Registers van wisselprotesten, 1838 - 1859</ead:unittitle>
+                    </ead:did>
+                </ead:c>
+                <ead:c level="file">
+                    <ead:did>
+                        <ead:unittitle>Repertoria, 1842 - 1860</ead:unittitle>
+                    </ead:did>
+                </ead:c>
+                <ead:c level="file">
+                    <ead:did>
+                        <ead:unittitle>Minuten van akten, 1843-1860</ead:unittitle>
+                    </ead:did>
+                </ead:c>
+            </ead:c>
+            <ead:c level="fonds">
+                <ead:did>
+                    <ead:unitid>02.</ead:unitid>
+                    <ead:unittitle>C.C. Krom (1843-1865)</ead:unittitle>
+                </ead:did>
+                <ead:c level="item">
+                    <ead:did>
+                        <ead:unitid>69</ead:unitid>
+                        <ead:unittitle>Klapper op de comparanten, 1824-1863</ead:unittitle>
+                    </ead:did>
+                </ead:c>
+                <ead:c level="file">
+                    <ead:did>
+                        <ead:unittitle>Repertoria, 1840 - 1864</ead:unittitle>
+                    </ead:did>
+                </ead:c>
+                <ead:c level="file">
+                    <ead:did>
+                        <ead:unittitle>Registers van wisselprotesten, 1842-1863</ead:unittitle>
+                    </ead:did>
+                </ead:c>
+                <ead:c level="file">
+                    <ead:did>
+                        <ead:unittitle>Minuutakten, 1843-1864</ead:unittitle>
+                    </ead:did>
+                </ead:c>
+            </ead:c>
+            <ead:c level="fonds">
+                <ead:did>
+                    <ead:unitid>03.</ead:unitid>
+                    <ead:unittitle>W.J. Fortuijn Droogleever (1843-1884)</ead:unittitle>
+                </ead:did>
+                <ead:c level="file">
+                    <ead:did>
+                        <ead:unittitle>Registers van wisselprotesten, 1840-1884</ead:unittitle>
+                    </ead:did>
+                </ead:c>
+                <ead:c level="file">
+                    <ead:did>
+                        <ead:unittitle>Repertoria, 1840 - 1884</ead:unittitle>
+                    </ead:did>
+                </ead:c>
+                <ead:c level="file">
+                    <ead:did>
+                        <ead:unittitle>Minuutakten, 1843 - 1884</ead:unittitle>
+                    </ead:did>
+                </ead:c>
+                <ead:c level="item">
+                    <ead:did>
+                        <ead:unitid>188</ead:unitid>
+                        <ead:unittitle>Klapper op de comparanten, 1851-1865</ead:unittitle>
+                    </ead:did>
+                </ead:c>
+            </ead:c>
+            <ead:c level="fonds">
+                <ead:did>
+                    <ead:unitid>04.</ead:unitid>
+                    <ead:unittitle>P.M. Montijn (1861-1897)</ead:unittitle>
+                </ead:did>
+                <ead:c level="file">
+                    <ead:did>
+                        <ead:unittitle>Minuutakten, 1861 - 1894</ead:unittitle>
+                    </ead:did>
+                </ead:c>
+                <ead:c level="file">
+                    <ead:did>
+                        <ead:unittitle>Repertoria, 1861 - 1894</ead:unittitle>
+                    </ead:did>
+                </ead:c>
+                <ead:c level="item">
+                    <ead:did>
+                        <ead:unitid>223</ead:unitid>
+                        <ead:unittitle>Register van wisselprotesten, 1861-1897</ead:unittitle>
+                    </ead:did>
+                </ead:c>
+                <ead:c level="item">
+                    <ead:did>
+                        <ead:unitid>339</ead:unitid>
+                        <ead:unittitle>Minuutakten, 1896-1897</ead:unittitle>
+                    </ead:did>
+                </ead:c>
+            </ead:c>
+            <ead:c level="fonds">
+                <ead:did>
+                    <ead:unitid>05.</ead:unitid>
+                    <ead:unittitle>P.P.Ph. Kist (1861-1886)</ead:unittitle>
+                </ead:did>
+                <ead:c level="file">
+                    <ead:did>
+                        <ead:unittitle>Minuutakten, 1861-1886</ead:unittitle>
+                    </ead:did>
+                </ead:c>
+                <ead:c level="file">
+                    <ead:did>
+                        <ead:unittitle>Repertoria, 1861 - 1886</ead:unittitle>
+                    </ead:did>
+                </ead:c>
+                <ead:c level="item">
+                    <ead:did>
+                        <ead:unitid>279</ead:unitid>
+                        <ead:unittitle>Klapper op de comparanten, 1861-1886</ead:unittitle>
+                    </ead:did>
+                </ead:c>
+                <ead:c level="item">
+                    <ead:did>
+                        <ead:unitid>280</ead:unitid>
+                        <ead:unittitle>Klapper op de testateurs / -trices, 1861-1886</ead:unittitle>
+                    </ead:did>
+                </ead:c>
+                <ead:c level="file">
+                    <ead:did>
+                        <ead:unittitle>Registers van wisselprotesten, 1863 - 1878</ead:unittitle>
+                    </ead:did>
+                </ead:c>
+            </ead:c>
+            <ead:c level="fonds">
+                <ead:did>
+                    <ead:unitid>06.</ead:unitid>
+                    <ead:unittitle>H. Lemstra van Buma (1864-1866)</ead:unittitle>
+                </ead:did>
+                <ead:c level="file">
+                    <ead:did>
+                        <ead:unittitle>Minuutakten, 1864 - 1866</ead:unittitle>
+                    </ead:did>
+                </ead:c>
+                <ead:c level="item">
+                    <ead:did>
+                        <ead:unitid>284</ead:unitid>
+                        <ead:unittitle>Repertorium, 1864 okt. - 1866 jan</ead:unittitle>
+                    </ead:did>
+                </ead:c>
+            </ead:c>
+            <ead:c level="fonds">
+                <ead:did>
+                    <ead:unitid>07.</ead:unitid>
+                    <ead:unittitle>H.P. Voorduin (1866-1870)</ead:unittitle>
+                </ead:did>
+                <ead:c level="file">
+                    <ead:did>
+                        <ead:unittitle>Minuutakten, 1866 - 1870</ead:unittitle>
+                    </ead:did>
+                </ead:c>
+                <ead:c level="item">
+                    <ead:did>
+                        <ead:unitid>290</ead:unitid>
+                        <ead:unittitle>Register van wisselprotesten, 1866-1870</ead:unittitle>
+                    </ead:did>
+                </ead:c>
+                <ead:c level="item">
+                    <ead:did>
+                        <ead:unitid>291</ead:unitid>
+                        <ead:unittitle>Repertorium, 1866-1870</ead:unittitle>
+                    </ead:did>
+                </ead:c>
+            </ead:c>
+            <ead:c level="fonds">
+                <ead:did>
+                    <ead:unitid>08.</ead:unitid>
+                    <ead:unittitle>G.C. Fortuijn Droogleever (1884-1889, 1896-1905)</ead:unittitle>
+                </ead:did>
+                <ead:c level="file">
+                    <ead:did>
+                        <ead:unittitle>Registers van wisselprotesten, 1884 - 1888</ead:unittitle>
+                    </ead:did>
+                </ead:c>
+                <ead:c level="file">
+                    <ead:did>
+                        <ead:unittitle>Minuutakten, 1884-1889</ead:unittitle>
+                    </ead:did>
+                </ead:c>
+                <ead:c level="file">
+                    <ead:did>
+                        <ead:unittitle>Repertoria, 1884 - 1889</ead:unittitle>
+                    </ead:did>
+                </ead:c>
+                <ead:c level="file">
+                    <ead:did>
+                        <ead:unittitle>Repertoria, 1896 - 1905</ead:unittitle>
+                    </ead:did>
+                </ead:c>
+                <ead:c level="file">
+                    <ead:did>
+                        <ead:unittitle>Minuutakten, 1896 - 1905</ead:unittitle>
+                    </ead:did>
+                </ead:c>
+            </ead:c>
+            <ead:c level="fonds">
+                <ead:did>
+                    <ead:unitid>09.</ead:unitid>
+                    <ead:unittitle>H. Groenendaal (1886-1908)</ead:unittitle>
+                </ead:did>
+                <ead:c level="file">
+                    <ead:did>
+                        <ead:unittitle>Minuutakten, 1886-1897</ead:unittitle>
+                    </ead:did>
+                </ead:c>
+                <ead:c level="file">
+                    <ead:did>
+                        <ead:unittitle>Repertoria, 1886 - 1897</ead:unittitle>
+                    </ead:did>
+                </ead:c>
+                <ead:c level="file">
+                    <ead:did>
+                        <ead:unittitle>Repertoria, 1897 - 1904</ead:unittitle>
+                    </ead:did>
+                </ead:c>
+                <ead:c level="file">
+                    <ead:did>
+                        <ead:unittitle>Minuten van akten, 1898 - 1905</ead:unittitle>
+                    </ead:did>
+                </ead:c>
+                <ead:c level="file">
+                    <ead:did>
+                        <ead:unittitle>Repertoria, 1906-1908</ead:unittitle>
+                    </ead:did>
+                </ead:c>
+                <ead:c level="file">
+                    <ead:did>
+                        <ead:unittitle>Minuten van akten, 1906-1908</ead:unittitle>
+                    </ead:did>
+                </ead:c>
+            </ead:c>
+            <ead:c level="fonds">
+                <ead:did>
+                    <ead:unitid>10.</ead:unitid>
+                    <ead:unittitle>J.J.A. Montijn (1897-1925)</ead:unittitle>
+                </ead:did>
+                <ead:c level="file">
+                    <ead:did>
+                        <ead:unittitle>Minuten van akten, 1897 - 1905</ead:unittitle>
+                    </ead:did>
+                </ead:c>
+                <ead:c level="file">
+                    <ead:did>
+                        <ead:unittitle>Repertoria, 1897 - 1906</ead:unittitle>
+                    </ead:did>
+                </ead:c>
+                <ead:c level="item">
+                    <ead:did>
+                        <ead:unitid>562</ead:unitid>
+                        <ead:unittitle>Register van wisselprotesten, 1899-1914</ead:unittitle>
+                    </ead:did>
+                </ead:c>
+                <ead:c level="file">
+                    <ead:did>
+                        <ead:unittitle>Minuten van akten, 1906-1915</ead:unittitle>
+                    </ead:did>
+                </ead:c>
+                <ead:c level="file">
+                    <ead:did>
+                        <ead:unittitle>Repertoria, 1906-1916</ead:unittitle>
+                    </ead:did>
+                </ead:c>
+                <ead:c level="item">
+                    <ead:did>
+                        <ead:unitid>603</ead:unitid>
+                        <ead:unittitle>Repertoria, 1916 - 1925</ead:unittitle>
+                    </ead:did>
+                </ead:c>
+                <ead:c level="file">
+                    <ead:did>
+                        <ead:unittitle>Minuten van akten, 1916 - 1925</ead:unittitle>
+                    </ead:did>
+                </ead:c>
+            </ead:c>
+            <ead:c level="fonds">
+                <ead:did>
+                    <ead:unitid>11.</ead:unitid>
+                    <ead:unittitle>N.F. Cambier van Nooten (1906-1920)</ead:unittitle>
+                </ead:did>
+                <ead:c level="file">
+                    <ead:did>
+                        <ead:unittitle>Repertoria, 1906 - 1915</ead:unittitle>
+                    </ead:did>
+                </ead:c>
+                <ead:c level="file">
+                    <ead:did>
+                        <ead:unittitle>Minuten van akten, 1906 - 1915</ead:unittitle>
+                    </ead:did>
+                </ead:c>
+                <ead:c level="item">
+                    <ead:did>
+                        <ead:unitid>614</ead:unitid>
+                        <ead:unittitle>Register van wisselprotesten, 1910 - 1943</ead:unittitle>
+                    </ead:did>
+                </ead:c>
+                <ead:c level="item">
+                    <ead:did>
+                        <ead:unitid>615</ead:unitid>
+                        <ead:unittitle>Repertoria, 1916 - 1920</ead:unittitle>
+                    </ead:did>
+                </ead:c>
+                <ead:c level="file">
+                    <ead:did>
+                        <ead:unittitle>Minuten van akten, 1916 - 1920</ead:unittitle>
+                    </ead:did>
+                </ead:c>
+            </ead:c>
+            <ead:c level="fonds">
+                <ead:did>
+                    <ead:unitid>12.</ead:unitid>
+                    <ead:unittitle>R.W.H. Pitlo (1908-1925)</ead:unittitle>
+                </ead:did>
+                <ead:c level="file">
+                    <ead:did>
+                        <ead:unittitle>Repertoria, 1908-1911</ead:unittitle>
+                    </ead:did>
+                </ead:c>
+                <ead:c level="file">
+                    <ead:did>
+                        <ead:unittitle>Minuutakten, 1908-1915</ead:unittitle>
+                    </ead:did>
+                </ead:c>
+                <ead:c level="item">
+                    <ead:did>
+                        <ead:unitid>635</ead:unitid>
+                        <ead:unittitle>Repertoria, 1916 - 1917, 1921 - 1925</ead:unittitle>
+                    </ead:did>
+                </ead:c>
+                <ead:c level="file">
+                    <ead:did>
+                        <ead:unittitle>Minuten van akten, 1916 - 1925</ead:unittitle>
+                    </ead:did>
+                </ead:c>
+            </ead:c>
+            <ead:c level="fonds">
+                <ead:did>
+                    <ead:unitid>13.</ead:unitid>
+                    <ead:unittitle>J. van Kranenburg (1920-1925)</ead:unittitle>
+                </ead:did>
+                <ead:c level="file">
+                    <ead:did>
+                        <ead:unittitle>Repertoria, 1920 - 1921</ead:unittitle>
+                    </ead:did>
+                </ead:c>
+                <ead:c level="file">
+                    <ead:did>
+                        <ead:unittitle>Minuten van akten, 1920 - 1925</ead:unittitle>
+                    </ead:did>
+                </ead:c>
+            </ead:c>
+        </ead:dsc>
+    </ead:archdesc>
+</ead:ead>
