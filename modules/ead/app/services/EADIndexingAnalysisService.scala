@@ -29,7 +29,7 @@ class EADIndexingAnalysisService extends IndexingAnalysisService {
     root += (ID, hubId.toString)
     root += (ROOT_ID, hubId.toString)
     root += (PARENT_PATH, "/ead")
-    root += ("ead_eadheader_eadid_text", (doc \ "eadheader" \ "eadid").text)
+    root += ("ead_eadheader_eadid_text", (doc \ "id").text)
     root += (TITLE, (doc \ "title").text)
     root += (DESCRIPTION, (doc \ "archdesc" \ "odd").text)
 
@@ -43,12 +43,12 @@ class EADIndexingAnalysisService extends IndexingAnalysisService {
     archDesc += (DESCRIPTION, (doc \ "archdesc" \ "odd").text)
     archDesc += ("ead_archdesc_arrangement_text", (doc \ "archdesc" \ "arrangement").text)
 
-    val nodeDocuments = new ArrayBuffer[MultiMap]
-
     // until we start implementing proper indexing for the series nodes, we don't index them here
+    // val nodeDocuments = new ArrayBuffer[MultiMap]
     // traverseNodes(doc \ "node", hubId.toString, (doc \ "key").text, nodeDocuments)
+    //    val allDocuments = Seq(root, archDesc) ++ nodeDocuments
 
-    val allDocuments = Seq(root, archDesc) ++ nodeDocuments
+    val allDocuments = Seq(root)
 
     allDocuments
       .filter { f => f.contains(ID.key) && !f(ID.key).isEmpty }
