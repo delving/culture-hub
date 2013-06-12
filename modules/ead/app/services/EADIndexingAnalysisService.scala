@@ -28,28 +28,30 @@ class EADIndexingAnalysisService extends IndexingAnalysisService {
     root += (HUB_ID, hubId.toString)
     root += (ID, hubId.toString)
     root += (ROOT_ID, hubId.toString)
-    root += (PARENT_PATH, "/")
+    root += (PARENT_PATH, "/ead")
+    root += ("ead_eadheader_eadid_text", (doc \ "eadheader" \ "eadid").text)
     root += (TITLE, (doc \ "title").text)
     root += (DESCRIPTION, (doc \ "archdesc" \ "odd").text)
 
-    val eadHeader = newMultiMap
-    eadHeader += (ID, hubId.toString + "_" + "header")
-    eadHeader += (ROOT_ID, hubId.toString)
-    eadHeader += (PARENT_PATH, "/ead")
-    eadHeader += ("ead_archdesc_did_unittitle", (doc \ "archdesc" \ "did_unittitle").text)
-    eadHeader += ("ead_archdesc_did_unitdate", (doc \ "archdesc" \ "did_unitdate").text)
-    eadHeader += ("ead_archdesc_did_origination_corpname", (doc \ "archdesc" \ "did_origination_corpname").text)
-    eadHeader += ("ead_archdesc_odd", (doc \ "archdesc" \ "odd").text)
-    eadHeader += ("ead_archdesc_arrangement", (doc \ "archdesc" \ "arrangement").text)
+    val archDesc = newMultiMap
+    archDesc += (ID, hubId.toString + "_" + "header")
+    archDesc += (ROOT_ID, hubId.toString)
+    archDesc += (PARENT_PATH, "/ead")
+    archDesc += (TITLE, (doc \ "archdesc" \ "did_unittitle").text)
+    archDesc += ("ead_archdesc_did_unitdate_text", (doc \ "archdesc" \ "did_unitdate").text)
+    archDesc += ("ead_archdesc_did_origination_corpname_text", (doc \ "archdesc" \ "did_origination_corpname").text)
+    archDesc += (DESCRIPTION, (doc \ "archdesc" \ "odd").text)
+    archDesc += ("ead_archdesc_arrangement_text", (doc \ "archdesc" \ "arrangement").text)
 
     val nodeDocuments = new ArrayBuffer[MultiMap]
-    traverseNodes(doc \ "node", hubId.toString, (doc \ "key").text, nodeDocuments)
 
-    val allDocuments = Seq(root, eadHeader) ++ nodeDocuments
+    // until we start implementing proper indexing for the series nodes, we don't index them here
+    // traverseNodes(doc \ "node", hubId.toString, (doc \ "key").text, nodeDocuments)
+
+    val allDocuments = Seq(root, archDesc) ++ nodeDocuments
 
     allDocuments
       .filter { f => f.contains(ID.key) && !f(ID.key).isEmpty }
-      .filter { f => f.contains(TITLE.key) && !f(TITLE.key).isEmpty }
       .map { doc: MultiMap => addHousekeepingFields(hubId, doc).toMap }
 
   }

@@ -57,9 +57,24 @@ object EADSimplifier {
         node match {
           case n if n.label == "c" =>
             val kids = n \ "c"
+
+            // we need something to display the c series, so we try, in the following order
+            // unittitle -> unitdate -> unitid -> missing
             val title = {
-              val t = (n \ "did" \ "unittitle").text
-              if (t.trim.isEmpty) (n \ "did" \ "unitdate").text else t
+              def unittitle = (n \ "did" \ "unittitle").text
+              def unitdate = (n \ "did" \ "unitdate").text
+              def unitid = (n \ "did" \ "unitdate").text
+              def defined(s: String) = !s.trim.isEmpty
+
+              if (defined(unittitle)) {
+                unittitle
+              } else if (defined(unitdate)) {
+                unitdate
+              } else if (defined(unitid)) {
+                unitid
+              } else {
+                "-- MISSING TITLE --"
+              }
             }
             <node>
               <title>{ title }</title>
