@@ -63,3 +63,9 @@
     #{include pluginInclude /}
 #{/list}
 </div>
+
+#{if hasRelatedItems}
+<script type="text/javascript">
+    renderRelatedItems();
+</script>
+#{/if}

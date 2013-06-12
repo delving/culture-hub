@@ -10,5 +10,6 @@ import core.rendering.FullViewService
 class EADFullViewService extends FullViewService {
   def prefix: String = "ead"
 
-  def getView(hubId: HubId): (String, Seq[(Symbol, AnyRef)]) = ("/ead/EAD/view.html", Seq('id -> Some(hubId.toString)))
+  def getView(hubId: HubId): (String, Seq[(Symbol, Any)]) =
+    ("/ead/EAD/view.html", Seq('id -> Some(hubId.toString), 'hasRelatedItems -> false))
 }

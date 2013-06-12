@@ -92,7 +92,7 @@ class FullView(implicit val bindingModule: BindingModule) extends DelvingControl
               'orgId -> orgId,
               'hubId -> hubId,
               'rights -> r.parameters.get("rights").getOrElse(""),
-              'hasRelatedRecords -> r.hasRelatedItems,
+              'hasRelatedItems -> r.hasRelatedItems,
               'pluginIncludes -> snippets.map(_._1)
             )
 
@@ -135,8 +135,12 @@ class FullView(implicit val bindingModule: BindingModule) extends DelvingControl
             }
 
             display.fold(
-              error => NotFound("Record with ID %s could not be displayed: ".format(hubId) + error),
-              success => Ok(Template(success._1, (commonParameters ++ success._2): _*)).withSession(updatedSession)
+              error =>
+                NotFound("Record with ID %s could not be displayed: ".format(hubId) + error),
+              success => {
+                val parameters = commonParameters.filterNot(p => success._2.contains(p)) ++ success._2
+                Ok(Template(success._1, parameters: _*)).withSession(updatedSession)
+              }
             )
 
           }.getOrElse {

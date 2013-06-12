@@ -133,10 +133,14 @@ $(document).ready(function () {
         }
     }
 
-    /*
-     * RELATED ITEMS, AKA 'MORE LIKE THIS'
-     * Loads related items via ajax call
-     */
+});
+
+
+/*
+ * RELATED ITEMS, AKA 'MORE LIKE THIS'
+ * Loads related items via ajax call
+ */
+function renderRelatedItems() {
 
     // Endpoint to retrieve related items for this object
     var mltEndpoint = '/api/search?id=' + Thing.hubId + '&format=json&mlt=true';
@@ -186,7 +190,7 @@ $(document).ready(function () {
     } catch(e) {
         //..do nothing and fail gracefully
     }
-});
+}
 
 /*
  * PAGE UTILITES

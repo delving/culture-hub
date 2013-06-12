@@ -44,10 +44,10 @@ trait IndexingAnalysisService {
   type MultiMap = mutable.HashMap[String, mutable.Set[Any]] with mutable.MultiMap[String, Any]
 
   implicit class RichMultiMap(multiMap: MultiMap) {
-    def +=(key: IndexableField, value: Any) = {
+    def +=(key: IndexableField, value: String) = {
       multiMap.addBinding(key.key, value)
     }
-    def +=(key: String, value: Any) = {
+    def +=(key: String, value: String) = {
       multiMap.addBinding(key, value)
     }
   }
