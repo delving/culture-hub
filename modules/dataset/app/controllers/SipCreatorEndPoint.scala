@@ -688,8 +688,8 @@ class SipCreatorEndPoint(implicit val bindingModule: BindingModule) extends Appl
 
 object SipCreatorEndPoint {
 
-  // [dir/]HASH__type[_prefix].extension
-  val FileName = """([^/]*)/([^_]*)__([^._]*)_?([^.]*).(.*)""".r
+  // HASH__type[_prefix].extension
+  val FileName = """([^_]*)__([^._]*)_?([^.]*).(.*)""".r
 
   private def basexStorage(implicit configuration: OrganizationConfiguration) = HubServices.basexStorages.getResource(configuration)
 

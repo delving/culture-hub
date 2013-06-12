@@ -119,6 +119,7 @@ class SOLRIndexingService extends SolrServer with IndexingService {
     }
 
     // *remove entries that are not valid lat,long pair
+    // TODO this can probably be removed now that validation is being done upfront
     if (doc.containsKey(GEOHASH.key)) {
       val values = doc.get(GEOHASH.key).getValues.toList
       doc.remove(GEOHASH.key)

@@ -80,7 +80,7 @@
 
 <div class="object-main">
     <div class="object-data">
-        #{view view: fullView /}
+        #{doLayout /}
     </div>
 </div>
 
@@ -89,3 +89,8 @@
     #{include pluginInclude /}
 #{/list}
 </div>
+#{if hasRelatedItems}
+<script type="text/javascript">
+    renderRelatedItems();
+</script>
+#{/if}

@@ -18,6 +18,9 @@ object RecordRenderer {
 
   val log = Logger("CultureHub")
 
+  def canRender(schemaVersion: SchemaVersion, viewType: ViewType)(implicit configuration: OrganizationConfiguration): Boolean =
+    ViewRenderer.canRender(schemaVersion.getPrefix, viewType)
+
   /**
    * Renders a metadata record
    *

@@ -2,6 +2,7 @@ package core
 
 import eu.delving.MappingResult
 import scala.collection.JavaConverters._
+import org.w3c.dom.Node
 
 /**
  *
@@ -14,6 +15,8 @@ package object processing {
   implicit def listMapToScala(map: java.util.Map[String, java.util.List[String]]) = map.asScala.map(v => (v._1, v._2.asScala.toList)).toMap
 
   class RichMappingResult(mappingResult: MappingResult) {
+
+    def getDocument: Node = mappingResult.rootAugmented()
 
     def getFields: MultiMap = mappingResult.fields()
 
@@ -29,7 +32,6 @@ package object processing {
 
     def getOtherFields: MultiMap = {
       getCopyFields.filterNot(f => SystemField.isValid(f._1))
-
     }
 
   }
