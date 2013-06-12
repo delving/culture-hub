@@ -18,6 +18,6 @@ trait FullViewService {
    * @param hubId the hubId of the record to display
    * @return A tuple containing the name of the template to use for rendering and additional rendering parameters
    */
-  def getView(hubId: HubId): (String, Seq[(Symbol, AnyRef)])
+  def getView(hubId: HubId): (String, Seq[(Symbol, Any)])
 
 }
