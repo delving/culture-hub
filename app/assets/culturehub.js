@@ -19,6 +19,42 @@ var externalLinks = function(){
     }
 };
 
+
+/**
+ * Helper to preload images
+ * @param url for image to preload
+ */
+//$.preloadImages = function() {
+//    for (var i = 0; i<arguments.length; i++) {
+//        img = new Image();
+//        img.src = arguments[i];
+//    }
+//}
+
+function preloadImages() {
+    for (var i = 0; i<arguments.length; i++) {
+        img = new Image();
+        img.src = arguments[i];
+    }
+}
+
+function isEmpty( inputStr ) {
+    if ( null === inputStr || "" == inputStr ) {
+        return true;
+    }
+    return false;
+}
+
+function checkSimpleSearchSubmit(form){
+    var qterm = $(form).find('input[name=query]');
+    if (isEmpty(qterm.val())){
+        qterm.addClass('error');
+        return false;
+    }
+
+    return true;
+}
+
 /**
  * Initialize elements based on classes
  */
@@ -28,11 +64,11 @@ function initializeElements() {
       document.location = document.referrer;
     });
 
-    $('.extHelp').tooltip();
+    if($(".extHelp").length > 0 ) {
+        $(".extHelp").tooltip();
+    }
 
-    $.preloadImages (
-        "/assets/common/images/spinner.gif"
-    );
+    preloadImages("/assets/common/images/spinner.gif");
 
     String.prototype.trim = function () {
         return this.replace(/^\s*/, "").replace(/\s*$/, "");
@@ -763,37 +799,6 @@ Delving.wysiwyg = function (params) {
 
     tinyMCE.init(initParams);
 };
-
-
-
-/**
- * Helper to preload images
- * @param url for image to preload
- */
-$.preloadImages = function() {
-	for (var i = 0; i<arguments.length; i++) {
-		img = new Image();
-		img.src = arguments[i];
-	}
-}
-
-function isEmpty( inputStr ) {
-    if ( null === inputStr || "" == inputStr ) {
-        return true;
-    }
-    return false;
-}
-
-function checkSimpleSearchSubmit(form){
-    var qterm = $(form).find('input[name=query]');
-    if (isEmpty(qterm.val())){
-         qterm.addClass('error');
-        return false;
-    }
-
-    return true;
-}
-
 
 /**
  * jQuery plugin for the dropbox
