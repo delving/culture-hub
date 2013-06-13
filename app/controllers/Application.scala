@@ -64,7 +64,13 @@ class Application(implicit val bindingModule: BindingModule) extends DelvingCont
         case _ => s"/admin/$path"
       }
 
-      Redirect(url, request.queryString, MOVED_PERMANENTLY)
+      Redirect(url, request.queryString, MOVED_PERMANENTLY).withHeaders(
+        "Access-Control-Allow-Origin" -> "*",
+        "Access-Control-Allow-Methods" -> "GET, POST, OPTIONS",
+        "Access-Control-Allow-Headers" -> "X-Requested-With",
+        "Access-Control-Max-Age" -> "86400"
+      )
+
   }
 
 }

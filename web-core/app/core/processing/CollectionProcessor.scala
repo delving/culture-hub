@@ -14,6 +14,7 @@ import play.api.libs.concurrent.Execution.Implicits._
 import scala.concurrent.duration._
 import concurrent.{ Await, Future }
 import akka.util.Timeout
+import eu.delving.schema.SchemaVersion
 
 /**
  * CollectionProcessor, essentially taking care of:
@@ -32,7 +33,7 @@ class CollectionProcessor(collection: Collection with OrganizationCollectionMeta
     interrupted: => Boolean,
     updateCount: Long => Unit,
     onError: Throwable => Unit,
-    indexOne: (HubId, MultiMap, String) => Either[Throwable, String],
+    indexOne: (HubId, SchemaVersion, MultiMap, org.w3c.dom.Node) => Option[Throwable],
     onProcessingDone: ProcessingContext => Unit,
     whenDone: () => Unit,
     basexStorage: BaseXStorage)(implicit configuration: OrganizationConfiguration) extends Actor {

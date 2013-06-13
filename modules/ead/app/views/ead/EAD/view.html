@@ -1,0 +1,241 @@
+#{extends '/Search/searchObject.html' /}
+
+<link rel='stylesheet' type='text/css' href='@{controllers.ead.routes.Assets.at("fancytree/skin-lion/ui.fancytree.css")}'/>
+<script src='@{controllers.ead.routes.Assets.at("fancytree/jquery.fancytree.js")}' type="text/javascript"></script>
+<script src='@{controllers.ead.routes.Assets.at("fancytree/jquery.fancytree.filter.js")}' type="text/javascript"></script>
+<script src='@{controllers.ead.routes.Assets.at("javascripts/mustache.js")}' type="text/javascript"></script>
+<script src='@{routes.Assets.at("common/javascripts/jquery.expander.min.js")}' type="text/javascript"></script>
+
+
+
+    <style>
+        /*body {*/
+            /*margin: 20px;*/
+        /*}*/
+        /*input[type='text'] {*/
+            /*height: auto;*/
+        /*}*/
+        .fancytree-container {
+            background: #fff;
+            border: none;
+            height: auto;
+        }
+        .fancytree-container:focus {
+            outline: none;
+        }
+        .page-header {
+            color: white;
+            margin-bottom: 4px;
+            padding: 2px 10px 4px;
+        }
+        .page-header.level-0 {
+            background: #3875d7;
+        }
+        .page-header.level-1 {
+            background: #69a0c1;
+        }
+        .page-header.level-2 {
+            background: #eaeaea;
+            color: #000;
+        }
+        ul.ui-fancytree.fancytree-focused li ul li .fancytree-focused span.fancytree-title {
+            background: #69a0c1 !important;
+        }
+        ul.ui-fancytree.fancytree-focused li ul li ul li .fancytree-focused span.fancytree-title {
+            background: #eaeaea !important;
+            color: #000000;
+        }
+    </style>
+
+    <!-- Add code to initialize the tree when the document is loaded: -->
+    <script type="text/javascript">
+        $(document).ready(function () {
+            // Attach the fancytree widget to an existing <div id="tree"> element
+            // and pass the tree options as an argument to the fancytree() function:
+            $("#tree").fancytree({
+                persist: true,
+                clickFolderMode: 3,
+                autoCollapse: true,
+                source: {
+                    url: '@{controllers.ead.routes.Prototype.tree(id, scala.Option.apply(null), true)}'
+                },
+                extensions: ["filter"],
+                filter: {
+                    mode: "hide"
+                },
+                init: function(event, data, flag) {
+                    var d = "${id}" !== 'None' ? { path: "/", hubId: '${id.get()}' } : { path: "/" }
+                    $.getJSON('/experiments/ead/sourceTree', d, function(data) {
+                        var tpl = $('#ead-header-tpl').html();
+                        var html = Mustache.to_html(tpl, data);
+                            $("#header").html(html);
+                            $('dl.expandable dd').expander({
+                                slicePoint: 155,
+                                preserveWords: true,
+                                expandText: '[read more]',
+                                userCollapseText: '[read less]'
+                            });
+                    });
+                },
+                activate: function(e, data) {
+
+                    var node = data.node;
+                    if (node.data.path) {
+                        // here we can now render the detail
+                        console.log(node.data.path);
+                        // regex patterns for tree levels
+                        //patternLevelZero= /^\//;  // "/"
+                        patternLevelOne = /\/ead\/archdesc\/dsc\/c\/c\[\d+\]$/; // "/ead/archdesc/dsc/c/c[0]
+                        patternLevelTwo = /(\[\d+\]\/c\/c\[\d+\]){1}/; // "/ead/archdesc/dsc/c/c[0]/c/c[0]"
+
+
+                        var template = "", level="";
+                        if (node.data.path.match(patternLevelOne)) {
+                            console.log("level 1");
+                            level = 1;
+                            template = "#ead-level1-tpl";
+                            $('#level-2').html('');
+                        }
+                        else if (node.data.path.match(patternLevelTwo)) {
+                            console.log('level 2');
+                            level = 2;
+                            template = "#ead-level2-tpl";
+                        }
+
+
+                        if (node.data.path) {
+                            var d = "${id}" !== 'None' ? { path: node.data.path, hubId: '${id.get()}' } : { path: node.data.path }
+                            $.getJSON('/experiments/ead/sourceTree', d, function(data) {
+                                var tpl = $(template).html();
+                                var html = Mustache.to_html(tpl, data);
+                                if (level === 1) {
+                                    $('#level-1').html(html).effect("highlight", {color: '#AFEEEE'}, 1500);
+                                }
+                                if (level === 2) {
+                                    $('#level-2').html(html).effect("highlight", {}, 1500);
+                                }
+                            });
+                        }
+                        else {
+                            $('#detail').html('<p>Node: ' + node.data.path +'</p>')
+                        }
+                    }
+                }
+
+            });
+
+            var tree = $("#tree").fancytree("getTree");
+
+            $("input[name=search]").keyup(function(e){
+              var match = $(this).val();
+              if(e && e.which === $.ui.keyCode.ESCAPE || $.trim(match) === ""){
+                $("button#btnResetSearch").click();
+                return;
+              }
+              // Pass text as filter string (will be matched as substring in the node title)
+              var n = tree.applyFilter(match);
+              $("button#btnResetSearch").attr("disabled", false);
+              $("span#matches").text("(" + n + " matches)");
+            }).focus();
+
+            $("button#btnResetSearch").click(function(e){
+              $("input[name=search]").val("");
+              $("span#matches").text("");
+              tree.clearFilter();
+            }).attr("disabled", true);
+
+
+
+
+
+        })
+    </script>
+
+    <script id="ead-header-tpl" type="text/template">
+        <h2 class="page-header level-0">{{ead.eadheader.filedesc.titlestmt.titleproper}}</h4>
+        <div id="ead-header-container">
+        <dl class="dl-horizontal expandable">
+            <dt>Identifier</dt>
+            <dd>{{ead.eadheader.identifier}}</dd>
+            <dt>Creator</dt>
+            <dd>{{ead.eadheader.filedesc.titlestmt.author}}</dd>
+            <dt>Origin</dt>
+            <dd>{{ead.archdesc.did.origination.corpname}}</dd>
+            <dt>Arrangement</dt>
+            <dd>{{ead.archdesc.arrangement.p}}</dd>
+            <dt>Description</dt>
+            <dd>{{ead.archdesc.odd.p}}</dd>
+            <dt>Latest revision</dt>
+            <dd>{{ead.eadheader.revisiondesc.change.0.item}} - {{ead.eadheader.revisiondesc.change.0.date}}</dd>
+        </dl>
+        <hr/>
+        </div>
+    </script>
+    <script id="ead-level1-tpl" type="text/template">
+        <h4 class="page-header level-1">{{did.unittitle}}</h4>
+        <dl class="dl-horizontal">
+            {{#did.unitid}}
+            <dt>Id</dt>
+            <dd>{{did.unitid}}</dd>
+            {{/did.unitid}}
+            {{#did.unitdate}}
+            <dt>Date</dt>
+            <dd>{{did.unitdate}}</dd>
+            {{/did.unitdate}}
+            {{#odd.p}}
+            <dt>Description</dt>
+            <dd>{{odd.p}}</dd>
+            {{/odd.p}}
+            {{#otherfindaid.p.href}}
+            <dt>Other findingaid</dt>
+            <dd><a href="{{otherfindaid.p.href}}" target="_blank">{{otherfindaid.p.extref}}</a></dd>
+            {{/otherfindaid.p.href}}
+        </dl>
+        <hr/>
+    </script>
+    <script id="ead-level2-tpl" type="text/template">
+        <h5 class="page-header level-2">{{did.unittitle}}</h4>
+        <dl class="dl-horizontal">
+            {{#did.unitid}}
+            <dt>Id</dt>
+            <dd>{{did.unitid}}</dd>
+            {{/did.unitid}}
+            {{#did.unitdate}}
+            <dt>Date</dt>
+            <dd>{{did.unitdate}}</dd>
+            {{/did.unitdate}}
+            {{#odd.p}}
+            <dt>Description</dt>
+            <dd>{{odd.p}}</dd>
+            {{/odd.p}}
+            {{#otherfindaid.p.href}}
+            <dt>Other findingaid</dt>
+            <dd><a href="{{otherfindaid.p.href}}" target="_blank">{{otherfindaid.p.extref}}</a></dd>
+            {{/otherfindaid.p.href}}
+        </dl>
+        <hr/>
+    </script>
+</head>
+<body>
+
+<div class="container">
+    <div class="row">
+         <div class="span12">
+             <form class="form-horizontal">
+                        <input class="span4" type="text" name="search" id="search" placeholder="Filter the tree">
+                        <button id="btnResetSearch" class="btn" type="submit">Reset filter</button>
+                        <span id="matches"></span>
+             </form>
+         </div>
+    </div>
+    <div class="row">
+        <div class="span5">
+            <div id="tree"></div>
+        </div>
+        <div class="span7">
+            <div id="header"></div>
+            <div id="level-1"></div>
+            <div id="level-2"></div>
+        </div>
+    </div>
+</div>

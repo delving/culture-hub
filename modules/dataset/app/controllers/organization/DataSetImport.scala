@@ -30,6 +30,9 @@ import com.escalatesoft.subcut.inject.BindingModule
  */
 class DataSetImport(implicit val bindingModule: BindingModule) extends OrganizationController {
 
+  // [dir/]HASH__type[_prefix].extension
+  val FileName = """([^/]*)/([^_]*)__([^._]*)_?([^.]*).(.*)""".r
+
   def importSIP(userName: Option[String]) = Root {
     Action(parse.temporaryFile) {
       implicit request =>
@@ -40,6 +43,7 @@ class DataSetImport(implicit val bindingModule: BindingModule) extends Organizat
 
           val allEntries = zipFile.entries.asScala
             .filterNot(_.isDirectory)
+            .filterNot(_.getName.split("/").length > 2)
             .map { entry =>
               val name = entry.getName
               val is = zipFile.getInputStream(entry)
@@ -47,10 +51,10 @@ class DataSetImport(implicit val bindingModule: BindingModule) extends Organizat
             }.toMap
 
           val entries = allEntries.groupBy { e =>
-            if (SipCreatoeEndPoint.FileName.findAllMatchIn(e._1).isEmpty) {
+            if (FileName.findAllMatchIn(e._1).isEmpty) {
               e._1
             } else {
-              val SipCreatoeEndPoint.FileName(dir, hash, kind, prefix, extension) = e._1
+              val FileName(dir, hash, kind, prefix, extension) = e._1
               kind
             }
           }.map { grouped =>
@@ -74,7 +78,7 @@ class DataSetImport(implicit val bindingModule: BindingModule) extends Organizat
 
               val formats = factsMap("schemaVersions").split(",").map { v =>
                 val Array(prefix, version) = v.split("_")
-                (prefix -> version)
+                prefix -> version
               }.toMap
 
               DataSet.dao.insert(
@@ -90,7 +94,7 @@ class DataSetImport(implicit val bindingModule: BindingModule) extends Organizat
                   ),
                   invalidRecords = formats.map(f => (f._1, List.empty)),
                   mappings = formats.map(f => (f._1, Mapping(schemaPrefix = f._1, schemaVersion = f._2))),
-                  formatAccessControl = formats.map(f => (f._1 -> FormatAccessControl(accessType = "public")))
+                  formatAccessControl = formats.map(f => f._1 -> FormatAccessControl(accessType = "public"))
                 )
               )
 
@@ -103,13 +107,18 @@ class DataSetImport(implicit val bindingModule: BindingModule) extends Organizat
 
             // and now upload the stuff, hacky way
             val commands: Map[String, Future[String]] = entries
-              .filterNot(f => SipCreatoeEndPoint.FileName.findAllMatchIn(f._1).isEmpty)
+              .filterNot(f => FileName.findAllMatchIn(f._1).isEmpty)
               .filterNot(_._1.contains("_imported"))
               .map { file =>
                 val cleanName = file._1.substring(file._1.indexOf("/") + 1)
                 // why are there no stream utils around here to directly post from a stream?
                 val t = new File(System.getProperty("java.io.tmpdir"), cleanName)
-                t.createNewFile()
+                try {
+                  t.createNewFile()
+                } catch {
+                  case e: Throwable =>
+                    log.warn("Couldn't create temporary location for " + t.getAbsolutePath)
+                }
                 val temp = TemporaryFile(t) // auto-cleanup on GC
                 FileUtils.copyInputStreamToFile(file._2, t)
                 val mimeType = {

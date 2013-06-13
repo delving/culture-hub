@@ -3,4 +3,4 @@ GET         /admin/simpledocument/add              @controllers.organizations.Si
 GET         /admin/simpledocument/:itemId/update   @controllers.organizations.SimpleDocumentUpload.update(itemId)
 POST        /admin/simpledocument/submit           @controllers.organizations.SimpleDocumentUpload.submit
 DELETE      /admin/simpledocument/:id/remove       @controllers.organizations.SimpleDocumentUpload.delete(id)
-POST         /admin/simpledocument/upload/:uid      @controllers.organizations.SimpleDocumentUpload.upload(uid, id)
+POST        /admin/simpledocument/upload/:uid      @controllers.organizations.SimpleDocumentUpload.upload(uid, id)
