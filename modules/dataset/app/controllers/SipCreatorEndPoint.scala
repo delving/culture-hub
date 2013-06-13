@@ -2,7 +2,7 @@ package controllers
 
 import exceptions.{ StorageInsertionException, AccessKeyException }
 import play.api.mvc._
-import java.util.zip.{ ZipEntry, ZipOutputStream, GZIPInputStream }
+import java.util.zip.{ GZIPOutputStream, ZipEntry, ZipOutputStream, GZIPInputStream }
 import java.io._
 import org.apache.commons.io.{ FileUtils, IOUtils }
 import play.api.libs.iteratee.Enumerator
@@ -527,10 +527,10 @@ class SipCreatorEndPoint(implicit val bindingModule: BindingModule) extends Appl
     // is there an already prepared version cached on disk?
     // assume we have a hash
     dataSet.hashes.get("source--xml--gz").map { hash =>
-      val prepared = new File(System.getProperty("java.io.tmpdir"), s"/source_${dataSet.orgId}_${dataSet.spec}_$hash.xml")
+      val prepared = new File(System.getProperty("java.io.tmpdir"), s"/source_${dataSet.orgId}_${dataSet.spec}_$hash.xml.gz")
       if (prepared.exists()) {
         log.info(s"DataSet source ${dataSet.spec} has been cached, writing it directly from ${prepared.getAbsolutePath}")
-        IOUtils.copy(new FileInputStream(prepared), out)
+        IOUtils.copy(new GZIPInputStream(new FileInputStream(prepared)), out)
       } else {
         log.info(s"DataSet source ${dataSet.spec} has not yet been cached, preparing it")
 
@@ -546,7 +546,7 @@ class SipCreatorEndPoint(implicit val bindingModule: BindingModule) extends Appl
         }
 
         prepared.createNewFile()
-        val fOut = new FileOutputStream(prepared)
+        val fOut = new GZIPOutputStream(new FileOutputStream(prepared))
         try {
           prepareDataSetSource(dataSet, fOut)
           IOUtils.copy(new FileInputStream(prepared), out)
