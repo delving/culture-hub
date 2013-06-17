@@ -21,9 +21,9 @@ class MediatorServer(implicit val bindingModule: BindingModule) extends DelvingC
 
   def newFile(orgId: String, set: String, fileName: String, userName: String, errorCallbackUrl: String) = OrganizationConfigured {
     Action { implicit request =>
-      log.info(s"[MediatorServer] [$userName@$orgId] Received notification for new file $set/$fileName")
+      log.info(s"[MediatorServer] [$userName@$orgId] Received notification for new file $orgId/$set/$fileName")
 
-      val file = new File(MediatorPlugin.pluginConfiguration.sourceDirectory, s"/$set/$fileName")
+      val file = new File(MediatorPlugin.pluginConfiguration.sourceBaseDirectory, s"$orgId/$set/$fileName")
 
       if (!file.exists()) {
         log.error(s"[MediatorServer] [$userName@$orgId] File ${file.getAbsolutePath} could not be found on disk")

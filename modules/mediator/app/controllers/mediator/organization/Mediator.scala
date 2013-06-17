@@ -20,7 +20,7 @@ class Mediator(implicit val bindingModule: BindingModule) extends OrganizationCo
   def index = OrganizationAdmin {
     Action {
       implicit request =>
-        val ftpUrl = s"ftp://${connectedUser}@${request.domain}:${MediatorPlugin.pluginConfiguration.port}"
+        val ftpUrl = s"ftp://$connectedUser@${request.domain}:${MediatorPlugin.pluginConfiguration.port}"
         Ok(Template('ftpUrl -> ftpUrl))
     }
   }
@@ -32,7 +32,7 @@ class Mediator(implicit val bindingModule: BindingModule) extends OrganizationCo
       def safeList(p: File): Seq[File] = if (p.exists() && p.isDirectory) p.listFiles() else Seq.empty[File]
 
       // create the FTP directory, if it did not exist
-      val collectionSourceDir = new File(MediatorPlugin.pluginConfiguration.sourceDirectory, collection)
+      val collectionSourceDir = new File(MediatorPlugin.pluginConfiguration.sourceBaseDirectory, configuration.orgId + "/" + collection)
       if (!collectionSourceDir.exists()) collectionSourceDir.mkdir()
 
       val uploadedFiles = collectionSourceDir.listFiles
@@ -50,9 +50,9 @@ class Mediator(implicit val bindingModule: BindingModule) extends OrganizationCo
         safeList(archive)
       }
 
-      val thumbnailMap = thumbnails.map(t => (imageName(t.fileName) -> t)).toMap
-      val tileMap = tiles.map(t => (imageName(t.getName) -> t)).toMap
-      val archiveMap = archivedSourceFiles.map(s => (imageName(s.getName) -> s)).toMap
+      val thumbnailMap = thumbnails.map(t => imageName(t.fileName) -> t).toMap
+      val tileMap = tiles.map(t => imageName(t.getName) -> t).toMap
+      val archiveMap = archivedSourceFiles.map(s => imageName(s.getName) -> s).toMap
 
       // the thumbnails are the reference, for backwards-compatibility
       val groupedDisplayResult = (thumbnailMap map { pair =>
@@ -68,7 +68,7 @@ class Mediator(implicit val bindingModule: BindingModule) extends OrganizationCo
             "thumbnailWidths" -> {
               thumb.widths.asJava
             },
-            "tileName" -> (maybeTile.map(_.getName).getOrElse("")),
+            "tileName" -> maybeTile.map(_.getName).getOrElse(""),
             "tileUrl" -> {
               maybeTile map { t => MediatorPlugin.pluginConfiguration.mediaServerUrl + s"/deepzoom/${configuration.orgId}/$collection/${t.getName}" } getOrElse { "" }
             },

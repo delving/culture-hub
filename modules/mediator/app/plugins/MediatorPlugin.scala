@@ -37,6 +37,7 @@ class MediatorPlugin(app: Application) extends CultureHubPlugin(app) {
   override def onBuildConfiguration(configurations: Map[OrganizationConfiguration, Option[Configuration]]) {
     pluginConfigurations = configurations flatMap { config =>
       config._2 map { c =>
+        val server = c.getBoolean("server").getOrElse(false)
         val sourceDir = c.getString("sourceDirectory").getOrElse {
           throw missingConfigurationField("sourceDirectory", config._1.orgId)
         }
@@ -47,14 +48,18 @@ class MediatorPlugin(app: Application) extends CultureHubPlugin(app) {
           throw missingConfigurationField("mediaServerUrl", config._1.orgId)
         }
         val port = c.getInt("port").getOrElse {
-          throw missingConfigurationField("port", config._1.orgId)
+          if (!c.getBoolean("server").getOrElse(false)) {
+            throw missingConfigurationField("port", config._1.orgId)
+          } else {
+            0
+          }
         }
         val passivePorts = c.getString("passivePorts").getOrElse("2100")
         val sourceDirFile = new File(sourceDir)
         sourceDirFile.mkdirs()
         val archiveDirFile = new File(archiveDir)
         archiveDirFile.mkdirs()
-        (config._1 -> MediatorPluginConfiguration(sourceDirFile, archiveDirFile, mediaServer, port, passivePorts, config._1))
+        config._1 -> MediatorPluginConfiguration(server, sourceDirFile, archiveDirFile, mediaServer, port, passivePorts, config._1)
       }
     }
   }
@@ -70,54 +75,63 @@ class MediatorPlugin(app: Application) extends CultureHubPlugin(app) {
    */
   override def receive = {
     case CollectionCreated(collectionId, configuration) =>
-      val collectionSourceDir = new File(MediatorPlugin.pluginConfiguration(configuration).sourceDirectory, collectionId)
+      val collectionSourceDir = new File(MediatorPlugin.pluginConfiguration(configuration).sourceBaseDirectory, s"${configuration.orgId}/$collectionId")
       if (!collectionSourceDir.exists()) {
         info(s"Created media source directory for collection ${configuration.orgId}:$collectionId")
         collectionSourceDir.mkdir()
       }
 
     case CollectionRenamed(oldCollectionId, newCollectionId, configuration) =>
-      val oldCollectionSourceDir = new File(MediatorPlugin.pluginConfiguration(configuration).sourceDirectory, oldCollectionId)
-      val newCollectionSourceDir = new File(MediatorPlugin.pluginConfiguration(configuration).sourceDirectory, newCollectionId)
+      val oldCollectionSourceDir = new File(MediatorPlugin.pluginConfiguration(configuration).sourceBaseDirectory, s"${configuration.orgId}/$oldCollectionId")
+      val newCollectionSourceDir = new File(MediatorPlugin.pluginConfiguration(configuration).sourceBaseDirectory, s"${configuration.orgId}/$newCollectionId")
       oldCollectionSourceDir.renameTo(newCollectionSourceDir)
-      info(s"Renamed media source directory for collection ${configuration.orgId}:$oldCollectionId to  ${configuration.orgId}:$newCollectionId")
+      info(s"Renamed media source directory for collection ${configuration.orgId}:$oldCollectionId to ${configuration.orgId}:$newCollectionId")
   }
 
   lazy val ftpServers = new OrganizationConfigurationResourceHolder[Option[MediatorPluginConfiguration], FtpServer]("ftpServers") {
 
     protected def resourceConfiguration(configuration: OrganizationConfiguration): Option[MediatorPluginConfiguration] = pluginConfigurations.get(configuration)
 
-    protected def onAdd(resourceConfiguration: Option[MediatorPluginConfiguration]): Option[FtpServer] = resourceConfiguration map { config =>
+    protected def onAdd(resourceConfiguration: Option[MediatorPluginConfiguration]): Option[FtpServer] = resourceConfiguration flatMap { config =>
 
-      // because the hub is multi-tenant, but the FtpServer is not, we have to create one FTP server per organization
-      // this is pretty stupid, but then again, we don't really have a choice. Life is tough.
-      val serverFactory = new FtpServerFactory
-      val listenerFactory = new ListenerFactory
-      val commandFactoryFactory = new CommandFactoryFactory
+      // if we are a mediator client, bootstrap our very own FTP server
+      if (!config.server) {
+        // because the hub is multi-tenant, but the FtpServer is not, we have to create one FTP server per organization
+        // this is pretty stupid, but then again, we don't really have a choice. Life is tough.
+        val serverFactory = new FtpServerFactory
+        val listenerFactory = new ListenerFactory
+        val commandFactoryFactory = new CommandFactoryFactory
 
-      val dataConnectionConfigurationFactory = new DataConnectionConfigurationFactory()
-      dataConnectionConfigurationFactory.setPassivePorts(config.passivePorts)
-      val dataConnectionConfiguration = dataConnectionConfigurationFactory.createDataConnectionConfiguration()
+        val dataConnectionConfigurationFactory = new DataConnectionConfigurationFactory()
+        dataConnectionConfigurationFactory.setPassivePorts(config.passivePorts)
+        val dataConnectionConfiguration = dataConnectionConfigurationFactory.createDataConnectionConfiguration()
 
-      listenerFactory.setPort(config.port)
-      listenerFactory.setDataConnectionConfiguration(dataConnectionConfiguration)
-      serverFactory.addListener("default", listenerFactory.createListener())
+        listenerFactory.setPort(config.port)
+        listenerFactory.setDataConnectionConfiguration(dataConnectionConfiguration)
+        serverFactory.addListener("default", listenerFactory.createListener())
 
-      serverFactory.setUserManager(new HubUserManager(config.sourceDirectory.getAbsolutePath, HubModule)(config.configuration))
+        serverFactory.setUserManager(
+          new HubUserManager(
+            new File(config.sourceBaseDirectory, config.configuration.orgId).getAbsolutePath, HubModule
+          )(config.configuration)
+        )
 
-      val ftplets = new mutable.HashMap[String, Ftplet]()
-      ftplets.put("mediator", new MediatorFtplet()(config.configuration))
-      serverFactory.setFtplets(ftplets.asJava)
+        val ftplets = new mutable.HashMap[String, Ftplet]()
+        ftplets.put("mediator", new MediatorFtplet()(config.configuration))
+        serverFactory.setFtplets(ftplets.asJava)
 
-      // disallow creation of directories
-      commandFactoryFactory.addCommand("MKD", new NotSupportedCommand)
-      val commandFactory = commandFactoryFactory.createCommandFactory()
-      serverFactory.setCommandFactory(commandFactory)
+        // disallow creation of directories
+        commandFactoryFactory.addCommand("MKD", new NotSupportedCommand)
+        val commandFactory = commandFactoryFactory.createCommandFactory()
+        serverFactory.setCommandFactory(commandFactory)
 
-      // TODO SSL & TLS, see http://mina.apache.org/ftpserver-project/embedding_ftpserver.html
-      val ftpServer = serverFactory.createServer()
-      ftpServer.start()
-      ftpServer
+        // TODO SSL & TLS, see http://mina.apache.org/ftpserver-project/embedding_ftpserver.html
+        val ftpServer = serverFactory.createServer()
+        ftpServer.start()
+        Some(ftpServer)
+      } else {
+        None
+      }
     }
 
     protected def onRemove(removed: FtpServer) {
@@ -168,7 +182,7 @@ class MediatorFtplet(implicit configuration: OrganizationConfiguration) extends 
         // also lowercase it
         val name = {
           val renamed = fileName.replaceAll("\\s", "_").toLowerCase
-          val srcDir = MediatorPlugin.pluginConfiguration.sourceDirectory
+          val srcDir = MediatorPlugin.pluginConfiguration.sourceBaseDirectory
           log.debug(s"[$userName@${configuration.orgId}}] Mediator: renaming uploaded file to /$set/$renamed")
           val f = new File(srcDir, path)
           f.renameTo(new File(srcDir, s"/$set/$renamed"))
@@ -310,7 +324,8 @@ object MediatorPlugin {
 }
 
 case class MediatorPluginConfiguration(
-  sourceDirectory: File,
+  server: Boolean,
+  sourceBaseDirectory: File,
   archiveDirectory: File,
   mediaServerUrl: String,
   port: Int,
