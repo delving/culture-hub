@@ -57,41 +57,56 @@ trait HubMongoContext extends models.MongoContext {
     }
   }
 
-  val fileStores = new OrganizationConfigurationResourceHolder[ObjectServiceConfiguration, GridFS]("fileStores") {
+  abstract class ConnectionOrganizationConfigurationResourceHolder[A, B](override val name: String) extends OrganizationConfigurationResourceHolder[A, B](name) {
 
-    protected def resourceConfiguration(configuration: OrganizationConfiguration): ObjectServiceConfiguration = configuration.objectService
+    protected var connections = List.empty[(B, MongoConnection)]
 
-    protected def onAdd(resourceConfiguration: ObjectServiceConfiguration): Option[GridFS] = Some(GridFS(createConnection(resourceConfiguration.fileStoreDatabaseName)))
+    protected def onAdd(resourceConfiguration: A): Option[B] = {
+      val mongoAndConnectionPair = makeConnection(databaseName(resourceConfiguration))
+      val resource: B = makeResourceFromConnection(mongoAndConnectionPair._1)
+      connections = (resource, mongoAndConnectionPair._2) :: connections
+      Some(resource)
+    }
 
-    protected def onRemove(removed: GridFS) {}
-  }
-
-  val imageCacheStores = new OrganizationConfigurationResourceHolder[ObjectServiceConfiguration, GridFS]("imageCacheStores") {
-
-    protected def resourceConfiguration(configuration: OrganizationConfiguration): ObjectServiceConfiguration = configuration.objectService
-
-    protected def onAdd(resourceConfiguration: ObjectServiceConfiguration): Option[GridFS] = Some(GridFS(createConnection(resourceConfiguration.imageCacheDatabaseName)))
-
-    protected def onRemove(removed: GridFS) {}
-  }
-
-  val mongoConnections = new OrganizationConfigurationResourceHolder[String, MongoDB]("mongoConnections") {
-
-    protected def resourceConfiguration(configuration: OrganizationConfiguration): String = configuration.mongoDatabase
-
-    protected def onAdd(resourceConfiguration: String): Option[MongoDB] = {
-      try {
-        Some(createConnection(resourceConfiguration))
-      } catch {
-        case t: Throwable =>
-          log.error(s"Couldn't open connection to MongoDB database $resourceConfiguration", t)
-          None
+    protected def onRemove(removed: B) {
+      connections.find(pair => pair._1 == removed) foreach { pair =>
+        connections = connections filterNot (_ == pair)
+        pair._2.close()
       }
     }
 
-    protected def onRemove(removed: MongoDB) {
-      // TODO find a way to close here!!
-    }
+    def databaseName(resourceConfiguration: A): String
+
+    def makeResourceFromConnection(mongo: MongoDB): B
+
+  }
+
+  val fileStores = new ConnectionOrganizationConfigurationResourceHolder[ObjectServiceConfiguration, GridFS]("fileStores") {
+
+    protected def resourceConfiguration(configuration: OrganizationConfiguration): ObjectServiceConfiguration = configuration.objectService
+
+    def databaseName(resourceConfiguration: ObjectServiceConfiguration): String = resourceConfiguration.fileStoreDatabaseName
+
+    def makeResourceFromConnection(mongo: MongoDB): GridFS = GridFS(mongo)
+  }
+
+  val imageCacheStores = new ConnectionOrganizationConfigurationResourceHolder[ObjectServiceConfiguration, GridFS]("imageCacheStores") {
+
+    protected def resourceConfiguration(configuration: OrganizationConfiguration): ObjectServiceConfiguration = configuration.objectService
+
+    def databaseName(resourceConfiguration: ObjectServiceConfiguration): String = resourceConfiguration.imageCacheDatabaseName
+
+    def makeResourceFromConnection(mongo: MongoDB): GridFS = GridFS(mongo)
+
+  }
+
+  val mongoConnections = new ConnectionOrganizationConfigurationResourceHolder[String, MongoDB]("mongoConnections") {
+
+    protected def resourceConfiguration(configuration: OrganizationConfiguration): String = configuration.mongoDatabase
+
+    def databaseName(resourceConfiguration: String): String = resourceConfiguration
+
+    def makeResourceFromConnection(mongo: MongoDB): MongoDB = mongo
   }
 
   val hubFileStores = new OrganizationConfigurationResourceHolder[OrganizationConfiguration, GridFS]("hubFileStores") {
