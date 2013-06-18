@@ -135,11 +135,7 @@ object OrganizationConfigurationHandler {
     byDomain(domain) != None
   }
 
-  def getByDomain(domain: String): OrganizationConfiguration = {
-    byDomain(domain).getOrElse {
-      throw new RuntimeException(s"No configuration for domain $domain")
-    }
-  }
+  def getByDomain(domain: String): Option[OrganizationConfiguration] = byDomain(domain)
 
   /**
    * Retrieves all currently available configurations.
@@ -162,9 +158,15 @@ object OrganizationConfigurationHandler {
 
   private def byDomain(domain: String) = {
     val future = handler ? GetByDomain(domain)
-    Await.result(future, timeout.duration) match {
-      case ConfigurationLookupResponse(maybeConfiguration) =>
-        maybeConfiguration
+    try {
+      Await.result(future, timeout.duration) match {
+        case ConfigurationLookupResponse(maybeConfiguration) =>
+          maybeConfiguration
+      }
+    } catch {
+      case t: Throwable =>
+        log.error("OrganizationConfigurationHandler: Timeout occurred while retrieving configuration", t)
+        None
     }
   }
 
