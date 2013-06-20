@@ -41,7 +41,7 @@ class EADTest extends FlatSpec with ShouldMatchers {
     val analyzer = new EADIndexingAnalysisService
     val analysis = analyzer.analyze(HubId("delving", "GhaEAD", "0044"), new SchemaVersion("ead", "1.2.3"), ghaRecordDom)
 
-    analysis.size should be(2)
+    analysis.size should be(1)
   }
 
   "The EAD indexing analyser" should "properly analyze the root document" in {
