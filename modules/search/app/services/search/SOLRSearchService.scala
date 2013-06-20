@@ -83,9 +83,9 @@ class SOLRSearchService extends SearchService {
     response
   }
 
-  def search(user: Option[String], query: List[String], params: Map[String, Seq[String]], host: String)(implicit configuration: OrganizationConfiguration): (Seq[ListItem], SearchResult) = {
+  def search(user: Option[String], hiddenQueryFilters: List[String], params: Map[String, Seq[String]], host: String)(implicit configuration: OrganizationConfiguration): (Seq[ListItem], SearchResult) = {
 
-    val searchContext = SearchContext(params, host, query, configuration)
+    val searchContext = SearchContext(params, host, hiddenQueryFilters, configuration)
     val chQuery = SolrQueryService.createCHQuery(searchContext, user)
     val queryResponse = SolrQueryService.getSolrResponseFromServer(chQuery.solrQuery, true)
     val chResponse = CHResponse(queryResponse, chQuery, configuration)
