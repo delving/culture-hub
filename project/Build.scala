@@ -135,7 +135,13 @@ object Build extends sbt.Build {
     publish := { },
     libraryDependencies += "eu.delving"                %% "play2-extensions"                % playExtensionsVersion,
     routesImport += "extensions.Binders._"
-  ).dependsOn(webCore % "test->test;compile->compile", dos % "test->test;compile->compile", cms(base)).settings(scalarifromSettings :_*)
+  ).dependsOn(
+    webCore % "test->test;compile->compile",
+    dos % "test->test;compile->compile",
+    search % "test->test;compile->compile",
+    dataset % "test->test;compile->compile",
+    cms(base) % "test->test;compile->compile"
+  ).settings(scalarifromSettings :_*)
 
 
   def allModules(base: File) = Seq(webCore, search, dataset, dos, cms(base), namedSlices(base)) ++ modules(base)

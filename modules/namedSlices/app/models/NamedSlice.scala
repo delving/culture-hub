@@ -18,8 +18,13 @@ case class NamedSlice(
   published: Boolean)
 
 case class NamedSliceQuery(
-  terms: String,
-  dataSets: Seq[String] = Seq.empty)
+    terms: String,
+    dataSets: Seq[String] = Seq.empty) {
+
+  def toQueryFilter: Seq[String] = {
+    Seq(terms, dataSets.mkString(" OR "))
+  }
+}
 
 object NamedSlice extends MultiModel[NamedSlice, NamedSliceDAO] {
 

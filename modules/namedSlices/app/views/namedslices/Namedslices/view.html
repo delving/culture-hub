@@ -13,9 +13,9 @@
 </div>
 <div class="row">
     <div class="span6">
-        <form method="get" action="/search" class="form-horizontal well" id="simple-search-rijks" onsubmit="return checkSimpleSearchSubmit('query-rijks');">
+        <form method="get" action="/slice/${key}/search" class="form-horizontal well" id="simple-search" onsubmit="return checkSimpleSearchSubmit('query-slice');">
             <div class="input-append">
-                <input class="" placeholder="&{'hub.Search'} ..." type="text" id="query-rijks" name="query" value='${params.get("query")? params.get("query")[0] : ""}'/>
+                <input class="" placeholder="&{'hub.Search'} ..." type="text" id="query-slice" name="query" value='${params.get("query")? params.get("query")[0] : ""}'/>
                 <button type="submit" class="btn" title="&{'hub.Search'}">&{'hub.Search'}</button>
             </div>
         </form>

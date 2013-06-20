@@ -6,3 +6,4 @@ POST        /admin/namedSlices/submit           @controllers.namedslices.admin.N
 DELETE      /admin/namedSlices/:id/remove       @controllers.namedslices.admin.NamedSlices.delete(id: org.bson.types.ObjectId)
 
 GET         /slice/:key                         @controllers.namedslices.NamedSlices.view(key)
+GET         /slice/:key/search                  @controllers.namedslices.NamedSlices.search(key, query)
