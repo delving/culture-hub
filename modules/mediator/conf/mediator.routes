@@ -6,3 +6,5 @@ POST             /media/fault/newFile                                    @contro
 
 ## Server-side
 POST             /media/command/newFile                                  @controllers.mediator.MediatorServer.newFile(orgId, set, fileName, userName, errorCallbackUrl)
+
+GET              /media/:representationType/:orgId/:collection/*id       @controllers.mediator.Representations.representation(representationType, orgId, collection, id, accessKey: Option[String])
