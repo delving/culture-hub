@@ -15,7 +15,7 @@ class NamedSlices(implicit val bindingModule: BindingModule) extends DelvingCont
   def view(key: String) = Root {
     Action {
       implicit request =>
-        NamedSlice.dao.findOneByKey(key) map { slice =>
+        NamedSlice.dao.findOnePublishedByKey(key) map { slice =>
 
           val pageContent = CMSPage.dao.findByKeyAndLanguage(slice.cmsPageKey, getLang).headOption.map { page =>
             page.content

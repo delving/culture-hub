@@ -14,7 +14,8 @@ case class NamedSlice(
   key: String,
   name: String,
   cmsPageKey: String,
-  query: NamedSliceQuery)
+  query: NamedSliceQuery,
+  published: Boolean)
 
 case class NamedSliceQuery(
   terms: String,
@@ -32,5 +33,9 @@ object NamedSlice extends MultiModel[NamedSlice, NamedSliceDAO] {
 class NamedSliceDAO(collection: MongoCollection) extends SalatDAO[NamedSlice, ObjectId](collection) {
 
   def findOneByKey(key: String): Option[NamedSlice] = findOne(MongoDBObject("key" -> key))
+
+  def findOnePublishedByKey(key: String): Option[NamedSlice] = findOne(MongoDBObject("key" -> key, "published" -> true))
+
+  def findAllPublished: Seq[NamedSlice] = find(MongoDBObject("published" -> true)).toSeq
 
 }

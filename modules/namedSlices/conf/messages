@@ -5,3 +5,4 @@ plugin.namedslice.previewSlice=Preview slice
 plugin.namedslice.queryTerms=Query terms
 plugin.namedslice.cmsPage=CMS page
 plugin.namedslice.cmsPageHelp=Select the CMS landing page for this slice
+plugin.namedslice.publish=Publish

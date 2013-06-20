@@ -30,24 +30,40 @@ class NamedSlices(implicit val bindingModule: BindingModule) extends Organizatio
       "query" -> mapping(
         "terms" -> nonEmptyText,
         "dataSets" -> seq(text)
-      )(NamedSliceQuery.apply)(NamedSliceQuery.unapply)
+      )(NamedSliceQuery.apply)(NamedSliceQuery.unapply),
+      "published" -> boolean
     )(NamedSlice.apply)(NamedSlice.unapply)
   )
 
-  def emptyModel(implicit request: RequestHeader, configuration: OrganizationConfiguration): NamedSlice = NamedSlice(key = "", name = "", cmsPageKey = "", query = NamedSliceQuery(terms = ""))
+  def emptyModel(implicit request: RequestHeader, configuration: OrganizationConfiguration): NamedSlice =
+    NamedSlice(key = "", name = "", cmsPageKey = "", query = NamedSliceQuery(terms = ""), published = true)
 
   def dao(implicit configuration: OrganizationConfiguration): NamedSliceDAO = NamedSlice.dao
+
+  def add = OrganizationAdmin {
+    Action {
+      implicit request =>
+        crudUpdate(None, additionalTemplateData = Some(creationPageTemplateData))
+    }
+  }
 
   def update(id: ObjectId) = OrganizationAdmin {
     Action {
       implicit request =>
-        val pages = CMSPage.dao.list(getLang, None).filter(_.published).map { page => (page.key, page.title) }
-        def additionalTemplateData(model: Option[NamedSlice]) = Seq(
+        crudUpdate(Some(id), additionalTemplateData = Some(creationPageTemplateData))
+    }
+  }
+
+  private def creationPageTemplateData(implicit request: RequestHeader, configuration: OrganizationConfiguration) = {
+    val pages = CMSPage.dao.list(getLang, None).filter(_.published).map { page => (page.key, page.title) }
+
+    {
+      model: Option[NamedSlice] =>
+        Seq(
           'cmsPages -> pages
         )
-
-        crudUpdate(Some(id), additionalTemplateData = Some(additionalTemplateData))
     }
+
   }
 
 }
