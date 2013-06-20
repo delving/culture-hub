@@ -1,4 +1,5 @@
 plugin.namedslice.namedSlice=Named slice
+plugin.namedslice.slice=Slice
 plugin.namedslice.invalidKeyFormat=Invalid key format - whitespace and special characters other than - are not allowed
 plugin.namedslice.dataSetHelp=Hold down the Ctrl key to select more than one DataSet
 plugin.namedslice.previewSlice=Preview slice
