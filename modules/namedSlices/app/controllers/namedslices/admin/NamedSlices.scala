@@ -24,7 +24,7 @@ class NamedSlices(implicit val bindingModule: BindingModule) extends Organizatio
   def form(implicit mom: Manifest[NamedSlice]): Form[NamedSlice] = Form(
     mapping(
       "_id" -> of[ObjectId],
-      "key" -> nonEmptyText.verifying(Constraints.pattern("^[A-Za-z0-9-]{3,40}$".r, "constraint.validSpec", "plugin.namedslice.invalidKeyFormat")),
+      "key" -> nonEmptyText.verifying(Constraints.pattern("^[A-Za-z0-9-]{3,40}$".r, "constraint.validSpec", "namedslice.invalidKeyFormat")),
       "name" -> nonEmptyText,
       "cmsPageKey" -> nonEmptyText,
       "query" -> mapping(

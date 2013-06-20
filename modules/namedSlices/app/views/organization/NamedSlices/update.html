@@ -1,16 +1,16 @@
 #{extends "organization/crudUpdate.html" /}
 
-<h2>&{'plugin.namedslice.namedSlice'}</h2>
+<h2>&{'namedslice.namedSlice'}</h2>
 
 #{form.textField name:"key", form: form, label: messages.get('hub.Identifier'), dataBind:"value: key", maxLength: 60, required: true, labelClass:"control-label"/}
 #{form.textField name:"name", form: form, label: messages.get('hubb.Name'), dataBind:"value: name", maxLength: 60, required: true, labelClass:"control-label"/}
-#{form.textField name:"terms", form: form, label: messages.get('plugin.namedslice.queryTerms'), dataBind:"value: query.terms", required: true, labelClass:"control-label"/}
-#{form.populatedSelectField options:cmsPages, name:"cmsPageKey", form: form, label:messages.get('plugin.namedslice.cmsPage'), dataBind:"value: cmsPageKey", required: true, labelClass:"control-label" /}
-#{form.checkBoxField name:"published", form: form, label: messages.get('plugin.namedslice.publish'), dataBind:"value: published", required: true, labelClass:"control-label"/}
+#{form.textField name:"terms", form: form, label: messages.get('namedslice.queryTerms'), dataBind:"value: query.terms", required: true, labelClass:"control-label"/}
+#{form.populatedSelectField options:cmsPages, name:"cmsPageKey", form: form, label:messages.get('namedslice.cmsPage'), dataBind:"value: cmsPageKey", required: true, labelClass:"control-label" /}
+#{form.checkBoxField name:"published", form: form, label: messages.get('namedslice.publish'), dataBind:"value: published", required: true, labelClass:"control-label"/}
 
 
 <div class="control-group">
-    <span style="width: 140px; " id="previewSlice" class="btn btn-primary">&{'plugin.namedslice.previewSlice'}</span>
+    <span style="width: 140px; " id="previewSlice" class="btn btn-primary">&{'namedslice.previewSlice'}</span>
 </div>
 
 

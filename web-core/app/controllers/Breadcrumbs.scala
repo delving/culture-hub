@@ -52,7 +52,7 @@ object Breadcrumbs {
 
       case "rijks" :: "search" :: Nil => List(("/rijks", Messages("rijks.Rijkscollectie")), ("NOLINK", Messages("hub.Search")))
 
-      case "slice" :: key :: "search" :: Nil => List(("/slice/" + key, Messages("plugin.namedslice.slice") + " " + key), ("NOLINK", Messages("hub.Search")))
+      case "slice" :: key :: "search" :: Nil => List(("/slice/" + key, Messages("namedslice.slice") + " " + key), ("NOLINK", Messages("hub.Search")))
 
       case "admin" :: Nil => List(("NOLINK", Messages("hubb.Organizations")), ("/admin", "Administration"))
       case "admin" :: "admin" :: Nil => List(("NOLINK", Messages("hubb.Organizations")), ("/admin", "Administration"), ("/admin" + "/admin", Messages("hub.OrganizationAdministration")))
