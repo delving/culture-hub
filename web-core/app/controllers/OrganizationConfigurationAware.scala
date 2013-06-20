@@ -24,17 +24,20 @@ trait OrganizationConfigurationAware {
   def OrganizationConfigured[A](action: Action[A]): Action[A] = {
     Action(action.parser) {
       implicit request =>
-        try {
-          val domain: String = request.queryString.get("domain").map(v => v.head).getOrElse(request.domain)
-          val configuration = OrganizationConfigurationHandler.getByDomain(domain)
-          organizationConfigurations.put(request, configuration)
-          action(request)
-        } catch {
-          case t: Throwable =>
-            Logger("CultureHub").error(t.getMessage, t)
-            throw t
-        } finally {
-          organizationConfigurations.remove(request)
+        val domain: String = request.queryString.get("domain").map(v => v.head).getOrElse(request.domain)
+        OrganizationConfigurationHandler.getByDomain(domain).map { implicit configuration =>
+          try {
+            organizationConfigurations.put(request, configuration)
+            action(request)
+          } catch {
+            case t: Throwable =>
+              Logger("CultureHub").error(t.getMessage, t)
+              throw t
+          } finally {
+            organizationConfigurations.remove(request)
+          }
+        } getOrElse {
+          ServiceUnavailable(views.html.errors.serviceUnavailable())
         }
     }
   }

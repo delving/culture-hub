@@ -41,8 +41,11 @@ class DataSets(implicit val bindingModule: BindingModule) extends OrganizationCo
 
   def feed(clientId: String, spec: Option[String]) = WebSocket.async[JsValue] { implicit request =>
     if (request.session.get("userName").isDefined) {
-      val organizationConfiguration = OrganizationConfigurationHandler.getByDomain(request.domain)
-      DataSetEventFeed.subscribe(organizationConfiguration.orgId, clientId, session.get("userName").get, organizationConfiguration.orgId, spec)
+      OrganizationConfigurationHandler.getByDomain(request.domain) map { implicit configuration =>
+        DataSetEventFeed.subscribe(configuration.orgId, clientId, session.get("userName").get, configuration.orgId, spec)
+      } getOrElse {
+        Promise.pure((Done[JsValue, JsValue](JsString(""), Input.Empty), Concurrent.broadcast._1))
+      }
     } else {
       // return a fake pair
       // TODO perhaps a better way here ?
