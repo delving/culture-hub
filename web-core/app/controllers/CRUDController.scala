@@ -23,6 +23,7 @@ import org.json4s.native.{ JsonMethods, Printer }
  *
  * The idea is to provide a number of generic methods handling the listing, submission (create or update), and deletion of a model.
  *
+ * TODO cleanup the default handler method signatures, messy result of prototyping
  * TODO provide a way to override the default "name" field, which is used in the list action for deletion
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>

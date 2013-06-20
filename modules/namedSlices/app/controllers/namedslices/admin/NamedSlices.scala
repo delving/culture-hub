@@ -40,6 +40,13 @@ class NamedSlices(implicit val bindingModule: BindingModule) extends Organizatio
 
   def dao(implicit configuration: OrganizationConfiguration): NamedSliceDAO = NamedSlice.dao
 
+  def list = OrganizationAdmin {
+    Action {
+      implicit request =>
+        crudList(customViewLink = Some(("/slices/_key_", Seq("key"))))
+    }
+  }
+
   def add = OrganizationAdmin {
     Action {
       implicit request =>

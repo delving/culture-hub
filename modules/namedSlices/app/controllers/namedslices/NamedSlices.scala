@@ -35,7 +35,7 @@ class NamedSlices(implicit val bindingModule: BindingModule) extends DelvingCont
     Action {
       implicit request =>
         NamedSlice.dao.findOnePublishedByKey(key) map { slice =>
-          searchResults(query, slice.query.toQueryFilter, s"/slice/${slice.key}/search")
+          searchResults(query, slice.query.toQueryFilter, s"/slices/${slice.key}/search")
         } getOrElse {
           NotFound(key)
         }
