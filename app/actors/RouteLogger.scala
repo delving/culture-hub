@@ -38,21 +38,21 @@ class RouteLogger extends Actor {
 
   val fileLog = Logger("routes")
 
-  // TODO make multi-tenant, i.e. Map DomainConfig -> Arraybuffer
-  val mongoLogBuffer: mutable.Map[OrganizationConfiguration, ArrayBuffer[RouteAccess]] = new mutable.HashMap[OrganizationConfiguration, ArrayBuffer[RouteAccess]]()
+  val mongoLogBuffer = new mutable.HashMap[OrganizationConfiguration, ArrayBuffer[RouteAccess]]()
 
   def receive = {
 
     case RouteRequest(request) =>
-      val configuration = OrganizationConfigurationHandler.getByDomain(request.domain)
-      fileLog.info("%s %s".format(request.path, request.rawQueryString))
-      val routeAccess = RouteAccess(uri = request.path, queryString = request.queryString.map(a => a._1.replaceAll("\\.", "_dot_") -> a._2))
-      if (mongoLogBuffer.contains(configuration)) {
-        mongoLogBuffer(configuration).append(routeAccess)
-      } else {
-        val arr = new ArrayBuffer[RouteAccess]()
-        arr.append(routeAccess)
-        mongoLogBuffer += (configuration -> arr)
+      OrganizationConfigurationHandler.getByDomain(request.domain) map { implicit configuration =>
+        fileLog.info("%s %s".format(request.path, request.rawQueryString))
+        val routeAccess = RouteAccess(uri = request.path, queryString = request.queryString.map(a => a._1.replaceAll("\\.", "_dot_") -> a._2))
+        if (mongoLogBuffer.contains(configuration)) {
+          mongoLogBuffer(configuration).append(routeAccess)
+        } else {
+          val arr = new ArrayBuffer[RouteAccess]()
+          arr.append(routeAccess)
+          mongoLogBuffer += (configuration -> arr)
+        }
       }
 
     case PersistRouteAccess =>

@@ -118,7 +118,6 @@ object ErrorReporter {
   }
 
   def reportError(subject: String, report: String)(implicit configuration: OrganizationConfiguration) {
-    val themeInfo = new ThemeInfo(configuration)
     Email(configuration.emailTarget.systemFrom, subject)
       .to(configuration.emailTarget.exceptionTo)
       .withContent(
