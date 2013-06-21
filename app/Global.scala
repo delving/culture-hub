@@ -4,19 +4,23 @@
  */
 
 import actors._
-import controllers.{ ErrorReporter, ApplicationController }
+import com.github.cb372.metrics.sigar.SigarMetrics
+import com.yammer.metrics.scala.{ Counter, Instrumented }
+import controllers.ApplicationController
 import core.{ HubModule, CultureHubPlugin }
+import java.util.concurrent.TimeUnit
+import models.OrganizationConfiguration
 import play.api.libs.concurrent._
 import akka.actor._
 import play.api._
 import play.api.mvc.{ Action, WithFilters, Handler, RequestHeader }
 import play.api.Play.current
 import play.extras.iteratees.GzipFilter
-import util.OrganizationConfigurationHandler
+import util.{ OrganizationConfigurationResourceHolder, OrganizationConfigurationHandler }
 import eu.delving.culturehub.BuildInfo
 import play.api.mvc.Results._
 
-object Global extends WithFilters(new GzipFilter()) {
+object Global extends WithFilters(new GzipFilter()) with Instrumented {
 
   override def onStart(app: Application) {
 
@@ -58,6 +62,9 @@ object Global extends WithFilters(new GzipFilter()) {
       Akka.system.actorOf(Props[RouteLogger], name = "routeLogger")
 
     }
+
+    OrganizationConfigurationHandler.registerResourceHolder(domainRequestCounters, initFirst = true)
+    SigarMetrics.getInstance().registerGauges()
 
     // ~~~ load test data
 
@@ -106,7 +113,24 @@ object Global extends WithFilters(new GzipFilter()) {
 
   val apiController = new controllers.api.Api()(HubModule)
 
+  val requestsMeter = metrics.meter("requests", eventType = "requests", unit = TimeUnit.SECONDS)
+
+  val domainRequestCounters = new OrganizationConfigurationResourceHolder[OrganizationConfiguration, Counter]("domainRequestsCounters") {
+
+    protected def resourceConfiguration(configuration: OrganizationConfiguration): OrganizationConfiguration = configuration
+
+    protected def onAdd(resourceConfiguration: OrganizationConfiguration): Option[Counter] = {
+      Some(metrics.counter(s"${resourceConfiguration.orgId}.requests"))
+    }
+
+    protected def onRemove(removed: Counter) {
+      // TODO
+    }
+  }
+
   override def onRouteRequest(request: RequestHeader): Option[Handler] = {
+
+    requestsMeter.mark()
 
     val domain: String = request.queryString.get("domain").map(v => v.head).getOrElse(request.domain)
 
@@ -116,6 +140,7 @@ object Global extends WithFilters(new GzipFilter()) {
       Some(controllers.Default.redirect(Play.configuration.getString("defaultDomainRedirect").getOrElse("http://www.delving.eu")))
     } else {
       OrganizationConfigurationHandler.getByDomain(domain).map { implicit configuration =>
+        domainRequestCounters.getResource(configuration) += 1
 
         val routes = CultureHubPlugin.getEnabledPlugins.flatMap(_.routes)
 
