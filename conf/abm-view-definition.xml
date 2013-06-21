@@ -31,7 +31,7 @@
                     <!--<field label="metadata.dc.date" path="/abm:record/dc:date" />-->
                     <field label="metadata.dc.creator" path="/abm:record/dc:creator"/>
                     <field label="metadata.dc.date" path="/abm:record/dc:date"/>
-                    <field label="metadata.dcterms.date" path="/abm:record/dcterms:created"/>
+                    <field label="metadata.dc.date" path="/abm:record/dcterms:created"/>
                     <field label="metadata.dc.contributor" path="/abm:record/dc:contributor"/>
                     <field label="metadata.dc.description" path="/abm:record/dc:description"/>
                     <field label="metadata.dc.format" path="/abm:record/dc:format"/>
