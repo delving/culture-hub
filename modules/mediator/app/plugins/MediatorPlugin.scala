@@ -54,12 +54,14 @@ class MediatorPlugin(app: Application) extends CultureHubPlugin(app) {
             0
           }
         }
+        val sourceImageRepresentationAccessKey = c.getString("sourceImageRepresentationAccessKey")
+
         val passivePorts = c.getString("passivePorts").getOrElse("2100")
         val sourceDirFile = new File(sourceDir)
         sourceDirFile.mkdirs()
         val archiveDirFile = new File(archiveDir)
         archiveDirFile.mkdirs()
-        config._1 -> MediatorPluginConfiguration(server, sourceDirFile, archiveDirFile, mediaServer, port, passivePorts, config._1)
+        config._1 -> MediatorPluginConfiguration(server, sourceDirFile, archiveDirFile, mediaServer, port, passivePorts, sourceImageRepresentationAccessKey, config._1)
       }
     }
   }
@@ -330,4 +332,5 @@ case class MediatorPluginConfiguration(
   mediaServerUrl: String,
   port: Int,
   passivePorts: String,
+  sourceImageRepresentationAccessKey: Option[String],
   configuration: OrganizationConfiguration)

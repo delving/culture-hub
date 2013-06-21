@@ -10,6 +10,8 @@ import play.api.libs.ws.WS
 import concurrent.Await
 import concurrent.duration._
 import com.escalatesoft.subcut.inject.BindingModule
+import java.io.{ PrintStream, ByteArrayOutputStream }
+import com.yammer.metrics.reporting.ConsoleReporter
 
 /**
  *
@@ -115,6 +117,25 @@ class Admin(implicit val bindingModule: BindingModule) extends OrganizationContr
         }
 
         Ok
+    }
+  }
+
+  def metrics = OrganizationAdmin {
+    Action {
+      implicit request =>
+
+        def metricsAsString() = {
+          val baos = new ByteArrayOutputStream()
+          val ps = new PrintStream(baos)
+          new ConsoleReporter(ps).run()
+
+          ps.flush()
+          ps.close()
+
+          new String(baos.toByteArray)
+        }
+
+        Ok(metricsAsString())
     }
   }
 

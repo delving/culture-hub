@@ -135,11 +135,7 @@ object OrganizationConfigurationHandler {
     byDomain(domain) != None
   }
 
-  def getByDomain(domain: String): OrganizationConfiguration = {
-    byDomain(domain).getOrElse {
-      throw new RuntimeException(s"No configuration for domain $domain")
-    }
-  }
+  def getByDomain(domain: String): Option[OrganizationConfiguration] = byDomain(domain)
 
   /**
    * Retrieves all currently available configurations.
@@ -162,9 +158,15 @@ object OrganizationConfigurationHandler {
 
   private def byDomain(domain: String) = {
     val future = handler ? GetByDomain(domain)
-    Await.result(future, timeout.duration) match {
-      case ConfigurationLookupResponse(maybeConfiguration) =>
-        maybeConfiguration
+    try {
+      Await.result(future, timeout.duration) match {
+        case ConfigurationLookupResponse(maybeConfiguration) =>
+          maybeConfiguration
+      }
+    } catch {
+      case t: Throwable =>
+        log.error("OrganizationConfigurationHandler: Timeout occurred while retrieving configuration", t)
+        None
     }
   }
 
@@ -197,7 +199,7 @@ class OrganizationConfigurationHandler(plugins: Seq[CultureHubPlugin]) extends A
       val databaseConfigurations: Map[String, String] = if (!Play.isTest) {
         Play.application.configuration.getString(HubMongoContext.CONFIG_DB).map { configDb =>
           Config.findAll.map { config =>
-            (config.orgId -> (s"""configurations.${config.orgId} { ${config.rawConfiguration} }"""))
+            config.orgId -> s"configurations.${config.orgId} { ${config.rawConfiguration} }"
           }.toMap
         }.getOrElse(Map.empty)
       } else {
@@ -207,7 +209,7 @@ class OrganizationConfigurationHandler(plugins: Seq[CultureHubPlugin]) extends A
       val parsed: Map[String, config.Config] = databaseConfigurations flatMap { c =>
         try {
           val parsed = ConfigFactory.parseString(c._2)
-          Some((c._1 -> parsed))
+          Some(c._1 -> parsed)
         } catch {
           case t: Throwable =>
             log.error(s"Error while parsing configuration for organization ${c._1}", t)
@@ -284,7 +286,7 @@ class OrganizationConfigurationHandler(plugins: Seq[CultureHubPlugin]) extends A
 
   private def toDomainList(domainList: Seq[OrganizationConfiguration]) = domainList.flatMap(t => t.domains.map((_, t))).sortBy(_._1.length)
 
-  private def lookupDomain(domain: String) = {
+  private def lookupDomain(domain: String) {
     // note - this mechanism is vulnerable if you expose your server directly to the internet and pass on any kind of domains
     // so you shouldn't do this, and have a DNS filter of sorts in front of it, not plug the server directly to a wildcard DNS
     if (!domainLookupCache.contains(domain)) {

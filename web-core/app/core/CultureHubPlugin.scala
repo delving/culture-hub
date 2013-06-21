@@ -11,6 +11,7 @@ import mvc.{ RequestHeader, Handler }
 import models.{ Role, OrganizationConfiguration }
 import scala.collection.JavaConverters._
 import akka.actor.{ ActorContext, ActorRef, Props, Actor }
+import play.core.Router.Routes
 
 /**
  * The CultureHub plugin contract, allowing to influence the appearance and functionality of the Hub.
@@ -43,7 +44,20 @@ abstract class CultureHubPlugin(app: Application) extends play.api.Plugin {
    * }}}
    *
    */
+  @deprecated(message = "use the router method", since = "13.06")
   val routes: ListMap[(String, Regex), (List[String], Map[String, String]) => Handler] = ListMap.empty
+
+  /**
+   * Optional routes this plugin provides.
+   *
+   * For example, with default Play routes:
+   *
+   * {{{
+   *   val router = Some(myPlugin.Routes)
+   * }}}
+   *
+   */
+  val router: Option[Routes] = None
 
   /**
    * Called at configuration building time, giving the plugin the chance to build internal configuration
