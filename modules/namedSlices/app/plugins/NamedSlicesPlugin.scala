@@ -27,7 +27,7 @@ class NamedSlicesPlugin(app: Application) extends CultureHubPlugin(app) {
       MainMenuEntry(
         key = slice.key,
         titleKey = slice.name,
-        mainEntry = Some(MenuElement(url = "/slice/" + slice.key, titleKey = slice.name))
+        mainEntry = Some(MenuElement(url = "/slices/" + slice.key, titleKey = slice.name))
       )
     }
   }
