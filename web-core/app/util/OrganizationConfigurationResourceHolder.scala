@@ -11,13 +11,13 @@ import reflect.ClassTag
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
-abstract class OrganizationConfigurationResourceHolder[A, B](val name: String) {
+abstract class OrganizationConfigurationResourceHolder[ResourceConfiguration, Resource](val name: String) {
 
   val log = Logger("CultureHub")
 
   private var configuredFor = Seq.empty[OrganizationConfiguration]
 
-  private val resources = new ConcurrentHashMap[OrganizationConfiguration, B]()
+  private val resources = new ConcurrentHashMap[OrganizationConfiguration, Resource]()
 
   private[util] def configure(configurations: Seq[OrganizationConfiguration]) {
     val existing: Seq[OrganizationConfiguration] = resources.keys().asScala.toSeq
@@ -74,7 +74,7 @@ abstract class OrganizationConfigurationResourceHolder[A, B](val name: String) {
    * @param configuration the [[ models.OrganizationConfiguration ]] used for the initialization
    * @return the configuration value required for initialization of a single resource, e.g. an URL or server IP
    */
-  protected def resourceConfiguration(configuration: OrganizationConfiguration): A
+  protected def resourceConfiguration(configuration: OrganizationConfiguration): ResourceConfiguration
 
   /**
    * Computes a resource when a new configuration is added.
@@ -82,13 +82,13 @@ abstract class OrganizationConfigurationResourceHolder[A, B](val name: String) {
    * @param resourceConfiguration the configuration required for the resource to be initialized
    * @return the configured resource
    */
-  protected def onAdd(resourceConfiguration: A): Option[B]
+  protected def onAdd(resourceConfiguration: ResourceConfiguration): Option[Resource]
 
   /**
    * Performs cleanup operations when a configuration is removed
    * @param removed the resource to be removed
    */
-  protected def onRemove(removed: B)
+  protected def onRemove(removed: Resource)
 
   // ~~~ public interface
 
@@ -98,7 +98,7 @@ abstract class OrganizationConfigurationResourceHolder[A, B](val name: String) {
    * @param configuration the [[ models.OrganizationConfiguration ]] for which to retrieve the resource
    * @return a configured Resource
    */
-  def getResource(configuration: OrganizationConfiguration)(implicit ct: ClassTag[B]): B = {
+  def getResource(configuration: OrganizationConfiguration)(implicit ct: ClassTag[Resource]): Resource = {
     val maybeResource = Option(resources.get(configuration))
     if (maybeResource == None) {
       log.error(s"Could not retrieve resource of kind $name for organization ${configuration.orgId}. This holder is configured for ${configuredFor.map(_.orgId).mkString(", ")}")
@@ -108,10 +108,10 @@ abstract class OrganizationConfigurationResourceHolder[A, B](val name: String) {
     }
   }
 
-  def findResource(p: ((OrganizationConfiguration, B)) => Boolean) = resources.asScala.find(p)
+  def findResource(p: ((OrganizationConfiguration, Resource)) => Boolean) = resources.asScala.find(p)
 
   def allConfigurations: Seq[OrganizationConfiguration] = resources.asScala.keys.toSeq
 
-  def allResources: Seq[B] = resources.asScala.values.toSeq
+  def allResources: Seq[Resource] = resources.asScala.values.toSeq
 
 }

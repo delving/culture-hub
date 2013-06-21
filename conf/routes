@@ -124,7 +124,8 @@ DELETE      /admin/admin/remove                                                 
                                                                                 
 GET         /admin/solrSearchProxy                                                  @controllers.organization.Admin.solrSearchProxy
 GET         /admin/reProcessAll                                                     @controllers.organization.Admin.reProcessAll
-                                                                                
+GET         /admin/metrics                                                          @controllers.organization.Admin.metrics
+
 GET         /admin/users/search                                                     @controllers.Users.listAsTokens(orgId: Option[String], q: String ?= "")
                                                                                 
 GET         /admin/groups/resources/:resourceType/search                            @controllers.organization.Groups.searchResourceTokens(resourceType, q: String ?= "")
