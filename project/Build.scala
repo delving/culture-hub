@@ -51,6 +51,7 @@ object Build extends sbt.Build {
 
     "com.escalatesoft.subcut"   %% "subcut"                          % "2.0" exclude ("org.scalatest", "scalatest"),
     "com.yammer.metrics"        %  "metrics-core"                    % "2.2.0",
+    "com.github.cb372"          %  "metrics-sigar"                   % "0.1.0",
     "nl.grons"                  %% "metrics-scala"                   % "2.2.0",
 
     "org.apache.httpcomponents" %  "httpclient"                      % "4.1.2",
