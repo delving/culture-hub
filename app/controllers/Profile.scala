@@ -13,11 +13,11 @@ import com.escalatesoft.subcut.inject.BindingModule
 class Profile(implicit val bindingModule: BindingModule) extends DelvingController {
 
   def profile(user: String): Action[AnyContent] = UserAction(user) {
-    Action {
+    MultitenantAction {
       implicit request =>
         val u: HubUser = HubUser.dao.findByUsername(user) match {
           case Some(aUser) => aUser
-          case None => return Action { implicit request => NotFound(Messages("hub.UserWasNotFound", user)) }
+          case None => return MultitenantAction { implicit request => NotFound(Messages("hub.UserWasNotFound", user)) }
         }
 
         Ok(Template(

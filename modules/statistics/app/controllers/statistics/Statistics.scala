@@ -30,7 +30,7 @@ import com.escalatesoft.subcut.inject.BindingModule
 class Statistics(implicit val bindingModule: BindingModule) extends OrganizationController {
 
   def statistics = OrganizationBrowsing {
-    Action {
+    MultitenantAction {
       implicit request =>
         if (getStatisticsConfig.map(_.public).getOrElse(false)) {
           Ok(Template("statistics.html"))
@@ -45,48 +45,46 @@ class Statistics(implicit val bindingModule: BindingModule) extends Organization
   }
 
   def legacyStatistics = OrganizationConfigured {
-    Action {
-      implicit request =>
+    implicit request =>
 
-        val requestFacets = request.queryString.get("facet.field")
-        val facetLimit = request.queryString.getOrElse("facet.limit", List("100")).head.toString.toInt
-        val query = request.queryString.getOrElse("query", List("*:*")).head
-        val facets: Map[String, String] = requestFacets.map { facet =>
-          facet.map(f => (f -> f)).toMap
-        }.getOrElse {
-          getStatisticsConfig.map(_.facets).getOrElse {
-            Map.empty
-          }
+      val requestFacets = request.queryString.get("facet.field")
+      val facetLimit = request.queryString.getOrElse("facet.limit", List("100")).head.toString.toInt
+      val query = request.queryString.getOrElse("query", List("*:*")).head
+      val facets: Map[String, String] = requestFacets.map { facet =>
+        facet.map(f => (f -> f)).toMap
+      }.getOrElse {
+        getStatisticsConfig.map(_.facets).getOrElse {
+          Map.empty
         }
+      }
 
-        val filter = request.queryString.get("filter").flatMap { f =>
-          f.headOption
-        }
+      val filter = request.queryString.get("filter").flatMap { f =>
+        f.headOption
+      }
 
-        val canSeeFullStatistics = getStatisticsConfig.map(_.public).getOrElse(false) || request.session.get(Constants.USERNAME).map { userName =>
-          Group.dao.hasRole(userName, StatisticsPlugin.UNIT_ROLE_STATISTICS_VIEW) || Group.dao.hasRole(userName, Role.OWN)
-        }.getOrElse(false)
+      val canSeeFullStatistics = getStatisticsConfig.map(_.public).getOrElse(false) || request.session.get(Constants.USERNAME).map { userName =>
+        Group.dao.hasRole(userName, StatisticsPlugin.UNIT_ROLE_STATISTICS_VIEW) || Group.dao.hasRole(userName, Role.OWN)
+      }.getOrElse(false)
 
-        // cache stats for 3 hours
-        val statistics = Cache.getOrElse("facetStatistics-" + request.queryString.mkString.hashCode, 10800) {
-          new SolrFacetBasedStatistics(configuration.orgId, facets, filter, facetLimit, query)
-        }
+      // cache stats for 3 hours
+      val statistics = Cache.getOrElse("facetStatistics-" + request.queryString.mkString.hashCode, 10800) {
+        new SolrFacetBasedStatistics(configuration.orgId, facets, filter, facetLimit, query)
+      }
 
-        val result = if (request.queryString.getFirst("format") == Some("csv")) {
-          Ok(statistics.renderAsCSV(canSeeFullStatistics)).as("text/csv")
-        } else {
-          Ok(statistics.renderAsJSON(canSeeFullStatistics)).as(JSON)
-        }
+      val result = if (request.queryString.getFirst("format") == Some("csv")) {
+        Ok(statistics.renderAsCSV(canSeeFullStatistics)).as("text/csv")
+      } else {
+        Ok(statistics.renderAsJSON(canSeeFullStatistics)).as(JSON)
+      }
 
-        // CORS
-        result.withHeaders(
-          ("Access-Control-Allow-Origin" -> "*"),
-          ("Access-Control-Allow-Methods" -> "GET, POST, OPTIONS"),
-          ("Access-Control-Allow-Headers" -> "X-Requested-With"),
-          ("Access-Control-Max-Age" -> "86400")
-        )
+      // CORS
+      result.withHeaders(
+        ("Access-Control-Allow-Origin" -> "*"),
+        ("Access-Control-Allow-Methods" -> "GET, POST, OPTIONS"),
+        ("Access-Control-Allow-Headers" -> "X-Requested-With"),
+        ("Access-Control-Max-Age" -> "86400")
+      )
 
-    }
   }
 
   private def getStatisticsConfig(implicit configuration: OrganizationConfiguration): Option[StatisticsPluginConfiguration] = {

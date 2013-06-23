@@ -30,7 +30,7 @@ trait ControllerBase extends Extensions with OrganizationConfigurationAware with
   def handleSubmit[ViewModel <: salat.CaseClass, Model <: salat.CaseClass](form: Form[ViewModel],
     findOneById: ObjectId => Option[Model],
     update: (ViewModel, Model) => Either[String, ViewModel],
-    create: ViewModel => Either[String, ViewModel])(implicit request: Request[AnyContent], mf: Manifest[Model]): Result = {
+    create: ViewModel => Either[String, ViewModel])(implicit request: MultitenantRequest[AnyContent], mf: Manifest[Model]): Result = {
 
     log.debug("Invoked submit handler")
 

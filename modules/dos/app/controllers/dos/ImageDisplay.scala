@@ -41,30 +41,26 @@ object ImageDisplay extends Controller with RespondWithDefaultImage with Organiz
    * Display a thumbnail given an ID and a width
    */
   def displayThumbnail(id: String, orgId: String, collectionId: String, width: Option[String], browse: Boolean = false, fileId: Boolean = false, headOnly: Boolean = false) = OrganizationConfigured {
-    Action {
-      implicit request =>
-        renderImage(
-          id = id,
-          store = fileStore(configuration),
-          thumbnail = true,
-          orgId = orgId,
-          collectionId = collectionId,
-          thumbnailWidth = thumbnailWidth(width),
-          browse = browse,
-          isFileId = fileId,
-          headOnly = headOnly
-        )
-    }
+    implicit request =>
+      renderImage(
+        id = id,
+        store = fileStore(configuration),
+        thumbnail = true,
+        orgId = orgId,
+        collectionId = collectionId,
+        thumbnailWidth = thumbnailWidth(width),
+        browse = browse,
+        isFileId = fileId,
+        headOnly = headOnly
+      )
   }
 
   /**
    * Display an image given an ID
    */
   def displayImage(id: String, fileId: Boolean) = OrganizationConfigured {
-    Action {
-      implicit request =>
-        renderImage(id = id, thumbnail = false, isFileId = fileId, store = fileStore(configuration))
-    }
+    implicit request =>
+      renderImage(id = id, thumbnail = false, isFileId = fileId, store = fileStore(configuration))
   }
 
   // ~~ PRIVATE

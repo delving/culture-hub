@@ -19,22 +19,20 @@ class MediatorServer(implicit val bindingModule: BindingModule) extends DelvingC
 
   def imageProcessor: ActorRef = Akka.system.actorFor("akka://application/user/plugin-mediator/imageProcessor")
 
-  def newFile(orgId: String, set: String, fileName: String, userName: String, errorCallbackUrl: String) = OrganizationConfigured {
-    Action { implicit request =>
-      log.info(s"[MediatorServer] [$userName@$orgId] Received notification for new file $orgId/$set/$fileName")
+  def newFile(orgId: String, set: String, fileName: String, userName: String, errorCallbackUrl: String) = OrganizationConfigured { implicit request =>
+    log.info(s"[MediatorServer] [$userName@$orgId] Received notification for new file $orgId/$set/$fileName")
 
-      val file = new File(MediatorPlugin.pluginConfiguration.sourceBaseDirectory, s"$orgId/$set/$fileName")
+    val file = new File(MediatorPlugin.pluginConfiguration.sourceBaseDirectory, s"$orgId/$set/$fileName")
 
-      if (!file.exists()) {
-        log.error(s"[MediatorServer] [$userName@$orgId] File ${file.getAbsolutePath} could not be found on disk")
-        NotFound
-      } else if (!isImage(file)) {
-        log.error(s"[MediatorServer] [$userName@$orgId] File ${file.getAbsolutePath} is not an image")
-        BadRequest
-      } else {
-        imageProcessor ! ProcessImage(orgId, set, file, userName, errorCallbackUrl, configuration)
-        Ok
-      }
+    if (!file.exists()) {
+      log.error(s"[MediatorServer] [$userName@$orgId] File ${file.getAbsolutePath} could not be found on disk")
+      NotFound
+    } else if (!isImage(file)) {
+      log.error(s"[MediatorServer] [$userName@$orgId] File ${file.getAbsolutePath} is not an image")
+      BadRequest
+    } else {
+      imageProcessor ! ProcessImage(orgId, set, file, userName, errorCallbackUrl, configuration)
+      Ok
     }
   }
 

@@ -17,15 +17,13 @@ class OaiPmh(implicit val bindingModule: BindingModule) extends ApplicationContr
   // TODO API documentation
 
   def oaipmh(format: Option[String], accessKey: Option[String]) = OrganizationConfigured {
-    Action {
-      implicit request =>
-        Async {
-          val oaiPmhService = new OaiPmhService(request.queryString, request.uri, configuration.orgId, format, accessKey)
-          Promise.pure(oaiPmhService.parseRequest).map { response =>
-            Ok(response).as(XML)
-          }
+    implicit request =>
+      Async {
+        val oaiPmhService = new OaiPmhService(request.queryString, request.uri, configuration.orgId, format, accessKey)
+        Promise.pure(oaiPmhService.parseRequest).map { response =>
+          Ok(response).as(XML)
         }
-    }
+      }
   }
 
 }

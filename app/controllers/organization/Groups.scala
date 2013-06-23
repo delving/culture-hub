@@ -24,13 +24,13 @@ import com.escalatesoft.subcut.inject.BindingModule
 class Groups(implicit val bindingModule: BindingModule) extends OrganizationController {
 
   def list = OrganizationMember {
-    Action {
+    MultitenantAction {
       implicit request =>
         val groups = Group.dao.list(userName, configuration.orgId).filterNot(_.isSystemGroup).map { group =>
           GroupListModel(
             id = group._id.toString,
             name = group.name,
-            description = Role.get(group.roleKey).getDescription(lang),
+            description = Role.get(group.roleKey).getDescription(getLang),
             size = group.users.size
           )
         }.toSeq
@@ -42,7 +42,7 @@ class Groups(implicit val bindingModule: BindingModule) extends OrganizationCont
   }
 
   def groups(groupId: Option[ObjectId]) = OrganizationMember {
-    Action {
+    MultitenantAction {
       implicit request =>
         if (groupId != None && !canUpdateGroup(configuration.orgId, groupId.get) || groupId == None && !canCreateGroup(configuration.orgId)) {
           Forbidden(Messages("hub.YouDoNotHaveAccess"))
@@ -61,7 +61,7 @@ class Groups(implicit val bindingModule: BindingModule) extends OrganizationCont
             'users -> usersAsTokens,
             'roles -> Role.allPrimaryRoles(configuration).
               filterNot(_ == Role.OWN).
-              map(role => role.key -> role.getDescription(lang)).
+              map(role => role.key -> role.getDescription(getLang)).
               toMap.asJava
           ))
         }
@@ -69,19 +69,17 @@ class Groups(implicit val bindingModule: BindingModule) extends OrganizationCont
   }
 
   def remove(groupId: Option[ObjectId]) = OrganizationAdmin {
-    Action {
-      implicit request =>
-        if (!groupId.isDefined) {
-          Results.BadRequest
-        } else {
-          Group.dao.remove(MongoDBObject("_id" -> groupId, "orgId" -> configuration.orgId))
-          Ok
-        }
-    }
+    implicit request =>
+      if (!groupId.isDefined) {
+        Results.BadRequest
+      } else {
+        Group.dao.remove(MongoDBObject("_id" -> groupId, "orgId" -> configuration.orgId))
+        Ok
+      }
   }
 
   def submit: Action[AnyContent] = OrganizationMember {
-    Action {
+    MultitenantAction {
       implicit request =>
 
         GroupViewModel.groupForm.bindFromRequest.fold(
@@ -97,14 +95,14 @@ class Groups(implicit val bindingModule: BindingModule) extends OrganizationCont
               } catch {
                 case t: Throwable =>
                   reportSecurity("Attempting to save Group with role " + groupForm.roleKey)
-                  return Action {
+                  return MultitenantAction {
                     BadRequest("Invalid Role " + groupForm.roleKey)
                   }
               }
 
               if (role == Role.OWN && (groupForm.id == None || groupForm.id != None && Group.dao.findOneById(groupForm.id.get) == None)) {
                 reportSecurity("User %s tried to create an owners team!".format(connectedUser))
-                return Action {
+                return MultitenantAction {
                   Forbidden("Your IP has been logged and reported to the police.")
                 }
               }
@@ -128,7 +126,7 @@ class Groups(implicit val bindingModule: BindingModule) extends OrganizationCont
                 case Some(id) =>
 
                   Group.dao.findOneById(groupForm.id.get) match {
-                    case None => return Action {
+                    case None => return MultitenantAction {
                       NotFound("Group with ID %s was not found".format(id))
                     }
                     case Some(g) =>
@@ -162,7 +160,7 @@ class Groups(implicit val bindingModule: BindingModule) extends OrganizationCont
   }
 
   def searchResourceTokens(resourceType: String, q: String) = OrganizationMember {
-    Action {
+    MultitenantAction {
       implicit request =>
         val maybeLookup = CultureHubPlugin.getResourceLookup(ResourceType(resourceType))
         maybeLookup.map { lookup =>
@@ -203,11 +201,11 @@ class Groups(implicit val bindingModule: BindingModule) extends OrganizationCont
     }
   }
 
-  private def canUpdateGroup(orgId: String, groupId: ObjectId)(implicit request: RequestHeader): Boolean = {
+  private def canUpdateGroup[A](orgId: String, groupId: ObjectId)(implicit request: MultitenantRequest[A]): Boolean = {
     groupId != null && organizationServiceLocator.byDomain.isAdmin(orgId, userName)
   }
 
-  private def canCreateGroup(orgId: String)(implicit request: RequestHeader): Boolean =
+  private def canCreateGroup[A](orgId: String)(implicit request: MultitenantRequest[A]): Boolean =
     organizationServiceLocator.byDomain.isAdmin(orgId, userName)
 }
 

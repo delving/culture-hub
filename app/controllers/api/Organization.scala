@@ -20,67 +20,61 @@ class Organization(implicit val bindingModule: BindingModule) extends Applicatio
   val organizationServiceLocator = inject[DomainServiceLocator[OrganizationService]]
 
   def providers = OrganizationConfigured {
-    Action {
-      implicit request =>
-        val providers = getAllOrganiztationCollectionInformation.map(_.getProvider)
+    implicit request =>
+      val providers = getAllOrganiztationCollectionInformation.map(_.getProvider)
 
-        val xmlResponse =
-          <providers>
-            {
-              for (p <- providers) yield <provider>
-                                           <id>{ toIdentifier(p) }</id>
-                                           <name>{ p }</name>
-                                         </provider>
-            }
-          </providers>
+      val xmlResponse =
+        <providers>
+          {
+            for (p <- providers) yield <provider>
+                                         <id>{ toIdentifier(p) }</id>
+                                         <name>{ p }</name>
+                                       </provider>
+          }
+        </providers>
 
-        DOk(xmlResponse, List("providers"))
-    }
+      DOk(xmlResponse, List("providers"))
   }
 
   def dataProviders = OrganizationConfigured {
-    Action {
-      implicit request =>
-        val dataProviders = getAllOrganiztationCollectionInformation.map(_.getDataProvider)
+    implicit request =>
+      val dataProviders = getAllOrganiztationCollectionInformation.map(_.getDataProvider)
 
-        val xmlResponse =
-          <dataProviders>
-            {
-              for (p <- dataProviders) yield <dataProvider>
-                                               <id>{ toIdentifier(p) }</id>
-                                               <name>{ p }</name>
-                                             </dataProvider>
-            }
-          </dataProviders>
+      val xmlResponse =
+        <dataProviders>
+          {
+            for (p <- dataProviders) yield <dataProvider>
+                                             <id>{ toIdentifier(p) }</id>
+                                             <name>{ p }</name>
+                                           </dataProvider>
+          }
+        </dataProviders>
 
-        DOk(xmlResponse, List("dataProviders"))
-    }
+      DOk(xmlResponse, List("dataProviders"))
   }
 
   def collections = OrganizationConfigured {
-    Action {
-      implicit request =>
-        val collections = organizationCollectionLookupService.findAll
+    implicit request =>
+      val collections = organizationCollectionLookupService.findAll
 
-        val xmlResponse =
-          <collections>
-            {
-              for (c <- collections) yield <collection>
-                                             <id>{ toIdentifier(c.spec) }</id>{
-                                               c match {
-                                                 case metadata: OrganizationCollectionMetadata =>
-                                                   <name>
-                                                     { metadata.getName }
-                                                   </name>
-                                                 case _ =>
-                                               }
+      val xmlResponse =
+        <collections>
+          {
+            for (c <- collections) yield <collection>
+                                           <id>{ toIdentifier(c.spec) }</id>{
+                                             c match {
+                                               case metadata: OrganizationCollectionMetadata =>
+                                                 <name>
+                                                   { metadata.getName }
+                                                 </name>
+                                               case _ =>
                                              }
-                                           </collection>
-            }
-          </collections>
+                                           }
+                                         </collection>
+          }
+        </collections>
 
-        DOk(xmlResponse, List("collection"))
-    }
+      DOk(xmlResponse, List("collection"))
   }
 
   private def getAllOrganiztationCollectionInformation(implicit configuration: OrganizationConfiguration) =

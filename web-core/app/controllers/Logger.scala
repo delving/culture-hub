@@ -19,10 +19,9 @@ package controllers
 import java.io.{ PrintWriter, StringWriter }
 import play.api.Logger
 import play.api.Play.current
-import play.api.mvc.{ Controller, RequestHeader, Results, Result }
+import play.api.mvc.{ Controller, Results, Result }
 import models.OrganizationConfiguration
 import extensions.Email
-import core.ThemeInfo
 import util.Quotes
 
 /**
@@ -37,29 +36,29 @@ trait Logging extends Secured { self: Controller with OrganizationConfigurationA
 
   import ErrorReporter._
 
-  def Forbidden(implicit request: RequestHeader): Result = {
+  def Forbidden[A](implicit request: MultitenantRequest[A]): Result = {
     warning("Forbidden")
     Results.Forbidden
   }
-  def Forbidden(why: String)(implicit request: RequestHeader) = {
+  def Forbidden[A](why: String)(implicit request: MultitenantRequest[A]) = {
     warning(why)
     Results.Forbidden(why)
   }
-  def NotFound(why: String)(implicit request: RequestHeader) = {
+  def NotFound[A](why: String)(implicit request: MultitenantRequest[A]) = {
     info(why)
     Results.NotFound(views.html.errors.notFound(request, why, None))
   }
-  def Error(implicit request: RequestHeader) = {
+  def Error[A](implicit request: MultitenantRequest[A]) = {
     log.error(withContext("Internal server error"))
     reportError(request, "Internal server error")
     Results.InternalServerError(views.html.errors.error(None, None))
   }
-  def Error(why: String)(implicit request: RequestHeader) = {
+  def Error[A](why: String)(implicit request: MultitenantRequest[A]) = {
     log.error(withContext(why))
     reportError(request, why)
     Results.InternalServerError(views.html.errors.error(None, Some(why)))
   }
-  def Error(why: String, t: Throwable)(implicit request: RequestHeader) = {
+  def Error[A](why: String, t: Throwable)(implicit request: MultitenantRequest[A]) = {
     log.error(withContext(why), t)
     reportError(request, t, why)
     Results.InternalServerError(views.html.errors.error(None, Some(why)))
@@ -67,23 +66,23 @@ trait Logging extends Secured { self: Controller with OrganizationConfigurationA
 
   // ~~~ Logger wrappers, with more context
 
-  def info(message: String, args: String*)(implicit request: RequestHeader) {
+  def info[A](message: String, args: String*)(implicit request: MultitenantRequest[A]) {
     log.info(withContext(m(message, args)))
   }
-  def warning(message: String, args: String*)(implicit request: RequestHeader) {
+  def warning[A](message: String, args: String*)(implicit request: MultitenantRequest[A]) {
     log.warn(withContext(m(message, args)))
   }
-  def logError(message: String, args: String*)(implicit request: RequestHeader, configuration: OrganizationConfiguration) {
+  def logError[A](message: String, args: String*)(implicit request: MultitenantRequest[A], configuration: OrganizationConfiguration) {
     log.error(withContext(m(message, args)))
     reportError(request, if (message != null) message.format(args) else "")
   }
 
-  def logError(e: Throwable, message: String, args: String*)(implicit request: RequestHeader, configuration: OrganizationConfiguration) {
+  def logError[A](e: Throwable, message: String, args: String*)(implicit request: MultitenantRequest[A], configuration: OrganizationConfiguration) {
     log.error(withContext(m(message, args)), e)
     reportError(request, if (message != null) message.format(args) else "")
   }
 
-  def reportSecurity(message: String)(implicit request: RequestHeader) {
+  def reportSecurity[A](message: String)(implicit request: MultitenantRequest[A]) {
     log.error("Attempted security breach: " + message)
     ErrorReporter.reportError(securitySubject, toReport(message, request))
   }
@@ -96,20 +95,20 @@ trait Logging extends Secured { self: Controller with OrganizationConfigurationA
     }
   }
 
-  private def withContext(msg: String)(implicit request: RequestHeader) = {
+  private def withContext[A](msg: String)(implicit request: MultitenantRequest[A]) = {
     "[%s] While accessing %s %s: %s".format(request.session.get("userName").getOrElse("Unknown") + "@" + configuration.orgId, request.method, request.uri, msg)
   }
 
-  private def securitySubject(implicit request: RequestHeader) = "***[CultureHub] Security alert on %s".format(request.domain)
+  private def securitySubject[A](implicit request: MultitenantRequest[A]) = "***[CultureHub] Security alert on %s".format(request.domain)
 
 }
 
 object ErrorReporter {
 
-  def reportError(request: RequestHeader, message: String)(implicit configuration: OrganizationConfiguration) {
+  def reportError[A](request: OrganizationConfigurationAware#MultitenantRequest[A], message: String)(implicit configuration: OrganizationConfiguration) {
     reportError(subject(request), toReport(message, request))
   }
-  def reportError(request: RequestHeader, e: Throwable, message: String)(implicit configuration: OrganizationConfiguration) {
+  def reportError[A](request: OrganizationConfigurationAware#MultitenantRequest[A], e: Throwable, message: String)(implicit configuration: OrganizationConfiguration) {
     reportError(subject(request), toReport(message, e, request))
   }
 
@@ -135,9 +134,9 @@ object ErrorReporter {
       .send()
   }
 
-  private def getUser(request: RequestHeader) = request.session.get("userName").getOrElse("Unknown")
+  private def getUser[A](request: OrganizationConfigurationAware#MultitenantRequest[A]) = request.session.get("userName").getOrElse("Unknown")
 
-  private def subject(request: RequestHeader) = "[CultureHub] An error occured on %s".format(request.domain) // port?
+  private def subject[A](request: OrganizationConfigurationAware#MultitenantRequest[A]) = "[CultureHub] An error occured on %s".format(request.domain) // port?
 
   def toReport(job: String, m: String, t: Throwable): String = {
     val sw = new StringWriter()
@@ -158,7 +157,7 @@ object ErrorReporter {
     """.format(job, m, t.getMessage, sw.toString)
   }
 
-  def toReport(m: String, request: RequestHeader) = {
+  def toReport[A](m: String, request: OrganizationConfigurationAware#MultitenantRequest[A]) = {
     """
     ~~~~ User ~~~
     %s
@@ -170,7 +169,7 @@ object ErrorReporter {
     %s""".format(getUser(request), m, fullContext(request))
   }
 
-  def toReport(m: String, t: Throwable, request: RequestHeader): String = {
+  def toReport[A](m: String, t: Throwable, request: OrganizationConfigurationAware#MultitenantRequest[A]): String = {
     val sw = new StringWriter()
     val pw = new PrintWriter(sw)
     t.printStackTrace(pw)
@@ -190,7 +189,7 @@ object ErrorReporter {
     %s""".format(getUser(request), m, t.getMessage, sw.toString, fullContext(request))
   }
 
-  private def fullContext(request: RequestHeader) = {
+  private def fullContext[A](request: OrganizationConfigurationAware#MultitenantRequest[A]) = {
     """|
        |URL: %s
        |METHOD: %s

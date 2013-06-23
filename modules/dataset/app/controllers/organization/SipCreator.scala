@@ -19,14 +19,14 @@ class SipCreator(implicit val bindingModule: BindingModule) extends Organization
   private val format = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz")
 
   def index = OrganizationMember {
-    Action {
+    MultitenantAction {
       implicit request => Ok(Template('orgId -> configuration.orgId))
     }
   }
 
   def jnlp(user: String) = Root {
 
-    Action {
+    MultitenantAction {
       implicit request =>
 
         val host = request.domain + (if (Play.isDev) ":9000" else ":80") // we need the port for the sip-creator

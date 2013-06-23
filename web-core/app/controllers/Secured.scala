@@ -1,7 +1,6 @@
 package controllers
 
 import play.api.mvc._
-import Results._
 import core.Constants.USERNAME
 import play.api.libs.Crypto
 import play.api.i18n.Messages
@@ -9,7 +8,7 @@ import play.api.i18n.Messages
 /**
  * Secured trait, based on the example in ZenTasks
  */
-trait Secured {
+trait Secured extends OrganizationConfigurationAware { this: Controller =>
 
   private def username(request: RequestHeader) = request.session.get(USERNAME)
 
@@ -41,8 +40,8 @@ trait Secured {
       Action(request => f(user)(request.asInstanceOf[Request[A]]))
   }
 
-  def Authenticated[A](action: Action[A]): Action[A] = {
-    Action(action.parser) {
+  def Authenticated[A](action: Action[A]): MultitenantAction[A] = {
+    MultitenantAction(action.parser) {
       implicit request =>
         {
           if (username(request).isEmpty) {

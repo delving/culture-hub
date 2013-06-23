@@ -17,7 +17,7 @@ import com.escalatesoft.subcut.inject.BindingModule
 class FullView(implicit val bindingModule: BindingModule) extends DelvingController {
 
   def render(orgId: String, spec: String, localId: String, format: Option[String]) = Root {
-    Action {
+    MultitenantAction {
       implicit request =>
 
         // sanity check. Since we are the last one in line of the routes due to our esoteric route, we need to make sure
@@ -79,7 +79,7 @@ class FullView(implicit val bindingModule: BindingModule) extends DelvingControl
 
             val snippets: Seq[(String, Unit)] = CultureHubPlugin.getEnabledPlugins.flatMap { plugin =>
               plugin.fullViewSnippet.map { snippet =>
-                (snippet._1 -> snippet._2(RequestContext(request, configuration, renderArgs, getLang), hubId))
+                (snippet._1 -> snippet._2(RequestContext(request, configuration, renderArgs, getLang.language), hubId))
               }
             }
 
@@ -119,7 +119,7 @@ class FullView(implicit val bindingModule: BindingModule) extends DelvingControl
                   schema = r.schemaVersion,
                   viewDefinitionFormatName = r.schemaVersion.getPrefix,
                   viewType = r.viewType,
-                  lang = lang,
+                  lang = getLang,
                   roles = getUserGrantTypes(orgId),
                   parameters = r.parameters
                 )

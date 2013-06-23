@@ -26,29 +26,25 @@ object ImageCache extends Controller with RespondWithDefaultImage with Organizat
   val imageCacheService = new ImageCacheService
 
   def image(id: String, withDefaultFromUrl: Boolean) = OrganizationConfigured {
-    Action {
-      implicit request =>
-        val url = URLDecoder.decode(id, "utf-8")
-        if (url.contains(request.domain)) {
-          Redirect(url)
-        } else {
-          val result = imageCacheService.retrieveImageFromCache(request, url, false)
-          if (withDefaultFromUrl) withDefaultFromRequest(result, false, None) else result
-        }
-    }
+    implicit request =>
+      val url = URLDecoder.decode(id, "utf-8")
+      if (url.contains(request.domain)) {
+        Redirect(url)
+      } else {
+        val result = imageCacheService.retrieveImageFromCache(request, url, false)
+        if (withDefaultFromUrl) withDefaultFromRequest(result, false, None) else result
+      }
   }
 
   def thumbnail(id: String, width: Option[String], withDefaultFromUrl: Boolean) = OrganizationConfigured {
-    Action {
-      implicit request =>
-        val url = URLDecoder.decode(id, "utf-8")
-        if (url.contains(request.domain)) {
-          Redirect(url)
-        } else {
-          val result = imageCacheService.retrieveImageFromCache(request, url, true, width)
-          if (withDefaultFromUrl) withDefaultFromRequest(result, true, width) else result
-        }
-    }
+    implicit request =>
+      val url = URLDecoder.decode(id, "utf-8")
+      if (url.contains(request.domain)) {
+        Redirect(url)
+      } else {
+        val result = imageCacheService.retrieveImageFromCache(request, url, true, width)
+        if (withDefaultFromUrl) withDefaultFromRequest(result, true, width) else result
+      }
   }
 }
 

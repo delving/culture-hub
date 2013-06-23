@@ -204,7 +204,7 @@ class CMSPlugin(app: Application) extends CultureHubPlugin(app) {
     ("/cms/CMS/homePageSnippet.html",
       { context =>
         {
-          val homePageEntries = CMSPage.dao(context.configuration.orgId).list(context.lang, Some(CMSPlugin.HOME_PAGE))
+          val homePageEntries = CMSPage.dao(context.configuration.orgId).list(Lang(context.lang), Some(CMSPlugin.HOME_PAGE))
           homePageEntries.headOption.map { page =>
             context.renderArgs += ("homepageCmsContent" -> page)
           }

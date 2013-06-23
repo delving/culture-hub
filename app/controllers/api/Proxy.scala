@@ -42,28 +42,26 @@ object Proxy extends Controller with OrganizationConfigurationAware with Renderi
   }
 
   def list = OrganizationConfigured {
-    Action {
-      implicit request =>
+    implicit request =>
 
-        if (!request.path.contains("api")) {
-          log.warn("Using deprecated API call " + request.uri)
-        }
+      if (!request.path.contains("api")) {
+        log.warn("Using deprecated API call " + request.uri)
+      }
 
-        val list =
-          <explain>
-            {
-              proxies.map {
-                proxy =>
-                  <item>
-                    <id>{ proxy.key }</id>
-                    <url>{ proxy.searchUrl }</url>
-                  </item>
-              }
+      val list =
+        <explain>
+          {
+            proxies.map {
+              proxy =>
+                <item>
+                  <id>{ proxy.key }</id>
+                  <url>{ proxy.searchUrl }</url>
+                </item>
             }
-          </explain>
+          }
+        </explain>
 
-        DOk(list, List("explain"))
-    }
+      DOk(list, List("explain"))
   }
 
   def query(proxyKey: String) = Action {

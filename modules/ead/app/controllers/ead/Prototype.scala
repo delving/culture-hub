@@ -20,7 +20,7 @@ class Prototype(implicit val bindingModule: BindingModule) extends DelvingContro
 
   val source = "apeEAD_SE_KrA_0058.xml"
 
-  def sampleData = Action {
+  def sampleData = OrganizationConfigured {
     implicit request =>
 
       Play.resourceAsStream(source) map {
@@ -37,7 +37,7 @@ class Prototype(implicit val bindingModule: BindingModule) extends DelvingContro
   }
 
   def sampleView(hubId: Option[String]) = Root {
-    Action {
+    MultitenantAction {
       implicit request => Ok(Template("ead/EAD/view.html", 'id -> hubId))
     }
   }
@@ -68,7 +68,7 @@ class Prototype(implicit val bindingModule: BindingModule) extends DelvingContro
     transformer: (String, JValue, Stack[String], Int, Option[String], ArrayBuffer[JValue], Int) => JValue,
     renderAsArray: Boolean = false,
     skipRoot: Boolean = false) = Root {
-    Action {
+    MultitenantAction {
       implicit request =>
 
         val sourceDocument: Option[Elem] = hubId flatMap { id =>

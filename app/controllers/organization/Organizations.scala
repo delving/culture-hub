@@ -20,7 +20,7 @@ class Organizations(implicit val bindingModule: BindingModule) extends DelvingCo
   val harvestCollectionLookupService = inject[HarvestCollectionLookupService]
 
   def index(language: Option[String]) = OrganizationBrowsing {
-    Action {
+    MultitenantAction {
       implicit request =>
         val members: List[HubUser] = HubUser.dao.listOrganizationMembers(configuration.orgId).flatMap(HubUser.dao.findByUsername(_))
         val collections: Seq[OrganizationCollection] = harvestCollectionLookupService.findAllNonEmpty(configuration.orgId, None)
@@ -37,7 +37,7 @@ class Organizations(implicit val bindingModule: BindingModule) extends DelvingCo
   }
 
   def listAsTokens(q: String) = Root {
-    Action {
+    MultitenantAction {
       implicit request =>
         val tokens = organizationServiceLocator.byDomain.queryByOrgId(q).map { org => Token(org.orgId, org.orgId) }
         Json(tokens)
