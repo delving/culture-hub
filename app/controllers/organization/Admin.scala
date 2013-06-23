@@ -107,22 +107,20 @@ class Admin(implicit val bindingModule: BindingModule) extends OrganizationContr
   }
 
   def metrics = OrganizationAdmin {
-    Action {
-      implicit request =>
+    implicit request =>
 
-        def metricsAsString() = {
-          val baos = new ByteArrayOutputStream()
-          val ps = new PrintStream(baos)
-          new ConsoleReporter(ps).run()
+      def metricsAsString() = {
+        val baos = new ByteArrayOutputStream()
+        val ps = new PrintStream(baos)
+        new ConsoleReporter(ps).run()
 
-          ps.flush()
-          ps.close()
+        ps.flush()
+        ps.close()
 
-          new String(baos.toByteArray)
-        }
+        new String(baos.toByteArray)
+      }
 
-        Ok(metricsAsString())
-    }
+      Ok(metricsAsString())
   }
 
 }
