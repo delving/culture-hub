@@ -15,7 +15,7 @@ import play.api.data.FormError
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
-trait ControllerBase extends Extensions with OrganizationConfigurationAware with Logging { self: Controller =>
+trait ControllerBase extends Extensions with MultitenancySupport with Logging { self: Controller =>
 
   /**
    * Handles the submission of a form for creation or update
@@ -30,7 +30,7 @@ trait ControllerBase extends Extensions with OrganizationConfigurationAware with
   def handleSubmit[ViewModel <: salat.CaseClass, Model <: salat.CaseClass](form: Form[ViewModel],
     findOneById: ObjectId => Option[Model],
     update: (ViewModel, Model) => Either[String, ViewModel],
-    create: ViewModel => Either[String, ViewModel])(implicit request: Request[AnyContent], mf: Manifest[Model]): Result = {
+    create: ViewModel => Either[String, ViewModel])(implicit request: MultitenantRequest[AnyContent], mf: Manifest[Model]): Result = {
 
     log.debug("Invoked submit handler")
 

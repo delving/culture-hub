@@ -13,7 +13,7 @@ import org.apache.commons.httpclient.Header
 import extensions.HTTPClient
 import com.mongodb.casbah.commons.MongoDBObject
 import java.net.URLDecoder
-import controllers.OrganizationConfigurationAware
+import controllers.MultitenancySupport
 import models.OrganizationConfiguration
 
 /**
@@ -21,34 +21,30 @@ import models.OrganizationConfiguration
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-object ImageCache extends Controller with RespondWithDefaultImage with OrganizationConfigurationAware {
+object ImageCache extends Controller with RespondWithDefaultImage with MultitenancySupport {
 
   val imageCacheService = new ImageCacheService
 
-  def image(id: String, withDefaultFromUrl: Boolean) = OrganizationConfigured {
-    Action {
-      implicit request =>
-        val url = URLDecoder.decode(id, "utf-8")
-        if (url.contains(request.domain)) {
-          Redirect(url)
-        } else {
-          val result = imageCacheService.retrieveImageFromCache(request, url, false)
-          if (withDefaultFromUrl) withDefaultFromRequest(result, false, None) else result
-        }
-    }
+  def image(id: String, withDefaultFromUrl: Boolean) = MultitenantAction {
+    implicit request =>
+      val url = URLDecoder.decode(id, "utf-8")
+      if (url.contains(request.domain)) {
+        Redirect(url)
+      } else {
+        val result = imageCacheService.retrieveImageFromCache(request, url, false)
+        if (withDefaultFromUrl) withDefaultFromRequest(result, false, None) else result
+      }
   }
 
-  def thumbnail(id: String, width: Option[String], withDefaultFromUrl: Boolean) = OrganizationConfigured {
-    Action {
-      implicit request =>
-        val url = URLDecoder.decode(id, "utf-8")
-        if (url.contains(request.domain)) {
-          Redirect(url)
-        } else {
-          val result = imageCacheService.retrieveImageFromCache(request, url, true, width)
-          if (withDefaultFromUrl) withDefaultFromRequest(result, true, width) else result
-        }
-    }
+  def thumbnail(id: String, width: Option[String], withDefaultFromUrl: Boolean) = MultitenantAction {
+    implicit request =>
+      val url = URLDecoder.decode(id, "utf-8")
+      if (url.contains(request.domain)) {
+        Redirect(url)
+      } else {
+        val result = imageCacheService.retrieveImageFromCache(request, url, true, width)
+        if (withDefaultFromUrl) withDefaultFromRequest(result, true, width) else result
+      }
   }
 }
 

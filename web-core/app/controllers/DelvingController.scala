@@ -37,62 +37,58 @@ abstract class ApplicationController extends Controller with GroovyTemplates wit
 
   private val LANG_COOKIE = "CH_LANG"
 
-  implicit def getLang(implicit request: RequestHeader) = request.cookies.get(LANG_COOKIE).map(_.value).getOrElse(configuration.ui.defaultLanguage)
-
-  override implicit def lang(implicit request: RequestHeader): Lang = Lang(getLang)
+  implicit def getLang[A](implicit request: MultitenantRequest[A]): Lang = Lang(request.cookies.get(LANG_COOKIE).map(_.value).getOrElse(configuration.ui.defaultLanguage))
 
   def getLanguages = Lang.availables.map(l => (l.language, Messages("lang." + l.language)))
 
-  def ApplicationAction[A](action: Action[A]): Action[A] = {
-    OrganizationConfigured {
-      Action(action.parser) {
-        implicit request: Request[A] =>
-          {
+  def ApplicationAction[A](action: MultitenantAction[A]): MultitenantAction[A] = {
+    MultitenantAction(action.parser) {
+      implicit request =>
+        {
 
-            renderArgs += ("themeInfo" -> new ThemeInfo(configuration))
+          renderArgs += ("themeInfo" -> new ThemeInfo(configuration))
 
-            val langParam = request.queryString.get(LANG)
+          val langParam = request.queryString.get(LANG)
 
-            val requestLanguage = if (langParam.isDefined) {
-              Logger("CultureHub").trace("Setting language from parameter to " + langParam.get(0))
-              langParam.get(0)
-            } else if (request.cookies.get(LANG_COOKIE).isEmpty) {
-              // if there is no language for this cookie / user set, set the default one from the configuration
-              Logger("CultureHub").trace("Setting language from domain configuration to " + configuration.ui.defaultLanguage)
-              configuration.ui.defaultLanguage
-            } else {
-              Logger("CultureHub").trace("Setting language from cookie to " + request.cookies.get(LANG_COOKIE).get.value)
-              request.cookies.get(LANG_COOKIE).get.value
-            }
-
-            val languageChanged = request.cookies.get(LANG_COOKIE).map(_.value) != Some(requestLanguage)
-
-            // just to be clear, this is a feature of the play2 groovy template engine to override the language. due to our
-            // action composition being applied after the template has been rendered, we need to pass it in this way
-            renderArgs += (__LANG -> requestLanguage)
-
-            // main navigation
-            val menu = CultureHubPlugin.getEnabledPlugins.map(
-              plugin => plugin.mainMenuEntries(configuration, getLang).map(_.asJavaMap)
-            ).flatten.asJava
-
-            renderArgs += ("menu" -> menu)
-
-            // ignore AsyncResults for these things for the moment
-            val res = action(request)
-            if (res.isInstanceOf[PlainResult]) {
-              val r = res.asInstanceOf[PlainResult]
-              if (languageChanged) {
-                Logger("CultureHub").trace("Composing session after language change")
-                r.withCookies(Cookie(name = LANG_COOKIE, value = requestLanguage, maxAge = Some(Time.parseDuration("30d"))))
-              } else {
-                r
-              }
-            } else {
-              res
-            }
+          val requestLanguage = if (langParam.isDefined) {
+            Logger("CultureHub").trace("Setting language from parameter to " + langParam.get(0))
+            langParam.get(0)
+          } else if (request.cookies.get(LANG_COOKIE).isEmpty) {
+            // if there is no language for this cookie / user set, set the default one from the configuration
+            Logger("CultureHub").trace("Setting language from domain configuration to " + configuration.ui.defaultLanguage)
+            configuration.ui.defaultLanguage
+          } else {
+            Logger("CultureHub").trace("Setting language from cookie to " + request.cookies.get(LANG_COOKIE).get.value)
+            request.cookies.get(LANG_COOKIE).get.value
           }
-      }
+
+          val languageChanged = request.cookies.get(LANG_COOKIE).map(_.value) != Some(requestLanguage)
+
+          // just to be clear, this is a feature of the play2 groovy template engine to override the language. due to our
+          // action composition being applied after the template has been rendered, we need to pass it in this way
+          renderArgs += (__LANG -> requestLanguage)
+
+          // main navigation
+          val menu = CultureHubPlugin.getEnabledPlugins.map(
+            plugin => plugin.mainMenuEntries(configuration, getLang.language).map(_.asJavaMap)
+          ).flatten.asJava
+
+          renderArgs += ("menu" -> menu)
+
+          // ignore AsyncResults for these things for the moment
+          val res = action(request)
+          if (res.isInstanceOf[PlainResult]) {
+            val r = res.asInstanceOf[PlainResult]
+            if (languageChanged) {
+              Logger("CultureHub").trace("Composing session after language change")
+              r.withCookies(Cookie(name = LANG_COOKIE, value = requestLanguage, maxAge = Some(Time.parseDuration("30d"))))
+            } else {
+              r
+            }
+          } else {
+            res
+          }
+        }
     }
   }
 
@@ -152,17 +148,17 @@ case class RichBody[A <: AnyContent](body: A) {
  */
 abstract class OrganizationController extends DelvingController with Secured {
 
-  def isAdmin(implicit request: RequestHeader, configuration: OrganizationConfiguration): Boolean = organizationServiceLocator.byDomain.isAdmin(configuration.orgId, connectedUser)
+  def isAdmin[A](implicit request: MultitenantRequest[A], configuration: OrganizationConfiguration): Boolean = organizationServiceLocator.byDomain.isAdmin(configuration.orgId, connectedUser)
 
-  def isAdmin(orgId: String)(implicit request: RequestHeader): Boolean = organizationServiceLocator.byDomain.isAdmin(orgId, connectedUser)
+  def isAdmin[A](orgId: String)(implicit request: MultitenantRequest[A]): Boolean = organizationServiceLocator.byDomain.isAdmin(orgId, connectedUser)
 
   def isMember(implicit request: RequestHeader, configuration: OrganizationConfiguration) = {
     HubUser.dao.findByUsername(connectedUser).map(_.organizations.contains(configuration.orgId)).getOrElse(false)
   }
 
-  def OrganizationAdmin[A](action: Action[A]): Action[A] = {
+  def OrganizationAdmin[A](action: MultitenantAction[A]): MultitenantAction[A] = {
     OrganizationMember {
-      Action(action.parser) {
+      MultitenantAction(action.parser) {
         implicit request =>
           {
             if (isAdmin) {
@@ -175,10 +171,22 @@ abstract class OrganizationController extends DelvingController with Secured {
     }
   }
 
-  def OrganizationMember[A](action: Action[A]): Action[A] = {
+  def OrganizationAdmin(block: MultitenantRequest[AnyContent] => Result) = {
+    OrganizationMember {
+      MultitenantAction(BodyParsers.parse.anyContent) { implicit request =>
+        if (isAdmin) {
+          block(request)
+        } else {
+          Forbidden(Messages("hub.YouDoNotHaveAccess"))
+        }
+      }
+    }
+  }
+
+  def OrganizationMember[A](action: MultitenantAction[A]): MultitenantAction[A] = {
     OrganizationBrowsing {
       Authenticated {
-        Action(action.parser) {
+        MultitenantAction(action.parser) {
           implicit request =>
             {
               if (!isMember) {
@@ -202,10 +210,10 @@ abstract class DelvingController extends ApplicationController {
 
   def userName(implicit request: RequestHeader) = request.session.get(Constants.USERNAME).getOrElse(null)
 
-  def Root[A](action: Action[A]): Action[A] = {
+  def Root[A](action: MultitenantAction[A]): MultitenantAction[A] = {
     ApplicationAction {
-      Action(action.parser) {
-        implicit request: Request[A] =>
+      MultitenantAction(action.parser) {
+        implicit request: MultitenantRequest[A] =>
           {
 
             val additionalSessionParams = new scala.collection.mutable.HashMap[String, String]
@@ -273,9 +281,9 @@ abstract class DelvingController extends ApplicationController {
   /**
    * Action in the user space (/bob/object)
    */
-  def UserAction[A](user: String)(action: Action[A]): Action[A] = {
+  def UserAction[A](user: String)(action: MultitenantAction[A]): MultitenantAction[A] = {
     Root {
-      Action(action.parser) {
+      MultitenantAction(action.parser) {
         implicit request =>
           val maybeUser = HubUser.dao.findByUsername(user)
           maybeUser match {
@@ -290,10 +298,10 @@ abstract class DelvingController extends ApplicationController {
     }
   }
 
-  def ConnectedUserAction[A](action: Action[A]): Action[A] = {
+  def ConnectedUserAction[A](action: MultitenantAction[A]): MultitenantAction[A] = {
     Root {
       Authenticated {
-        Action(action.parser) {
+        MultitenantAction(action.parser) {
           implicit request =>
             action(request)
         }
@@ -304,10 +312,10 @@ abstract class DelvingController extends ApplicationController {
   /**
    * Action secured for the connected user
    */
-  def SecuredUserAction[A](user: String)(action: Action[A]): Action[A] = {
+  def SecuredUserAction[A](user: String)(action: MultitenantAction[A]): MultitenantAction[A] = {
     UserAction(user) {
       Authenticated {
-        Action(action.parser) {
+        MultitenantAction(action.parser) {
           implicit request =>
             {
               if (connectedUser != user) {
@@ -321,17 +329,17 @@ abstract class DelvingController extends ApplicationController {
     }
   }
 
-  def OrganizationBrowsing[A](action: Action[A]): Action[A] = {
+  def OrganizationBrowsing[A](action: MultitenantAction[A]): MultitenantAction[A] = {
     Root {
-      Action(action.parser) {
+      MultitenantAction(action.parser) {
         implicit request =>
           renderArgs += ("currentLanguage" -> getLang)
 
-          val roles: Seq[String] = (session.get("userName").map {
+          val roles: Seq[String] = session.get("userName").map {
             u => Group.dao.findDirectMemberships(userName).map(g => g.roleKey).toSeq
           }.getOrElse {
             List.empty
-          }) ++ (if (renderArgs("isAdmin").map(_.asInstanceOf[Boolean]).getOrElse(false)) Seq(Role.OWN.key) else Seq.empty)
+          } ++ (if (renderArgs("isAdmin").map(_.asInstanceOf[Boolean]).getOrElse(false)) Seq(Role.OWN.key) else Seq.empty)
 
           renderArgs += ("roles" -> roles.asJava)
 
@@ -340,7 +348,7 @@ abstract class DelvingController extends ApplicationController {
               plugin.
                 getOrganizationNavigation(
                   orgId = configuration.orgId,
-                  lang = getLang,
+                  lang = getLang.language,
                   roles = roles,
                   isMember = HubUser.dao.findByUsername(connectedUser).map(u => u.organizations.contains(configuration.orgId)).getOrElse(false)
                 ).map(_.asJavaMap)

@@ -34,7 +34,7 @@ class DataSetImport(implicit val bindingModule: BindingModule) extends Organizat
   val FileName = """([^/]*)/([^_]*)__([^._]*)_?([^.]*).(.*)""".r
 
   def importSIP(userName: Option[String]) = Root {
-    Action(parse.temporaryFile) {
+    MultitenantAction(parse.temporaryFile) {
       implicit request =>
 
         userName map { user =>

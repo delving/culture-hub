@@ -22,42 +22,40 @@ class Search(implicit val bindingModule: BindingModule) extends DelvingControlle
 
   val organizationCollectionLookupService = inject[OrganizationCollectionLookupService]
 
-  def searchApi(provider: Option[String], dataProvider: Option[String], collection: Option[String]) = OrganizationConfigured {
-    Action {
-      implicit request =>
-        Async {
-          Promise.pure {
+  def searchApi(provider: Option[String], dataProvider: Option[String], collection: Option[String]) = MultitenantAction {
+    implicit request =>
+      Async {
+        Promise.pure {
 
-            if (!request.path.contains("api")) {
-              Logger("CultureHub").warn("Using deprecated API call " + request.uri)
-            }
-
-            val itemTypes = Cache.getOrElse("itemTypes", 300) {
-              organizationCollectionLookupService.findAll.map(_.itemType).distinct
-            }
-
-            val orgIdFilter = "%s:%s".format(ORG_ID.key, configuration.orgId)
-
-            val itemTypesFilter = "(%s)".format(
-              itemTypes.map(t => "%s:%s".format(RECORD_TYPE.key, t.itemType)).mkString(" OR ")
-            )
-
-            val hiddenQueryFilters = if (itemTypes.isEmpty) List(orgIdFilter) else List(itemTypesFilter, orgIdFilter)
-
-            searchServiceLocator.byDomain.getApiResult(request.queryString, request.host, hiddenQueryFilters)
-
-          } map {
-            // CORS - see http://www.w3.org/TR/cors/
-            result =>
-              result.withHeaders(
-                "Access-Control-Allow-Origin" -> "*",
-                "Access-Control-Allow-Methods" -> "GET, POST, OPTIONS",
-                "Access-Control-Allow-Headers" -> "X-Requested-With",
-                "Access-Control-Max-Age" -> "86400"
-              )
+          if (!request.path.contains("api")) {
+            Logger("CultureHub").warn("Using deprecated API call " + request.uri)
           }
+
+          val itemTypes = Cache.getOrElse("itemTypes", 300) {
+            organizationCollectionLookupService.findAll.map(_.itemType).distinct
+          }
+
+          val orgIdFilter = "%s:%s".format(ORG_ID.key, configuration.orgId)
+
+          val itemTypesFilter = "(%s)".format(
+            itemTypes.map(t => "%s:%s".format(RECORD_TYPE.key, t.itemType)).mkString(" OR ")
+          )
+
+          val hiddenQueryFilters = if (itemTypes.isEmpty) List(orgIdFilter) else List(itemTypesFilter, orgIdFilter)
+
+          searchServiceLocator.byDomain.getApiResult(request.queryString, request.host, hiddenQueryFilters)
+
+        } map {
+          // CORS - see http://www.w3.org/TR/cors/
+          result =>
+            result.withHeaders(
+              "Access-Control-Allow-Origin" -> "*",
+              "Access-Control-Allow-Methods" -> "GET, POST, OPTIONS",
+              "Access-Control-Allow-Headers" -> "X-Requested-With",
+              "Access-Control-Max-Age" -> "86400"
+            )
         }
-    }
+      }
   }
 
 }

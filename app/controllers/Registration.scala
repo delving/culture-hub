@@ -104,14 +104,14 @@ class Registration(implicit val bindingModule: BindingModule) extends Applicatio
   )
 
   def index() = ApplicationAction {
-    Action {
+    MultitenantAction {
       implicit request =>
         Ok(Template('randomId -> MissingLibs.UUID, 'registrationForm -> registrationForm))
     }
   }
 
   def register() = ApplicationAction {
-    Action(parse.urlFormEncoded) {
+    MultitenantAction(parse.urlFormEncoded) {
       implicit request =>
         registrationForm.bindFromRequest.fold(
           formWithErrors => {
@@ -177,7 +177,7 @@ class Registration(implicit val bindingModule: BindingModule) extends Applicatio
   }
 
   def activate(activationToken: String) = ApplicationAction {
-    Action {
+    MultitenantAction {
       implicit request =>
         val indexAction = Redirect(controllers.routes.Application.index())
         if (Option(activationToken).isEmpty) {
@@ -233,7 +233,7 @@ class Registration(implicit val bindingModule: BindingModule) extends Applicatio
   }
 
   def lostPassword = ApplicationAction {
-    Action {
+    MultitenantAction {
       implicit request => Ok(Template('resetPasswordForm -> resetPasswordForm))
     }
   }
@@ -259,7 +259,7 @@ class Registration(implicit val bindingModule: BindingModule) extends Applicatio
   )
 
   def resetPasswordEmail = ApplicationAction {
-    Action {
+    MultitenantAction {
       implicit request =>
         resetPasswordForm.bindFromRequest().fold(
           formWithErrors => BadRequest(Template("Registration/lostPassword.html", 'resetPasswordForm -> formWithErrors)),
@@ -282,17 +282,15 @@ class Registration(implicit val bindingModule: BindingModule) extends Applicatio
     }
   }
 
-  def resetPassword(resetPasswordToken: String) = OrganizationConfigured {
-    Action {
-      implicit request =>
-        renderArgs += ("themeInfo" -> new ThemeInfo(configuration))
-        val indexAction = Redirect(controllers.routes.Application.index())
-        if (Option(resetPasswordToken).isEmpty) {
-          indexAction.flashing(("resetPasswordError", Messages("hub.ResetPasswordTokenNotFound")))
-        } else {
-          Ok(Template('resetPasswordToken -> resetPasswordToken, 'newPasswordForm -> newPasswordForm))
-        }
-    }
+  def resetPassword(resetPasswordToken: String) = MultitenantAction {
+    implicit request =>
+      renderArgs += ("themeInfo" -> new ThemeInfo(configuration))
+      val indexAction = Redirect(controllers.routes.Application.index())
+      if (Option(resetPasswordToken).isEmpty) {
+        indexAction.flashing(("resetPasswordError", Messages("hub.ResetPasswordTokenNotFound")))
+      } else {
+        Ok(Template('resetPasswordToken -> resetPasswordToken, 'newPasswordForm -> newPasswordForm))
+      }
   }
 
   val sameNewPassword = Constraint[NewPassword]("hub.PasswordsAreNotTheSame") {
@@ -309,35 +307,33 @@ class Registration(implicit val bindingModule: BindingModule) extends Applicatio
     )(NewPassword.apply)(NewPassword.unapply) verifying sameNewPassword
   )
 
-  def newPassword(resetPasswordToken: String) = OrganizationConfigured {
-    Action {
-      implicit request =>
-        renderArgs += ("themeInfo" -> new ThemeInfo(configuration))
-        if (Option(resetPasswordToken).isEmpty) {
-          Redirect(controllers.routes.Application.index()).flashing(
-            ("resetPasswordError", Messages("hub.ResetPasswordTokenNotFound"))
-          )
-        } else {
-          newPasswordForm.bindFromRequest().fold(
-            formWithErrors => BadRequest(Template("Registration/resetPassword.html", 'newPasswordForm -> formWithErrors)),
-            newPassword => {
-              val passwordChanged = registrationServiceLocator.byDomain.resetPassword(
-                resetPasswordToken,
-                newPassword.password1
+  def newPassword(resetPasswordToken: String) = MultitenantAction {
+    implicit request =>
+      renderArgs += ("themeInfo" -> new ThemeInfo(configuration))
+      if (Option(resetPasswordToken).isEmpty) {
+        Redirect(controllers.routes.Application.index()).flashing(
+          ("resetPasswordError", Messages("hub.ResetPasswordTokenNotFound"))
+        )
+      } else {
+        newPasswordForm.bindFromRequest().fold(
+          formWithErrors => BadRequest(Template("Registration/resetPassword.html", 'newPasswordForm -> formWithErrors)),
+          newPassword => {
+            val passwordChanged = registrationServiceLocator.byDomain.resetPassword(
+              resetPasswordToken,
+              newPassword.password1
+            )
+            if (passwordChanged) {
+              Redirect(controllers.routes.Application.index()).flashing(
+                ("resetPasswordSuccess", "true")
               )
-              if (passwordChanged) {
-                Redirect(controllers.routes.Application.index()).flashing(
-                  ("resetPasswordSuccess", "true")
-                )
-              } else {
-                Redirect(controllers.routes.Application.index()).flashing(
-                  ("resetPasswordError", Messages("hub.ErrorResettingYourPassword"))
-                )
-              }
+            } else {
+              Redirect(controllers.routes.Application.index()).flashing(
+                ("resetPasswordError", Messages("hub.ErrorResettingYourPassword"))
+              )
             }
-          )
-        }
-    }
+          }
+        )
+      }
   }
 
 }

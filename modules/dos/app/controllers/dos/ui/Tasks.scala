@@ -25,83 +25,73 @@ import play.api.Play
 import play.api.Logger
 import play.api.Play.current
 import eu.delving.templates.scala.GroovyTemplates
-import controllers.OrganizationConfigurationAware
+import controllers.MultitenancySupport
 
 /**
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-object Tasks extends Controller with Extensions with OrganizationConfigurationAware with GroovyTemplates {
+object Tasks extends Controller with Extensions with MultitenancySupport with GroovyTemplates {
 
-  def add(path: String, taskType: String) = OrganizationConfigured {
-    Action(parse.tolerantFormUrlEncoded) {
-      implicit request =>
+  def add(path: String, taskType: String) = MultitenantAction(parse.tolerantFormUrlEncoded) {
+    implicit request =>
 
-        val tt = TaskType.valueOf(taskType)
-        if (tt.isEmpty) {
-          val msg = "Invalid task type " + taskType
-          Logger("DoS").error(msg)
-          InternalServerError(msg)
-        } else {
-          val taskParams: Map[String, Seq[String]] = request.body
-          val task = Task(orgId = configuration.orgId, node = getNode, path = path, taskType = tt.get, params = taskParams.map(e => (e._1, e._2.head)).toMap)
-          Logger("DOS").info("Adding new task to queue: " + task.toString)
-          Task.dao.insert(task) match {
-            case None => InternalServerError("Could not create da task")
-            case Some(taskId) => Json(task.copy(_id = taskId))
-          }
+      val tt = TaskType.valueOf(taskType)
+      if (tt.isEmpty) {
+        val msg = "Invalid task type " + taskType
+        Logger("DoS").error(msg)
+        InternalServerError(msg)
+      } else {
+        val taskParams: Map[String, Seq[String]] = request.body
+        val task = Task(orgId = configuration.orgId, node = getNode, path = path, taskType = tt.get, params = taskParams.map(e => (e._1, e._2.head)).toMap)
+        Logger("DOS").info("Adding new task to queue: " + task.toString)
+        Task.dao.insert(task) match {
+          case None => InternalServerError("Could not create da task")
+          case Some(taskId) => Json(task.copy(_id = taskId))
         }
-    }
+      }
   }
 
-  def cancel(id: ObjectId) = OrganizationConfigured {
-    Action {
-      implicit request =>
-        val task = Task.dao.findOneById(id)
-        if (task.isEmpty)
-          NotFound("Could not find task with id " + id)
-        else {
-          Task.dao.cancel(task.get)
-          Ok
-        }
-    }
+  def cancel(id: ObjectId) = MultitenantAction {
+    implicit request =>
+      val task = Task.dao.findOneById(id)
+      if (task.isEmpty)
+        NotFound("Could not find task with id " + id)
+      else {
+        Task.dao.cancel(task.get)
+        Ok
+      }
   }
 
-  def list(what: String) = OrganizationConfigured {
-    Action {
-      implicit request =>
-        val tasks = TaskState.valueOf(what) match {
-          case Some(state) if (state == QUEUED || state == RUNNING || state == FINISHED || state == CANCELLED) => Some(Task.dao.list(state))
-          case None => None
-        }
-        if (tasks == None)
-          InternalServerError("Invalid task state " + what)
-        else
-          Json(Map("tasks" -> tasks.get))
-    }
+  def list(what: String) = MultitenantAction {
+    implicit request =>
+      val tasks = TaskState.valueOf(what) match {
+        case Some(state) if (state == QUEUED || state == RUNNING || state == FINISHED || state == CANCELLED) => Some(Task.dao.list(state))
+        case None => None
+      }
+      if (tasks == None)
+        InternalServerError("Invalid task state " + what)
+      else
+        Json(Map("tasks" -> tasks.get))
   }
 
-  def listAll() = OrganizationConfigured {
-    Action {
-      implicit request =>
-        Json(Map("running" -> Task.dao.list(RUNNING), "queued" -> Task.dao.list(QUEUED), "finished" -> Task.dao.list(FINISHED)))
-    }
+  def listAll() = MultitenantAction {
+    implicit request =>
+      Json(Map("running" -> Task.dao.list(RUNNING), "queued" -> Task.dao.list(QUEUED), "finished" -> Task.dao.list(FINISHED)))
   }
 
-  def status(id: ObjectId) = OrganizationConfigured {
-    Action {
-      implicit request =>
-        val task = Task.dao.findOneById(id)
-        if (task.isEmpty) NotFound("Could not find task with id " + id)
-        else
-          Json(
-            Map(
-              "totalItems" -> task.get.totalItems,
-              "processedItems" -> task.get.processedItems,
-              "percentage" -> ((task.get.processedItems.toDouble / task.get.totalItems) * 100).round
-            ))
-    }
+  def status(id: ObjectId) = MultitenantAction {
+    implicit request =>
+      val task = Task.dao.findOneById(id)
+      if (task.isEmpty) NotFound("Could not find task with id " + id)
+      else
+        Json(
+          Map(
+            "totalItems" -> task.get.totalItems,
+            "processedItems" -> task.get.processedItems,
+            "percentage" -> ((task.get.processedItems.toDouble / task.get.totalItems) * 100).round
+          ))
   }
 
   private def getNode = Play.configuration.getString("cultureHub.nodeName").getOrElse("defaultDosNode")

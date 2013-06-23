@@ -29,7 +29,7 @@ class SimpleDocumentUpload(implicit val bindingModule: BindingModule) extends Or
   val schemaService = inject[SchemaService]
 
   def list = OrganizationMember {
-    Action {
+    MultitenantAction {
       implicit request =>
         withAccess {
 
@@ -49,7 +49,7 @@ class SimpleDocumentUpload(implicit val bindingModule: BindingModule) extends Or
   }
 
   def add = OrganizationMember {
-    Action {
+    MultitenantAction {
       implicit request =>
         withAccess {
           val config = SimpleDocumentUploadPlugin.pluginConfiguration
@@ -71,7 +71,7 @@ class SimpleDocumentUpload(implicit val bindingModule: BindingModule) extends Or
   }
 
   def update(itemId: String) = OrganizationMember {
-    Action {
+    MultitenantAction {
       implicit request =>
         withAccess {
 
@@ -125,7 +125,7 @@ class SimpleDocumentUpload(implicit val bindingModule: BindingModule) extends Or
   }
 
   def submit = OrganizationMember {
-    Action {
+    MultitenantAction {
       implicit request =>
         withAccess {
 
@@ -240,7 +240,7 @@ class SimpleDocumentUpload(implicit val bindingModule: BindingModule) extends Or
   }
 
   def delete(id: String) = OrganizationMember {
-    Action {
+    MultitenantAction {
       implicit request =>
         withAccess {
           cache.remove(id)
@@ -252,7 +252,7 @@ class SimpleDocumentUpload(implicit val bindingModule: BindingModule) extends Or
   }
 
   def upload(uid: String, id: String) = OrganizationMember {
-    Action {
+    MultitenantAction {
       implicit request =>
         withAccess {
           FileUpload.markFilesAttached(uid, id)

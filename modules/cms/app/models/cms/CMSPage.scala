@@ -23,6 +23,7 @@ import com.novus.salat.dao.SalatDAO
 import models.HubMongoContext._
 import com.mongodb.casbah.commons.MongoDBObject
 import models.{ OrganizationConfiguration, MultiModel }
+import play.api.i18n.Lang
 
 /**
  *
@@ -70,14 +71,14 @@ object CMSPage extends MultiModel[CMSPage, CMSPageDAO] {
 
 class CMSPageDAO(collection: MongoCollection)(implicit configuration: OrganizationConfiguration) extends SalatDAO[CMSPage, ObjectId](collection) {
 
-  def list(lang: String, menuKey: Option[String]): List[CMSPage] = {
+  def list(lang: Lang, menuKey: Option[String]): List[CMSPage] = {
     val list = if (menuKey == None) {
-      find(MongoDBObject("lang" -> lang))
+      find(MongoDBObject("lang" -> lang.language))
     } else {
       val filterKeys = MenuEntry.dao.findEntries(menuKey.get).toList.
         filterNot(_.targetPageKey == None).
         map(_.targetPageKey)
-      find(MongoDBObject("lang" -> lang) ++ ("key" $in filterKeys))
+      find(MongoDBObject("lang" -> lang.language) ++ ("key" $in filterKeys))
     }
     list.toList.groupBy(_.key).map(m => m._2.sortBy(_._id).reverse.head).toList
   }

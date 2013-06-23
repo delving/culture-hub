@@ -27,7 +27,7 @@ class CMS(implicit val bindingModule: BindingModule) extends OrganizationControl
 
   def CMSAction[A](action: Action[A]): Action[A] = {
     OrganizationMember {
-      Action(action.parser) {
+      MultitenantAction(action.parser) {
         implicit request =>
           {
             if (organizationServiceLocator.byDomain.isAdmin(configuration.orgId, connectedUser) || Group.dao.count(MongoDBObject("users" -> connectedUser, "grantType" -> CMSPlugin.ROLE_CMS_ADMIN.key)) > 0) {
@@ -41,16 +41,16 @@ class CMS(implicit val bindingModule: BindingModule) extends OrganizationControl
   }
 
   def list(language: Option[String], menu: Option[String]) = CMSAction {
-    Action {
+    MultitenantAction {
       implicit request =>
         val lang = language.getOrElse(getLang)
-        val pages = CMSPage.dao.list(lang, menu)
+        val pages = CMSPage.dao.list(getLang, menu)
         Ok(Template('data -> JJson.generate(Map("pages" -> pages)), 'languages -> getLanguages, 'currentLanguage -> lang, 'menuKey -> menu.getOrElse("")))
     }
   }
 
   def upload = CMSAction {
-    Action {
+    MultitenantAction {
       implicit request =>
         val files = FileStorage.listFiles(configuration.orgId).map(f => FileUploadResponse(f))
         Ok(Template('uid -> MissingLibs.UUID, 'files -> JJson.generate(files)))
@@ -58,7 +58,7 @@ class CMS(implicit val bindingModule: BindingModule) extends OrganizationControl
   }
 
   def uploadSubmit(uid: String) = CMSAction {
-    Action {
+    MultitenantAction {
       implicit request =>
         FileUpload.markFilesAttached(uid, configuration.orgId)
         Redirect(routes.CMS.upload())
@@ -66,7 +66,7 @@ class CMS(implicit val bindingModule: BindingModule) extends OrganizationControl
   }
 
   def listImages = CMSAction {
-    Action {
+    MultitenantAction {
       implicit request =>
         val images = FileStorage.listFiles(configuration.orgId).filter(_.contentType.contains("image"))
 
@@ -77,7 +77,7 @@ class CMS(implicit val bindingModule: BindingModule) extends OrganizationControl
   }
 
   def page(language: String, page: Option[String], menu: String): Action[AnyContent] = CMSAction {
-    Action {
+    MultitenantAction {
       implicit request =>
         def menuEntries = MenuEntry.dao.findEntries(menu)
 
@@ -97,7 +97,7 @@ class CMS(implicit val bindingModule: BindingModule) extends OrganizationControl
           config.menuDefinitions.map { definition =>
             Map(
               "key" -> definition.key,
-              "value" -> definition.title.get(getLang).getOrElse(definition.key)
+              "value" -> definition.title.get(getLang.language).getOrElse(definition.key)
             ).asJava
           }
         }.getOrElse {
@@ -129,7 +129,7 @@ class CMS(implicit val bindingModule: BindingModule) extends OrganizationControl
   }
 
   def pageSubmit = CMSAction {
-    Action {
+    MultitenantAction {
       implicit request =>
         CMSPageViewModel.pageForm.bind(request.body.asJson.get).fold(
           formWithErrors => handleValidationError(formWithErrors),
@@ -145,7 +145,7 @@ class CMS(implicit val bindingModule: BindingModule) extends OrganizationControl
   }
 
   def pageDelete(key: String, language: String) = CMSAction {
-    Action {
+    MultitenantAction {
       implicit request =>
         CMSPage.dao.delete(key, language)
 
@@ -158,7 +158,7 @@ class CMS(implicit val bindingModule: BindingModule) extends OrganizationControl
   }
 
   def pagePreview(key: String, language: String) = CMSAction {
-    Action {
+    MultitenantAction {
       implicit request =>
         CMSPage.dao.find(MongoDBObject("key" -> key, "lang" -> getLang)).$orderby(MongoDBObject("_id" -> -1)).limit(1).toList.headOption match {
           case None => NotFound(key)

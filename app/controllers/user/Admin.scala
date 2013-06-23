@@ -22,7 +22,7 @@ class Admin(implicit val bindingModule: BindingModule) extends DelvingController
   val userProfileServiceLocator = inject[DomainServiceLocator[UserProfileService]]
 
   def profile(user: String) = SecuredUserAction(user) {
-    Action {
+    MultitenantAction {
       implicit request =>
         val u = HubUser.dao.findByUsername(connectedUser).get
         val p = u.userProfile
@@ -43,7 +43,7 @@ class Admin(implicit val bindingModule: BindingModule) extends DelvingController
   }
 
   def profileSubmit(user: String) = SecuredUserAction(user) {
-    Action {
+    MultitenantAction {
       implicit request =>
         ProfileViewModel.profileForm.bind(request.body.asJson.get).fold(
           formWithErrors => handleValidationError(formWithErrors),

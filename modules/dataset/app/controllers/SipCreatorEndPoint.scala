@@ -55,27 +55,25 @@ class SipCreatorEndPoint(implicit val bindingModule: BindingModule) extends Appl
 
   private var connectedUserObject: Option[HubUser] = None
 
-  def AuthenticatedAction[A](accessToken: Option[String])(action: Action[A]): Action[A] = OrganizationConfigured {
-    Action(action.parser) {
-      implicit request =>
-        {
-          if (accessToken.isEmpty && Play.isDev) {
-            connectedUserObject = HubUser.dao.findByUsername(request.queryString.get("userName").get.head)
-            action(request)
-          } else if (accessToken.isEmpty) {
-            Unauthorized("No access token provided")
-          } else if (!HubUser.isValidToken(accessToken.get)) {
-            Unauthorized("Access Key %s not accepted".format(accessToken.get))
-          } else {
-            connectedUserObject = HubUser.getUserByToken(accessToken.get)
-            action(request)
-          }
+  def AuthenticatedAction[A](accessToken: Option[String])(action: Action[A]): Action[A] = MultitenantAction(action.parser) {
+    implicit request =>
+      {
+        if (accessToken.isEmpty && Play.isDev) {
+          connectedUserObject = HubUser.dao.findByUsername(request.queryString.get("userName").get.head)
+          action(request)
+        } else if (accessToken.isEmpty) {
+          Unauthorized("No access token provided")
+        } else if (!HubUser.isValidToken(accessToken.get)) {
+          Unauthorized("Access Key %s not accepted".format(accessToken.get))
+        } else {
+          connectedUserObject = HubUser.getUserByToken(accessToken.get)
+          action(request)
         }
-    }
+      }
   }
 
   def OrganizationAction[A](orgId: String, accessToken: Option[String])(action: Action[A]): Action[A] = AuthenticatedAction(accessToken) {
-    Action(action.parser) {
+    MultitenantAction(action.parser) {
       implicit request =>
         if (orgId == null || orgId.isEmpty) {
           BadRequest("No orgId provided")
@@ -97,7 +95,7 @@ class SipCreatorEndPoint(implicit val bindingModule: BindingModule) extends Appl
   def connectedUser = getConnectedUser.userName
 
   def listAll(accessToken: Option[String]) = AuthenticatedAction(accessToken) {
-    Action {
+    MultitenantAction {
       implicit request =>
         val dataSets = DataSet.dao.findAllForUser(
           connectedUserObject.get.userName,
@@ -156,7 +154,7 @@ class SipCreatorEndPoint(implicit val bindingModule: BindingModule) extends Appl
 
   def unlock(orgId: String, spec: String, accessToken: Option[String]): Action[AnyContent] =
     OrganizationAction(orgId, accessToken) {
-      Action {
+      MultitenantAction {
         implicit request =>
           val dataSet = DataSet.dao.findBySpecAndOrgId(spec, orgId)
           if (dataSet.isEmpty) {
@@ -186,7 +184,7 @@ class SipCreatorEndPoint(implicit val bindingModule: BindingModule) extends Appl
    */
   def acceptFileList(orgId: String, spec: String, accessToken: Option[String]): Action[AnyContent] =
     OrganizationAction(orgId, accessToken) {
-      Action {
+      MultitenantAction {
         implicit request =>
 
           val dataSet = DataSet.dao.findBySpecAndOrgId(spec, orgId)
@@ -217,7 +215,7 @@ class SipCreatorEndPoint(implicit val bindingModule: BindingModule) extends Appl
 
   def acceptFile(orgId: String, spec: String, fileName: String, accessToken: Option[String]) =
     OrganizationAction(orgId, accessToken) {
-      Action(parse.temporaryFile) {
+      MultitenantAction(parse.temporaryFile) {
         implicit request =>
           val dataSet = DataSet.dao.findBySpecAndOrgId(spec, orgId)
           if (dataSet.isEmpty) {
@@ -440,7 +438,7 @@ class SipCreatorEndPoint(implicit val bindingModule: BindingModule) extends Appl
   }
 
   def fetchSIP(orgId: String, spec: String, accessToken: Option[String]) = OrganizationAction(orgId, accessToken) {
-    Action {
+    MultitenantAction {
       implicit request =>
         Async {
           Promise.pure {
