@@ -15,7 +15,7 @@ import com.escalatesoft.subcut.inject.BindingModule
 class Places(implicit val bindingModule: BindingModule) extends DelvingController with Secured {
 
   def listAsTokens(q: String, countryCode: Option[String]) = Root {
-    Action {
+    MultitenantAction {
       implicit request =>
         val places = query(q, countryCode)
         val asTokens = places.map(p => Token(p.get("name").toString, p.get("name").toString))

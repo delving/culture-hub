@@ -26,45 +26,41 @@ import com.mongodb.casbah.gridfs.GridFS
 import java.util.Date
 import play.api.libs.iteratee.Enumerator
 import extensions.MissingLibs
-import controllers.OrganizationConfigurationAware
+import controllers.MultitenancySupport
 
 /**
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-object ImageDisplay extends Controller with RespondWithDefaultImage with OrganizationConfigurationAware {
+object ImageDisplay extends Controller with RespondWithDefaultImage with MultitenancySupport {
 
   // ~~ public HTTP API
 
   /**
    * Display a thumbnail given an ID and a width
    */
-  def displayThumbnail(id: String, orgId: String, collectionId: String, width: Option[String], browse: Boolean = false, fileId: Boolean = false, headOnly: Boolean = false) = OrganizationConfigured {
-    Action {
-      implicit request =>
-        renderImage(
-          id = id,
-          store = fileStore(configuration),
-          thumbnail = true,
-          orgId = orgId,
-          collectionId = collectionId,
-          thumbnailWidth = thumbnailWidth(width),
-          browse = browse,
-          isFileId = fileId,
-          headOnly = headOnly
-        )
-    }
+  def displayThumbnail(id: String, orgId: String, collectionId: String, width: Option[String], browse: Boolean = false, fileId: Boolean = false, headOnly: Boolean = false) = MultitenantAction {
+    implicit request =>
+      renderImage(
+        id = id,
+        store = fileStore(configuration),
+        thumbnail = true,
+        orgId = orgId,
+        collectionId = collectionId,
+        thumbnailWidth = thumbnailWidth(width),
+        browse = browse,
+        isFileId = fileId,
+        headOnly = headOnly
+      )
   }
 
   /**
    * Display an image given an ID
    */
-  def displayImage(id: String, fileId: Boolean) = OrganizationConfigured {
-    Action {
-      implicit request =>
-        renderImage(id = id, thumbnail = false, isFileId = fileId, store = fileStore(configuration))
-    }
+  def displayImage(id: String, fileId: Boolean) = MultitenantAction {
+    implicit request =>
+      renderImage(id = id, thumbnail = false, isFileId = fileId, store = fileStore(configuration))
   }
 
   // ~~ PRIVATE

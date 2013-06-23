@@ -132,10 +132,14 @@ object OrganizationConfigurationHandler {
   }
 
   def hasConfiguration(domain: String) = {
-    byDomain(domain) != None
+    val maybeConfiguration = byDomain(domain)
+    maybeConfiguration.isRight && maybeConfiguration.right.get.isDefined
   }
 
-  def getByDomain(domain: String): Option[OrganizationConfiguration] = byDomain(domain)
+  def getByDomain(domain: String): Option[OrganizationConfiguration] = {
+    val maybeConfiguration = byDomain(domain)
+    maybeConfiguration.right.toOption.flatten
+  }
 
   /**
    * Retrieves all currently available configurations.
@@ -156,17 +160,16 @@ object OrganizationConfigurationHandler {
     }
   }
 
-  private def byDomain(domain: String) = {
+  def byDomain(domain: String): Either[Throwable, Option[OrganizationConfiguration]] = {
     val future = handler ? GetByDomain(domain)
     try {
       Await.result(future, timeout.duration) match {
-        case ConfigurationLookupResponse(maybeConfiguration) =>
-          maybeConfiguration
+        case ConfigurationLookupResponse(maybeConfiguration) => Right(maybeConfiguration)
       }
     } catch {
       case t: Throwable =>
         log.error("OrganizationConfigurationHandler: Timeout occurred while retrieving configuration", t)
-        None
+        Left(t)
     }
   }
 

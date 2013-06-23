@@ -31,11 +31,6 @@ GET        /demo/yumaMap                                                        
 GET        /fcgi-bin/iipsrv.fcgi                                                    @controllers.Demo.iipsrv
 
 
-# Image Upload - with authentication
-POST       /file/upload/:uid                                                        @controllers.user.FileUpload.uploadFile(uid)
-DELETE     /file/:id                                                                @controllers.user.FileUpload.deleteFile(id)
-
-
 ##################################
 ### Delving object Server module #
 ##################################

@@ -16,7 +16,6 @@ import com.novus.salat.StringTypeHintStrategy
 import extensions.MissingLibs
 import play.api.i18n.Messages
 import org.json4s._
-import org.json4s.native.JsonMethods._
 import org.json4s.native.{ JsonMethods, Printer }
 
 /**
@@ -53,7 +52,7 @@ trait CRUDController[Model <: CaseClass { def id: ObjectId }, D <: SalatDAO[Mode
   /**
    * Returns an empty model class, for entity creation
    */
-  def emptyModel(implicit request: RequestHeader, configuration: OrganizationConfiguration): Model
+  def emptyModel[A](implicit request: MultitenantRequest[A], configuration: OrganizationConfiguration): Model
 
   /**
    * The DAO used to persist the domain model
@@ -64,7 +63,7 @@ trait CRUDController[Model <: CaseClass { def id: ObjectId }, D <: SalatDAO[Mode
 
   def fileUploadEnabled = false
 
-  def updateHandler(onUpdate: Option[(Model, Model) => Model])(submitted: Model, persisted: Model)(implicit request: Request[AnyContent], configuration: OrganizationConfiguration,
+  def updateHandler(onUpdate: Option[(Model, Model) => Model])(submitted: Model, persisted: Model)(implicit request: MultitenantRequest[AnyContent], configuration: OrganizationConfiguration,
     mom: Manifest[Model], mod: Manifest[D]) = {
 
     log.debug("Update handler invoked")
@@ -81,7 +80,7 @@ trait CRUDController[Model <: CaseClass { def id: ObjectId }, D <: SalatDAO[Mode
     Right(submitted)
   }
 
-  def creationHandler(onCreate: Option[Model => Model])(model: Model)(implicit request: Request[AnyContent], configuration: OrganizationConfiguration,
+  def creationHandler(onCreate: Option[Model => Model])(model: Model)(implicit request: MultitenantRequest[AnyContent], configuration: OrganizationConfiguration,
     mom: Manifest[Model], mod: Manifest[D]) = {
     onCreate.map { c =>
       val contextualized = c(model)
@@ -102,65 +101,48 @@ trait CRUDController[Model <: CaseClass { def id: ObjectId }, D <: SalatDAO[Mode
   def view(id: ObjectId,
     titleKey: String = "",
     viewTemplate: String = "organization/crudView.html",
-    fields: Seq[(String, String)] = Seq(("hubb.Name" -> "name")))(implicit mom: Manifest[Model], mod: Manifest[D]) = OrganizationAdmin {
-    Action {
-
-      implicit request =>
-        crudView(id, titleKey, viewTemplate, fields)
-
-    }
+    fields: Seq[(String, String)] = Seq("hubb.Name" -> "name"))(implicit mom: Manifest[Model], mod: Manifest[D]) = OrganizationAdmin {
+    implicit request =>
+      crudView(id, titleKey, viewTemplate, fields)
   }
 
   def list(titleKey: String = "",
     listTemplate: String = "organization/crudList.html",
-    fields: Seq[(String, String)] = Seq(("hubb.Name" -> "name")),
+    fields: Seq[(String, String)] = Seq("hubb.Name" -> "name"),
     additionalActions: Seq[ListAction] = Seq.empty,
     isAdmin: RequestHeader => Boolean = { Unit => true },
     filter: Seq[(String, Any)] = Seq.empty)(implicit mom: Manifest[Model], mod: Manifest[D]) = OrganizationAdmin {
-    Action {
-      implicit request =>
-        crudList(titleKey, listTemplate, fields, true, true, true, Seq.empty, additionalActions, isAdmin(request), filter)
+    implicit request =>
+      crudList(titleKey, listTemplate, fields, true, true, true, Seq.empty, additionalActions, isAdmin(request), filter)
 
-    }
   }
 
   def update(id: Option[ObjectId],
     templateName: Option[String] = None,
     additionalTemplateData: Option[(Option[Model] => Seq[(Symbol, AnyRef)])] = None)(implicit mom: Manifest[Model], mod: Manifest[D]) = OrganizationAdmin {
-    Action {
-      implicit request =>
-        crudUpdate(id, templateName, additionalTemplateData)
-    }
+    implicit request =>
+      crudUpdate(id, templateName, additionalTemplateData)
+
   }
 
   def submit(implicit mom: Manifest[Model], mod: Manifest[D]) = OrganizationAdmin {
-    Action {
-      implicit request =>
-        crudSubmit()
-    }
+    implicit request =>
+      crudSubmit()
   }
 
   def delete(id: ObjectId)(implicit mom: Manifest[Model], mod: Manifest[D]) = OrganizationAdmin {
-    Action {
-      implicit request =>
-        crudDelete(id)
-    }
+    implicit request =>
+      crudDelete(id)
   }
 
   def upload(id: String, uid: String) = OrganizationAdmin {
-    Action {
-      implicit request =>
-        crudUpload(id, uid)
-    }
+    implicit request =>
+      crudUpload(id, uid)
   }
 
   // ~~~ CRUD handler methods
 
-  def crudView(id: ObjectId,
-    titleKey: String = "",
-    viewTemplate: String = "organization/crudView.html",
-    fields: Seq[(String, String)] = Seq(("hubb.Name" -> "name")))(implicit request: RequestHeader, configuration: OrganizationConfiguration,
-      mom: Manifest[Model], mod: Manifest[D]): Result = {
+  def crudView[A](id: ObjectId, titleKey: String = "", viewTemplate: String = "organization/crudView.html", fields: Seq[(String, String)] = Seq("hubb.Name" -> "name"))(implicit request: MultitenantRequest[A], configuration: OrganizationConfiguration, mom: Manifest[Model], mod: Manifest[D]): Result = {
 
     dao.findOneById(id).map { item =>
 
@@ -182,7 +164,7 @@ trait CRUDController[Model <: CaseClass { def id: ObjectId }, D <: SalatDAO[Mode
 
   def crudList(titleKey: String = "",
     listTemplate: String = "organization/crudList.html",
-    fields: Seq[(String, String)] = Seq(("hubb.Name" -> "name")),
+    fields: Seq[(String, String)] = Seq("hubb.Name" -> "name"),
     createActionEnabled: Boolean = true,
     editActionEnabled: Boolean = true,
     deleteActionEnabled: Boolean = true,
@@ -233,7 +215,7 @@ trait CRUDController[Model <: CaseClass { def id: ObjectId }, D <: SalatDAO[Mode
     }
   }
 
-  def crudUpdate(id: Option[ObjectId], templateName: Option[String] = None, additionalTemplateData: Option[(Option[Model] => Seq[(Symbol, AnyRef)])])(implicit request: RequestHeader, configuration: OrganizationConfiguration,
+  def crudUpdate[A](id: Option[ObjectId], templateName: Option[String] = None, additionalTemplateData: Option[(Option[Model] => Seq[(Symbol, AnyRef)])])(implicit request: MultitenantRequest[A], configuration: OrganizationConfiguration,
     mom: Manifest[Model], mod: Manifest[D]): Result = {
 
     implicit val formats = DefaultFormats
@@ -294,14 +276,14 @@ trait CRUDController[Model <: CaseClass { def id: ObjectId }, D <: SalatDAO[Mode
   }
 
   def crudSubmit(onUpdate: Option[(Model, Model) => Model] = None,
-    onCreate: Option[Model => Model] = None)(implicit request: Request[AnyContent], configuration: OrganizationConfiguration,
+    onCreate: Option[Model => Model] = None)(implicit request: MultitenantRequest[AnyContent], configuration: OrganizationConfiguration,
       mom: Manifest[Model], mod: Manifest[D]): Result = {
 
     handleSubmit(form, dao.findOneById, updateHandler(onUpdate), creationHandler(onCreate))
 
   }
 
-  def crudDelete(id: ObjectId, onDelete: Option[Model => Unit] = None)(implicit request: Request[AnyContent], configuration: OrganizationConfiguration,
+  def crudDelete(id: ObjectId, onDelete: Option[Model => Unit] = None)(implicit request: MultitenantRequest[AnyContent], configuration: OrganizationConfiguration,
     mom: Manifest[Model], mod: Manifest[D]): Result = {
 
     dao.findOneById(id).map { item =>

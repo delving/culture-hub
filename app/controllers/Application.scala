@@ -9,7 +9,7 @@ import com.escalatesoft.subcut.inject.BindingModule
 class Application(implicit val bindingModule: BindingModule) extends DelvingController {
 
   def index = Root {
-    Action {
+    MultitenantAction {
       implicit request =>
         val themeInfo = renderArgs("themeInfo").get.asInstanceOf[ThemeInfo]
         val recentMdrs: Seq[ListItem] = try {
@@ -30,7 +30,7 @@ class Application(implicit val bindingModule: BindingModule) extends DelvingCont
         val pluginIncludes = pluginSnippets.map(_._1).toSeq
 
         pluginSnippets.foreach { snippet =>
-          snippet._2(RequestContext(request, configuration, renderArgs(), getLang))
+          snippet._2(RequestContext(request, configuration, renderArgs(), getLang.language))
         }
 
         Ok(Template('recentMdrs -> recentMdrs, 'pluginIncludes -> pluginIncludes))

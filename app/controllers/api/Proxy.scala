@@ -19,7 +19,7 @@ import core.ExplainItem
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-object Proxy extends Controller with OrganizationConfigurationAware with RenderingExtensions {
+object Proxy extends Controller with MultitenancySupport with RenderingExtensions {
 
   val proxies = List[ProxyConfiguration](europeana, wikipediaEn, wikipediaNl, wikipediaNo, wikipediaNn, amsterdamMetadataCollection)
 
@@ -41,29 +41,27 @@ object Proxy extends Controller with OrganizationConfigurationAware with Renderi
     case _ => None
   }
 
-  def list = OrganizationConfigured {
-    Action {
-      implicit request =>
+  def list = MultitenantAction {
+    implicit request =>
 
-        if (!request.path.contains("api")) {
-          log.warn("Using deprecated API call " + request.uri)
-        }
+      if (!request.path.contains("api")) {
+        log.warn("Using deprecated API call " + request.uri)
+      }
 
-        val list =
-          <explain>
-            {
-              proxies.map {
-                proxy =>
-                  <item>
-                    <id>{ proxy.key }</id>
-                    <url>{ proxy.searchUrl }</url>
-                  </item>
-              }
+      val list =
+        <explain>
+          {
+            proxies.map {
+              proxy =>
+                <item>
+                  <id>{ proxy.key }</id>
+                  <url>{ proxy.searchUrl }</url>
+                </item>
             }
-          </explain>
+          }
+        </explain>
 
-        DOk(list, List("explain"))
-    }
+      DOk(list, List("explain"))
   }
 
   def query(proxyKey: String) = Action {

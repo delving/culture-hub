@@ -18,7 +18,7 @@ class Demo(implicit val bindingModule: BindingModule) extends DelvingController 
    * DeepZoom viewer
    */
   def view(image: Option[String]) = Root {
-    Action {
+    MultitenantAction {
       implicit request =>
         val smallballs = current.getFile("/public/images/smallballs.tif").getAbsolutePath
         if (image.isEmpty)
@@ -29,21 +29,21 @@ class Demo(implicit val bindingModule: BindingModule) extends DelvingController 
   }
 
   def iipsrv = Root {
-    Action {
+    MultitenantAction {
       implicit request =>
         Redirect(Play.configuration.getString("iipsrv.url").getOrElse("") + "?" + request.rawQueryString, MOVED_PERMANENTLY)
     }
   }
 
   def yumaImage = Root {
-    Action {
+    MultitenantAction {
       implicit request =>
         Ok(Template())
     }
   }
 
   def yumaMap = Root {
-    Action {
+    MultitenantAction {
       implicit request =>
         Ok(Template())
     }

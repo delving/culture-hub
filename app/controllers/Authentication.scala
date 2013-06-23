@@ -44,7 +44,7 @@ class Authentication(implicit val bindingModule: BindingModule) extends Applicat
   }
 
   def login = ApplicationAction {
-    Action {
+    MultitenantAction {
       implicit request =>
         if (session.get("userName").isDefined) {
           Redirect(controllers.routes.Application.index())
@@ -54,7 +54,7 @@ class Authentication(implicit val bindingModule: BindingModule) extends Applicat
     }
   }
 
-  def logout = Action {
+  def logout = MultitenantAction {
     Redirect(routes.Authentication.login()).withNewSession.discardingCookies(DiscardingCookie(REMEMBER_COOKIE)).flashing(
       "success" -> Messages("hub.YouWereLoggedOutSuccessfully")
     )
@@ -64,7 +64,7 @@ class Authentication(implicit val bindingModule: BindingModule) extends Applicat
    * Handle login form submission.
    */
   def authenticate: Action[AnyContent] = ApplicationAction {
-    Action {
+    MultitenantAction {
       implicit request =>
         loginForm.bindFromRequest.fold(
           formWithErrors => BadRequest(Template("/Authentication/login.html", 'loginForm -> formWithErrors)),

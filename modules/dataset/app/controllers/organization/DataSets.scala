@@ -20,14 +20,14 @@ import com.escalatesoft.subcut.inject.BindingModule
 class DataSets(implicit val bindingModule: BindingModule) extends OrganizationController {
 
   def list = OrganizationMember {
-    Action {
+    MultitenantAction {
       implicit request =>
         Ok(Template('title -> listPageTitle("dataset"), 'canAdministrate -> DataSet.dao.canAdministrate(connectedUser)))
     }
   }
 
   def dataSet(spec: String) = OrganizationMember {
-    Action {
+    MultitenantAction {
       implicit request =>
         val maybeDataSet = DataSet.dao.findBySpecAndOrgId(spec, configuration.orgId)
         if (maybeDataSet.isEmpty) {
@@ -54,7 +54,7 @@ class DataSets(implicit val bindingModule: BindingModule) extends OrganizationCo
   }
 
   def listAsTokens(q: String, maybeFormats: Option[String]) = Root {
-    Action {
+    MultitenantAction {
       implicit request =>
         val formats = maybeFormats.map(_.split(",").toSeq.map(_.trim).filterNot(_.isEmpty)).getOrElse(Seq.empty)
         val query = MongoDBObject("spec" -> Pattern.compile(q, Pattern.CASE_INSENSITIVE))

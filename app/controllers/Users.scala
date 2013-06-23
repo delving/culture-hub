@@ -14,7 +14,7 @@ import com.escalatesoft.subcut.inject.BindingModule
 class Users(implicit val bindingModule: BindingModule) extends DelvingController {
 
   def list(query: String, page: Int) = Root {
-    Action {
+    MultitenantAction {
       implicit request =>
 
         // ~~~ temporary hand-crafted search for users
@@ -39,7 +39,7 @@ class Users(implicit val bindingModule: BindingModule) extends DelvingController
   }
 
   def listAsTokens(orgId: Option[String], q: String) = Root {
-    Action {
+    MultitenantAction {
       implicit request =>
         def queryBy(field: String): MongoDBObject = MongoDBObject(field -> Pattern.compile(q, Pattern.CASE_INSENSITIVE))
         val queryByUserName = queryBy("userName")

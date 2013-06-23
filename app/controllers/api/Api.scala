@@ -38,7 +38,7 @@ class Api(implicit val bindingModule: BindingModule) extends DelvingController w
    * Index of APIs. The idea is not to explain each of them in detail, the root path of each should do that instead
    */
   def api = Root {
-    Action {
+    MultitenantAction {
       implicit request =>
 
         val apiDescription = "This is the list of all APIs offered by the CultureHub."

@@ -197,7 +197,7 @@ class DataSetControl(implicit val bindingModule: BindingModule) extends Organiza
   }
 
   def add = OrganizationMember {
-    Action {
+    MultitenantAction {
       implicit request =>
         if (!DataSet.dao.canAdministrate(connectedUser)) {
           Forbidden("You are not allowed to create DataSets")
@@ -227,7 +227,7 @@ class DataSetControl(implicit val bindingModule: BindingModule) extends Organiza
   }
 
   def update(spec: String): Action[AnyContent] = OrganizationMember {
-    Action {
+    MultitenantAction {
       implicit request =>
 
         val maybeDataSet: Option[DataSet] = DataSet.dao.findBySpecAndOrgId(spec, configuration.orgId)
@@ -282,7 +282,7 @@ class DataSetControl(implicit val bindingModule: BindingModule) extends Organiza
   }
 
   def dataSetSubmit = OrganizationMember {
-    Action {
+    MultitenantAction {
       implicit request =>
         DataSetCreationViewModel.dataSetForm.bind(request.body.asJson.get).fold(
           formWithErrors => handleValidationError(formWithErrors),
@@ -404,7 +404,7 @@ class DataSetControl(implicit val bindingModule: BindingModule) extends Organiza
   }
 
   def organizationLookup(term: String) = OrganizationMember {
-    Action {
+    MultitenantAction {
       implicit request =>
         Json(directoryServiceLocator.byDomain.findOrganization(term).map(_.name))
     }

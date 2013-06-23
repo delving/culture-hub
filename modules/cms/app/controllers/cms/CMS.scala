@@ -15,7 +15,7 @@ import com.escalatesoft.subcut.inject.BindingModule
 class CMS(implicit val bindingModule: BindingModule) extends DelvingController {
 
   def page(key: String, menuKey: Option[String]): Action[AnyContent] = Root {
-    Action {
+    MultitenantAction {
       implicit request =>
         CMSPage.dao.find(
           MongoDBObject("key" -> key, "lang" -> getLang)
@@ -26,7 +26,7 @@ class CMS(implicit val bindingModule: BindingModule) extends DelvingController {
                 val subMenu = MenuEntry.dao.findEntries(menuKey.get).map { e =>
                   MenuElement(
                     url = "/site/" + menuKey.get + "/page/" + e.targetPageKey.getOrElse(""),
-                    titleKey = e.title.get(getLang).getOrElse(e.menuKey)
+                    titleKey = e.title.get(getLang.language).getOrElse(e.menuKey)
                   )
                 }.toSeq.asJava
                 Ok(Template('page -> page, 'menuEntries -> subMenu, 'menuKey -> menuKey.get))

@@ -20,7 +20,7 @@ class Search(implicit val bindingModule: BindingModule) extends DelvingControlle
   def index(query: String, page: Int) = search(query)
 
   def search(query: String = "*:*") = Root {
-    Action {
+    MultitenantAction {
       implicit request =>
         try {
 
@@ -49,7 +49,7 @@ class Search(implicit val bindingModule: BindingModule) extends DelvingControlle
           val pluginIncludes = pluginSnippets.map(_._1).toSeq
 
           pluginSnippets.foreach { snippet =>
-            snippet._2(RequestContext(request, configuration, renderArgs(), getLang))
+            snippet._2(RequestContext(request, configuration, renderArgs(), getLang.language))
           }
 
           val (items, briefItemView) = searchServiceLocator.byDomain.search(Option(connectedUser), solrQuery, request.queryString, request.host)

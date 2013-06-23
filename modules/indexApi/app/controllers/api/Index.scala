@@ -75,63 +75,61 @@ class Index(implicit val bindingModule: BindingModule) extends DelvingController
     case _ => None
   }
 
-  def status = Action {
+  def status = MultitenantAction {
     implicit request =>
       // TODO provide some stats
       Ok
   }
 
-  def submit = OrganizationConfigured {
-    Action(parse.tolerantXml) {
-      implicit request =>
-        {
-          Async {
-            Promise.pure {
+  def submit = MultitenantAction(parse.tolerantXml) {
+    implicit request =>
+      {
+        Async {
+          Promise.pure {
 
-              if (configuration.isReadOnly) {
-                <indexResponse>
-                  <error>The system is in read-only mode and cannot process the request</error>
-                </indexResponse>
-              } else {
-                val (valid, invalid) = parseIndexRequest(configuration.orgId, request.body)
+            if (configuration.isReadOnly) {
+              <indexResponse>
+                <error>The system is in read-only mode and cannot process the request</error>
+              </indexResponse>
+            } else {
+              val (valid, invalid) = parseIndexRequest(configuration.orgId, request.body)
 
-                var indexed: Int = 0
-                var deleted: Int = 0
+              var indexed: Int = 0
+              var deleted: Int = 0
 
-                for (i <- valid.zipWithIndex) {
-                  val item = i._1
-                  val index = i._2
-                  val cache = MetadataCache.get(configuration.orgId, Index.CACHE_COLLECTION, item.itemType)
-                  if (item.deleted) {
-                    cache.remove(item.itemId)
-                    indexingServiceLocator.byDomain.deleteByQuery("""id:%s_%s_%s""".format(item.orgId, item.itemType, item.itemId))
-                    deleted += 1
-                  } else {
-                    val cacheItem = MetadataItem(collection = Index.CACHE_COLLECTION, itemType = item.itemType, itemId = item.itemId, xml = Map("raw" -> item.rawXml), schemaVersions = Map("raw" -> "1.0.0"), index = index)
-                    cache.saveOrUpdate(cacheItem)
-                    indexingServiceLocator.byDomain.stageForIndexing(item.toIndexDocument)
-                    indexed += 1
-                  }
+              for (i <- valid.zipWithIndex) {
+                val item = i._1
+                val index = i._2
+                val cache = MetadataCache.get(configuration.orgId, Index.CACHE_COLLECTION, item.itemType)
+                if (item.deleted) {
+                  cache.remove(item.itemId)
+                  indexingServiceLocator.byDomain.deleteByQuery("""id:%s_%s_%s""".format(item.orgId, item.itemType, item.itemId))
+                  deleted += 1
+                } else {
+                  val cacheItem = MetadataItem(collection = Index.CACHE_COLLECTION, itemType = item.itemType, itemId = item.itemId, xml = Map("raw" -> item.rawXml), schemaVersions = Map("raw" -> "1.0.0"), index = index)
+                  cache.saveOrUpdate(cacheItem)
+                  indexingServiceLocator.byDomain.stageForIndexing(item.toIndexDocument)
+                  indexed += 1
                 }
-                indexingServiceLocator.byDomain.commit
-
-                val invalidItems = invalid.map(i => <invalidItem><error>{ i._1 }</error><item>{ i._2 }</item></invalidItem>)
-
-                <indexResponse>
-                  <totalItemCount>{ valid.size + invalid.size }</totalItemCount>
-                  <indexedItemCount>{ valid.filterNot(_.deleted).size }</indexedItemCount>
-                  <deletedItemCount>{ valid.filter(_.deleted).size }</deletedItemCount>
-                  <invalidItemCount>{ invalid.size }</invalidItemCount>
-                  <invalidItems>{ invalidItems }</invalidItems>
-                </indexResponse>
               }
+              indexingServiceLocator.byDomain.commit
 
-            } map {
-              response => Ok(response)
+              val invalidItems = invalid.map(i => <invalidItem><error>{ i._1 }</error><item>{ i._2 }</item></invalidItem>)
+
+              <indexResponse>
+                <totalItemCount>{ valid.size + invalid.size }</totalItemCount>
+                <indexedItemCount>{ valid.filterNot(_.deleted).size }</indexedItemCount>
+                <deletedItemCount>{ valid.filter(_.deleted).size }</deletedItemCount>
+                <invalidItemCount>{ invalid.size }</invalidItemCount>
+                <invalidItems>{ invalidItems }</invalidItems>
+              </indexResponse>
             }
+
+          } map {
+            response => Ok(response)
           }
         }
-    }
+      }
   }
 
   private def parseIndexRequest(orgId: String, root: NodeSeq): (List[IndexItem], List[(String, NodeSeq)]) = {
@@ -180,32 +178,30 @@ class Index(implicit val bindingModule: BindingModule) extends DelvingController
 
   }
 
-  def reIndex = OrganizationConfigured {
-    Action {
-      implicit request =>
-        val service = new IndexItemOrganizationCollectionLookupService()
-        val itemTypes = service.findAll.map { _.itemType }
+  def reIndex = MultitenantAction {
+    implicit request =>
+      val service = new IndexItemOrganizationCollectionLookupService()
+      val itemTypes = service.findAll.map { _.itemType }
 
-        var reIndexed = 0
-        val error = new ArrayBuffer[String]()
-        itemTypes map { t =>
-          val cache = MetadataCache.get(configuration.orgId, Index.CACHE_COLLECTION, t)
-          cache.iterate() foreach { item =>
-            try {
-              indexingServiceLocator.byDomain.stageForIndexing(IndexItem(configuration.orgId, item).toIndexDocument)
-              reIndexed += 1
-            } catch {
-              case t: Throwable =>
-                val id = configuration.orgId + "_" + item.itemType + "_" + item.itemId
-                Logger("IndexApi").error("Could not index item " + id, t)
-                error += id
-            }
+      var reIndexed = 0
+      val error = new ArrayBuffer[String]()
+      itemTypes map { t =>
+        val cache = MetadataCache.get(configuration.orgId, Index.CACHE_COLLECTION, t)
+        cache.iterate() foreach { item =>
+          try {
+            indexingServiceLocator.byDomain.stageForIndexing(IndexItem(configuration.orgId, item).toIndexDocument)
+            reIndexed += 1
+          } catch {
+            case t: Throwable =>
+              val id = configuration.orgId + "_" + item.itemType + "_" + item.itemId
+              Logger("IndexApi").error("Could not index item " + id, t)
+              error += id
           }
         }
-        indexingServiceLocator.byDomain.commit
+      }
+      indexingServiceLocator.byDomain.commit
 
-        Ok(s"ReIndexed $reIndexed items successfully, error for ${error.mkString(", ")}")
-    }
+      Ok(s"ReIndexed $reIndexed items successfully, error for ${error.mkString(", ")}")
   }
 
 }

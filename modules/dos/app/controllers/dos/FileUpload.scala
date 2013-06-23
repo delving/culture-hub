@@ -23,7 +23,7 @@ import extensions.Extensions
 import java.io.File
 import play.api.libs.MimeTypes
 import models.OrganizationConfiguration
-import controllers.OrganizationConfigurationAware
+import controllers.MultitenancySupport
 import core.storage.{ StoredFile, FileUploadResponse, FileStorage }
 
 /**
@@ -31,7 +31,7 @@ import core.storage.{ StoredFile, FileUploadResponse, FileStorage }
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-object FileUpload extends Controller with Extensions with ThumbnailSupport with OrganizationConfigurationAware {
+object FileUpload extends Controller with Extensions with ThumbnailSupport with MultitenancySupport {
 
   // ~~ public HTTP API
 
@@ -40,30 +40,27 @@ object FileUpload extends Controller with Extensions with ThumbnailSupport with 
    * If the uploaded file is an image, thumbnails are created for it.
    * The response contains a JSON-Encoded array of objects representing the uploaded file.
    */
-  def uploadFile(uid: String) = OrganizationConfigured {
-    Action(parse.multipartFormData) {
-      implicit request =>
-        val uploaded = uploadFileInternal(uid, request.body.file("files[]").map {
-          file =>
-            {
-              Seq(Upload(file.ref.file, file.contentType.getOrElse(MimeTypes.forFileName(file.filename).getOrElse("unknown/unknown")), file.filename, file.ref.file.length()))
-            }
-        }.getOrElse(Seq()))
+  def uploadFile(uid: String) = MultitenantAction(parse.multipartFormData) {
+    implicit request =>
+      val uploaded = uploadFileInternal(uid, request.body.file("files[]").map {
+        file =>
+          {
+            Seq(Upload(file.ref.file, file.contentType.getOrElse(MimeTypes.forFileName(file.filename).getOrElse("unknown/unknown")), file.filename, file.ref.file.length()))
+          }
+      }.getOrElse(Seq()))
 
-        if (uploaded.isEmpty) {
-          // assume the worst
-          InternalServerError("Error uploading file to the server")
-        } else {
-          Json(uploaded)
-        }
-    }
-
+      if (uploaded.isEmpty) {
+        // assume the worst
+        InternalServerError("Error uploading file to the server")
+      } else {
+        Json(uploaded)
+      }
   }
 
   /**
    * DELETE handler for removing a file given an ID
    */
-  def deleteFile(id: String) = Action {
+  def deleteFile(id: String) = MultitenantAction {
     implicit request =>
       FileStorage.deleteFile(id)
       Ok
