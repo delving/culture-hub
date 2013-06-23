@@ -35,7 +35,7 @@ class OAuth2TokenEndpoint(implicit val bindingModule: BindingModule) extends App
 
   val authenticationServiceLocator = inject[DomainServiceLocator[AuthenticationService]]
 
-  def token: Action[AnyContent] = OrganizationConfigured {
+  def token: Action[AnyContent] = MultitenantAction {
     implicit request =>
       val oauthIssuerImpl: OAuthIssuer = new OAuthIssuerImpl(new MD5Generator)
 

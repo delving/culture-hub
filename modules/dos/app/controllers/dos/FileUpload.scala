@@ -40,7 +40,7 @@ object FileUpload extends Controller with Extensions with ThumbnailSupport with 
    * If the uploaded file is an image, thumbnails are created for it.
    * The response contains a JSON-Encoded array of objects representing the uploaded file.
    */
-  def uploadFile(uid: String) = OrganizationConfigured(parse.multipartFormData) {
+  def uploadFile(uid: String) = MultitenantAction(parse.multipartFormData) {
     implicit request =>
       val uploaded = uploadFileInternal(uid, request.body.file("files[]").map {
         file =>
@@ -60,7 +60,7 @@ object FileUpload extends Controller with Extensions with ThumbnailSupport with 
   /**
    * DELETE handler for removing a file given an ID
    */
-  def deleteFile(id: String) = OrganizationConfigured {
+  def deleteFile(id: String) = MultitenantAction {
     implicit request =>
       FileStorage.deleteFile(id)
       Ok

@@ -16,7 +16,7 @@ class OaiPmh(implicit val bindingModule: BindingModule) extends ApplicationContr
 
   // TODO API documentation
 
-  def oaipmh(format: Option[String], accessKey: Option[String]) = OrganizationConfigured {
+  def oaipmh(format: Option[String], accessKey: Option[String]) = MultitenantAction {
     implicit request =>
       Async {
         val oaiPmhService = new OaiPmhService(request.queryString, request.uri, configuration.orgId, format, accessKey)

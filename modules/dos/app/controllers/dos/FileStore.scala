@@ -16,7 +16,7 @@ object FileStore extends Controller with OrganizationConfigurationAware {
 
   // ~~~ public HTTP API
 
-  def get(id: String): Action[AnyContent] = OrganizationConfigured {
+  def get(id: String): Action[AnyContent] = MultitenantAction {
     implicit request =>
       if (!ObjectId.isValid(id)) {
         BadRequest("Invalid ID " + id)

@@ -41,7 +41,7 @@ object Proxy extends Controller with OrganizationConfigurationAware with Renderi
     case _ => None
   }
 
-  def list = OrganizationConfigured {
+  def list = MultitenantAction {
     implicit request =>
 
       if (!request.path.contains("api")) {

@@ -75,13 +75,13 @@ class Index(implicit val bindingModule: BindingModule) extends DelvingController
     case _ => None
   }
 
-  def status = OrganizationConfigured {
+  def status = MultitenantAction {
     implicit request =>
       // TODO provide some stats
       Ok
   }
 
-  def submit = OrganizationConfigured(parse.tolerantXml) {
+  def submit = MultitenantAction(parse.tolerantXml) {
     implicit request =>
       {
         Async {
@@ -178,7 +178,7 @@ class Index(implicit val bindingModule: BindingModule) extends DelvingController
 
   }
 
-  def reIndex = OrganizationConfigured {
+  def reIndex = MultitenantAction {
     implicit request =>
       val service = new IndexItemOrganizationCollectionLookupService()
       val itemTypes = service.findAll.map { _.itemType }

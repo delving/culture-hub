@@ -14,7 +14,7 @@ import models.OrganizationConfiguration
  */
 class Representations(implicit val bindingModule: BindingModule) extends DelvingController {
 
-  def representation(representationType: String, orgId: String, collection: String, id: String, accessKey: Option[String] = None) = OrganizationConfigured {
+  def representation(representationType: String, orgId: String, collection: String, id: String, accessKey: Option[String] = None) = MultitenantAction {
     implicit request =>
 
       representationType match {

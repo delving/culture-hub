@@ -22,7 +22,7 @@ class Search(implicit val bindingModule: BindingModule) extends DelvingControlle
 
   val organizationCollectionLookupService = inject[OrganizationCollectionLookupService]
 
-  def searchApi(provider: Option[String], dataProvider: Option[String], collection: Option[String]) = OrganizationConfigured {
+  def searchApi(provider: Option[String], dataProvider: Option[String], collection: Option[String]) = MultitenantAction {
     implicit request =>
       Async {
         Promise.pure {

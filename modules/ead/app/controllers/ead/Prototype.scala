@@ -20,7 +20,7 @@ class Prototype(implicit val bindingModule: BindingModule) extends DelvingContro
 
   val source = "apeEAD_SE_KrA_0058.xml"
 
-  def sampleData = OrganizationConfigured {
+  def sampleData = MultitenantAction {
     implicit request =>
 
       Play.resourceAsStream(source) map {

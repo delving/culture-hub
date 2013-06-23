@@ -25,7 +25,7 @@ object ImageCache extends Controller with RespondWithDefaultImage with Organizat
 
   val imageCacheService = new ImageCacheService
 
-  def image(id: String, withDefaultFromUrl: Boolean) = OrganizationConfigured {
+  def image(id: String, withDefaultFromUrl: Boolean) = MultitenantAction {
     implicit request =>
       val url = URLDecoder.decode(id, "utf-8")
       if (url.contains(request.domain)) {
@@ -36,7 +36,7 @@ object ImageCache extends Controller with RespondWithDefaultImage with Organizat
       }
   }
 
-  def thumbnail(id: String, width: Option[String], withDefaultFromUrl: Boolean) = OrganizationConfigured {
+  def thumbnail(id: String, width: Option[String], withDefaultFromUrl: Boolean) = MultitenantAction {
     implicit request =>
       val url = URLDecoder.decode(id, "utf-8")
       if (url.contains(request.domain)) {

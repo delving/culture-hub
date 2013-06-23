@@ -19,7 +19,7 @@ class Organization(implicit val bindingModule: BindingModule) extends Applicatio
   val organizationCollectionLookupService = inject[OrganizationCollectionLookupService]
   val organizationServiceLocator = inject[DomainServiceLocator[OrganizationService]]
 
-  def providers = OrganizationConfigured {
+  def providers = MultitenantAction {
     implicit request =>
       val providers = getAllOrganiztationCollectionInformation.map(_.getProvider)
 
@@ -36,7 +36,7 @@ class Organization(implicit val bindingModule: BindingModule) extends Applicatio
       DOk(xmlResponse, List("providers"))
   }
 
-  def dataProviders = OrganizationConfigured {
+  def dataProviders = MultitenantAction {
     implicit request =>
       val dataProviders = getAllOrganiztationCollectionInformation.map(_.getDataProvider)
 
@@ -53,7 +53,7 @@ class Organization(implicit val bindingModule: BindingModule) extends Applicatio
       DOk(xmlResponse, List("dataProviders"))
   }
 
-  def collections = OrganizationConfigured {
+  def collections = MultitenantAction {
     implicit request =>
       val collections = organizationCollectionLookupService.findAll
 

@@ -19,7 +19,7 @@ class MediatorServer(implicit val bindingModule: BindingModule) extends DelvingC
 
   def imageProcessor: ActorRef = Akka.system.actorFor("akka://application/user/plugin-mediator/imageProcessor")
 
-  def newFile(orgId: String, set: String, fileName: String, userName: String, errorCallbackUrl: String) = OrganizationConfigured { implicit request =>
+  def newFile(orgId: String, set: String, fileName: String, userName: String, errorCallbackUrl: String) = MultitenantAction { implicit request =>
     log.info(s"[MediatorServer] [$userName@$orgId] Received notification for new file $orgId/$set/$fileName")
 
     val file = new File(MediatorPlugin.pluginConfiguration.sourceBaseDirectory, s"$orgId/$set/$fileName")

@@ -282,7 +282,7 @@ class Registration(implicit val bindingModule: BindingModule) extends Applicatio
     }
   }
 
-  def resetPassword(resetPasswordToken: String) = OrganizationConfigured {
+  def resetPassword(resetPasswordToken: String) = MultitenantAction {
     implicit request =>
       renderArgs += ("themeInfo" -> new ThemeInfo(configuration))
       val indexAction = Redirect(controllers.routes.Application.index())
@@ -307,7 +307,7 @@ class Registration(implicit val bindingModule: BindingModule) extends Applicatio
     )(NewPassword.apply)(NewPassword.unapply) verifying sameNewPassword
   )
 
-  def newPassword(resetPasswordToken: String) = OrganizationConfigured {
+  def newPassword(resetPasswordToken: String) = MultitenantAction {
     implicit request =>
       renderArgs += ("themeInfo" -> new ThemeInfo(configuration))
       if (Option(resetPasswordToken).isEmpty) {

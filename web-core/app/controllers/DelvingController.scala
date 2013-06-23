@@ -42,7 +42,7 @@ abstract class ApplicationController extends Controller with GroovyTemplates wit
   def getLanguages = Lang.availables.map(l => (l.language, Messages("lang." + l.language)))
 
   def ApplicationAction[A](action: MultitenantAction[A]): MultitenantAction[A] = {
-    OrganizationConfigured(action.parser) {
+    MultitenantAction(action.parser) {
       implicit request =>
         {
 

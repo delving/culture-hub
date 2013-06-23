@@ -34,7 +34,7 @@ import controllers.OrganizationConfigurationAware
 
 object Tasks extends Controller with Extensions with OrganizationConfigurationAware with GroovyTemplates {
 
-  def add(path: String, taskType: String) = OrganizationConfigured(parse.tolerantFormUrlEncoded) {
+  def add(path: String, taskType: String) = MultitenantAction(parse.tolerantFormUrlEncoded) {
     implicit request =>
 
       val tt = TaskType.valueOf(taskType)
@@ -53,7 +53,7 @@ object Tasks extends Controller with Extensions with OrganizationConfigurationAw
       }
   }
 
-  def cancel(id: ObjectId) = OrganizationConfigured {
+  def cancel(id: ObjectId) = MultitenantAction {
     implicit request =>
       val task = Task.dao.findOneById(id)
       if (task.isEmpty)
@@ -64,7 +64,7 @@ object Tasks extends Controller with Extensions with OrganizationConfigurationAw
       }
   }
 
-  def list(what: String) = OrganizationConfigured {
+  def list(what: String) = MultitenantAction {
     implicit request =>
       val tasks = TaskState.valueOf(what) match {
         case Some(state) if (state == QUEUED || state == RUNNING || state == FINISHED || state == CANCELLED) => Some(Task.dao.list(state))
@@ -76,12 +76,12 @@ object Tasks extends Controller with Extensions with OrganizationConfigurationAw
         Json(Map("tasks" -> tasks.get))
   }
 
-  def listAll() = OrganizationConfigured {
+  def listAll() = MultitenantAction {
     implicit request =>
       Json(Map("running" -> Task.dao.list(RUNNING), "queued" -> Task.dao.list(QUEUED), "finished" -> Task.dao.list(FINISHED)))
   }
 
-  def status(id: ObjectId) = OrganizationConfigured {
+  def status(id: ObjectId) = MultitenantAction {
     implicit request =>
       val task = Task.dao.findOneById(id)
       if (task.isEmpty) NotFound("Could not find task with id " + id)

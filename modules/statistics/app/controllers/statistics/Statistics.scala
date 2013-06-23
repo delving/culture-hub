@@ -44,7 +44,7 @@ class Statistics(implicit val bindingModule: BindingModule) extends Organization
     }
   }
 
-  def legacyStatistics = OrganizationConfigured {
+  def legacyStatistics = MultitenantAction {
     implicit request =>
 
       val requestFacets = request.queryString.get("facet.field")

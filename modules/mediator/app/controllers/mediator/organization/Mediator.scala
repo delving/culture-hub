@@ -76,7 +76,7 @@ class Mediator(implicit val bindingModule: BindingModule) extends OrganizationCo
     Ok(Template('collection -> collection, 'items -> groupedDisplayResult))
   }
 
-  def newFileFault(orgId: String, set: String, fileName: String, userName: String) = OrganizationConfigured { implicit request =>
+  def newFileFault(orgId: String, set: String, fileName: String, userName: String) = MultitenantAction { implicit request =>
     val error = request.body.asText
 
     log.debug(s"[$userName@$orgId] Received file handling response from media server for $set/$fileName, ${if (error.isDefined) "with error: " + error.get}")

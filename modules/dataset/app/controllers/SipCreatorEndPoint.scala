@@ -55,7 +55,7 @@ class SipCreatorEndPoint(implicit val bindingModule: BindingModule) extends Appl
 
   private var connectedUserObject: Option[HubUser] = None
 
-  def AuthenticatedAction[A](accessToken: Option[String])(action: Action[A]): Action[A] = OrganizationConfigured(action.parser) {
+  def AuthenticatedAction[A](accessToken: Option[String])(action: Action[A]): Action[A] = MultitenantAction(action.parser) {
     implicit request =>
       {
         if (accessToken.isEmpty && Play.isDev) {

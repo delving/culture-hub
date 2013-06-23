@@ -40,7 +40,7 @@ object ImageDisplay extends Controller with RespondWithDefaultImage with Organiz
   /**
    * Display a thumbnail given an ID and a width
    */
-  def displayThumbnail(id: String, orgId: String, collectionId: String, width: Option[String], browse: Boolean = false, fileId: Boolean = false, headOnly: Boolean = false) = OrganizationConfigured {
+  def displayThumbnail(id: String, orgId: String, collectionId: String, width: Option[String], browse: Boolean = false, fileId: Boolean = false, headOnly: Boolean = false) = MultitenantAction {
     implicit request =>
       renderImage(
         id = id,
@@ -58,7 +58,7 @@ object ImageDisplay extends Controller with RespondWithDefaultImage with Organiz
   /**
    * Display an image given an ID
    */
-  def displayImage(id: String, fileId: Boolean) = OrganizationConfigured {
+  def displayImage(id: String, fileId: Boolean) = MultitenantAction {
     implicit request =>
       renderImage(id = id, thumbnail = false, isFileId = fileId, store = fileStore(configuration))
   }
