@@ -13,7 +13,7 @@ import org.apache.commons.httpclient.Header
 import extensions.HTTPClient
 import com.mongodb.casbah.commons.MongoDBObject
 import java.net.URLDecoder
-import controllers.OrganizationConfigurationAware
+import controllers.MultitenancySupport
 import models.OrganizationConfiguration
 
 /**
@@ -21,7 +21,7 @@ import models.OrganizationConfiguration
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-object ImageCache extends Controller with RespondWithDefaultImage with OrganizationConfigurationAware {
+object ImageCache extends Controller with RespondWithDefaultImage with MultitenancySupport {
 
   val imageCacheService = new ImageCacheService
 

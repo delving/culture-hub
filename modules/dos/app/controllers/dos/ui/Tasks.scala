@@ -25,14 +25,14 @@ import play.api.Play
 import play.api.Logger
 import play.api.Play.current
 import eu.delving.templates.scala.GroovyTemplates
-import controllers.OrganizationConfigurationAware
+import controllers.MultitenancySupport
 
 /**
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-object Tasks extends Controller with Extensions with OrganizationConfigurationAware with GroovyTemplates {
+object Tasks extends Controller with Extensions with MultitenancySupport with GroovyTemplates {
 
   def add(path: String, taskType: String) = MultitenantAction(parse.tolerantFormUrlEncoded) {
     implicit request =>

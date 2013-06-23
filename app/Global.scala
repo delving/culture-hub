@@ -6,7 +6,7 @@
 import actors._
 import com.github.cb372.metrics.sigar.SigarMetrics
 import com.yammer.metrics.scala.{ Counter, Instrumented }
-import controllers.{ OrganizationConfigurationAware, ErrorReporter, ApplicationController }
+import controllers.{ MultitenancySupport, ErrorReporter, ApplicationController }
 import core.{ HubModule, CultureHubPlugin }
 import java.util.concurrent.TimeUnit
 import models.OrganizationConfiguration

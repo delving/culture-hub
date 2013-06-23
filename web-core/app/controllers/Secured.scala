@@ -8,7 +8,7 @@ import play.api.i18n.Messages
 /**
  * Secured trait, based on the example in ZenTasks
  */
-trait Secured extends OrganizationConfigurationAware { this: Controller =>
+trait Secured extends MultitenancySupport { this: Controller =>
 
   private def username(request: RequestHeader) = request.session.get(USERNAME)
 

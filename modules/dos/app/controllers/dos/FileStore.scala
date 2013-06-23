@@ -4,7 +4,7 @@ import play.api.mvc._
 
 import org.bson.types.ObjectId
 import play.api.libs.iteratee.Enumerator
-import controllers.OrganizationConfigurationAware
+import controllers.MultitenancySupport
 
 /**
  * Common controller for handling files, no matter from where.
@@ -12,7 +12,7 @@ import controllers.OrganizationConfigurationAware
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-object FileStore extends Controller with OrganizationConfigurationAware {
+object FileStore extends Controller with MultitenancySupport {
 
   // ~~~ public HTTP API
 

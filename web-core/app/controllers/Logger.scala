@@ -30,7 +30,7 @@ import util.Quotes
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-trait Logging extends Secured { self: Controller with OrganizationConfigurationAware =>
+trait Logging extends Secured { self: Controller with MultitenancySupport =>
 
   protected val log = Logger("CultureHub")
 
@@ -105,10 +105,10 @@ trait Logging extends Secured { self: Controller with OrganizationConfigurationA
 
 object ErrorReporter {
 
-  def reportError[A](request: OrganizationConfigurationAware#MultitenantRequest[A], message: String)(implicit configuration: OrganizationConfiguration) {
+  def reportError[A](request: MultitenancySupport#MultitenantRequest[A], message: String)(implicit configuration: OrganizationConfiguration) {
     reportError(subject(request), toReport(message, request))
   }
-  def reportError[A](request: OrganizationConfigurationAware#MultitenantRequest[A], e: Throwable, message: String)(implicit configuration: OrganizationConfiguration) {
+  def reportError[A](request: MultitenancySupport#MultitenantRequest[A], e: Throwable, message: String)(implicit configuration: OrganizationConfiguration) {
     reportError(subject(request), toReport(message, e, request))
   }
 
@@ -134,9 +134,9 @@ object ErrorReporter {
       .send()
   }
 
-  private def getUser[A](request: OrganizationConfigurationAware#MultitenantRequest[A]) = request.session.get("userName").getOrElse("Unknown")
+  private def getUser[A](request: MultitenancySupport#MultitenantRequest[A]) = request.session.get("userName").getOrElse("Unknown")
 
-  private def subject[A](request: OrganizationConfigurationAware#MultitenantRequest[A]) = "[CultureHub] An error occured on %s".format(request.domain) // port?
+  private def subject[A](request: MultitenancySupport#MultitenantRequest[A]) = "[CultureHub] An error occured on %s".format(request.domain) // port?
 
   def toReport(job: String, m: String, t: Throwable): String = {
     val sw = new StringWriter()
@@ -157,7 +157,7 @@ object ErrorReporter {
     """.format(job, m, t.getMessage, sw.toString)
   }
 
-  def toReport[A](m: String, request: OrganizationConfigurationAware#MultitenantRequest[A]) = {
+  def toReport[A](m: String, request: MultitenancySupport#MultitenantRequest[A]) = {
     """
     ~~~~ User ~~~
     %s
@@ -169,7 +169,7 @@ object ErrorReporter {
     %s""".format(getUser(request), m, fullContext(request))
   }
 
-  def toReport[A](m: String, t: Throwable, request: OrganizationConfigurationAware#MultitenantRequest[A]): String = {
+  def toReport[A](m: String, t: Throwable, request: MultitenancySupport#MultitenantRequest[A]): String = {
     val sw = new StringWriter()
     val pw = new PrintWriter(sw)
     t.printStackTrace(pw)
@@ -189,7 +189,7 @@ object ErrorReporter {
     %s""".format(getUser(request), m, t.getMessage, sw.toString, fullContext(request))
   }
 
-  private def fullContext[A](request: OrganizationConfigurationAware#MultitenantRequest[A]) = {
+  private def fullContext[A](request: MultitenancySupport#MultitenantRequest[A]) = {
     """|
        |URL: %s
        |METHOD: %s

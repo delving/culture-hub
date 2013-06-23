@@ -5,14 +5,14 @@ import com.mongodb.casbah.Imports._
 import play.api.mvc._
 import extensions.Extensions
 import com.novus.salat.dao.SalatMongoCursor
-import controllers.OrganizationConfigurationAware
+import controllers.MultitenancySupport
 
 /**
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-object Logs extends Controller with Extensions with OrganizationConfigurationAware {
+object Logs extends Controller with Extensions with MultitenancySupport {
 
   def list(taskId: ObjectId, lastCount: Option[Int]) = MultitenantAction {
     implicit request =>

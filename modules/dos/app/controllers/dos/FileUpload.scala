@@ -23,7 +23,7 @@ import extensions.Extensions
 import java.io.File
 import play.api.libs.MimeTypes
 import models.OrganizationConfiguration
-import controllers.OrganizationConfigurationAware
+import controllers.MultitenancySupport
 import core.storage.{ StoredFile, FileUploadResponse, FileStorage }
 
 /**
@@ -31,7 +31,7 @@ import core.storage.{ StoredFile, FileUploadResponse, FileStorage }
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-object FileUpload extends Controller with Extensions with ThumbnailSupport with OrganizationConfigurationAware {
+object FileUpload extends Controller with Extensions with ThumbnailSupport with MultitenancySupport {
 
   // ~~ public HTTP API
 

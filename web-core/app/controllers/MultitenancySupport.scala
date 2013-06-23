@@ -4,7 +4,11 @@ import models.OrganizationConfiguration
 import play.api.mvc._
 import util.OrganizationConfigurationHandler
 
-trait OrganizationConfigurationAware { self: Controller =>
+/**
+ * Multitenancy support is provided through the MultitenantAction and MultitenantRequest. The MultitenantRequest wraps
+ * a typical Play Request and adds the configuration of the currently accessed domain to it.
+ */
+trait MultitenancySupport { self: Controller =>
 
   case class MultitenantAction[A](bp: BodyParser[A])(f: MultitenantRequest[A] => Result) extends Action[A] with Rendering {
 

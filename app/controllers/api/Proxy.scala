@@ -19,7 +19,7 @@ import core.ExplainItem
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-object Proxy extends Controller with OrganizationConfigurationAware with RenderingExtensions {
+object Proxy extends Controller with MultitenancySupport with RenderingExtensions {
 
   val proxies = List[ProxyConfiguration](europeana, wikipediaEn, wikipediaNl, wikipediaNo, wikipediaNn, amsterdamMetadataCollection)
 

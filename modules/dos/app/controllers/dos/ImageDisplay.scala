@@ -26,14 +26,14 @@ import com.mongodb.casbah.gridfs.GridFS
 import java.util.Date
 import play.api.libs.iteratee.Enumerator
 import extensions.MissingLibs
-import controllers.OrganizationConfigurationAware
+import controllers.MultitenancySupport
 
 /**
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-object ImageDisplay extends Controller with RespondWithDefaultImage with OrganizationConfigurationAware {
+object ImageDisplay extends Controller with RespondWithDefaultImage with MultitenancySupport {
 
   // ~~ public HTTP API
 
