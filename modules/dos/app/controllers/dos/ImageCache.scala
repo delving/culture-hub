@@ -27,23 +27,31 @@ object ImageCache extends Controller with RespondWithDefaultImage with Multitena
 
   def image(id: String, withDefaultFromUrl: Boolean) = MultitenantAction {
     implicit request =>
-      val url = URLDecoder.decode(id, "utf-8")
-      if (url.contains(request.domain)) {
-        Redirect(url)
+      if (configuration.objectService.imageCacheEnabled) {
+        val url = URLDecoder.decode(id, "utf-8")
+        if (url.contains(request.domain)) {
+          Redirect(url)
+        } else {
+          val result = imageCacheService.retrieveImageFromCache(request, url, false)
+          if (withDefaultFromUrl) withDefaultFromRequest(result, false, None) else result
+        }
       } else {
-        val result = imageCacheService.retrieveImageFromCache(request, url, false)
-        if (withDefaultFromUrl) withDefaultFromRequest(result, false, None) else result
+        NotFound
       }
   }
 
   def thumbnail(id: String, width: Option[String], withDefaultFromUrl: Boolean) = MultitenantAction {
     implicit request =>
-      val url = URLDecoder.decode(id, "utf-8")
-      if (url.contains(request.domain)) {
-        Redirect(url)
+      if (configuration.objectService.imageCacheEnabled) {
+        val url = URLDecoder.decode(id, "utf-8")
+        if (url.contains(request.domain)) {
+          Redirect(url)
+        } else {
+          val result = imageCacheService.retrieveImageFromCache(request, url, true, width)
+          if (withDefaultFromUrl) withDefaultFromRequest(result, true, width) else result
+        }
       } else {
-        val result = imageCacheService.retrieveImageFromCache(request, url, true, width)
-        if (withDefaultFromUrl) withDefaultFromRequest(result, true, width) else result
+        NotFound
       }
   }
 }
