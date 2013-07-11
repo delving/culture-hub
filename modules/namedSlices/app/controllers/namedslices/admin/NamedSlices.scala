@@ -35,33 +35,27 @@ class NamedSlices(implicit val bindingModule: BindingModule) extends Organizatio
     )(NamedSlice.apply)(NamedSlice.unapply)
   )
 
-  def emptyModel(implicit request: RequestHeader, configuration: OrganizationConfiguration): NamedSlice =
+  def emptyModel[A](implicit request: MultitenantRequest[A], configuration: OrganizationConfiguration): NamedSlice =
     NamedSlice(key = "", name = "", cmsPageKey = "", query = NamedSliceQuery(terms = ""), published = true)
 
   def dao(implicit configuration: OrganizationConfiguration): NamedSliceDAO = NamedSlice.dao
 
   def list = OrganizationAdmin {
-    Action {
-      implicit request =>
-        crudList(customViewLink = Some(("/slices/_key_", Seq("key"))))
-    }
+    implicit request =>
+      crudList(customViewLink = Some(("/slices/_key_", Seq("key"))))
   }
 
   def add = OrganizationAdmin {
-    Action {
-      implicit request =>
-        crudUpdate(None, additionalTemplateData = Some(creationPageTemplateData))
-    }
+    implicit request =>
+      crudUpdate(None, additionalTemplateData = Some(creationPageTemplateData))
   }
 
   def update(id: ObjectId) = OrganizationAdmin {
-    Action {
-      implicit request =>
-        crudUpdate(Some(id), additionalTemplateData = Some(creationPageTemplateData))
-    }
-  }
+    implicit request =>
+      crudUpdate(Some(id), additionalTemplateData = Some(creationPageTemplateData))
+  }1
 
-  private def creationPageTemplateData(implicit request: RequestHeader, configuration: OrganizationConfiguration) = {
+  private def creationPageTemplateData(implicit request: MultitenantRequest[AnyContent], configuration: OrganizationConfiguration) = {
     val pages = CMSPage.dao.list(getLang, None).filter(_.published).map { page => (page.key, page.title) }
     val dataSets = DataSet.dao.findAll().map { set => (set.spec, set.details.name) }
 

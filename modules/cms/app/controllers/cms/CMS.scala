@@ -15,7 +15,7 @@ import com.escalatesoft.subcut.inject.BindingModule
 class CMS(implicit val bindingModule: BindingModule) extends DelvingController {
 
   def listPages = Root {
-    Action {
+    MultitenantAction {
       implicit request =>
         val visible = CMSPage.dao.list(getLang, None).filter(_.published)
         val pages = visible.map { page =>

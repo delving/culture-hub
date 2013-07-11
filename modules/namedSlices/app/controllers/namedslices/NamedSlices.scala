@@ -14,11 +14,11 @@ import controllers.search.SearchResults
 class NamedSlices(implicit val bindingModule: BindingModule) extends DelvingController with SearchResults {
 
   def view(key: String) = Root {
-    Action {
+    MultitenantAction {
       implicit request =>
         NamedSlice.dao.findOnePublishedByKey(key) map { slice =>
 
-          val pageContent = CMSPage.dao.findByKeyAndLanguage(slice.cmsPageKey, getLang).headOption.map { page =>
+          val pageContent = CMSPage.dao.findByKeyAndLanguage(slice.cmsPageKey, getLang.language).headOption.map { page =>
             page.content
           } getOrElse {
             ""
@@ -32,7 +32,7 @@ class NamedSlices(implicit val bindingModule: BindingModule) extends DelvingCont
   }
 
   def search(key: String, query: String): Action[AnyContent] = Root {
-    Action {
+    MultitenantAction {
       implicit request =>
         NamedSlice.dao.findOnePublishedByKey(key) map { slice =>
           searchResults(query, slice.query.toQueryFilter, s"/slices/${slice.key}/search")

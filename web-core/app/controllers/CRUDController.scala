@@ -115,29 +115,24 @@ trait CRUDController[Model <: CaseClass { def id: ObjectId }, D <: SalatDAO[Mode
     filter: Seq[(String, Any)] = Seq.empty)(implicit mom: Manifest[Model], mod: Manifest[D]) = OrganizationAdmin {
     implicit request =>
       crudList(titleKey, listTemplate, fields, true, true, true, Seq.empty, additionalActions, isAdmin(request), filter)
-
-    }
   }
 
   def add(templateName: Option[String] = None,
     additionalTemplateData: Option[(Option[Model] => Seq[(Symbol, AnyRef)])] = None)(implicit mom: Manifest[Model], mod: Manifest[D]) = OrganizationAdmin {
-
-    Action {
-      implicit request =>
-        crudUpdate(None, templateName, additionalTemplateData)
-    }
+    implicit request =>
+      crudUpdate(None, templateName, additionalTemplateData)
   }
 
   def update(id: ObjectId,
     templateName: Option[String] = None,
     additionalTemplateData: Option[(Option[Model] => Seq[(Symbol, AnyRef)])] = None)(implicit mom: Manifest[Model], mod: Manifest[D]) = OrganizationAdmin {
-      implicit request =>
-        crudUpdate(Some(id), templateName, additionalTemplateData)
+    implicit request =>
+      crudUpdate(Some(id), templateName, additionalTemplateData)
   }
 
   def submit()(implicit mom: Manifest[Model], mod: Manifest[D]) = OrganizationAdmin {
-      implicit request =>
-        crudSubmit()
+    implicit request =>
+      crudSubmit()
   }
 
   def delete(id: ObjectId)(implicit mom: Manifest[Model], mod: Manifest[D]) = OrganizationAdmin {

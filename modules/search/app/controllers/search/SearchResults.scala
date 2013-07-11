@@ -18,13 +18,13 @@ import models.OrganizationConfiguration
  */
 trait SearchResults { this: DelvingController =>
 
-  def search(query: String = "*:*"): Action[AnyContent] = Root {
+  def search(query: String = "*:*") = Root {
     MultitenantAction {
       implicit request => searchResults(query)
     }
   }
 
-  def searchResults(query: String, hiddenQueryFilters: Seq[String] = Seq.empty, returnToResultsBaseUrl: String = "/search")(implicit request: RequestHeader, configuration: OrganizationConfiguration) = {
+  def searchResults(query: String, hiddenQueryFilters: Seq[String] = Seq.empty, returnToResultsBaseUrl: String = "/search")(implicit request: MultitenantRequest[AnyContent], configuration: OrganizationConfiguration) = {
 
     try {
 
@@ -61,7 +61,7 @@ trait SearchResults { this: DelvingController =>
       val pluginIncludes = pluginSnippets.map(_._1).toSeq
 
       pluginSnippets.foreach { snippet =>
-        snippet._2(RequestContext(request, configuration, renderArgs(), getLang))
+        snippet._2(RequestContext(request, configuration, renderArgs(), getLang.language))
       }
 
       val (items, briefItemView) = searchServiceLocator.byDomain.search(Option(connectedUser), filters, request.queryString, request.host)
