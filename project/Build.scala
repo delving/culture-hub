@@ -99,12 +99,13 @@ object Build extends sbt.Build {
 
   // ~~~ dynamic modules, to avoid hard-coded definitions
 
-  val excludes = Seq("cms", "search", "dataset", "dos")
+  val excludes = Seq("cms", "search", "dataset", "dos", "namedSlices")
 
   def discoverModules(base: File, dir: String): Seq[Project] = {
     val dirs: Seq[sbt.File] = if((base / dir).listFiles != null) (base / dir).listFiles else Seq.empty[sbt.File]
     for (x <- dirs if x.isDirectory && !excludes.contains(x.getName)) yield
         play.Project(x.getName, "1.0-SNAPSHOT", Seq.empty, path = x).settings(
+          routesImport += "extensions.Binders._",
           resolvers ++= commonResolvers,
           publish := { }
         ).dependsOn(
@@ -129,7 +130,21 @@ object Build extends sbt.Build {
     routesImport += "extensions.Binders._"
   ).dependsOn(webCore % "test->test;compile->compile", dos % "test->test;compile->compile").settings(scalarifromSettings :_*)
 
-  def allModules(base: File) = Seq(webCore, search, dataset, dos, cms(base)) ++ modules(base)
+  def namedSlices(base: File) = play.Project("namedSlices", "1.0-SNAPSHOT", Seq.empty, path = file("modules/namedSlices")).settings(
+    resolvers ++= commonResolvers,
+    publish := { },
+    libraryDependencies += "eu.delving"                %% "play2-extensions"                % playExtensionsVersion,
+    routesImport += "extensions.Binders._"
+  ).dependsOn(
+    webCore % "test->test;compile->compile",
+    dos % "test->test;compile->compile",
+    search % "test->test;compile->compile",
+    dataset % "test->test;compile->compile",
+    cms(base) % "test->test;compile->compile"
+  ).settings(scalarifromSettings :_*)
+
+
+  def allModules(base: File) = Seq(webCore, search, dataset, dos, cms(base), namedSlices(base)) ++ modules(base)
 
   def allModuleReferences(base: File) = allModules(base).map {x => x: ProjectReference }
 

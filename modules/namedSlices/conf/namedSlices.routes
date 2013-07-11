@@ -1,0 +1,9 @@
+GET         /admin/namedSlices                  @controllers.namedslices.admin.NamedSlices.list()
+GET         /admin/namedSlices/add              @controllers.namedslices.admin.NamedSlices.add()
+GET         /admin/namedSlices/:id              @controllers.namedslices.admin.NamedSlices.view(id: org.bson.types.ObjectId)
+GET         /admin/namedSlices/:id/update       @controllers.namedslices.admin.NamedSlices.update(id: org.bson.types.ObjectId)
+POST        /admin/namedSlices/submit           @controllers.namedslices.admin.NamedSlices.submit()
+DELETE      /admin/namedSlices/:id/remove       @controllers.namedslices.admin.NamedSlices.delete(id: org.bson.types.ObjectId)
+
+GET         /slices/:key                         @controllers.namedslices.NamedSlices.view(key)
+GET         /slices/:key/search                  @controllers.namedslices.NamedSlices.search(key, query)

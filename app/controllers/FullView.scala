@@ -7,6 +7,7 @@ import com.mongodb.casbah.Imports._
 import play.api.i18n.Messages
 import core.Constants.SEARCH_TERM
 import core.Constants.RETURN_TO_RESULTS
+import core.Constants.RETURN_TO_RESULTS_BASE_URL
 import com.escalatesoft.subcut.inject.BindingModule
 
 /**
@@ -41,12 +42,13 @@ class FullView(implicit val bindingModule: BindingModule) extends DelvingControl
             val navigateFromRelatedItem = request.queryString.getFirst("mlt").getOrElse("false").toBoolean
             val updatedSession = if (!navigateFromSearch && !navigateFromRelatedItem) {
               // we're coming from someplace else then a search, remove the return to results cookie
-              request.session - (RETURN_TO_RESULTS)
+              request.session - RETURN_TO_RESULTS - RETURN_TO_RESULTS_BASE_URL
             } else {
               request.session
             }
 
             val returnToResults = updatedSession.get(RETURN_TO_RESULTS).getOrElse("")
+            val returnToResultsBaseUrl = updatedSession.get(RETURN_TO_RESULTS_BASE_URL).getOrElse("")
             val searchTerm = updatedSession.get(SEARCH_TERM).getOrElse("")
 
             // TODO what follows is a hack to compensate for Salat not retrieving nested Seq's correctly
@@ -87,6 +89,7 @@ class FullView(implicit val bindingModule: BindingModule) extends DelvingControl
               'title -> title,
               'systemFields -> r.systemFields,
               'returnToResults -> returnToResults,
+              'returnToResultsBaseUrl -> returnToResultsBaseUrl,
               'returnToPreviousLink -> returnToPreviousLink,
               'returnToPreviousLabel -> returnToPreviousLabel,
               'orgId -> orgId,

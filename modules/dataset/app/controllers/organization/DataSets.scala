@@ -22,7 +22,17 @@ class DataSets(implicit val bindingModule: BindingModule) extends OrganizationCo
   def list = OrganizationMember {
     MultitenantAction {
       implicit request =>
-        Ok(Template('title -> listPageTitle("dataset"), 'canAdministrate -> DataSet.dao.canAdministrate(connectedUser)))
+
+        render {
+          case Accepts.Html() => Ok(Template('title -> listPageTitle("dataset"), 'canAdministrate -> DataSet.dao.canAdministrate(connectedUser)))
+          case Accepts.Json() =>
+            val sets = DataSet.dao.findAll()
+            val smallSets = sets.map { set =>
+              Map("key" -> set.spec, "name" -> set.details.name)
+            }
+            Json(smallSets)
+        }
+
     }
   }
 
