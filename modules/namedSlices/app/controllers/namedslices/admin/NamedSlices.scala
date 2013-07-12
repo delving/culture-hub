@@ -53,7 +53,7 @@ class NamedSlices(implicit val bindingModule: BindingModule) extends Organizatio
   def update(id: ObjectId) = OrganizationAdmin {
     implicit request =>
       crudUpdate(Some(id), additionalTemplateData = Some(creationPageTemplateData))
-  }1
+  }
 
   private def creationPageTemplateData(implicit request: MultitenantRequest[AnyContent], configuration: OrganizationConfiguration) = {
     val pages = CMSPage.dao.list(getLang, None).filter(_.published).map { page => (page.key, page.title) }
