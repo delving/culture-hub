@@ -17,7 +17,7 @@ trait SearchService {
 
   def getApiResult(queryString: Map[String, Seq[String]], host: String, hiddenQueryFilters: Seq[String] = Seq.empty)(implicit configuration: OrganizationConfiguration): PlainResult
 
-  def search(user: Option[String], query: List[String], params: Map[String, Seq[String]], host: String)(implicit configuration: OrganizationConfiguration): (Seq[ListItem], SearchResult)
+  def search(user: Option[String], hiddenQueryFilters: List[String], params: Map[String, Seq[String]], host: String)(implicit configuration: OrganizationConfiguration): (Seq[ListItem], SearchResult)
 
 }
 

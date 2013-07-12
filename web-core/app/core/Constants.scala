@@ -32,6 +32,7 @@ object Constants {
 
   // ~~~ Search UI
   val RETURN_TO_RESULTS = "returnToResults"
+  val RETURN_TO_RESULTS_BASE_URL = "returnToResultsBaseUrl"
   val SEARCH_TERM = "searchTerm"
   val IN_ORGANIZATION = "inOrg"
 

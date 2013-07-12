@@ -23,6 +23,7 @@ import org.json4s.native.{ JsonMethods, Printer }
  *
  * The idea is to provide a number of generic methods handling the listing, submission (create or update), and deletion of a model.
  *
+ * TODO cleanup the default handler method signatures, messy result of prototyping
  * TODO provide a way to override the default "name" field, which is used in the list action for deletion
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
@@ -114,18 +115,22 @@ trait CRUDController[Model <: CaseClass { def id: ObjectId }, D <: SalatDAO[Mode
     filter: Seq[(String, Any)] = Seq.empty)(implicit mom: Manifest[Model], mod: Manifest[D]) = OrganizationAdmin {
     implicit request =>
       crudList(titleKey, listTemplate, fields, true, true, true, Seq.empty, additionalActions, isAdmin(request), filter)
-
   }
 
-  def update(id: Option[ObjectId],
+  def add(templateName: Option[String] = None,
+    additionalTemplateData: Option[(Option[Model] => Seq[(Symbol, AnyRef)])] = None)(implicit mom: Manifest[Model], mod: Manifest[D]) = OrganizationAdmin {
+    implicit request =>
+      crudUpdate(None, templateName, additionalTemplateData)
+  }
+
+  def update(id: ObjectId,
     templateName: Option[String] = None,
     additionalTemplateData: Option[(Option[Model] => Seq[(Symbol, AnyRef)])] = None)(implicit mom: Manifest[Model], mod: Manifest[D]) = OrganizationAdmin {
     implicit request =>
-      crudUpdate(id, templateName, additionalTemplateData)
-
+      crudUpdate(Some(id), templateName, additionalTemplateData)
   }
 
-  def submit(implicit mom: Manifest[Model], mod: Manifest[D]) = OrganizationAdmin {
+  def submit()(implicit mom: Manifest[Model], mod: Manifest[D]) = OrganizationAdmin {
     implicit request =>
       crudSubmit()
   }

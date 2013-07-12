@@ -1,3 +1,4 @@
+GET             /page                                            @controllers.cms.CMS.listPages
 GET             /page/:key                                       @controllers.cms.CMS.page(key, menuKey: Option[String] = None)
 GET             /site/:menuKey/page/:key                         @controllers.cms.CMS.page(key, menuKey: Option[String])
 GET             /admin/site/upload                               @controllers.cms.organization.CMS.upload

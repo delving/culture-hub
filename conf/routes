@@ -149,6 +149,7 @@ GET         /search                                                             
 ->          /                                                                       mediator.Routes
 ->          /                                                                       sdu.Routes
 ->          /                                                                       ead.Routes
+->          /                                                                       namedSlices.Routes
 
 
 GET         /:user                                                                 @controllers.Profile.profile(user)

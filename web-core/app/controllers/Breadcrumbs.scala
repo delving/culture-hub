@@ -50,7 +50,9 @@ object Breadcrumbs {
           case _ => List(("/admin", orgId), ("NOLINK", Messages("musip.Collections")), ("NOLINK", p.get("title").get("label")))
         }
 
-      case "rijks" :: "search" :: Nil => List(("/rijks", Messages("_rijks.Rijkscollectie")), ("NOLINK", Messages("hub.Search")))
+      case "rijks" :: "search" :: Nil => List(("/rijks", Messages("rijks.Rijkscollectie")), ("NOLINK", Messages("hub.Search")))
+
+      case "slice" :: key :: "search" :: Nil => List(("/slice/" + key, Messages("namedslice.slice") + " " + key), ("NOLINK", Messages("hub.Search")))
 
       case "admin" :: Nil => List(("NOLINK", Messages("hubb.Organizations")), ("/admin", "Administration"))
       case "admin" :: "admin" :: Nil => List(("NOLINK", Messages("hubb.Organizations")), ("/admin", "Administration"), ("/admin" + "/admin", Messages("hub.OrganizationAdministration")))
