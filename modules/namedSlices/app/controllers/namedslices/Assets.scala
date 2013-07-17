@@ -1,0 +1,3 @@
+package controllers.namedslices
+
+object Assets extends controllers.AssetsBuilder

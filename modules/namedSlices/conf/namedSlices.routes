@@ -7,3 +7,5 @@ DELETE      /admin/namedSlices/:id/remove       @controllers.namedslices.admin.N
 
 GET         /slices/:key                         @controllers.namedslices.NamedSlices.view(key)
 GET         /slices/:key/search                  @controllers.namedslices.NamedSlices.search(key, query)
+
+GET         /assets/*file                        controllers.namedslices.Assets.at(path="/public", file)
