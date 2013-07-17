@@ -1,10 +1,12 @@
-GET              /admin/media                                            @controllers.mediator.organization.Mediator.index
-GET              /admin/media/:collectionId/list                         @controllers.mediator.organization.Mediator.collection(collectionId)
+GET         /admin/media                           @controllers.mediator.organization.Mediator.index
+GET         /admin/media/:collectionId/list        @controllers.mediator.organization.Mediator.collection(collectionId)
 
 ## Client-side
-POST             /media/fault/newFile                                    @controllers.mediator.organization.Mediator.newFileFault(orgId, set, fileName, userName)
+POST        /media/fault/newFile                   @controllers.mediator.organization.Mediator.newFileFault(orgId, set, fileName, userName)
 
 ## Server-side
-POST             /media/command/newFile                                  @controllers.mediator.MediatorServer.newFile(orgId, set, fileName, userName, errorCallbackUrl)
+POST        /media/command/newFile                 @controllers.mediator.MediatorServer.newFile(orgId, set, fileName, userName, errorCallbackUrl)
 
-GET              /media/:representationType/:orgId/:collection/*id       @controllers.mediator.Representations.representation(representationType, orgId, collection, id, accessKey: Option[String])
+GET         /media/:representationType/:orgId/:collection/*id        @controllers.mediator.Representations.representation(representationType, orgId, collection, id, accessKey: Option[String])
+
+GET         /assets/*file                          controllers.mediator.Assets.at(path="/public", file)

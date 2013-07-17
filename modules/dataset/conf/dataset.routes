@@ -15,3 +15,5 @@ GET               /api/sip-creator/unlock/:orgId/:spec              @controllers
 POST              /api/sip-creator/submit/:orgId/:spec/*fileName    @controllers.SipCreatorEndPoint.acceptFile(orgId, spec, fileName, accessKey: Option[String])
 POST              /api/sip-creator/submit/:orgId/:spec              @controllers.SipCreatorEndPoint.acceptFileList(orgId, spec, accessKey: Option[String])
 GET               /api/sip-creator/fetch/:orgId/:spec-sip.zip       @controllers.SipCreatorEndPoint.fetchSIP(orgId, spec, accessKey: Option[String])
+
+GET               /assets/*file                                     controllers.dataset.Assets.at(path="/public", file)

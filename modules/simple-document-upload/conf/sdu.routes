@@ -1,6 +1,8 @@
-GET         /admin/simpledocument                  @controllers.organizations.SimpleDocumentUpload.list
-GET         /admin/simpledocument/add              @controllers.organizations.SimpleDocumentUpload.add
-GET         /admin/simpledocument/:itemId/update   @controllers.organizations.SimpleDocumentUpload.update(itemId)
-POST        /admin/simpledocument/submit           @controllers.organizations.SimpleDocumentUpload.submit
-DELETE      /admin/simpledocument/:id/remove       @controllers.organizations.SimpleDocumentUpload.delete(id)
-POST        /admin/simpledocument/upload/:uid      @controllers.organizations.SimpleDocumentUpload.upload(uid, id)
+GET           /admin/simpledocument                        @controllers.organizations.SimpleDocumentUpload.list
+GET           /admin/simpledocument/add                    @controllers.organizations.SimpleDocumentUpload.add
+GET           /admin/simpledocument/:itemId/update         @controllers.organizations.SimpleDocumentUpload.update(itemId)
+POST          /admin/simpledocument/submit                 @controllers.organizations.SimpleDocumentUpload.submit
+DELETE        /admin/simpledocument/:id/remove             @controllers.organizations.SimpleDocumentUpload.delete(id)
+POST          /admin/simpledocument/upload/:uid            @controllers.organizations.SimpleDocumentUpload.upload(uid, id)
+
+GET           /assets/*file                                controllers.simpledocument.Assets.at(path="/public", file)

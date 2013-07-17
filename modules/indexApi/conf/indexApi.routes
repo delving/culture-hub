@@ -1,3 +1,5 @@
 GET         /api/index                                   @controllers.api.Index.status
 POST        /api/index                                   @controllers.api.Index.submit
 POST        /api/reIndex                                 @controllers.api.Index.reIndex
+
+GET         /assets/*file                                controllers.indexapi.Assets.at(path="/public", file)

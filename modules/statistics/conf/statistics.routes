@@ -1,2 +1,4 @@
-GET     /statistics         @controllers.statistics.Statistics.statistics
-GET     /api/statistics     @controllers.statistics.Statistics.legacyStatistics
+GET        /statistics            @controllers.statistics.Statistics.statistics
+GET        /api/statistics        @controllers.statistics.Statistics.legacyStatistics
+
+GET        /assets/*file          controllers.statistics.Assets.at(path="/public", file)
