@@ -1,7 +1,7 @@
 #{extends themeInfo.get('themeLayout') /}
 #{set title:'Image viewer' /}
 
-<script type='text/javascript' src="@{routes.Assets.at('common/javascripts/swfobject.js')}"></script>
+<script type='text/javascript' src="/public/common/javascripts/swfobject.js"></script>
 <script type="text/javascript">
 
   function displayImage(image) {
@@ -16,7 +16,7 @@
       allowfullscreen: "true",
       allowscriptaccess: "always"
     };
-    swfobject.embedSWF("@{routes.Assets.at('flash/IIPZoom.swf')}", 'container', '100%', '600px', '9.0.0', "@{routes.Assets.at('flash/expressInstall.swf')}", flashvars, params);
+    swfobject.embedSWF("/public/flash/IIPZoom.swf')}", 'container', '100%', '600px', '9.0.0', "@{routes.Assets.at('flash/expressInstall.swf", flashvars, params);
   }
 
   $(document).ready(function() {

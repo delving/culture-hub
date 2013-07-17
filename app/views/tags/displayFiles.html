@@ -33,7 +33,7 @@
         #{/if}
         #{elseif file.contentType().contains('audio/') }
         <a class="thumbNav #{if file_isFirst}active #{/if}" href="#">
-            <img src="@{routes.Assets.at('common/images/icon_audio.png')}" width="60" alt=""/>
+            <img src="/public/common/images/icon_audio.png" width="60" alt=""/>
             <input type="hidden" name="mimeType" value="${file.contentType()}"/>
             <input type="hidden" name="fileSrc" value="${file.id()}"/>
             <input type="hidden" name="previewSrc" value="${file.id()}/${_thumbWidth}"/>
@@ -42,7 +42,7 @@
         #{/elseif}
         #{elseif file.contentType().contains('video/') }
         <a class="thumbNav #{if file_isFirst}active #{/if}" href="#">
-            <img src="@{routes.Assets.at('common/images/icon_video.png')}" width="60" alt=""/>
+            <img src="/public/common/images/icon_video.png" width="60" alt=""/>
             <input type="hidden" name="mimeType" value="${file.contentType()}"/>
             <input type="hidden" name="fileSrc" value="${file.id()}"/>
             <input type="hidden" name="previewSrc" value="${file.id()}/${_thumbWidth}"/>

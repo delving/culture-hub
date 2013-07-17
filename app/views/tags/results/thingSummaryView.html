@@ -25,10 +25,10 @@ switch (recordType) {
         <img src='${_data.getThumbnailUri(_iSize)}' alt="${_data.getTitle()}" onerror="showDefaultImg(this)" style="max-width: 100%;"/>
     #{/if}
     #{elseif _data.getMimeType().contains('video/') }
-        <img src="@{routes.Assets.at('common/images/icon_video.png')}" width="80" alt="${_data.getTitle()}"/>
+        <img src="/public/common/images/icon_video.png" width="80" alt="${_data.getTitle()}"/>
     #{/elseif}
     #{elseif _data.getMimeType().contains('audio/') }
-        <img src="@{routes.Assets.at('common/images/icon_audio.png')}" width="80" alt="${_data.getTitle()}"/>
+        <img src="/public/common/images/icon_audio.png" width="80" alt="${_data.getTitle()}"/>
     #{/elseif}
     #{elseif _data.getMimeType().contains('unknown/') }
         <img src='${_data.getThumbnailUri(_iSize)}' alt="${_data.getTitle()}" onerror="showDefaultImg(this)"/>

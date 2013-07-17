@@ -3,7 +3,7 @@
 #{set pageId:'ho'/}
 #{if count > themeInfo.pageSize()}
 #{set 'moreScripts'}
-<script type="text/javascript" src="@{routes.Assets.at("common/javascripts/jquery.pagination.js")}"></script>
+<script type="text/javascript" src="/public/common/javascripts/jquery.pagination.js"></script>
 <script type="text/javascript">
         $(document).ready(function(){
             $(pageObject.selector).pagination(pageObject.count, {
