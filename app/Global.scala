@@ -64,7 +64,8 @@ object Global extends WithFilters(new GzipFilter()) with Instrumented {
     }
 
     OrganizationConfigurationHandler.registerResourceHolder(domainRequestCounters, initFirst = true)
-    SigarMetrics.getInstance().registerGauges()
+    // TODO find a good way to package the native sigar libraries during dist
+    //SigarMetrics.getInstance().registerGauges()
 
     // ~~~ load test data
 
