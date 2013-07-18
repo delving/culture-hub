@@ -7,7 +7,7 @@
 #{form.textField name:"terms", form: form, label: messages.get('namedslice.queryTerms'), dataBind:"value: query.terms", required: true, labelClass:"control-label"/}
 #{form.populatedSelectField options:dataSets, name:"dataSets", form: form, label:messages.get('dataset.Datasets'), dataBind:"selectedOptions: query.dataSets", multiple:true, labelClass:"control-label" /}
 #{form.populatedSelectField options:cmsPages, name:"cmsPageKey", form: form, label:messages.get('namedslice.cmsPage'), dataBind:"value: cmsPageKey", required: true, labelClass:"control-label" /}
-#{form.checkBoxField name:"published", form: form, label: messages.get('namedslice.publish'), dataBind:"checked: published", required: true, labelClass:"control-label"/}
+#{form.checkboxField name:"published", form: form, label: messages.get('namedslice.publish'), dataBind:"checked: published", required: true, labelClass:"control-label"/}
 
 
 <div class="control-group">
