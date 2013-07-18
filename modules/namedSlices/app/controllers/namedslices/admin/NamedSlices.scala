@@ -56,7 +56,7 @@ class NamedSlices(implicit val bindingModule: BindingModule) extends Organizatio
   }
 
   private def creationPageTemplateData(implicit request: MultitenantRequest[AnyContent], configuration: OrganizationConfiguration) = {
-    val pages = CMSPage.dao.list(getLang, None).filter(_.published).map { page => (page.key, page.title) }
+    val pages = CMSPage.dao.list(getLang, None).filter(_.published).filterNot(_.key == "homepage").map { page => (page.key, page.title) }
     val dataSets = DataSet.dao.findAll().map { set => (set.spec, set.details.name) }
 
     {
