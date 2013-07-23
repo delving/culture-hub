@@ -4937,6 +4937,9 @@ form.form-horizontal ul.token-input-list {
   border-top: 1px solid #eeeeee;
   padding: 8px 0;
 }
+#advanced-search .controls-row select {
+  vertical-align: top;
+}
 /*---------------------------------
 	BOOTSTRAP BUTTON HELPER
 -----------------------------------*/

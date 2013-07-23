@@ -74,7 +74,7 @@
                             <enumeration label="metadata.dc.format" separator="lf" path="/icn:record/dc:format,/icn:record/dcterms:extent"/>
                             <enumeration label="metadata.icn.material" separator=", " path="/icn:record/icn:material" />
                             <enumeration label="metadata.icn.technique" separator=", " path="/icn:record/icn:technique"/>
-                            <enumeration label="metadata.dc.subject" separator=", " path="/icn:record/dc:subject/icn:record/dcterms:temporal,/icn:record/dcterms:spatial,/icn:record/dc:coverage"/>
+                            <enumeration label="metadata.dc.subject" separator=", " path="/icn:record/dc:subject,/icn:record/dcterms:temporal,/icn:record/dcterms:spatial,/icn:record/dc:coverage"/>
                             <!--<field path="/icn:record/dc:coverage" label="metadata.dc.coverage"/>-->
                             <enumeration label="metadata.dc.relation"
                                          separator=", " path="/icn:record/dc:relation,/icn:record/dcterms:references,/icn:record/dcterms:isReferencedBy,/icn:record/dcterms:isReplacedBy,
