@@ -17,7 +17,8 @@
 package controllers.dos
 
 import play.api.mvc._
-import play.api.Logger
+import play.api.{ Play, Logger }
+import play.api.Play.current
 
 import com.mongodb.casbah.Imports._
 import org.bson.types.ObjectId
@@ -27,6 +28,8 @@ import java.util.Date
 import play.api.libs.iteratee.Enumerator
 import extensions.MissingLibs
 import controllers.OrganizationConfigurationAware
+import util.OrganizationConfigurationHandler
+import java.io.{ FileFilter, File }
 
 /**
  *
@@ -67,7 +70,69 @@ object ImageDisplay extends Controller with RespondWithDefaultImage with Organiz
     }
   }
 
+  def displayRawImage(id: String, orgId: String, collectionId: String) = OrganizationConfigured {
+    Action {
+      implicit request =>
+        {
+          // check access permissions via api key in configuration
+          val wsKey: String = request.getQueryString("wskey").getOrElse("empty")
+          val hasAccess: Boolean = configuration.searchService.apiWsKeys.contains(wsKey)
+          if (hasAccess) getRawImage(id, orgId, collectionId)
+          else {
+            Logger.info(s"Not authorised to request raw image for: /raw/$orgId/$collectionId/$id")
+            Unauthorized
+          }
+        }
+    }
+  }
+
   // ~~ PRIVATE
+
+  private[dos] def getRawImage(id: String, orgId: String, collectionId: String): Result = {
+    val configuration = if (Play.isDev) OrganizationConfigurationHandler.getByOrgId("delving")
+    else OrganizationConfigurationHandler.getByOrgId("media")
+
+    val tilesWorkingBasePath = new File(configuration.objectService.tilesOutputBaseDir)
+    val rawBasePath = new File(configuration.objectService.tilesOutputBaseDir + "/raw")
+
+    def checkOrCreate(dir: File) = dir.exists() || !dir.exists() && dir.mkdir()
+
+    if (!checkOrCreate(tilesWorkingBasePath)) {
+      Logger.error("Cannot find / create tiles base directory '%s'".format(tilesWorkingBasePath.getAbsolutePath))
+      return NotFound
+    }
+
+    if (!checkOrCreate(rawBasePath)) {
+      Logger.error("Cannot find / create raw base directory '%s'".format(rawBasePath.getAbsolutePath))
+      return NotFound
+    }
+
+    // check if file exist, with filtering by prefix (only the id is known in the api)
+    val rawSourceDir = new File(s"$rawBasePath/$orgId/$collectionId/")
+    if (!rawSourceDir.exists()) return NotFound
+
+    val targetFiles = rawSourceDir.listFiles(new FileFilter {
+      def accept(p1: File): Boolean = p1.getName.startsWith(id)
+    })
+
+    Logger.info(s"requesting files matching $rawSourceDir/$id")
+    if (targetFiles.isEmpty) {
+      Logger.warn(s"File $rawSourceDir/$id not found.")
+      NotFound
+    } else {
+      val sourceFile: File = targetFiles.head
+      Logger.info(s"Found file ${sourceFile.getAbsolutePath} and preparing to serve")
+
+      val dataContent: Enumerator[Array[Byte]] = Enumerator.fromFile(sourceFile)
+      Mimetype.mimeEncoding(sourceFile) match {
+        case Left(t) => {
+          Logger.warn(s"Unable to find mime-type for ${sourceFile.getAbsolutePath}.")
+          Ok.stream(dataContent)
+        }
+        case Right(t) => Ok.stream(dataContent).withHeaders(CONTENT_TYPE -> t)
+      }
+    }
+  }
 
   private[dos] def renderImage(id: String,
     orgId: String = "",
@@ -180,4 +245,55 @@ object ImageDisplay extends Controller with RespondWithDefaultImage with Organiz
         }
     }
   }
+}
+
+import java.io.File
+import scala.sys.process._
+
+object Mimetype {
+  private val log = Logger(Mimetype.getClass())
+
+  def mimeType(file: File): Either[Int, String] = {
+    var retValue: Option[String] = None
+    val ret = try {
+      Seq("file", "--mime-type", "-b", file.getAbsolutePath) ! ProcessLogger(line => retValue = Some(line))
+    } catch {
+      case e: Throwable =>
+        log.error(e.getMessage)
+        -1
+    }
+    if (ret != 0) {
+      Left(ret)
+    } else {
+      retValue match {
+        case Some(mimeType) =>
+          if (mimeType startsWith "text") {
+            mimeEncoding(file) match {
+              case Right(enc) => Right("%smimeType); charset=%s" format (mimeType, enc))
+              case Left(ret) => Left(ret)
+            }
+          } else {
+            Right(mimeType)
+          }
+        case None => Left(-1)
+      }
+    }
+  }
+
+  def mimeEncoding(file: File): Either[Int, String] = {
+    var retValue: Option[String] = None
+    val ret = try {
+      Seq("file", "-e", "cdf", "--mime-encoding", "-b", file.getAbsolutePath) ! ProcessLogger(line => retValue = Some(line))
+    } catch {
+      case e: Throwable =>
+        log.error(e.getMessage)
+        -1
+    }
+    if (ret != 0) {
+      Left(ret)
+    } else {
+      retValue.toRight(-1)
+    }
+  }
+
 }
