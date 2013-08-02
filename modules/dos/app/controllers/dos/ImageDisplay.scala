@@ -17,7 +17,8 @@
 package controllers.dos
 
 import play.api.mvc._
-import play.api.Logger
+import play.api.{ Play, Logger }
+import play.api.Play.current
 
 import com.mongodb.casbah.Imports._
 import org.bson.types.ObjectId
@@ -88,10 +89,11 @@ object ImageDisplay extends Controller with RespondWithDefaultImage with Organiz
   // ~~ PRIVATE
 
   private[dos] def getRawImage(id: String, orgId: String, collectionId: String): Result = {
-    val configuration = OrganizationConfigurationHandler.getByOrgId(orgId)
+    val configuration = if (Play.isDev) OrganizationConfigurationHandler.getByOrgId("delving")
+    else OrganizationConfigurationHandler.getByOrgId("media")
 
-    val tilesWorkingBasePath = new File(configuration.objectService.tilesWorkingBaseDir)
-    val rawBasePath = new File(configuration.objectService.tilesWorkingBaseDir + "/raw")
+    val tilesWorkingBasePath = new File(configuration.objectService.tilesOutputBaseDir)
+    val rawBasePath = new File(configuration.objectService.tilesOutputBaseDir + "/raw")
 
     def checkOrCreate(dir: File) = dir.exists() || !dir.exists() && dir.mkdir()
 
@@ -115,7 +117,7 @@ object ImageDisplay extends Controller with RespondWithDefaultImage with Organiz
 
     Logger.info(s"requesting files matching $rawSourceDir/$id")
     if (targetFiles.isEmpty) {
-      Logger.info(s"File $rawSourceDir/$id not found.")
+      Logger.warn(s"File $rawSourceDir/$id not found.")
       NotFound
     } else {
       val sourceFile: File = targetFiles.head
@@ -123,7 +125,10 @@ object ImageDisplay extends Controller with RespondWithDefaultImage with Organiz
 
       val dataContent: Enumerator[Array[Byte]] = Enumerator.fromFile(sourceFile)
       Mimetype.mimeEncoding(sourceFile) match {
-        case Left(t) => Ok.stream(dataContent)
+        case Left(t) => {
+          Logger.warn(s"Unable to find mime-type for ${sourceFile.getAbsolutePath}.")
+          Ok.stream(dataContent)
+        }
         case Right(t) => Ok.stream(dataContent).withHeaders(CONTENT_TYPE -> t)
       }
     }

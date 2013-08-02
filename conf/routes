@@ -59,7 +59,7 @@ GET        /thumbnail/:id/:width                                                
 GET        /thumbnail/*id                                                           controllers.dos.ImageDisplay.displayThumbnail(id, orgId = "", collectionId = "", width: Option[String] = None, browse: Boolean = false, fileId: Boolean = true, headOnly: Boolean = false)
 
 ## Get raw image
-GET        /raw/:orgId/:collectionId/*id                                          controllers.dos.ImageDisplay.displayRawImage(id, orgId, collectionId)
+GET        /media/raw/:orgId/:collectionId/*id                                      controllers.dos.ImageDisplay.displayRawImage(id, orgId, collectionId)
 
 # UI
 GET     /@dos                                                                       controllers.dos.ui.MCP.index
