@@ -122,18 +122,24 @@ object ImageDisplay extends Controller with RespondWithDefaultImage with Organiz
     } else {
       val sourceFile: File = targetFiles.head
       Logger.info(s"Found file ${sourceFile.getAbsolutePath} and preparing to serve")
+      // streaming data
+      //      val dataContent: Enumerator[Array[Byte]] = Enumerator.fromFile(sourceFile)
+      //      Mimetype.mimeType(sourceFile) match {
+      //        case Left(t) => {
+      //          Logger.warn(s"Unable to find mime-type for ${sourceFile.getAbsolutePath}")
+      //          Ok.stream(dataContent)
+      //        }
+      //        case Right(t) => {
+      //          Logger.info(s"Determined mime-type '${t}' for ${sourceFile.getAbsolutePath}")
+      //          Ok.stream(dataContent).withHeaders(CONTENT_TYPE -> t)
+      //        }
+      //      }
+      // simple send with Play helper
+      Ok.sendFile(
+        content = sourceFile,
+        inline = true
+      )
 
-      val dataContent: Enumerator[Array[Byte]] = Enumerator.fromFile(sourceFile)
-      Mimetype.mimeType(sourceFile) match {
-        case Left(t) => {
-          Logger.warn(s"Unable to find mime-type for ${sourceFile.getAbsolutePath}")
-          Ok.stream(dataContent)
-        }
-        case Right(t) => {
-          Logger.info(s"Determined mime-type '${t}' for ${sourceFile.getAbsolutePath}")
-          Ok.stream(dataContent).withHeaders(CONTENT_TYPE -> t)
-        }
-      }
     }
   }
 
