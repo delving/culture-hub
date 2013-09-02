@@ -138,6 +138,8 @@ class SOLRSearchService extends SearchService {
             summary.renderAsKML(authorized, context.params)
           case "kml-a" =>
             summary.renderAsABCKML(authorized, context.params)
+          case "kml-ab" =>
+            summary.renderAsABCKML(authorized, context.params, false)
           case "kml-knr" =>
             summary.renderAsKNreiseKML(authorized, context.params)
           case _ =>
@@ -415,7 +417,7 @@ case class SearchSummary(result: BriefItemView, context: SearchContext, chRespon
       value
   }
 
-  def renderAsABCKML(authorized: Boolean, params: Params): Renderable = new Renderable {
+  def renderAsABCKML(authorized: Boolean, params: Params, renderSource: Boolean = true): Renderable = new Renderable {
     def toJson(context: SearchContext) = None
 
     def asXml(context: SearchContext) = Some({
@@ -473,8 +475,10 @@ case class SearchSummary(result: BriefItemView, context: SearchContext, chRespon
             { renderData("delving_title", "titel", item) }
             { renderData("dcterms_spatial", "ondertitel", item) }
             {
-              renderData("delving_landingPage", "bron", item, cdata = true,
-                """<a href="%s" target="_blank">Naar online collectie %s</a>""".format(item.getAsString("delving_landingPage"), item.getAsString("delving_owner")))
+              if (renderSource) {
+                renderData("delving_landingPage", "bron", item, cdata = true,
+                  """<a href="%s" target="_blank">Naar online collectie %s</a>""".format(item.getAsString("delving_landingPage"), item.getAsString("delving_owner")))
+              }
             }
             { renderData("delving_thumbnail", "thumbnail", item) }
             { renderData("europeana_isShownBy", "image", item) }
