@@ -478,6 +478,7 @@ case class SearchSummary(result: BriefItemView, context: SearchContext, chRespon
             }
             { renderData("delving_thumbnail", "thumbnail", item) }
             { renderData("europeana_isShownBy", "image", item) }
+            { renderData("dcterms_references", "cluster", item) }
           </ExtendedData>
         </Placemark>
       }
