@@ -14,6 +14,8 @@ import play.api.libs.concurrent.Execution.Implicits._
 
 class TikaIndexerSpec extends FunSpec with ShouldMatchers {
 
+  args(skipAll = true)
+
   describe("A TikaIndexer") {
 
     describe("(when receiving an url to a pdf object)") {
