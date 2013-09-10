@@ -3,7 +3,8 @@
 #{set bodyId: 'authenticate' /}
 <div class="row">
     <div class="span4 offset4">
-        <form method="POST" class="well" action="@{controllers.routes.Authentication.authenticate()}">
+
+        <form method="POST" class="well" action="/login">
             <h2>&{'hub.Login'}</h2>
             #{if flash.error}
             <p class="alert alert-error">
