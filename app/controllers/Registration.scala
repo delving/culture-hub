@@ -136,7 +136,7 @@ class Registration(implicit val bindingModule: BindingModule) extends Applicatio
               r.password1
             )
 
-            val index = Redirect(controllers.routes.Application.index())
+            val index = Redirect("/")
 
             activationToken match {
               case Some(token) =>
@@ -179,7 +179,7 @@ class Registration(implicit val bindingModule: BindingModule) extends Applicatio
   def activate(activationToken: String) = ApplicationAction {
     MultitenantAction {
       implicit request =>
-        val indexAction = Redirect(controllers.routes.Application.index())
+        val indexAction = Redirect("/")
         if (Option(activationToken).isEmpty) {
           log.warn("Empty activation token received")
           indexAction.flashing(("activation", "false"))
@@ -271,10 +271,10 @@ class Registration(implicit val bindingModule: BindingModule) extends Applicatio
                   resetPasswordToken,
                   request.host
                 )
-                Redirect(controllers.routes.Application.index()).flashing(("resetPasswordEmail", "true"))
+                Redirect("/").flashing(("resetPasswordEmail", "true"))
               case None =>
                 // TODO adjust view for this case
-                Redirect(controllers.routes.Application.index()).flashing(("resetPasswordEmail", "false"))
+                Redirect("/").flashing(("resetPasswordEmail", "false"))
             }
           }
         )
@@ -285,7 +285,7 @@ class Registration(implicit val bindingModule: BindingModule) extends Applicatio
   def resetPassword(resetPasswordToken: String) = MultitenantAction {
     implicit request =>
       renderArgs += ("themeInfo" -> new ThemeInfo(configuration))
-      val indexAction = Redirect(controllers.routes.Application.index())
+      val indexAction = Redirect("/")
       if (Option(resetPasswordToken).isEmpty) {
         indexAction.flashing(("resetPasswordError", Messages("hub.ResetPasswordTokenNotFound")))
       } else {
@@ -311,7 +311,7 @@ class Registration(implicit val bindingModule: BindingModule) extends Applicatio
     implicit request =>
       renderArgs += ("themeInfo" -> new ThemeInfo(configuration))
       if (Option(resetPasswordToken).isEmpty) {
-        Redirect(controllers.routes.Application.index()).flashing(
+        Redirect("/").flashing(
           ("resetPasswordError", Messages("hub.ResetPasswordTokenNotFound"))
         )
       } else {
@@ -323,11 +323,11 @@ class Registration(implicit val bindingModule: BindingModule) extends Applicatio
               newPassword.password1
             )
             if (passwordChanged) {
-              Redirect(controllers.routes.Application.index()).flashing(
+              Redirect("/").flashing(
                 ("resetPasswordSuccess", "true")
               )
             } else {
-              Redirect(controllers.routes.Application.index()).flashing(
+              Redirect("/").flashing(
                 ("resetPasswordError", Messages("hub.ErrorResettingYourPassword"))
               )
             }

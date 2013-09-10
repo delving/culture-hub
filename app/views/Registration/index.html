@@ -5,7 +5,7 @@
 
     <h3>${messages.get('hub.RegisterFor', themeInfo.siteName())}</h3>
 
-    <form id="registrationForm" action="@{controllers.routes.Registration.register()}" method="POST" class="form-delving">
+    <form id="registrationForm" action="/registration/register" method="POST" class="form-delving">
 
     *{#{authenticityToken /}}*
     <div class="row">
@@ -38,7 +38,7 @@
                     <span class="error">${views.Helpers.showError("code", registrationForm)}</span>
                     <span class="help-inline"><strong>&{'hub.Required'}</strong></span>
                     <div class="extra">
-                        <img src="@{controllers.routes.Registration.captcha(randomId)}" align="top"/>
+                        <img src="/registration/captcha/${randomId}" align="top"/>
                     </div>
                 </div>
             </div>
