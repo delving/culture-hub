@@ -39,11 +39,11 @@ trait Search extends DelvingController { this: Controller with BoundController w
 
             val orgIdFilter = "%s:%s".format(ORG_ID.key, configuration.orgId)
 
-            val itemTypesFilter = ("(%s)".format(
+            val itemTypesFilter = "(%s)".format(
               itemTypes.map(t => "%s:%s".format(RECORD_TYPE.key, t.itemType)).mkString(" OR ")
-            ))
+            )
 
-            val hiddenQueryFilters = if (itemTypes.isEmpty) List(orgIdFilter) else List(itemTypesFilter, orgIdFilter)
+            val hiddenQueryFilters = if (itemTypes.isEmpty || configuration.orgId == "ifthenisnow") List(orgIdFilter) else List(itemTypesFilter, orgIdFilter)
 
             searchServiceLocator.byDomain.getApiResult(request.queryString, request.host, hiddenQueryFilters)
 
