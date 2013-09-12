@@ -73,7 +73,7 @@
         load(${data.raw()}, viewModel, document.getElementById('itemForm'), function () {
 
             $('#fileupload').fileupload({
-                url: '@{controllers.user.routes.FileUpload.uploadFile(uid)}',
+                url: '/admin/file/upload/${uid}',
                 autoUpload: true,
                 uploadTemplate: _renderUploadTemplate,
                 downloadTemplate: _renderDownloadTemplate,

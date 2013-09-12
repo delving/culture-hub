@@ -133,8 +133,8 @@ POST        /admin/groups/submit                                                
                                                                                 
 GET         /admin/directory/organizationLookup                                     @controllers.organization.DataSetControl.organizationLookup(term)
 
-POST        /admin/file/upload/:uid                                                 @controllers.dos.FileUpload.uploadFile(uid)
-DELETE      /admin/file/:id                                                         @controllers.dos.FileUpload.deleteFile(id)
+POST        /admin/file/upload/:uid                                                 controllers.dos.FileUpload.uploadFile(uid)
+DELETE      /admin/file/:id                                                         controllers.dos.FileUpload.deleteFile(id)
 
 GET         /places/search                                                          @controllers.ws.Places.listAsTokens(q: String ?= "", countryCode: Option[String])
 

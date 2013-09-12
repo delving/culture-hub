@@ -47,7 +47,7 @@
 
             #{if fileUploadEnabled}
                 $('#fileupload').fileupload({
-                    url: '@{controllers.user.routes.FileUpload.uploadFile(uid)}',
+                    url: '/admin/file/upload/${uid}',
                     autoUpload: true,
                     uploadTemplate: _renderUploadTemplate,
                     downloadTemplate: _renderDownloadTemplate,
