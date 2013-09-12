@@ -133,13 +133,15 @@ POST        /admin/groups/submit                                                
                                                                                 
 GET         /admin/directory/organizationLookup                                     @controllers.organization.DataSetControl.organizationLookup(term)
 
+POST        /admin/file/upload/:uid                                                 @controllers.dos.FileUpload.uploadFile(uid)
+DELETE      /admin/file/:id                                                         @controllers.dos.FileUpload.deleteFile(id)
 
 GET         /places/search                                                          @controllers.ws.Places.listAsTokens(q: String ?= "", countryCode: Option[String])
 
-GET         /users                                                                 @controllers.Users.list(query: String ?= "", page: Int ?= 1)
-GET         /users/search                                                          @controllers.Users.listAsTokens(orgId: Option[String] = None, q: String ?= "")
+GET         /users                                                                  @controllers.Users.list(query: String ?= "", page: Int ?= 1)
+GET         /users/search                                                           @controllers.Users.listAsTokens(orgId: Option[String] = None, q: String ?= "")
 
-GET         /search                                                                @controllers.Search.index(query ?= "*:*", page: Int ?= 1)
+GET         /search                                                                 @controllers.Search.index(query ?= "*:*", page: Int ?= 1)
 
 ->          /                                                                       search.Routes
 ->          /                                                                       dataset.Routes
@@ -152,12 +154,13 @@ GET         /search                                                             
 ->          /                                                                       ead.Routes
 
 
-GET         /:user                                                                 @controllers.Profile.profile(user)
+GET         /:user                                                                  @controllers.Profile.profile(user)
 
-GET         /:user/admin/profile/update                                            @controllers.user.Admin.profile(user)
-POST        /:user/admin/profile                                                   @controllers.user.Admin.profileSubmit(user)
+GET         /:user/admin/profile/update                                             @controllers.user.Admin.profile(user)
+POST        /:user/admin/profile                                                    @controllers.user.Admin.profileSubmit(user)
 
 # Map static resources from the /public folder to the /assets URL path
+
 GET         /assets/*file                                                           controllers.Assets.at(path="/public", file)
 
 
