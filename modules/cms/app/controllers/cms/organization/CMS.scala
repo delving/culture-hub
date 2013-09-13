@@ -43,9 +43,14 @@ class CMS(implicit val bindingModule: BindingModule) extends OrganizationControl
   def list(language: Option[String], menu: Option[String]) = CMSAction {
     MultitenantAction {
       implicit request =>
-        val lang = language.getOrElse(getLang)
-        val pages = CMSPage.dao.list(getLang, menu)
-        Ok(Template('data -> JJson.generate(Map("pages" -> pages)), 'languages -> getLanguages, 'currentLanguage -> lang, 'menuKey -> menu.getOrElse("")))
+        val lang = if (language.isDefined) Lang.get(language.get).getOrElse(getLang) else getLang
+        val pages = CMSPage.dao.list(lang, menu)
+        Ok(Template(
+          'data -> JJson.generate(Map("pages" -> pages)),
+          'languages -> getLanguages,
+          'currentLanguage -> lang.code,
+          'menuKey -> menu.getOrElse("")
+        ))
     }
   }
 

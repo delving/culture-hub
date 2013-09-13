@@ -65,7 +65,12 @@
                     No pages available
                 </td>
                 <td>
+                    #{if menuKey }
                     <a class="btn btn-primary btn-mini" href="/admin/site/${currentLanguage}/page/add/${menuKey}" rel="nofollow">${messages.get('hub.New')}</a>
+                    #{/if}
+                    #{else}
+                    <a class="btn btn-primary btn-mini" href="/admin/site/${currentLanguage}/page/add" rel="nofollow">${messages.get('hub.New')}</a>
+                    #{/else}
                 </td>
             </tr>
             </tbody>
