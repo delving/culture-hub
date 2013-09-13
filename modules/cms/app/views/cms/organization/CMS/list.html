@@ -10,7 +10,7 @@
 
 <div class="row">
     <div class="span12">
-        <form class="form-inline well">
+        <form class="form-inline well well-small pull-left">
             <label for="language">&{'cms.ListPagesIn'}</label>
             <select id="language" name="language">
             #{list languages, as: 'option'}
@@ -46,13 +46,13 @@
                 </td>
                 <td>
                     <a class="btn btn-primary btn-mini" href="#" data-bind="click: function() { $parent.editPage($data) }" rel="nofollow">
-                        <i class="icon-edit icon-white"></i> &{'hub.Edit'}
+                        <i class="icon-edit icon-white"></i>
                     </a>
-                    <a class="btn btn-inverse btn-mini" target="_blank" href="#" data-bind="click: function() { $parent.previewPage($data) }" rel="nofollow">
-                        <i class="icon-eye-open icon-white"></i> &{'hub.Preview'}
+                    <a class="btn btn-success btn-mini" target="_blank" href="#" data-bind="click: function() { $parent.previewPage($data) }" rel="nofollow">
+                        <i class="icon-eye-open icon-white"></i>
                     </a>
                     <a class="btn btn-danger btn-mini pull-right delete" href="#" data-bind="click: function() { $parent.deletePage($data) }" rel="nofollow">
-                        <i class="icon-trash icon-white"></i> &{'hub.Delete'}
+                        <i class="icon-trash icon-white"></i>
                     </a>
                 </td>
             </tr>
