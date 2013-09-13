@@ -160,7 +160,7 @@ class CMS(implicit val bindingModule: BindingModule) extends OrganizationControl
   def pagePreview(key: String, language: String) = CMSAction {
     MultitenantAction {
       implicit request =>
-        CMSPage.dao.find(MongoDBObject("key" -> key, "lang" -> getLang)).$orderby(MongoDBObject("_id" -> -1)).limit(1).toList.headOption match {
+        CMSPage.dao.find(MongoDBObject("key" -> key, "lang" -> language)).$orderby(MongoDBObject("_id" -> -1)).limit(1).toList.headOption match {
           case None => NotFound(key)
           case Some(pagePreview) => Ok(Template('page -> pagePreview))
         }
