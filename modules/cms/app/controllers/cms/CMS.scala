@@ -30,7 +30,7 @@ class CMS(implicit val bindingModule: BindingModule) extends DelvingController {
     MultitenantAction {
       implicit request =>
         CMSPage.dao.find(
-          MongoDBObject("key" -> key, "lang" -> getLang)
+          MongoDBObject("key" -> key, "lang" -> getLang.code)
         ).$orderby(MongoDBObject("_id" -> -1)).limit(1).toList.headOption match {
             case None => NotFound(key)
             case Some(page) =>
