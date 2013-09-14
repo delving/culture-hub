@@ -222,7 +222,6 @@ trait CRUDController[Model <: CaseClass { def id: ObjectId }, D <: SalatDAO[Mode
 
   def crudUpdate[A](id: Option[ObjectId], templateName: Option[String] = None, additionalTemplateData: Option[(Option[Model] => Seq[(Symbol, AnyRef)])])(implicit request: MultitenantRequest[A], configuration: OrganizationConfiguration,
     mom: Manifest[Model], mod: Manifest[D]): Result = {
-
     implicit val formats = DefaultFormats
 
     val resolvedTemplateName = templateName.getOrElse("organization/" + className + "s/update.html")
@@ -273,7 +272,6 @@ trait CRUDController[Model <: CaseClass { def id: ObjectId }, D <: SalatDAO[Mode
       }
     }.getOrElse {
       val json = serializeToJson(emptyModel, isCreated = true)
-      log.debug(json)
       val templateData = computeTemplateData(None, json)
       Ok(Template(resolvedTemplateName, templateData: _*))
     }
