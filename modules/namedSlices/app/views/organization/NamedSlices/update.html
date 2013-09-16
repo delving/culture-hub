@@ -4,8 +4,18 @@
 
 #{form.textField name:"key", form: form, label: messages.get('hub.Identifier'), dataBind:"value: key", maxLength: 60, required: true, labelClass:"control-label"/}
 #{form.textField name:"name", form: form, label: messages.get('hubb.Name'), dataBind:"value: name", maxLength: 60, required: true, labelClass:"control-label"/}
-#{form.textField name:"terms", form: form, label: messages.get('namedslice.queryTerms'), dataBind:"value: query.terms", required: true, labelClass:"control-label"/}
 #{form.populatedSelectField options:dataSets, name:"dataSets", form: form, label:messages.get('dataset.Datasets'), dataBind:"selectedOptions: query.dataSets", multiple:true, labelClass:"control-label" /}
+<div class="control-group">
+    <div class="controls">
+        <span id="datasets-select-all" class="btn btn-mini">&{'namedslice.selectAllDataSets'}</span>
+    </div>
+</div>
+#{form.textField name:"terms", form: form, label: messages.get('namedslice.queryTerms'), dataBind:"value: query.terms", required: true, labelClass:"control-label"/}
+<div class="control-group">
+    <div class="controls">
+        <span id="no-query-term" class="btn btn-mini">&{'namedslice.noQueryTerm'}</span>
+    </div>
+</div>
 #{form.populatedSelectField options:cmsPages, name:"cmsPageKey", form: form, label:messages.get('namedslice.cmsPage'), dataBind:"value: cmsPageKey", required: true, labelClass:"control-label" /}
 #{form.checkboxField name:"published", form: form, label: messages.get('namedslice.publish'), dataBind:"checked: published", required: true, labelClass:"control-label"/}
 
@@ -37,5 +47,13 @@
             var previewWindow = window.open(searchURL, '_blank');
             previewWindow.focus();
         })
+
+        $('#datasets-select-all').click( function() {
+            $('#dataSets option').prop('selected', true);
+        });
+        $('#no-query-term').click( function() {
+            $('#terms').val('*:*');
+        });
+
     })
 </script>
