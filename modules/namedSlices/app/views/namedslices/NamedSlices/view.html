@@ -6,17 +6,16 @@
 
 <div class="row">
     <div class="span12">
-        ${pageContent.raw()}
-    </div>
-</div>
-<div class="row">
-    <div class="span6">
-        <form method="get" action="/slices/${key}/search" class="form-horizontal well" id="simple-search" onsubmit="return checkSimpleSearchSubmit('query-slice');">
+        <form method="get" action="/slices/${key}/search" class="form-horizontal well well-small" id="simple-search" onsubmit="return checkSimpleSearchSubmit('query-slice');">
             <div class="input-append">
                 <input class="" placeholder="&{'hub.Search'} ..." type="text" id="query-slice" name="query" value='${params.get("query")? params.get("query")[0] : ""}'/>
                 <button type="submit" class="btn" title="&{'hub.Search'}">&{'hub.Search'}</button>
             </div>
         </form>
-
+    </div>
+</div>
+<div class="row">
+    <div class="span12">
+        ${pageContent.raw()}
     </div>
 </div>
