@@ -8,6 +8,7 @@
 <div class="control-group">
     <div class="controls">
         <span id="datasets-select-all" class="btn btn-mini">&{'namedslice.selectAllDataSets'}</span>
+        <span id="datasets-all-selected">All datasets are selected!</span>
     </div>
 </div>
 #{form.textField name:"terms", form: form, label: messages.get('namedslice.queryTerms'), dataBind:"value: query.terms", required: true, labelClass:"control-label"/}
@@ -48,9 +49,14 @@
             previewWindow.focus();
         })
 
+        // Select ALL datasets
+        $('#datasets-all-selected').hide();
         $('#datasets-select-all').click( function() {
-            $('#dataSets option').prop('selected', true);
+            $('#datasets-all-selected').toggle();
+            $('#dataSets').toggle();
         });
+
+        // No query
         $('#no-query-term').click( function() {
             $('#terms').val('*:*');
         });
