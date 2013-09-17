@@ -1,30 +1,56 @@
 #{extends "organization/crudUpdate.html" /}
 
+<div class="accordion" id="instructions">
+    <div class="accordion-group">
+        <div class="accordion-heading  clearfix">
+            <a class="accordion-toggle pull-right" href="#collapseOne" data-parent="instructions" data-toggle="collapse" rel="nofollow">
+                <i class="icon-question-sign"></i> &{'namedslice.HelpWithNamedSlices'}
+            </a>
+        </div>
+        <div id="collapseOne" class="accordion-body collapse">
+            <div class="accordion-inner">
+                <p>
+                    A "named slice" is a custom collection that you compose yourself by selecting slices or parts (through use of query terms) from either a single or multiple collections.
+                </p>
+                <p>
+                    In order to give end-users access to a named-slice you first need to create a CMS page in which the slice will be embedded.
+                    Important to note is that when creating this CMS page, is that you DO NOT attach the cms page to a menu (for the menu options of the CMS page choose "None").  Also make sure to publish the page.
+                </p>
+                <p>
+                    Once you have done this you can start creating your named slice. When it comes to choosing the CMS page for your named slice, choose the one you just created. After you save the named slice a link will appear in the main menu with the name you entered for the slice. When you click this link you will go to the CMS page you created and from there you can search through the custom collection (named slice) you just created.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
 <h2>&{'namedslice.namedSlice'}</h2>
 
 #{form.textField name:"key", form: form, label: messages.get('hub.Identifier'), dataBind:"value: key", maxLength: 60, required: true, labelClass:"control-label"/}
 #{form.textField name:"name", form: form, label: messages.get('hubb.Name'), dataBind:"value: name", maxLength: 60, required: true, labelClass:"control-label"/}
 #{form.populatedSelectField options:dataSets, name:"dataSets", form: form, label:messages.get('dataset.Datasets'), dataBind:"selectedOptions: query.dataSets", multiple:true, labelClass:"control-label" /}
+
 <div class="control-group">
     <div class="controls">
         <span id="datasets-select-all" class="btn btn-mini">&{'namedslice.selectAllDataSets'}</span>
         <span id="datasets-all-selected">All datasets are selected!</span>
     </div>
 </div>
+
 #{form.textField name:"terms", form: form, label: messages.get('namedslice.queryTerms'), dataBind:"value: query.terms", required: true, labelClass:"control-label"/}
+
 <div class="control-group">
     <div class="controls">
         <span id="no-query-term" class="btn btn-mini">&{'namedslice.noQueryTerm'}</span>
     </div>
 </div>
+
 #{form.populatedSelectField options:cmsPages, name:"cmsPageKey", form: form, label:messages.get('namedslice.cmsPage'), dataBind:"value: cmsPageKey", required: true, labelClass:"control-label" /}
 #{form.checkboxField name:"published", form: form, label: messages.get('namedslice.publish'), dataBind:"checked: published", required: true, labelClass:"control-label"/}
-
 
 <div class="control-group">
     <span style="width: 140px; " id="previewSlice" class="btn btn-primary">&{'namedslice.previewSlice'}</span>
 </div>
-
 
 <script type="text/javascript">
 

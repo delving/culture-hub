@@ -10,3 +10,5 @@ namedslice.cmsPageHelp=Select the CMS landing page for this slice
 namedslice.publish=Publish
 namedslice.noQueryTerm=No query term
 namedslice.selectAllDataSets=Select all datasets
+
+namedslice.HelpWithNamedSlices=Help with Named Slices
