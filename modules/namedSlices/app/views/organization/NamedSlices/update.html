@@ -26,31 +26,40 @@
 
 <h2>&{'namedslice.namedSlice'}</h2>
 
-#{form.textField name:"key", form: form, label: messages.get('hub.Identifier'), dataBind:"value: key", maxLength: 60, required: true, labelClass:"control-label"/}
-#{form.textField name:"name", form: form, label: messages.get('hubb.Name'), dataBind:"value: name", maxLength: 60, required: true, labelClass:"control-label"/}
-#{form.populatedSelectField options:dataSets, name:"dataSets", form: form, label:messages.get('dataset.Datasets'), dataBind:"selectedOptions: query.dataSets", multiple:true, labelClass:"control-label" /}
+<div class="row">
+    <div class="span6">
+        #{form.textField name:"key", form: form, label: messages.get('hub.Identifier'), dataBind:"value: key", maxLength: 60, required: true, labelClass:"control-label"/}
+        #{form.textField name:"name", form: form, label: messages.get('hubb.Name'), dataBind:"value: name", maxLength: 60, required: true, labelClass:"control-label"/}
+        #{form.populatedSelectField options:dataSets, name:"dataSets", form: form, label:messages.get('dataset.Datasets'), dataBind:"selectedOptions: query.dataSets", multiple:true, labelClass:"control-label" /}
 
-<div class="control-group">
-    <div class="controls">
-        <span id="datasets-select-all" class="btn btn-mini">&{'namedslice.selectAllDataSets'}</span>
-        <span id="datasets-all-selected">All datasets are selected!</span>
+        <div class="control-group">
+            <div class="controls">
+                <span id="datasets-select-all" class="btn btn-mini">&{'namedslice.selectAllDataSets'}</span>
+                <span id="datasets-all-selected">All datasets are selected!</span>
+            </div>
+        </div>
+    </div>
+    <div class="span6">
+        #{form.textField name:"terms", form: form, label: messages.get('namedslice.queryTerms'), dataBind:"value: query.terms", required: true, labelClass:"control-label"/}
+
+        <div class="control-group">
+            <div class="controls">
+                <span id="no-query-term" class="btn btn-mini">&{'namedslice.noQueryTerm'}</span>
+            </div>
+        </div>
+
+        #{form.populatedSelectField options:cmsPages, name:"cmsPageKey", form: form, label:messages.get('namedslice.cmsPage'), dataBind:"value: cmsPageKey", required: true, labelClass:"control-label" /}
+        #{form.checkboxField name:"published", form: form, label: messages.get('namedslice.publish'), dataBind:"checked: published", required: true, labelClass:"control-label"/}
+
+        <div class="control-group">
+            <span style="width: 140px; " id="previewSlice" class="btn btn-primary">&{'namedslice.previewSlice'}</span>
+        </div>
+
     </div>
 </div>
 
-#{form.textField name:"terms", form: form, label: messages.get('namedslice.queryTerms'), dataBind:"value: query.terms", required: true, labelClass:"control-label"/}
 
-<div class="control-group">
-    <div class="controls">
-        <span id="no-query-term" class="btn btn-mini">&{'namedslice.noQueryTerm'}</span>
-    </div>
-</div>
 
-#{form.populatedSelectField options:cmsPages, name:"cmsPageKey", form: form, label:messages.get('namedslice.cmsPage'), dataBind:"value: cmsPageKey", required: true, labelClass:"control-label" /}
-#{form.checkboxField name:"published", form: form, label: messages.get('namedslice.publish'), dataBind:"checked: published", required: true, labelClass:"control-label"/}
-
-<div class="control-group">
-    <span style="width: 140px; " id="previewSlice" class="btn btn-primary">&{'namedslice.previewSlice'}</span>
-</div>
 
 <script type="text/javascript">
 
