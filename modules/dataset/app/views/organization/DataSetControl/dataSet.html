@@ -105,9 +105,16 @@
 
         $('#saveButton').click(function(event) {
             event.preventDefault();
+            // trim text input whitespace
+            $("form#collectionForm :input[type=text]").each(function(){
+                var input = $(this);
+                input.val(input.val().replace(/^\s\s*/, '').replace(/\s\s*$/, ''));
+            });
+            // submit
             handleSubmit('/admin/dataset/submit', dataSetModel, '#collectionForm', null, function() {
                 window.location.href = '/admin/dataset/' + dataSetModel.spec.call();
             });
+
         });
 
         load(${data.raw()}, dataSetModel, null, function() {
