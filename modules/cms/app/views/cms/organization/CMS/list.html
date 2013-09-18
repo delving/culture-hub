@@ -24,34 +24,45 @@
             <thead>
             <tr>
                 <th>&{'hubb.Title'}</th>
+                <!--todo: an appropriate title?-->
+                <th>ERIC</th>
                 <th>&{'hub.Status'}</th>
                 <th width="25%">&{'hubb.Actions'}</th>
             </tr>
             </thead>
-            <!-- ko if: pages().length > 0 -->
-            <tbody data-bind="foreach: pages()">
+            <!-- ko if: entries().length > 0 -->
+            <tbody data-bind="foreach: entries()">
+            <!--todo: the above was pages(), but now it's entries containing (page, menuEntry)-->
+            <!--todo: so title would become page.title and menuEntry.* is available -->
             <tr>
                 <td>
-                    <span class="page-title" data-bind="text: title"></span>
+                    <span class="page-title" data-bind="text: page.title"></span>
                 </td>
                 <td>
-                    <!-- ko if: published() -->
+                    <!--todo: probably something better than menuKey here, like title[lang.language] or something-->
+                    <!--todo: see MenuEntry in CMSPage.scala-->
+                    <span class="menu-entry" data-bind="text: menuEntry.menuKey"></span>
+                </td>
+                <td>
+                    <!-- ko if: page.published() -->
                     <i class="icon-eye-open"></i>
-                &{'cms.Published'}
+                        &{'cms.Published'}
                     <!-- /ko -->
-                    <!-- ko if: !published() -->
+                    <!-- ko if: !page.published() -->
                     <i class="icon-eye-close"></i>
-                &{'cms.NotPublished'}
+                        &{'cms.NotPublished'}
                     <!-- /ko -->
                 </td>
                 <td>
-                    <a class="btn btn-primary btn-mini" href="#" data-bind="click: function() { $parent.editPage($data) }" rel="nofollow">
+                    <!--todo: is $parent.editPage($data) going to work now that it's no longer a page?-->
+                    <!--todo: perhaps it should be editPage($data.page) etc-->
+                    <a class="btn btn-primary btn-mini" href="#" data-bind="click: function() { $parent.editPage($data.page) }" rel="nofollow">
                         <i class="icon-edit icon-white"></i>
                     </a>
-                    <a class="btn btn-success btn-mini" target="_blank" href="#" data-bind="click: function() { $parent.previewPage($data) }" rel="nofollow">
+                    <a class="btn btn-success btn-mini" target="_blank" href="#" data-bind="click: function() { $parent.previewPage($data.page) }" rel="nofollow">
                         <i class="icon-eye-open icon-white"></i>
                     </a>
-                    <a class="btn btn-danger btn-mini pull-right delete" href="#" data-bind="click: function() { $parent.deletePage($data) }" rel="nofollow">
+                    <a class="btn btn-danger btn-mini pull-right delete" href="#" data-bind="click: function() { $parent.deletePage($data.page) }" rel="nofollow">
                         <i class="icon-trash icon-white"></i>
                     </a>
                 </td>
