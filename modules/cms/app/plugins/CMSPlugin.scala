@@ -175,7 +175,7 @@ class CMSPlugin(app: Application) extends CultureHubPlugin(app) {
             titleKey = "cms.WebsitePages",
             roles = Seq(Role.OWN, CMSPlugin.ROLE_CMS_ADMIN),
             items = Seq(
-              MenuElement("/admin/site/%s/%s".format(lang, CMSPlugin.MAIN_MENU), "hub.List"),
+              MenuElement("/admin/site/%s".format(lang), "hub.List"),
               MenuElement("/admin/site/%s/page/add".format(lang), "hub.New"),
               MenuElement("/admin/site/%s/page/homepage/update".format(lang), "cms.UpdateHomepage"),
               MenuElement("/admin/site/upload".format(configuration.orgId), "cms.UploadImage")
@@ -204,9 +204,9 @@ class CMSPlugin(app: Application) extends CultureHubPlugin(app) {
     ("/cms/CMS/homePageSnippet.html",
       { context =>
         {
-          val homePageEntries = CMSPage.dao(context.configuration.orgId).list(Lang(context.lang), Some(CMSPlugin.HOME_PAGE))
-          homePageEntries.headOption.map { page =>
-            context.renderArgs += ("homepageCmsContent" -> page)
+          val homePageEntries = CMSPage.dao(context.configuration.orgId).entryList(Lang(context.lang), Some(CMSPlugin.HOME_PAGE))
+          homePageEntries.headOption.map { entry =>
+            context.renderArgs += ("homepageCmsContent" -> entry.page)
           }
         }
       })

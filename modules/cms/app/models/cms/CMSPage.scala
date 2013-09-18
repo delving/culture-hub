@@ -53,6 +53,8 @@ case class MenuEntry(
   published: Boolean = false // is this entry published, i.e. visible ?
   )
 
+case class ListEntry(page: CMSPage, menuEntry: MenuEntry)
+
 /** Represents a menu, which is not persisted at the time being **/
 case class Menu(
   key: String,
@@ -71,16 +73,20 @@ object CMSPage extends MultiModel[CMSPage, CMSPageDAO] {
 
 class CMSPageDAO(collection: MongoCollection)(implicit configuration: OrganizationConfiguration) extends SalatDAO[CMSPage, ObjectId](collection) {
 
-  def list(lang: Lang, menuKey: Option[String]): List[CMSPage] = {
-    val list = if (menuKey == None) {
-      find(MongoDBObject("lang" -> lang.language))
-    } else {
-      val filterKeys = MenuEntry.dao.findEntries(menuKey.get).toList.
-        filterNot(_.targetPageKey == None).
-        map(_.targetPageKey)
-      find(MongoDBObject("lang" -> lang.language) ++ ("key" $in filterKeys))
-    }
-    list.toList.groupBy(_.key).map(m => m._2.sortBy(_._id).reverse.head).toList
+  def entryList(lang: Lang, menuKey: Option[String]): List[ListEntry] = {
+    val allEntries = MenuEntry.dao.findAll().toList
+    val relevantEntries = if (menuKey.isEmpty) allEntries else allEntries.filter(_.menuKey == menuKey.get)
+    val entries = relevantEntries.flatMap(
+      menuEntry =>
+        find(MongoDBObject(
+          "lang" -> lang.language,
+          "key" -> menuEntry.targetPageKey
+        )).toList.map(
+          page =>
+            ListEntry(page, menuEntry)
+        )
+    )
+    entries.groupBy(_.page.key).map(m => m._2.sortBy(_.page._id).reverse.head).toList
   }
 
   def findByKey(key: String): List[CMSPage] = find(MongoDBObject("key" -> key)).$orderby(MongoDBObject("_id" -> -1)).toList
@@ -140,6 +146,8 @@ class MenuEntryDAO(collection: MongoCollection) extends SalatDAO[MenuEntry, Obje
   }
 
   def findEntries(menuKey: String) = find(MongoDBObject("menuKey" -> menuKey)).$orderby(MongoDBObject("position" -> 1))
+
+  def findAll() = find(MongoDBObject())
 
   /**
    * Adds a page to a menu (root menu). If the menu entry already exists, updates the position and title.
