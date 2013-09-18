@@ -28,7 +28,7 @@ class NamedSlices(implicit val bindingModule: BindingModule) extends Organizatio
       "name" -> nonEmptyText,
       "cmsPageKey" -> nonEmptyText,
       "query" -> mapping(
-        "terms" -> nonEmptyText,
+        "terms" -> text,
         "dataSets" -> seq(text)
       )(NamedSliceQuery.apply)(NamedSliceQuery.unapply),
       "published" -> boolean
