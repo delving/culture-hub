@@ -175,7 +175,7 @@ class CMSPlugin(app: Application) extends CultureHubPlugin(app) {
             titleKey = "cms.WebsitePages",
             roles = Seq(Role.OWN, CMSPlugin.ROLE_CMS_ADMIN),
             items = Seq(
-              MenuElement("/admin/site/%s".format(lang), "hub.List"),
+              MenuElement("/admin/site/%s/%s".format(lang, CMSPlugin.MAIN_MENU), "hub.List"),
               MenuElement("/admin/site/%s/page/add".format(lang), "hub.New"),
               MenuElement("/admin/site/%s/page/homepage/update".format(lang), "cms.UpdateHomepage"),
               MenuElement("/admin/site/upload".format(configuration.orgId), "cms.UploadImage")
