@@ -178,7 +178,14 @@
         $('#saveButton').click(function (event) {
             event.preventDefault();
             handleSubmit('/admin/site/page', pageModel, '#pageForm', null, function () {
-                document.location = '/admin/site/' + pageModel.lang() + '/' + pageModel.menu();
+                // TODO: figure out a better way to do this!!!
+                if(pageModel.menu() != 'news'){
+                    document.location = '/admin/site/' + pageModel.lang();
+                }
+                else {
+                    document.location = '/admin/site/' + pageModel.lang() + '/' + pageModel.menu();
+                }
+
             });
         });
 

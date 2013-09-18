@@ -75,7 +75,7 @@ class CMSPageDAO(collection: MongoCollection)(implicit configuration: Organizati
 
   def entryList(lang: Lang, menuKey: Option[String]): List[ListEntry] = {
     val allEntries = MenuEntry.dao.findAll().toList
-    val relevantEntries = if (menuKey.isEmpty) allEntries else allEntries.filter(_.menuKey == menuKey.get)
+    val relevantEntries = if (menuKey.isEmpty) allEntries.filterNot(_.menuKey == "news") else allEntries.filter(_.menuKey == menuKey.get)
     val entries = relevantEntries.flatMap(
       menuEntry =>
         find(MongoDBObject(
