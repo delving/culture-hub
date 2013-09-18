@@ -14,7 +14,7 @@
             <label for="language">&{'cms.ListPagesIn'}</label>
             <select id="language" name="language">
             #{list languages, as: 'option'}
-                <option #{if currentLanguage == option._1} selected="selected #{/if}value="${option._1}">${option._2}</option>
+                <option #{if currentLanguage == option._1} selected="selected" #{/if}value="${option._1}">${option._2}</option>
             #{/list}
             </select>
         </form>
