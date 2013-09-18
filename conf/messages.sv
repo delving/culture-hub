@@ -27,6 +27,7 @@ cms.InvalidKeyValue=Felaktig inmatning. Sidnamnet får bara vara med små bokst�
 cms.ListPagesIn=Lista sidor i 
 cms.MainMenu=Huvudmeny
 cms.MakeThisContentAvailable=Om du kryssar i här gör du innehållet publikt
+cms.Menu=Meny
 cms.NotPublished=Ej publicerad
 cms.OnceUploaded=<p>När du har laddat upp, gå tillbaks till <a href="/admin/site">sidlista</a> och redigera en sida eller skapa en <a href="/admin/site/{0}/page/add">ny sida</a>. Klicka på <span class="mceIcon mceImage"></span> ikonen för att välja bild från <em>bildlistan</em>.</p>
 cms.PageKey=Sidnamn

@@ -16,13 +16,13 @@
 
 package models.cms
 
-import com.mongodb.casbah.Imports.{MongoCollection, MongoDB}
+import com.mongodb.casbah.Imports.{ MongoCollection, MongoDB }
 import com.mongodb.casbah.query.Imports._
 import org.bson.types.ObjectId
 import com.novus.salat.dao.SalatDAO
 import models.HubMongoContext._
 import com.mongodb.casbah.commons.MongoDBObject
-import models.{OrganizationConfiguration, MultiModel}
+import models.{ OrganizationConfiguration, MultiModel }
 import play.api.i18n.Lang
 
 /**
@@ -31,35 +31,35 @@ import play.api.i18n.Lang
  */
 
 case class CMSPage(
-                    _id: ObjectId = new ObjectId(),
-                    key: String, // the key of this page (unique across all version sets of pages)
-                    userName: String, // who created the page
-                    lang: String, // 2-letters ISO code of the page language
-                    title: String, // title of the page in this language
-                    content: String, // actual page content (text)
-                    isSnippet: Boolean = false, // is this a snippet in the welcome page or not
-                    published: Boolean = false // is this page published, i.e. visible?
-                    )
+  _id: ObjectId = new ObjectId(),
+  key: String, // the key of this page (unique across all version sets of pages)
+  userName: String, // who created the page
+  lang: String, // 2-letters ISO code of the page language
+  title: String, // title of the page in this language
+  content: String, // actual page content (text)
+  isSnippet: Boolean = false, // is this a snippet in the welcome page or not
+  published: Boolean = false // is this page published, i.e. visible?
+  )
 
 case class MenuEntry(
-                      _id: ObjectId = new ObjectId(),
-                      menuKey: String, // key of the menu this entry belongs to
-                      parentMenuKey: Option[String] = None, // parent menu key. if none is provided this entry is not part of a sub-menu
-                      position: Int, // position of this menu entry inside of the menu
-                      title: Map[String, String], // title of this menu entry, per language
-                      targetPageKey: Option[String] = None, // key of the page this menu entry links to, if any
-                      targetMenuKey: Option[String] = None, // key of the target menu this entry links to, if any
-                      targetUrl: Option[String] = None, // URL this menu entry links to, if any
-                      published: Boolean = false // is this entry published, i.e. visible ?
-                      )
+  _id: ObjectId = new ObjectId(),
+  menuKey: String, // key of the menu this entry belongs to
+  parentMenuKey: Option[String] = None, // parent menu key. if none is provided this entry is not part of a sub-menu
+  position: Int, // position of this menu entry inside of the menu
+  title: Map[String, String], // title of this menu entry, per language
+  targetPageKey: Option[String] = None, // key of the page this menu entry links to, if any
+  targetMenuKey: Option[String] = None, // key of the target menu this entry links to, if any
+  targetUrl: Option[String] = None, // URL this menu entry links to, if any
+  published: Boolean = false // is this entry published, i.e. visible ?
+  )
 
 case class ListEntry(page: CMSPage, menuEntry: MenuEntry)
 
 /** Represents a menu, which is not persisted at the time being **/
 case class Menu(
-                 key: String,
-                 parentMenuKey: Option[String],
-                 title: Map[String, String])
+  key: String,
+  parentMenuKey: Option[String],
+  title: Map[String, String])
 
 object CMSPage extends MultiModel[CMSPage, CMSPageDAO] {
   def connectionName: String = "CMSPages"
@@ -75,12 +75,12 @@ class CMSPageDAO(collection: MongoCollection)(implicit configuration: Organizati
 
   def entryList(lang: Lang, menuKey: Option[String]): List[ListEntry] = {
     val allEntries = MenuEntry.dao.findAll().toList
-    val relevantEntries = if (menuKey.isEmpty) allEntries else allEntries.filter(_.menuKey == menuKey)
+    val relevantEntries = if (menuKey.isEmpty) allEntries else allEntries.filter(_.menuKey == menuKey.get)
     val entries = relevantEntries.flatMap(
       menuEntry =>
         find(MongoDBObject(
-            "lang" -> lang.language,
-            "key" -> menuEntry.targetPageKey
+          "lang" -> lang.language,
+          "key" -> menuEntry.targetPageKey
         )).toList.map(
           page =>
             ListEntry(page, menuEntry)
@@ -147,7 +147,7 @@ class MenuEntryDAO(collection: MongoCollection) extends SalatDAO[MenuEntry, Obje
 
   def findEntries(menuKey: String) = find(MongoDBObject("menuKey" -> menuKey)).$orderby(MongoDBObject("position" -> 1))
 
-  def findAll() = find()
+  def findAll() = find(MongoDBObject())
 
   /**
    * Adds a page to a menu (root menu). If the menu entry already exists, updates the position and title.

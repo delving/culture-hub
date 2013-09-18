@@ -9,7 +9,7 @@ import play.api.data.Forms._
 import com.mongodb.casbah.Imports._
 import play.api.data.validation.Constraints
 import models.NamedSliceQuery
-import models.cms.{ListEntry, CMSPage}
+import models.cms.{ ListEntry, CMSPage }
 
 /**
  *
@@ -58,7 +58,7 @@ class NamedSlices(implicit val bindingModule: BindingModule) extends Organizatio
   private def creationPageTemplateData(implicit request: MultitenantRequest[AnyContent], configuration: OrganizationConfiguration) = {
     val publishedEntries: List[ListEntry] = CMSPage.dao.entryList(getLang, None).filter(_.page.published)
     val nonHomepageEntries: List[ListEntry] = publishedEntries.filterNot(_.page.key == "homepage")
-    val pages = nonHomepageEntries.map(entry => (entry.page.key, entry.page.title) )
+    val pages = nonHomepageEntries.map(entry => (entry.page.key, entry.page.title))
     val dataSets = DataSet.dao.findAll().map { set => (set.spec, set.details.name) }
 
     {
