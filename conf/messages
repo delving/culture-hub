@@ -27,6 +27,7 @@ cms.InvalidKeyValue=Invalid key value. A page key must be lowercase and has to b
 cms.ListPagesIn=List pages in
 cms.MainMenu=Main menu
 cms.MakeThisContentAvailable=Checking this option will make this content visible
+cms.Menu=Menu
 cms.NotPublished=Not published
 cms.OnceUploaded=<p>Once uploaded, go back to the <a href="/admin/site">page list</a> and edit and existing page or create a <a href="/admin/site/{0}/page/add">new page</a>. Click on the <span class="mceIcon mceImage"></span> icon to select the image from the <em>Image list</em> for use.</p>
 cms.PageKey=Page key

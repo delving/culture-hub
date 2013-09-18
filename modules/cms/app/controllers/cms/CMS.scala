@@ -17,12 +17,12 @@ class CMS(implicit val bindingModule: BindingModule) extends DelvingController {
   def listPages = Root {
     MultitenantAction {
       implicit request =>
-        val visible = CMSPage.dao.list(getLang, None).filter(_.published)
-        val pages = visible.map { page =>
-          Map("key" -> page.key, "name" -> page.title)
+        val visible = CMSPage.dao.entryList(getLang, None).filter(_.page.published)
+        val keyNameMap = visible.map { entry =>
+          Map("key" -> entry.page.key, "name" -> entry.page.title)
         }
 
-        Json(pages)
+        Json(keyNameMap)
     }
   }
 
