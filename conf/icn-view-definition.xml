@@ -77,7 +77,7 @@
                             <enumeration label="metadata.dc.subject" separator=", " path="/icn:record/dc:subject,/icn:record/dcterms:temporal,/icn:record/dcterms:spatial,/icn:record/dc:coverage"/>
                             <!--<field path="/icn:record/dc:coverage" label="metadata.dc.coverage"/>-->
                             <enumeration label="metadata.dc.relation"
-                                         separator=", " path="/icn:record/dc:relation,/icn:record/dcterms:references,/icn:record/dcterms:isReferencedBy,/icn:record/dcterms:isReplacedBy,
+                                         separator="lf" path="/icn:record/dc:relation,/icn:record/dcterms:references,/icn:record/dcterms:isReferencedBy,/icn:record/dcterms:isReplacedBy,
                                  /icn:record/dcterms:isRequiredBy,/icn:record/dcterms:isPartOf,/icn:record/dcterms:hasPart,/icn:record/dcterms:replaces,/icn:record/dcterms:requires,
                                  /icn:record/dcterms:isVersionOf,/icn:record/dcterms:hasVersion,/icn:record/dcterms:conformsTo,/icn:record/dcterms:hasFormat"/>
                             <field path="/icn:record/dcterms:provenance" label="metadata.dcterms.provenance"/>
