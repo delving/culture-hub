@@ -1,5 +1,12 @@
 #{extends themeInfo.get('themeLayout') /}
-#{set title: messages.get('hub.Welcome') /}
+
+#{if themeInfo.metaTitle()  }
+    #{set title: themeInfo.metaTitle() /}
+#{/if}
+#{else}
+    #{set title: messages.get('hub.Welcome') /}
+#{/else}
+#{set metaDescription: themeInfo.metaDescription() /}
 #{set bodyId:'home' /}
 #{set pageId:'home'/}
 #{set 'moreScripts'}
@@ -9,6 +16,8 @@
 #{/set}
 
 <div class="row">
+    ${themeInfo.hasProperty('siteTitle')}
+    ${themeInfo.siteSlogan()}
     <div class="messages span12">
         #{if flash.registrationSuccess}
         <p class="alert alert-success">
