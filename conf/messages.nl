@@ -450,6 +450,7 @@ search.FoundResults= {0} resultaten gevonden
 search.ObjectType=Soort object
 search.Provider=Aanbieder
 search.RefineYourSearch=Zoekopdracht verfijnen
+search.Results=Zoekresultaten
 search.ResultsOf=Resultaten <strong>{0} - {1}</strong> van <strong>{2}</strong>
 _search.SearchResultsFor=Zoekresultate voor
 search.SortBy= Sorteer op

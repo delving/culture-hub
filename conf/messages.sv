@@ -585,6 +585,7 @@ search.ObjectType=Objekt typ
 search.Provider=Leverantör
 search.QueryIsNotValid=Sökning på "{0}" är inte giltig. Försök igen.
 search.RefineYourSearch=Förfina din sökning
+search.Results=Sökresultat
 search.ResultsFor=Sökresultat för
 search.ResultsOf=Resultat <strong>{0} - {1}</strong> av <strong>{2}</strong>
 search.SortBy=Sortera på

@@ -585,6 +585,7 @@ search.ObjectType=Object type
 search.Provider=Provider
 search.QueryIsNotValid=Query "{0}" is not valid. Please try something else.
 search.RefineYourSearch=Refine your search
+search.Results=Search results
 search.ResultsFor=Search results for
 search.ResultsOf=Results <strong>{0} - {1}</strong> of <strong>{2}</strong>
 search.SortBy=Sort by
