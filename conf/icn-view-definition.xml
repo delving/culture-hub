@@ -65,7 +65,7 @@
                     <column proportion="1of3">
                         <container type="definition-list">
                             <field path="/icn:record/dc:title" label="metadata.dc.title"/>
-                            <field path="/icn:record/dc:description" label="metadata.dc.description" />
+                            <enumeration label="metadata.dc.description" separator="lf" path="/icn:record/dc:description"/>
                             <enumeration label="metadata.dc.creator" separator="lf" path="/icn:record/dc:creator"/>
                             <field path="/icn:record/icn:creatorYearOfBirth" label="metadata.icn.creatorYearOfBirth"/>
                             <field path="/icn:record/icn:creatorYearOfDeath" label="metadata.icn.creatorYearOfDeath"/>
