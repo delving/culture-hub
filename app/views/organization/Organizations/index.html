@@ -15,7 +15,12 @@
         <h3>&{'dataset.Datasets'}</h3>
         <ol>
         #{list collections, as: 'c'}
+            #{if  c.class == models.DataSet }
             <li><a href=${"/admin/dataset/"+c.spec}>${c.spec}</a></li>
+            #{/if}
+            #{else}
+            <li><a href=${"/admin/virtualCollection/"+c.spec}>${c.spec}</a></li>
+            #{/else}
         #{/list}
         </ol>
     </div>
