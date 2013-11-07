@@ -47,7 +47,7 @@
         <tfoot>
         <tr>
             #{if canAdministrate}
-            <td colspan="6">
+            <td colspan="8">
                 <a href="/admin/dataset/add" class="btn pull-right"><i class="icon icon-plus-sign"></i> Create new dataset</a>
             </td>
             #{/if}
@@ -74,7 +74,9 @@
                     <!-- /ko -->
                 </td>
                 <td>
-
+                    <!-- ko foreach: harvestingConfiguration() -->
+                    <span class="label"><!--ko text: schema --><!--/ko--> (<!--ko text: accessType --><!--/ko-->)</span>
+                    <!-- /ko -->
                 </td>
                 <td width="120">
                     <!-- ko if: dataSetState == "error" -->
@@ -144,8 +146,10 @@
             }));
         };
 
+
         var onmessage = function(evt) {
             var data = $.parseJSON(evt.data);
+            console.log(data);
             switch(data.eventType) {
                 case "loadList":
                     $.each(data.payload, function(index, item) {
