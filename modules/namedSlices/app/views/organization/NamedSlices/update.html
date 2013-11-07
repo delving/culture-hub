@@ -60,6 +60,9 @@
         </div>
 
         #{form.populatedSelectField options:cmsPages, name:"cmsPageKey", form: form, label:messages.get('namedslice.cmsPage'), dataBind:"value: cmsPageKey", required: true, labelClass:"control-label" /}
+
+        #{form.checkboxField name:"addToMenu", form: form, label: "Add to main menu", labelClass:"control-label"/}
+
         #{form.checkboxField name:"published", form: form, label: messages.get('namedslice.publish'), dataBind:"checked: published", required: true, labelClass:"control-label"/}
 
         <div class="control-group">
