@@ -31,12 +31,13 @@ class NamedSlices(implicit val bindingModule: BindingModule) extends Organizatio
         "terms" -> text,
         "dataSets" -> seq(text)
       )(NamedSliceQuery.apply)(NamedSliceQuery.unapply),
+      "addToMainMenu" -> boolean,
       "published" -> boolean
     )(NamedSlice.apply)(NamedSlice.unapply)
   )
 
   def emptyModel[A](implicit request: MultitenantRequest[A], configuration: OrganizationConfiguration): NamedSlice =
-    NamedSlice(key = "", name = "", cmsPageKey = "", query = NamedSliceQuery(terms = ""), published = true)
+    NamedSlice(key = "", name = "", cmsPageKey = "", query = NamedSliceQuery(terms = ""), addToMainMenu = false, published = false)
 
   def dao(implicit configuration: OrganizationConfiguration): NamedSliceDAO = NamedSlice.dao
 

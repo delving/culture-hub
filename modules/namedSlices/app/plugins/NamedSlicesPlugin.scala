@@ -21,7 +21,7 @@ class NamedSlicesPlugin(app: Application) extends CultureHubPlugin(app) {
   )
 
   override def mainMenuEntries(configuration: OrganizationConfiguration, lang: String): Seq[MainMenuEntry] = {
-    val slices = NamedSlice.dao(configuration.orgId).findAllPublished
+    val slices = NamedSlice.dao(configuration.orgId).findAllForMainMenu
 
     slices map { slice =>
       MainMenuEntry(

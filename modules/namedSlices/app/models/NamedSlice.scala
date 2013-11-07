@@ -15,6 +15,7 @@ case class NamedSlice(
   name: String,
   cmsPageKey: String,
   query: NamedSliceQuery,
+  addToMainMenu: Boolean,
   published: Boolean)
 
 case class NamedSliceQuery(
@@ -42,5 +43,7 @@ class NamedSliceDAO(collection: MongoCollection) extends SalatDAO[NamedSlice, Ob
   def findOnePublishedByKey(key: String): Option[NamedSlice] = findOne(MongoDBObject("key" -> key, "published" -> true))
 
   def findAllPublished: Seq[NamedSlice] = find(MongoDBObject("published" -> true)).toSeq
+
+  def findAllForMainMenu: Seq[NamedSlice] = find(MongoDBObject("published" -> true, "addToMainMenu" -> true)).toSeq
 
 }

@@ -61,9 +61,9 @@
 
         #{form.populatedSelectField options:cmsPages, name:"cmsPageKey", form: form, label:messages.get('namedslice.cmsPage'), dataBind:"value: cmsPageKey", required: true, labelClass:"control-label" /}
 
-        #{form.checkboxField name:"addToMenu", form: form, label: "Add to main menu", labelClass:"control-label"/}
+        #{form.checkboxField name:"addToMainMenu", form: form, label: "Add to main menu", dataBind:"checked: addToMainMenu",labelClass:"control-label"/}
 
-        #{form.checkboxField name:"published", form: form, label: messages.get('namedslice.publish'), dataBind:"checked: published", required: true, labelClass:"control-label"/}
+        #{form.checkboxField name:"published", form: form, label: messages.get('namedslice.publish'), dataBind:"checked: published", labelClass:"control-label"/}
 
         <div class="control-group">
             <span style="width: 140px; " id="previewSlice" class="btn btn-primary">&{'namedslice.previewSlice'}</span>
