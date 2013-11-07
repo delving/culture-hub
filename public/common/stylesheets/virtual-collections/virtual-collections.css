@@ -6,3 +6,7 @@
 .resultItem .bd {
     font-size: smaller;
 }
+
+select {
+    width: auto;
+}
