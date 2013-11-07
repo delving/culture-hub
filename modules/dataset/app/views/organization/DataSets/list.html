@@ -37,6 +37,7 @@
             <th class="sort">&{'hubb.Name'}</th>
             <th class="sort">&{'hubb.Organization'}</th>
             <th class="sort">&{'hub.NumberOfItems'}</th>
+            <th class="sort">&{'hub.OutputSchema'}</th>
             <th class="sort">&{'hub.State'}</th>
             <th class="sort">&{'hub.Availability'}</th>
             *{<th>&{'hub.Options'}</th>}*
@@ -64,12 +65,20 @@
                     <div data-bind="template: {name: 'validRecordCountTemplate', afterRender: $parent.applyPopover }" style="display: none;"></div>
                     <!-- /ko -->
                 </td>
+                <td>
+                    <!-- ko if: validRecords().length > 0 -->
+                    <!-- ko foreach: validRecords() -->
+                    <span class="label" data-bind="text: schema"></span>
+                    <!-- /ko -->
+                    <!-- /ko -->
+                </td>
                 <td width="120">
                     <!-- ko if: dataSetState == "error" -->
                     <span class="badge badge-important badge-error" data-bind="attr: { 'data-original-title': dataSetState()}" rel="popover"></span>
                     <!-- /ko -->
                     <!-- ko ifnot: dataSetState == "error" -->
                     <span data-bind="text: dataSetState, attr: { class: 'badge badge-' + $parent.stateToClass(dataSetState()) } "></span>
+
                     <!-- /ko -->
                 </td>
                 <td>
@@ -235,6 +244,7 @@
     }
 
 </script>
+
 <script type="text/html" id="validRecordCountTemplate">
     <div>
         <table class="table table-condensed">
