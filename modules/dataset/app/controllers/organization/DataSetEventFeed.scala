@@ -42,6 +42,7 @@ object DataSetEventFeed {
     state = ds.state.name,
     lockState = if (ds.lockedBy.isDefined) "locked" else "unlocked",
     lockedBy = if (ds.lockedBy.isDefined) ds.lockedBy.get else "",
+    harvestingConfiguration = ds.formatAccessControl.map(f => (f._1 -> f._2.accessType)).toSeq,
     canEdit = (ds.editors ++ ds.administrators).distinct
   )
 
@@ -137,6 +138,7 @@ object DataSetEventFeed {
       state: String,
       lockState: String,
       lockedBy: String,
+      harvestingConfiguration: Seq[(String, String)],
       canEdit: Seq[String]) {
 
     def toJson: JsObject = JsObject(
@@ -152,6 +154,7 @@ object DataSetEventFeed {
         "dataSetState" -> JsString(state),
         "lockState" -> JsString(lockState),
         "lockedBy" -> JsString(lockedBy),
+        "harvestingConfiguration" -> JsArray(harvestingConfiguration.toSeq.map(f => JsObject(Seq(("schema" -> JsString(f._1)), ("accessType" -> JsString(f._2)))))),
         "canEdit" -> JsArray(canEdit.map(JsString(_)))
       )
     )
