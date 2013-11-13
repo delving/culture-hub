@@ -1,3 +1,6 @@
+#{if themeInfo.metaTitle()  }
+    #{set baseTitle: themeInfo.metaTitle() /}
+#{/if}
 <!DOCTYPE html>
 <html>
 <head>
@@ -7,7 +10,7 @@
     <meta name="keywords" content=""/>
     <link rel="shortcut icon" href="${themeInfo.path("images/favicon.ico")}" >
     <meta charset="utf-8">
-    <title>#{get 'title' /}</title>
+    <title>#{get 'baseTitle' /} - #{get 'title' /}</title>
     <link rel="stylesheet" type="text/css" href="/assets/common/stylesheets/media/media.css"/>
     <link rel="stylesheet" type="text/css" href="/assets/common/stylesheets/plugins/token-input.css"/>
     *{<link rel="stylesheet" type="text/css" href="/assets/common/stylesheets/bootstrap.css"/>}*
@@ -79,3 +82,4 @@
     <button type="button" class="close" data-dismiss="alert">&times;</button>
     &{'hub.WarningOutdatedBrowser'}
 </div>
+

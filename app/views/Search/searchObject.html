@@ -1,8 +1,15 @@
 #{extends themeInfo.get('themeLayout') /}
 
-#{set title: systemFields.contains("delving_owner") ? systemFields.apply("delving_owner").get(0) + " | " : "" + title /}
+<!--#{set title: systemFields.contains("delving_owner") ? systemFields.apply("delving_owner").get(0) + " | " + title : "" /}-->
+#{set title: title /}
+
+#{set metaDescription: systemFields.contains("delving_description") ? systemFields.apply("delving_description").get(0) : title /}
 
 #{set bodyId: 'object'/}
+
+#{if get: 'title'}
+
+#{/if}
 
 #{set 'moreCss'}
 <style>

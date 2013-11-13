@@ -1,11 +1,4 @@
 #{extends themeInfo.get('themeLayout') /}
-
-#{if themeInfo.metaTitle()  }
-    #{set title: themeInfo.metaTitle() /}
-#{/if}
-#{else}
-    #{set title: messages.get('hub.Welcome') /}
-#{/else}
 #{set metaDescription: themeInfo.metaDescription() /}
 #{set bodyId:'home' /}
 #{set pageId:'home'/}
