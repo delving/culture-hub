@@ -293,7 +293,7 @@ object SolrQueryService extends SolrServer {
     val query = new SolrQuery(solrQuery)
     if (findRelatedItems) {
       val mlt = configuration.searchService.moreLikeThis
-      query.set("fq", s"${IndexField.ORG_ID.key}:${configuration.orgId}")
+      query.addFilterQuery(s"${IndexField.ORG_ID.key}:${configuration.orgId}")
       query.set("mlt", true)
       query.set("mlt.count", relatedItemsCount)
       query.set("mlt.fl", mlt.fieldList.mkString(","))
