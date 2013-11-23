@@ -30,8 +30,13 @@ class RecordMapper(context: ProcessingContext, processingInterrupted: AtomicBool
   private val schemaService = HubModule.inject[SchemaService](name = None)
 
   private val engines: Map[SchemaVersion, MappingEngine] = {
-    context.targetSchemas.filter(_.mapping.isDefined).map { schema =>
-      (schema.schemaVersion -> MappingEngineFactory.newInstance(Play.classloader, context.sourceNamespaces.asJava, MappingService.recDefModel(schemaService), schema.mapping.get))
+    context.targetSchemas.map { schema =>
+      (schema.schemaVersion -> MappingEngineFactory.newInstance(
+        Play.classloader,
+        context.sourceNamespaces.asJava,
+        if (schema.mapping.isDefined) MappingService.recDefModel(schemaService) else null,
+        if (schema.mapping.isDefined) schema.mapping.get else null
+      ))
     }
   }.toMap
 
