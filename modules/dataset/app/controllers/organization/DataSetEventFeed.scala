@@ -91,7 +91,7 @@ object DataSetEventFeed {
         log.debug("Client %s connected to feed".format(clientId))
 
         val iteratee = Iteratee.foreach[JsValue] {
-          event => default ! ClientMessage(event)
+          event => //default ! ClientMessage(event)
         }.mapDone {
           _ =>
             log.debug("Unsubscribing %s from feed".format(clientId))
@@ -124,8 +124,9 @@ object DataSetEventFeed {
   case object StartPolling
   case object StopPolling
   case object Update
+  case object CheckForDeadClients
 
-  case class ClientMessage(message: JsValue)
+  case class ClientMessage(clientId: String, eventType: String, spec: String)
 
   case class ListDataSetViewModel(spec: String,
       orgId: String,
@@ -224,9 +225,11 @@ class DataSetEventFeed extends Actor {
 
   import DataSetEventFeed._
 
-  val log = Logger(getClass)
+  val log = Logger("CultureHub")
 
   var pollScheduler: Cancellable = null
+
+  var deadClientCheckScheduler: Cancellable = null
 
   implicit val timeout = Timeout(1 second)
 
@@ -236,6 +239,8 @@ class DataSetEventFeed extends Actor {
 
   var subscribers = Map.empty[String, Subscriber]
 
+  var timedoutSubscribers = Map.empty[String, Int]
+
   def receive = {
 
     case Subscribe(orgId, userName, configuration, clientId, spec) => {
@@ -243,17 +248,18 @@ class DataSetEventFeed extends Actor {
 
       val (enumerator, channel) = Concurrent.broadcast[JsValue]
 
-      if (subscribers.contains(clientId)) {
-        log.warn("Duplicate clientId connection attempt from " + clientId)
-        sender ! CannotConnect("This clientId is already used")
-      } else {
-        if (subscribers.isEmpty) {
-          // if there was no subscriber before, start the polling
-          self ! StartPolling
-        }
-        subscribers = subscribers + (clientId -> Subscriber(orgId, userName, configuration, spec, enumerator, channel))
-        sender ! Connected(enumerator)
+      if (subscribers.isEmpty) {
+        // if there was no subscriber before, start the polling
+        self ! StartPolling
       }
+      val newSubscriber = Subscriber(orgId, userName, configuration, spec, enumerator, channel)
+      if (subscribers.contains(clientId)) {
+        log.warn(s"Duplicate subscriber - same clientId $clientId")
+        //subscribers.updated(clientId, newSubscriber)
+      } else {
+        subscribers = subscribers + (clientId -> newSubscriber)
+      }
+      sender ! Connected(enumerator)
 
     }
 
@@ -263,12 +269,9 @@ class DataSetEventFeed extends Actor {
         self ! StopPolling
       }
 
-    case ClientMessage(message) =>
-      log.debug("Received message from client: " + message.toString)
+    case ClientMessage(clientId, eventType, spec) =>
 
-      val clientId: String = (message \ "clientId").asOpt[Int].getOrElse(0).toString // the Play JSON API is really odd...
-      val eventType: String = (message \ "eventType").asOpt[String].getOrElse("")
-      val spec = (message \ "payload").asOpt[String].getOrElse("")
+      log.debug(s"Received message from client $clientId of type $eventType with spec $spec")
 
       subscribers.find(_._1 == clientId).map {
         subscriber =>
@@ -464,6 +467,9 @@ class DataSetEventFeed extends Actor {
                     }
                 }
 
+              case "ping" =>
+                timedoutSubscribers = timedoutSubscribers.filterNot { case (k, v) => k == clientId }
+
               case _ => send(s, JsObject(
                 Seq(
                   "eventType" -> JsString("unknown")
@@ -476,11 +482,28 @@ class DataSetEventFeed extends Actor {
     case StartPolling =>
       // since we're in a multi-node environment we can only but poll the db for updates
       pollScheduler = Akka.system.scheduler.schedule(0 seconds, 1 seconds, DataSetEventFeed.default, Update)
+      deadClientCheckScheduler = Akka.system.scheduler.schedule(0 seconds, 10 seconds, DataSetEventFeed.default, CheckForDeadClients)
       log.debug("Started periodical polling of database for new DataSetEvents, polling every second")
 
     case StopPolling =>
       pollScheduler.cancel()
+      deadClientCheckScheduler.cancel()
       log.debug("Stopped periodical polling of database for new DataSetEvents")
+
+    case CheckForDeadClients =>
+      timedoutSubscribers.foreach {
+        case (clientId, timeOutCount) =>
+          if (timeOutCount > 3) {
+            // bye
+            log.debug(s"Removing client $clientId since it's not been pinging us for a while")
+            subscribers = subscribers.filterNot { case (k, v) => k == clientId }
+            timedoutSubscribers = timedoutSubscribers.filterNot { case (k, v) => k == clientId }
+          } else {
+            timedoutSubscribers = timedoutSubscribers.updated(clientId, timeOutCount + 1)
+          }
+      }
+      val notHere = subscribers.keys.toSet.diff(timedoutSubscribers.keys.toSet)
+      timedoutSubscribers = timedoutSubscribers ++ notHere.map { clientId => clientId -> 0 }.toMap
 
     case Update =>
       DataSetEventLog.all.foreach {
@@ -495,7 +518,7 @@ class DataSetEventFeed extends Actor {
             recentEvents.filter(e => LIST_FEED_EVENTS.contains(EventType(e.eventType))).foreach {
               event =>
                 {
-                  log.debug("Broadcasting DataSet event to all list subscribers: " + event.toString)
+                  log.debug(s"Broadcasting DataSet event to ${listSubscribers.size} list subscribers: " + event.toString)
                   val msg = EventType(event.eventType) match {
                     case EventType.CREATED | EventType.UPDATED =>
                       DataSet.dao(event.orgId).findBySpecAndOrgId(event.spec, event.orgId).map {
@@ -577,7 +600,10 @@ class DataSetEventFeed extends Actor {
     )
   )
 
-  def send(subscriber: Subscriber, msg: JsValue) { subscriber.channel push msg }
+  def send(subscriber: Subscriber, msg: JsValue) {
+    log.debug(s"Pushing message to subscriber ${subscriber.userName}: $msg")
+    subscriber.channel push msg
+  }
 
   def notifySubscribers(subscribers: Map[String, Subscriber], orgId: String, spec: String, eventType: String, msg: Option[JsObject]) {
     val default = JsObject(

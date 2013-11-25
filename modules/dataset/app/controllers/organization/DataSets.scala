@@ -1,16 +1,20 @@
 package controllers.organization
 
-import play.api.mvc.{ WebSocket, Action }
 import models.DataSet
 import play.api.i18n.Messages
 import com.mongodb.casbah.Imports._
-import controllers.{ Token, OrganizationController }
+import controllers.OrganizationController
 import java.util.regex.Pattern
-import play.api.libs.json.{ JsString, JsValue }
-import play.api.libs.concurrent.Promise
-import play.api.libs.iteratee.{ Concurrent, Enumerator, Done, Input }
-import util.OrganizationConfigurationHandler
+import play.api.libs.json.JsValue
+import play.api.libs.concurrent.{ Akka, Promise }
+import play.api.libs.iteratee._
 import com.escalatesoft.subcut.inject.BindingModule
+import play.api.libs.Comet
+import play.api.libs.concurrent.Execution.Implicits._
+import controllers.Token
+import scala.util.Random
+import controllers.organization.DataSetEventFeed.ClientMessage
+import play.api.Play.current
 
 /**
  *
@@ -23,8 +27,17 @@ class DataSets(implicit val bindingModule: BindingModule) extends OrganizationCo
     MultitenantAction {
       implicit request =>
 
+        val clientId = Random.nextInt(10000)
+
         render {
-          case Accepts.Html() => Ok(Template('title -> listPageTitle("dataset"), 'canAdministrate -> DataSet.dao.canAdministrate(connectedUser)))
+          case Accepts.Html() =>
+            Ok(
+              Template(
+                'title -> listPageTitle("dataset"),
+                'canAdministrate -> DataSet.dao.canAdministrate(connectedUser),
+                'clientId -> clientId
+              )
+            )
           case Accepts.Json() =>
             val sets = DataSet.dao.findAll()
             val smallSets = sets.map { set =>
@@ -44,23 +57,38 @@ class DataSets(implicit val bindingModule: BindingModule) extends OrganizationCo
           NotFound(Messages("dataset.DatasetWasNotFound", spec))
         } else {
           val ds = maybeDataSet.get
-          Ok(Template('spec -> ds.spec))
+          val clientId = Random.nextInt(10000)
+          Ok(Template('spec -> ds.spec, 'clientId -> clientId))
         }
     }
   }
 
-  def feed(clientId: String, spec: Option[String]) = WebSocket.async[JsValue] { implicit request =>
-    if (request.session.get("userName").isDefined) {
-      OrganizationConfigurationHandler.getByDomain(request.domain) map { implicit configuration =>
-        DataSetEventFeed.subscribe(configuration.orgId, clientId, session.get("userName").get, configuration.orgId, spec)
-      } getOrElse {
-        Promise.pure((Done[JsValue, JsValue](JsString(""), Input.Empty), Concurrent.broadcast._1))
+  def feed(clientId: String, spec: Option[String]) = MultitenantAction { implicit request =>
+    Async {
+      if (request.session.get("userName").isDefined) {
+        val eventuallyChannel = DataSetEventFeed.subscribe(configuration.orgId, clientId, session.get("userName").get, configuration.orgId, spec)
+        eventuallyChannel map {
+          case (i: Iteratee[JsValue, _], e: Enumerator[JsValue]) =>
+            Ok.stream(e &> Comet(callback = "parent.onMessage"))
+        }
+      } else {
+        Promise.pure {
+          val nothing = Enumerator("") >>> Enumerator.eof
+          Ok.stream(nothing &> Comet(callback = "parent.onMessage"))
+        }
       }
-    } else {
-      // return a fake pair
-      // TODO perhaps a better way here ?
-      Promise.pure((Done[JsValue, JsValue](JsString(""), Input.Empty), Concurrent.broadcast._1))
     }
+  }
+
+  def dataSetEventFeed = Akka.system.actorFor("akka://application/user/plugin-dataSet/dataSetEventFeed")
+
+  def command(clientId: String) = MultitenantAction(parse.tolerantFormUrlEncoded) { implicit request =>
+    log.debug(s"Received command from $clientId: ${request.body}")
+    val eventType = request.body.get("eventType").flatMap(_.headOption).getOrElse("")
+    val spec = request.body.get("payload").flatMap(_.headOption).getOrElse("")
+
+    dataSetEventFeed ! ClientMessage(clientId, eventType, spec)
+    Ok
   }
 
   def listAsTokens(q: String, maybeFormats: Option[String]) = Root {

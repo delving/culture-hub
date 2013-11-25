@@ -62,17 +62,17 @@
                     <span data-bind="text: dataSetState() == 'processing' ? processedRecords() + ' / ' : ''"></span>
                     <!-- /ko -->
                     <a data-bind="text: totalRecords, attr: { href: '/search?query%3Ddelving_spec%3A' + spec() }" class="rCount" rel="nofollow"></a>
-                    <!-- ko if: validRecords().length > 0 -->
+                    <!-- ko if: validRecords.length > 0 -->
                     <div data-bind="template: {name: 'validRecordCountTemplate', afterRender: $parent.applyPopover }" style="display: none;"></div>
                     <!-- /ko -->
                 </td>
                 <td>
-                    <!-- ko foreach: validRecords() -->
-                    <span class="label" data-bind="text: schema"></span>
+                    <!-- ko foreach: validRecords -->
+                    <span class="label" data-bind="text: schema()"></span>
                     <!-- /ko -->
                 </td>
                 <td>
-                    <!-- ko foreach: harvestingConfiguration() -->
+                    <!-- ko foreach: harvestingConfiguration -->
                     <span class="label"><!--ko text: schema --><!--/ko--> (<!--ko text: accessType --><!--/ko-->)</span>
                     <!-- /ko -->
                 </td>
@@ -112,13 +112,14 @@
     </div>
 </div>
 
+<iframe id="feed" src="/admin/dataset/feed?clientId=${clientId}" frameborder="0" height="100%" width="100%"></iframe>
 
 <script type="text/javascript" language="javascript">
+    var viewModel = {};
+
     $(document).ready(function () {
 
-        var clientId;
-
-        var viewModel = {
+        viewModel = {
             sets: ko.observableArray(),
             stateToClass: function(state) { return stateToClass(state) },
             updateSet: function(spec, updateCallback) {
@@ -137,78 +138,10 @@
             }
         };
 
-        var onopen = function() {
-            ws.send(JSON.stringify({
-                eventType: "sendList",
-                clientId: clientId
-            }));
-        };
-
-
-        var onmessage = function(evt) {
-            var data = $.parseJSON(evt.data);
-
-            switch(data.eventType) {
-                case "loadList":
-                    $.each(data.payload, function(index, item) {
-                        viewModel.sets.push(ko.mapping.fromJS(item));
-                    });
-                    if ($.cookie("ds-filter")) {
-                        $.uiTableFilter($('#dataset-table'), $.cookie("ds-filter"));
-                        $('input#filter').val($.cookie("ds-filter"));
-                    }
-                    $("#dataset-table").tablesorter({
-                        headers: {
-                            2: {
-                                sorter: false
-                            }
-                        }
-                    });
-                    break;
-                case "created":
-                    viewModel.sets.push(ko.mapping.fromJS(data.payload));
-                    break;
-                case "updated":
-                    // TODO maybe be a bit more subtle here
-                    viewModel.sets.remove(function(item) { return item.spec() === data.spec && item.orgId() === data.orgId});
-                    viewModel.sets.push(ko.mapping.fromJS(data.payload));
-                    break;
-                case "removed":
-                    viewModel.sets.remove(function(item) { return item.spec() === data.spec && item.orgId() === data.orgId});
-                    break;
-                case "sourceRecordCountChanged":
-                    viewModel.updateSet(data.spec, function(toUpdate) {
-                        toUpdate.totalRecords(data.payload);
-                    });
-                    break;
-                case "processedRecordCountChanged":
-                    viewModel.updateSet(data.spec, function(toUpdate) {
-                        toUpdate.processedRecords(data.payload);
-                    });
-                    break;
-                case "stateChanged":
-                    viewModel.updateSet(data.spec, function(toUpdate) {
-                        toUpdate.dataSetState(data.payload);
-                    });
-                    break;
-                case "locked":
-                    viewModel.updateSet(data.spec, function(toUpdate) {
-                        toUpdate.lockState("locked");
-                        toUpdate.lockedBy(data.payload);
-                    });
-                    break;
-                case "unlocked":
-                    viewModel.updateSet(data.spec, function(toUpdate) {
-                        toUpdate.lockState("unlocked");
-                        toUpdate.lockedBy("");
-                    });
-                    break;
-            }
-        };
-
-        clientId = feed('${orgId}', '${spec}', onopen, onmessage, 0);
-
+        $.post('/admin/dataset/command?clientId=${clientId}', { eventType: "sendList" });
         ko.applyBindings(viewModel);
+
+        keepCometAlive('#feed', '${clientId}');
 
         var dataSetTable = $('#dataset-table');
 
@@ -238,6 +171,69 @@
         });
 
     });
+
+    var onMessage = function(data) {
+        // magic happens here
+        data = $.parseJSON(JSON.stringify(data));
+
+        switch(data.eventType) {
+            case "loadList":
+                $.each(data.payload, function(index, item) {
+                    var mapped = ko.mapping.fromJS(item);
+                    viewModel.sets.push(mapped);
+                });
+                if ($.cookie("ds-filter")) {
+                    $.uiTableFilter($('#dataset-table'), $.cookie("ds-filter"));
+                    $('input#filter').val($.cookie("ds-filter"));
+                }
+                $("#dataset-table").tablesorter({
+                    headers: {
+                        2: {
+                            sorter: false
+                        }
+                    }
+                });
+                break;
+            case "created":
+                viewModel.sets.push(ko.mapping.fromJS(data.payload));
+                break;
+            case "updated":
+                // TODO maybe be a bit more subtle here
+                viewModel.sets.remove(function(item) { return item.spec() === data.spec && item.orgId() === data.orgId});
+                viewModel.sets.push(ko.mapping.fromJS(data.payload));
+                break;
+            case "removed":
+                viewModel.sets.remove(function(item) { return item.spec() === data.spec && item.orgId() === data.orgId});
+                break;
+            case "sourceRecordCountChanged":
+                viewModel.updateSet(data.spec, function(toUpdate) {
+                    toUpdate.totalRecords(data.payload);
+                });
+                break;
+            case "processedRecordCountChanged":
+                viewModel.updateSet(data.spec, function(toUpdate) {
+                    toUpdate.processedRecords(data.payload);
+                });
+                break;
+            case "stateChanged":
+                viewModel.updateSet(data.spec, function(toUpdate) {
+                    toUpdate.dataSetState(data.payload);
+                });
+                break;
+            case "locked":
+                viewModel.updateSet(data.spec, function(toUpdate) {
+                    toUpdate.lockState("locked");
+                    toUpdate.lockedBy(data.payload);
+                });
+                break;
+            case "unlocked":
+                viewModel.updateSet(data.spec, function(toUpdate) {
+                    toUpdate.lockState("unlocked");
+                    toUpdate.lockedBy("");
+                });
+                break;
+        }
+    };
 
     function resetFilter() {
         $.uiTableFilter($('#dataset-table'), '');
