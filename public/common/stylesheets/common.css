@@ -4435,6 +4435,7 @@ a.badge:hover {
 }
 .facet-toggle:hover {
   color: #888;
+  cursor: pointer;
 }
 .facet-toggle:first-of-type {
   border-top: 1px solid #eaeaea;
@@ -4457,6 +4458,16 @@ a.badge:hover {
   /*min-height: 21px;*/
 
   overflow-y: auto;
+}
+.facet-container .facet-tools {
+  border-bottom: 1px dashed #eaeaea;
+  padding-bottom: 4px;
+}
+.facet-container .facet-tools .sort {
+  background: #eaeaea;
+  font-size: smaller;
+  margin-right: 8px;
+  padding: 2px 4px;
 }
 .facet-container .facet {
   padding: 2px 0;
@@ -4524,7 +4535,7 @@ a.badge:hover {
 /* flexible grid */
 .span1of2 {
   width: 47%;
-  margin: 0 0 0 3.33%;
+  margin: 0 0 0 3.0%;
   float: left;
 }
 .span1of3 {

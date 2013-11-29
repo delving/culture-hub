@@ -448,6 +448,7 @@ metadata.type.Video=Video
 metadata.type.Videos=Videos
 search.Collection=Collectie
 search.Facets=Facetten
+search.FacetsSort=Sorteer
 search.FoundResults= {0} resultaten gevonden
 search.ObjectType=Soort object
 search.Provider=Aanbieder

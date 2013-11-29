@@ -582,6 +582,7 @@ sdu.UploadDocument=Upload document
 search.CannotConnectToTheSearchBackend=Cannot connect to the search backend
 search.Collection=Collection
 search.Facets=Facets
+search.FacetsSort=Sort
 search.FoundResults=Found {0} results
 search.ObjectType=Object type
 search.Provider=Provider
