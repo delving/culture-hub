@@ -3,6 +3,7 @@ GET               /:user/sip-creator.jnlp                           @controllers
 GET               /admin/dataset                                    @controllers.organization.DataSets.list
 GET               /admin/dataset/search                             @controllers.organization.DataSets.listAsTokens(q, formats: Option[String])
 GET               /admin/dataset/feed                               @controllers.organization.DataSets.feed(clientId, spec: Option[String])
+POST              /admin/dataset/command                            @controllers.organization.DataSets.command(clientId)
 GET               /admin/dataset/add                                @controllers.organization.DataSetControl.add
 GET               /admin/dataset/:spec/update                       @controllers.organization.DataSetControl.update(spec: String)
 POST              /admin/dataset/submit                             @controllers.organization.DataSetControl.dataSetSubmit

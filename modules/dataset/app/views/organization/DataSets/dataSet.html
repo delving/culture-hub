@@ -4,6 +4,7 @@
 #{set title: messages.get('dataset.Dataset') + ' ' + spec + ' - ' + messages.get('hubb.Organization') + ': ' + orgId /}
 
 #{set 'moreScripts'}
+<script type="text/javascript" src="/assets/common/javascripts/smartupdater.4.0.js"></script>
 <script type="text/javascript" src="/assets/common/javascripts/organizations/datasets.js"></script>
 #{/set}
 
@@ -218,14 +219,21 @@
 
 </div>
 
-<script type="text/javascript" language="javascript">
-    $(document).ready(function () {
+<iframe id="feed" src="/admin/dataset/feed?clientId=${clientId}&spec=${spec}" frameborder="0" height="100%" width="100%"></iframe>
 
-        var clientId;
+<script type="text/javascript" language="javascript">
+
+    var viewModel = {};
+
+    var send = function(message) {
+        $.post('/admin/dataset/command?clientId=${clientId}&spec=${spec}', message);
+    };
+
+    $(document).ready(function () {
 
         var msgUnlock = "When a dataset is locked, the locking user is considered to be in full control.  Unlocking implies taking that control away, which should not be done without the permission of the locking user because it invalidates their current work on the dataset.";
 
-        var viewModel = {
+        viewModel = {
 
             progressPercentage: ko.observable('0%'),
             baseUri: ko.observable("http://" + location.host + "/"),
@@ -234,43 +242,38 @@
                 return stateToClass(state);
             },
             enable: function(spec) {
-                ws.send(JSON.stringify({
+                send({
                     eventType: 'enableSet',
-                    clientId: clientId,
                     payload: '${spec}'
-                }));
+                });
             },
             disable: function(spec) {
-                ws.send(JSON.stringify({
+                send({
                     eventType: 'disableSet',
-                    clientId: clientId,
                     payload: '${spec}'
-                }));
+                });
             },
             process: function(spec) {
-                ws.send(JSON.stringify({
+                send({
                     eventType: 'processSet',
-                    clientId: clientId,
                     payload: '${spec}'
-                }));
+                });
             },
             cancel: function(spec) {
-                ws.send(JSON.stringify({
+                send({
                     eventType: 'cancelProcessSet',
-                    clientId: clientId,
                     payload: '${spec}'
-                }));
+                });
             },
             unlock: function(spec) {
                 bootbox.dialog(msgUnlock, [{
                     "label"     :   "I am aware of this. Unlock anyway!",
                     "class"     :   "btn-warning",
                     "callback"  :   function() {
-                        ws.send(JSON.stringify({
+                        send({
                             eventType: 'unlockSet',
-                            clientId: clientId,
                             payload: '${spec}'
-                            }));
+                            });
                             var html = '<div class="alert alert-block"><a class="close" data-dismiss="alert" href="#">x</a>' +
                                 '<p>Dataset is now unlocked!</p>' +
                                 '</div>'
@@ -286,11 +289,10 @@
             resetHashes: function(spec) {
                 bootbox.confirm("<h4>Reset hashes</h4><p>Are you sure?</p>", function(result) {
                      if (result) {
-                        ws.send(JSON.stringify({
+                        send({
                             eventType: 'resetHashesForSet',
-                            clientId: clientId,
                             payload: '${spec}'
-                        }));
+                        });
                      }
                 });
             },
@@ -299,11 +301,10 @@
                     if (result) {
                         bootbox.confirm("<h4>Delete</h4><p>Are you absolutely sure?</p>", function(result){
                             if (result) {
-                                ws.send(JSON.stringify({
-                                eventType: 'deleteSet',
-                                clientId: clientId,
-                                payload: '${spec}'
-                                }));
+                                send({
+                                    eventType: 'deleteSet',
+                                    payload: '${spec}'
+                                });
                             }
                         });
                     }
@@ -311,65 +312,59 @@
             }
         };
 
-        var onopen = function() {
-            ws.send(JSON.stringify({
-                eventType: "sendSet",
-                clientId: clientId,
-                payload: '${spec}'
-            }));
-        };
-
-        var onmessage = function(evt) {
-            var data = $.parseJSON(evt.data);
-            console.log(data)
-            switch(data.eventType) {
-                case "loadSet":
-                    $.extend(viewModel, ko.mapping.fromJS(data.payload));
-                    retries = 0;
-                    viewModel.progressPercentage(viewModel.processedRecords + '%');
-                    ko.applyBindings(viewModel);
-                    $("body").css('visibility', 'visible');
-                    break;
-                case "updated":
-                    ko.mapping.fromJS(data.payload, viewModel);
-                    break;
-                case "removed":
-                    document.location = 'http://' + location.host + '/admin/dataset';
-                    break;
-                case "sourceRecordCountChanged":
-                    viewModel.totalRecords(data.payload);
-                    break;
-                case "stateChanged":
-                    viewModel.dataSetState(data.payload);
-                    viewModel.progressPercentage('0%');
-                    viewModel.errorMessage('');
-                    break;
-                case "locked":
-                    viewModel.lockState("locked");
-                    viewModel.lockedBy(data.payload);
-                    break;
-                case "unlocked":
-                    viewModel.lockState("unlocked");
-                    viewModel.lockedBy("");
-                    break;
-                case "error":
-                    viewModel.errorMessage(data.payload);
-                    break;
-                case "processedRecordCountChanged":
-                    var percentage = 100 * parseInt(data.payload) / viewModel.totalRecords();
-                    viewModel.progressPercentage(percentage + '%');
-                    break;
-                case "serverError":
-                    bootbox.alert(data.payload);
-                    break;
-            }
-        };
-
-        clientId = feed('${orgId}', '${spec}', onopen, onmessage, 0);
+        send({ eventType: "sendSet", payload: "${spec}" });
+        keepCometAlive('#feed', '${clientId}');
 
     });
 
+    var onMessage = function(data) {
+        // magic happens here
+        data = $.parseJSON(JSON.stringify(data));
+        switch(data.eventType) {
+            case "loadSet":
+                $.extend(viewModel, ko.mapping.fromJS(data.payload));
+                retries = 0;
+                viewModel.progressPercentage(viewModel.processedRecords + '%');
+                ko.applyBindings(viewModel);
+                $("body").css('visibility', 'visible');
+                break;
+            case "updated":
+                ko.mapping.fromJS(data.payload, viewModel);
+                break;
+            case "removed":
+                document.location = 'http://' + location.host + '/admin/dataset';
+                break;
+            case "sourceRecordCountChanged":
+                viewModel.totalRecords(data.payload);
+                break;
+            case "stateChanged":
+                viewModel.dataSetState(data.payload);
+                viewModel.progressPercentage('0%');
+                viewModel.errorMessage('');
+                break;
+            case "locked":
+                viewModel.lockState("locked");
+                viewModel.lockedBy(data.payload);
+                break;
+            case "unlocked":
+                viewModel.lockState("unlocked");
+                viewModel.lockedBy("");
+                break;
+            case "error":
+                viewModel.errorMessage(data.payload);
+                break;
+            case "processedRecordCountChanged":
+                var percentage = 100 * parseInt(data.payload) / viewModel.totalRecords();
+                viewModel.progressPercentage(percentage + '%');
+                break;
+            case "serverError":
+                bootbox.alert(data.payload);
+                break;
+        }
+    };
+
 </script>
+
 <script type="text/html" id="statusInformation">
     <table class="table table-condensed">
         <!--<caption>Status information</caption>-->
