@@ -57,7 +57,7 @@
                     #{/else}
                 </div>
                  }*
-                <li data-name="${views.Helpers.shorten(thingType, 20)}" data-count="${link.getCount()}">
+                <li class="facet" data-name="${views.Helpers.shorten(thingType, 20)}" data-count="${link.getCount()}">
                     #{if !link.remove()}
                     <input type="checkbox" value="${qs}&facetBoolType=OR"/><span><a href="${qs}&facetBoolType=OR" rel="nofollow">${views.Helpers.shorten(thingType, 50)} (${link.getCount()})</a></span>
                     #{/if}
