@@ -12,16 +12,6 @@
 
 #{if pagination.getNumFound() > 0}
 
-<!--${hasDigitalObject}-->
-#{list hasDigitalObject, as: 'facet'}
-    <label>${facet}</label>
-    <label>${facet.isFacetSelected()}</label>
-    #{list facet.getLinks(), as: 'link'}
-        <label>${link}</label>
-        <label>${link.getValue()}</label>
-    #{/list}
-#{/list}
-
 <div class="results-header-block">
     <div class="results-header-inner">
         <h4>
@@ -34,8 +24,8 @@
                             <a href="/search?query=${pagination.getPresentationQuery().getUserSubmittedQuery()}&searchIn=${params.searchIn ? params.searchIn[0]  : "all"}${link.url}">&{'hub.AlsoIncludeResultsWithoutImages'}</a>
                         #{/if}
                         #{if link.getValue() == 'true' && facet.isFacetSelected()}
-                            <input type="checkbox" class="include-without-digtalobjects" value="/search?query=${pagination.getPresentationQuery().getUserSubmittedQuery()}&searchIn=${params.searchIn ? params.searchIn[0]  : "all"}">
-                            <a href="/search?query=${pagination.getPresentationQuery().getUserSubmittedQuery()}&searchIn=${params.searchIn ? params.searchIn[0]  : "all"}">&{'hub.AlsoIncludeResultsWithoutImages'}</a>
+                            <input type="checkbox" class="include-without-digtalobjects" value="/search?query=${pagination.getPresentationQuery().getUserSubmittedQuery()}&searchIn=${params.searchIn ? params.searchIn[0]  : "all"}${link.url}">
+                            <a href="/search?query=${pagination.getPresentationQuery().getUserSubmittedQuery()}&searchIn=${params.searchIn ? params.searchIn[0]  : "all"}${link.url}">&{'hub.AlsoIncludeResultsWithoutImages'}</a>
                         #{/if}
                     #{/list}
                 #{/list}
