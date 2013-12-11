@@ -21,12 +21,12 @@
             #{list hasDigitalObject, as: 'facet'}
                 #{list facet.getLinks(), as: 'link'}
                     #{if link.getValue() == 'true' && !facet.isFacetSelected()}
-                        <input type="checkbox" class="include-without-digtalobjects" checked="checked" value="/search?query=${pagination.getPresentationQuery().getUserSubmittedQuery()}&searchIn=${params.searchIn ? params.searchIn[0]  : "all"}${link.url}">
-                        <a href="/search?query=${pagination.getPresentationQuery().getUserSubmittedQuery()}&searchIn=${params.searchIn ? params.searchIn[0]  : "all"}${link.url}">&{'hub.AlsoIncludeResultsWithoutImages'}</a>
+                        <input type="checkbox" class="include-without-digtalobjects" checked="checked" value="/search?${pagination.getPresentationQuery().getQueryForPresentation()}&searchIn=${params.searchIn ? params.searchIn[0]  : "all"}${link.url}">
+                        <a href="/search?${pagination.getPresentationQuery().getQueryForPresentation()}&searchIn=${params.searchIn ? params.searchIn[0]  : "all"}${link.url}">&{'hub.AlsoIncludeResultsWithoutImages'}</a>
                     #{/if}
                     #{if link.getValue() == 'true' && facet.isFacetSelected()}
-                        <input type="checkbox" class="include-without-digtalobjects" value="/search?query=${pagination.getPresentationQuery().getUserSubmittedQuery()}&searchIn=${params.searchIn ? params.searchIn[0]  : "all"}">
-                        <a href="/search?query=${pagination.getPresentationQuery().getUserSubmittedQuery()}&searchIn=${params.searchIn ? params.searchIn[0]  : "all"}">&{'hub.AlsoIncludeResultsWithoutImages'}</a>
+                        <input type="checkbox" class="include-without-digtalobjects" value="/search?${pagination.getPresentationQuery().getQueryForPresentation()}&searchIn=${params.searchIn ? params.searchIn[0]  : "all"}">
+                        <a href="/search?${pagination.getPresentationQuery().getQueryForPresentation()}&searchIn=${params.searchIn ? params.searchIn[0]  : "all"}">&{'hub.AlsoIncludeResultsWithoutImages'}</a>
                     #{/if}
                 #{/list}
             #{/list}
