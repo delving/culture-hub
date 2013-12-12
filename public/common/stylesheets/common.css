@@ -5158,28 +5158,68 @@ div.token-input-dropdown ul li.token-input-selected-dropdown-item {
     Hierarchical metadata 
     parent/child syles
 -----------------------------------*/
-.aff-parent h5 {
-  font-size: 18px;
-  color: blue;
+.lido-parent .header,
+.lido-child .header {
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  border-radius: 4px;
+  *display: inline;
+  /* IE7 inline-block hack */
+
+  *zoom: 1;
 }
-.aff-parent .aff-child {
+.lido-parent .lido-proper-name .header,
+.lido-child .lido-proper-name .header {
+  font-style: italic;
+}
+.lido-parent {
+  margin-bottom: 8px;
+}
+.lido-parent .header {
+  background: #007bcc;
+  border: 1px solid #a5cbe4;
+  color: #ffffff;
+  font-size: 18px;
+  padding: 4px 8px;
+  margin-bottom: 4px;
+}
+.lido-parent .lido-parent .header {
+  font-size: 14px;
+  color: #ffffff;
   margin-left: 20px;
 }
-.aff-parent .aff-child h5 {
+.lido-parent .lido-parent .lido-parent {
+  margin-left: 20px;
+}
+.lido-parent .lido-child {
+  margin-left: 20px;
+}
+.lido-parent .lido-child .header {
+  background: #009aff;
+  border: 1px solid #a5cbe4;
+  color: #ffffff;
   font-size: 14px;
   margin-bottom: 4px;
-  color: green;
 }
-.aff-parent .aff-child dl {
+.lido-parent .lido-child dl {
   margin: 0 0 4px 0;
 }
-.aff-parent .aff-child dt {
+.lido-parent .lido-child dt {
   font-weight: bold !important;
   color: #ff4500;
 }
-.aff-parent .aff-parent h5 {
-  font-size: 14px;
-  color: orange;
+.lido-list ul {
+  margin: 0 0 0 0;
+}
+.lido-list ul li {
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  border-radius: 4px;
+  border: 1px solid #999999;
+  list-style-type: none;
+  padding: 4px;
+  margin-bottom: 4px;
+  word-wrap: break-word;
 }
 .object-main #map img {
   max-width: none;

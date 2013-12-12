@@ -37,7 +37,7 @@ switch (_view.nodeType) {
         <div #{if _view.attr("id")}id="${_view.attr("id")}"#{/if} #{if _view.attr("class")}class="${_view.attr("class")}"#{/if}>
 
             #{if _view.attr("label")}
-                <h5>&{_view.attr("label")} #{if _view.attr("role")}<span class="label">${_view.attr("role")}</span>#{/if}</h5>
+                <h5 class="header">&{_view.attr("label")} #{if _view.attr("role")}<span class="label">${_view.attr("role")}</span>#{/if}</h5>
             #{/if}
 
             #{if _view.attr("type") == "definition-list"}
@@ -91,7 +91,7 @@ switch (_view.nodeType) {
             <li>${_view.text()}</li>
         #{/elseif}
         #{elseif _view.parent.attr("type") == "labelled-list"}
-            <li>#{if _view.attr("label")}&{_view.attr("label")}:#{/if} ${_view.text()}</li>
+            <li>#{if _view.attr("label")}<span class="label">&{_view.attr("label")}</span>#{/if} <span class="value">${_view.text()}</span></li>
         #{/elseif}
         #{else}
             #{if _view.attr("label")}<h5>&{_view.attr("label")} #{if _view.attr("role")} <span class="label">${_view.attr("role")}</span>#{/if}</h5>#{/if}
@@ -111,7 +111,7 @@ switch (_view.nodeType) {
         #{/elseif}
 
         #{elseif _view.parent.attr("type") == "labelled-list"}
-            <li>&{_view.attr("label")}: <a href="${_view.attr("url")}" rel="nofollow">&{_view.attr("text")}</a></li>
+            <li><span class="label">&{_view.attr("label")}</span><span class="value"> <a href="${_view.attr("url")}" rel="nofollow">&{_view.attr("text")}</a></span></li>
         #{/elseif}
 
         #{else}
@@ -191,6 +191,9 @@ switch (_view.nodeType) {
                 <dd>
                     #{list _view.content(), as: 'e'}${e.text()}#{if !e_isLast}${separator.raw()}#{/if}#{/list}
                 </dd>
+            #{/elseif}
+            #{elseif _view.parent.attr("type") == "labelled-list"}
+            <li><span class="label">&{_view.attr("label")}</span><span class="value"> #{list _view.content(), as: 'e'}${e.text()}#{if !e_isLast}${separator.raw()}#{/if}#{/list}</span></li>
             #{/elseif}
             #{else}
                 #{if _view.attr("label")}
