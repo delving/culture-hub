@@ -54,23 +54,23 @@ class ViewRenderSpec extends test.Specs2TestContext {
         val rendered: String = template.render(args).replaceAll("""(?m)^\s+""", "")
         val expected: String =
 
-          """<div class="root ">
-            |<div class="row ">
-            |<div class="column ">
+          """<div class="root  ">
+            |<div class="row  ">
+            |<div class="column  ">
             |<div  >
             |<h5 class="header">Description </h5>            <p>This is a test record</p>
             |</div>
             |</div>
-            |<div class="column ">
+            |<div class="column  ">
             |<div  >
             |<h5 class="header">random</h5>
             |<p>A test hierarchical record, Wood</p>
-            |<>Purchase Price  <span class="label">blabla</span></h5>            <p>5000</p>
+            |<h5 class="header">Purchase Price  <span class="label">blabla</span></h5>            <p>5000</p>
             |<h5 class="header">metadata.icn.purchaseType </h5>            <p>auction</p>
             |<p><a href="http://foo.bar.com" data-type="" rel="nofollow">Blablabla</a></p>
             |</div>
             |</div>
-            |<div class="column ">
+            |<div class="column  ">
             |<div  >
             |<h5 class="header">metadata.icn.placeName </h5>            <p>Paris</p>
             |<h5 class="header">metadata.icn.placeName </h5>            <p>Berlin</p>
