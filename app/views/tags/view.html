@@ -23,7 +23,7 @@ switch (_view.nodeType) {
                 propClass = ""
         }}%
 
-        <div class="${_view.nodeType} ${propClass}">
+        <div class="${_view.nodeType} ${propClass} #{if _view.attr('class')}${_view.attr('class')}#{/if}">
         #{list items: _view.content(), as: 'item'}
             #{view view: item /}
         #{/list}

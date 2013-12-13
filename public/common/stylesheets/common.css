@@ -5183,12 +5183,9 @@ div.token-input-dropdown ul li.token-input-selected-dropdown-item {
   padding: 4px 8px;
   margin-bottom: 4px;
 }
-.lido-parent .lido-parent .header {
+.lido-parent > .lido-parent .header {
   font-size: 14px;
   color: #ffffff;
-  margin-left: 20px;
-}
-.lido-parent .lido-parent .lido-parent {
   margin-left: 20px;
 }
 .lido-parent .lido-child {
@@ -5215,11 +5212,14 @@ div.token-input-dropdown ul li.token-input-selected-dropdown-item {
   -webkit-border-radius: 4px;
   -moz-border-radius: 4px;
   border-radius: 4px;
-  border: 1px solid #999999;
+  border: 1px solid #d9d9d9;
   list-style-type: none;
   padding: 4px;
   margin-bottom: 4px;
   word-wrap: break-word;
+}
+.lido-list ul li .label {
+  text-shadow: none;
 }
 .object-main #map img {
   max-width: none;

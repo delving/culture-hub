@@ -7,11 +7,14 @@
             <column proportion="1of3">
                 <!-- DIGITAL OBJECT REPRESENTATION -->
                 <container id="object-media" class="lido-object">
+
                     <container id="image-viewer">
                         <!-- FIRST CHECK FOR DELVING:IMAGEURL -->
                         <container if="/lido:lido/delving:imageUrl">
                             <image path="/lido:lido/delving:imageUrl"/>
                         </container>
+
+
                     </container>
 
                     <container id="context-link" if="/lido:lido/delving:landingPage" class="pull-right">
@@ -59,12 +62,12 @@
 
             </column>
 
-            <column proportion="1of3">
+            <column proportion="1of3" class="lido-view">
                 <!--<field path="/lido:lido/lido:lidoRecID/@lido:source" label="metadata.lido.lidoRecId.source"/>-->
                 <!--<field path="/lido:lido/lido:lidoRecID" label="metadata.lido.lidoRecId"/>-->
 
                 <container label="metadata.lido.objectIdentificationWrap" class="lido-parent">
-                    <container class="lido-child lido-list"  type="labelled-list">
+                    <container class="lido-list"  type="labelled-list">
                         <field path="/lido:lido/lido:descriptiveMetadata/lido:objectIdentificationWrap/lido:titleWrap/lido:titleSet/lido:appellationValue" label="metadata.lido.titleSet"/>
                         <field path="/lido:lido/lido:descriptiveMetadata/lido:objectIdentificationWrap/lido:repositoryWrap/lido:repositorySet/lido:repositoryName/lido:legalBodyName/lido:appellationValue" label="metadata.lido.legalBodyName"/>
                         <link urlExpr="/lido:lido/lido:descriptiveMetadata/lido:objectIdentificationWrap/lido:repositoryWrap/lido:repositorySet/lido:repositoryName/lido:legalBodyWeblink"
@@ -81,22 +84,21 @@
                                 <field path="lido:event/lido:eventDate/lido:displayDate" label="metadata.lido.displayDate"/>
                                 <field path="lido:event/lido:eventDate/lido:date/lido:earliestDate" label="metadata.lido.earliestDate"/>
                                 <field path="lido:event/lido:eventDate/lido:date/lido:latestDate" label="metadata.lido.latestDate"/>
-                            </container>
-                            <container class="lido-parent" label="metadata.lido.event.eventActor">
-                                <list path="lido:event/lido:eventActor">
-                                    <container class="lido-child lido-proper-name" labelExpr="lido:displayActorInRole">
-                                        <container class="lido-child lido-list" type="labelled-list">
-                                            <field path="lido:actorInRole/lido:actor/@lido:type" label="metadata.lido.type"/>
-                                            <enumeration path="lido:actorInRole/lido:roleActor/lido:term" separator=" | " label="metadata.lido.actor.roleActor"/>
-                                            <field path="lido:actorInRole/lido:actor/lido:nationalityActor/lido:term" label="metadata.lido.actor.nationalityActor.term"/>
-                                            <field path="lido:actorInRole/lido:actor/lido:vitalDatesActor/lido:earliestDate" label="metadata.lido.earliestDate"/>
-                                            <field path="lido:actorInRole/lido:actor/lido:vitalDatesActor/lido:latestDate" label="metadata.lido.latestDate"/>
-                                            <field path="lido:actorInRole/lido:actor/lido:genderActor" label="metadata.lido.actor.genderActor"/>
+                                <container class="lido-parent" label="metadata.lido.event.eventActor">
+                                    <list path="lido:event/lido:eventActor">
+                                        <container class="lido-child lido-proper-name" labelExpr="lido:displayActorInRole">
+                                            <container class="lido-child lido-list" type="labelled-list">
+                                                <field path="lido:actorInRole/lido:actor/@lido:type" label="metadata.lido.type"/>
+                                                <enumeration path="lido:actorInRole/lido:roleActor/lido:term" separator=" | " label="metadata.lido.actor.roleActor"/>
+                                                <field path="lido:actorInRole/lido:actor/lido:nationalityActor/lido:term" label="metadata.lido.actor.nationalityActor.term"/>
+                                                <field path="lido:actorInRole/lido:actor/lido:vitalDatesActor/lido:earliestDate" label="metadata.lido.earliestDate"/>
+                                                <field path="lido:actorInRole/lido:actor/lido:vitalDatesActor/lido:latestDate" label="metadata.lido.latestDate"/>
+                                                <field path="lido:actorInRole/lido:actor/lido:genderActor" label="metadata.lido.actor.genderActor"/>
+                                            </container>
                                         </container>
-                                    </container>
-                                </list>
+                                    </list>
+                                </container>
                             </container>
-
                         </container>
                     </list>
                 </container>
@@ -114,10 +116,10 @@
                     </list>
                 </container>
             </column>
-            <column proportion="1of3">
+            <column proportion="1of3" class="lido-view">
 
                 <container label="metadata.lido.objectClassificationWrap" class="lido-parent">
-                    <container class="lido-child lido-list" type="labelled-list">
+                    <container class="lido-list" type="labelled-list">
                         <list path="/lido:lido/lido:descriptiveMetadata/lido:objectClassificationWrap/lido:objectWorkTypeWrap/lido:objectWorkType/lido:term">
                             <field path="." labelExpr="./@xml:lang"/>
                         </list>
@@ -128,13 +130,13 @@
                 </container>
 
                 <container label="metadata.lido.category" class="lido-parent">
-                    <container class="lido-child lido-list" type="labelled-list">
+                    <container class="lido-list" type="labelled-list">
                         <link urlExpr="/lido:lido/lido:category/lido:conceptID" textExpr="/lido:lido/lido:category/lido:term" label="metadata.lido.conceptID"/>
                     </container>
                 </container>
 
                 <container label="metadata.lido.administrativeMetadata.rightsWorkWrap" class="lido-parent">
-                    <container class="lido-child lido-list" type="labelled-list">
+                    <container class="lido-list" type="labelled-list">
                         <link textExpr="/lido:lido/lido:administrativeMetadata/lido:rightsWorkWrap/lido:rightsWorkSet/lido:rightsType/lido:conceptID"
                           urlExpr="/lido:lido/lido:administrativeMetadata/lido:rightsWorkWrap/lido:rightsWorkSet/lido:rightsType/lido:conceptID/@lido:source"
                           labelExpr="lido:lido/lido:administrativeMetadata/lido:rightsWorkWrap/lido:rightsWorkSet/lido:rightsType/lido:conceptID/@lido:type"/>
@@ -146,7 +148,7 @@
                 </container>
 
                 <container class="lido-parent" label="metadata.lido.administrativeMetadata.recordWrap">
-                    <container class="lido-child lido-list" type="labelled-list">
+                    <container class="lido-list" type="labelled-list">
                         <field path="/lido:lido/lido:administrativeMetadata/lido:recordWrap/lido:recordID" label="metadata.lido.administrativeMetadata.recordWrap.recordID"/>
                         <field path="/lido:lido/lido:administrativeMetadata/lido:recordWrap/lido:recordType/lido:term" label="metadata.lido.recordType"/>
                         <field path="/lido:lido/lido:administrativeMetadata/lido:recordWrap/lido:recordSource/lido:legalBodyName/lido:appellationValue" label="metadata.lido.legalBodyName"/>
@@ -160,7 +162,7 @@
                 </container>
 
                 <container class="lido-parent" label="metadata.lido.administrativeMetadata.resourceWrap">
-                    <container class="lido-child lido-list" type="labelled-list">
+                    <container class="lido-list" type="labelled-list">
                         <field path="/lido:lido/lido:administrativeMetadata/lido:resourceWrap/lido:resourceSet/lido:resourceType/lido:term" label="metadata.lido.resourceType"/>
                         <list path="/lido:lido/lido:administrativeMetadata/lido:resourceWrap/lido:resourceSet/lido:resourceRepresentation">
                             <link urlExpr="lido:linkResource" textExpr="lido:linkResource" path="lido:linkResource" labelExpr="@lido:type"/>
