@@ -94,7 +94,7 @@ switch (_view.nodeType) {
             <li>#{if _view.attr("label")}<span class="label">&{_view.attr("label")}</span>#{/if} <span class="value">${_view.text()}</span></li>
         #{/elseif}
         #{else}
-            #{if _view.attr("label")}<h5>&{_view.attr("label")} #{if _view.attr("role")} <span class="label">${_view.attr("role")}</span>#{/if}</h5>#{/if}
+            #{if _view.attr("label")}<h5 class="header"">&{_view.attr("label")} #{if _view.attr("role")} <span class="label">${_view.attr("role")}</span>#{/if}</h5>#{/if}
             <p>${_view.text()}</p>
         #{/else}
     %{ }
