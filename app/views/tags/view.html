@@ -197,7 +197,7 @@ switch (_view.nodeType) {
             #{/elseif}
             #{else}
                 #{if _view.attr("label")}
-                    <h5>&{_view.attr("label")}</h5>
+                    <h5 class="header">&{_view.attr("label")}</h5>
                 #{/if}
                 <p>#{list _view.content(), as: 'e'}${e.text()}#{if !e_isLast}${separator.raw()}#{/if}#{/list}</p>
             #{/else}
