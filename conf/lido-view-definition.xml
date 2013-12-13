@@ -62,7 +62,7 @@
 
             </column>
 
-            <column proportion="1of3" class="lido-view">
+            <column proportion="1of3">
                 <!--<field path="/lido:lido/lido:lidoRecID/@lido:source" label="metadata.lido.lidoRecId.source"/>-->
                 <!--<field path="/lido:lido/lido:lidoRecID" label="metadata.lido.lidoRecId"/>-->
 
@@ -116,7 +116,7 @@
                     </list>
                 </container>
             </column>
-            <column proportion="1of3" class="lido-view">
+            <column proportion="1of3">
 
                 <container label="metadata.lido.objectClassificationWrap" class="lido-parent">
                     <container class="lido-list" type="labelled-list">
