@@ -63,9 +63,9 @@ class ViewRenderSpec extends test.Specs2TestContext {
             |</div>
             |<div class="column ">
             |<div  >
-            |<h5>random</h5>
+            |<h5 class="header">random</h5>
             |<p>A test hierarchical record, Wood</p>
-            |<h5>Purchase Price  <span class="label">blabla</span></h5>            <p>5000</p>
+            |<>Purchase Price  <span class="label">blabla</span></h5>            <p>5000</p>
             |<h5>metadata.icn.purchaseType </h5>            <p>auction</p>
             |<p><a href="http://foo.bar.com" data-type="" rel="nofollow">Blablabla</a></p>
             |</div>
