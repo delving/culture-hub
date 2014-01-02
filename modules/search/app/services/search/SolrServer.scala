@@ -150,7 +150,7 @@ object SolrServer {
   def getFacetFieldAutocomplete(facetName: String, facetQuery: String, facetLimit: Int = 10)(configuration: OrganizationConfiguration) = {
     val normalisedFacetName = "%s_lowercase".format(SolrBindingService.stripDynamicFieldLabels(facetName))
     val normalisedFacetQuery = if (normalisedFacetName.endsWith("_lowercase")) facetQuery.toLowerCase else facetQuery
-    val query = new SolrQuery("*:*")
+    val query = new SolrQuery(s"*:* delving_orgId:${configuration.orgId}")
     query setFacet true
     query setFacetLimit facetLimit
     query setFacetMinCount 1

@@ -41,7 +41,7 @@ class Search(implicit val bindingModule: BindingModule) extends DelvingControlle
             itemTypes.map(t => "%s:%s".format(RECORD_TYPE.key, t.itemType)).mkString(" OR ")
           )
 
-          val hiddenQueryFilters = if (itemTypes.isEmpty) List(orgIdFilter) else List(itemTypesFilter, orgIdFilter)
+          val hiddenQueryFilters =  List(orgIdFilter) // todo check later why itemtypes are not returned. if (itemTypes.isEmpty) List(orgIdFilter) else List(itemTypesFilter, orgIdFilter)
 
           searchServiceLocator.byDomain.getApiResult(request.queryString, request.host, hiddenQueryFilters)
 
