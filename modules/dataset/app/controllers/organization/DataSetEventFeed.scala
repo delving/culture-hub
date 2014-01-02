@@ -254,8 +254,9 @@ class DataSetEventFeed extends Actor {
       }
       val newSubscriber = Subscriber(orgId, userName, configuration, spec, enumerator, channel)
       if (subscribers.contains(clientId)) {
-        log.warn(s"Duplicate subscriber - same clientId $clientId")
-        //subscribers.updated(clientId, newSubscriber)
+        // when pressing the back button on some browsers, this is what we get
+        // TODO: if replacing client-side loading with something entirely in javascript, create new clientId at each page load
+        subscribers = subscribers.updated(clientId, newSubscriber)
       } else {
         subscribers = subscribers + (clientId -> newSubscriber)
       }
