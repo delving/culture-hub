@@ -2,7 +2,7 @@ package services.search
 
 import util.{ OrganizationConfigurationResourceHolder, OrganizationConfigurationHandler }
 import exceptions.SolrConnectionException
-import org.apache.solr.client.solrj.SolrQuery
+import org.apache.solr.client.solrj.{ SolrRequest, SolrQuery }
 import xml.XML
 import xml.Node
 import org.apache.solr.client.solrj.response.{ FacetField, QueryResponse }
@@ -40,7 +40,7 @@ trait SolrServer {
 
   def runQuery(query: SolrQuery, retries: Int = 0)(implicit configuration: OrganizationConfiguration): QueryResponse = {
     try {
-      SolrServer.solrServer(configuration).query(query)
+      SolrServer.solrServer(configuration).query(query, SolrRequest.METHOD.POST)
     } catch {
       case e: SolrConnectionException =>
         if (retries < 3) {
