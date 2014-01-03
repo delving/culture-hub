@@ -82,7 +82,7 @@ object DataSetEventFeed {
 
     log.debug("Client %s of org %s requesting subscribtion to DataSetList feed".format(clientId, orgId))
 
-    implicit val timeout = Timeout(1 second)
+    implicit val timeout = Timeout(10 seconds)
 
     (default ? Subscribe(orgId, userName, configuration, clientId, spec)).map {
 
