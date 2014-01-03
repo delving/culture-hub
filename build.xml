@@ -37,11 +37,8 @@
                         <contains value="start.jar"/>
                     </linecontains>
                     <tokenfilter>
-                        <deletecharacters chars="start.jar"/>
-                        <trim/>
-                        <ignoreblank/>
+                        <replaceregex pattern=" .*" replace=""/>
                     </tokenfilter>
-                    <striplinebreaks/>
                 </outputfilterchain>
             </redirector>
         </exec>
