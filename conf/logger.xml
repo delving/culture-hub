@@ -32,8 +32,8 @@
 
     <logger name="play" level="INFO"/>
     <logger name="application" level="INFO"/>
-    <logger name="CulutureHub" level="INFO"/>
-    <logger name="Search" level="DEBUG"/>
+    <logger name="CultureHub" level="INFO"/>
+    <logger name="Search" level="INFO"/>
 
     <logger name="org.apache.http">INFO</logger>
     <logger name="httpclient.wire.header">INFO</logger>

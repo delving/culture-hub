@@ -40,6 +40,7 @@ RUNNING_PID
 
 test-logger.xml
 
+*.iml
 .idea
 .idea_modules
 .settings

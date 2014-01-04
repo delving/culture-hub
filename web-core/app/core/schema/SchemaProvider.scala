@@ -154,7 +154,6 @@ class SchemaRepositoryWrapper extends Actor {
       val newSchemaRepository = new SchemaRepository(fetcher)
       newSchemaRepository.prefetchAllSchemas()
       schemaRepository = newSchemaRepository
-      log.info("Refreshed SchemaRepository, available schemas are: " + prefixes(schemaRepository.getSchemas.asScala))
       true
     } catch {
       case t: Throwable =>
