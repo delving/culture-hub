@@ -29,7 +29,7 @@
     If 'null' (or absent), cores will not be manageable via request handler
   -->
   <cores adminPath="/admin/cores" defaultCoreName="core02">
-    <core name="dimcon" instanceDir="/data/dimcon/solr_new" />
+    <!--<core name="dimcon" instanceDir="/data/dimcon/solr_new" />-->
     <core name="core2" instanceDir="core2" />
     <core name="test" instanceDir="test" />
   </cores>
