@@ -6,7 +6,7 @@ import core.indexing.IndexField._
 import play.api.mvc.Results._
 import play.api.http.ContentTypes._
 import play.api.i18n.{ Lang, Messages }
-import collection.JavaConverters._
+import scala.collection.JavaConverters._
 import play.api.Logger
 import play.api.mvc.PlainResult
 import java.lang.String
@@ -27,6 +27,7 @@ import eu.delving.schema.SchemaVersion
 import controllers.ListItem
 import core.ExplainItem
 import core.search._
+import scala.collection.mutable.ListBuffer
 
 /**
  *
@@ -263,17 +264,37 @@ class SOLRSearchService extends SearchService {
     relatedItemsCount: Int,
     requestParameters: Map[String, Seq[String]])(implicit configuration: OrganizationConfiguration): Either[String, RenderedView] = {
 
-    val hasFilterByDataOwnerKey: Boolean = requestParameters.contains("dataowner") && !requestParameters.get("dataowner").get.isEmpty
+    val MLT_FILTER_KEY: String = "mlt.filterkey"
 
-    def filterByDataOwner(items: Seq[BriefDocItem], filterField: String, mltCount: Int) = {
-      if (hasFilterByDataOwnerKey) {
-        val filterKeys: Seq[String] = requestParameters.get("dataowner").get
-        items.filter(i => filterKeys.contains(i.getFieldValue(filterField).getFirst)).take(mltCount)
-      } else
-        items
+    val filterKeys = new ListBuffer[String]()
+
+    // backwards compatibility with dataowner as it is used by some customer DiWs
+    if (requestParameters.contains("dataowner") && !requestParameters.get("dataowner").get.isEmpty) {
+      requestParameters.get("dataowner").get.foreach(f => filterKeys.append(s"delving_owner:${f}"))
     }
 
-    SolrQueryService.getSolrItemReference(URLEncoder.encode(id, "utf-8"), idType, renderRelatedItems, if (hasFilterByDataOwnerKey) relatedItemsCount + 10 else relatedItemsCount) match {
+    if (requestParameters.contains(MLT_FILTER_KEY) && !requestParameters.get(MLT_FILTER_KEY).get.isEmpty) {
+      requestParameters.get(MLT_FILTER_KEY).get.filter(f => f.contains(":")).foreach(f => filterKeys.append(f))
+    }
+
+    val hasMltFilterKey: Boolean = !filterKeys.isEmpty
+
+    // TODO implement case class and bring back support for dataowner
+    def filterMltByContent(items: Seq[BriefDocItem], mltCount: Int) = {
+      val filteredByOrgId = items.filter(i => i.getFieldValue("delving_orgId").getFirst.equalsIgnoreCase(configuration.orgId))
+
+      val filteredItems = if (hasMltFilterKey) {
+        val filterKey: String = filterKeys.head
+        val filterField = filterKey.split(":").head
+        val filterValue = filterKey.split(":").last
+        filteredByOrgId.filter(i => i.getFieldValue(filterField).getFirst.equalsIgnoreCase(filterValue))
+      } else {
+        filteredByOrgId
+      }
+      filteredItems.take(mltCount)
+    }
+
+    SolrQueryService.getSolrItemReference(URLEncoder.encode(id, "utf-8"), idType, renderRelatedItems, if (hasMltFilterKey) relatedItemsCount + 10 else relatedItemsCount) match {
       case Some(DocItemReference(hubId, defaultSchema, publicSchemas, relatedItems, item)) =>
         val prefix = if (schema.isDefined && publicSchemas.contains(schema.get)) {
           schema.get
@@ -292,7 +313,7 @@ class SOLRSearchService extends SearchService {
           case DelvingIdType.INDEX_ITEM =>
             renderIndexItem(id)
           case _ =>
-            renderMetadataRecord(prefix, URLDecoder.decode(hubId, "utf-8"), viewType, lang, context, renderRelatedItems, filterByDataOwner(relatedItems, "delving_owner", relatedItemsCount), requestParameters)
+            renderMetadataRecord(prefix, URLDecoder.decode(hubId, "utf-8"), viewType, lang, context, renderRelatedItems, filterMltByContent(items = relatedItems, mltCount = relatedItemsCount), requestParameters)
         }
       case None =>
         Left("Could not resolve identifier for hubId '%s' and idType '%s'".format(id, idType.idType))
