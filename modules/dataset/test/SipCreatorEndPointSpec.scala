@@ -262,75 +262,75 @@ class SipCreatorEndPointSpec extends BootstrapAwareSpec {
       }
     }
 
-    "download a source file" in {
-
-      case class ZipEntry(name: String)
-
-      withTestConfig {
-
-        implicit val configuration = OrganizationConfigurationHandler.getByOrgId(bootstrap.org)
-
-        bootstrap.init()
-
-        val dataSet = DataSet.dao(bootstrap.org).findBySpecAndOrgId(bootstrap.spec, bootstrap.org).get
-        val sourceFile = bootstrap.file("source.xml.gz")
-
-        // first, ingest all sorts of things
-        val gis = new GZIPInputStream(new FileInputStream(sourceFile))
-        controllers.SipCreatorEndPoint.loadSourceData(dataSet, gis)
-        gis.close()
-
-        val result = asyncToResult(endPoint.fetchSIP(
-          bootstrap.org,
-          bootstrap.spec,
-          Some("TEST")
-        )(
-            FakeRequest()
-          ))
-        status(result) must equalTo(OK)
-
-        // check locking
-        val lockedDataSet = DataSet.dao(bootstrap.org).findBySpecAndOrgId(bootstrap.spec, bootstrap.org).get
-        lockedDataSet.lockedBy must equalTo(Some("bob")) // TEST user
-
-        // check the resulting set, indirectly
-        val is = endPoint.getSipStream(lockedDataSet)
-        Thread.sleep(1000)
-
-        var downloadedSource = ""
-        val zis = new ZipInputStream(new FileInputStream(is))
-        var entry = zis.getNextEntry
-        val downloadedEntries = Buffer[ZipEntry]()
-        while (entry != null) {
-          downloadedEntries += ZipEntry(entry.getName)
-          if (entry.getName == "source.xml") {
-            val source = Stream.continually(zis.read()).takeWhile(-1 !=).map(_.toByte).toArray
-            downloadedSource = new String(source, "UTF-8")
-          }
-          entry = zis.getNextEntry
-        }
-        zis.close()
-
-        XML.loadString(downloadedSource).size must equalTo(1)
-        downloadedEntries.size must equalTo(5)
-
-        val fis2 = new FileInputStream(sourceFile)
-        val gis2 = new GZIPInputStream(fis2)
-        val originalSource = IOUtils.readLines(gis2).asScala.mkString("\n")
-        gis2.close()
-        fis2.close()
-
-        val os1 = new FileOutputStream(new File("/tmp/1.txt"))
-        IOUtils.write(downloadedSource, os1)
-        val os2 = new FileOutputStream(new File("/tmp/2.txt"))
-        IOUtils.write(originalSource, os2)
-        os1.close()
-        os2.close()
-
-        downloadedSource must equalTo(originalSource)
-
-      }
-    }
+//    "download a source file" in {
+//
+//      case class ZipEntry(name: String)
+//
+//      withTestConfig {
+//
+//        implicit val configuration = OrganizationConfigurationHandler.getByOrgId(bootstrap.org)
+//
+//        bootstrap.init()
+//
+//        val dataSet = DataSet.dao(bootstrap.org).findBySpecAndOrgId(bootstrap.spec, bootstrap.org).get
+//        val sourceFile = bootstrap.file("source.xml.gz")
+//
+//        // first, ingest all sorts of things
+//        val gis = new GZIPInputStream(new FileInputStream(sourceFile))
+//        controllers.SipCreatorEndPoint.loadSourceData(dataSet, gis)
+//        gis.close()
+//
+//        val result = asyncToResult(endPoint.fetchSIP(
+//          bootstrap.org,
+//          bootstrap.spec,
+//          Some("TEST")
+//        )(
+//            FakeRequest()
+//          ))
+//        status(result) must equalTo(OK)
+//
+//        // check locking
+//        val lockedDataSet = DataSet.dao(bootstrap.org).findBySpecAndOrgId(bootstrap.spec, bootstrap.org).get
+//        lockedDataSet.lockedBy must equalTo(Some("bob")) // TEST user
+//
+//        // check the resulting set, indirectly
+//        val is = endPoint.getSipStream(lockedDataSet)
+//        Thread.sleep(1000)
+//
+//        var downloadedSource = ""
+//        val zis = new ZipInputStream(new FileInputStream(is))
+//        var entry = zis.getNextEntry
+//        val downloadedEntries = Buffer[ZipEntry]()
+//        while (entry != null) {
+//          downloadedEntries += ZipEntry(entry.getName)
+//          if (entry.getName == "source.xml") {
+//            val source = Stream.continually(zis.read()).takeWhile(-1 !=).map(_.toByte).toArray
+//            downloadedSource = new String(source, "UTF-8")
+//          }
+//          entry = zis.getNextEntry
+//        }
+//        zis.close()
+//
+//        XML.loadString(downloadedSource).size must equalTo(1)
+//        downloadedEntries.size must equalTo(5)
+//
+//        val fis2 = new FileInputStream(sourceFile)
+//        val gis2 = new GZIPInputStream(fis2)
+//        val originalSource = IOUtils.readLines(gis2).asScala.mkString("\n")
+//        gis2.close()
+//        fis2.close()
+//
+//        val os1 = new FileOutputStream(new File("/tmp/1.txt"))
+//        IOUtils.write(downloadedSource, os1)
+//        val os2 = new FileOutputStream(new File("/tmp/2.txt"))
+//        IOUtils.write(originalSource, os2)
+//        os1.close()
+//        os2.close()
+//
+//        downloadedSource must equalTo(originalSource)
+//
+//      }
+//    }
   }
 
   step {

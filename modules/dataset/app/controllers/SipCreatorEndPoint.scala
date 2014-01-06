@@ -463,7 +463,7 @@ class SipCreatorEndPoint(implicit val bindingModule: BindingModule) extends Appl
               if (result.isLeft) {
                 result.left.get
               } else {
-                Ok.stream(result.right.get)
+                Ok.stream(result.right.get >>> Enumerator.eof).withHeaders("Content-Type" -> "application/zip")
               }
           }
         }
@@ -505,8 +505,8 @@ class SipCreatorEndPoint(implicit val bindingModule: BindingModule) extends Appl
       }
     }
 
-    zipOut.close()
-    outputStream.close();
+    zipOut.flush()
+    outputStream.close()
   }
 
   private def writeDataSetSource(dataSet: DataSet, outputStream: OutputStream)(implicit configuration: OrganizationConfiguration) {
