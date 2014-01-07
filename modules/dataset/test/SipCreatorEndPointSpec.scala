@@ -294,11 +294,13 @@ class SipCreatorEndPointSpec extends BootstrapAwareSpec {
         lockedDataSet.lockedBy must equalTo(Some("bob")) // TEST user
 
         // check the resulting set, indirectly
-        val is = endPoint.getSipStream(lockedDataSet)
+        val tempFile = File.createTempFile("sip-creator-endpoint-spec", "zip")
+        val outputStream = new FileOutputStream(tempFile)
+        endPoint.writeSipStream(lockedDataSet, outputStream)
         Thread.sleep(1000)
 
         var downloadedSource = ""
-        val zis = new ZipInputStream(new FileInputStream(is))
+        val zis = new ZipInputStream(new FileInputStream(tempFile))
         var entry = zis.getNextEntry
         val downloadedEntries = Buffer[ZipEntry]()
         while (entry != null) {

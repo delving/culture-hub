@@ -456,25 +456,22 @@ class SipCreatorEndPoint(implicit val bindingModule: BindingModule) extends Appl
               val updatedDataSet = DataSet.dao.findBySpecAndOrgId(spec, orgId).get
               DataSet.dao.save(updatedDataSet)
 
-              val dataContent: Enumerator[Array[Byte]] = Enumerator.fromFile(getSipStream(updatedDataSet))
-              Right(dataContent)
+              Right(Enumerator.outputStream(outputStream => writeSipStream(dataSet, outputStream)))
             }
           }.map {
             result =>
               if (result.isLeft) {
                 result.left.get
               } else {
-                Ok.stream(result.right.get)
+                Ok.stream(result.right.get >>> Enumerator.eof).withHeaders("Content-Type" -> "application/zip")
               }
           }
         }
     }
   }
 
-  def getSipStream(dataSet: DataSet)(implicit configuration: OrganizationConfiguration) = {
-    val temp = TemporaryFile(dataSet.spec)
-    val fos = new FileOutputStream(temp.file)
-    val zipOut = new ZipOutputStream(fos)
+  def writeSipStream(dataSet: DataSet, outputStream: OutputStream)(implicit configuration: OrganizationConfiguration) {
+    val zipOut = new ZipOutputStream(outputStream)
     val store = hubFileStores.getResource(configuration)
 
     writeEntry("dataset_facts.txt", zipOut) {
@@ -486,11 +483,9 @@ class SipCreatorEndPoint(implicit val bindingModule: BindingModule) extends Appl
     }
 
     store.find(MongoDBObject("orgId" -> dataSet.orgId, "spec" -> dataSet.spec, "hubFileType" -> "links")).toSeq.foreach { links =>
-      {
-        val prefix: String = links.get("schema").toString
-        writeEntry(s"links_$prefix.csv.gz", zipOut) {
-          out => IOUtils.copy(links.getInputStream, out)
-        }
+      val prefix: String = links.get("schema").toString
+      writeEntry(s"links_$prefix.csv.gz", zipOut) {
+        out => IOUtils.copy(links.getInputStream, out)
       }
     }
 
@@ -510,57 +505,11 @@ class SipCreatorEndPoint(implicit val bindingModule: BindingModule) extends Appl
       }
     }
 
-    zipOut.close()
-    fos.close()
-    temp.file
+    zipOut.flush()
+    outputStream.close()
   }
 
-  /**
-   * Writes the contents of the DataSet, i.e. the data, to the output stream.
-   * Rather than going to BaseX each time, we cache the result of the serialization
-   * @param dataSet the DataSet for which to write the source data
-   * @param out the outputStream
-   */
-  private def writeDataSetSource(dataSet: DataSet, out: OutputStream)(implicit configuration: OrganizationConfiguration) {
-    // is there an already prepared version cached on disk?
-    // assume we have a hash
-    dataSet.hashes.get("source--xml--gz").map { hash =>
-      val prepared = new File(System.getProperty("java.io.tmpdir"), s"/source_${dataSet.orgId}_${dataSet.spec}_$hash.xml.gz")
-      if (prepared.exists()) {
-        log.info(s"DataSet source ${dataSet.spec} has been cached, writing it directly from ${prepared.getAbsolutePath}")
-        IOUtils.copy(new GZIPInputStream(new FileInputStream(prepared)), out)
-      } else {
-        log.info(s"DataSet source ${dataSet.spec} has not yet been cached, preparing it")
-
-        try {
-          // remove any prior version of a cached stream for this set
-          val tmpDir = new File(System.getProperty("java.io.tmpdir"))
-          tmpDir.listFiles().find(f => f.getName.startsWith(s"source_${dataSet.orgId}_${dataSet.spec}")) foreach { f =>
-            FileUtils.deleteQuietly(f)
-          }
-        } catch {
-          case t: Throwable =>
-            log.error("Could not remove prior version of prepared DataSet file", t)
-        }
-
-        prepared.createNewFile()
-        val fOut = new GZIPOutputStream(new FileOutputStream(prepared))
-        try {
-          prepareDataSetSource(dataSet, fOut)
-          IOUtils.copy(new FileInputStream(prepared), out)
-        } catch {
-          case t: Throwable =>
-            log.error("Cannot prepare DataSet source file", t)
-        } finally {
-          fOut.close()
-        }
-      }
-    }.getOrElse {
-      log.error("Cannot prepare DataSet source file: no hash found")
-    }
-  }
-
-  private def prepareDataSetSource(dataSet: DataSet, out: OutputStream)(implicit configuration: OrganizationConfiguration) {
+  private def writeDataSetSource(dataSet: DataSet, outputStream: OutputStream)(implicit configuration: OrganizationConfiguration) {
 
     val now = System.currentTimeMillis()
 
@@ -613,13 +562,13 @@ class SipCreatorEndPoint(implicit val bindingModule: BindingModule) extends Appl
         replaceAll("'", "&apos;")
     }
 
-    val pw = new PrintWriter(new OutputStreamWriter(out, "utf-8"))
+    val pw = new PrintWriter(new OutputStreamWriter(outputStream, "utf-8"))
     val builder = new StringBuilder
     builder.append("<?xml version='1.0' encoding='UTF-8'?>").append("\n")
     builder.append("<delving-sip-source ")
     builder.append("%s".format(buildNamespaces(dataSet.getNamespaces)))
     builder.append(">")
-    write(builder.toString(), pw, out)
+    write(builder.toString(), pw, outputStream)
 
     basexStorage.withSession(dataSet) {
       implicit session =>
