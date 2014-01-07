@@ -9,7 +9,7 @@
                 <div class="container">
                     <a class="brand" href="/" title="${themeInfo.siteSlogan()}"><img src="${themeInfo.path("images/logo-small.png")}" alt=""/><span>${themeInfo.siteName()}</span></a>
                     #{userNav userName: userName, email:email, organization:organization, showLang:themeInfo.get('userNavLangSelect'), showLogin:themeInfo.showLogin(), showRegistration:themeInfo.showRegistration(), /}
-                    <div class="search-bar pull-right">
+                    <div class="search-bar pull-right" id="hub-simple-search-container">
                         #{search.searchForm showSearchIn: true, searchIn: params.searchIn, fields: searchIn, advancedSearchLink: false, iconOnly: true, showAll: themeInfo.showAllObjects()/}
                     </div>
                 </div>

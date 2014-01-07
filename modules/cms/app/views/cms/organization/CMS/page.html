@@ -191,12 +191,12 @@
 
         $('#createKey').click(function(){
             $(this).next('.error').html("");
-           var keyFromTitle = $('input#title').val().trim().replace(/\s+/g, '-').toLowerCase();
-           if (keyFromTitle == '') {
+            var keyFromTitle = $('input#title').val().trim().replace(/\W/g, "-").toLowerCase();
+            if (keyFromTitle == '') {
                $(this).next('.error').html("&{'cms.TitleMandatory'}");
-           }
-           $('input#key').attr("value", keyFromTitle);
-           pageModel.key(keyFromTitle);
+            }
+            $('input#key').attr("value", keyFromTitle);
+            pageModel.key(keyFromTitle);
         });
     });
 </script>

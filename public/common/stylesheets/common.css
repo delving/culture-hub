@@ -5047,7 +5047,7 @@ form.form-horizontal ul.token-input-list {
   vertical-align: top;
 }
 #pageContent_ifr {
-  height: 100% !important;
+  min-height: 400px;
 }
 #instructions .accordion-body {
   background: #fffff0;

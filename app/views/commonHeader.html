@@ -22,10 +22,9 @@
     #{if themeInfo.get('responsiveLayout') == "false" && bodyId == "organization" }
         <link rel="stylesheet" type="text/css" href="/assets/common/stylesheets/bootstrap-responsive.css"/>
     #{/if}
-
+    <link rel="stylesheet" type="text/css" href='${themeInfo.path("stylesheets/theme.css")}'/>
 
     #{get 'moreCss' /}
-    <link rel="stylesheet" type="text/css" href='${themeInfo.path("stylesheets/theme.css")}'/>
     <script>
         var themePath = "${themeInfo.path('')}";
         // i18n messages

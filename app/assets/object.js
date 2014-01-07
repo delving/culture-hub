@@ -192,6 +192,9 @@ function renderRelatedItems() {
                     html += "</ul>";
                     $('#related-items').html(html);
                 }
+                else {
+                     $('#related-items').hide();
+                }
             }
         }
     });
