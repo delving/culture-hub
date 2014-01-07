@@ -1,0 +1,76 @@
+%{ def pageId = get 'pageId' }%
+
+#{include 'commonHeader.html' /}
+
+
+<link rel="stylesheet" type="text/css" href="${themeInfo.path('stylesheets/animate-custom.css')}"/>
+
+<div class="page-wrap">
+
+    <div class="user-navigation">
+        <div class="container">
+            <div class="row">
+                <div class="span12">
+                    #{userNav userName: userName, email:email, organization:organization, showLang:themeInfo.get('userNavLangSelect'), showLogin:themeInfo.showLogin(), showRegistration:themeInfo.showRegistration(), /}
+                    <ul class="language-nav inline">
+                        <li><a data-lang="nl" rel="nofollow" href="" title="Nederlands" class="#{if lang=='nl'}active#{/if}">NL</a></li>
+                        <li class="divider"> | </li>
+                        <li><a data-lang="en" rel="nofollow" href="" title="English" class="#{if lang=='en'}active#{/if}">EN</a></li>
+                    </ul>
+                    <script>
+                        $('.language-nav').find('a').on('click', function(e){
+                            e.preventDefault();
+                            var lang = $(this).data('lang'), currentPage = document.location.href;
+                            $.get('/?lang=' + lang, function(){
+                                window.location.href = currentPage;
+                            });
+                        });
+                    </script>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="page-top">
+        <div class="navbar navbar-static-top">
+            <div class="navbar-inner">
+                <div class="container">
+                    <a class="brand" href="/" title="${themeInfo.siteSlogan()}"><img src="${themeInfo.path('images/logo-small.png')}" alt=""/></a>
+                    #{mainMenuNew menu:menu, extraClass: "nav-pills"/}
+                    <div class="search-bar pull-right">
+                        #{search.searchForm showSearchIn: true, searchIn: params.searchIn, fields: searchIn, advancedSearchLink: false, iconOnly: true, showAll: themeInfo.showAllObjects()/}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="container" id="title">
+            <img src="${themeInfo.path('images/frysk_kultuerhus.png')}" alt="${themeInfo.siteName()}"/>
+        </div>
+    </div>
+
+    <div id="content" role="main">
+        <div class="container">
+            #{doLayout /}
+        </div>
+    </div>
+
+
+    <div id="home-animation"><img src="${themeInfo.path('images/bg_circonflex.png')}"/></div>
+
+</div>
+
+<div id="footer">
+    <div class="container">
+        <div class="row">
+        ${themeInfo.footer().raw()}
+            <div class="${themeInfo.footer().length() > 0 ? 'span4' : 'span12'}">
+                <a href="http://www.delving.eu" target="_blank" title="Powered by DELVING.EU" class="pull-right">
+                    <img src="/assets/common/images/delving-small.png" alt="Powered by DELVING.EU" id="pbd"/>
+                    Powered by Delving
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+#{include 'commonFooter.html' /}

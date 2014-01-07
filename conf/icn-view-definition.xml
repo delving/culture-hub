@@ -63,7 +63,7 @@
                 </container>
                 <row>
                     <column proportion="1of3">
-                        <container type="definition-list">
+                        <container type="definition-list" class="object-meta-data">
                             <field path="/icn:record/dc:title" label="metadata.dc.title"/>
                             <enumeration label="metadata.dc.description" separator="lf" path="/icn:record/dc:description"/>
                             <enumeration label="metadata.dc.creator" separator="lf" path="/icn:record/dc:creator"/>

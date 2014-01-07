@@ -767,7 +767,7 @@ Delving.wysiwyg = function (params) {
         force_br_newlines: true,
         forced_root_block: 'p', // Needed for 3.x
         remove_linebreaks: false,
-        content_css : "/assets/common/stylesheets/common.css",
+        content_css : "/assets/common/stylesheets/common.css, /assets/common/stylesheets/editor.css",
         fix_content_duplication: false,
         fix_list_elements: true,
         cleanup_on_startup : true,
@@ -779,14 +779,14 @@ Delving.wysiwyg = function (params) {
         theme_advanced_toolbar_align: "left",
         dialog_type : "modal",
         height : "320",
-        plugins: "searchreplace,inlinepopups,advimage,autoresize,template,fullscreen",
+        width: "100%",
+        plugins: "searchreplace,inlinepopups,advimage,template,fullscreen",
         external_image_list_url: '/admin/site/listImages',
         extended_valid_elements: "img[!src|border:0|alt|title|width|height|style]a[name|href|target|title|onclick|class]",
         template_external_list_url : "/assets/common/javascripts/tiny-templates.js",
         template_popup_width : 1000,
         template_cdate_classes : "cdate creationdate",
-        template_cdate_format : "%d-%m-%Y %H:%M",
-        width: "944px"
+        template_cdate_format : "%d-%m-%Y %H:%M"
     };
 
     // Overwrite default params with user-passed ones.
