@@ -3,6 +3,8 @@ tmp
 *.iws
 *.log
 test-result
+*.swp
+*~
 .DS_Store
 .idea
 logs
