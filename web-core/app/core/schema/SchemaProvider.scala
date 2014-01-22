@@ -114,7 +114,7 @@ class SchemaRepositoryWrapper extends Actor {
   private lazy val fetcher = if (Play.isDev || Play.isTest) new FileSystemFetcher(false) else new RemoteFetcher
 
   override def preStart() {
-    scheduler = Akka.system.scheduler.schedule(10 seconds, 5 minutes, self, SchemaProvider.Refresh)
+    scheduler = Akka.system.scheduler.schedule(3 minutes, 5 minutes, self, SchemaProvider.Refresh)
   }
 
   override def postStop() {
