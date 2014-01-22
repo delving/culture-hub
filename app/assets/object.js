@@ -18,7 +18,7 @@ $(document).ready(function () {
                 deepZoomElement = $(zoomUrls).get(index),
                 deepZoomUrl = $(deepZoomElement).attr("href");
             if (hasFlash) {
-                var flashEmbed = '<embed class="flash-viewer-window" width="100%" height="100%" flashvars="source=' + deepZoomUrl + '" src="/assets/flash/OpenZoomViewer.swf" menu="false" wmode="opaque" allowFullScreen="true" pluginspage="http://www.adobe.com/go/getflashplayer" type="application/x-shockwave-flash"></embed>';
+                var flashEmbed = '<embed class="flash-viewer-window" bgcolor="#ffffff" width="100%" height="100%" flashvars="source=' + deepZoomUrl + '" src="/assets/flash/OpenZoomViewer.swf" menu="false" wmode="opaque" allowFullScreen="true" pluginspage="http://www.adobe.com/go/getflashplayer" type="application/x-shockwave-flash"></embed>';
                 $(zoomViewContainer).html(flashEmbed);
             }
             else if (!isIE) {
@@ -61,6 +61,7 @@ $(document).ready(function () {
         imageNavThumbs.each(function(index, el) {
             // switch image src onclick
             $(el).on("click", function() {
+                console.log('click');
                 if (zoomNav == false) {
                     var index = $(imageNavThumbs).index(el);
                     var imageSrc = $(imageUrls).get(index);

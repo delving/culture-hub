@@ -40,6 +40,13 @@
                         <link textValue="zoom" urlExpr="/icn:record/delving:deepZoomUrl" type="zoom"/>
                     </container>
 
+
+                    <container id="thumbnails" type="list">
+                        <list path="/icn:record/delving:thumbnail">
+                            <image path="."/>
+                        </list>
+                    </container>
+
                     <container id="context-link" if="/icn:record/europeana:isShownAt" class="pull-left">
                         <link textValue="search.ViewInOriginalContext" urlExpr="/icn:record/europeana:isShownAt" type="external"/>
                     </container>
