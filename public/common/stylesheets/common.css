@@ -4777,6 +4777,9 @@ select[name=searchIn] {
   display: block;
   padding: 0 21px 21px;
 }
+#object #thumbnails {
+  margin-bottom: 10px;
+}
 #object #thumbnails ul {
   margin: 0;
   padding: 10px;
