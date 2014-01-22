@@ -25,7 +25,7 @@ $(document).ready(function() {
     $facetContainer.find('.list').each(function(i, list){
         if(list.children.length < 5){
            $(list).prevAll("div.facet-tools").hide();
-        } 
+        }
     });
 
     // Scroll to first checked term for clarity
