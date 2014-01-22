@@ -297,7 +297,9 @@ class SOLRSearchService extends SearchService {
     SolrQueryService.getSolrItemReference(URLEncoder.encode(id, "utf-8"), idType, renderRelatedItems, if (hasMltFilterKey) relatedItemsCount + 10 else relatedItemsCount) match {
       case Some(DocItemReference(hubId, defaultSchema, publicSchemas, relatedItems, item)) =>
         val prefix = if (schema.isDefined && publicSchemas.contains(schema.get)) {
-          schema.get
+          schema.get.split("_").head
+        } else if (schema.isDefined && publicSchemas.exists(_.startsWith(schema.get))) {
+          schema.get.split("_").head
         } else if (schema.isDefined && !publicSchemas.contains(schema.get)) {
           val m = "Schema '%s' not available for hubId '%s'".format(schema.get, hubId)
           Logger("Search").info(m)
@@ -414,6 +416,9 @@ case class SearchSummary(result: BriefItemView, context: SearchContext, chRespon
 
   private val pagination = result.getPagination
   private val searchTerms = pagination.getPresentationQuery.getUserSubmittedQuery
+  //private val withStrictFilter = context.params._contains("strict") & context.params.getFirst("strict").get == "true"
+  //private val strictFields = if (withStrictFilter)
+
   private val filteredFields = Seq("delving_snippet", IndexField.FULL_TEXT.key, "delving_SNIPPET")
 
   val baseUrl = context.host

@@ -123,7 +123,7 @@ class DataSetCollectionProcessor extends Actor {
           }
         }
       } getOrElse {
-        Indexing.indexOne(dataSet, itemId, fields, schemaVersion.getPrefix)
+        Indexing.indexOne(dataSet, itemId, fields, schemaVersion.getPrefix, targetSchemas.map(f => s"${f.schemaVersion}").filter(p => !p.startsWith("raw")))
       }
 
     }

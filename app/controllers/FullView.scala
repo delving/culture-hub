@@ -30,8 +30,14 @@ class FullView(implicit val bindingModule: BindingModule) extends DelvingControl
 
           val resolvers = CultureHubPlugin.getServices(classOf[RecordResolverService])
 
+          val schemaVersion = if (request.queryString.contains("schema") && !request.queryString.get("schema").isEmpty) {
+            Some(new eu.delving.schema.SchemaVersion(request.queryString.get("schema").getOrElse(List("")).head))
+          } else {
+            None
+          }
+
           val record = resolvers.flatMap {
-            r => r.getRecord(HubId(orgId, spec, localId))
+            r => r.getRecord(HubId(orgId, spec, localId), schemaVersion)
           }.headOption
 
           record.map { r =>

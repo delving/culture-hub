@@ -25,9 +25,9 @@ import exceptions.SolrConnectionException
 import java.net.URLEncoder
 import models.{ OrganizationConfiguration, Visibility }
 import org.apache.commons.lang.StringEscapeUtils
-import core.{ IndexingService, DomainServiceLocator, HubModule, HubId }
+import core._
 import core.indexing.IndexField._
-import collection.mutable
+import scala.collection.mutable
 
 /**
  *
@@ -40,9 +40,10 @@ object Indexing {
 
   type IndexableCollection = Collection with OrganizationCollectionMetadata
 
-  def indexOne(collection: IndexableCollection, hubId: HubId, mapped: Map[String, List[Any]], metadataFormatForIndexing: String)(implicit configuration: OrganizationConfiguration): Option[Throwable] = {
+  def indexOne(collection: IndexableCollection, hubId: HubId, mapped: Map[String, List[Any]],
+    metadataFormatForIndexing: String, availableSchemas: List[String] = List.empty)(implicit configuration: OrganizationConfiguration): Option[Throwable] = {
     val doc = createSolrInputDocument(mapped)
-    addDelvingHouseKeepingFields(doc, collection, hubId, metadataFormatForIndexing)
+    addDelvingHouseKeepingFields(doc, collection, hubId, metadataFormatForIndexing, availableSchemas)
     try {
       indexingServiceLocator.byDomain.stageForIndexing(doc.toMap)
     } catch {
@@ -66,7 +67,8 @@ object Indexing {
     doc
   }
 
-  def addDelvingHouseKeepingFields(inputDoc: mutable.MultiMap[String, Any], dataSet: IndexableCollection, hubId: HubId, schemaPrefix: String)(implicit configuration: OrganizationConfiguration) {
+  def addDelvingHouseKeepingFields(inputDoc: mutable.MultiMap[String, Any], dataSet: IndexableCollection, hubId: HubId,
+    schemaPrefix: String, availableSchemas: List[String] = List.empty)(implicit configuration: OrganizationConfiguration) {
 
     // mandatory fields
     inputDoc += (ORG_ID -> dataSet.getOwner)
@@ -146,7 +148,7 @@ object Indexing {
     // ALL_SCHEMAS used to contain all the public schemas for a set
     // however now, it is only the indexing schema
     // we may want to expose this again at some point, just now we need to be aware of its true meaning
-    inputDoc += (ALL_SCHEMAS -> schemaPrefix)
+    availableSchemas.foreach(f => inputDoc.addBinding(ALL_SCHEMAS.key, f))
   }
 
 }
