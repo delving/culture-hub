@@ -77,7 +77,7 @@
                             <field path="/icn:record/icn:creatorYearOfBirth" label="metadata.icn.creatorYearOfBirth"/>
                             <field path="/icn:record/icn:creatorYearOfDeath" label="metadata.icn.creatorYearOfDeath"/>
                             <enumeration label="metadata.dc.date" separator=", " path="/icn:record/dc:date,/icn:record/dcterms:created,/icn:record/dcterms:temporal,/icn:record/dcterms:issued"/>
-                            <enumeration label="metadata.dc.type" separator=", " path="/icn:record/dc:type, /icn:record/icn:material"/>
+                            <enumeration label="metadata.dc.type" separator=", " path="/icn:record/dc:type"/>
                             <enumeration label="metadata.dc.format" separator="lf" path="/icn:record/dc:format,/icn:record/dcterms:extent"/>
                             <enumeration label="metadata.icn.material" separator=", " path="/icn:record/icn:material" />
                             <enumeration label="metadata.icn.technique" separator=", " path="/icn:record/icn:technique"/>
