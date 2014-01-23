@@ -413,7 +413,7 @@ class DataSetControl(implicit val bindingModule: BindingModule) extends Organiza
   // ~~~
 
   private def parseFactDefinitionList: Seq[FactDefinition] = {
-    schemaService.getSchema("facts", "1.0.2", SchemaType.FACT_DEFINITIONS).map { source =>
+    schemaService.getSchema("facts", "1.0.3", SchemaType.FACT_DEFINITIONS).map { source =>
       val xml = scala.xml.XML.loadString(source)
       for (e <- (xml \ "fact-definition")) yield parseFactDefinition(e)
     }.getOrElse(Seq.empty)

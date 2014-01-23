@@ -112,6 +112,9 @@ $(document).ready(function () {
                 case 'http://creativecommons.org/licenses/by-nc/3.0':
                     icon = 'cc_by-nc-3.0.png';
                     break;
+                case 'http://creativecommons.org/licenses/by-nc/3.0/nl':
+                    icon = 'cc_by-nc-3.0.png';
+                    break;
                 case 'http://creativecommons.org/licenses/by-nc-nd/3.0':
                     icon = 'cc_by-nc-nd-3.0.png';
                     break;
