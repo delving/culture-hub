@@ -47,7 +47,8 @@ class FullView(implicit val bindingModule: BindingModule) extends DelvingControl
 
             val navigateFromSearch = request.headers.get(REFERER) != None && request.headers.get(REFERER).get.contains("search")
             val navigateFromRelatedItem = request.queryString.getFirst("mlt").getOrElse("false").toBoolean
-            val updatedSession = if (!navigateFromSearch && !navigateFromRelatedItem) {
+            val navigateFromFullViewWithSchema = request.queryString.contains("schema") && !request.queryString.getFirst("schema").getOrElse("").isEmpty
+            val updatedSession = if (!navigateFromSearch && !navigateFromRelatedItem && !navigateFromFullViewWithSchema) {
               // we're coming from someplace else then a search, remove the return to results cookie
               request.session - RETURN_TO_RESULTS - RETURN_TO_RESULTS_BASE_URL
             } else {
@@ -104,7 +105,7 @@ class FullView(implicit val bindingModule: BindingModule) extends DelvingControl
               'rights -> r.parameters.get("rights").getOrElse(""),
               'hasRelatedItems -> r.hasRelatedItems,
               'currentSchema -> r.schemaVersion,
-              'availableSchemas -> seqAsJavaList(r.availableSchemas.filterNot(f => f == r.schemaVersion.toString)),
+              'availableSchemas -> seqAsJavaList(r.availableSchemas.filter(f => f != r.schemaVersion.toString)),
               'pluginIncludes -> snippets.map(_._1)
             )
 
