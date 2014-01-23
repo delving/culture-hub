@@ -134,13 +134,14 @@ $(document).ready(function () {
         }
     }
 
-    // Dimcon specific temp fix: hide thumb added by fieldmarker
-    $('#thumbnails img').each(function() {
-        if($(this).attr('src').match(/(\/dimcon\/geldmuseum\/).*(\/220)/)){
-            $(this).hide();
-        }
-    });
-
+    if(currentSchema && (currentSchema.indexOf('icn') > -1)){
+        // Dimcon specific temp fix: hide thumb added by fieldmarker
+        $('#thumbnails img').each(function() {
+            if($(this).attr('src').match(/(\/dimcon\/geldmuseum\/).*(\/220)/)){
+                $(this).hide();
+            }
+        });
+    }
 });
 
 
