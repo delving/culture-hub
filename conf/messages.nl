@@ -221,6 +221,7 @@ hub.UserWasNotFound=De gebruiker {0} was niet gevonden
 hub.Username=Gebruikersnaam
 hub.UsernameIsRequired=Gebruikersnaam is verplicht
 hub.ValueOutOfRange=Onjuiste waarde
+hub.ViewIn=Bekijk in
 hub.WarningOutdatedBrowser=<strong>Waarschuwing!</strong> U maakt gebruik van een verouderde web browser. Deze website vereist een moderne browser om correct te kunnen functioneren. Een verouderde browser is tevens een beveilgings risico voor <em>uw</em> computer.
 hub.Website=Website
 hub.Welcome=Welkom

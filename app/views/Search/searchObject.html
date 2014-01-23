@@ -50,6 +50,9 @@
     var Thing = new Object();
     Thing.orgId = "${orgId}";
     Thing.hubId = "${hubId}";
+
+    var currentSchema = '${currentSchema}';
+
 </script>
 
 <script src="/assets/object.js"></script>
@@ -58,25 +61,28 @@
 
 #{breadcrumbs crumbs: breadcrumbs /}
 
-"current schema => ${currentSchema}"
-#{list availableSchemas, as: 'schema'}
-    "switch to => ${schema}"
-#{/list}
+<!--"current schema => ${currentSchema}"-->
+
+
+
 
 <div class="object-top row">
     <div class="span4">
-    #{if returnToResults.length() > 0}
-    <div class="return-navigation">
-        <a href="${returnToResultsBaseUrl}?${returnToResults}" rel="nofollow" class="return-to-results">
-            <i class="icon icon-arrow-left"></i> &{'hub.ReturnToResults'}</a>
-    </div>
-    #{/if}&#160;
-    #{if returnToPreviousLink.length() > 0}
-    <div class="return-navigation">
-        <a href="${returnToPreviousLink}" rel="nofollow" class="return-to-previous">
-            <i class="icon icon-arrow-left"></i> ${returnToPreviousLabel}</a>
-    </div>
-    #{/if}&#160;
+        #{if returnToResults.length() > 0}
+        <span class="return-navigation">
+            <a href="${returnToResultsBaseUrl}?${returnToResults}" rel="nofollow" class="return-to-results">
+                <i class="icon icon-arrow-left"></i> &{'hub.ReturnToResults'}</a>
+        </span>
+        #{/if}&#160;
+        #{if returnToPreviousLink.length() > 0}
+        <div class="return-navigation">
+            <a href="${returnToPreviousLink}" rel="nofollow" class="return-to-previous">
+                <i class="icon icon-arrow-left"></i> ${returnToPreviousLabel}</a>
+        </div>
+        #{/if}&#160;
+        #{list availableSchemas, as: 'schema'}
+            &{'hub.ViewIn'} <a href="?schema=${schema}" class="schema-switch"><span class="badge badge-info">${schema}</span></a>
+        #{/list}
     </div>
     *{<div class="rights span4">}*
         *{#{if rights}#{rightsIcon rights: rights/}#{/if}}*

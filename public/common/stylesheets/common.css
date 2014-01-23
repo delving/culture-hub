@@ -4250,9 +4250,12 @@ a.badge:hover {
   clear: both;
 }
 .object-top .return-to-results {
-  float: left;
-  margin-left: 20px;
-  width: 300px;
+  display: inline-block;
+  *display: inline;
+  /* IE7 inline-block hack */
+
+  *zoom: 1;
+  width: auto;
   margin-left: 0px;
 }
 .object-top .social-media-block {
