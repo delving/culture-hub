@@ -266,6 +266,7 @@ hub.UserWasNotFound=User {0} was not found
 hub.Username=Username
 hub.UsernameIsRequired=Username is required
 hub.ValueOutOfRange=Value out of range
+hub.ViewIn=View in
 hub.Visibility=Visibility
 hub.WarningOutdatedBrowser=<strong>Warning!</strong> You are viewing this site with an outdated browser. This website requires a modern, standards compliant browser to function properly. Older browsers are not standards compliant and are also a serious security risk for <em>your</em> computer.
 hub.Website=Website

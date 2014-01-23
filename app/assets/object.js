@@ -8,44 +8,44 @@ $(document).ready(function () {
     var zoomNav = true,
         zoomUrls = $('#deepZoomUrls a'),
         imageUrls = $('#imageUrls a'),
-        imageNavThumbs = $('#thumbnails .img img');
-        imageViewContainer = '#image-viewer';
+        imageNavThumbs = $('#thumbnails .img img'),
+        imageViewContainer = '#image-viewer',
         zoomViewContainer = '#zoom-viewer';
-        viewedImageSource = imageViewContainer + ' .img img',
-        activateDeepZoom = function(el) {
 
-            var index = imageNavThumbs.index(el),
-                deepZoomElement = $(zoomUrls).get(index),
-                deepZoomUrl = $(deepZoomElement).attr("href");
-            if (hasFlash) {
-                var flashEmbed = '<embed class="flash-viewer-window" bgcolor="#ffffff" width="100%" height="100%" flashvars="source=' + deepZoomUrl + '" src="/assets/flash/OpenZoomViewer.swf" menu="false" wmode="opaque" allowFullScreen="true" pluginspage="http://www.adobe.com/go/getflashplayer" type="application/x-shockwave-flash"></embed>';
-                $(zoomViewContainer).html(flashEmbed);
-            }
-            else if (!isIE) {
-                // seadragon Zoom
-                if (typeof deepZoomElement !== 'undefined') {
-                    if(typeof viewer === 'undefined') {
-                        $.getScript('/assets/common/javascripts/seadragon/seadragon-min.js', function(){
-                            Seadragon.Config.imagePath = "/assets/common/javascripts/seadragon/img/";
-                            Seadragon.Config.autoHideControls = false;
-                            var viewer = new Seadragon.Viewer(zoomViewContainer.replace('#',''));
-                            viewer.addEventListener("error",function(){
-                                // if viewer fails, then revert back to a regular image view
-                                zoomNav = false;
-                                var rImage = $(imageUrls).first().attr('href');
-                                // change zoom-viewer id to regular image viewer for navigation and image replacement
-                                $(zoomViewContainer).attr('id',imageViewContainer.replace('#',''));
-                                // load the first image
-                                $(imageViewContainer).html('<div class="img"><img src="'+rImage+'" alt=""/></div>');
-                            });
-                            viewer.openDzi(deepZoomUrl);
+    var activateDeepZoom = function(el) {
+
+        var index = imageNavThumbs.index(el),
+            deepZoomElement = $(zoomUrls).get(index),
+            deepZoomUrl = $(deepZoomElement).attr("href");
+        if (hasFlash) {
+            var flashEmbed = '<embed class="flash-viewer-window" bgcolor="#ffffff" width="100%" height="100%" flashvars="source=' + deepZoomUrl + '" src="/assets/flash/OpenZoomViewer.swf" menu="false" wmode="opaque" allowFullScreen="true" pluginspage="http://www.adobe.com/go/getflashplayer" type="application/x-shockwave-flash"></embed>';
+            $(zoomViewContainer).html(flashEmbed);
+        }
+        else if (!isIE) {
+            // seadragon Zoom
+            if (typeof deepZoomElement !== 'undefined') {
+                if(typeof viewer === 'undefined') {
+                    $.getScript('/assets/common/javascripts/seadragon/seadragon-min.js', function(){
+                        Seadragon.Config.imagePath = "/assets/common/javascripts/seadragon/img/";
+                        Seadragon.Config.autoHideControls = false;
+                        var viewer = new Seadragon.Viewer(zoomViewContainer.replace('#',''));
+                        viewer.addEventListener("error",function(){
+                            // if viewer fails, then revert back to a regular image view
+                            zoomNav = false;
+                            var rImage = $(imageUrls).first().attr('href');
+                            // change zoom-viewer id to regular image viewer for navigation and image replacement
+                            $(zoomViewContainer).attr('id',imageViewContainer.replace('#',''));
+                            // load the first image
+                            $(imageViewContainer).html('<div class="img"><img src="'+rImage+'" alt=""/></div>');
                         });
-                    }else {
                         viewer.openDzi(deepZoomUrl);
-                    }
+                    });
+                }else {
+                    viewer.openDzi(deepZoomUrl);
                 }
             }
         }
+    }
 
     // VIEW DEEP ZOOM IMAGE
     if ($(zoomViewContainer).length) {
@@ -134,11 +134,12 @@ $(document).ready(function () {
         }
     }
 
-//    if($('.lido-view').length) {
-//        var $toggles = $('.lido-view').children('.lido-parent');
-//        var $boxes = $toggles.next('div');
-//
-//    }
+    // Dimcon specific temp fix: hide thumb added by fieldmarker
+    $('#thumbnails img').each(function() {
+        if($(this).attr('src').match(/(\/dimcon\/geldmuseum\/).*(\/220)/)){
+            $(this).hide();
+        }
+    });
 
 });
 
