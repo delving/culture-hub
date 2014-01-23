@@ -27,4 +27,5 @@ case class RenderableRecord(recordXml: String,
   viewType: ViewType = ViewType.HTML,
   parameters: Map[String, Seq[String]] = Map.empty,
   hasRelatedItems: Boolean = false,
-  resolveRefererLink: Option[String => (String, String)] = None)
+  resolveRefererLink: Option[String => (String, String)] = None,
+  availableSchemas: List[String] = List.empty)

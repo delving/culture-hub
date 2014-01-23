@@ -53,6 +53,8 @@ class MetadataRecordResolverService extends RecordResolverService {
           }
         }
 
+        val availableSchemas = collection.getAllMappingSchemas
+
         renderingSchema.flatMap { s =>
           record.xml.get(s.getPrefix).map { recordXml =>
             RenderableRecord(
@@ -61,7 +63,9 @@ class MetadataRecordResolverService extends RecordResolverService {
               schemaVersion = s,
               viewType = ViewType.HTML,
               parameters = facts.map(fact => fact._1 -> Seq(fact._2)).toMap,
-              hasRelatedItems = true)
+              hasRelatedItems = true,
+              resolveRefererLink = None,
+              availableSchemas = availableSchemas.toList.map(f => f.toString))
           }
         }
       }

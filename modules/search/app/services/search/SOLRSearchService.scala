@@ -384,7 +384,7 @@ class SOLRSearchService extends SearchService {
 
       val schemaVersion = record.get.schemaVersions(prefix)
 
-      RecordRenderer.renderMetadataRecord(hubId, rawRecord.get, new SchemaVersion(prefix, schemaVersion), viewDefinitionFormatName, viewType, lang, renderRelatedItems, relatedItems.map(_.toXml(Seq.empty, context)), Seq.empty, parameters)
+      RecordRenderer.renderMetadataRecord(hubId, rawRecord.get, new SchemaVersion(prefix, schemaVersion), viewDefinitionFormatName, viewType, lang, renderRelatedItems, relatedItems.map(_.toXml(Seq.empty, context)), Seq.empty, parameters, List.empty)
     }
   }
 

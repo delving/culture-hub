@@ -5,6 +5,7 @@ import play.api.Logger
 import xml._
 import play.api.i18n.Lang
 import eu.delving.schema.SchemaVersion
+import scala.xml.Elem
 
 /**
  * Renders a single record, with or without related items. Makes use of the search engine to retrieve related records and IDs.
@@ -46,7 +47,8 @@ object RecordRenderer {
     renderRelatedItems: Boolean = false,
     relatedItems: Seq[NodeSeq] = Seq.empty,
     roles: Seq[Role] = Seq.empty,
-    parameters: Map[String, Seq[String]] = Map.empty)(implicit configuration: OrganizationConfiguration): Either[String, RenderedView] = {
+    parameters: Map[String, Seq[String]] = Map.empty,
+    availableSchemas: List[String] = List.empty)(implicit configuration: OrganizationConfiguration): Either[String, RenderedView] = {
 
     // let's do some rendering
     RecordDefinition.getRecordDefinition(schema) match {

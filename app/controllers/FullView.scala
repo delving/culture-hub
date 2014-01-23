@@ -8,6 +8,7 @@ import play.api.i18n.Messages
 import core.Constants.SEARCH_TERM
 import core.Constants.RETURN_TO_RESULTS
 import core.Constants.RETURN_TO_RESULTS_BASE_URL
+import scala.collection.JavaConversions.seqAsJavaList
 import com.escalatesoft.subcut.inject.BindingModule
 
 /**
@@ -102,6 +103,8 @@ class FullView(implicit val bindingModule: BindingModule) extends DelvingControl
               'hubId -> hubId,
               'rights -> r.parameters.get("rights").getOrElse(""),
               'hasRelatedItems -> r.hasRelatedItems,
+              'currentSchema -> r.schemaVersion,
+              'availableSchemas -> seqAsJavaList(r.availableSchemas.filterNot(f => f == r.schemaVersion.toString)),
               'pluginIncludes -> snippets.map(_._1)
             )
 
@@ -130,7 +133,8 @@ class FullView(implicit val bindingModule: BindingModule) extends DelvingControl
                   viewType = r.viewType,
                   lang = getLang,
                   roles = getUserGrantTypes(orgId),
-                  parameters = r.parameters
+                  parameters = r.parameters,
+                  availableSchemas = r.availableSchemas
                 )
 
                 renderedRecord.fold(
