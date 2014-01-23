@@ -28,4 +28,4 @@ case class RenderableRecord(recordXml: String,
   parameters: Map[String, Seq[String]] = Map.empty,
   hasRelatedItems: Boolean = false,
   resolveRefererLink: Option[String => (String, String)] = None,
-  availableSchemas: List[String] = List.empty)
+  availableSchemas: List[SchemaVersion] = List.empty)

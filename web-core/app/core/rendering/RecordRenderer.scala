@@ -48,7 +48,7 @@ object RecordRenderer {
     relatedItems: Seq[NodeSeq] = Seq.empty,
     roles: Seq[Role] = Seq.empty,
     parameters: Map[String, Seq[String]] = Map.empty,
-    availableSchemas: List[String] = List.empty)(implicit configuration: OrganizationConfiguration): Either[String, RenderedView] = {
+    availableSchemas: List[SchemaVersion] = List.empty)(implicit configuration: OrganizationConfiguration): Either[String, RenderedView] = {
 
     // let's do some rendering
     RecordDefinition.getRecordDefinition(schema) match {

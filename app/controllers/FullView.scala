@@ -105,7 +105,7 @@ class FullView(implicit val bindingModule: BindingModule) extends DelvingControl
               'rights -> r.parameters.get("rights").getOrElse(""),
               'hasRelatedItems -> r.hasRelatedItems,
               'currentSchema -> r.schemaVersion,
-              'availableSchemas -> seqAsJavaList(r.availableSchemas.filter(f => f != r.schemaVersion.toString)),
+              'availableSchemas -> seqAsJavaList(r.availableSchemas.filter(f => f != r.schemaVersion && RecordRenderer.canRender(f, r.viewType))),
               'pluginIncludes -> snippets.map(_._1)
             )
 

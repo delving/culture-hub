@@ -65,7 +65,7 @@ class MetadataRecordResolverService extends RecordResolverService {
               parameters = facts.map(fact => fact._1 -> Seq(fact._2)).toMap,
               hasRelatedItems = true,
               resolveRefererLink = None,
-              availableSchemas = availableSchemas.toList.map(f => f.toString))
+              availableSchemas = availableSchemas.toList)
           }
         }
       }
