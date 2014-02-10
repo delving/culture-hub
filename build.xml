@@ -80,27 +80,4 @@
         </exec>
     </target>
 
-
-    <target name="downloadSipCreator">
-        <property name="pubdir" value="${sip-creator.path}"/>
-        <delete>
-            <fileset dir="${pubdir}" includes="*.jar, *.zip, *.jnlp"/>
-        </delete>
-        <artifact:dependencies fileSetId="dependency.fileset">
-            <dependency groupId="eu.delving" artifactId="sip-app" version="${sip-creator.version}" type="zip"/>
-            <remoteRepository refid="delving.releases"/>
-            <remoteRepository refid="delving.snapshots"/>
-        </artifact:dependencies>
-        <copy todir="${pubdir}" verbose="true" flatten="true">
-            <restrict id="filtered.dependencies">
-                <fileset refid="dependency.fileset"/>
-                <rsel:name name="*.zip"/>
-            </restrict>
-            <mapper>
-                <globmapper from="*.zip" to="sip-creator.zip"/>
-            </mapper>
-        </copy>
-        <unzip src="${sip-creator.path}/sip-creator.zip" dest="${sip-creator.path}"/>
-    </target>
-
 </project>
