@@ -7,6 +7,7 @@ GET         /assets/themes/:theme/info.conf                                     
 
 GET         /robots.txt                                                             controllers.Assets.at(path="/public", file="robots.txt")
 GET         /browsers.html                                                          controllers.Assets.at(path="/public", file="browsers.html")
+GET         /crossdomain.xml                                                        controllers.Assets.at(path="/public", file="crossdomain.xml")
 
 GET         /organizations/:orgId/*path                                             @controllers.Application.legacyOrganizationsPath(path, orgId)
 POST        /organizations/:orgId/*path                                             @controllers.Application.legacyOrganizationsPath(path, orgId)
