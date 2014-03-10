@@ -18,7 +18,7 @@ package util
 
 import core.CultureHubPlugin
 import collection.immutable.HashMap
-import models.{ Config, HubMongoContext, OrganizationConfiguration }
+import models.{ ConfigUtil, Config, HubMongoContext, OrganizationConfiguration }
 import play.api.{ Logger, Play, Configuration }
 import com.typesafe.config.ConfigFactory
 import play.api.Play.current
@@ -233,7 +233,7 @@ class OrganizationConfigurationHandler(plugins: Seq[CultureHubPlugin]) extends A
         val (configurations, errors: Seq[(String, String)]) = {
           val fromDatabase = if (!active.isEmpty) active.map(_._2).reduce(_.withFallback(_)) else ConfigFactory.empty()
           val merged = Play.application.configuration ++ Configuration(fromDatabase)
-          OrganizationConfiguration.buildConfigurations(merged, plugins)
+          ConfigUtil.buildConfigurations(merged, plugins)
         }
 
         if (!errors.isEmpty) {

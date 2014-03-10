@@ -5,8 +5,6 @@
     <property name="root" value="."/>
     <property name="target" value="${root}/target"/>
     <property name="tmp" value="${root}/tmp"/>
-    <property name="sip-creator.version" value="1.1.6"/>
-    <property name="sip-creator.path" value="${root}/public/sip-creator/"/>
 
     <taskdef resource="net/sf/antcontrib/antlib.xml">
         <classpath>

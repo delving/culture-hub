@@ -36,11 +36,11 @@ import models.Details
 import models.FormatAccessControl
 import models.Mapping
 import models.FactDefinition
-import controllers.ShortDataSet
 import play.api.i18n.Messages
 import core.messages._
 import com.escalatesoft.subcut.inject.BindingModule
 import eu.delving.schema.xml.Schema
+import com.mongodb.casbah.commons.TypeImports.ObjectId
 
 /**
  *
@@ -153,6 +153,26 @@ object DataSetCreationViewModel {
     )(DataSetCreationViewModel.apply)(DataSetCreationViewModel.unapply).verifying(specTaken, creationQuotaExceeded)
   )
 
+}
+
+case class ShortDataSet(id: Option[ObjectId] = None,
+    spec: String = "",
+    description: String = "",
+    total_records: Long = 0,
+    state: DataSetState = DataSetState.INCOMPLETE,
+    errorMessage: Option[String],
+    facts: Map[String, String] = Map.empty[String, String],
+    recordDefinitions: List[String] = List.empty[String],
+    indexingMappingPrefix: String,
+    orgId: String,
+    userName: String,
+    lockedBy: Option[String],
+    errors: Map[String, String] = Map.empty[String, String],
+    visibility: Int = 0) {
+
+  val error: String = errorMessage.map {
+    m => m.replaceAll("\n", "<br/>")
+  }.getOrElse("")
 }
 
 class DataSetControl(implicit val bindingModule: BindingModule) extends OrganizationController {

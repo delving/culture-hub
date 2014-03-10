@@ -18,9 +18,6 @@ target/
 additionalModules
 extras/servlet-server/solr/*/data/
 extras/servlet-server/work/
-/public/sip-creator/*.jar
-/public/sip-creator/*.zip
-/public/sip-creator/*.jnlp
 /public/themes/*
 !/public/themes/default
 /extras/iipsrv-0.9.9

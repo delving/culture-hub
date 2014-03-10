@@ -19,6 +19,12 @@ import com.escalatesoft.subcut.inject.BindingModule
 
 class DataSets(implicit val bindingModule: BindingModule) extends OrganizationController {
 
+  def sipCreator = OrganizationMember {
+    MultitenantAction {
+      implicit request => Ok(Template('orgId -> configuration.orgId))
+    }
+  }
+
   def list = OrganizationMember {
     MultitenantAction {
       implicit request =>

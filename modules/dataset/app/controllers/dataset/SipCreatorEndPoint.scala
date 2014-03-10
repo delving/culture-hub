@@ -1,10 +1,10 @@
-package controllers
+package controllers.dataset
 
 import exceptions.{ StorageInsertionException, AccessKeyException }
 import play.api.mvc._
-import java.util.zip.{ GZIPOutputStream, ZipEntry, ZipOutputStream, GZIPInputStream }
+import java.util.zip.{ ZipEntry, ZipOutputStream, GZIPInputStream }
 import java.io._
-import org.apache.commons.io.{ FileUtils, IOUtils }
+import org.apache.commons.io.IOUtils
 import play.api.libs.iteratee.Enumerator
 import play.libs.Akka
 import akka.actor.Actor
@@ -37,6 +37,7 @@ import com.mongodb.casbah.Imports._
 import com.mongodb.casbah.gridfs.{ GridFSDBFile, GridFS }
 import com.escalatesoft.subcut.inject.BindingModule
 import play.api.Play.current
+import controllers.{ ErrorReporter, Logging, ApplicationController }
 
 /**
  * This Controller is responsible for all the interaction with the SIP-Creator.
@@ -222,7 +223,9 @@ class SipCreatorEndPoint(implicit val bindingModule: BindingModule) extends Appl
             val msg = "DataSet with spec %s not found".format(spec)
             NotFound(msg)
           } else {
-            val SipCreatorEndPoint.FileName(hash, kind, prefix, extension) = fileName
+            // HASH__type[_prefix].extension
+            val FileName = """([^_]*)__([^._]*)_?([^.]*).(.*)""".r
+            val FileName(hash, kind, prefix, extension) = fileName
             if (hash.isEmpty) {
               val msg = "No hash available for file name " + fileName
               Error(msg)
@@ -405,7 +408,6 @@ class SipCreatorEndPoint(implicit val bindingModule: BindingModule) extends Appl
 
   private def receiveLinks(dataSet: DataSet, schemaPrefix: String, fileName: String, file: File)(implicit configuration: OrganizationConfiguration) = {
     val store = hubFileStores.getResource(configuration)
-    import com.mongodb.casbah.gridfs.Imports._
 
     // remove previous version
     findLinksFile(dataSet.orgId, dataSet.spec, schemaPrefix, store) foreach { previous =>
@@ -633,10 +635,7 @@ class SipCreatorEndPoint(implicit val bindingModule: BindingModule) extends Appl
 
 }
 
-object SipCreatorEndPoint {
-
-  // HASH__type[_prefix].extension
-  val FileName = """([^_]*)__([^._]*)_?([^.]*).(.*)""".r
+object SipCreatorEndPointHelper {
 
   private def basexStorage(implicit configuration: OrganizationConfiguration) = HubServices.basexStorages.getResource(configuration)
 
@@ -743,7 +742,7 @@ class ReceiveSource extends Actor {
   private def receiveSource(dataSet: DataSet, userName: String, inputStream: InputStream)(implicit configuration: OrganizationConfiguration): Either[Throwable, Long] = {
 
     try {
-      val uploadedRecords = SipCreatorEndPoint.loadSourceData(dataSet, inputStream)
+      val uploadedRecords = SipCreatorEndPointHelper.loadSourceData(dataSet, inputStream)
       DataSet.dao.updateRecordCount(dataSet, uploadedRecords)
       DataSet.dao.updateState(dataSet, DataSetState.UPLOADED, Some(userName))
       Right(uploadedRecords)

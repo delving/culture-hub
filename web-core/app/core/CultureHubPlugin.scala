@@ -5,10 +5,10 @@ import access.{ ResourceType, ResourceLookup }
 import scala.collection.immutable.ListMap
 import scala.util.matching.Regex
 import play.api._
+import models._
 import libs.concurrent.Akka
 import play.api.Play.current
 import mvc.{ RequestHeader, Handler }
-import models.{ Role, OrganizationConfiguration }
 import scala.collection.JavaConverters._
 import akka.actor.{ ActorContext, ActorRef, Props, Actor }
 import play.core.Router.Routes

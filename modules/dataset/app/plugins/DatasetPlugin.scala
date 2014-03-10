@@ -13,7 +13,6 @@ import io.Source
 import akka.actor._
 import akka.routing._
 import akka.actor.SupervisorStrategy._
-import controllers.ReceiveSource
 import scala.collection.JavaConverters._
 import core._
 import core.access.{ ResourceType, Resource, ResourceLookup }
@@ -21,6 +20,7 @@ import com.mongodb.casbah.commons.MongoDBObject
 import java.util.regex.Pattern
 import java.io.FileInputStream
 import controllers.organization.DataSetEventFeed
+import controllers.dataset.{ SipCreatorEndPointHelper, ReceiveSource, SipCreatorEndPoint }
 
 class DataSetPlugin(app: Application) extends CultureHubPlugin(app) {
 
@@ -48,11 +48,6 @@ class DataSetPlugin(app: Application) extends CultureHubPlugin(app) {
         MenuElement("/admin/dataset", "dataset.DatasetList"),
         MenuElement("/admin/dataset/add", "dataset.CreateADataset", Seq(Role.OWN, DataSetPlugin.ROLE_DATASET_ADMIN))
       )
-    ),
-    MainMenuEntry(
-      key = "sipcreator",
-      titleKey = "hub.SIPCreator",
-      mainEntry = Some(MenuElement("/admin/sip-creator", "hub.SIPCreator"))
     )
   )
 
@@ -307,7 +302,7 @@ class DataSetPlugin(app: Application) extends CultureHubPlugin(app) {
       // provision records, but only if necessary
       if (HubServices.basexStorages.getResource(configuration).openCollection(dataSet).isEmpty) {
         val sourceFile = boot.file("source.xml.gz")
-        _root_.controllers.SipCreatorEndPoint.loadSourceData(
+        SipCreatorEndPointHelper.loadSourceData(
           dataSet,
           new GZIPInputStream(new FileInputStream(sourceFile))
         )

@@ -13,10 +13,10 @@ object Build extends sbt.Build {
   val sipCore    = SettingKey[String]("sip-core", "Version of the SIP-Core")
   val schemaRepo = SettingKey[String]("schema-repo", "Version of the Schema Repository")
 
-  val cultureHubVersion = "13.06-SNAPSHOT"
-  val sipAppVersion = "1.1.6"
-  val sipCoreVersion = "1.1.7-SNAPSHOT"
-  val schemaRepoVersion = "1.1.6"
+  val cultureHubVersion = "14.03-SNAPSHOT"
+  val sipAppVersion = "14.03-SNAPSHOT"
+  val sipCoreVersion = "14.03-SNAPSHOT"
+  val schemaRepoVersion = "14.03-SNAPSHOT"
   val playExtensionsVersion = "1.5"
 
   val buildScalaVersion = "2.10.1"
@@ -69,7 +69,6 @@ object Build extends sbt.Build {
     resolvers ++= commonResolvers,
     publish := { },
     cultureHub := cultureHubVersion,
-    sipApp := sipAppVersion,
     sipCore := sipCoreVersion,
     schemaRepo := schemaRepoVersion,
     sourceGenerators in Compile <+= buildInfo,
@@ -84,7 +83,11 @@ object Build extends sbt.Build {
     publish := { }
   ).dependsOn(webCore % "test->test;compile->compile").settings(scalarifromSettings :_*)
 
-  lazy val dataset = play.Project("dataset", "1.0-SNAPSHOT", Seq.empty, path = file("modules/dataset")).settings(
+  val datasetDependencies = Seq(
+    "eu.delving" % "web-core" % "1.0-SNAPSHOT"
+  )
+
+  lazy val dataset = play.Project("dataset", "1.0-SNAPSHOT", datasetDependencies, path = file("modules/dataset")).settings(
     resolvers ++= commonResolvers,
     publish := { }
   ).dependsOn(webCore % "test->test;compile->compile", search % "test->test;compile->compile").settings(scalarifromSettings :_*)

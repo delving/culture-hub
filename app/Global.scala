@@ -43,10 +43,9 @@ object Global extends WithFilters(new GzipFilter()) with Instrumented {
 
             Version %s
 
-            SIP-App Version %s
             SIP-Core Version %s
 
-              """.format(BuildInfo.cultureHub, BuildInfo.sipApp, BuildInfo.sipCore))
+              """.format(BuildInfo.cultureHub, BuildInfo.sipCore))
     }
 
     // ~~~ bootstrap jobs

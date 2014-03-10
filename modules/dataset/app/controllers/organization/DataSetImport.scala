@@ -1,7 +1,7 @@
 package controllers.organization
 
 import play.api.mvc._
-import controllers.{ SipCreatorEndPoint, OrganizationController }
+import controllers.OrganizationController
 import java.util.zip.ZipFile
 import scala.collection.JavaConverters._
 import scala.io.Source

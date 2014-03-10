@@ -1,5 +1,3 @@
-GET               /:user/sip-creator.jnlp                           @controllers.organization.SipCreator.jnlp(user)
-
 GET               /admin/dataset                                    @controllers.organization.DataSets.list
 GET               /admin/dataset/search                             @controllers.organization.DataSets.listAsTokens(q, formats: Option[String])
 GET               /admin/dataset/feed                               @controllers.organization.DataSets.feed(clientId, spec: Option[String])
@@ -8,12 +6,12 @@ GET               /admin/dataset/:spec/update                       @controllers
 POST              /admin/dataset/submit                             @controllers.organization.DataSetControl.dataSetSubmit
 POST              /admin/dataset/import                             @controllers.organization.DataSetImport.importSIP(userName: Option[String])
 GET               /admin/dataset/:spec                              @controllers.organization.DataSets.dataSet(spec: String)
-GET               /admin/sip-creator                                @controllers.organization.SipCreator.index
+GET               /admin/sip-creator                                @controllers.organization.DataSets.sipCreator
 
-GET               /api/sip-creator/list                             @controllers.SipCreatorEndPoint.listAll(accessKey: Option[String])
-GET               /api/sip-creator/unlock/:orgId/:spec              @controllers.SipCreatorEndPoint.unlock(orgId, spec, accessKey: Option[String])
-POST              /api/sip-creator/submit/:orgId/:spec/*fileName    @controllers.SipCreatorEndPoint.acceptFile(orgId, spec, fileName, accessKey: Option[String])
-POST              /api/sip-creator/submit/:orgId/:spec              @controllers.SipCreatorEndPoint.acceptFileList(orgId, spec, accessKey: Option[String])
-GET               /api/sip-creator/fetch/:orgId/:spec-sip.zip       @controllers.SipCreatorEndPoint.fetchSIP(orgId, spec, accessKey: Option[String])
+GET               /api/sip-creator/list                             @controllers.dataset.SipCreatorEndPoint.listAll(accessKey: Option[String])
+GET               /api/sip-creator/unlock/:orgId/:spec              @controllers.dataset.SipCreatorEndPoint.unlock(orgId, spec, accessKey: Option[String])
+POST              /api/sip-creator/submit/:orgId/:spec/*fileName    @controllers.dataset.SipCreatorEndPoint.acceptFile(orgId, spec, fileName, accessKey: Option[String])
+POST              /api/sip-creator/submit/:orgId/:spec              @controllers.dataset.SipCreatorEndPoint.acceptFileList(orgId, spec, accessKey: Option[String])
+GET               /api/sip-creator/fetch/:orgId/:spec-sip.zip       @controllers.dataset.SipCreatorEndPoint.fetchSIP(orgId, spec, accessKey: Option[String])
 
 GET               /assets/*file                                     controllers.dataset.Assets.at(path="/public", file)

@@ -1,4 +1,6 @@
 import collection.mutable.{ Buffer, ListBuffer }
+import controllers.dataset
+import controllers.dataset.SipCreatorEndPoint
 import core.HubModule
 import java.io._
 import java.util.zip.{ ZipInputStream, GZIPInputStream }
@@ -21,7 +23,7 @@ class SipCreatorEndPointSpec extends BootstrapAwareSpec {
 
   "SipCreatorEndPoint" should {
 
-    def endPoint = new controllers.SipCreatorEndPoint()(HubModule)
+    def endPoint = new SipCreatorEndPoint()(HubModule)
 
     "list all DataSets" in {
 
@@ -277,7 +279,7 @@ class SipCreatorEndPointSpec extends BootstrapAwareSpec {
 
         // first, ingest all sorts of things
         val gis = new GZIPInputStream(new FileInputStream(sourceFile))
-        controllers.SipCreatorEndPoint.loadSourceData(dataSet, gis)
+        dataset.SipCreatorEndPointHelper.loadSourceData(dataSet, gis)
         gis.close()
 
         val result = asyncToResult(endPoint.fetchSIP(
