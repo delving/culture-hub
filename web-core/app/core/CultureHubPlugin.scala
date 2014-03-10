@@ -5,7 +5,7 @@ import access.{ ResourceType, ResourceLookup }
 import scala.collection.immutable.ListMap
 import scala.util.matching.Regex
 import play.api._
-import models._
+import _root_.models._
 import libs.concurrent.Akka
 import play.api.Play.current
 import mvc.{ RequestHeader, Handler }
@@ -92,7 +92,7 @@ abstract class CultureHubPlugin(app: Application) extends play.api.Plugin {
   /**
    * Override this to add menu entries to the main menu
    *
-   * @param configuration the [[models.OrganizationConfiguration]]
+   * @param configuration the [[OrganizationConfiguration]]
    * @param lang the active language
    * @return a sequence of [[core.MainMenuEntry]] for the main menu
    */
@@ -100,7 +100,7 @@ abstract class CultureHubPlugin(app: Application) extends play.api.Plugin {
 
   /**
    * Override this to add menu entries to the organization menu
-   * @param configuration the [[models.OrganizationConfiguration]]
+   * @param configuration the [[OrganizationConfiguration]]
    * @param lang the active language
    * @param roles the roles of the current user
    * @return a sequence of [[core.MainMenuEntry]] for the organization menu
@@ -130,12 +130,12 @@ abstract class CultureHubPlugin(app: Application) extends play.api.Plugin {
 
   /**
    * Override this to provide custom roles to the platform, that can be used in Groups
-   * @return a sequence of [[models.Role]] instances
+   * @return a sequence of [[Role]] instances
    */
   def roles: Seq[Role] = Seq.empty
 
   /**
-   * Override this to provide the necessary lookup for a [[core.access.Resource]] depicted by a [[models.Role]]
+   * Override this to provide the necessary lookup for a [[core.access.Resource]] depicted by a [[Role]]
    * @return
    */
   def resourceLookups: Seq[ResourceLookup] = Seq.empty
@@ -167,7 +167,7 @@ abstract class CultureHubPlugin(app: Application) extends play.api.Plugin {
    * Retrieves the navigation for the organization section of the Hub
    * @param roles the roles of the current user
    * @param isMember whether the user is a member of the organization
-   * @param configuration the [[models.OrganizationConfiguration]]
+   * @param configuration the [[OrganizationConfiguration]]
    * @return a sequence of MenuEntries
    */
   def getOrganizationNavigation(orgId: String, lang: String, roles: Seq[String], isMember: Boolean)(implicit configuration: OrganizationConfiguration) = if (isEnabled(configuration)) {
@@ -246,7 +246,7 @@ object CultureHubPlugin {
 
   /**
    * Retrieves all enabled plugins for the current domain
-   * @param configuration the [[models.OrganizationConfiguration]] being accessed
+   * @param configuration the [[OrganizationConfiguration]] being accessed
    * @return the set of active plugins
    */
   def getEnabledPlugins(implicit configuration: OrganizationConfiguration): Seq[CultureHubPlugin] = Play.application.plugins
@@ -268,7 +268,7 @@ object CultureHubPlugin {
   /**
    * Gets the CultureHubPlugin of a certain type
    * @param pluginClass the class of the plugin
-   * @param configuration the [[models.OrganizationConfiguration]] being accessed
+   * @param configuration the [[OrganizationConfiguration]] being accessed
    * @tparam T the type of the plugin
    * @return an instance of T if there is any
    */
@@ -279,7 +279,7 @@ object CultureHubPlugin {
   /**
    * Asynchronously broadcasts a message to all active plugins of a configuration
    * @param message the message to send
-   * @param configuration the [[models.OrganizationConfiguration]] being accessed
+   * @param configuration the [[OrganizationConfiguration]] being accessed
    */
   def broadcastMessage(message: Any)(implicit configuration: OrganizationConfiguration) {
     broadcastingPluginActorReferences.getResource(configuration) ! message
@@ -288,7 +288,7 @@ object CultureHubPlugin {
   /**
    * Find the ResourceLookup for a given ResourceType
    * @param resourceType the [[ ResourceType ]] for this lookup
-   * @param configuration the [[models.OrganizationConfiguration]] being accessed
+   * @param configuration the [[OrganizationConfiguration]] being accessed
    * @return an optional [[ ResourceLookup]]
    */
   def getResourceLookup(resourceType: ResourceType)(implicit configuration: OrganizationConfiguration): Option[ResourceLookup] = {
@@ -301,7 +301,7 @@ object CultureHubPlugin {
   /**
    * Whether the quota for this resource has been reached or exceeded
    * @param resourceType the [[ ResourceType ]] for which to check the quota
-   * @param configuration the [[models.OrganizationConfiguration]] being accessed
+   * @param configuration the [[OrganizationConfiguration]] being accessed
    * @return whether the quota has been reached or exceeded
    */
   def isQuotaExceeded(resourceType: ResourceType)(implicit configuration: OrganizationConfiguration): Boolean = {
