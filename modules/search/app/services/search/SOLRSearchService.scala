@@ -347,11 +347,42 @@ class SOLRSearchService extends SearchService {
       val indexItem = cache.findOne(hubId.localId).getOrElse(return Left("Could not find IndexItem with id '%s".format(id)))
       Right(new RenderedView {
         def toXmlString: String = indexItem.xml("raw")
-        def toJson: String = "JSON rendering not supported"
+        def toJson: String = convertXML2JSON(indexItem.xml("raw"), id)
         def toXml: NodeSeq = scala.xml.XML.loadString(indexItem.xml("raw"))
         def toViewTree: RenderNode = null
       })
     }
+  }
+
+  private def convertXML2JSON(xmlString: String, hubId: String): String = {
+    implicit val formats = net.liftweb.json.DefaultFormats
+    val record = scala.xml.XML.loadString(xmlString)
+    val fieldMap = collection.mutable.ListMap[String, List[String]]()
+    fieldMap += "delving_hubId" -> List(hubId)
+    val fields = record \ "field"
+    fields.foreach { field =>
+      {
+        fieldMap += (field \ "@name").toString.replaceAll(":", "_") -> List(field.text)
+      }
+    }
+    val systemFields = record \ "systemField"
+    systemFields.foreach {
+      field =>
+        {
+          val fieldName = (field \ "@name").toString
+          fieldMap += s"delving_$fieldName" -> List(field.text)
+        }
+    }
+    val docMap = ListMap("result" ->
+      ListMap(
+        "item" ->
+          ListMap(
+            "fields" -> ListMap(fieldMap.toSeq: _*)
+
+          )
+      )
+    )
+    Printer.pretty(render(Extraction.decompose(docMap)))
   }
 
   private def renderMetadataRecord(prefix: String,
