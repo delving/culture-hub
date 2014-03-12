@@ -45,6 +45,7 @@ object MetadataCache {
     //                    but a better fix involving batch inserts will eventually come later
     mongoConnection.setWriteConcern(WriteConcern.FsyncSafe)
     val mongoCollection: MongoCollection = mongoConnection(getMongoCollectionName(configuration.orgId))
+    mongoCollection.setWriteConcern(WriteConcern.FsyncSafe)
     mongoCollection.ensureIndex(MongoDBObject("collection" -> 1, "itemType" -> 1, "itemId" -> 1))
     mongoCollection.ensureIndex(MongoDBObject("collection" -> 1, "itemType" -> 1))
     mongoCollection.ensureIndex(MongoDBObject("collection" -> 1, "itemType" -> 1, "index" -> 1))
