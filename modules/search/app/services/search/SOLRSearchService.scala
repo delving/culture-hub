@@ -317,6 +317,8 @@ class SOLRSearchService extends SearchService {
           case _ =>
             renderMetadataRecord(prefix, URLDecoder.decode(hubId, "utf-8"), viewType, lang, context, renderRelatedItems, filterMltByContent(items = relatedItems, mltCount = relatedItemsCount), requestParameters)
         }
+      case None if idType == DelvingIdType.INDEX_ITEM =>
+        renderIndexItem(id)
       case None =>
         Left("Could not resolve identifier for hubId '%s' and idType '%s'".format(id, idType.idType))
     }
