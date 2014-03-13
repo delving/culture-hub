@@ -20,7 +20,6 @@ import java.io.InputStream
 import models.DataSet
 import core.storage.Record
 import scales.utils._
-import ScalesUtils._
 import scales.xml._
 import ScalesXml._
 import org.apache.commons.lang.StringEscapeUtils
@@ -30,10 +29,27 @@ import org.codehaus.stax2.XMLInputFactory2
 /**
  * Parses an incoming stream of records formatted according to the Delving SIP source format.
  *
+ *
+ * <delving-sip-source xmlns:abm="http://abmu.org/abm" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcmitype="http://purl.org/dc/dcmitype/" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:europeana="http://www.europeana.eu/schemas/ese/">
+ * <input id="DHS/ DHS.31424">
+ * <dc:identifier>DHS/ DHS.31424</dc:identifier>
+ * <abm:image>
+ * <abm:imageUri>http://media31.dimu.no/media/image/DHS/%20DHS.31424/5260?height=400&amp;width=400</abm:imageUri>
+ * <europeana:type>IMAGE</europeana:type>
+ * </abm:image>
+ * </input>
+ * </delving-sip-source>
+ *
+ * <delving-sip-output xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:delving="http://schemas.delving.eu/" xmlns:xml="http://www.w3.org/XML/1998/namespace" xmlns:abm="http://abmu.org/abm" xmlns:europeana="http://www.europeana.eu/schemas/ese/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dcterms="http://purl.org/dc/terms/" xsi:schemaLocation="http://purl.org/dc/elements/1.1/ http://dublincore.org/schemas/xmls/qdc/dc.xsd http://schemas.delving.eu/ delving-V1.2.xsd http://abmu.org/abm http://abmu.org/abm.xsd http://www.europeana.eu/schemas/ese/ http://www.europeana.eu/schemas/ese/ESE-V3.3.xsd http://purl.org/dc/terms/ http://dublincore.org/schemas/xmls/qdc/dcterms.xsd ">
+ * <abm:record id="SFKM/ SFKM 001839">
+ * <abm:contentProvider>DigitaltMuseum</abm:contentProvider>
+ * </abm:record>
+ * </delving-sip-output>
+ *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-class SimpleDataSetParser(is: InputStream, dataSet: DataSet) extends Iterator[Record] {
+class SIPDataParser(is: InputStream, dataSet: DataSet, outerTag: String, innerTag: String) extends Iterator[Record] {
 
   private val ns = collection.mutable.Map.empty[String, String]
   private val pull = pullXml(is, parserFactoryPool = CustomStaxInputFactoryPool)
@@ -44,10 +60,10 @@ class SimpleDataSetParser(is: InputStream, dataSet: DataSet) extends Iterator[Re
   {
     // skip start of document
     pull.next() match {
-      case Left(Elem(qname, _, namespaces)) if qname.local == "delving-sip-source" =>
+      case Left(Elem(qname, _, namespaces)) if qname.local == outerTag =>
         ns ++= namespaces
         DataSet.dao(dataSet.orgId).updateNamespaces(dataSet.spec, ns.toMap)
-      case _ => throw new IllegalArgumentException("Source input does not start with <delving-sip-source>")
+      case _ => throw new IllegalArgumentException(s"Input does not start with <$outerTag>")
     }
     parseNext() match {
       case Some(l) => lookAhead = l
@@ -88,35 +104,35 @@ class SimpleDataSetParser(is: InputStream, dataSet: DataSet) extends Iterator[Re
       if (!pull.hasNext) return None
       val next = pull.next()
       next match {
-        case Left(Elem(qname, attrs, namespaces)) if qname.local == "input" =>
+        case Left(Elem(qname, attrs, namespaces)) if qname.local == innerTag =>
           inRecord = true
           val mayId = attrs.find(_.name.local == "id")
           if (mayId != None) recordId = StringEscapeUtils.escapeXml(mayId.get.value)
-        case Right(EndElem(name, _)) if (name.local == "input") =>
+        case Right(EndElem(name, _)) if name.local == innerTag =>
           inRecord = false
           record = Record(
             id = recordId,
-            document = """<input id="%s">%s</input>""".format(recordId, recordXml.mkString),
+            document = s"""<$innerTag id="%s">%s</$innerTag>""".format(recordId, recordXml.mkString),
             schemaPrefix = "raw"
           )
           recordXml.clear()
           recordId = null
           recordCounter += 1
           hasParsedOne = true
-        case elemStart @ Left(Elem(qname, attrs, ns)) if (inRecord) =>
-          recordXml.append(elemStartToString(qname, attrs, ns))
+        case elemStart @ Left(Elem(qname, attrs, namespace)) if inRecord =>
+          recordXml.append(elemStartToString(qname, attrs, namespace))
           elementHasContent = false
-        case Left(Text(txt)) if (inRecord) =>
+        case Left(Text(txt)) if inRecord =>
           if (txt != null && txt.size > 0) elementHasContent = true
           val encoded = StringEscapeUtils.escapeXml(txt)
           recordXml.append(encoded)
           fieldValueXml.append(encoded)
-        case Left(CData(data)) if (inRecord) =>
+        case Left(CData(data)) if inRecord =>
           if (data != null && data.size > 0) elementHasContent = true
           val d = """<![CDATA[%s]]>""".format(data)
           recordXml.append(d)
           fieldValueXml.append(d)
-        case elemEnd @ Right(EndElem(qname, _)) if (inRecord) =>
+        case elemEnd @ Right(EndElem(qname, _)) if inRecord =>
           if (!elementHasContent) {
             val rollback = recordXml.substring(0, recordXml.length - ">".length())
             recordXml.clear()

@@ -10,7 +10,7 @@ import scala.concurrent.duration.Duration
 import java.util.concurrent.TimeUnit
 import java.io.InputStream
 import core.HubServices
-import util.SimpleDataSetParser
+import util.SIPDataParser
 import models.statistics.DataSetStatistics
 
 class ReceiveSource extends Actor {
@@ -112,16 +112,18 @@ object SourceHelper {
 
   def loadSourceData(dataSet: DataSet, source: InputStream)(implicit configuration: OrganizationConfiguration): Long = {
 
+    val prefix: Option[String] = None
+
     // until we have a better concept on how to deal with per-collection versions, do not make use of them here, but drop the data instead
-    val mayCollection = basexStorage.openCollection(dataSet)
+    val mayCollection = basexStorage.openCollection(dataSet, prefix)
     val collection = if (mayCollection.isDefined) {
-      basexStorage.deleteCollection(mayCollection.get)
-      basexStorage.createCollection(dataSet)
+      basexStorage.deleteCollection(mayCollection.get, prefix)
+      basexStorage.createCollection(dataSet, prefix)
     } else {
-      basexStorage.createCollection(dataSet)
+      basexStorage.createCollection(dataSet, prefix)
     }
 
-    val parser = new SimpleDataSetParser(source, dataSet)
+    val parser = new SIPDataParser(source, dataSet, "delving-sip-source", "input")
 
     // use the uploaded statistics to know how many records we expect. For that purpose, use the mappings to know what prefixes we have...
     // TODO we should have a more direct route to know what to expect here.
@@ -134,6 +136,6 @@ object SourceHelper {
       if (count % (if (modulo == 0) 100 else modulo) == 0) DataSet.dao.updateRecordCount(dataSet, count)
     }
 
-    basexStorage.store(collection, parser, parser.namespaces, onRecordInserted)
+    basexStorage.store(collection, prefix, parser, parser.namespaces, onRecordInserted)
   }
 }

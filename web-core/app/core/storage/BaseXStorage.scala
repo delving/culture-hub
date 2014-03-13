@@ -30,49 +30,49 @@ class BaseXStorage(configuration: BaseXConfiguration) {
     false
   )
 
-  def createCollection(collection: Collection): Collection = {
-    storage.createDatabase(storageName(collection))
+  def createCollection(collection: Collection, prefix: Option[String]): Collection = {
+    storage.createDatabase(storageName(collection, prefix))
     collection
   }
 
-  def renameCollection(collection: Collection, newName: String) {
-    storage.alter(storageName(collection), storageName(collection, newName))
+  def renameCollection(collection: Collection, prefix: Option[String], newName: String) {
+    storage.alter(storageName(collection, prefix), storageName(collection, newName))
   }
 
-  def openCollection(collection: Collection): Option[Collection] = {
+  def openCollection(collection: Collection, prefix: Option[String]): Option[Collection] = {
     try {
-      storage.openDatabase(storageName(collection))
+      storage.openDatabase(storageName(collection, prefix))
       Some(collection)
     } catch {
       case t: Throwable => None
     }
   }
 
-  def deleteCollection(c: Collection) {
-    storage.dropDatabase(storageName(c))
+  def deleteCollection(collection: Collection, prefix: Option[String]) {
+    storage.dropDatabase(storageName(collection, prefix))
   }
 
-  def withSession[T](collection: Collection)(block: ClientSession => T) = {
-    storage.withSession(storageName(collection)) {
+  def withSession[T](collection: Collection, prefix: Option[String])(block: ClientSession => T) = {
+    storage.withSession(storageName(collection, prefix)) {
       session =>
         block(session)
     }
   }
 
-  def withBulkSession[T](collection: Collection)(block: ClientSession => T) = {
-    storage.withSession(storageName(collection)) {
+  def withBulkSession[T](collection: Collection, prefix: Option[String])(block: ClientSession => T) = {
+    storage.withSession(storageName(collection, prefix)) {
       session =>
-        session.setAutoflush(false)
+        session.setAutoflush(flush = false)
         block(session)
-        session.setAutoflush(true)
+        session.setAutoflush(flush = true)
     }
   }
 
-  def store(collection: Collection, records: Iterator[Record], namespaces: Map[String, String], onRecordInserted: Long => Unit): Long = {
+  def store(collection: Collection, prefix: Option[String], records: Iterator[Record], namespaces: Map[String, String], onRecordInserted: Long => Unit): Long = {
     var inserted: Long = 0
     val start = System.currentTimeMillis()
 
-    withBulkSession(collection) {
+    withBulkSession(collection, prefix) {
       session =>
 
         val it = records.zipWithIndex
@@ -100,11 +100,11 @@ class BaseXStorage(configuration: BaseXConfiguration) {
     inserted
   }
 
-  def count(collection: Collection): Int = {
-    val c = openCollection(collection)
+  def count(collection: Collection, prefix: Option[String]): Int = {
+    val c = openCollection(collection, prefix)
     c.map {
       col =>
-        withSession(col) {
+        withSession(col, prefix) {
           implicit session => count
         }
     }.getOrElse {
@@ -147,7 +147,15 @@ class BaseXStorage(configuration: BaseXConfiguration) {
     session.findRaw("for $i in /*:record[@version = %s] order by number($i/system/index) return $i/*:document/*:input".format(currentVersion))
   }
 
-  private def storageName(c: Collection, newName: String) = c.getOwner + "____" + newName
-  private def storageName(c: Collection) = c.getOwner + "____" + c.spec
+  private def storageName(c: Collection, newName: String) = s"${c.getOwner}____$newName"
+
+  private def storageName(c: Collection, prefix: Option[String]) = {
+    prefix match {
+      case Some(ext) =>
+        s"${c.getOwner}____${c.spec}__$ext"
+      case None =>
+        s"${c.getOwner}____${c.spec}"
+    }
+  }
 
 }

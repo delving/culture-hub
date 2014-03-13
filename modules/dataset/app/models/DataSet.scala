@@ -145,7 +145,7 @@ case class DataSet(
   def hasDetails: Boolean = details != null
 
   def hasRecords: Boolean = {
-    HubServices.basexStorages.getResource(configuration).openCollection(this)
+    HubServices.basexStorages.getResource(configuration).openCollection(this, None)
       .isDefined && DataSet.dao(orgId).getSourceRecordCount(this) != 0
   }
 
@@ -396,13 +396,15 @@ class DataSetDAO(collection: MongoCollection)(implicit val configuration: Organi
 
   def delete(dataSet: DataSet) {
     MetadataCache.get(dataSet.orgId, dataSet.spec, DataSetPlugin.ITEM_TYPE).removeAll()
-    HubServices.basexStorages.getResource(dataSet.configuration).deleteCollection(dataSet)
+    // todo: delete the other prefixes, not just none
+    HubServices.basexStorages.getResource(dataSet.configuration).deleteCollection(dataSet, prefix = None)
     remove(MongoDBObject("_id" -> dataSet._id))
   }
 
   // ~~~ record handling
 
-  def getSourceRecordCount(dataSet: DataSet): Long = HubServices.basexStorages.getResource(dataSet.configuration).count(dataSet)
+  def getSourceRecordCount(dataSet: DataSet): Long =
+    HubServices.basexStorages.getResource(dataSet.configuration).count(dataSet, None)
 
   // ~~~ dataSet control
 

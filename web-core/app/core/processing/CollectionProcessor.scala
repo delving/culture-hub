@@ -72,7 +72,7 @@ class CollectionProcessor(collection: Collection with OrganizationCollectionMeta
       )
 
       try {
-        basexStorage.withSession(collection) {
+        basexStorage.withSession(collection, None) {
           implicit session =>
             {
               var record: Node = null

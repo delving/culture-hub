@@ -1,13 +1,13 @@
 package controllers.dataset
 
-import exceptions.{ StorageInsertionException, AccessKeyException }
+import exceptions.AccessKeyException
 import play.api.mvc._
 import java.util.zip.{ ZipEntry, ZipOutputStream, GZIPInputStream }
 import java.io._
 import org.apache.commons.io.IOUtils
 import play.api.libs.iteratee.Enumerator
 import play.libs.Akka
-import play.api.{ Play, Logger }
+import play.api.Play
 import core._
 import scala.{ Either, Option }
 import core.storage.FileStorage
@@ -197,7 +197,7 @@ class SipCreatorEndPoint(implicit val bindingModule: BindingModule) extends Appl
             val lines = fileList.split('\n').map(_.trim).toList
 
             def fileRequired(fileName: String): Option[String] = {
-              val Array(hash, name) = fileName split ("__")
+              val Array(hash, name) = fileName.split("__")
               val maybeHash = dataSet.get.hashes.get(name.replaceAll("\\.", DOT_PLACEHOLDER))
               maybeHash match {
                 case Some(storedHash) if hash != storedHash => Some(fileName)
@@ -245,7 +245,7 @@ class SipCreatorEndPoint(implicit val bindingModule: BindingModule) extends Appl
                 case "mapping" if extension == "xml" =>
                   receiveMapping(dataSet.get, inputStream, spec, hash)
 
-                case "source" if extension == "xml.gz" => {
+                case "source" if extension == "xml.gz" =>
                   if (dataSet.get.state == DataSetState.PROCESSING) {
                     Left("%s: Cannot upload source while the set is being processed".format(spec))
                   } else {
@@ -256,7 +256,6 @@ class SipCreatorEndPoint(implicit val bindingModule: BindingModule) extends Appl
                     DataSet.dao.updateState(dataSet.get, DataSetState.PARSING)
                     Right("Received it")
                   }
-                }
 
                 case "validation" if extension == "int" =>
                   receiveInvalidRecords(dataSet.get, prefix, inputStream)
@@ -281,21 +280,18 @@ class SipCreatorEndPoint(implicit val bindingModule: BindingModule) extends Appl
                       Left("Couldn't store file " + fileName)
                     )
 
-                case _ => {
+                case _ =>
                   val msg = "Unknown file type %s".format(kind)
                   Left(msg)
-                }
               }
 
               actionResult match {
-                case Right(ok) => {
+                case Right(ok) =>
                   DataSet.dao.addHash(dataSet.get, fileName.split("__")(1).replaceAll("\\.", DOT_PLACEHOLDER), hash)
                   log.info("Successfully accepted file %s for DataSet %s".format(fileName, spec))
                   Ok
-                }
-                case Left(houston) => {
+                case Left(houston) =>
                   Error("Error accepting file %s for DataSet %s: %s".format(fileName, spec, houston))
-                }
               }
             }
           }
@@ -456,6 +452,7 @@ class SipCreatorEndPoint(implicit val bindingModule: BindingModule) extends Appl
                 val updatedDataSet = DataSet.dao.findBySpecAndOrgId(spec, orgId).get
                 DataSet.dao.save(updatedDataSet)
 
+                // todo: also write the output prefixes
                 Right(Enumerator.outputStream(outputStream => writeSipStream(dataSet, outputStream)))
               }
             }.map {
@@ -471,6 +468,8 @@ class SipCreatorEndPoint(implicit val bindingModule: BindingModule) extends Appl
     }
 
   def writeSipStream(dataSet: DataSet, outputStream: OutputStream)(implicit configuration: OrganizationConfiguration) {
+
+    val prefix = None // todo: use the prefixes for the different files
 
     val zipOut = new ZipOutputStream(outputStream)
     val store = hubFileStores.getResource(configuration)
@@ -490,11 +489,11 @@ class SipCreatorEndPoint(implicit val bindingModule: BindingModule) extends Appl
       }
     }
 
-    val recordCount = basexStorage.count(dataSet)
+    val recordCount = basexStorage.count(dataSet, prefix)
 
     if (recordCount > 0) {
       writeEntry("source.xml", zipOut) {
-        out => writeDataSetSource(dataSet, out)
+        out => writeDataSetSource(dataSet, prefix, out)
       }
     }
 
@@ -510,7 +509,7 @@ class SipCreatorEndPoint(implicit val bindingModule: BindingModule) extends Appl
     outputStream.close()
   }
 
-  private def writeDataSetSource(dataSet: DataSet, outputStream: OutputStream)(implicit configuration: OrganizationConfiguration) {
+  private def writeDataSetSource(dataSet: DataSet, prefix: Option[String], outputStream: OutputStream)(implicit configuration: OrganizationConfiguration) {
 
     val now = System.currentTimeMillis()
 
@@ -526,32 +525,32 @@ class SipCreatorEndPoint(implicit val bindingModule: BindingModule) extends Appl
     }
 
     def buildAttributes(attrs: Map[String, String]): String = {
-      attrs.map(a => (a._1 -> a._2)).toList.sortBy(_._1).map(
+      attrs.map(a => a._1 -> a._2).toList.sortBy(_._1).map(
         a => """%s="%s"""".format(a._1, escapeXml(a._2))
       ).mkString(" ")
     }
 
-    def serializeElement(n: Node): String = {
-      n match {
-        case e if !e.child.filterNot(
-          e => e.isInstanceOf[scala.xml.Text] || e.isInstanceOf[scala.xml.PCData]
-        ).isEmpty =>
-          val content = e.child.filterNot(_.label == "#PCDATA").map(serializeElement(_)).mkString("\n")
-          """<%s %s>%s</%s>""".format(
-            e.label, buildAttributes(e.attributes.asAttrMap), content + "\n", e.label
-          )
-
-        case e if e.child.isEmpty => """<%s/>""".format(e.label)
-
-        case e if !e.attributes.isEmpty => """<%s %s>%s</%s>""".format(
-          e.label, buildAttributes(e.attributes.asAttrMap), escapeXml(e.text), e.label
-        )
-
-        case e if e.attributes.isEmpty => """<%s>%s</%s>""".format(e.label, escapeXml(e.text), e.label)
-
-        case _ => "" // nope
-      }
-    }
+    //    def serializeElement(n: Node): String = {
+    //      n match {
+    //        case e if !e.child.filterNot(
+    //          e => e.isInstanceOf[scala.xml.Text] || e.isInstanceOf[scala.xml.PCData]
+    //        ).isEmpty =>
+    //          val content = e.child.filterNot(_.label == "#PCDATA").map(serializeElement).mkString("\n")
+    //          """<%s %s>%s</%s>""".format(
+    //            e.label, buildAttributes(e.attributes.asAttrMap), content + "\n", e.label
+    //          )
+    //
+    //        case e if e.child.isEmpty => """<%s/>""".format(e.label)
+    //
+    //        case e if !e.attributes.isEmpty => """<%s %s>%s</%s>""".format(
+    //          e.label, buildAttributes(e.attributes.asAttrMap), escapeXml(e.text), e.label
+    //        )
+    //
+    //        case e if e.attributes.isEmpty => """<%s>%s</%s>""".format(e.label, escapeXml(e.text), e.label)
+    //
+    //        case _ => "" // nope
+    //      }
+    //    }
 
     // do not use StringEscapeUtils.escapeXml because it also escapes UTF-8 characters, which are however valid and would break source identity
     def escapeXml(s: String): String = {
@@ -571,7 +570,7 @@ class SipCreatorEndPoint(implicit val bindingModule: BindingModule) extends Appl
     builder.append(">")
     write(builder.toString(), pw, outputStream)
 
-    basexStorage.withSession(dataSet) {
+    basexStorage.withSession(dataSet, prefix) {
       implicit session =>
         val total = basexStorage.count
         var count = 0

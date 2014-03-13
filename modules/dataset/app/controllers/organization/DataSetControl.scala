@@ -37,7 +37,7 @@ import models.FormatAccessControl
 import models.Mapping
 import models.FactDefinition
 import play.api.i18n.Messages
-import core.messages._
+import core.messages.{ CollectionCreated, CollectionRenamed }
 import com.escalatesoft.subcut.inject.BindingModule
 import eu.delving.schema.xml.Schema
 import com.mongodb.casbah.commons.TypeImports.ObjectId
@@ -193,7 +193,7 @@ class DataSetControl(implicit val bindingModule: BindingModule) extends Organiza
     total_records = ds.details.total_records,
     state = ds.state,
     errorMessage = ds.errorMessage,
-    facts = (ds.getStoredFacts ++ initialFacts),
+    facts = ds.getStoredFacts ++ initialFacts,
     recordDefinitions = ds.mappings.keySet.toList,
     indexingMappingPrefix = ds.getIndexingMappingPrefix.getOrElse("NONE"),
     orgId = ds.orgId,
@@ -209,7 +209,7 @@ class DataSetControl(implicit val bindingModule: BindingModule) extends Organiza
       (if (configuration.oaiPmhService.allowRawHarvesting) Seq("raw") else Seq.empty)
 
     val versions: Map[String, Seq[String]] = schemas.map { schema =>
-      (schema.prefix -> schema.versions.asScala.map(_.number))
+      schema.prefix -> schema.versions.asScala.map(_.number)
     }.toMap ++
       (if (configuration.oaiPmhService.allowRawHarvesting) Map("raw" -> Seq("1.0.0")) else Map.empty)
 
@@ -336,7 +336,7 @@ class DataSetControl(implicit val bindingModule: BindingModule) extends Organiza
               val keyList = mappings.keys.toList
               val added = schemaProcessingConfigurations.filter(s => !keyList.contains(s.prefix))
               val removed = removedSchemas(schemaProcessingConfigurations, mappings)
-              val updated = existing.map(e => (e._1 -> e._2.copy(schemaVersion = schemaProcessingConfigurations.find(_.prefix == e._1).get.version)))
+              val updated = existing.map(e => e._1 -> e._2.copy(schemaVersion = schemaProcessingConfigurations.find(_.prefix == e._1).get.version))
               (updated ++ buildMappings(added)).filterNot(entry => removed.contains(entry._1))
             }
 
@@ -348,14 +348,14 @@ class DataSetControl(implicit val bindingModule: BindingModule) extends Organiza
 
             val formatAccessControl = dataSetForm.schemaProcessingConfigurations.
               filter(a => dataSetForm.selectedSchemas.contains(a.prefix)).
-              map(a => (a.prefix -> FormatAccessControl(a.accessType, if (a.accessKey.isEmpty) None else Some(a.accessKey)))).toMap
+              map(a => a.prefix -> FormatAccessControl(a.accessType, if (a.accessKey.isEmpty) None else Some(a.accessKey))).toMap
 
             val submittedSchemaConfigurations = dataSetForm.selectedSchemas.flatMap(prefix => dataSetForm.schemaProcessingConfigurations.find(p => p.prefix == prefix))
 
             factsObject.append("schemaVersions", submittedSchemaConfigurations.map(c => "%s_%s".format(c.prefix, c.version)).mkString(", "))
 
             dataSetForm.id match {
-              case Some(id) => {
+              case Some(id) =>
                 val existing = DataSet.dao.findOneById(id).get
                 if (!DataSet.dao.canEdit(existing, connectedUser)) {
                   Forbidden("You have no rights to edit this DataSet")
@@ -363,9 +363,12 @@ class DataSetControl(implicit val bindingModule: BindingModule) extends Organiza
 
                   if (existing.spec != dataSetForm.spec) {
                     log.info(s"Renaming DataSet spec ${existing.spec} to ${dataSetForm.spec}")
-                    HubServices.basexStorages.getResource(configuration).renameCollection(existing, dataSetForm.spec)
+                    // todo: rename for all prefixes, not just None
+                    HubServices.basexStorages.getResource(configuration).renameCollection(existing, None, dataSetForm.spec)
                     indexingServiceLocator.byDomain.deleteBySpec(configuration.orgId, existing.spec)
-                    CultureHubPlugin.broadcastMessage(CollectionRenamed(existing.spec, dataSetForm.spec, configuration))
+                    CultureHubPlugin.broadcastMessage(
+                      CollectionRenamed(existing.spec, dataSetForm.spec, configuration)
+                    )
                   }
 
                   val removed: Seq[String] = removedSchemas(submittedSchemaConfigurations, existing.mappings)
@@ -388,7 +391,6 @@ class DataSetControl(implicit val bindingModule: BindingModule) extends Organiza
                   DataSet.dao.save(updated)
                   DataSetEvent ! DataSetEvent.Updated(configuration.orgId, dataSetForm.spec, connectedUser)
                 }
-              }
 
               case None =>
                 // TODO for now only admins can do
@@ -436,7 +438,7 @@ class DataSetControl(implicit val bindingModule: BindingModule) extends Organiza
   private def parseFactDefinitionList: Seq[FactDefinition] = {
     schemaService.getSchema("facts", "1.0.3", SchemaType.FACT_DEFINITIONS).map { source =>
       val xml = scala.xml.XML.loadString(source)
-      for (e <- (xml \ "fact-definition")) yield parseFactDefinition(e)
+      for (e <- xml \ "fact-definition") yield parseFactDefinition(e)
     }.getOrElse(Seq.empty)
   }
 
@@ -446,7 +448,7 @@ class DataSetControl(implicit val bindingModule: BindingModule) extends Organiza
       node \ "prompt" text,
       node \ "toolTip" text,
       (node \ "automatic" text).equalsIgnoreCase("true"),
-      for (option <- (node \ "options" \ "string")) yield (option text)
+      for (option <- node \ "options" \ "string") yield option.text
     )
   }
 

@@ -6,7 +6,7 @@ import models.DataSet
 import org.specs2.execute.Error
 import play.api.test._
 import play.api.test.Helpers._
-import util.SimpleDataSetParser
+import util.SIPDataParser
 
 /**
  *
@@ -83,7 +83,7 @@ class DataSetParserSpec extends BootstrapAwareSpec {
   def parseStream(sampleSource: String): mutable.Buffer[Record] = {
     val ds = DataSet.dao("delving").findBySpecAndOrgId(SAMPLE_A, "delving").get
     val bis = new ByteArrayInputStream(sampleSource.getBytes)
-    val parser = new SimpleDataSetParser(bis, ds)
+    val parser = new SIPDataParser(bis, ds)
 
     val buffer = ListBuffer[Record]()
 

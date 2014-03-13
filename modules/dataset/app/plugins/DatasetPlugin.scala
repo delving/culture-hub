@@ -317,7 +317,7 @@ class DataSetPlugin(app: Application) extends CultureHubPlugin(app) {
       val dataSet = DataSet.dao.findBySpecAndOrgId(boot.spec, boot.org).get
 
       // provision records, but only if necessary
-      if (HubServices.basexStorages.getResource(configuration).openCollection(dataSet).isEmpty) {
+      if (HubServices.basexStorages.getResource(configuration).openCollection(dataSet, None).isEmpty) {
         val sourceFile = boot.file("source.xml.gz")
         SourceHelper.loadSourceData(
           dataSet,
