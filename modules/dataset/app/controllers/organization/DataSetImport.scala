@@ -20,6 +20,7 @@ import java.io.File
 import ExecutionContext.Implicits.global
 import play.api.libs.MimeTypes
 import com.escalatesoft.subcut.inject.BindingModule
+import actors.DataSetEvent
 
 /**
  * Importer, useful for development and debugging, use e.g. like this::

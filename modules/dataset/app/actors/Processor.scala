@@ -1,11 +1,10 @@
-package jobs
+package actors
 
 import akka.actor._
 import models._
 import play.api.Logger
 import controllers.ErrorReporter
 import util.OrganizationConfigurationHandler
-import processing.{ ProcessDataSetCollection, DataSetCollectionProcessor }
 
 /**
  * Entry point for Processing. This actor deals with initializing the processing of a set when asked to do so

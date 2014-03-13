@@ -7,15 +7,11 @@ import java.io._
 import org.apache.commons.io.IOUtils
 import play.api.libs.iteratee.Enumerator
 import play.libs.Akka
-import akka.actor.Actor
 import play.api.{ Play, Logger }
 import core._
 import scala.{ Either, Option }
 import core.storage.FileStorage
-import util.SimpleDataSetParser
-import java.util.concurrent.TimeUnit
 import models._
-import play.api.libs.Files.TemporaryFile
 import eu.delving.stats.Stats
 import scala.collection.JavaConverters._
 import java.util.Date
@@ -32,12 +28,12 @@ import models.statistics.FieldFrequencies
 import models.statistics.FieldValues
 import play.api.libs.MimeTypes
 import play.api.libs.concurrent.Execution.Implicits._
-import scala.concurrent.duration._
 import com.mongodb.casbah.Imports._
 import com.mongodb.casbah.gridfs.{ GridFSDBFile, GridFS }
 import com.escalatesoft.subcut.inject.BindingModule
 import play.api.Play.current
-import controllers.{ ErrorReporter, Logging, ApplicationController }
+import controllers.{ Logging, ApplicationController }
+import actors.SourceStream
 
 /**
  * This Controller is responsible for all the interaction with the SIP-Creator.
@@ -52,41 +48,41 @@ class SipCreatorEndPoint(implicit val bindingModule: BindingModule) extends Appl
 
   val DOT_PLACEHOLDER = "--"
 
-  private def basexStorage(implicit configuration: OrganizationConfiguration) = HubServices.basexStorages.getResource(configuration)
+  private def basexStorage(implicit configuration: OrganizationConfiguration) =
+    HubServices.basexStorages.getResource(configuration)
 
   private var connectedUserObject: Option[HubUser] = None
 
-  def AuthenticatedAction[A](accessToken: Option[String])(action: Action[A]): Action[A] = MultitenantAction(action.parser) {
-    implicit request =>
-      {
-        if (accessToken.isEmpty && Play.isDev) {
-          connectedUserObject = HubUser.dao.findByUsername(request.queryString.get("userName").get.head)
-          action(request)
-        } else if (accessToken.isEmpty) {
-          Unauthorized("No access token provided")
-        } else if (!HubUser.isValidToken(accessToken.get)) {
-          Unauthorized("Access Key %s not accepted".format(accessToken.get))
-        } else {
-          connectedUserObject = HubUser.getUserByToken(accessToken.get)
-          action(request)
-        }
+  def AuthenticatedAction[A](accessToken: Option[String])(action: Action[A]): Action[A] =
+    MultitenantAction(action.parser) { implicit request =>
+      if (accessToken.isEmpty && Play.isDev) {
+        connectedUserObject = HubUser.dao.findByUsername(request.queryString.get("userName").get.head)
+        action(request)
+      } else if (accessToken.isEmpty) {
+        Unauthorized("No access token provided")
+      } else if (!HubUser.isValidToken(accessToken.get)) {
+        Unauthorized("Access Key %s not accepted".format(accessToken.get))
+      } else {
+        connectedUserObject = HubUser.getUserByToken(accessToken.get)
+        action(request)
       }
-  }
-
-  def OrganizationAction[A](orgId: String, accessToken: Option[String])(action: Action[A]): Action[A] = AuthenticatedAction(accessToken) {
-    MultitenantAction(action.parser) {
-      implicit request =>
-        if (orgId == null || orgId.isEmpty) {
-          BadRequest("No orgId provided")
-        } else {
-          if (!organizationServiceLocator.byDomain.exists(orgId)) {
-            NotFound("Unknown organization " + orgId)
-          } else {
-            action(request)
-          }
-        }
     }
-  }
+
+  def OrganizationAction[A](orgId: String, accessToken: Option[String])(action: Action[A]): Action[A] =
+    AuthenticatedAction(accessToken) {
+      MultitenantAction(action.parser) {
+        implicit request =>
+          if (orgId == null || orgId.isEmpty) {
+            BadRequest("No orgId provided")
+          } else {
+            if (!organizationServiceLocator.byDomain.exists(orgId)) {
+              NotFound("Unknown organization " + orgId)
+            } else {
+              action(request)
+            }
+          }
+      }
+    }
 
   def getConnectedUser: HubUser = connectedUserObject.getOrElse({
     log.warn("Attemtping to connect with an invalid access token")
@@ -95,63 +91,64 @@ class SipCreatorEndPoint(implicit val bindingModule: BindingModule) extends Appl
 
   def connectedUser = getConnectedUser.userName
 
-  def listAll(accessToken: Option[String]) = AuthenticatedAction(accessToken) {
-    MultitenantAction {
-      implicit request =>
-        val dataSets = DataSet.dao.findAllForUser(
-          connectedUserObject.get.userName,
-          configuration.orgId,
-          DataSetPlugin.ROLE_DATASET_EDITOR
-        )
+  def listAll(accessToken: Option[String]) =
+    AuthenticatedAction(accessToken) {
+      MultitenantAction {
+        implicit request =>
+          val dataSets = DataSet.dao.findAllForUser(
+            connectedUserObject.get.userName,
+            configuration.orgId,
+            DataSetPlugin.ROLE_DATASET_EDITOR
+          )
 
-        val dataSetsXml = <data-set-list>{
-          dataSets.map {
-            ds =>
-              val creator = HubUser.dao.findByUsername(ds.getCreator)
-              val lockedBy = ds.getLockedBy
-              <data-set>
-                <spec>{ ds.spec }</spec>
-                <name>{ ds.details.name }</name>
-                <orgId>{ ds.orgId }</orgId>
-                {
-                  if (creator.isDefined) {
-                    <createdBy>
-                      <username>{ creator.get.userName }</username>
-                      <fullname>{ creator.get.fullname }</fullname>
-                      <email>{ creator.get.email }</email>
-                    </createdBy>
-                  } else {
-                    <createdBy>
-                      <username>{ ds.getCreator }</username>
-                    </createdBy>
-                  }
-                }{
-                  if (lockedBy != None) {
-                    <lockedBy>
-                      <username>{ lockedBy.get.userName }</username>
-                      <fullname>{ lockedBy.get.fullname }</fullname>
-                      <email>{ lockedBy.get.email }</email>
-                    </lockedBy>
-                  }
-                }
-                <state>{ ds.state.name }</state>
-                <schemaVersions>
+          val dataSetsXml = <data-set-list>{
+            dataSets.map {
+              ds =>
+                val creator = HubUser.dao.findByUsername(ds.getCreator)
+                val lockedBy = ds.getLockedBy
+                <data-set>
+                  <spec>{ ds.spec }</spec>
+                  <name>{ ds.details.name }</name>
+                  <orgId>{ ds.orgId }</orgId>
                   {
-                    ds.getAllMappingSchemas.map { schema =>
-                      <schemaVersion>
-                        <prefix>{ schema.getPrefix }</prefix>
-                        <version>{ schema.getVersion }</version>
-                      </schemaVersion>
+                    if (creator.isDefined) {
+                      <createdBy>
+                        <username>{ creator.get.userName }</username>
+                        <fullname>{ creator.get.fullname }</fullname>
+                        <email>{ creator.get.email }</email>
+                      </createdBy>
+                    } else {
+                      <createdBy>
+                        <username>{ ds.getCreator }</username>
+                      </createdBy>
+                    }
+                  }{
+                    if (lockedBy != None) {
+                      <lockedBy>
+                        <username>{ lockedBy.get.userName }</username>
+                        <fullname>{ lockedBy.get.fullname }</fullname>
+                        <email>{ lockedBy.get.email }</email>
+                      </lockedBy>
                     }
                   }
-                </schemaVersions>
-                <recordCount>{ ds.details.total_records }</recordCount>
-              </data-set>
-          }
-        }</data-set-list>
-        Ok(dataSetsXml)
+                  <state>{ ds.state.name }</state>
+                  <schemaVersions>
+                    {
+                      ds.getAllMappingSchemas.map { schema =>
+                        <schemaVersion>
+                          <prefix>{ schema.getPrefix }</prefix>
+                          <version>{ schema.getVersion }</version>
+                        </schemaVersion>
+                      }
+                    }
+                  </schemaVersions>
+                  <recordCount>{ ds.details.total_records }</recordCount>
+                </data-set>
+            }
+          }</data-set-list>
+          Ok(dataSetsXml)
+      }
     }
-  }
 
   def unlock(orgId: String, spec: String, accessToken: Option[String]): Action[AnyContent] =
     OrganizationAction(orgId, accessToken) {
@@ -252,8 +249,8 @@ class SipCreatorEndPoint(implicit val bindingModule: BindingModule) extends Appl
                   if (dataSet.get.state == DataSetState.PROCESSING) {
                     Left("%s: Cannot upload source while the set is being processed".format(spec))
                   } else {
-                    val receiveActor = Akka.system.actorFor("akka://application/user/plugin-dataSet/dataSetParser")
-                    receiveActor ! SourceStream(
+                    val dataSetParser = Akka.system.actorFor("akka://application/user/plugin-dataSet/dataSetParser")
+                    dataSetParser ! SourceStream(
                       dataSet.get, connectedUser, inputStream, request.body, configuration
                     )
                     DataSet.dao.updateState(dataSet.get, DataSetState.PARSING)
@@ -321,8 +318,7 @@ class SipCreatorEndPoint(implicit val bindingModule: BindingModule) extends Appl
     Right("Good news everybody")
   }
 
-  private def receiveSourceStats(
-    dataSet: DataSet, inputStream: InputStream, schemaPrefix: String, fileName: String, file: File)(implicit configuration: OrganizationConfiguration): Either[String, String] = {
+  private def receiveSourceStats(dataSet: DataSet, inputStream: InputStream, schemaPrefix: String, fileName: String, file: File)(implicit configuration: OrganizationConfiguration): Either[String, String] = {
     try {
       val f = hubFileStores.getResource(configuration).createFile(file)
 
@@ -407,6 +403,7 @@ class SipCreatorEndPoint(implicit val bindingModule: BindingModule) extends Appl
   }
 
   private def receiveLinks(dataSet: DataSet, schemaPrefix: String, fileName: String, file: File)(implicit configuration: OrganizationConfiguration) = {
+
     val store = hubFileStores.getResource(configuration)
 
     // remove previous version
@@ -439,40 +436,42 @@ class SipCreatorEndPoint(implicit val bindingModule: BindingModule) extends Appl
     store.findOne(MongoDBObject("orgId" -> orgId, "spec" -> spec, "schema" -> schemaPrefix, "hubFileType" -> "links"))
   }
 
-  def fetchSIP(orgId: String, spec: String, accessToken: Option[String]) = OrganizationAction(orgId, accessToken) {
-    MultitenantAction {
-      implicit request =>
-        Async {
-          Promise.pure {
-            val maybeDataSet = DataSet.dao.findBySpecAndOrgId(spec, orgId)
-            if (maybeDataSet.isEmpty) {
-              Left(NotFound("Unknown spec %s".format(spec)))
-            } else if (maybeDataSet.isDefined && maybeDataSet.get.state == DataSetState.PARSING) {
-              Left(Error("DataSet %s is being uploaded at the moment, so you cannot download it at the same time"
-                .format(spec)))
-            } else {
-              val dataSet = maybeDataSet.get
-
-              // lock it right away
-              DataSet.dao.lock(dataSet, connectedUser)
-              val updatedDataSet = DataSet.dao.findBySpecAndOrgId(spec, orgId).get
-              DataSet.dao.save(updatedDataSet)
-
-              Right(Enumerator.outputStream(outputStream => writeSipStream(dataSet, outputStream)))
-            }
-          }.map {
-            result =>
-              if (result.isLeft) {
-                result.left.get
+  def fetchSIP(orgId: String, spec: String, accessToken: Option[String]) =
+    OrganizationAction(orgId, accessToken) {
+      MultitenantAction {
+        implicit request =>
+          Async {
+            Promise.pure {
+              val maybeDataSet = DataSet.dao.findBySpecAndOrgId(spec, orgId)
+              if (maybeDataSet.isEmpty) {
+                Left(NotFound("Unknown spec %s".format(spec)))
+              } else if (maybeDataSet.isDefined && maybeDataSet.get.state == DataSetState.PARSING) {
+                Left(Error("DataSet %s is being uploaded at the moment, so you cannot download it at the same time"
+                  .format(spec)))
               } else {
-                Ok.stream(result.right.get >>> Enumerator.eof).withHeaders("Content-Type" -> "application/zip")
+                val dataSet = maybeDataSet.get
+
+                // lock it right away
+                DataSet.dao.lock(dataSet, connectedUser)
+                val updatedDataSet = DataSet.dao.findBySpecAndOrgId(spec, orgId).get
+                DataSet.dao.save(updatedDataSet)
+
+                Right(Enumerator.outputStream(outputStream => writeSipStream(dataSet, outputStream)))
               }
+            }.map {
+              result =>
+                if (result.isLeft) {
+                  result.left.get
+                } else {
+                  Ok.stream(result.right.get >>> Enumerator.eof).withHeaders("Content-Type" -> "application/zip")
+                }
+            }
           }
-        }
+      }
     }
-  }
 
   def writeSipStream(dataSet: DataSet, outputStream: OutputStream)(implicit configuration: OrganizationConfiguration) {
+
     val zipOut = new ZipOutputStream(outputStream)
     val store = hubFileStores.getResource(configuration)
 
@@ -635,127 +634,3 @@ class SipCreatorEndPoint(implicit val bindingModule: BindingModule) extends Appl
 
 }
 
-object SipCreatorEndPointHelper {
-
-  private def basexStorage(implicit configuration: OrganizationConfiguration) = HubServices.basexStorages.getResource(configuration)
-
-  def loadSourceData(dataSet: DataSet, source: InputStream)(implicit configuration: OrganizationConfiguration): Long = {
-
-    // until we have a better concept on how to deal with per-collection versions, do not make use of them here, but drop the data instead
-    val mayCollection = basexStorage.openCollection(dataSet)
-    val collection = if (mayCollection.isDefined) {
-      basexStorage.deleteCollection(mayCollection.get)
-      basexStorage.createCollection(dataSet)
-    } else {
-      basexStorage.createCollection(dataSet)
-    }
-
-    val parser = new SimpleDataSetParser(source, dataSet)
-
-    // use the uploaded statistics to know how many records we expect. For that purpose, use the mappings to know what prefixes we have...
-    // TODO we should have a more direct route to know what to expect here.
-    val totalRecords = dataSet.mappings.keySet.headOption.flatMap {
-      schema => DataSetStatistics.dao.getMostRecent(dataSet.orgId, dataSet.spec, schema).map(_.recordCount)
-    }
-    val modulo = if (totalRecords.isDefined) math.round(totalRecords.get / 100) else 100
-
-    def onRecordInserted(count: Long) {
-      if (count % (if (modulo == 0) 100 else modulo) == 0) DataSet.dao.updateRecordCount(dataSet, count)
-    }
-
-    basexStorage.store(collection, parser, parser.namespaces, onRecordInserted)
-  }
-}
-
-class ReceiveSource extends Actor {
-
-  var tempFileRef: TemporaryFile = null
-
-  def receive = {
-    case SourceStream(dataSet, userName, inputStream, tempFile, conf) =>
-      implicit val configuration = conf
-      val now = System.currentTimeMillis()
-
-      // explicitly reference the TemporaryFile so it can't get garbage collected as long as this actor is around
-      tempFileRef = tempFile
-
-      try {
-        receiveSource(dataSet, userName, inputStream) match {
-          case Left(t) =>
-            DataSet.dao.invalidateHashes(dataSet)
-            val message = if (t.isInstanceOf[StorageInsertionException]) {
-              Some("""Error while inserting record:
-                      |
-                      |%s
-                      |
-                      |Cause:
-                      |
-                      |%s
-                      | """.stripMargin.format(t.getMessage, t.getCause.getMessage)
-              )
-            } else {
-              Some(t.getMessage)
-            }
-            DataSet.dao.updateState(dataSet, DataSetState.ERROR, Some(userName), message)
-            Logger("CultureHub").error(
-              "Error while parsing records for spec %s of org %s".format(
-                dataSet.spec, dataSet.orgId
-              ),
-              t
-            )
-            ErrorReporter.reportError(
-              "DataSet Source Parser", t,
-              "Error occured while parsing records for spec %s of org %s".format(
-                dataSet.spec, dataSet.orgId
-              )
-            )
-
-          case Right(inserted) =>
-            val duration = Duration(System.currentTimeMillis() - now, TimeUnit.MILLISECONDS)
-            Logger("CultureHub").info(
-              "Finished parsing source for DataSet %s of organization %s. %s records inserted in %s seconds."
-                .format(
-                  dataSet.spec, dataSet.orgId, inserted, duration.toSeconds
-                )
-            )
-        }
-
-      } catch {
-        case t: Throwable =>
-          Logger("CultureHub").error(
-            "Exception while processing uploaded source %s for DataSet %s".format(
-              tempFile.file.getAbsolutePath, dataSet.spec
-            ),
-            t
-          )
-          DataSet.dao.invalidateHashes(dataSet)
-          DataSet.dao.updateState(
-            dataSet, DataSetState.ERROR, Some(userName),
-            Some("Error while parsing uploaded source: " + t.getMessage)
-          )
-
-      } finally {
-        tempFileRef = null
-      }
-  }
-
-  private def receiveSource(dataSet: DataSet, userName: String, inputStream: InputStream)(implicit configuration: OrganizationConfiguration): Either[Throwable, Long] = {
-
-    try {
-      val uploadedRecords = SipCreatorEndPointHelper.loadSourceData(dataSet, inputStream)
-      DataSet.dao.updateRecordCount(dataSet, uploadedRecords)
-      DataSet.dao.updateState(dataSet, DataSetState.UPLOADED, Some(userName))
-      Right(uploadedRecords)
-    } catch {
-      case t: Exception => return Left(t)
-    }
-  }
-
-}
-
-case class SourceStream(
-  dataSet: DataSet,
-  userName: String,
-  stream: InputStream,
-  temporaryFile: TemporaryFile,
-  configuration: OrganizationConfiguration)

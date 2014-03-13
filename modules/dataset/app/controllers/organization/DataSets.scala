@@ -11,6 +11,7 @@ import play.api.libs.concurrent.Promise
 import play.api.libs.iteratee.{ Concurrent, Enumerator, Done, Input }
 import util.OrganizationConfigurationHandler
 import com.escalatesoft.subcut.inject.BindingModule
+import actors.DataSetEventFeed
 
 /**
  *

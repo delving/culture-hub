@@ -25,7 +25,6 @@ import eu.delving.metadata.RecMapping
 import models.statistics.DataSetStatistics
 import core.ItemType
 import core.collection.{ OrganizationCollection, OrganizationCollectionMetadata, Harvestable }
-import controllers.organization.DataSetEvent
 import plugins.DataSetPlugin
 import java.util.Date
 import util.OrganizationConfigurationHandler
@@ -37,6 +36,7 @@ import core.SchemaService
 import play.api.Play
 import com.novus.salat.dao.SalatDAO
 import com.mongodb.casbah.gridfs.GridFSDBFile
+import actors.DataSetEvent
 
 /**
  * DataSet model

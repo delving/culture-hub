@@ -1,4 +1,4 @@
-package jobs
+package actors
 
 import play.api.libs.concurrent.Execution.Implicits._
 import scala.concurrent.duration._
@@ -11,6 +11,7 @@ import play.api.Play
  *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
+
 class ProcessingQueueWatcher extends Actor {
 
   private var scheduledTask: Cancellable = null
@@ -27,7 +28,7 @@ class ProcessingQueueWatcher extends Actor {
 
   def receive = {
 
-    case PollDataSets => {
+    case PollDataSets =>
       DataSet.all.flatMap(_.findCollectionForProcessing).foreach { set =>
         val instanceIdentifier = Play.current.configuration.getString("cultureHub.instanceIdentifier").getOrElse("default")
         DataSet.dao(set.orgId).updateProcessingInstanceIdentifier(set, Some(instanceIdentifier))
@@ -39,8 +40,6 @@ class ProcessingQueueWatcher extends Actor {
       DataSet.all.flatMap(_.findByState(DataSetState.CANCELLED)).foreach { set =>
         DataSet.dao(set.orgId).updateState(set, DataSetState.UPLOADED)
       }
-
-    }
 
   }
 

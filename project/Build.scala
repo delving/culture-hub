@@ -83,11 +83,7 @@ object Build extends sbt.Build {
     publish := { }
   ).dependsOn(webCore % "test->test;compile->compile").settings(scalarifromSettings :_*)
 
-  val datasetDependencies = Seq(
-    "eu.delving" % "web-core" % "1.0-SNAPSHOT"
-  )
-
-  lazy val dataset = play.Project("dataset", "1.0-SNAPSHOT", datasetDependencies, path = file("modules/dataset")).settings(
+  lazy val dataset = play.Project("dataset", "1.0-SNAPSHOT", Seq.empty, path = file("modules/dataset")).settings(
     resolvers ++= commonResolvers,
     publish := { }
   ).dependsOn(webCore % "test->test;compile->compile", search % "test->test;compile->compile").settings(scalarifromSettings :_*)

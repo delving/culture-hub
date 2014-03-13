@@ -1,17 +1,16 @@
-package processing
+package actors
 
 import play.api.Logger
 import models._
 import java.net.URL
 import io.Source
 import core._
-import core.processing.{ DoProcess, CollectionProcessor, ProcessingSchema }
 import akka.actor.{ Actor, Props }
 import indexing.Indexing
-import processing.ProcessingContext
 import org.w3c.dom.Node
 import eu.delving.schema.SchemaVersion
 import services.IndexingAnalysisServiceLookup
+import core.processing.{ ProcessingContext, DoProcess, CollectionProcessor, ProcessingSchema }
 
 /**
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>

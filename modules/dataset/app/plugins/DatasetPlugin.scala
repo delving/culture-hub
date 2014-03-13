@@ -1,11 +1,9 @@
 package plugins
 
 import services.{ DataSetLookupService, MetadataRecordResolverService }
-import jobs._
 import play.api.{ Play, Application }
 import Play.current
 import models._
-import processing.{ ProcessDataSetCollection, DataSetCollectionProcessor }
 import util.OrganizationConfigurationHandler
 import java.util.zip.GZIPInputStream
 import com.mongodb.BasicDBObject
@@ -15,12 +13,21 @@ import akka.routing._
 import akka.actor.SupervisorStrategy._
 import scala.collection.JavaConverters._
 import core._
-import core.access.{ ResourceType, Resource, ResourceLookup }
+import core.access.{ Resource, ResourceLookup }
 import com.mongodb.casbah.commons.MongoDBObject
 import java.util.regex.Pattern
 import java.io.FileInputStream
-import controllers.organization.DataSetEventFeed
-import controllers.dataset.{ SipCreatorEndPointHelper, ReceiveSource, SipCreatorEndPoint }
+import actors._
+import scala.Some
+import akka.actor.OneForOneStrategy
+import core.access.ResourceType
+import models.Details
+import models.OrganizationConfiguration
+import models.FormatAccessControl
+import models.Mapping
+import core.MainMenuEntry
+import core.ItemType
+import core.MenuElement
 
 class DataSetPlugin(app: Application) extends CultureHubPlugin(app) {
 
@@ -113,18 +120,28 @@ class DataSetPlugin(app: Application) extends CultureHubPlugin(app) {
     // DataSet source parsing
     context.actorOf(
       Props[ReceiveSource].withRouter(
-        RoundRobinRouter(Runtime.getRuntime.availableProcessors(), supervisorStrategy = OneForOneStrategy() {
-          case _ => Restart
-        })
-      ), name = "dataSetParser"
+        RoundRobinRouter(
+          Runtime.getRuntime.availableProcessors(),
+          supervisorStrategy = OneForOneStrategy() {
+            case _ => Restart
+          }
+        )
+      ),
+      name = "dataSetParser"
     )
 
     // DataSet processing
-    context.actorOf(Props[Processor].withRouter(
-      RoundRobinRouter(2, supervisorStrategy = OneForOneStrategy() {
-        case _ => Restart
-      })
-    ), name = "dataSetProcessor")
+    context.actorOf(
+      Props[Processor].withRouter(
+        RoundRobinRouter(
+          2,
+          supervisorStrategy = OneForOneStrategy() {
+            case _ => Restart
+          }
+        )
+      ),
+      name = "dataSetProcessor"
+    )
 
     // Processing queue watcher
     context.actorOf(Props[ProcessingQueueWatcher])
@@ -183,7 +200,7 @@ class DataSetPlugin(app: Application) extends CultureHubPlugin(app) {
     val schemasInUse: Map[String, Seq[String]] = DataSet.all.flatMap { dao =>
       dao.findAll().flatMap { set =>
         set.mappings.values.map { mapping =>
-          (mapping.schemaPrefix -> mapping.schemaVersion)
+          mapping.schemaPrefix -> mapping.schemaVersion
         }
       }
     }.foldLeft(Map.empty[String, Seq[String]]) { (acc, pair) =>
@@ -200,7 +217,7 @@ class DataSetPlugin(app: Application) extends CultureHubPlugin(app) {
 
       val intersection = availableVersionNumbers.intersect(inUse._2)
 
-      (inUse._1 -> inUse._2.filterNot(intersection.contains(_)))
+      inUse._1 -> inUse._2.filterNot(intersection.contains(_))
     })
 
     if (missingVersions.exists(missing => !missing._2.isEmpty)) {
@@ -261,7 +278,7 @@ class DataSetPlugin(app: Application) extends CultureHubPlugin(app) {
   def bootstrapDataset(boot: BootstrapSource) {
     if (DataSet.dao(boot.org).count(MongoDBObject("spec" -> boot.spec)) == 0) {
 
-      implicit val configuration = OrganizationConfigurationHandler.getByOrgId(("delving"))
+      implicit val configuration = OrganizationConfigurationHandler.getByOrgId("delving")
 
       val factMap = new BasicDBObject()
       factMap.put("spec", boot.spec)
@@ -302,7 +319,7 @@ class DataSetPlugin(app: Application) extends CultureHubPlugin(app) {
       // provision records, but only if necessary
       if (HubServices.basexStorages.getResource(configuration).openCollection(dataSet).isEmpty) {
         val sourceFile = boot.file("source.xml.gz")
-        SipCreatorEndPointHelper.loadSourceData(
+        SourceHelper.loadSourceData(
           dataSet,
           new GZIPInputStream(new FileInputStream(sourceFile))
         )

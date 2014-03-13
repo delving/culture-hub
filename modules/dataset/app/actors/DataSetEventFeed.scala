@@ -1,4 +1,4 @@
-package controllers.organization
+package actors
 
 import play.api.libs.concurrent.Execution.Implicits._
 import util.OrganizationConfigurationHandler
@@ -11,7 +11,6 @@ import play.api.Play.current
 import models.{ OrganizationConfiguration, DataSetEventLog, DataSetState, DataSet, HubUser }
 import play.api.Logger
 import models.DataSetState._
-import play.api.libs.json._
 import scala.concurrent.Future
 import play.api.libs.concurrent.Akka
 import extensions.Email

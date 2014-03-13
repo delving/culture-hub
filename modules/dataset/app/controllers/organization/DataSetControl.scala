@@ -41,6 +41,7 @@ import core.messages._
 import com.escalatesoft.subcut.inject.BindingModule
 import eu.delving.schema.xml.Schema
 import com.mongodb.casbah.commons.TypeImports.ObjectId
+import actors.DataSetEvent
 
 /**
  *

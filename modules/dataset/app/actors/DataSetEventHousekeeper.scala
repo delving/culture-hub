@@ -1,4 +1,4 @@
-package jobs
+package actors
 
 import play.api.libs.concurrent.Execution.Implicits._
 import scala.concurrent.duration._
