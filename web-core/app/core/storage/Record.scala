@@ -7,6 +7,7 @@ package core.storage
  */
 
 case class Record(
+  index: Int, // which record in sequence
   id: String, // persistent identifier
   schemaPrefix: String, // prefix of the schema
   document: String // the raw XML document
