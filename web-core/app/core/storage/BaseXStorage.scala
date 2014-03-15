@@ -62,9 +62,9 @@ class BaseXStorage(configuration: BaseXConfiguration) {
   def withBulkSession[T](collection: Collection)(block: ClientSession => T) = {
     storage.withSession(storageName(collection)) {
       session =>
-        session.setAutoflush(false)
+        session.setAutoflush(flush = false)
         block(session)
-        session.setAutoflush(true)
+        session.setAutoflush(flush = true)
     }
   }
 
@@ -74,20 +74,22 @@ class BaseXStorage(configuration: BaseXConfiguration) {
 
     withBulkSession(collection) {
       session =>
-
-        val it = records.zipWithIndex
-        while (it.hasNext) {
-          val next = it.next()
-          if (next._2 % 10000 == 0) session.flush()
+        while (records.hasNext) {
+          val beforeNext = System.currentTimeMillis()
+          val next = records.next()
+          if (next.index % 10000 == 0) {
+            Logger("CultureHub").info(s"basex: flush recordCount=${next.index} took ${System.currentTimeMillis() - beforeNext}")
+            session.flush()
+          }
           try {
             // we add the record on a path of its own, which is useful because then we know how many distinct records are stored in a BaseX collection
             // given that those path need to be valid file names, we do preemptive sanitization here
-            val sanitizedId = next._1.id.replaceAll("[:;\\./]", "_")
-            session.add(sanitizedId, buildRecord(next._1, 0, namespaces, next._2))
+            val sanitizedId = next.id.replaceAll("[:;\\./]", "_")
+            session.add(sanitizedId, buildRecord(next, 0, namespaces, next.index))
           } catch {
             case t: Throwable =>
-              Logger("CultureHub").error(next._1.toString)
-              throw new StorageInsertionException(next._1.toString, t)
+              Logger("CultureHub").error(next.toString)
+              throw new StorageInsertionException(next.toString, t)
           }
           inserted += 1
           onRecordInserted(inserted)

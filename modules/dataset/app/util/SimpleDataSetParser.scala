@@ -92,31 +92,32 @@ class SimpleDataSetParser(is: InputStream, dataSet: DataSet) extends Iterator[Re
           inRecord = true
           val mayId = attrs.find(_.name.local == "id")
           if (mayId != None) recordId = StringEscapeUtils.escapeXml(mayId.get.value)
-        case Right(EndElem(name, _)) if (name.local == "input") =>
+        case Right(EndElem(name, _)) if name.local == "input" =>
           inRecord = false
           record = Record(
+            index = recordCounter,
             id = recordId,
             document = """<input id="%s">%s</input>""".format(recordId, recordXml.mkString),
             schemaPrefix = "raw"
           )
+          recordCounter += 1
           recordXml.clear()
           recordId = null
-          recordCounter += 1
           hasParsedOne = true
-        case elemStart @ Left(Elem(qname, attrs, ns)) if (inRecord) =>
-          recordXml.append(elemStartToString(qname, attrs, ns))
+        case elemStart @ Left(Elem(qname, attrs, nsp)) if inRecord =>
+          recordXml.append(elemStartToString(qname, attrs, nsp))
           elementHasContent = false
-        case Left(Text(txt)) if (inRecord) =>
+        case Left(Text(txt)) if inRecord =>
           if (txt != null && txt.size > 0) elementHasContent = true
           val encoded = StringEscapeUtils.escapeXml(txt)
           recordXml.append(encoded)
           fieldValueXml.append(encoded)
-        case Left(CData(data)) if (inRecord) =>
+        case Left(CData(data)) if inRecord =>
           if (data != null && data.size > 0) elementHasContent = true
           val d = """<![CDATA[%s]]>""".format(data)
           recordXml.append(d)
           fieldValueXml.append(d)
-        case elemEnd @ Right(EndElem(qname, _)) if (inRecord) =>
+        case elemEnd @ Right(EndElem(qname, _)) if inRecord =>
           if (!elementHasContent) {
             val rollback = recordXml.substring(0, recordXml.length - ">".length())
             recordXml.clear()
@@ -133,10 +134,17 @@ class SimpleDataSetParser(is: InputStream, dataSet: DataSet) extends Iterator[Re
 
   private def elemStartToString(qname: QName, attributes: ListSet[Attribute], ns: Map[String, String]): String = {
     val attrs = attributes.
-      toList.
-      filterNot(a => a.prefix.isEmpty && (a.local == null || a.local.trim.length == 0)).
-      sortBy(a => a.name.local).
-      map(a => a.prefix.getOrElse("") + (if (a.prefix.isDefined && a.local != null && a.local.trim.length > 0) ":" else "") + a.local + "=\"" + StringEscapeUtils.escapeXml(a.value) + "\"")
+      toList
+      .filterNot(a => a.prefix.isEmpty && (a.local == null || a.local.trim.length == 0))
+      .sortBy(a => a.name.local)
+      .map(a =>
+        a.prefix.getOrElse("") +
+          (if (a.prefix.isDefined && a.local != null && a.local.trim.length > 0) ":" else "") +
+          a.local +
+          "=\"" +
+          StringEscapeUtils.escapeXml(a.value) +
+          "\""
+      )
     if (attrs.isEmpty)
       "<%s%s>".format(prefix(qname.prefix), qname.local)
     else
