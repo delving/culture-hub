@@ -64,7 +64,11 @@ class ProcessingSupervisor(
   private var numCachingFailures: Int = 0
   private val mappingFailures = new ArrayBuffer[(Int, HubId, String, Throwable)]
 
-  private val modulo = math.round(totalSourceRecords / 100)
+  private val modulo = {
+    val m = math.round(totalSourceRecords / 100)
+    // cap the modulo at 1000 for large sets
+    if (m > 1000) 1000 else m
+  }
 
   def receive = {
 

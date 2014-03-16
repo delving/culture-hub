@@ -99,7 +99,7 @@ case class DataSet(
     // the sort fields selected for indexing, at the moment derived from configuration
     idxSortFields: List[String] = List.empty[String]) extends OrganizationCollection with OrganizationCollectionMetadata with Harvestable with Resource {
 
-  implicit val configuration = OrganizationConfigurationHandler.getByOrgId(orgId)
+  implicit lazy val configuration = OrganizationConfigurationHandler.getByOrgId(orgId)
   val organizationServiceLocator = HubModule.inject[DomainServiceLocator[OrganizationService]](name = None)
 
   val itemType: ItemType = DataSetPlugin.ITEM_TYPE

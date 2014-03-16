@@ -16,11 +16,14 @@ import play.api._
 import play.api.mvc.{ Action, WithFilters, Handler, RequestHeader }
 import play.api.Play.current
 import play.extras.iteratees.GzipFilter
+import scala.collection.mutable
 import util.{ OrganizationConfigurationResourceHolder, OrganizationConfigurationHandler }
 import eu.delving.culturehub.BuildInfo
 import play.api.mvc.Results._
 
 object Global extends WithFilters(new GzipFilter()) with Instrumented {
+
+  private val log = Logger("CultureHub")
 
   override def onStart(app: Application) {
 
@@ -129,6 +132,9 @@ object Global extends WithFilters(new GzipFilter()) with Instrumented {
     }
   }
 
+  // keep in memory which organizations have already been accessed, and return a "not found" if they disappear for some reason
+  private val previouslyKnownDomains = new mutable.HashSet[String]()
+
   override def onRouteRequest(request: RequestHeader): Option[Handler] = {
 
     requestsMeter.mark()
@@ -136,10 +142,20 @@ object Global extends WithFilters(new GzipFilter()) with Instrumented {
     val domain: String = request.queryString.get("domain").map(v => v.head).getOrElse(request.domain)
 
     // check if we access a configured domain
-    if (!OrganizationConfigurationHandler.hasConfiguration(domain)) {
-      Logger("CultureHub").debug("Accessed invalid domain %s, redirecting...".format(domain))
+    val hasConfiguration = OrganizationConfigurationHandler.hasConfiguration(domain)
+    if (!hasConfiguration && !previouslyKnownDomains.contains(domain)) {
+      log.debug("Accessed invalid domain %s, redirecting...".format(domain))
       Some(controllers.Default.redirect(Play.configuration.getString("defaultDomainRedirect").getOrElse("http://www.delving.eu")))
+    } else if (!hasConfiguration && previouslyKnownDomains.contains(domain)) {
+      // if a domain has vanished, treat it as an error
+      log.warn(s"Someone tried to access domain '$domain' which was previously known but is no longer known, displaying error")
+      Some(
+        Action {
+          ServiceUnavailable(views.html.errors.serviceUnavailable())
+        }
+      )
     } else {
+      previouslyKnownDomains += domain
       OrganizationConfigurationHandler.getByDomain(domain).map { implicit configuration =>
         domainRequestCounters.getResource(configuration) += 1
 

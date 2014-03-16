@@ -43,9 +43,12 @@ object MetadataCache {
 
     // manu, 20.02.2012 - I'm fully aware that this may eventually lead to lost cached records
     //                    but a better fix involving batch inserts will eventually come later
-    mongoConnection.setWriteConcern(WriteConcern.FsyncSafe)
+
+    // manu, 16.03.2014 - commenting out the WriteConcern FsyncSafe as it leads to extremely slow writes (of the order of 100 ms / record)
+    //        mongoConnection.setWriteConcern(WriteConcern.FsyncSafe)
     val mongoCollection: MongoCollection = mongoConnection(getMongoCollectionName(configuration.orgId))
-    mongoCollection.setWriteConcern(WriteConcern.FsyncSafe)
+    // manu, 16.03.2014 - commenting out the WriteConcern FsyncSafe as it leads to extremely slow writes (of the order of 100 ms / record)
+    //    mongoCollection.setWriteConcern(WriteConcern.JournalSafe)
     mongoCollection.ensureIndex(MongoDBObject("collection" -> 1, "itemType" -> 1, "itemId" -> 1))
     mongoCollection.ensureIndex(MongoDBObject("collection" -> 1, "itemType" -> 1))
     mongoCollection.ensureIndex(MongoDBObject("collection" -> 1, "itemType" -> 1, "index" -> 1))

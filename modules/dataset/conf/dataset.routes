@@ -1,5 +1,3 @@
-GET               /:user/sip-creator.jnlp                           @controllers.organization.SipCreator.jnlp(user)
-
 GET               /admin/dataset                                    @controllers.organization.DataSets.list
 GET               /admin/dataset/search                             @controllers.organization.DataSets.listAsTokens(q, formats: Option[String])
 GET               /admin/dataset/feed                               @controllers.organization.DataSets.feed(clientId, spec: Option[String])
