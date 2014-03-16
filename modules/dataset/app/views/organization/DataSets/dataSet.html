@@ -165,6 +165,9 @@
                 <div class="progress progress-striped active" data-bind="css: { active: progressPercentage != '0%' }">
                     <div class="bar" data-bind="style: { width: progressPercentage() }"></div>
                 </div>
+                <div>
+                    <span data-bind="text: progressCount"></span> / <span data-bind="text: totalRecords"></span>
+                </div>
                 <button class="btn" data-bind="css: { disabled: dataSetState() != 'processing' }, click: function() { cancel(spec); }">Cancel</button>
             </div>
 
@@ -228,6 +231,7 @@
         var viewModel = {
 
             progressPercentage: ko.observable('0%'),
+            progressCount: ko.observable(0),
             baseUri: ko.observable("http://" + location.host + "/"),
 
             stateToClass: function(state) {
@@ -326,6 +330,7 @@
                 case "loadSet":
                     $.extend(viewModel, ko.mapping.fromJS(data.payload));
                     retries = 0;
+                    viewModel.progressCount(0);
                     viewModel.progressPercentage(viewModel.processedRecords + '%');
                     ko.applyBindings(viewModel);
                     $("body").css('visibility', 'visible');
@@ -341,6 +346,7 @@
                     break;
                 case "stateChanged":
                     viewModel.dataSetState(data.payload);
+                    viewModel.progressCount(0);
                     viewModel.progressPercentage('0%');
                     viewModel.errorMessage('');
                     break;
@@ -357,6 +363,7 @@
                     break;
                 case "processedRecordCountChanged":
                     var percentage = 100 * parseInt(data.payload) / viewModel.totalRecords();
+                    viewModel.progressCount(parseInt(data.payload));
                     viewModel.progressPercentage(percentage + '%');
                     break;
                 case "serverError":
