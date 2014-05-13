@@ -5,8 +5,7 @@ $(document).ready(function () {
     * If that fails use Seadragon.js
     * And if that fails, view a regular image
     */
-    var zoomNav = true,
-        zoomUrls = $('#deepZoomUrls a'),
+    var zoomUrls = $('#deepZoomUrls a'),
         imageUrls = $('#imageUrls a'),
         imageNavThumbs = $('#thumbnails .img img'),
         imageViewContainer = '#image-viewer',
@@ -45,13 +44,15 @@ $(document).ready(function () {
                 }
             }
         }
-    }
+    };
 
+    var zoomNav = !!$(zoomViewContainer).length;
     // VIEW DEEP ZOOM IMAGE
-    if ($(zoomViewContainer).length) {
+    if (zoomNav) {
         // activate deepzoom functionality for first image
         activateDeepZoom(0)
     }
+
     // hide thumb nav if there is only one image to view
     if( imageNavThumbs.size() <= 1 ){
         $('#thumbnails').hide();
@@ -61,12 +62,12 @@ $(document).ready(function () {
         imageNavThumbs.each(function(index, el) {
             // switch image src onclick
             $(el).on("click", function() {
-                console.log('click');
                 if (zoomNav == false) {
                     var index = $(imageNavThumbs).index(el);
                     var imageSrc = $(imageUrls).get(index);
                     if(typeof imageSrc !== 'undefined') {
-                        $(viewedImageSource).attr("src", imageSrc);
+//                        $(viewedImageSource).attr("src", imageSrc);
+                        $("#image-viewer img").attr("src", imageSrc);
                     }
                 }
                 else {
