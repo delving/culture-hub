@@ -5,8 +5,9 @@
         <div class="row">
             <div class="span4">
                 <div id="primary-branding">
-                    <a href="/">
-                        <img src='${themeInfo.path("images/logo-primary.png")}' alt="${themeInfo.siteName()}" title="${themeInfo.siteName()}"/>
+                    <a href="/" class="brand">
+                        <!--<img src='${themeInfo.path("images/logo-primary.png")}' alt="${themeInfo.siteName()}" title="${themeInfo.siteName()}"/>-->
+                        norvegiana.no
                     </a>
                 </div>
             </div>
@@ -14,7 +15,7 @@
                 <div class="navbar navbar-user">
                     <div class="navbar-inner">
                         <div class="container">
-                        #{userNav userName: userName, email:email, organization:organization, showLogin:themeInfo.showLogin(), showRegistration:themeInfo.showRegistration(), extraClass:"pull-right"/}
+                        #{userNav userName: userName, email:email, organization:organization, showLogin:themeInfo.showLogin(), showRegistration:themeInfo.showRegistration(), extraClass:"pull-right nor-user-nav"/}
                         </div>
                     </div>
                 </div>
@@ -27,13 +28,9 @@
                         *{<div class="container">}*
                             *{<div class="nav-collapse">}*
                                 <ul class="nav k-nav">
-                                    <li><a href="https://beta.kulturnett.no/portal/web/kulturnett/home" tabindex="-1"><span> Hjem</span></a></li>
-                                    <li #{if pageId != 'statistics'}class="active"#{/if}><a href="http://samlinger.kulturnett.no/search?query=*:*" tabindex="0" class="active"><span>Kulturs&#248;k</span></a></li>
-                                    <li><a href="https:/beta.kulturnett.no/portal/web/kulturnett/e-kultur-i-sosiale-media" tabindex="-1" ><span> Sosiale media</span></a></li>
+                                    <li #{if  pageId == 'home'}class="active"#{/if}><a href="http://www.norvegiana.no" tabindex="-1"><span> norvegiana.no</span></a></li>
                                     <li #{if  pageId == 'statistics'}class="active"#{/if}><a href="http://samlinger.kulturnett.no/statistics" tabindex="-1"><span> Statistikk</span></a></li>
-                                    <li><a href="https://beta.kulturnett.no/portal/web/kulturnett/om" tabindex="-1"><span> Om</span></a></li>
-                                    <li><a href="https://beta.kulturnett.no/portal/web/kulturnett/regionale-kulturnett" tabindex="-1"><span> Regionale kulturnett</span></a></li>
-                                    <li><a href="https://beta.kulturnett.no/portal/web/kulturnett/tidligere-kulturnett" tabindex="-1"><span> Tidligere kulturnett</span></a></li>
+                                    <li><a href="http://norvegianablog.wordpress.com" tabindex="-1"><span> Om</span></a></li>
                                 </ul>
                             *{</div><!-- /.nav-collapse -->}*
                         *{</div>}*
