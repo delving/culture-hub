@@ -82,7 +82,7 @@ $(document).ready(function () {
      * RIGHTS ICONS
      * Append the corresponding icon image to the rights URL
      */
-    if ($('#rightsUrl').length) {
+    if ($('#rightsUrl').find('a').length) {
         var rights = stripTrailingSlash($('#rightsUrl').find('a').attr('href')),
             icon='',
             img = new Image();
@@ -184,7 +184,6 @@ function renderRelatedItems() {
                         uri = "/" + org + "/" + owner + "/" + id + "?mlt=true";
                         // clean up title since sometimes it contains html
                         title = item.fields['delving_title'].replace(/<\/?[a-z][a-z0-9]*[^<>]*>/ig, "");
-
                         html += '<div class="media">';
                         html += '<a class="img" href="' + uri + '" rel="nofollow"><img class="mlt" src="' + item.fields['delving_thumbnail'] + '" alt="' + title + '" width="80" onerror="showDefaultImg(this)"/></a>';
                         html += '<div class="bd"><a href="' + uri + '" rel="nofollow"><div class="title">'+ title.trunc(40) +'</a></div>';
@@ -215,6 +214,7 @@ function renderRelatedItems() {
  */
 
 function stripTrailingSlash(str) {
+    //TODO: check if there' actually a str being passed to the function!
     if(str.substr(-1) == '/') {
         return str.substr(0, str.length - 1);
     }
