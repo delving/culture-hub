@@ -70,14 +70,15 @@ function initializeElements() {
 
     preloadImages("/assets/common/images/spinner.gif");
 
+
+    //TODO: Why are these inside a function? These should be globally available!
     String.prototype.trim = function () {
         return this.replace(/^\s*/, "").replace(/\s*$/, "");
     };
 
-    String.prototype.trunc =
-        function(n){
-            return this.substr(0,n-1)+(this.length>n?'&hellip;':'');
-        };
+    String.prototype.trunc = function(n){
+        return this.substr(0,n-1)+(this.length>n?'&hellip;':'');
+    };
 
     if ($.browser.msie && $.browser.version < 9) {
         //document.location.href="/browsers.html";
