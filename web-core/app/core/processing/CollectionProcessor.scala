@@ -168,8 +168,8 @@ class CollectionProcessor(collection: Collection with OrganizationCollectionMeta
                 """.stripMargin.format(collection.spec, collection.getOwner, index, record), t)
 
                   if (indexingSchema.isDefined) {
-                    log.info("Deleting DataSet %s from SOLR".format(collection.spec))
-                    indexingServiceLocator.byDomain.deleteBySpec(collection.getOwner, collection.spec)
+                    log.info("Rolling back DataSet %s from SOLR".format(collection.spec))
+                    indexingServiceLocator.byDomain(configuration).rollback(configuration)
                   }
 
                   updateCount(0)
