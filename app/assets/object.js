@@ -83,6 +83,7 @@ $(document).ready(function () {
      * Append the corresponding icon image to the rights URL
      */
     if ($('#rightsUrl').find('a').length) {
+
         var rights = stripTrailingSlash($('#rightsUrl').find('a').attr('href')),
             icon='',
             img = new Image();
