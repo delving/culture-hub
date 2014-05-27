@@ -27,7 +27,9 @@ import com.mongodb.casbah.gridfs.GridFS
 import java.util.Date
 import play.api.libs.iteratee.Enumerator
 import extensions.MissingLibs
-import controllers.OrganizationConfigurationAware
+import controllers.{ MultitenancySupport }
+import java.io.{ FileFilter, File }
+import util.OrganizationConfigurationHandler
 
 /**
  *
@@ -64,20 +66,18 @@ object ImageDisplay extends Controller with RespondWithDefaultImage with Multite
       renderImage(id = id, thumbnail = false, isFileId = fileId, store = fileStore(configuration))
   }
 
-  def displayRawImage(id: String, orgId: String, collectionId: String) = OrganizationConfigured {
-    Action {
-      implicit request =>
-        {
-          // check access permissions via api key in configuration
-          val wsKey: String = request.getQueryString("wskey").getOrElse("empty")
-          val hasAccess: Boolean = configuration.searchService.apiWsKeys.contains(wsKey)
-          if (hasAccess) getRawImage(id, orgId, collectionId)
-          else {
-            Logger.info(s"Not authorised to request raw image for: /raw/$orgId/$collectionId/$id")
-            Unauthorized
-          }
+  def displayRawImage(id: String, orgId: String, collectionId: String) = MultitenantAction {
+    implicit request =>
+      {
+        // check access permissions via api key in configuration
+        val wsKey: String = request.getQueryString("wskey").getOrElse("empty")
+        val hasAccess: Boolean = configuration.searchService.apiWsKeys.contains(wsKey)
+        if (hasAccess) getRawImage(id, orgId, collectionId)
+        else {
+          Logger.info(s"Not authorised to request raw image for: /raw/$orgId/$collectionId/$id")
+          Unauthorized
         }
-    }
+      }
   }
 
   // ~~ PRIVATE
