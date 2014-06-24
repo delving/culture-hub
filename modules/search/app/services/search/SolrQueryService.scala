@@ -207,13 +207,22 @@ object SolrQueryService extends SolrServer {
   }
 
   def createFilterQueryList(values: Array[String]): List[FilterQuery] = {
+    def valid_facet(fq: String): Boolean = {
+      val facet_list = fq.split(":")
+      if (facet_list.size == 2)
+        true
+      else if (facet_list.size > 2 && facet_list.tail.head.startsWith("http"))
+        true
+      else
+        false
+    }
     if (values == null)
       List[FilterQuery]()
     else
-      values.filter(_.split(":").size == 2).map(
+      values.filter(valid_facet(_)).map(
         fq => {
           val split = fq.split(":")
-          FilterQuery(split.head, split.last)
+          FilterQuery(split.head, split.tail.mkString(":"))
         }
       ).toList
   }
