@@ -21,14 +21,15 @@ object Build extends sbt.Build {
 
   val buildScalaVersion = "2.10.1"
 
-  val delvingReleases = "Delving Releases Repository" at "http://nexus.delving.org/nexus/content/repositories/releases"
-  val delvingSnapshots = "Delving Snapshot Repository" at "http://nexus.delving.org/nexus/content/repositories/snapshots"
+  val delvingReleases = "Delving Library Release Repository" at "http://artifactory.delving.org/artifactory/libs-release"
+  val delvingSnapshots = "Delving Library Snapshot Repository" at "http://artifactory.delving.org/artifactory/libs-snapshot"
+  val delving = "Delving deployment Repository" at "http://artifactory.delving.org/artifactory/delving"
 
   val commonResolvers = Seq(
-    "Delving Proxy repository" at "http://nexus.delving.org/nexus/content/groups/public/"
-  )
-
-  def delvingRepository(version: String) = if (version.endsWith("SNAPSHOT")) delvingSnapshots else delvingReleases
+    "Delving Library Release Repository" at "http://artifactory.delving.org/artifactory/libs-releasei",
+    "Delving Library Snapshot Repository" at "http://artifactory.delving.org/artifactory/libs-snapshot",
+     delving
+   )
 
   val scalarifromSettings = SbtScalariform.scalariformSettings
 
@@ -47,7 +48,7 @@ object Build extends sbt.Build {
     "eu.delving"                %  "definitions"                     % "1.0",
     "eu.delving"                %  "sip-core"                        % sipCoreVersion,
     "eu.delving"                %  "schema-repo"                     % schemaRepoVersion,
-    "eu.delving"                %% "basex-scala-client"              % "0.6.1",
+    "eu.delving"                %% "basex-scala-client"              % "0.6",
 
     "com.escalatesoft.subcut"   %% "subcut"                          % "2.0" exclude ("org.scalatest", "scalatest"),
     "com.yammer.metrics"        %  "metrics-core"                    % "2.2.0",
@@ -162,7 +163,7 @@ object Build extends sbt.Build {
     resolvers ++= commonResolvers,
     publishArtifact in (Compile, packageDoc) := false,
     publishArtifact in (Compile, packageSrc) := false,
-    publishTo := Some(delvingRepository(cultureHubVersion)),
+    publishTo := Some(delving),
     credentials += Credentials(Path.userHome / ".ivy2" / ".credentials"),
 
 
