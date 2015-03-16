@@ -110,6 +110,7 @@ class CollectionProcessor(collection: Collection with OrganizationCollectionMeta
                     record = r._1
                     index = r._2
 
+                    // todo: GdJ: I believe that this ID must be encoded such that it can be used in XML as id="...."
                     val localId = (record \ "@id").text
                     val hubId = HubId(collection.getOwner, collection.spec, localId)
                     val recordIndex = (record \ "system" \ "index").text.toInt
