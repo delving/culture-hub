@@ -457,7 +457,9 @@ package models {
       solrBaseUrl = getString(configuration, SOLR_BASE_URL),
       solrIndexerUrl = getOptionalString(configuration, SOLR_INDEXER_URL),
       commonsService = CommonsServiceConfiguration(
-        commonsHost = getString(configuration, COMMONS_HOST),
+// GDJ: this means commons host is in mongo, which makes migration impossible
+//        commonsHost = getString(configuration, COMMONS_HOST),
+        commonsHost = "https://commons.delving.eu",
         nodeName = configuration.getString(COMMONS_NODE_NAME).get,
         apiToken = configuration.getString(COMMONS_API_TOKEN).get
       ),
