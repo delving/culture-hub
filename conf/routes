@@ -152,7 +152,7 @@ GET         /search                                                             
 ->          /                                                                       cms.Routes
 ->          /                                                                       statistics.Routes
 ->          /                                                                       mediator.Routes
-# ->          /                                                                       sdu.Routes
+->          /                                                                       sdu.Routes
 ->          /                                                                       namedSlices.Routes
 ->          /                                                                       ead.Routes
 
