@@ -189,7 +189,6 @@ function renderRelatedItems() {
                         } else {
                             title = "";
                         }
-                        title = item.fields['delving_title'].replace(/<\/?[a-z][a-z0-9]*[^<>]*>/ig, "");
                         html += '<div class="media">';
                         html += '<a class="img" href="' + uri + '" rel="nofollow"><img class="mlt" src="' + item.fields['delving_thumbnail'] + '" alt="' + title + '" width="80" onerror="showDefaultImg(this)"/></a>';
                         html += '<div class="bd"><a href="' + uri + '" rel="nofollow"><div class="title">'+ title.trunc(40) +'</a></div>';
