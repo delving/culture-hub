@@ -184,6 +184,11 @@ function renderRelatedItems() {
                         id = tmp[2];
                         uri = "/" + org + "/" + owner + "/" + id + "?mlt=true";
                         // clean up title since sometimes it contains html
+                        if(item.fields['delving_title'].length){
+                            title = item.fields['delving_title'].replace(/<\/?[a-z][a-z0-9]*[^<>]*>/ig, "");
+                        } else {
+                            title = "";
+                        }
                         title = item.fields['delving_title'].replace(/<\/?[a-z][a-z0-9]*[^<>]*>/ig, "");
                         html += '<div class="media">';
                         html += '<a class="img" href="' + uri + '" rel="nofollow"><img class="mlt" src="' + item.fields['delving_thumbnail'] + '" alt="' + title + '" width="80" onerror="showDefaultImg(this)"/></a>';
