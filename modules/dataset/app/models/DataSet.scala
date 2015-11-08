@@ -171,7 +171,7 @@ case class DataSet(
     val records = cache.list(position, Some(limit), from, until).filter(_.xml.contains(metadataFormat))
     //val totalSize = cache.count()  // todo: replace with record size
     // better have a calculated count from the dataset than a wrong one from the cache
-    val totalSize = getTotalRecords - details.invalidRecordCount.getOrElse(metadataFormat, 0)
+    val totalSize = getTotalRecords - details.invalidRecordCount.getOrElse(metadataFormat, 0).asInstanceOf[Number].longValue
     (records, totalSize)
   }
 
