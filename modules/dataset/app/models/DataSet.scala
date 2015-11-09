@@ -169,7 +169,7 @@ case class DataSet(
     metadataFormat: String, position: Int, limit: Int, from: Option[Date], until: Option[Date]): (List[MetadataItem], Long) = {
     val cache = MetadataCache.get(orgId, spec, DataSetPlugin.ITEM_TYPE)
     // always filter on metadataFormat in the query and not afterwards because that can give empty results
-    val records = cache.list(position, Some(limit), from, until, metadataFormat) // .filter(_.xml.contains(metadataFormat))
+    val records = cache.list(position, Some(limit), from, until, Some(metadataFormat)) // .filter(_.xml.contains(metadataFormat))
     //val totalSize = cache.count()  // todo: replace with record size
     // better have a calculated count from the dataset than a wrong one from the cache
     val totalSize = getTotalRecords - details.invalidRecordCount.getOrElse(metadataFormat, 0).asInstanceOf[Number].longValue

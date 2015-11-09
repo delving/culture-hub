@@ -89,7 +89,7 @@ class MongoMetadataCache(orgId: String, col: String, itemType: String, mongoColl
     )
   }
 
-  def iterate(index: Int = 0, limit: Option[Int], from: Option[Date] = None, until: Option[Date] = None, metadataPrefix: String = None): Iterator[MetadataItem] = {
+  def iterate(index: Int = 0, limit: Option[Int], from: Option[Date] = None, until: Option[Date] = None, metadataPrefix: Option[String] = None): Iterator[MetadataItem] = {
     val query = MongoDBObject("collection" -> col, "itemType" -> itemType) ++ ("index" $gte index)
     val fromQuery = from.map { f => ("modified" $gte f) }
     val untilQuery = until.map { u => ("modified" $lte u) }
