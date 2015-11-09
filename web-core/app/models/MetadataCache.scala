@@ -89,12 +89,13 @@ class MongoMetadataCache(orgId: String, col: String, itemType: String, mongoColl
     )
   }
 
-  def iterate(index: Int = 0, limit: Option[Int], from: Option[Date] = None, until: Option[Date] = None): Iterator[MetadataItem] = {
+  def iterate(index: Int = 0, limit: Option[Int], from: Option[Date] = None, until: Option[Date] = None, metadataPrefix: String = None): Iterator[MetadataItem] = {
     val query = MongoDBObject("collection" -> col, "itemType" -> itemType) ++ ("index" $gte index)
     val fromQuery = from.map { f => ("modified" $gte f) }
     val untilQuery = until.map { u => ("modified" $lte u) }
+    val metadataPrefixQuery = metadataPrefix.map {prefix => (s"xml.$prefix" $exists true)}
 
-    val q = Seq(fromQuery, untilQuery).foldLeft(query) { (c, r) =>
+    val q = Seq(fromQuery, untilQuery, metadataPrefixQuery).foldLeft(query) { (c, r) =>
       if (r.isDefined) c ++ r.get else c
     }
 
@@ -107,6 +108,8 @@ class MongoMetadataCache(orgId: String, col: String, itemType: String, mongoColl
   }
 
   def list(index: Int = 0, limit: Option[Int], from: Option[Date] = None, until: Option[Date] = None): List[MetadataItem] = iterate(index, limit, from, until).toList
+
+  def list(index: Int = 0, limit: Option[Int], from: Option[Date] = None, until: Option[Date] = None, metadataPrefix: String = None): List[MetadataItem] = iterate(index, limit, from, until, metadataPrefix).toList
 
   def count(): Long = count(MongoDBObject("collection" -> col, "itemType" -> itemType))
 
