@@ -29,7 +29,7 @@ trait MetadataCache {
    * @param until an optional end date
    * @return an iterator of [[models.MetadataItem]]
    */
-  def iterate(index: Int = 0, limit: Option[Int] = None, from: Option[Date] = None, until: Option[Date] = None): Iterator[MetadataItem]
+  def iterate(index: Int = 0, limit: Option[Int] = None, from: Option[Date] = None, until: Option[Date] = None, metadataPrefix: Option[String] = None): Iterator[MetadataItem]
 
   /**
    * Lists records given specific criteria
