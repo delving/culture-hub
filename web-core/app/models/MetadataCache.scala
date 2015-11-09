@@ -109,7 +109,7 @@ class MongoMetadataCache(orgId: String, col: String, itemType: String, mongoColl
 
   def list(index: Int = 0, limit: Option[Int], from: Option[Date] = None, until: Option[Date] = None): List[MetadataItem] = iterate(index, limit, from, until).toList
 
-  def list(index: Int = 0, limit: Option[Int], from: Option[Date] = None, until: Option[Date] = None, metadataPrefix: Option[String] = None): List[MetadataItem] = iterate(index, limit, from, until, metadataPrefix).toList
+  def listByMetadataPrefix(index: Int = 0, limit: Option[Int], from: Option[Date] = None, until: Option[Date] = None, metadataPrefix: Option[String] = None): List[MetadataItem] = iterate(index, limit, from, until, metadataPrefix).toList
 
   def count(): Long = count(MongoDBObject("collection" -> col, "itemType" -> itemType))
 
