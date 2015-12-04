@@ -36,7 +36,7 @@ trait Processor extends Logging {
 
   def isImage(name: String) = name.contains(".") && !name.startsWith(".") && (
     name.split("\\.").last.toLowerCase match {
-      case "jpg" | "tif" | "tiff" => true
+      case "jpg" | "tif" | "tiff" | "jpeg" => true
       case _ => false
     })
 
