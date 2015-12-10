@@ -445,6 +445,7 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
 
     lazy val ResumptionTokenExtractor(set, metadataFormat, recordInt, pageNumber, originalSize) = resumptionToken // set:medataFormat:lastTransferIdx:numberSeen
 
+    // MUSIT:ese:250:1:70041/250
     def getSet = if (resumptionToken.isEmpty) pmhRequestItem.set else set
     def getMetadataFormat = if (resumptionToken.isEmpty) pmhRequestItem.metadataPrefix else metadataFormat
     def getPagenumber = if (resumptionToken.isEmpty) 1 else pageNumber.toInt
@@ -457,7 +458,7 @@ class OaiPmhService(queryString: Map[String, Seq[String]], requestURL: String, o
 
       val currentPageNr = if (resumptionToken.isEmpty) getPagenumber else getPagenumber + 1
 
-      val nextIndex = currentPageNr * recordsReturned
+      val nextIndex = recordList.last.index // currentPageNr * recordsReturned
 
       val nextResumptionToken = "%s:%s:%s:%s:%s".format(getSet, getMetadataFormat, nextIndex, currentPageNr, originalListSize)
 

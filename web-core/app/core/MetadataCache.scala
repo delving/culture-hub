@@ -44,16 +44,16 @@ trait MetadataCache {
   def list(index: Int = 0, limit: Option[Int] = None, from: Option[Date] = None, until: Option[Date] = None): List[MetadataItem]
 
   /**
-  * Lists records given specific criteria filtered by metadataPrefix
-  *
-  * @param index the beginning index
-  * @param limit the maximum amount of items to iterate over
-  * @param from an optional beginning date
-  * @param until an optional end date
-  * @param metadataPrefix the metadata format of the records that should be returned
-  *
-  * @return a List of [[models.MetadataItem]]
-  */
+   * Lists records given specific criteria filtered by metadataPrefix
+   *
+   * @param index the beginning index
+   * @param limit the maximum amount of items to iterate over
+   * @param from an optional beginning date
+   * @param until an optional end date
+   * @param metadataPrefix the metadata format of the records that should be returned
+   *
+   * @return a List of [[models.MetadataItem]]
+   */
   def listByMetadataPrefix(index: Int = 0, limit: Option[Int], from: Option[Date] = None, until: Option[Date] = None, metadataPrefix: Option[String] = None): List[MetadataItem]
 
   /**
