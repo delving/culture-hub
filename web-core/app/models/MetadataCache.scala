@@ -91,7 +91,7 @@ class MongoMetadataCache(orgId: String, col: String, itemType: String, mongoColl
 
   def iterate(index: Int = 0, limit: Option[Int], from: Option[Date] = None, until: Option[Date] = None, metadataPrefix: Option[String] = None): Iterator[MetadataItem] = {
     // the use of index here is totally wrong when using metadataPrefix
-    val query = MongoDBObject("collection" -> col, "itemType" -> itemType) ++ ("index" $gte index)
+    val query = MongoDBObject("collection" -> col, "itemType" -> itemType) ++ ("index" $gt index)
     val fromQuery = from.map { f => ("modified" $gte f) }
     val untilQuery = until.map { u => ("modified" $lte u) }
     val metadataPrefixQuery = metadataPrefix.map { prefix => (s"xml.$prefix" $exists true) }
