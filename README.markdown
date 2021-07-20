@@ -1,3 +1,7 @@
+# NOTICE: no longer actively maintained
+
+This version of the Delving CultureHub is no langer actively maintained. The core functionality is now being developed in the [delving/hub3](https://github.com/delving/hub3) repository.
+
 # CultureHub
 
 The CultureHub is a platform that aims at making cultural objects accessible online. More information at http://delving.eu
